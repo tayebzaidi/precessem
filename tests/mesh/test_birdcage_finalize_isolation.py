@@ -34,8 +34,8 @@ from tests.mesh.helpers import global_cell_tag_set
 from tests.mesh.test_coil_phantom_conforming import (
     AIR_TAG,
     COIL_TAGS,
-    PHANTOM_RADIUS,
     PHANTOM_HEIGHT,
+    PHANTOM_RADIUS,
     PHANTOM_TAG,
     _analytic_box_volume,
     _generate,
@@ -105,10 +105,7 @@ def test_failed_birdcage_leaves_gmsh_clean_and_later_meshes_still_conform():
 
     v_box = _analytic_box_volume()
     v_total = _total_volume(msh, comm)
-    v_tagged = sum(
-        _tag_volume(msh, cell_tags, t, comm)
-        for t in (*COIL_TAGS, PHANTOM_TAG, AIR_TAG)
-    )
+    v_tagged = sum(_tag_volume(msh, cell_tags, t, comm) for t in (*COIL_TAGS, PHANTOM_TAG, AIR_TAG))
     v_phantom = _tag_volume(msh, cell_tags, PHANTOM_TAG, comm)
     v_cylinder = np.pi * PHANTOM_RADIUS**2 * PHANTOM_HEIGHT
 

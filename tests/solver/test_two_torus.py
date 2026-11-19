@@ -19,9 +19,8 @@ equality is already gated at the resolved ``wire_resolution=0.002`` rung by
 
 import numpy as np
 import ufl
-from mpi4py import MPI
-
 from dolfinx import default_scalar_type, fem
+from mpi4py import MPI
 
 from fem_em_solver.io.mesh import MeshGenerator
 from tests.mesh.helpers import global_cell_tag_set
@@ -42,9 +41,7 @@ VOLUME_IDENTITY_BAND = 1.0e-9
 
 def _tag_volume(msh, cell_tags, tag, comm):
     """``∫_tag 1 dV``, reduced — ``assemble_scalar`` is rank-local."""
-    dx_tag = ufl.Measure(
-        "dx", domain=msh, subdomain_data=cell_tags, subdomain_id=(tag,)
-    )
+    dx_tag = ufl.Measure("dx", domain=msh, subdomain_data=cell_tags, subdomain_id=(tag,))
     one = fem.Constant(msh, default_scalar_type(1.0))
     local = fem.assemble_scalar(fem.form(one * dx_tag))
     return float(np.real(comm.allreduce(local, op=MPI.SUM)))
@@ -69,9 +66,11 @@ def test_two_torus_mesh_volumes_partition_the_box():
 
     # Tag presence must be checked globally: cell_tags.values is rank-local, and
     # a wire volume can land entirely on one rank under decomposition.
-    assert global_cell_tag_set(msh, cell_tags) == {1, 2, 3}, (
-        "expected exactly the wire_1 / wire_2 / domain volume tags"
-    )
+    assert global_cell_tag_set(msh, cell_tags) == {
+        1,
+        2,
+        3,
+    }, "expected exactly the wire_1 / wire_2 / domain volume tags"
 
     v_total = _total_volume(msh, comm)
     v_wires = [_tag_volume(msh, cell_tags, t, comm) for t in WIRE_TAGS]

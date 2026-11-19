@@ -125,8 +125,9 @@ def _bore_gap(kw):
     """Rung radius less the largest box-corner radius from the coil axis."""
     Lx, Ly, _Lz = kw["phantom_box"]["size_m"]
     off = kw["phantom_box"]["table_offset_m"]
-    corners = [np.hypot(sx * 0.5 * Lx, sy * 0.5 * Ly + off)
-               for sx in (-1.0, 1.0) for sy in (-1.0, 1.0)]
+    corners = [
+        np.hypot(sx * 0.5 * Lx, sy * 0.5 * Ly + off) for sx in (-1.0, 1.0) for sy in (-1.0, 1.0)
+    ]
     return float(kw["ring_radius"] - max(corners)), float(max(corners))
 
 
@@ -172,12 +173,16 @@ def test_c20_k1_kwargs_are_the_3t_table_with_box_and_rod():
 
 def test_c20_k2_bore():
     gap, corner = _bore_gap(_kwargs_3t())
-    _say(f"(Bore) largest box-corner radius {corner:.9f} m, rung radius {RUNG_RADIUS_3T_M} m, "
-         f"gap {gap:.9f} m (ASSERTED > 0)")
+    _say(
+        f"(Bore) largest box-corner radius {corner:.9f} m, rung radius {RUNG_RADIUS_3T_M} m, "
+        f"gap {gap:.9f} m (ASSERTED > 0)"
+    )
     assert gap > 0.0, (gap, corner)
     # The control: a box as wide as the rung circle does not fit.
-    wide = dict(ring_radius=RUNG_RADIUS_3T_M,
-                phantom_box=dict(size_m=(2.0 * RUNG_RADIUS_3T_M, 0.09, 0.65), table_offset_m=0.0))
+    wide = dict(
+        ring_radius=RUNG_RADIUS_3T_M,
+        phantom_box=dict(size_m=(2.0 * RUNG_RADIUS_3T_M, 0.09, 0.65), table_offset_m=0.0),
+    )
     assert _bore_gap(wide)[0] < 0.0
 
 
@@ -213,22 +218,27 @@ def test_geo38_c20_rod_in_3t_box(monkeypatch):
     V = _rod_volume()
     A = _rod_area()
     gap, corner = _bore_gap(kw)
-    _say(f"rod centre {kw['implant_rod']['centre']}, axis {ROD['axis']}; V_rod {V:.12e}, A_rod "
-         f"{A:.12e}, L^3 {L3:.15e}; (Bore) corner {corner:.9f} m vs rung radius "
-         f"{kw['ring_radius']} m, gap {gap:.9f} m; PREDICTED build {PREDICTED_BUILD_S} s; "
-         f"/proc/loadavg {t3._loadavg()}")
+    _say(
+        f"rod centre {kw['implant_rod']['centre']}, axis {ROD['axis']}; V_rod {V:.12e}, A_rod "
+        f"{A:.12e}, L^3 {L3:.15e}; (Bore) corner {corner:.9f} m vs rung radius "
+        f"{kw['ring_radius']} m, gap {gap:.9f} m; PREDICTED build {PREDICTED_BUILD_S} s; "
+        f"/proc/loadavg {t3._loadavg()}"
+    )
 
     t0 = time.perf_counter()
     with t3._GmshStopRule(monkeypatch, t3.GMSH_STOP_S, "C20"):
         msh, cells, _facets, diag = MeshGenerator.birdcage_port_domain(
-            comm=comm, return_diagnostics=True, **kw)
+            comm=comm, return_diagnostics=True, **kw
+        )
     t_build = time.perf_counter() - t0
     tdim = msh.topology.dim
     fdim = tdim - 1
     n_cells = int(msh.topology.index_map(tdim).size_global)
-    _say(f"build done {t_build:.1f} s at -n {comm.size}; gmsh "
-         f"{diag.get('mesh_wall_time_s', float('nan')):.2f} s; (G0) {n_cells} cells vs guard "
-         f"{F_CLINICAL_ROD_CELL_GUARD}; /proc/loadavg {t3._loadavg()}")
+    _say(
+        f"build done {t_build:.1f} s at -n {comm.size}; gmsh "
+        f"{diag.get('mesh_wall_time_s', float('nan')):.2f} s; (G0) {n_cells} cells vs guard "
+        f"{F_CLINICAL_ROD_CELL_GUARD}; /proc/loadavg {t3._loadavg()}"
+    )
     assert n_cells < F_CLINICAL_ROD_CELL_GUARD, n_cells  # (G0), before any facet reading
 
     msh.topology.create_entities(fdim)
@@ -271,35 +281,36 @@ def test_geo38_c20_rod_in_3t_box(monkeypatch):
     V1 = fem.functionspace(msh, ("N1curl", 1))
     U1 = int(V1.dofmap.index_map.size_global * V1.dofmap.index_map_bs)
     U2 = 2 * E + 2 * F
-    rss = comm.allreduce(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024.0**2,
-                         op=MPI.SUM)
+    rss = comm.allreduce(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024.0**2, op=MPI.SUM)
 
     # --- The negative control, and the 3 T box beside it (printed).
     miss_15t = abs(n_cells / F_CLINICAL_ROD_CELL_RECORD - 1.0)
     added = n_cells - t3.F_CLINICAL_3T_BOX_CELL_RECORD
-    _say(f"-n {comm.size}: {n_cells} cells; beside F_CLINICAL_3T_BOX_CELL_RECORD "
-         f"{t3.F_CLINICAL_3T_BOX_CELL_RECORD}: rod adds {added} (I33 added ≈ 70 000 on 1.5 T; "
-         f"printed); summed peak RSS {rss:.3f} GiB\n"
-         f"[GEO-38 C20] census {census}\n"
-         f"[GEO-38 C20] (G1) rod_mass {rod_mass:.12e} / kept {kept:.12e} vs V_rod {V:.12e}: rel "
-         f"{g1_mass:.3e} / {g1_kept:.3e}; OCC wall {float(rod['wall_area_m2']):.12e} vs A_rod "
-         f"{A:.12e}: rel {g1_area:.3e} (band {STRIP_BAND:.0e})\n"
-         f"[GEO-38 C20] (G2) CAD(403)/V {g2_403:.3e}; CAD(3) {cad['phantom']:.15e} vs L^3 - V "
-         f"{L3 - V:.15e}: rel {g2_3:.3e}; CAD(3)+CAD(403) vs L^3: rel {g2_sum:.3e}\n"
-         f"[GEO-38 C20] (G4) CAD groups {cad_sum:.15e} + conductor {m_cond:.15e} vs can "
-         f"{m_air:.15e}: rel {g4:.3e} (groups {cad})\n"
-         f"[GEO-38 C20] (G7) census failures {census_fails or 'none'}; implant_spheroid_cad "
-         f"{diag.get('implant_spheroid_cad')}; tag 403 cells "
-         f"{census.get(BIRDCAGE_IMPLANT_CELL_TAG, 0)}\n"
-         f"[GEO-38 C20] (64) ring ports {len(ring_ports)}, gmsh sheets {len(n_gmsh)}, "
-         f"N_gmsh {min(n_gmsh.values())}..{max(n_gmsh.values())}, total {sum(n_gmsh.values())}\n"
-         f"[GEO-38 C20] (T3) shield Ø {shield_d:.12f} (vs {t3.SHIELD_DIAMETER_3T_M}), length "
-         f"{shield_l:.12f} (vs {t3.SHIELD_LENGTH_3T_M}), rung Ø {rung_d:.12f} (vs "
-         f"{t3.RUNG_DIAMETER_3T_M}) (IDENTITY_BAND {IDENTITY_BAND:.0e})\n"
-         f"[GEO-38 C20] (N) |{n_cells}/{F_CLINICAL_ROD_CELL_RECORD} - 1| = {miss_15t:.3e} = "
-         f"{miss_15t / CELL_COUNT_BAND:.2f}x CELL_COUNT_BAND {CELL_COUNT_BAND}\n"
-         f"[GEO-38 C20] unknowns E {E}, F {F}; U1 {U1} (function space), U2 = 2E + 2F = {U2}; "
-         f"records {F_CLINICAL_3T_ROD_CELL_RECORD}, {F_CLINICAL_3T_ROD_UNKNOWNS_RECORD}")
+    _say(
+        f"-n {comm.size}: {n_cells} cells; beside F_CLINICAL_3T_BOX_CELL_RECORD "
+        f"{t3.F_CLINICAL_3T_BOX_CELL_RECORD}: rod adds {added} (I33 added ≈ 70 000 on 1.5 T; "
+        f"printed); summed peak RSS {rss:.3f} GiB\n"
+        f"[GEO-38 C20] census {census}\n"
+        f"[GEO-38 C20] (G1) rod_mass {rod_mass:.12e} / kept {kept:.12e} vs V_rod {V:.12e}: rel "
+        f"{g1_mass:.3e} / {g1_kept:.3e}; OCC wall {float(rod['wall_area_m2']):.12e} vs A_rod "
+        f"{A:.12e}: rel {g1_area:.3e} (band {STRIP_BAND:.0e})\n"
+        f"[GEO-38 C20] (G2) CAD(403)/V {g2_403:.3e}; CAD(3) {cad['phantom']:.15e} vs L^3 - V "
+        f"{L3 - V:.15e}: rel {g2_3:.3e}; CAD(3)+CAD(403) vs L^3: rel {g2_sum:.3e}\n"
+        f"[GEO-38 C20] (G4) CAD groups {cad_sum:.15e} + conductor {m_cond:.15e} vs can "
+        f"{m_air:.15e}: rel {g4:.3e} (groups {cad})\n"
+        f"[GEO-38 C20] (G7) census failures {census_fails or 'none'}; implant_spheroid_cad "
+        f"{diag.get('implant_spheroid_cad')}; tag 403 cells "
+        f"{census.get(BIRDCAGE_IMPLANT_CELL_TAG, 0)}\n"
+        f"[GEO-38 C20] (64) ring ports {len(ring_ports)}, gmsh sheets {len(n_gmsh)}, "
+        f"N_gmsh {min(n_gmsh.values())}..{max(n_gmsh.values())}, total {sum(n_gmsh.values())}\n"
+        f"[GEO-38 C20] (T3) shield Ø {shield_d:.12f} (vs {t3.SHIELD_DIAMETER_3T_M}), length "
+        f"{shield_l:.12f} (vs {t3.SHIELD_LENGTH_3T_M}), rung Ø {rung_d:.12f} (vs "
+        f"{t3.RUNG_DIAMETER_3T_M}) (IDENTITY_BAND {IDENTITY_BAND:.0e})\n"
+        f"[GEO-38 C20] (N) |{n_cells}/{F_CLINICAL_ROD_CELL_RECORD} - 1| = {miss_15t:.3e} = "
+        f"{miss_15t / CELL_COUNT_BAND:.2f}x CELL_COUNT_BAND {CELL_COUNT_BAND}\n"
+        f"[GEO-38 C20] unknowns E {E}, F {F}; U1 {U1} (function space), U2 = 2E + 2F = {U2}; "
+        f"records {F_CLINICAL_3T_ROD_CELL_RECORD}, {F_CLINICAL_3T_ROD_UNKNOWNS_RECORD}"
+    )
 
     # Negative control: the 1.5 T rod record misses, so the 3 T table reached gmsh.
     assert miss_15t > CELL_COUNT_BAND, miss_15t

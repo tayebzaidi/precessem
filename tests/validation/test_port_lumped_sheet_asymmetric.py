@@ -79,7 +79,6 @@ from fem_em_solver.ports.sparameters import (
     run_n_port_sparameter_sweep,
     sparameters_from_impedance,
 )
-
 from tests.complex_mode import complex_only
 from tests.mesh.test_two_torus_port_facets import _facet_group_area
 from tests.mesh.test_two_torus_port_sheet import (
@@ -94,19 +93,19 @@ from tests.validation.test_port_gap_voltage_impedance import (
     WIRE_TAGS,
     _gap_half_extents,
 )
+from tests.validation.test_port_lumped_narrowed_sheet import _narrowed_sheet_tags
+from tests.validation.test_port_lumped_sheet_sweep import (
+    DRIVE_VOLTAGE_V,
+    RECIPROCITY_BAND,
+)
+from tests.validation.test_port_lumped_two_torus import (  # noqa: F401 — the 1e6 Ohm probe leg (d2) ran at
+    PROBE_PORT_IMPEDANCE_OHM,
+    _build,
+)
 from tests.validation.test_port_package_sparameters import (
     PATH_QUADRATURE_ORDER,
     REFERENCE_IMPEDANCE_OHM,
     _arc_quadrature,
-)
-from tests.validation.test_port_lumped_narrowed_sheet import _narrowed_sheet_tags
-from tests.validation.test_port_lumped_two_torus import (
-    PROBE_PORT_IMPEDANCE_OHM,  # noqa: F401 — the 1e6 Ohm probe leg (d2) ran at
-    _build,
-)
-from tests.validation.test_port_lumped_sheet_sweep import (
-    DRIVE_VOLTAGE_V,
-    RECIPROCITY_BAND,
 )
 
 # The two rungs of step 2b's ladder this leg puts on the two ports. Both are
@@ -254,8 +253,7 @@ def _run_sweep(msh, cell_tags, facet_tags, fractions, comm, label):
 
     if comm.rank == 0:
         print(
-            f"\n[PORT-9 step3d2] {label}: fractions {fractions}, sweep "
-            f"{t_sweep:.1f} s",
+            f"\n[PORT-9 step3d2] {label}: fractions {fractions}, sweep " f"{t_sweep:.1f} s",
             flush=True,
         )
         for s in sheets:

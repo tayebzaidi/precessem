@@ -26,9 +26,8 @@ import time
 import numpy as np
 import pytest
 import ufl
-from mpi4py import MPI
-
 from dolfinx import fem
+from mpi4py import MPI
 
 from fem_em_solver.core import (
     HomogeneousMaterial,
@@ -37,7 +36,6 @@ from fem_em_solver.core import (
 )
 from fem_em_solver.post.evaluation import evaluate_vector_field_parallel
 from fem_em_solver.utils.analytical import oblate_spheroid_depolarisation
-
 from tests.complex_mode import complex_only
 from tests.validation.test_imp1_pec_sphere_lossy_host import (
     CAVITY_TAG,
@@ -96,7 +94,9 @@ def _h_pole(msh, cells, comm):
     """Longest edge over the owned pole-mask cells (reduced MAX)."""
     if cells.size:
         v = msh.geometry.x[msh.geometry.dofmap[cells]]
-        edges = [np.linalg.norm(v[:, i] - v[:, j], axis=1) for i in range(4) for j in range(i + 1, 4)]
+        edges = [
+            np.linalg.norm(v[:, i] - v[:, j], axis=1) for i in range(4) for j in range(i + 1, 4)
+        ]
         h_local = float(np.max(edges))
     else:
         h_local = 0.0

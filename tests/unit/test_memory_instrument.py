@@ -98,11 +98,7 @@ _MPI_ENV_PREFIXES = ("PMI_", "PMIX_", "HYDRA_", "MPICH_", "OMPI_", "MPIEXEC_")
 
 def _child_peak_rss_bytes(nbytes: int) -> int:
     """Run one workload in a fresh, non-MPI process; return its peak RSS bytes."""
-    env = {
-        k: v
-        for k, v in os.environ.items()
-        if not k.startswith(_MPI_ENV_PREFIXES)
-    }
+    env = {k: v for k, v in os.environ.items() if not k.startswith(_MPI_ENV_PREFIXES)}
     src = str(Path(__file__).resolve().parents[2] / "src")
     env["PYTHONPATH"] = src + os.pathsep + env.get("PYTHONPATH", "")
     proc = subprocess.run(
@@ -121,7 +117,9 @@ def _child_peak_rss_bytes(nbytes: int) -> int:
     for line in proc.stdout.splitlines():
         if line.startswith("PEAK_RSS_BYTES"):
             return int(line.split()[1])
-    raise AssertionError(f"child produced no reading; stdout={proc.stdout!r} stderr={proc.stderr!r}")
+    raise AssertionError(
+        f"child produced no reading; stdout={proc.stdout!r} stderr={proc.stderr!r}"
+    )
 
 
 def _read_memory_peak() -> int:

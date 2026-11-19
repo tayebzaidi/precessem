@@ -73,18 +73,22 @@ def _dump(label):
             name = gmsh.model.getEntityName(dim, t)
             bb = gmsh.model.getBoundingBox(dim, t)
             mass = gmsh.model.occ.getMass(dim, t)
-            print(f"  ({dim},{t}) name={name!r} mass={mass!r} "
-                  f"bbox={tuple(round(x, 9) for x in bb)}", flush=True)
+            print(
+                f"  ({dim},{t}) name={name!r} mass={mass!r} "
+                f"bbox={tuple(round(x, 9) for x in bb)}",
+                flush=True,
+            )
     for dim in (2, 3):
         pgs = gmsh.model.getPhysicalGroups(dim)
-        print(f"physical groups dim {dim}: "
-              f"{[(d, t, gmsh.model.getPhysicalName(d, t)) for d, t in pgs]}",
-              flush=True)
+        print(
+            f"physical groups dim {dim}: "
+            f"{[(d, t, gmsh.model.getPhysicalName(d, t)) for d, t in pgs]}",
+            flush=True,
+        )
     vols = gmsh.model.getEntities(3)
     for _, v in vols:
         bnd = gmsh.model.getBoundary([(3, v)], oriented=False, combined=False)
-        print(f"  volume {v} boundary faces: {sorted(t for _, t in bnd)}",
-              flush=True)
+        print(f"  volume {v} boundary faces: {sorted(t for _, t in bnd)}", flush=True)
         try:
             _, emb = None, gmsh.model.mesh.getEmbedded(3, v)
             print(f"  volume {v} embedded: {emb}", flush=True)
@@ -93,8 +97,7 @@ def _dump(label):
     for _, s in gmsh.model.getEntities(2):
         if abs(gmsh.model.occ.getMass(2, s) - RECT_AREA) < 1e-12:
             up, _ = gmsh.model.getAdjacencies(2, s)
-            print(f"  0.48 face ({2},{s}) upward adjacencies (volumes): "
-                  f"{list(up)}", flush=True)
+            print(f"  0.48 face ({2},{s}) upward adjacencies (volumes): " f"{list(up)}", flush=True)
 
 
 def main():
@@ -104,10 +107,8 @@ def main():
     print(f"wrote {path} ({os.path.getsize(path)} bytes)", flush=True)
     with open(path) as fh:
         txt = fh.read()
-    print(f"'PortSheet' occurrences in STEP text: {txt.count(PORT_NAME)}",
-          flush=True)
-    print(f"'AirBox' occurrences in STEP text: {txt.count(VOL_NAME)}",
-          flush=True)
+    print(f"'PortSheet' occurrences in STEP text: {txt.count(PORT_NAME)}", flush=True)
+    print(f"'AirBox' occurrences in STEP text: {txt.count(VOL_NAME)}", flush=True)
     gmsh.initialize()
     try:
         gmsh.option.setNumber("General.Terminal", 0)

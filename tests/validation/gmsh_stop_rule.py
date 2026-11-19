@@ -48,7 +48,8 @@ class _StopWatch:
     def _fire(self):
         sys.stdout.write(
             f"\n{GMSH_STOP_MARKER} {self.label}: rule {self.seconds:g} s crossed "
-            f"(price > {self.seconds:g} s)\n")
+            f"(price > {self.seconds:g} s)\n"
+        )
         sys.stdout.flush()
         os._exit(GMSH_STOP_RC)
 
@@ -86,8 +87,10 @@ def arm_gmsh_stop_rule(monkeypatch, comm, label, seconds: float = GMSH_STOP_RULE
 
     def _generate(*args, **kwargs):
         watch.arm()
-        print(f"[gmsh-stop-rule] armed {seconds:g} s at generate"
-              f"({', '.join(map(repr, args))})", flush=True)
+        print(
+            f"[gmsh-stop-rule] armed {seconds:g} s at generate" f"({', '.join(map(repr, args))})",
+            flush=True,
+        )
         try:
             return orig_generate(*args, **kwargs)
         except BaseException:
@@ -101,8 +104,9 @@ def arm_gmsh_stop_rule(monkeypatch, comm, label, seconds: float = GMSH_STOP_RULE
             watch.cancel()
             raise
         watch.cancel()
-        print(f"[gmsh-stop-rule] under the rule: {watch.elapsed():.2f} s of {seconds:g}",
-              flush=True)
+        print(
+            f"[gmsh-stop-rule] under the rule: {watch.elapsed():.2f} s of {seconds:g}", flush=True
+        )
         return out
 
     monkeypatch.setattr(gmsh.model.mesh, "generate", staticmethod(_generate))

@@ -1,4 +1,4 @@
-"""`PORT-9` step 3 leg (d0) — the termination probe on the gapped birdcage.
+r"""`PORT-9` step 3 leg (d0) — the termination probe on the gapped birdcage.
 
 Leg (c) put the first field on `GEO-18`'s gapped, sheeted birdcage and read
 column 1 of ``Z`` off one solve at ``Z_p = 1e6 Ω`` (the two-torus probe value).
@@ -53,10 +53,10 @@ leg (c)'s price) plus cold JIT.
 
 Run (complex build required)::
 
-    scripts/testing/run_and_log.sh PORT-9-step3d0 "docker compose exec -T fem-em-solver \\
-      bash -lc 'cd /workspace && source /usr/local/bin/dolfinx-complex-mode && \\
-       PYTHONPATH=/workspace/src FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 400 \\
-       mpiexec -n 2 python3 -m pytest tests/environment \\
+    scripts/testing/run_and_log.sh PORT-9-step3d0 "docker compose exec -T fem-em-solver \
+      bash -lc 'cd /workspace && source /usr/local/bin/dolfinx-complex-mode && \
+       PYTHONPATH=/workspace/src FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 400 \
+       mpiexec -n 2 python3 -m pytest tests/environment \
        tests/validation/test_port_birdcage_termination_probe.py -v -s'"
 """
 
@@ -72,7 +72,6 @@ from fem_em_solver.core import HomogeneousMaterial, TimeHarmonicProblem
 from fem_em_solver.io.mesh import _interface_facet_tags
 from fem_em_solver.ports.definitions import PortDefinition
 from fem_em_solver.ports.lumped import LumpedSheetPortSpec, run_lumped_sheet_port_case
-
 from tests.complex_mode import complex_only
 from tests.mesh.test_birdcage_port_sheets import (
     PORT_LOWER,
@@ -216,9 +215,7 @@ def termination_probe():
     msh.topology.create_entity_permutations()
 
     halves = {i: (PORT_LOWER + i, PORT_UPPER + i) for i in ports_idx}
-    tags_f = _interface_facet_tags(
-        msh, cell_tags, {SHEET_IFACE + i: halves[i] for i in ports_idx}
-    )
+    tags_f = _interface_facet_tags(msh, cell_tags, {SHEET_IFACE + i: halves[i] for i in ports_idx})
 
     # Leg (c)'s sheet construction, unchanged: measure each full sheet, name its
     # transverse axis off the measured extents, narrow to step 2b's f = 0.5 with
@@ -234,9 +231,7 @@ def termination_probe():
             "axis": 0 if extents[0] >= extents[1] else 1,
             "centroid": centroid,
             "w_full": float(w_bbox),
-            "azimuth_deg": float(
-                np.degrees(np.arctan2(centroid[1], centroid[0])) % 360.0
-            ),
+            "azimuth_deg": float(np.degrees(np.arctan2(centroid[1], centroid[0])) % 360.0),
         }
 
     for i in ports_idx:
@@ -429,7 +424,7 @@ def test_the_probe_solved_the_gated_fixture_through_the_field_route(
 
 @complex_only
 def test_the_open_control_reproduces_leg_c_before_the_knob_turns(termination_probe):
-    """**Negative control (1).**  Z_p = 1e6 Ω reproduces leg (c)'s ``I₁``.
+    r"""**Negative control (1).**  Z_p = 1e6 Ω reproduces leg (c)'s ``I₁``.
 
     Leg (c)'s driven current was reproduced bit-identically across two runs in
     its own slot; this run must land on the same digits, or the fixture moved

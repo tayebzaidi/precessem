@@ -139,7 +139,7 @@ def _lattice_points(V, cells, probe, levels=3):
     X = xdof[V.dofmap.list[cells]]
     vol = np.abs(np.linalg.det(X[:, 1:, :] - X[:, :1, :])) / 6.0
     P = np.einsum("pk,mkd->mpd", lam, X)
-    inside = np.sum((P - c) ** 2, axis=2) <= probe.radius ** 2
+    inside = np.sum((P - c) ** 2, axis=2) <= probe.radius**2
     w = np.broadcast_to(vol[:, None] / lam.shape[0], inside.shape)
     return P[inside], w[inside]
 
@@ -171,8 +171,9 @@ def ball_average(temperature, probe, *, levels=3):
     return _ball_average_on_cells(temperature, probe, _owned_cells(V), levels=levels)
 
 
-def probe_series(snapshots: Mapping[int, object], dt: float, probes: Sequence[ProbeBall],
-                 *, levels=3) -> ProbeSeries:
+def probe_series(
+    snapshots: Mapping[int, object], dt: float, probes: Sequence[ProbeBall], *, levels=3
+) -> ProbeSeries:
     """Probe readings at every snapshot step ``n`` (time ``n·dt``), collective.
 
     Geometry is precomputed once per probe; each snapshot is one weighted sum
@@ -196,8 +197,7 @@ def probe_series(snapshots: Mapping[int, object], dt: float, probes: Sequence[Pr
     im_max, re_max = 0.0, 0.0
     for i, s in enumerate(steps):
         th = snapshots[int(s)].x.array
-        num = np.array([np.real(np.sum(g[1] * th[g[0]])) if g[0].shape[0] else 0.0
-                        for g in geo])
+        num = np.array([np.real(np.sum(g[1] * th[g[0]])) if g[0].shape[0] else 0.0 for g in geo])
         vals[i] = comm.allreduce(num, op=MPI.SUM) / volumes
         if used.size:
             im_max = max(im_max, float(np.max(np.abs(np.imag(th[used])))))
@@ -205,7 +205,12 @@ def probe_series(snapshots: Mapping[int, object], dt: float, probes: Sequence[Pr
     im_max = comm.allreduce(im_max, op=MPI.MAX)
     re_max = comm.allreduce(re_max, op=MPI.MAX)
     ratio = im_max / re_max if re_max > 0.0 else 0.0
-    nominal = np.array([4.0 * np.pi * p.radius ** 3 / 3.0 for p in probes])
-    return ProbeSeries(steps=steps, times=steps * float(dt), values=vals,
-                       volumes=np.asarray(volumes), nominal_volumes=nominal,
-                       max_imag_ratio=float(ratio))
+    nominal = np.array([4.0 * np.pi * p.radius**3 / 3.0 for p in probes])
+    return ProbeSeries(
+        steps=steps,
+        times=steps * float(dt),
+        values=vals,
+        volumes=np.asarray(volumes),
+        nominal_volumes=nominal,
+        max_imag_ratio=float(ratio),
+    )

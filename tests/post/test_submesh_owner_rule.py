@@ -27,9 +27,9 @@ the unrestricted parent owner at P3 / P4.  Runs in both builds.
 
 import numpy as np
 import pytest
+from dolfinx import fem
+from dolfinx import mesh as dmesh
 from mpi4py import MPI
-
-from dolfinx import fem, mesh as dmesh
 
 from fem_em_solver.post.evaluation import (
     evaluate_vector_field_parallel,
@@ -239,7 +239,9 @@ def test_k_i_n_w_submesh_rule():
         print(f"  owner integers -n {comm.size}: {[int(x) for x in sub_oo]}")
         print(f"  claims {claims.tolist()}; N1curl max |err| P0-P4 {err_n1:.3e}")
         diffs = [i for i in (1, 2, 4) if naive[i] is not None and naive[i] != sub_vals[i].real]
-        print(f"  (C5) naive key differs from the rule at points {diffs} (predicted >= 1 at some width)")
+        print(
+            f"  (C5) naive key differs from the rule at points {diffs} (predicted >= 1 at some width)"
+        )
 
     # (C1) discrimination ceiling
     for i in (1, 2, 4):

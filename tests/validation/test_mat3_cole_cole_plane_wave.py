@@ -31,7 +31,6 @@ from mpi4py import MPI
 
 from fem_em_solver.materials import ColeColeMaterial
 from fem_em_solver.utils.constants import EPSILON_0, MU_0
-
 from tests.complex_mode import complex_only
 from tests.validation.test_lossy_plane_wave import (
     MU_R,
@@ -95,17 +94,23 @@ def _solve(n: int, f: float, material: ColeColeMaterial, material_f: float | Non
 @complex_only
 def test_cole_cole_evaluator_matches_cmath_and_controls_can_miss():
     """(Ev) + the table and the two closed-form control ceilings; no mesh."""
-    out = ["\n[MAT-3 step 1b] Cole-Cole eps_inf=4, (50, 1/(2pi 100 MHz), 0.30), "
-           "(4000, 1/(2pi 1 MHz), 0.35), sigma=0.2"]
-    preds = {F_LOW: "181.505 - 283.983j / 11.8044 / 21.5541",
-             F_HIGH: "118.420 - 182.618j / 18.8581 / 34.7047"}
+    out = [
+        "\n[MAT-3 step 1b] Cole-Cole eps_inf=4, (50, 1/(2pi 100 MHz), 0.30), "
+        "(4000, 1/(2pi 1 MHz), 0.35), sigma=0.2"
+    ]
+    preds = {
+        F_LOW: "181.505 - 283.983j / 11.8044 / 21.5541",
+        F_HIGH: "118.420 - 182.618j / 18.8581 / 34.7047",
+    }
     for f in (F_LOW, F_HIGH):
         ev = COLE_COLE.complex_permittivity(f)
         ref = _eps_cmath(f)
         rel = abs(ev - ref) / abs(ref)
         a, b, _ = _truth(f, COLE_COLE)
-        out.append(f"  {f / 1e6:.2f} MHz: eps_hat={ev.real:.3f} {ev.imag:+.3f}j "
-                   f"alpha={a:.4f} beta={b:.4f} (pred {preds[f]}); |ev-cmath|/|cmath|={rel:.3e}")
+        out.append(
+            f"  {f / 1e6:.2f} MHz: eps_hat={ev.real:.3f} {ev.imag:+.3f}j "
+            f"alpha={a:.4f} beta={b:.4f} (pred {preds[f]}); |ev-cmath|/|cmath|={rel:.3e}"
+        )
         assert rel <= 1e-12, f"evaluator vs cmath at {f:.4e} Hz: {rel:.3e}"
         # Debye-reduced evaluator against the same cmath sum with alpha = 0.
         ref_d = _eps_cmath(f, poles=tuple((d, t, 0.0) for d, t, _ in POLES))
@@ -124,8 +129,10 @@ def test_cole_cole_evaluator_matches_cmath_and_controls_can_miss():
     ceil_dr = abs(a_dr - alpha_hi) / alpha_hi
     ceil_dr_lo = abs(a_dr_lo - alpha_lo) / alpha_lo
     ceil_wf = abs(a_wf - alpha_hi) / alpha_hi
-    out.append(f"  ceiling (a') Debye-reduced alpha miss @127.74: {ceil_dr:.4%} (pred 19.91%); "
-               f"@63.87: {ceil_dr_lo:.4%} (pred 17.15%)")
+    out.append(
+        f"  ceiling (a') Debye-reduced alpha miss @127.74: {ceil_dr:.4%} (pred 19.91%); "
+        f"@63.87: {ceil_dr_lo:.4%} (pred 17.15%)"
+    )
     out.append(f"  ceiling (b') wrong-f alpha miss @127.74: {ceil_wf:.4%} (pred 29.77%)")
     if MPI.COMM_WORLD.rank == 0:
         print("\n".join(out))
@@ -148,29 +155,37 @@ def test_cole_cole_plane_wave_matches_k0_sqrt_eps_hat():
     ea_f = abs(a_f - alpha_hi) / alpha_hi
     eb_f = abs(b_f - beta_hi) / beta_hi
     out.append(f"  (i) 12^3 ({n_c} cells): rel L2 {rel_c:.5e}, alpha {a_c:.5f}, beta {b_c:.5f}")
-    out.append(f"  (i) 24^3 ({n_f} cells): rel L2 {rel_f:.5e}, alpha {a_f:.5f} ({ea_f:.4%}), "
-               f"beta {b_f:.5f} ({eb_f:.4%}); rate {rate:.4f}")
+    out.append(
+        f"  (i) 24^3 ({n_f} cells): rel L2 {rel_f:.5e}, alpha {a_f:.5f} ({ea_f:.4%}), "
+        f"beta {b_f:.5f} ({eb_f:.4%}); rate {rate:.4f}"
+    )
 
     # (ii) 63.87 MHz at 24^3
     rel_l, a_l, b_l, _ = _solve(24, F_LOW, COLE_COLE)
     ea_l = abs(a_l - alpha_lo) / alpha_lo
     eb_l = abs(b_l - beta_lo) / beta_lo
-    out.append(f"  (ii) 24^3 @63.87: rel L2 {rel_l:.5e}, alpha {a_l:.5f} ({ea_l:.4%}), "
-               f"beta {b_l:.5f} ({eb_l:.4%})")
+    out.append(
+        f"  (ii) 24^3 @63.87: rel L2 {rel_l:.5e}, alpha {a_l:.5f} ({ea_l:.4%}), "
+        f"beta {b_l:.5f} ({eb_l:.4%})"
+    )
 
     # (a') Debye-reduced: every alpha_n = 0, solved at 127.74 (self-consistent solve)
     _, a_dr, b_dr, _ = _solve(16, F_HIGH, DEBYE_REDUCED)
     miss_a_dr = abs(a_dr - alpha_hi) / alpha_hi
     miss_b_dr = abs(b_dr - beta_hi) / beta_hi
-    out.append(f"  (a') Debye-reduced 16^3: alpha {a_dr:.5f} miss {miss_a_dr:.4%} (ceiling 19.91%), "
-               f"beta miss {miss_b_dr:.4%} (printed only)")
+    out.append(
+        f"  (a') Debye-reduced 16^3: alpha {a_dr:.5f} miss {miss_a_dr:.4%} (ceiling 19.91%), "
+        f"beta miss {miss_b_dr:.4%} (printed only)"
+    )
 
     # (b') wrong frequency: eps_hat(63.87) solved at 127.74
     _, a_wf, b_wf, _ = _solve(16, F_HIGH, COLE_COLE, material_f=F_LOW)
     miss_a_wf = abs(a_wf - alpha_hi) / alpha_hi
     miss_b_wf = abs(b_wf - beta_hi) / beta_hi
-    out.append(f"  (b') wrong-f 16^3: alpha {a_wf:.5f} miss {miss_a_wf:.4%} (ceiling 29.77%), "
-               f"beta miss {miss_b_wf:.4%} (printed only)")
+    out.append(
+        f"  (b') wrong-f 16^3: alpha {a_wf:.5f} miss {miss_a_wf:.4%} (ceiling 29.77%), "
+        f"beta miss {miss_b_wf:.4%} (printed only)"
+    )
 
     if comm.rank == 0:
         print("\n".join(out))

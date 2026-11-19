@@ -13,21 +13,20 @@ the module that owns it; none is restated here.
 
 from __future__ import annotations
 
+import dolfinx
 import numpy as np
 import pytest
 from mpi4py import MPI
 
-import dolfinx
-
 from fem_em_solver.io import CAD_IDENTITY_RTOL, cad_identity_report
 from fem_em_solver.io.mesh import MeshGenerator
 from tests.mesh import helpers
-from tests.mesh.helpers import REQUIRED_COIL_PHANTOM_TAGS, VOLUME_PARTITION_BAND
-from tests.mesh.test_mesh_tag_integrity import GEOMETRY, UNIFORM_VOLUMES_RECORD
+from tests.mesh import test_birdcage_port_tags as birdcage
 from tests.mesh import test_coil_phantom_conforming as coil_phantom_conforming
 from tests.mesh import test_two_torus_conforming as two_torus
-from tests.mesh import test_birdcage_port_tags as birdcage
+from tests.mesh.helpers import REQUIRED_COIL_PHANTOM_TAGS, VOLUME_PARTITION_BAND
 from tests.mesh.test_birdcage_conductor_sizing import BASELINE_CONTROL_RESOLUTION
+from tests.mesh.test_mesh_tag_integrity import GEOMETRY, UNIFORM_VOLUMES_RECORD
 
 # Recorded cell count of the birdcage box-port mesh at the baseline control
 # resolution (`20260826T093202Z_GEO-21-step2-gate.log:11075`): printed, not

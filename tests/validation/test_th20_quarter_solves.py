@@ -168,8 +168,11 @@ def _mirror_built_full(msh_q, cells_q, q, comm):
     local_entities, local_values = dolfinx.io.distribute_entity_data(msh, tdim, ents, vals)
     msh.topology.create_connectivity(tdim, tdim)
     cells = dolfinx.mesh.meshtags_from_entities(
-        msh, tdim, dolfinx.graph.adjacencylist(local_entities),
-        local_values.astype(np.int32, copy=False))
+        msh,
+        tdim,
+        dolfinx.graph.adjacencylist(local_entities),
+        local_values.astype(np.int32, copy=False),
+    )
     del x, c, t, ents, vals
     msh.topology.create_connectivity(fdim, tdim)
     msh.topology.create_entity_permutations()
@@ -178,8 +181,14 @@ def _mirror_built_full(msh_q, cells_q, q, comm):
     n_cells = int(msh.topology.index_map(tdim).size_global)
     r_e, z_e = _extents(q["kwargs"], float(q["diag"]["port_box_size_m"][1]))
     ftags, fcensus = _full_facet_tags(msh, r_e, z_e, comm)
-    return {"msh": msh, "cells": cells, "ftags": ftags, "fcensus": fcensus,
-            "n_cells": n_cells, "t_mirror": t_mirror}
+    return {
+        "msh": msh,
+        "cells": cells,
+        "ftags": ftags,
+        "fcensus": fcensus,
+        "n_cells": n_cells,
+        "t_mirror": t_mirror,
+    }
 
 
 def _pi(g, o):
@@ -218,8 +227,7 @@ def _reconstruct(ss, kept, ordinals, preimage, **chi_kw):
         for ib, b in enumerate(ordinals):
             j, k = preimage[b]
             g = _mul(h, k)
-            r[ia, ib] = 0.25 * sum(_chi(s, g, **chi_kw) * ss[s][pos[i], pos[j]]
-                                   for s in SECTORS)
+            r[ia, ib] = 0.25 * sum(_chi(s, g, **chi_kw) * ss[s][pos[i], pos[j]] for s in SECTORS)
     return r
 
 
@@ -240,13 +248,17 @@ def _full_facet_tags(msh, r_e, z_e, comm):
     if len(ext):
         g = dolfinx.cpp.mesh.entities_to_geometry(msh._cpp_object, fdim, ext, False)
         p = msh.geometry.x[g][:, :3, :]
-        outer = (np.all(np.abs(np.abs(p[:, :, 0]) - r_e) < FACE_TOL, axis=1)
-                 | np.all(np.abs(np.abs(p[:, :, 1]) - r_e) < FACE_TOL, axis=1)
-                 | np.all(np.abs(np.abs(p[:, :, 2]) - z_e) < FACE_TOL, axis=1))
+        outer = (
+            np.all(np.abs(np.abs(p[:, :, 0]) - r_e) < FACE_TOL, axis=1)
+            | np.all(np.abs(np.abs(p[:, :, 1]) - r_e) < FACE_TOL, axis=1)
+            | np.all(np.abs(np.abs(p[:, :, 2]) - z_e) < FACE_TOL, axis=1)
+        )
         vals = np.where(outer, OUTER_BOX_TAG, 401).astype(np.int32)
         own = ext < n_owned
-        on_plane = int(np.count_nonzero(own & np.all(np.abs(p[:, :, 0]) < PLANE_TOL, axis=1))
-                       + np.count_nonzero(own & np.all(np.abs(p[:, :, 1]) < PLANE_TOL, axis=1)))
+        on_plane = int(
+            np.count_nonzero(own & np.all(np.abs(p[:, :, 0]) < PLANE_TOL, axis=1))
+            + np.count_nonzero(own & np.all(np.abs(p[:, :, 1]) < PLANE_TOL, axis=1))
+        )
     order = np.argsort(ext)
     tags = dolfinx.mesh.meshtags(msh, fdim, ext[order], vals[order])
     own = ext < n_owned
@@ -282,20 +294,30 @@ def _make_drive(msh, tags_f, wall_facets, specs, omega, z_s, comm):
     def drive(solver, driven_id, held):
         sheets = [sp.sheet(driven=(sp.port_id == driven_id)) for sp in specs]
         dsheet = next(s for s in sheets if s.port_id == driven_id)
-        linear = [lambda test, _s=dsheet: lumped_port_linear_term(
-            msh, tags_f, _s, test, omega_rad_per_s=omega)]
+        linear = [
+            lambda test, _s=dsheet: lumped_port_linear_term(
+                msh, tags_f, _s, test, omega_rad_per_s=omega
+            )
+        ]
         comm.Barrier()
         t0 = time.perf_counter()
         if held:
             fields = solver.solve_with_held_factorization(extra_linear_terms=linear)
         else:
             bil = [wall] + [
-                (lambda trial, test, _s=s: lumped_port_bilinear_term(
-                    msh, tags_f, _s, trial, test, omega_rad_per_s=omega))
+                (
+                    lambda trial, test, _s=s: lumped_port_bilinear_term(
+                        msh, tags_f, _s, trial, test, omega_rad_per_s=omega
+                    )
+                )
                 for s in sheets
             ]
-            fields = solver.solve(current_density=None, project_source=False,
-                                  extra_bilinear_terms=bil, extra_linear_terms=linear)
+            fields = solver.solve(
+                current_density=None,
+                project_source=False,
+                extra_bilinear_terms=bil,
+                extra_linear_terms=linear,
+            )
         comm.Barrier()
         t_solve = time.perf_counter() - t0
         t1 = time.perf_counter()
@@ -309,8 +331,7 @@ def _make_drive(msh, tags_f, wall_facets, specs, omega, z_s, comm):
         p_surf = None if held else _surface_loss_w(msh, wall_facets, z_s, e, comm)
         del fields, e
         t_post = time.perf_counter() - t1
-        return {"s": s_col, "held": held, "t_solve": t_solve, "t_post": t_post,
-                "p_surf": p_surf}
+        return {"s": s_col, "held": held, "t_solve": t_solve, "t_post": t_post, "p_surf": p_surf}
 
     return drive
 
@@ -325,12 +346,18 @@ def _specs(ordinals, width_of, chord):
     out = []
     for o in ordinals:
         phi_hat, _c = _ring_gap_frame(o, LEG_COUNT)
-        out.append(LumpedSheetPortSpec(
-            port_id=f"P{o}", facet_tag=int(SHEET_IFACE + o),
-            port_impedance_ohm=TERMINATED_PORT_IMPEDANCE_OHM, gap_height_m=chord,
-            sheet_width_m=width_of[o], drive_direction=tuple(float(c) for c in phi_hat),
-            drive_voltage_v=1.0 + 0.0j, interior=True,
-        ))
+        out.append(
+            LumpedSheetPortSpec(
+                port_id=f"P{o}",
+                facet_tag=int(SHEET_IFACE + o),
+                port_impedance_ohm=TERMINATED_PORT_IMPEDANCE_OHM,
+                gap_height_m=chord,
+                sheet_width_m=width_of[o],
+                drive_direction=tuple(float(c) for c in phi_hat),
+                drive_voltage_v=1.0 + 0.0j,
+                interior=True,
+            )
+        )
     return out
 
 
@@ -339,8 +366,10 @@ def _sigma_max(s):
 
 
 def _recip(s):
-    return (float(np.linalg.norm(s - s.T, "fro") / np.linalg.norm(s, "fro")),
-            float(np.max(np.abs(s - s.T))))
+    return (
+        float(np.linalg.norm(s - s.T, "fro") / np.linalg.norm(s, "fro")),
+        float(np.max(np.abs(s - s.T))),
+    )
 
 
 @complex_only
@@ -390,19 +419,24 @@ def test_th20_step1_quarter_solves_reconstruct_full():
     def rss_sum():
         return _rss_gib(comm)[2]
 
-    say(f"start: -n {comm.size}, degree {deg} ({DEGREE_ENV} "
+    say(
+        f"start: -n {comm.size}, degree {deg} ({DEGREE_ENV} "
         f"{'unset' if knob is None else knob}), build-only {build_only}, f "
         f"{FREQUENCY_HZ:.3e} Hz, full drives {n_drives}, CONTROL "
-        f"{'asserted' if CONTROL else 'printed'}")
+        f"{'asserted' if CONTROL else 'printed'}"
+    )
 
     def deg_check(solver, msh, where):
         ok, n_e, n_f, n_dofs, expect = _deg_count(solver, msh, deg)
-        say(f"(Deg) {where}: solver.degree {solver.degree}; global unknowns {n_dofs} vs "
+        say(
+            f"(Deg) {where}: solver.degree {solver.degree}; global unknowns {n_dofs} vs "
             f"{'E' if deg == 1 else '2E+2F'} = {expect} (E {n_e}, F {n_f}; ASSERTED exact); "
-            f"n/E {n_dofs / n_e:.4f}")
+            f"n/E {n_dofs / n_e:.4f}"
+        )
         if not ok:
             fails.append(f"Deg {where} degree {solver.degree} n {n_dofs} expect {expect}")
         return n_e, n_f, n_dofs
+
     omega = 2.0 * np.pi * FREQUENCY_HZ
     z_s = (1.0 + 1.0j) * surface_resistance_ohm(omega, COPPER_SIGMA)
     ordinals = list(_ring_ports())
@@ -422,8 +456,10 @@ def test_th20_step1_quarter_solves_reconstruct_full():
         for g in ("sx", "sy", "sxsy"):
             d_img, _c2 = _ring_gap_frame(_pi(g, o), LEG_COUNT)
             worst_tau = max(worst_tau, abs(float(np.dot(OPS[g] * d_o, d_img)) - TAU[g]))
-    say(f"(P3) image map bijection onto 32 ordinals: {bij}; worst |(R_g d_o)·d_pi(o) - tau_g| "
-        f"{worst_tau:.3e} (<= 1e-12, ASSERTED)")
+    say(
+        f"(P3) image map bijection onto 32 ordinals: {bij}; worst |(R_g d_o)·d_pi(o) - tau_g| "
+        f"{worst_tau:.3e} (<= 1e-12, ASSERTED)"
+    )
     if not bij:
         fails.append("P3 image map not a bijection")
     if not worst_tau <= 1e-12:
@@ -439,17 +475,23 @@ def test_th20_step1_quarter_solves_reconstruct_full():
     n401_q = _owned_tag_count(msh_q, facets_q, 401, comm)
     n501 = _owned_tag_count(msh_q, facets_q, 501, comm)
     n502 = _owned_tag_count(msh_q, facets_q, 502, comm)
-    say(f"(P0) quarter cells {q['n_cells']} (record {QUARTER_CELL_RECORD}); owned 501/502 "
+    say(
+        f"(P0) quarter cells {q['n_cells']} (record {QUARTER_CELL_RECORD}); owned 501/502 "
         f"{n501}/{n502} (records {CUT_FACES_X0}/{CUT_FACES_Y0}); quarter owned 401 {n401_q}; "
         f"direct full build {t_full_build:.1f} s -> box speed s = {speed:.3f} "
-        f"(normal 109.9 / 107.2 s); t={time.perf_counter() - t_window:.1f} s")
+        f"(normal 109.9 / 107.2 s); t={time.perf_counter() - t_window:.1f} s"
+    )
     if q["n_cells"] != QUARTER_CELL_RECORD:
         fails.append(f"P0 quarter cells {q['n_cells']}")
     if (n501, n502) != (CUT_FACES_X0, CUT_FACES_Y0):
         fails.append(f"P0 cut facets {(n501, n502)}")
 
-    pec_of = {("E", "E"): (1, 501, 502), ("E", "M"): (1, 501), ("M", "E"): (1, 502),
-              ("M", "M"): (1,)}
+    pec_of = {
+        ("E", "E"): (1, 501, 502),
+        ("E", "M"): (1, 501),
+        ("M", "E"): (1, 502),
+        ("M", "M"): (1,),
+    }
 
     def check_quarter_deg(counts):
         """(Deg-q): the four sector counts equal; at degree 2 the backed negative
@@ -457,24 +499,33 @@ def test_th20_step1_quarter_solves_reconstruct_full():
         if len(set(counts)) != 1:
             fails.append(f"Deg-q sector counts differ {counts}")
         n_e, n_f, n_d = counts[0]
-        say(f"(Deg-q) four sector counts equal: {len(set(counts)) == 1} (ASSERTED); "
+        say(
+            f"(Deg-q) four sector counts equal: {len(set(counts)) == 1} (ASSERTED); "
             f"unknowns {n_d}, E {n_e}, F {n_f}"
-            + (f" beside step 2a's record {Q_D2_UNKNOWNS_RECORD} = 2*{Q_EDGES_RECORD} + "
-               f"2*{Q_FACES_RECORD} (-n 8; printed)" if deg == 2 else
-               f" beside quarter E record {Q_EDGES_RECORD} (printed)"))
+            + (
+                f" beside step 2a's record {Q_D2_UNKNOWNS_RECORD} = 2*{Q_EDGES_RECORD} + "
+                f"2*{Q_FACES_RECORD} (-n 8; printed)"
+                if deg == 2
+                else f" beside quarter E record {Q_EDGES_RECORD} (printed)"
+            )
+        )
         if deg == 2:
             ctl = n_d != n_e and n_d * n_e == n_e * (2 * n_e + 2 * n_f)
-            say(f"(Deg-q) negative control: degree-2 count {n_d} != degree-1 count E {n_e} "
-                f"and n*E == E*(2E+2F): {ctl} (ASSERTED; ratio {n_d / n_e:.3f}, record 5.102)")
+            say(
+                f"(Deg-q) negative control: degree-2 count {n_d} != degree-1 count E {n_e} "
+                f"and n*E == E*(2E+2F): {ctl} (ASSERTED; ratio {n_d / n_e:.3f}, record 5.102)"
+            )
             if not ctl:
                 fails.append(f"Deg-q control {n_d} vs E {n_e}")
 
     def check_mirror_p0(full):
         fc = full["fcensus"]
-        say(f"(P0) mirror-built cells {full['n_cells']} (record {MIRROR_CELL_RECORD}); build "
+        say(
+            f"(P0) mirror-built cells {full['n_cells']} (record {MIRROR_CELL_RECORD}); build "
             f"{full['t_mirror']:.2f} s; owned 401 {fc['cav']} (record {MIRROR_401_FACET_RECORD}; "
             f"4x quarter {4 * n401_q}); owned 499 {fc['outer']}; exterior on planes "
-            f"{fc['on_plane']} (record 0)")
+            f"{fc['on_plane']} (record 0)"
+        )
         if full["n_cells"] != MIRROR_CELL_RECORD:
             fails.append(f"P0 mirror cells {full['n_cells']}")
         if fc["cav"] != MIRROR_401_FACET_RECORD:
@@ -498,33 +549,41 @@ def test_th20_step1_quarter_solves_reconstruct_full():
         check_quarter_deg(deg_q_counts)
         full = _mirror_built_full(msh_q, cells_q, q, comm)
         check_mirror_p0(full)
-        problem_f = _problem(full["msh"], full["cells"], FREQUENCY_HZ, full["ftags"],
-                             (OUTER_BOX_TAG,))
+        problem_f = _problem(
+            full["msh"], full["cells"], FREQUENCY_HZ, full["ftags"], (OUTER_BOX_TAG,)
+        )
         solver_f = TimeHarmonicSolver(problem_f, degree=deg)
         n_e, _n_f, n_d = deg_check(solver_f, full["msh"], "mirror-built full")
         if deg == 2:
-            say(f"(Deg-f) mirror-built degree-2 unknowns {n_d} (predicted 2 711 047, range "
-                f"[2.65e6, 2.76e6], printed); n/E {n_d / n_e:.4f} (predicted 5.10-5.14, printed)")
+            say(
+                f"(Deg-f) mirror-built degree-2 unknowns {n_d} (predicted 2 711 047, range "
+                f"[2.65e6, 2.76e6], printed); n/E {n_d / n_e:.4f} (predicted 5.10-5.14, printed)"
+            )
         del solver_f, problem_f
         gc.collect()
         _mine, per, tot = _rss_gib(comm)
-        say(f"build-only RSS per rank {', '.join(f'{r:.2f}' for r in (per or []))} GiB, summed "
+        say(
+            f"build-only RSS per rank {', '.join(f'{r:.2f}' for r in (per or []))} GiB, summed "
             f"{tot:.2f} GiB (start {rss0:.2f}); window {time.perf_counter() - t_window:.1f} s; "
-            f"failures: {fails or 'none'}")
+            f"failures: {fails or 'none'}"
+        )
         assert not fails, fails
         return
 
     # ---- step 2: quarter sectors -----------------------------------------
     tags_q = _interface_facet_tags(
-        msh_q, cells_q, {SHEET_IFACE + o: (PORT_LOWER + o, PORT_UPPER + o) for o in kept})
+        msh_q, cells_q, {SHEET_IFACE + o: (PORT_LOWER + o, PORT_UPPER + o) for o in kept}
+    )
     chord = float(q["diag"]["ring_port_layout"]["ring_port_gap_chord_m"])
     width_of = {}
     for o in kept:
         width_of[o] = _interface_area_or_zero(msh_q, tags_q, SHEET_IFACE + o, comm) / chord
     for a in ordinals:  # each image sheet takes its preimage's spec numbers
         width_of[a] = width_of[preimage[a][0]]
-    say(f"quarter sheet widths (m) {', '.join(f'P{o} {width_of[o]:.9e}' for o in kept)}; "
-        f"chord {chord:.9e} m")
+    say(
+        f"quarter sheet widths (m) {', '.join(f'P{o} {width_of[o]:.9e}' for o in kept)}; "
+        f"chord {chord:.9e} m"
+    )
     specs_q = _specs(kept, width_of, chord)
     drive_q = _make_drive(msh_q, tags_q, facets_q, specs_q, omega, z_s, comm)
     ss, dofs, p_surf_s, t_sector, drss_sector = {}, {}, {}, {}, {}
@@ -559,17 +618,22 @@ def test_th20_step1_quarter_solves_reconstruct_full():
         held = [cols[o]["t_solve"] + cols[o]["t_post"] for o in kept[1:]]
         rec, rec_max = _recip(s8)
         smax = _sigma_max(s8)
-        say(f"sector {sector}: pec {pec}, constrained DOFs {dofs[sector]}; factor "
+        say(
+            f"sector {sector}: pec {pec}, constrained DOFs {dofs[sector]}; factor "
             f"{f0['t_solve']:.2f} + post {f0['t_post']:.2f} s, held max {max(held):.2f} s mean "
             f"{np.mean(held):.2f} s; sector total {t_sector[sector]:.1f} s; P_surf "
             f"{p_surf_s[sector]:.9e} W; (I1) {rec:.3e} (band {RECIPROCITY_BAND:g}, ASSERTED; "
             f"entrywise max {rec_max:.3e} beside {RECIPROCITY_Q_BAND:g}, printed); (I2) "
             f"sigma_max {smax:.12f} (ceiling {MATRIX_PASSIVITY_CEILING}, ASSERTED); dRSS "
-            f"{drss_sector[sector]:+.2f} GiB; t={time.perf_counter() - t_window:.1f} s")
+            f"{drss_sector[sector]:+.2f} GiB; t={time.perf_counter() - t_window:.1f} s"
+        )
         if comm.rank == 0:
             for ii, oi in enumerate(kept):
-                print(f"    S^{sector[0]}{sector[1]} row P{oi}: "
-                      + " ".join(f"{v.real:+.6f}{v.imag:+.6f}j" for v in s8[ii]), flush=True)
+                print(
+                    f"    S^{sector[0]}{sector[1]} row P{oi}: "
+                    + " ".join(f"{v.real:+.6f}{v.imag:+.6f}j" for v in s8[ii]),
+                    flush=True,
+                )
         if not rec <= RECIPROCITY_BAND:
             fails.append(f"I1 sector {sector} {rec:.3e}")
         if not smax <= MATRIX_PASSIVITY_CEILING:
@@ -590,7 +654,8 @@ def test_th20_step1_quarter_solves_reconstruct_full():
 
     # ---- step 5: full sheets -----------------------------------------------
     tags_full = _interface_facet_tags(
-        msh, cells, {SHEET_IFACE + o: (PORT_LOWER + o, PORT_UPPER + o) for o in ordinals})
+        msh, cells, {SHEET_IFACE + o: (PORT_LOWER + o, PORT_UPPER + o) for o in ordinals}
+    )
     specs_f = _specs(ordinals, width_of, chord)
 
     # ---- step 6: full sweep ------------------------------------------------
@@ -605,11 +670,13 @@ def test_th20_step1_quarter_solves_reconstruct_full():
     for k, o in enumerate(driven):
         d = drive_f(solver_f, f"P{o}", held=(k > 0))
         cols_f[o] = d
-        say(f"full drive {k + 1:2d}/{n_drives} P{o}: {'held' if k else 'factor'} "
+        say(
+            f"full drive {k + 1:2d}/{n_drives} P{o}: {'held' if k else 'factor'} "
             f"{d['t_solve']:.2f} s + post {d['t_post']:.2f} s; S_driven "
             f"{d['s'][f'P{o}']:.6f}"
             + (f"; P_surf {d['p_surf']:.9e} W" if k == 0 else "")
-            + f"; t={time.perf_counter() - t_window:.1f} s")
+            + f"; t={time.perf_counter() - t_window:.1f} s"
+        )
     drss_full = rss_sum() - r_before
     f0 = cols_f[driven[0]]
     t_factor = f0["t_solve"] + f0["t_post"]
@@ -621,22 +688,30 @@ def test_th20_step1_quarter_solves_reconstruct_full():
     full_solve_meas = t_factor + sum(held)
     p_surf_f = f0["p_surf"]
     rss_mine, rss_per, rss_total = _rss_gib(comm)
-    say(f"(P2) P_surf sectors {', '.join(f'{p_surf_s[s]:.6e}' for s in SECTORS)} W, full "
-        f"{p_surf_f:.9e} W (all > 0, ASSERTED)")
+    say(
+        f"(P2) P_surf sectors {', '.join(f'{p_surf_s[s]:.6e}' for s in SECTORS)} W, full "
+        f"{p_surf_f:.9e} W (all > 0, ASSERTED)"
+    )
     if not p_surf_f > 0.0:
         fails.append(f"P2 full P_surf {p_surf_f}")
-    say(f"PRICE: elapsed before full sweep {t_before_sweep:.1f} s; full factor {t_factor:.2f} s; "
+    say(
+        f"PRICE: elapsed before full sweep {t_before_sweep:.1f} s; full factor {t_factor:.2f} s; "
         f"held max {max_held:.2f} s mean {mean_held:.2f} s; box speed s = {speed:.3f}; "
         f"PROJECTED W2 = {t_before_sweep:.1f} + {t_factor:.1f} + 31 x {max_held:.2f} + 30 = "
-        f"{projection:.0f} s (gate <= {W2_PROJECTION_CEILING_S:.0f} s; predicted W2 330-480 s)")
-    say(f"RSS per rank {', '.join(f'{r:.2f}' for r in (rss_per or []))} GiB, summed "
+        f"{projection:.0f} s (gate <= {W2_PROJECTION_CEILING_S:.0f} s; predicted W2 330-480 s)"
+    )
+    say(
+        f"RSS per rank {', '.join(f'{r:.2f}' for r in (rss_per or []))} GiB, summed "
         f"{rss_total:.2f} GiB (start {rss0:.2f}); dRSS sectors "
         f"{', '.join(f'{drss_sector[s]:+.2f}' for s in SECTORS)} GiB, full sweep "
-        f"{drss_full:+.2f} GiB")
-    say(f"quarter-to-full solve-phase ratio: four sectors {t_quarter_solve:.1f} s / full 32-drive "
+        f"{drss_full:+.2f} GiB"
+    )
+    say(
+        f"quarter-to-full solve-phase ratio: four sectors {t_quarter_solve:.1f} s / full 32-drive "
         f"{full_solve_32:.1f} s (factor + 31 x mean held) = "
         f"{t_quarter_solve / full_solve_32:.3f} (TH-16 read ≈{TH16_RATIO}; printed); measured "
-        f"full ({n_drives} drives) {full_solve_meas:.1f} s")
+        f"full ({n_drives} drives) {full_solve_meas:.1f} s"
+    )
 
     # ---- (A) the anchor ----------------------------------------------------
     r = _reconstruct(ss, kept, ordinals, preimage)
@@ -657,14 +732,18 @@ def test_th20_step1_quarter_solves_reconstruct_full():
         for kb, jb in enumerate(dcols):
             g = _mul(preimage[a][1], preimage[ordinals[jb]][1])
             gpat[g] = max(gpat.get(g, 0.0), float(rel[ia, kb]))
-    say(f"(A) max |S_f - R|/|R| over {rel.size} entries {a_max:.3e} (band "
+    say(
+        f"(A) max |S_f - R|/|R| over {rel.size} entries {a_max:.3e} (band "
         f"{LEG_D0_REPRODUCTION_BAND:g}, ASSERTED; predicted 1e-13 - 1e-10); by hk "
         f"{ {g: f'{v:.3e}' for g, v in gpat.items()} }; Frobenius ||S_f - R||/||S_f|| "
-        f"{frob:.3e}; min |R_ab| (all 1024) {min_r:.4e} (predicted >= 1e-3)")
+        f"{frob:.3e}; min |R_ab| (all 1024) {min_r:.4e} (predicted >= 1e-3)"
+    )
     if not a_max <= LEG_D0_REPRODUCTION_BAND:
         fails.append(f"A {a_max:.3e}")
-    say(f"S_f(P17,P17) {sf[0, 0]:.6f} beside WF-12 direct-mesh copper {WF12_S1717:.6f} "
-        f"(two meshes; printed); R(P17,P17) {r[0, 0]:.6f}")
+    say(
+        f"S_f(P17,P17) {sf[0, 0]:.6f} beside WF-12 direct-mesh copper {WF12_S1717:.6f} "
+        f"(two meshes; printed); R(P17,P17) {r[0, 0]:.6f}"
+    )
     if deg == 2 and comm.rank == 0:  # rank-0 numpy only, after every collective
         if os.path.exists(SAVED_R_PATH):
             with np.load(SAVED_R_PATH, allow_pickle=False) as z:
@@ -675,8 +754,10 @@ def test_th20_step1_quarter_solves_reconstruct_full():
             else:
                 rs = r_saved[:, dcols]
                 dev = float(np.max(np.abs(rd - rs) / np.abs(rs)))
-                say(f"saved R vs window R over driven columns: max |dR|/|R_saved| {dev:.3e} "
-                    f"(predicted <= 1e-10; printed, never asserted)")
+                say(
+                    f"saved R vs window R over driven columns: max |dR|/|R_saved| {dev:.3e} "
+                    f"(predicted <= 1e-10; printed, never asserted)"
+                )
         else:
             say(f"saved R {SAVED_R_PATH}: absent")
 
@@ -689,11 +770,13 @@ def test_th20_step1_quarter_solves_reconstruct_full():
         for g in ("sx", "sy", "sxsy"):
             perm = [idx[_pi(g, a)] for a in ordinals]
             i3 = max(i3, float(np.max(np.abs(sf[np.ix_(perm, perm)] - sf) / np.abs(sf))))
-        say(f"(I1) S_f reciprocity {rec:.3e} (band {RECIPROCITY_BAND:g}, ASSERTED; entrywise max "
+        say(
+            f"(I1) S_f reciprocity {rec:.3e} (band {RECIPROCITY_BAND:g}, ASSERTED; entrywise max "
             f"{rec_max:.3e} beside {RECIPROCITY_Q_BAND:g}, printed); (I2) S_f sigma_max "
             f"{smax:.12f} (ceiling {MATRIX_PASSIVITY_CEILING}, ASSERTED); max sigma_max(S^s) "
             f"{max(_sigma_max(ss[s]) for s in SECTORS):.12f}; (I3) D2 invariance {i3:.3e} "
-            f"(<= {D2_INVARIANCE_BAND:g}, ASSERTED)")
+            f"(<= {D2_INVARIANCE_BAND:g}, ASSERTED)"
+        )
         if not rec <= RECIPROCITY_BAND:
             fails.append(f"I1 S_f {rec:.3e}")
         if not smax <= MATRIX_PASSIVITY_CEILING:
@@ -711,10 +794,12 @@ def test_th20_step1_quarter_solves_reconstruct_full():
         n_two, n_same = int(two.sum()), int(same.sum())
         ok = n_two == miss.size // 2 and n_same == miss.size - n_two
         worst2 = float(np.max(np.abs(miss[two] / 2.0 - 1.0))) if n_two else float("nan")
-        say(f"({label}) entries at miss = 2: {n_two}, unchanged: {n_same}, of {miss.size} "
+        say(
+            f"({label}) entries at miss = 2: {n_two}, unchanged: {n_same}, of {miss.size} "
             f"(predicted {miss.size // 2} / {miss.size // 2}); worst |miss/2 - 1| {worst2:.3e}, "
             f"worst unchanged {float(miss[same].max()) if n_same else float('nan'):.3e} "
-            f"({'ASSERTED' if CONTROL else 'printed'}): {'PASS' if ok else 'FAIL'}")
+            f"({'ASSERTED' if CONTROL else 'printed'}): {'PASS' if ok else 'FAIL'}"
+        )
         return ok
 
     ok_c1 = _exact2(_reconstruct(ss, kept, ordinals, preimage, eps_e=-1.0), "C1")
@@ -724,8 +809,10 @@ def test_th20_step1_quarter_solves_reconstruct_full():
     r_c2 = _reconstruct(ss_c2, kept, ordinals, preimage)
     diag_idx = [ordinals.index(o) for o in driven]
     c2 = min(float(abs(r_c2[a, a] - r[a, a]) / abs(sf[a, a])) for a in diag_idx)
-    say(f"(C2) min over {len(diag_idx)} self entries |dR_aa|/|S_f,aa| {c2:.4e} (floor "
-        f"{C2_FLOOR:g}, {'ASSERTED' if CONTROL else 'printed'}; predicted [1e-2, 0.91])")
+    say(
+        f"(C2) min over {len(diag_idx)} self entries |dR_aa|/|S_f,aa| {c2:.4e} (floor "
+        f"{C2_FLOOR:g}, {'ASSERTED' if CONTROL else 'printed'}; predicted [1e-2, 0.91])"
+    )
     if CONTROL:
         if not ok_c1:
             fails.append("C1 not exact-2 on half")

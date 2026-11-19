@@ -57,7 +57,6 @@ from fem_em_solver.utils.dodd_deeds import (
     image_limit_inductance_change,
     skin_depth,
 )
-
 from tests.complex_mode import complex_only
 from tests.validation.test_birdcage_power_identity import DISCRETE_IDENTITY_RTOL
 from tests.validation.test_dodd_deeds_impedance import (
@@ -121,15 +120,19 @@ def _floor_facet_tags(sub, comm):
     n_owned = sub.topology.index_map(fdim).size_local
     exterior = np.asarray(dolfinx.mesh.exterior_facet_indices(sub.topology), dtype=np.int32)
     floor = np.asarray(
-        dolfinx.mesh.locate_entities_boundary(sub, fdim, lambda x: np.isclose(x[2], 0.0, atol=1e-8)),
+        dolfinx.mesh.locate_entities_boundary(
+            sub, fdim, lambda x: np.isclose(x[2], 0.0, atol=1e-8)
+        ),
         dtype=np.int32,
     )
     others = np.setdiff1d(exterior, floor).astype(np.int32)
     indices = np.concatenate([floor, others])
-    values = np.concatenate([
-        np.full(floor.size, FLOOR_TAG, dtype=np.int32),
-        np.full(others.size, OTHER_FACES_TAG, dtype=np.int32),
-    ])
+    values = np.concatenate(
+        [
+            np.full(floor.size, FLOOR_TAG, dtype=np.int32),
+            np.full(others.size, OTHER_FACES_TAG, dtype=np.int32),
+        ]
+    )
     order = np.argsort(indices)
     tags = dolfinx.mesh.meshtags(sub, fdim, indices[order], values[order])
 
@@ -221,9 +224,16 @@ def floor():
     v_wire_sub = _wire_volume(sub, sub_tags, comm)
     ftags, census = _floor_facet_tags(sub, comm)
     ds_floor = ufl.Measure("ds", domain=sub, subdomain_data=ftags, subdomain_id=FLOOR_TAG)
-    floor_area = float(np.real(comm.allreduce(
-        fem.assemble_scalar(fem.form(fem.Constant(sub, default_scalar_type(1.0)) * ds_floor)),
-        op=MPI.SUM)))
+    floor_area = float(
+        np.real(
+            comm.allreduce(
+                fem.assemble_scalar(
+                    fem.form(fem.Constant(sub, default_scalar_type(1.0)) * ds_floor)
+                ),
+                op=MPI.SUM,
+            )
+        )
+    )
     _say(
         f"\n[TH-14 step2 floor] parent {n_parent} cells, air-only submesh {n_sub} cells "
         f"(mesh {t_mesh:.1f} s, -n {comm.size}); meshed loop current {current:.9f} A; "
@@ -239,12 +249,21 @@ def floor():
     e_pec, t_pec = _solve_air(sub, sub_tags, ftags, comm)
     z_pec = _self_impedance(sub, sub_tags, e_pec, current, comm)
     dz_pec = z_pec - z_free
-    _say(f"  PEC-floor control solve {t_pec:.1f} s: Z_PEC = {z_pec:+.12e} ohm; "
-         f"dZ_PEC = Z_PEC - Z_free = {dz_pec.real:+.6e} + j({dz_pec.imag:+.6e}) ohm")
+    _say(
+        f"  PEC-floor control solve {t_pec:.1f} s: Z_PEC = {z_pec:+.12e} ohm; "
+        f"dZ_PEC = Z_PEC - Z_free = {dz_pec.real:+.6e} + j({dz_pec.imag:+.6e}) ohm"
+    )
 
     out = {
-        "census": census, "floor_area": floor_area, "v_wire": v_wire, "v_wire_sub": v_wire_sub,
-        "current": current, "z_free": z_free, "z_pec": z_pec, "dz_pec": dz_pec, "sigma": {},
+        "census": census,
+        "floor_area": floor_area,
+        "v_wire": v_wire,
+        "v_wire_sub": v_wire_sub,
+        "current": current,
+        "z_free": z_free,
+        "z_pec": z_pec,
+        "dz_pec": dz_pec,
+        "sigma": {},
     }
     for sigma in (COPPER_SIGMA, SCALING_SIGMA):
         r_s = surface_resistance_ohm(omega, sigma)
@@ -257,8 +276,14 @@ def floor():
         identity = abs(p_reaction - p_surf) / abs(p_surf)
         dz_ref = coil_impedance_change(FEM_FREQUENCY_HZ, FEM_LOOP_RADIUS, FEM_LIFTOFF, sigma)
         out["sigma"][sigma] = {
-            "dz": dz, "z_abs": z_abs, "p_surf": p_surf, "p_reaction": p_reaction,
-            "identity": identity, "dz_ref": dz_ref, "r_s": r_s, "t": t_s,
+            "dz": dz,
+            "z_abs": z_abs,
+            "p_surf": p_surf,
+            "p_reaction": p_reaction,
+            "identity": identity,
+            "dz_ref": dz_ref,
+            "r_s": r_s,
+            "t": t_s,
         }
         _say(
             f"  sigma = {sigma:.1e} S/m: R_s = {r_s:.9e} ohm, solve {t_s:.1f} s"
@@ -298,7 +323,9 @@ def test_floor_and_other_faces_are_disjoint_and_complete(floor):
     assert c["floor"] > 0 and c["others"] > 0, c
     assert c["overlap"] == 0 and c["floor_in_exterior"] == c["floor"], c
     assert c["floor"] + c["others"] == c["exterior"], c
-    assert abs(floor["floor_area"] / (4.0 * FEM_BOX_HALF_WIDTH**2) - 1.0) <= FLOOR_AREA_RTOL, floor["floor_area"]
+    assert (
+        abs(floor["floor_area"] / (4.0 * FEM_BOX_HALF_WIDTH**2) - 1.0) <= FLOOR_AREA_RTOL
+    ), floor["floor_area"]
     # The submesh keeps every wire cell, so MAT-6's meshed current applies to it.
     assert abs(floor["v_wire_sub"] / floor["v_wire"] - 1.0) <= 1.0e-10
 
@@ -308,7 +335,9 @@ def test_copper_floor_resistance_matches_dodd_deeds(floor):
     """(a) ΔR(5.8e7) against the closed form, 2 %."""
     cu = floor["sigma"][COPPER_SIGMA]
     rel = abs(cu["dz"].real / cu["dz_ref"].real - 1.0)
-    _say(f"\n[TH-14 step2 floor] (a) dR {cu['dz'].real:.9e} vs {cu['dz_ref'].real:.9e} -> {rel:.4%}")
+    _say(
+        f"\n[TH-14 step2 floor] (a) dR {cu['dz'].real:.9e} vs {cu['dz_ref'].real:.9e} -> {rel:.4%}"
+    )
     assert cu["dz"].real > 0.0
     assert rel <= DODD_DEEDS_BAND, rel
 

@@ -68,7 +68,6 @@ from fem_em_solver.ports.lumped import (
     series_rlc_impedance,
 )
 from fem_em_solver.ports.sparameters import _power_waves
-
 from tests.complex_mode import complex_only
 from tests.mesh.test_birdcage_leg_gaps import LEG_GAP_LENGTH
 from tests.mesh.test_birdcage_port_sheet_prerequisite import CONDUCTOR_RESOLUTION
@@ -152,6 +151,7 @@ def _step2_enabled():
 def _rlc_frequency_hz():
     return STEP2_FREQUENCY_HZ if _step2_enabled() else FREQUENCY_HZ
 
+
 # The port terminated in the RLC element.  Index 0 of the 4×4, i.e. `P1`, whose
 # 50 Ω column is `PORT-9` leg (d0)'s recorded column.
 TERMINATED_PORT_INDEX = 0
@@ -188,9 +188,7 @@ def _terminated_three_port(sweep, z_termination, degree=None):
     base_specs = sweep["specs"]
     specs = []
     for idx, spec in enumerate(base_specs):
-        impedance = (
-            z_termination if idx == TERMINATED_PORT_INDEX else spec.port_impedance_ohm
-        )
+        impedance = z_termination if idx == TERMINATED_PORT_INDEX else spec.port_impedance_ohm
         specs.append(
             LumpedSheetPortSpec(
                 port_id=spec.port_id,
@@ -257,9 +255,7 @@ def rlc_termination_cases():
             {
                 "label": label,
                 "z": z_term,
-                "gamma": termination_reflection_coefficient(
-                    z_term, float(REFERENCE_IMPEDANCE_OHM)
-                ),
+                "gamma": termination_reflection_coefficient(z_term, float(REFERENCE_IMPEDANCE_OHM)),
                 "measured": measured,
                 "predicted": predicted,
                 "kept_ids": kept_ids,
@@ -317,9 +313,7 @@ def test_the_fifty_ohm_baseline_reproduces_the_port9_gates(rlc_termination_cases
         )
         if _step2_enabled():
             s4 = np.asarray(sweep["s"], dtype=np.complex128)
-            for name, now, then in zip(
-                ("S11", "S21"), (s4[0, 0], s4[1, 0]), STEP1E_S11_S21_10MHZ
-            ):
+            for name, now, then in zip(("S11", "S21"), (s4[0, 0], s4[1, 0]), STEP1E_S11_S21_10MHZ):
                 print(
                     f"[PORT-14 step2] 50 Ohm {name} at {_rlc_frequency_hz():.3e} Hz = "
                     f"{now.real:+.9e}{now.imag:+.9e}j   10 MHz baseline = "
@@ -451,9 +445,7 @@ def test_a_mis_keyed_floor_record_cannot_reproduce(rlc_termination_cases):
     for measured_label, residual in residuals.items():
         for record_label, record in REDUCTION_FLOOR_F_SMALL.items():
             if measured_label != record_label:
-                pairs.append(
-                    (measured_label, record_label, abs(residual / record - 1.0))
-                )
+                pairs.append((measured_label, record_label, abs(residual / record - 1.0)))
 
     if MPI.COMM_WORLD.rank == 0:
         print(
@@ -517,9 +509,7 @@ def test_the_zero_gamma_control_misses(rlc_termination_cases):
     for case in rlc_termination_cases["cases"]:
         predicted = case["predicted"]
         delta = float(np.linalg.norm(predicted - s_aa) / np.linalg.norm(predicted))
-        miss = float(
-            np.linalg.norm(case["measured"] - s_aa) / np.linalg.norm(predicted)
-        )
+        miss = float(np.linalg.norm(case["measured"] - s_aa) / np.linalg.norm(predicted))
         rows.append((case["label"], delta, miss))
 
     reached = [row for row in rows if row[1] >= CONTROL_DELTA_FLOOR]
@@ -737,7 +727,9 @@ def test_step2b_the_realised_termination_is_printed(rlc_termination_cases):
             )
             if row["currents"]:
                 print(
-                    "        |I_" + terminated_id + "|/|I_drive| = "
+                    "        |I_"
+                    + terminated_id
+                    + "|/|I_drive| = "
                     + "  ".join(f"{did}: {ratio:.9e}" for did, ratio in row["currents"]),
                     flush=True,
                 )
@@ -753,7 +745,8 @@ def test_step2b_the_realised_termination_is_printed(rlc_termination_cases):
             )
         print(
             "    predicted (never asserted): series inductance Im dZ/omega across "
-            "C/L/R: " + _spread_note([row["l_series_h"] for row in rows])
+            "C/L/R: "
+            + _spread_note([row["l_series_h"] for row in rows])
             + ";   |Z_eff/Z_p - 1| across C/L/R: "
             + _spread_note([abs(row["rel"]) for row in rows]),
             flush=True,
@@ -861,9 +854,7 @@ STEP1_RESIDUAL_RECORD = {
 
 # The two lossless terminations — |Gamma| = 1, the worst pair — taken from the
 # gate's own tuple so no value is restated.  The resistor is step 1's business.
-STEP1B_TERMINATIONS = tuple(
-    entry for entry in TERMINATIONS if entry[0] in STEP1_RESIDUAL_RECORD
-)
+STEP1B_TERMINATIONS = tuple(entry for entry in TERMINATIONS if entry[0] in STEP1_RESIDUAL_RECORD)
 
 
 def _step1b_factor():
@@ -902,16 +893,12 @@ def refined_rung_cases():
         predicted = reduce_terminated_ports(
             sweep["s"], float(REFERENCE_IMPEDANCE_OHM), {TERMINATED_PORT_INDEX: z_term}
         )
-        residual = float(
-            np.linalg.norm(measured - predicted) / np.linalg.norm(predicted)
-        )
+        residual = float(np.linalg.norm(measured - predicted) / np.linalg.norm(predicted))
         cases.append(
             {
                 "label": label,
                 "z": z_term,
-                "gamma": termination_reflection_coefficient(
-                    z_term, float(REFERENCE_IMPEDANCE_OHM)
-                ),
+                "gamma": termination_reflection_coefficient(z_term, float(REFERENCE_IMPEDANCE_OHM)),
                 "measured": measured,
                 "predicted": predicted,
                 "residual": residual,
@@ -1031,9 +1018,7 @@ def test_the_zero_gamma_control_misses_on_the_refined_rung(refined_rung_cases):
     for case in rung["cases"]:
         predicted = case["predicted"]
         delta = float(np.linalg.norm(predicted - s_aa) / np.linalg.norm(predicted))
-        miss = float(
-            np.linalg.norm(case["measured"] - s_aa) / np.linalg.norm(predicted)
-        )
+        miss = float(np.linalg.norm(case["measured"] - s_aa) / np.linalg.norm(predicted))
         rows.append((case["label"], delta, miss))
 
     reached = [row for row in rows if row[1] >= CONTROL_DELTA_FLOOR]
@@ -1243,16 +1228,12 @@ def width_sweep_case(request, width_sweep_baseline):
         predicted = reduce_terminated_ports(
             sweep["s"], float(REFERENCE_IMPEDANCE_OHM), {TERMINATED_PORT_INDEX: z_term}
         )
-        residual = float(
-            np.linalg.norm(measured - predicted) / np.linalg.norm(predicted)
-        )
+        residual = float(np.linalg.norm(measured - predicted) / np.linalg.norm(predicted))
         cases.append(
             {
                 "label": label,
                 "z": z_term,
-                "gamma": termination_reflection_coefficient(
-                    z_term, float(REFERENCE_IMPEDANCE_OHM)
-                ),
+                "gamma": termination_reflection_coefficient(z_term, float(REFERENCE_IMPEDANCE_OHM)),
                 "measured": measured,
                 "predicted": predicted,
                 "residual": residual,
@@ -1381,9 +1362,7 @@ def test_the_zero_gamma_control_misses_on_the_width_sweep(width_sweep_case):
     for entry in case["cases"]:
         predicted = entry["predicted"]
         delta = float(np.linalg.norm(predicted - s_aa) / np.linalg.norm(predicted))
-        miss = float(
-            np.linalg.norm(entry["measured"] - s_aa) / np.linalg.norm(predicted)
-        )
+        miss = float(np.linalg.norm(entry["measured"] - s_aa) / np.linalg.norm(predicted))
         rows.append((entry["label"], delta, miss))
 
     reached = [row for row in rows if row[1] >= CONTROL_DELTA_FLOOR]
@@ -1403,8 +1382,7 @@ def test_the_zero_gamma_control_misses_on_the_width_sweep(width_sweep_case):
             )
         if not reached:
             print(
-                "    FINDING: no termination reaches the Delta floor on this "
-                "configuration",
+                "    FINDING: no termination reaches the Delta floor on this " "configuration",
                 flush=True,
             )
 
@@ -1750,16 +1728,12 @@ def step1d_configuration_d(step1d_baseline, step1d_fit):
         predicted = reduce_terminated_ports(
             sweep["s"], float(REFERENCE_IMPEDANCE_OHM), {TERMINATED_PORT_INDEX: z_term}
         )
-        residual = float(
-            np.linalg.norm(measured - predicted) / np.linalg.norm(predicted)
-        )
+        residual = float(np.linalg.norm(measured - predicted) / np.linalg.norm(predicted))
         cases.append(
             {
                 "label": label,
                 "z": z_term,
-                "gamma": termination_reflection_coefficient(
-                    z_term, float(REFERENCE_IMPEDANCE_OHM)
-                ),
+                "gamma": termination_reflection_coefficient(z_term, float(REFERENCE_IMPEDANCE_OHM)),
                 "measured": measured,
                 "predicted": predicted,
                 "residual": residual,
@@ -1849,9 +1823,8 @@ def test_step1d_the_sheet_geometry_candidates_are_printed(step1d_baseline, step1
     if matches:
         print(
             "    READING: at least one measured geometric ratio predicts eps* "
-            "on its own — " + "; ".join(
-                f"{pid} {name} = {value:+.6f}" for pid, name, value in matches
-            ),
+            "on its own — "
+            + "; ".join(f"{pid} {name} = {value:+.6f}" for pid, name, value in matches),
             flush=True,
         )
     else:
@@ -1877,9 +1850,7 @@ def test_step1d_step2e_the_64mhz_fit_reproduces_step2c(step1d_fit):
         (label, float(step1d_fit["per_element"][label]["eps_star"]), printed)
         for label, printed in STEP2C_PRINTED_EPS_STAR.items()
     ]
-    rows.append(
-        ("mean", float(step1d_fit["mean_eps_star"]), STEP2C_PRINTED_MEAN_EPS_STAR)
-    )
+    rows.append(("mean", float(step1d_fit["mean_eps_star"]), STEP2C_PRINTED_MEAN_EPS_STAR))
     if MPI.COMM_WORLD.rank == 0:
         print(
             f"\n[PORT-14 step2e] eps* at 64 MHz from {step1d_fit['source']} "
@@ -1942,9 +1913,7 @@ def _print_step2e_configuration_d(case, fit):
         under[label] = residual <= REDUCTION_BAND
         per = fit["per_element"][label]
         r2 = per["a"] * eps * eps + per["b"] * eps + per["c"]
-        predicted = (
-            f"{np.sqrt(r2):.6e}" if r2 > 0.0 else f"~0 (fitted r^2 = {r2:+.3e} < 0)"
-        )
+        predicted = f"{np.sqrt(r2):.6e}" if r2 > 0.0 else f"~0 (fitted r^2 = {r2:+.3e} < 0)"
         record = STEP2C_EPS0_RESIDUALS_64MHZ[label]
         in_window = _STEP2E_EPS0_IN_WINDOW.get(label)
         if in_window is None:
@@ -1984,10 +1953,7 @@ def _print_step2e_configuration_d(case, fit):
             "64 MHz: record in §7 and stop"
         )
     elif not c_under and not l_under:
-        reading = (
-            "both over — the width lever does not undo kappa at 64 MHz: record "
-            "and stop"
-        )
+        reading = "both over — the width lever does not undo kappa at 64 MHz: record " "and stop"
     else:
         reading = "C under, L over — not pre-registered: record and stop"
     print(f"    READING: {reading}", flush=True)
@@ -2015,12 +1981,9 @@ def test_step1d_configuration_d_is_a_valid_four_port(step1d_configuration_d):
             f"{case['baseline_seconds']:.2f} s wall",
             flush=True,
         )
-        for idx, (w0, w1) in enumerate(
-            zip(case["baseline_widths"], case["widths"]), start=1
-        ):
+        for idx, (w0, w1) in enumerate(zip(case["baseline_widths"], case["widths"]), start=1):
             print(
-                f"    P{idx}: sheet_width_m {w0:.9e} -> {w1:.9e} m "
-                f"(ratio {w1 / w0:.9f})",
+                f"    P{idx}: sheet_width_m {w0:.9e} -> {w1:.9e} m " f"(ratio {w1 / w0:.9f})",
                 flush=True,
             )
         print(
@@ -2047,9 +2010,7 @@ def test_step1d_configuration_d_is_a_valid_four_port(step1d_configuration_d):
 
 
 @complex_only
-def test_step1d_configuration_d_residuals_are_printed(
-    step1d_configuration_d, step1d_fit
-):
+def test_step1d_configuration_d_residuals_are_printed(step1d_configuration_d, step1d_fit):
     """**(b) The fit on a fourth point** — printed, not asserted.
 
     D's told width was *fitted to* this residual, so asserting the residual
@@ -2088,10 +2049,9 @@ def test_step1d_configuration_d_residuals_are_printed(
             flush=True,
         )
     print(
-        f"    r(eps*) predicted ~ 0 by the fit; measured "
+        "    r(eps*) predicted ~ 0 by the fit; measured "
         + ", ".join(
-            f"{entry['label']} = {float(abs(entry['residual'])):.6e}"
-            for entry in case["cases"]
+            f"{entry['label']} = {float(abs(entry['residual'])):.6e}" for entry in case["cases"]
         )
         + f" at eps* = {case['epsilon']:+.6f}",
         flush=True,
@@ -2131,9 +2091,7 @@ def test_step1d_the_zero_gamma_control_misses_on_configuration_d(
     for entry in case["cases"]:
         predicted = entry["predicted"]
         delta = float(np.linalg.norm(predicted - s_aa) / np.linalg.norm(predicted))
-        miss = float(
-            np.linalg.norm(entry["measured"] - s_aa) / np.linalg.norm(predicted)
-        )
+        miss = float(np.linalg.norm(entry["measured"] - s_aa) / np.linalg.norm(predicted))
         rows.append((entry["label"], delta, miss))
 
     reached = [row for row in rows if row[1] >= CONTROL_DELTA_FLOOR]
@@ -2152,8 +2110,7 @@ def test_step1d_the_zero_gamma_control_misses_on_configuration_d(
             )
         if not reached:
             print(
-                "    FINDING: no termination reaches the Delta floor on "
-                "configuration D",
+                "    FINDING: no termination reaches the Delta floor on " "configuration D",
                 flush=True,
             )
 
@@ -2356,9 +2313,7 @@ def step3_case():
             {
                 "label": label,
                 "z": z_term,
-                "residual": float(
-                    np.linalg.norm(measured - predicted) / np.linalg.norm(predicted)
-                ),
+                "residual": float(np.linalg.norm(measured - predicted) / np.linalg.norm(predicted)),
                 "seconds": float(elapsed),
             }
         )
@@ -2404,8 +2359,7 @@ def test_step3_anchor0_the_lifted_deficit_reproduces_the_test_helper(step3_case)
     """(0) ``ports.shares.terminal_form_deficit`` == `PORT-16`'s helper, rtol 1e-12."""
     case = step3_case
     rows = [("pooled", case["kappa"], case["helper_pooled"])] + [
-        (p, case["deficit"]["per_sheet"][p], case["helper_per_sheet"][p])
-        for p in _STEP3_PORT_IDS
+        (p, case["deficit"]["per_sheet"][p], case["helper_per_sheet"][p]) for p in _STEP3_PORT_IDS
     ]
     if MPI.COMM_WORLD.rank == 0:
         print(
@@ -2420,9 +2374,9 @@ def test_step3_anchor0_the_lifted_deficit_reproduces_the_test_helper(step3_case)
                 flush=True,
             )
     for name, lifted, helper in rows:
-        assert abs(lifted / helper - 1.0) <= STEP3_LIFT_RTOL, (
-            f"{name}: lifted {lifted:.15e} vs helper {helper:.15e}"
-        )
+        assert (
+            abs(lifted / helper - 1.0) <= STEP3_LIFT_RTOL
+        ), f"{name}: lifted {lifted:.15e} vs helper {helper:.15e}"
 
 
 @complex_only

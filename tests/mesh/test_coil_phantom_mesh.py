@@ -5,7 +5,11 @@ import pytest
 from mpi4py import MPI
 
 from fem_em_solver.io.mesh import MeshGenerator
-from tests.mesh.helpers import REQUIRED_COIL_PHANTOM_TAGS, assert_required_tags_nonempty, compute_tag_cell_centroid
+from tests.mesh.helpers import (
+    REQUIRED_COIL_PHANTOM_TAGS,
+    assert_required_tags_nonempty,
+    compute_tag_cell_centroid,
+)
 
 
 def _generate_default_mesh(**kwargs):
@@ -44,9 +48,9 @@ def test_coil_phantom_mesh_off_center_preset_moves_phantom_without_overlap():
     assert_required_tags_nonempty(cell_tags, REQUIRED_COIL_PHANTOM_TAGS, comm=MPI.COMM_WORLD)
 
     phantom_centroid = compute_tag_cell_centroid(mesh, cell_tags, tag=3, comm=MPI.COMM_WORLD)
-    assert phantom_centroid[0] > 5.0e-3, (
-        "Off-center preset should produce positive x displacement for phantom centroid"
-    )
+    assert (
+        phantom_centroid[0] > 5.0e-3
+    ), "Off-center preset should produce positive x displacement for phantom centroid"
 
 
 _PHANTOM_RADIUS = 0.04
@@ -88,12 +92,17 @@ def test_coil_phantom_placed_phantom_first_moment_is_cylinder_centre(geo3_placed
     v_c = np.pi * r**2 * h
     results = {}
     for name, (mesh, cell_tags, (cx, cy)) in geo3_placed_meshes.items():
-        dx3 = ufl.Measure("dx", domain=mesh, subdomain_data=cell_tags, metadata={"quadrature_degree": 2})(3)
+        dx3 = ufl.Measure(
+            "dx", domain=mesh, subdomain_data=cell_tags, metadata={"quadrature_degree": 2}
+        )(3)
         x = ufl.SpatialCoordinate(mesh)
         one = fem.Constant(mesh, 1.0)
         v_m = comm.allreduce(fem.assemble_scalar(fem.form(one * dx3)), op=MPI.SUM).real
         moment = np.array(
-            [comm.allreduce(fem.assemble_scalar(fem.form(x[i] * dx3)), op=MPI.SUM).real for i in range(3)]
+            [
+                comm.allreduce(fem.assemble_scalar(fem.form(x[i] * dx3)), op=MPI.SUM).real
+                for i in range(3)
+            ]
         )
         m = moment / v_m
         delta = v_c / v_m - 1.0
@@ -111,7 +120,9 @@ def test_coil_phantom_placed_phantom_first_moment_is_cylinder_centre(geo3_placed
         results[name] = (delta, m, bound_xy, cell_centroid)
 
         # Premise: M ⊂ C with a small discretisation deficit.
-        assert 0.0 < delta < 0.1, f"[{name}] premise failed: delta={delta:.6f} (V_M={v_m:.9e}, V_C={v_c:.9e})"
+        assert (
+            0.0 < delta < 0.1
+        ), f"[{name}] premise failed: delta={delta:.6f} (V_M={v_m:.9e}, V_C={v_c:.9e})"
         # Band: every moment inside its own in-run bound.
         assert miss_x <= bound_xy, f"[{name}] |m_x - c_x|={miss_x:.3e} > {bound_xy:.3e}"
         assert miss_y <= bound_xy, f"[{name}] |m_y - c_y|={miss_y:.3e} > {bound_xy:.3e}"
@@ -126,7 +137,9 @@ def test_coil_phantom_placed_phantom_first_moment_is_cylinder_centre(geo3_placed
             f"(predicted delta 0.016744, bound 6.70e-4 m, separation ~20.9x, ceiling 21.9x); "
             f"measured delta={delta_c:.6f}; cell-count centroid x={cc_c[0]:.6e}"
         )
-    assert swap_miss > bound_c, f"control: swapped miss {swap_miss:.3e} not above bound {bound_c:.3e}"
+    assert (
+        swap_miss > bound_c
+    ), f"control: swapped miss {swap_miss:.3e} not above bound {bound_c:.3e}"
 
 
 def test_coil_phantom_mesh_rejects_overlapping_off_center_placement():

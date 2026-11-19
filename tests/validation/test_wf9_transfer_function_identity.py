@@ -30,13 +30,11 @@ import time
 
 import dolfinx
 import numpy as np
-import pytest
 import ufl
-from mpi4py import MPI
-from petsc4py import PETSc
-
 from dolfinx import fem
 from dolfinx.fem.petsc import assemble_matrix
+from mpi4py import MPI
+from petsc4py import PETSc
 
 from fem_em_solver.core import (
     HomogeneousMaterial,
@@ -44,7 +42,6 @@ from fem_em_solver.core import (
     TimeHarmonicSolver,
 )
 from fem_em_solver.core.time_harmonic import build_material_fields
-
 from tests.complex_mode import complex_only
 from tests.mesh.test_birdcage_symmetry_quadrant import EXACT_IDENTITY_RTOL
 from tests.validation.test_birdcage_power_identity import DISCRETE_IDENTITY_RTOL
@@ -191,9 +188,13 @@ def test_wf9_census():
     layer_counts = [cnt(f) for f in fl["layers"]]
 
     stacked = np.sum(np.vstack(fl["layers"]).astype(int), axis=0)
-    partition_ok = comm.allreduce(bool(np.array_equal(stacked, fl["lead"].astype(int))), op=MPI.LAND)
+    partition_ok = comm.allreduce(
+        bool(np.array_equal(stacked, fl["lead"].astype(int))), op=MPI.LAND
+    )
     disjoint_local = not (
-        np.any(fl["ball"] & fl["lead"]) or np.any(fl["ball"] & fl["block"]) or np.any(fl["lead"] & fl["block"])
+        np.any(fl["ball"] & fl["lead"])
+        or np.any(fl["ball"] & fl["block"])
+        or np.any(fl["lead"] & fl["block"])
     )
     disjoint = comm.allreduce(bool(disjoint_local), op=MPI.LAND)
     lead_volume = _scalar(comm, fx["chi_lead"] * ufl.dx(domain=fx["mesh"])).real
@@ -201,10 +202,16 @@ def test_wf9_census():
 
     if comm.rank == 0:
         print(f"\n[WF-9 step0 census] ranks={comm.size}")
-        print(f"  cells={n_cells} lead={n_lead} block={n_block} ball={n_ball} (ball predicted [400, 700])")
+        print(
+            f"  cells={n_cells} lead={n_lead} block={n_block} ball={n_ball} (ball predicted [400, 700])"
+        )
         print(f"  layer counts={layer_counts}")
-        print(f"  lead volume={lead_volume:.12e} m^3 (expect {LEAD_VOLUME_M3:.3e}); ball volume={ball_volume:.6e} m^3")
-        print(f"  partition sum_j chi_j == chi_lead: {partition_ok}; masks pairwise disjoint: {disjoint}")
+        print(
+            f"  lead volume={lead_volume:.12e} m^3 (expect {LEAD_VOLUME_M3:.3e}); ball volume={ball_volume:.6e} m^3"
+        )
+        print(
+            f"  partition sum_j chi_j == chi_lead: {partition_ok}; masks pairwise disjoint: {disjoint}"
+        )
 
     assert n_cells == CELL_COUNT
     assert n_lead == LEAD_CELL_COUNT
@@ -304,9 +311,14 @@ def _run_identities():
     times["fresh_H"] = time.perf_counter() - t0
 
     # ---- read-backs (components only: no conjugation) ---------------------------
-    tf_adj = np.array([LOAD * DELTA_SIGMA * _scalar(comm, chi_layers[j] * w[2] * dx) for j in range(N_LAYERS)])
+    tf_adj = np.array(
+        [LOAD * DELTA_SIGMA * _scalar(comm, chi_layers[j] * w[2] * dx) for j in range(N_LAYERS)]
+    )
     tf_herm = np.array(
-        [LOAD * DELTA_SIGMA * _scalar(comm, chi_layers[j] * ufl.conj(w[2]) * dx) for j in range(N_LAYERS)]
+        [
+            LOAD * DELTA_SIGMA * _scalar(comm, chi_layers[j] * ufl.conj(w[2]) * dx)
+            for j in range(N_LAYERS)
+        ]
     )
 
     drives = {
@@ -321,12 +333,19 @@ def _run_identities():
         t1_sum = np.sum(d["part"])
         t3_fold = LOAD * DELTA_SIGMA * _scalar(comm, chi_lead * ufl.dot(w, d["inc"]) * dx)
         c2_fold = LOAD * DELTA_SIGMA * _scalar(comm, chi_lead * ufl.dot(w, d["with"]) * dx)
-        transverse = LOAD * DELTA_SIGMA * _scalar(
-            comm, chi_lead * (w[0] * d["inc"][0] + w[1] * d["inc"][1]) * dx
+        transverse = (
+            LOAD
+            * DELTA_SIGMA
+            * _scalar(comm, chi_lead * (w[0] * d["inc"][0] + w[1] * d["inc"][1]) * dx)
         )
-        ez_int = np.array([_scalar(comm, chi_layers[j] * d["inc"][2] * dx) for j in range(N_LAYERS)])
+        ez_int = np.array(
+            [_scalar(comm, chi_layers[j] * d["inc"][2] * dx) for j in range(N_LAYERS)]
+        )
         along_layer = np.array(
-            [LOAD * DELTA_SIGMA * _scalar(comm, chi_layers[j] * w[2] * d["inc"][2] * dx) for j in range(N_LAYERS)]
+            [
+                LOAD * DELTA_SIGMA * _scalar(comm, chi_layers[j] * w[2] * d["inc"][2] * dx)
+                for j in range(N_LAYERS)
+            ]
         )
         layer_vol = np.array([_scalar(comm, chi_layers[j] * dx).real for j in range(N_LAYERS)])
         folds = {}
@@ -342,8 +361,14 @@ def _run_identities():
                 along += np.sum(along_layer[sl])
             folds[n_seg] = (q_n, along - q_n)
         results[name] = dict(
-            q_with=q_with, q_without=q_without, dq=dq, t1_sum=t1_sum, t3_fold=t3_fold,
-            c2_fold=c2_fold, transverse=transverse, folds=folds,
+            q_with=q_with,
+            q_without=q_without,
+            dq=dq,
+            t1_sum=t1_sum,
+            t3_fold=t3_fold,
+            c2_fold=c2_fold,
+            transverse=transverse,
+            folds=folds,
         )
 
     rss = _rss_gib(comm)
@@ -376,11 +401,15 @@ def _run_identities():
             dq = r["dq"]
             print(f"  --- {name} ---")
             print(f"    q_without={r['q_without']:.10e} q_with={r['q_with']:.10e}")
-            print(f"    |q_with|/|q_without| = {abs(r['q_with']) / abs(r['q_without']):.6f}"
-                  + ("  (D1 predicted [1.2, 10])" if name == "D1" else ""))
+            print(
+                f"    |q_with|/|q_without| = {abs(r['q_with']) / abs(r['q_without']):.6f}"
+                + ("  (D1 predicted [1.2, 10])" if name == "D1" else "")
+            )
             print(f"    (T1) |sum_j - dq|/|dq| = {abs(r['t1_sum'] - dq) / abs(dq):.3e}")
             print(f"    (T3) |fold(w,E_inc) - dq|/|dq| = {abs(r['t3_fold'] - dq) / abs(dq):.3e}")
-            print(f"    (C2) |fold(w,E_with) - dq|/|dq| = {abs(r['c2_fold'] - dq) / abs(dq):.6%}  (predicted [80%, 105%])")
+            print(
+                f"    (C2) |fold(w,E_with) - dq|/|dq| = {abs(r['c2_fold'] - dq) / abs(dq):.6%}  (predicted [80%, 105%])"
+            )
             print(f"    transverse term / dq = {abs(r['transverse']) / abs(dq):.6e}")
             print(f"    Q_exact = {dq:.10e}")
             for n_seg, (q_n, cov) in r["folds"].items():
@@ -390,18 +419,24 @@ def _run_identities():
                 )
         print("  TF_j profile (j, z_mid mm, |TF|, arg deg):")
         for j in range(N_LAYERS):
-            print(f"    {j:2d} {-11.5 + j:6.1f} {abs(tf_step[j]):.6e} {np.degrees(np.angle(tf_step[j])):9.4f}")
-        print(f"  times: " + ", ".join(f"{k}={v:.2f}s" for k, v in times.items()))
+            print(
+                f"    {j:2d} {-11.5 + j:6.1f} {abs(tf_step[j]):.6e} {np.degrees(np.angle(tf_step[j])):9.4f}"
+            )
+        print("  times: " + ", ".join(f"{k}={v:.2f}s" for k, v in times.items()))
         print(f"  summed max RSS over ranks = {rss:.3f} GiB; elapsed = {elapsed:.2f} s")
         if tf_agreement is None:
             print("  W1/W2 TF agreement: no other-width TF file yet")
         else:
-            print(f"  W1/W2 TF agreement vs n={tf_agreement[0]}: max rel = {tf_agreement[1]:.3e} (predicted <= 1e-10)")
+            print(
+                f"  W1/W2 TF agreement vs n={tf_agreement[0]}: max rel = {tf_agreement[1]:.3e} (predicted <= 1e-10)"
+            )
 
     assert sym_norm <= SYMMETRY_RTOL * a_norm
     assert t2_dev <= DISCRETE_IDENTITY_RTOL
     assert h_dev <= DISCRETE_IDENTITY_RTOL
-    assert c1_dev > DISCRETE_IDENTITY_RTOL, "C1 not wired: Hermitian read-back equals the adjoint TF"
+    assert (
+        c1_dev > DISCRETE_IDENTITY_RTOL
+    ), "C1 not wired: Hermitian read-back equals the adjoint TF"
     for name, r in results.items():
         dq = r["dq"]
         assert abs(r["t1_sum"] - dq) <= DISCRETE_IDENTITY_RTOL * abs(dq), f"T1 {name}"

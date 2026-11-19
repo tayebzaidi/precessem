@@ -23,11 +23,11 @@ from fem_em_solver.utils.analytical import (
     robin_sphere_steady_temperature,
 )
 from tests.validation.test_mat9_steady_conduction_sphere import (  # MAT-9 fixture
+    T_INF,
     H,
     K,
     Q,
     R,
-    T_INF,
 )
 
 Q0 = Q
@@ -38,15 +38,11 @@ V = 4.0 / 3.0 * np.pi * R**3
 
 
 def _theta(r, alpha=ALPHA):
-    return robin_sphere_linear_source_temperature(
-        r, radius=R, k=K, q0=Q0, alpha=alpha, h=H
-    )
+    return robin_sphere_linear_source_temperature(r, radius=R, k=K, q0=Q0, alpha=alpha, h=H)
 
 
 def _coeffs(alpha=ALPHA):
-    return robin_sphere_linear_source_coefficients(
-        radius=R, k=K, q0=Q0, alpha=alpha, h=H
-    )
+    return robin_sphere_linear_source_coefficients(radius=R, k=K, q0=Q0, alpha=alpha, h=H)
 
 
 def _dtheta(r, alpha=ALPHA):
@@ -60,19 +56,18 @@ def _d2theta(r, alpha=ALPHA):
     """Analytic θ″ = A (−m²r² sin mr − 2mr cos mr + 2 sin mr)/r³."""
     m, _, A, _ = _coeffs(alpha)
     r = np.asarray(r, dtype=float)
-    return A * (
-        -(m * r) ** 2 * np.sin(m * r) - 2.0 * m * r * np.cos(m * r)
-        + 2.0 * np.sin(m * r)
-    ) / r**3
+    return (
+        A
+        * (-((m * r) ** 2) * np.sin(m * r) - 2.0 * m * r * np.cos(m * r) + 2.0 * np.sin(m * r))
+        / r**3
+    )
 
 
 def _theta_bar(alpha=ALPHA):
     """Closed-form volume mean: (3/R³)∫θ r² dr, ∫₀ᴿ r sin(mr) dr = (sin mR − mR cos mR)/m²."""
     m, D, _, _ = _coeffs(alpha)
     mR = m * R
-    return (1.0 / alpha) * (
-        3.0 * BI * (np.sin(mR) - mR * np.cos(mR)) / (mR**2 * D) - 1.0
-    )
+    return (1.0 / alpha) * (3.0 * BI * (np.sin(mR) - mR * np.cos(mR)) / (mR**2 * D) - 1.0)
 
 
 def test_n1_linear_conductivity():
@@ -158,5 +153,6 @@ def test_predicted_values_printed():
         "θ̄=10.875 P=10.200 λ1≈1.9064 α_crit≈0.1090 κ≈0.1834"
     )
     # Consistency with MAT-9's quoted fixture (the α → 0 figures).
-    assert float(robin_sphere_steady_temperature(0.0, radius=R, k=K, q=Q0, h=H)) \
-        == pytest.approx(12.2222222, rel=1e-6)
+    assert float(robin_sphere_steady_temperature(0.0, radius=R, k=K, q=Q0, h=H)) == pytest.approx(
+        12.2222222, rel=1e-6
+    )

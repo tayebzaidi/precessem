@@ -90,7 +90,9 @@ def test_ladder_closed_form_matches_the_mesh_matrix_eigenvalues(n_legs, capsys):
         omega = birdcage_highpass_mode_frequencies(n_legs, **elements)
         print(f"\n[PORT-15 (i)] N = {n_legs}: closed-form mode frequencies (MHz), k = 0…N/2:")
         print("  " + "  ".join(f"k={k}:{w / (2 * np.pi) / 1e6:.6f}" for k, w in enumerate(omega)))
-        print(f"[PORT-15 (i)] N = {n_legs}: max |eig − closed form| / closed form = {relative.max():.3e}")
+        print(
+            f"[PORT-15 (i)] N = {n_legs}: max |eig − closed form| / closed form = {relative.max():.3e}"
+        )
 
     assert np.allclose(measured, predicted, rtol=1e-12, atol=0.0), (
         f"N = {n_legs}: worst relative deviation {relative.max():.6e}\n"
@@ -127,9 +129,11 @@ def test_one_detuned_leg_moves_the_spectrum_off_the_closed_form(capsys):
     pair_split = abs(measured[2] - measured[1]) / abs(predicted[1])
 
     with capsys.disabled():
-        print(f"\n[PORT-15 control] N = 4, one leg ×1.01 (ε = 0.01, ceiling 2ε/N = 5.000e-03):")
+        print("\n[PORT-15 control] N = 4, one leg ×1.01 (ε = 0.01, ceiling 2ε/N = 5.000e-03):")
         print(f"  per-mode |Δω²|/ω² = {np.array2string(relative, precision=4)}")
-        print(f"  worst mode: {relative.max():.4e} in ω², {np.sqrt(1 + relative.max()) - 1:.4e} in ω")
+        print(
+            f"  worst mode: {relative.max():.4e} in ω², {np.sqrt(1 + relative.max()) - 1:.4e} in ω"
+        )
         print(f"  k = 1 degenerate pair split: {pair_split:.4e} in ω²")
 
     assert relative.max() >= 1e-3, (

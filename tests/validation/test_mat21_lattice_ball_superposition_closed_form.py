@@ -82,26 +82,30 @@ from scipy.special import erf, erfc, spherical_jn
 
 from fem_em_solver.utils.analytical import robin_slab_eigenvalues, robin_slab_odd_eigenvalues
 from tests.log_records import read_log_text
-
 from tests.validation import test_geo38_c33_field_strength_reader as c33
 from tests.validation import test_geo38_f_clinical_box_loaded as c6
 from tests.validation import test_mat21_eddy_source_probe_points_closed_form as p80
 from tests.validation.test_birdcage_sar_mass_averaged import PHANTOM_RHO_KG_PER_M3
 from tests.validation.test_imp4_pec_cylinder_closed_form import B1_BAND
 from tests.validation.test_mat13_transient_perfusion_sphere import INTERIOR_BAND
-from tests.validation.test_mat21_box_closed_form import A_BOX, B_BOX, C_BOX, HALF, T_C, H, K
+from tests.validation.test_mat21_box_closed_form import A_BOX, B_BOX, C_BOX, HALF
 from tests.validation.test_mat21_box_closed_form import RHO_C as RHO_C_0
+from tests.validation.test_mat21_box_closed_form import T_C, H, K
 from tests.validation.test_mat21_box_dose_closed_form import T_GRID
 
 REPO = Path(__file__).resolve().parents[2]
 C39_LOG = REPO / "docs" / "testing" / "logs" / "20261111T103024Z_GEO-38-C39-W1.log"
 RE_C39 = {
-    "ccw point": re.compile(r"^\[GEO-38 C46\]\s+ccw hotspot point theta per P_acc: "
-                            r"(\S+) \| (\S+) \| (\S+)$"),
-    "ccw ball": re.compile(r"^\[GEO-38 C46\]\s+ccw ball theta per P_acc \(derived = I32 ball x "
-                           r"factor\): (\S+) \| (\S+) \| (\S+)$"),
-    "cw point": re.compile(r"^\[GEO-38 C46\]\s+cw hotspot point theta per P_acc: "
-                           r"(\S+) \| (\S+) \| (\S+)$"),
+    "ccw point": re.compile(
+        r"^\[GEO-38 C46\]\s+ccw hotspot point theta per P_acc: " r"(\S+) \| (\S+) \| (\S+)$"
+    ),
+    "ccw ball": re.compile(
+        r"^\[GEO-38 C46\]\s+ccw ball theta per P_acc \(derived = I32 ball x "
+        r"factor\): (\S+) \| (\S+) \| (\S+)$"
+    ),
+    "cw point": re.compile(
+        r"^\[GEO-38 C46\]\s+cw hotspot point theta per P_acc: " r"(\S+) \| (\S+) \| (\S+)$"
+    ),
 }
 SIDES = ("1.5T", "3T")
 CSTAR = {"1.5T": "x-105mm dz-50mm", "3T": "x+105mm dz+50mm"}
@@ -213,8 +217,10 @@ def _pinf(d, s, r):
         w = r / (sig * math.sqrt(2.0))
         return float(erf(w) - 2.0 / math.sqrt(math.pi) * w * math.exp(-w * w))
     z1, z2 = (d - r) / (sig * math.sqrt(2.0)), (d + r) / (sig * math.sqrt(2.0))
-    return float(0.5 * (erfc(z1) - erfc(z2))
-                 + sig / (d * math.sqrt(2.0 * math.pi)) * (math.exp(-z2 * z2) - math.exp(-z1 * z1)))
+    return float(
+        0.5 * (erfc(z1) - erfc(z2))
+        + sig / (d * math.sqrt(2.0 * math.pi)) * (math.exp(-z2 * z2) - math.exp(-z1 * z1))
+    )
 
 
 def _short(x, pts, s0):
@@ -265,11 +271,28 @@ def _data():
         pt[sd] = tuple(float(v) for v in pts[idx[sd]])
     mirror = []
     for i in range(len(labels)):
-        m = [j for j in range(len(labels))
-             if pts[j, 0] == -pts[i, 0] and pts[j, 1] == -pts[i, 1] and pts[j, 2] == 0.0]
+        m = [
+            j
+            for j in range(len(labels))
+            if pts[j, 0] == -pts[i, 0] and pts[j, 1] == -pts[i, 1] and pts[j, 2] == 0.0
+        ]
         mirror.append(m[0] if len(m) == 1 else None)
-    _CACHE.update(page=page, hit=hit, parsed=parsed, lat=lat, off=off, labels=labels, pts=pts,
-                  sar=sar, w=w, s=s, idx=idx, pt=pt, mirror=mirror, r=float(c6._a10()))
+    _CACHE.update(
+        page=page,
+        hit=hit,
+        parsed=parsed,
+        lat=lat,
+        off=off,
+        labels=labels,
+        pts=pts,
+        sar=sar,
+        w=w,
+        s=s,
+        idx=idx,
+        pt=pt,
+        mirror=mirror,
+        r=float(c6._a10()),
+    )
     return _CACHE
 
 
@@ -287,8 +310,9 @@ def test_preconditions():
     gates.append((("labels == c6._lattice()",), d["labels"] == lab6, 0))
     for sd in SIDES:
         pl = {row["label"] for row in d["parsed"][sd]["lattice"]}
-        gates.append((("parsed labels", sd), pl == set(lab6) and len(d["parsed"][sd]["lattice"]) == 18,
-                      0))
+        gates.append(
+            (("parsed labels", sd), pl == set(lab6) and len(d["parsed"][sd]["lattice"]) == 18, 0)
+        )
     r = d["r"]
     bound = 4.0 * EPS * (abs(d["off"]) + C_BOX)
     worst_c, worst_wall = 0.0, -np.inf
@@ -310,17 +334,25 @@ def test_preconditions():
     gates.append((("mirror c*",), mc, 0))
     ts = float(T_GRID[-1])
     gates.append((("t* >= S0", ts), ts >= S0, ts))
-    _say(f"MAT21-49 lattice {len(d['labels'])} points, labels == c6._lattice() in order "
-         f"{d['labels'] == lab6} (ASSERTED); both parses carry the same 18 labels (ASSERTED)")
-    _say(f"MAT21-49 max |c| {worst_c:.3e} m (bound 4 eps (|off| + C) {bound:.3e}, ASSERTED); 10 g "
-         f"ball r {r:.6f} m, worst max_d(|p_d| + r - L_d) {worst_wall:.6f} m (<= 0 ASSERTED; P80 "
-         f"read -0.031635)")
-    _say(f"MAT21-49 c* 1.5 T {d['parsed']['1.5T']['c_star']['label']!r} idx {d['idx']['1.5T']}, "
-         f"3 T {d['parsed']['3T']['c_star']['label']!r} idx {d['idx']['3T']} (labels ASSERTED); "
-         f"mirror (a, b, 0) -> (-a, -b, 0) exact on all 18 {mok}, maps c*1.5 to c*3 {mc} "
-         f"(ASSERTED)")
-    _say(f"MAT21-49 t* = T_GRID[-1] {ts:.6f} s >= S0 {S0:g} s (ASSERTED); T_C {T_C:.4f} s, "
-         f"alpha {ALPHA:.6e} m^2/s")
+    _say(
+        f"MAT21-49 lattice {len(d['labels'])} points, labels == c6._lattice() in order "
+        f"{d['labels'] == lab6} (ASSERTED); both parses carry the same 18 labels (ASSERTED)"
+    )
+    _say(
+        f"MAT21-49 max |c| {worst_c:.3e} m (bound 4 eps (|off| + C) {bound:.3e}, ASSERTED); 10 g "
+        f"ball r {r:.6f} m, worst max_d(|p_d| + r - L_d) {worst_wall:.6f} m (<= 0 ASSERTED; P80 "
+        f"read -0.031635)"
+    )
+    _say(
+        f"MAT21-49 c* 1.5 T {d['parsed']['1.5T']['c_star']['label']!r} idx {d['idx']['1.5T']}, "
+        f"3 T {d['parsed']['3T']['c_star']['label']!r} idx {d['idx']['3T']} (labels ASSERTED); "
+        f"mirror (a, b, 0) -> (-a, -b, 0) exact on all 18 {mok}, maps c*1.5 to c*3 {mc} "
+        f"(ASSERTED)"
+    )
+    _say(
+        f"MAT21-49 t* = T_GRID[-1] {ts:.6f} s >= S0 {S0:g} s (ASSERTED); T_C {T_C:.4f} s, "
+        f"alpha {ALPHA:.6e} m^2/s"
+    )
     bad = _fail(gates)
     assert not bad, bad
 
@@ -328,22 +360,27 @@ def test_preconditions():
 def test_k_and_ks():
     gates = []
     d = _data()
-    gates.append((("entry 58 kind", d["hit"]), d["hit"] is not None and d["hit"][1] == "tracked",
-                  0))
+    gates.append(
+        (("entry 58 kind", d["hit"]), d["hit"] is not None and d["hit"][1] == "tracked", 0)
+    )
     for sd, node in (("1.5T", c33.ENTRY52_NODE_PF), ("3T", c33.ENTRY58_NODE_PF)):
         res = c33.check_side(d["parsed"][sd], node, sd)
         for nme, ok, det in res:
             gates.append((("check_side", nme, det), ok, 0))
-        _say(f"MAT21-49 (K) c33.check_side {sd} node {node}: {sum(ok for _n, ok, _ in res)} / "
-             f"{len(res)} pass (all ASSERTED)")
+        _say(
+            f"MAT21-49 (K) c33.check_side {sd} node {node}: {sum(ok for _n, ok, _ in res)} / "
+            f"{len(res)} pass (all ASSERTED)"
+        )
     n_fmt = 0
     for sd in SIDES:
         for row in d["parsed"][sd]["lattice"]:
             n_fmt += int(f"{float(row['sar10g']):.9e}" == row["sar10g"])
     gates.append((("K-lat fmt", n_fmt), n_fmt == 36, n_fmt))
-    _say(f"MAT21-49 (K) 36 lattice SAR10g tokens re-format .9e equal {n_fmt} / 36 (ASSERTED); "
-         f"entry 52 {d['parsed']['1.5T']['log']}, entry 58 {d['hit'][0].name} kind {d['hit'][1]} "
-         f"(tracked ASSERTED)")
+    _say(
+        f"MAT21-49 (K) 36 lattice SAR10g tokens re-format .9e equal {n_fmt} / 36 (ASSERTED); "
+        f"entry 52 {d['parsed']['1.5T']['log']}, entry 58 {d['hit'][0].name} kind {d['hit'][1]} "
+        f"(tracked ASSERTED)"
+    )
     for sd, node in (("1.5T", c33.ENTRY52_NODE_PF), ("3T", c33.ENTRY58_NODE_PF)):
         jp = c33.HOST_JSON_DIR / f"c6-node-{node}.json"
         present, nf, bad = c33.custody_json(d["parsed"][sd], jp)
@@ -361,19 +398,25 @@ def test_k_and_ks():
             for nm_, a_, b_ in str_only:
                 _say(f"MAT21-49 (K) string-only: {nm_} {a_} | {b_}")
             gates.append((("custody value", sd, value_bad[:1]), not value_bad, len(value_bad)))
-            _say(f"MAT21-49 (K) host C6a node JSON {jp.name} present (custody; the host JSON was "
-                 f"last rewritten by entry 60, so this compares the log against entry 60's "
-                 f"rewrite): {nf} fields, {len(bad)} string mismatches = {len(str_only)} "
-                 f"string-only + {len(value_bad)} value (0 value ASSERTED)")
+            _say(
+                f"MAT21-49 (K) host C6a node JSON {jp.name} present (custody; the host JSON was "
+                f"last rewritten by entry 60, so this compares the log against entry 60's "
+                f"rewrite): {nf} fields, {len(bad)} string mismatches = {len(str_only)} "
+                f"string-only + {len(value_bad)} value (0 value ASSERTED)"
+            )
         else:
             _say(f"MAT21-49 (K) host C6a node JSON {jp} absent (custody only, never a red)")
-    _say(f"MAT21-49 (K) C33's own JSON {c33.C33_JSON_NAME} is lattice-free (side() + ratios only); "
-         f"not read -- the lattice comes from the tracked C6a logs")
+    _say(
+        f"MAT21-49 (K) C33's own JSON {c33.C33_JSON_NAME} is lattice-free (side() + ratios only); "
+        f"not read -- the lattice comes from the tracked C6a logs"
+    )
     s15, s3 = d["s"]["1.5T"], d["s"]["3T"]
     ks = (f"{s15:.7g}", f"{s3:.7g}", f"{s3 / s15:.5g}")
     gates.append((("K-s", ks, P83_S), ks == P83_S, 0))
-    _say(f"MAT21-49 (K-s) s = P_box/P_acc from the .9e tokens: 1.5 T {ks[0]}, 3 T {ks[1]}, share "
-         f"{ks[2]} vs P83 {P83_S}: equal {ks == P83_S} (strings ASSERTED)")
+    _say(
+        f"MAT21-49 (K-s) s = P_box/P_acc from the .9e tokens: 1.5 T {ks[0]}, 3 T {ks[1]}, share "
+        f"{ks[2]} vs P83 {P83_S}: equal {ks == P83_S} (strings ASSERTED)"
+    )
     bad = _fail(gates)
     assert not bad, bad
 
@@ -389,8 +432,10 @@ def test_lim_bq():
         ss = _theta(sd, d["w"][sd], None, steady=True)
         lim[sd] = abs(tr - ss) / abs(ss)
         gates.append((("Lim", sd, tr, ss), lim[sd] <= B1_BAND, lim[sd]))
-    _say(f"MAT21-49 (Lim) transient(1000 T_C) vs steady split form at each c*: 1.5 T "
-         f"{lim['1.5T']:.3e}, 3 T {lim['3T']:.3e} (band {B1_BAND:g}, ASSERTED; predicted <= 1e-15)")
+    _say(
+        f"MAT21-49 (Lim) transient(1000 T_C) vs steady split form at each c*: 1.5 T "
+        f"{lim['1.5T']:.3e}, 3 T {lim['3T']:.3e} (band {B1_BAND:g}, ASSERTED; predicted <= 1e-15)"
+    )
     base = {sd: _theta(sd, d["w"][sd], ts) for sd in SIDES}
     base["SP"] = base["3T"] / base["1.5T"]
     two_n = tuple(2 * v for v in N0)
@@ -402,17 +447,21 @@ def test_lim_bq():
         rels = {k: abs(alt[k] - base[k]) / abs(base[k]) for k in ("1.5T", "3T", "SP")}
         for k, v in rels.items():
             gates.append((("Bq", tag, k, base[k], alt[k]), v <= B1_BAND, v))
-        _say(f"MAT21-49 (Bq) {tag}: rel theta1.5(c*1.5, t*) {rels['1.5T']:.3e}, theta3(c*3, t*) "
-             f"{rels['3T']:.3e}, SP {rels['SP']:.3e} (band {B1_BAND:g}, ASSERTED; predicted "
-             f"{'<= 1e-15' if tag.startswith('(i)') else '<= 1e-13'})")
+        _say(
+            f"MAT21-49 (Bq) {tag}: rel theta1.5(c*1.5, t*) {rels['1.5T']:.3e}, theta3(c*3, t*) "
+            f"{rels['3T']:.3e}, SP {rels['SP']:.3e} (band {B1_BAND:g}, ASSERTED; predicted "
+            f"{'<= 1e-15' if tag.startswith('(i)') else '<= 1e-13'})"
+        )
     for sd in SIDES:
         x = d["pt"][sd]
         sh100, mo100 = _kern(x, d["pts"], ts)
         sh50, mo50 = _kern(x, d["pts"], ts, S0_HALF, N1)
         w = d["w"][sd]
-        _say(f"MAT21-49 (Bq) {sd} split: s0 100 s short {np.dot(w, sh100):.9e} + modal "
-             f"{np.dot(w, mo100):.9e} = {base[sd]:.9e}; s0 50 s short {np.dot(w, sh50):.9e} + modal "
-             f"{np.dot(w, mo50):.9e} = {alt_ii[sd]:.9e} K/W")
+        _say(
+            f"MAT21-49 (Bq) {sd} split: s0 100 s short {np.dot(w, sh100):.9e} + modal "
+            f"{np.dot(w, mo100):.9e} = {base[sd]:.9e}; s0 50 s short {np.dot(w, sh50):.9e} + modal "
+            f"{np.dot(w, mo50):.9e} = {alt_ii[sd]:.9e} K/W"
+        )
     bad = _fail(gates)
     assert not bad, bad
 
@@ -427,15 +476,21 @@ def test_controls():
     spu = _sp(flat, flat)
     gates.append((("N-eq-m", spm), abs(spm - 1.0) <= B1_BAND, abs(spm - 1.0)))
     gates.append((("N-eq-u", spu), abs(spu - 1.0) <= B1_BAND, abs(spu - 1.0)))
-    _say(f"MAT21-49 (N-eq-m) 3 T weights := mirrored 1.5 T weights: |SP - 1| {abs(spm - 1.0):.3e} "
-         f"(band {B1_BAND:g}, ASSERTED; predicted <= 1e-15)")
-    _say(f"MAT21-49 (N-eq-u) flat weights 1/18 both sides: |SP - 1| {abs(spu - 1.0):.3e} (band "
-         f"{B1_BAND:g}, ASSERTED; P83's even-source case)")
+    _say(
+        f"MAT21-49 (N-eq-m) 3 T weights := mirrored 1.5 T weights: |SP - 1| {abs(spm - 1.0):.3e} "
+        f"(band {B1_BAND:g}, ASSERTED; predicted <= 1e-15)"
+    )
+    _say(
+        f"MAT21-49 (N-eq-u) flat weights 1/18 both sides: |SP - 1| {abs(spu - 1.0):.3e} (band "
+        f"{B1_BAND:g}, ASSERTED; P83's even-source case)"
+    )
     spl = _sp(w15, w15)
     pv, lo, hi = PRED_CLIT
-    _say(f"MAT21-49 (c-lit) the 1.5 T column on both sides at the two c*: SP {spl:.7f} (predicted "
-         f"approx {pv}, range [{lo}, {hi}] inside {_in(spl, lo, hi)}; printed only; |SP - 1| "
-         f"{abs(spl - 1.0):.4f} vs INTERIOR_BAND {INTERIOR_BAND:g})")
+    _say(
+        f"MAT21-49 (c-lit) the 1.5 T column on both sides at the two c*: SP {spl:.7f} (predicted "
+        f"approx {pv}, range [{lo}, {hi}] inside {_in(spl, lo, hi)}; printed only; |SP - 1| "
+        f"{abs(spl - 1.0):.4f} vs INTERIOR_BAND {INTERIOR_BAND:g})"
+    )
     bad = _fail(gates)
     assert not bad, bad
 
@@ -457,12 +512,16 @@ def test_record_printed():
     ts = float(T_GRID[-1])
     r = d["r"]
     vb = 4.0 / 3.0 * math.pi * r**3
-    _say("MAT21-49 normaliser: theta per deposited watt of the 18-ball source (w_i = SAR_i / sum "
-         "SAR); P_dep, P_box, P_acc never mixed; s from the .9e tokens enters only the lever")
+    _say(
+        "MAT21-49 normaliser: theta per deposited watt of the 18-ball source (w_i = SAR_i / sum "
+        "SAR); P_dep, P_box, P_acc never mixed; s from the .9e tokens enters only the lever"
+    )
     delta = min(HALF[k] - abs(p[k]) - r for _l, p, _w in d["lat"] for k in range(3))
     expo = (2.0 * delta) ** 2 / (4.0 * ALPHA * S0)
-    _say(f"MAT21-49 image factor at s0 {S0:g} s: exp(-(2 x {delta:.6f})^2 / (4 alpha s0)) = "
-         f"exp(-{expo:.4g}) = {math.exp(-expo):.3e}")
+    _say(
+        f"MAT21-49 image factor at s0 {S0:g} s: exp(-(2 x {delta:.6f})^2 / (4 alpha s0)) = "
+        f"exp(-{expo:.4g}) = {math.exp(-expo):.3e}"
+    )
     th, self_t = {}, {}
     for sd in SIDES:
         sar, w, i = d["sar"][sd], d["w"][sd], d["idx"][sd]
@@ -471,56 +530,75 @@ def test_record_printed():
         slf = float(w[i] * (sh[i] + mo[i]))
         th[sd], self_t[sd] = tot, slf
         nb = tot - slf
-        _say(f"MAT21-49 {sd} sum SAR10g {sar.sum():.7g} W/kg; w(c*) {w[i]:.8f} (predicted "
-             f"{PRED_W[sd]:.8f}, within {PRED_W_TOL:g}: {abs(w[i] - PRED_W[sd]) <= PRED_W_TOL})")
+        _say(
+            f"MAT21-49 {sd} sum SAR10g {sar.sum():.7g} W/kg; w(c*) {w[i]:.8f} (predicted "
+            f"{PRED_W[sd]:.8f}, within {PRED_W_TOL:g}: {abs(w[i] - PRED_W[sd]) <= PRED_W_TOL})"
+        )
         pv, lo, hi = PRED_TH[sd]
-        _say(f"MAT21-49 {sd} theta(c*, t*) per dep. W {tot:.7g} K/W (predicted approx {pv}, range "
-             f"[{lo}, {hi}] inside {_in(tot, lo, hi)}); self ball {slf:.7g}, 17-ball neighbours "
-             f"{nb:.4e}, neighbours / total {nb / tot:.3e} (predicted <= {PRED_NB:g}: "
-             f"{nb / tot <= PRED_NB}); short {float(np.dot(w, sh)):.7g} + modal "
-             f"{float(np.dot(w, mo)):.7g}")
+        _say(
+            f"MAT21-49 {sd} theta(c*, t*) per dep. W {tot:.7g} K/W (predicted approx {pv}, range "
+            f"[{lo}, {hi}] inside {_in(tot, lo, hi)}); self ball {slf:.7g}, 17-ball neighbours "
+            f"{nb:.4e}, neighbours / total {nb / tot:.3e} (predicted <= {PRED_NB:g}: "
+            f"{nb / tot <= PRED_NB}); short {float(np.dot(w, sh)):.7g} + modal "
+            f"{float(np.dot(w, mo)):.7g}"
+        )
     sp = th["3T"] / th["1.5T"]
     self_q = d["w"]["3T"][d["idx"]["3T"]] / d["w"]["1.5T"][d["idx"]["1.5T"]]
     pv, lo, hi = PRED_SP
-    _say(f"MAT21-49 SP = theta3(c*3)/theta1.5(c*1.5) per dep. W {sp:.7f} (predicted approx {pv}, "
-         f"range [{lo}, {hi}] inside {_in(sp, lo, hi)}); self-only w3(c*)/w1.5(c*) {self_q:.7f} "
-         f"(predicted {PRED_SELF_SP}); neighbours' share SP - self-only {sp - self_q:.3e}; inside "
-         f"[1.09, 1.12] {_in(sp, 1.09, 1.12)}")
+    _say(
+        f"MAT21-49 SP = theta3(c*3)/theta1.5(c*1.5) per dep. W {sp:.7f} (predicted approx {pv}, "
+        f"range [{lo}, {hi}] inside {_in(sp, lo, hi)}); self-only w3(c*)/w1.5(c*) {self_q:.7f} "
+        f"(predicted {PRED_SELF_SP}); neighbours' share SP - self-only {sp - self_q:.3e}; inside "
+        f"[1.09, 1.12] {_in(sp, 1.09, 1.12)}"
+    )
     share = d["s"]["3T"] / d["s"]["1.5T"]
     lever = share * sp
     c39 = _c39()
     pv, lo, hi = PRED_LEVER
-    _say(f"MAT21-49 LEVER predicted 3 T / 1.5 T = share {share:.7g} x SP {sp:.7f} = {lever:.6f} "
-         f"(predicted approx {pv}, range [{lo}, {hi}] inside {_in(lever, lo, hi)})")
+    _say(
+        f"MAT21-49 LEVER predicted 3 T / 1.5 T = share {share:.7g} x SP {sp:.7f} = {lever:.6f} "
+        f"(predicted approx {pv}, range [{lo}, {hi}] inside {_in(lever, lo, hi)})"
+    )
     for k, (n, ds, g) in c39.items():
-        _say(f"MAT21-49 LEVER beside C39 {k} (`{C39_LOG.name}`, {n} matches, {len(ds)} distinct; "
-             f"distinct == 1 and count >= 1 ASSERTED): "
-             f"{g[2] if g else None}" + (" (cw heated at ccw's c*)" if k == "cw point" else ""))
+        _say(
+            f"MAT21-49 LEVER beside C39 {k} (`{C39_LOG.name}`, {n} matches, {len(ds)} distinct; "
+            f"distinct == 1 and count >= 1 ASSERTED): "
+            f"{g[2] if g else None}" + (" (cw heated at ccw's c*)" if k == "cw point" else "")
+        )
     _say(f"MAT21-49 LEVER beside P83 {P83_S[2]} and C33's SAR lever {C33_SAR_LEVER}")
     needed = float(NEEDED_SP) - 1.0
     frac = (sp - 1.0) / needed
     pv, lo, hi = PRED_FRAC
-    _say(f"MAT21-49 SP - 1 {sp - 1.0:.6f} vs needed {needed:.6f} (EX-194): fraction {frac:.4f} "
-         f"(predicted approx {pv}, range [{lo}, {hi}] inside {_in(frac, lo, hi)})")
+    _say(
+        f"MAT21-49 SP - 1 {sp - 1.0:.6f} vs needed {needed:.6f} (EX-194): fraction {frac:.4f} "
+        f"(predicted approx {pv}, range [{lo}, {hi}] inside {_in(frac, lo, hi)})"
+    )
     loc = {}
     for sd in SIDES:
         nm = d["parsed"][sd]["normalisers"]
         sh, mo = _kern(d["pt"][sd], d["pts"], ts)
-        loc[sd] = float(np.sum(d["sar"][sd] / float(nm["p_acc"]) * PHANTOM_RHO_KG_PER_M3 * vb
-                               * (sh + mo)))
-        _say(f"MAT21-49 LOCAL {sd} sum_i (SAR_i/P_acc) rho theta_i(c*) {loc[sd]:.7g} K per acc. W "
-             f"(NOT per deposited watt: the balls do not deposit the box's power)")
+        loc[sd] = float(
+            np.sum(d["sar"][sd] / float(nm["p_acc"]) * PHANTOM_RHO_KG_PER_M3 * vb * (sh + mo))
+        )
+        _say(
+            f"MAT21-49 LOCAL {sd} sum_i (SAR_i/P_acc) rho theta_i(c*) {loc[sd]:.7g} K per acc. W "
+            f"(NOT per deposited watt: the balls do not deposit the box's power)"
+        )
     lr = loc["3T"] / loc["1.5T"]
     pv, lo, hi = PRED_LOCAL
-    _say(f"MAT21-49 LOCAL 3 T / 1.5 T {lr:.6f} (predicted approx {pv}, range [{lo}, {hi}] inside "
-         f"{_in(lr, lo, hi)}); C33's SAR lever {C33_SAR_LEVER}")
+    _say(
+        f"MAT21-49 LOCAL 3 T / 1.5 T {lr:.6f} (predicted approx {pv}, range [{lo}, {hi}] inside "
+        f"{_in(lr, lo, hi)}); C33's SAR lever {C33_SAR_LEVER}"
+    )
     if abs(sp - 1.0 - needed) <= 0.25 * needed:
         verdict = "lattice resolves the excess"
     elif sp - 1.0 > 1.25 * needed:
         verdict = "the excess lives above the lattice's 100 mm spacing"
     else:
         verdict = "the excess lives below the lattice's 100 mm spacing"
-    _say(f"MAT21-49 VERDICT (printed, the weekly reads it; no gate): {verdict} "
-         f"(SP - 1 {sp - 1.0:.6f} vs 0.094495 +/- 25 %)")
+    _say(
+        f"MAT21-49 VERDICT (printed, the weekly reads it; no gate): {verdict} "
+        f"(SP - 1 {sp - 1.0:.6f} vs 0.094495 +/- 25 %)"
+    )
     assert all(len(ds) == 1 and n >= 1 for n, ds, _g in c39.values()), c39
     assert np.isfinite(lever)

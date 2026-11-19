@@ -51,7 +51,6 @@ from fem_em_solver import (
 )
 from fem_em_solver.ports.circuit import reduce_terminated_ports
 from fem_em_solver.study import COPPER_SIGMA, GATED_WIDTH_FRACTION
-
 from tests.complex_mode import IS_COMPLEX
 from tests.package.test_wf16_study_capacitor_sheets import PORTS, _phantom, _study
 from tests.package.test_wf16_study_copper import _geometry
@@ -176,8 +175,10 @@ def _knob() -> bool:
 
 def _solve_preamble():
     if not _knob():
-        pytest.skip(f"{S14_ENV} unset: the tutorial solve window is environment-selected "
-                    "(complex build, -n 2)")
+        pytest.skip(
+            f"{S14_ENV} unset: the tutorial solve window is environment-selected "
+            "(complex build, -n 2)"
+        )
     comm = MPI.COMM_WORLD
     assert IS_COMPLEX, "the copper four-port capacitor-sheet Study needs the complex build"
     assert comm.size == ANS6_EXACT_STRIP_RECORD_RANK_WIDTH, comm.size
@@ -190,8 +191,11 @@ def exec_esr_block(monkeypatch):
     raw = PAGE.read_bytes()
     block = extract_tagged_block(raw.decode(), ESR_TAG)
     if comm.rank == 0:
-        print(f"[WF-17 s14] page sha256 {_sha(raw)}; block {ESR_TAG} sha256 "
-              f"{_sha(block.encode())}", flush=True)
+        print(
+            f"[WF-17 s14] page sha256 {_sha(raw)}; block {ESR_TAG} sha256 "
+            f"{_sha(block.encode())}",
+            flush=True,
+        )
         if SCRATCH_ROOT.exists():
             shutil.rmtree(SCRATCH_ROOT)
         SCRATCH_ROOT.mkdir(parents=True)
@@ -214,10 +218,12 @@ def test_wf17_s14_blocks_and_inputs(monkeypatch, tmp_path):
     text = _text()
     block = extract_tagged_block(text, ESR_TAG)
     reason = _block_defect(block)
-    _p0(f"[WF-17 s14] (X) {ESR_TAG}: Study {len(_calls_named(block, 'Study'))}, "
+    _p0(
+        f"[WF-17 s14] (X) {ESR_TAG}: Study {len(_calls_named(block, 'Study'))}, "
         f"CapacitorSheets {len(_calls_named(block, 'CapacitorSheets'))}, solve "
         f"{len(_calls_named(block, 'solve'))}, run_study_file "
-        f"{len(_calls_named(block, 'run_study_file'))}; defect {reason}")
+        f"{len(_calls_named(block, 'run_study_file'))}; defect {reason}"
+    )
     assert reason is None, reason
     assert block.count("Study(") == 1 and block.count("run_study_file") == 0
     extract_tagged_block(text, BANDS_TAG, lang="text")
@@ -225,10 +231,16 @@ def test_wf17_s14_blocks_and_inputs(monkeypatch, tmp_path):
     # (c-page), by construction: a removed / doubled tag raises
     for tag, lang in ((ESR_TAG, "python"), (BANDS_TAG, "text")):
         with pytest.raises(LookupError):
-            extract_tagged_block(text.replace(f"```{lang} {tag}\n", f"```{lang} other\n"), tag,
-                                 lang=lang)
-        doubled = (text + "\n" + f"```{lang} {tag}\n"
-                   + extract_tagged_block(text, tag, lang=lang) + "```\n")
+            extract_tagged_block(
+                text.replace(f"```{lang} {tag}\n", f"```{lang} other\n"), tag, lang=lang
+            )
+        doubled = (
+            text
+            + "\n"
+            + f"```{lang} {tag}\n"
+            + extract_tagged_block(text, tag, lang=lang)
+            + "```\n"
+        )
         with pytest.raises(LookupError):
             extract_tagged_block(doubled, tag, lang=lang)
     # a tmp copy of the page with esr_ohm=0.2 removed fails (X), naming the keyword
@@ -236,8 +248,10 @@ def test_wf17_s14_blocks_and_inputs(monkeypatch, tmp_path):
     stripped = tmp_path / "page.md"
     stripped.write_text(text.replace("esr_ohm=0.2, ", "", 1))
     stripped_reason = _block_defect(extract_tagged_block(stripped.read_text(), ESR_TAG))
-    _p0(f"[WF-17 s14] (c-page) tags removed / doubled raise LookupError; esr_ohm removed -> "
-        f"{stripped_reason}")
+    _p0(
+        f"[WF-17 s14] (c-page) tags removed / doubled raise LookupError; esr_ohm removed -> "
+        f"{stripped_reason}"
+    )
     assert stripped_reason is not None and "esr_ohm" in stripped_reason
     for token in (".json", ".npz", ".s4p", ".xdmf", "AED", "HFSS"):
         assert token not in text, token
@@ -254,11 +268,13 @@ def test_wf17_s14_blocks_and_inputs(monkeypatch, tmp_path):
     ns, _ = exec_esr_block(monkeypatch)
     st = ns["study"]
     want_exc = CapacitorSheets(C_F, ESR_OHM, on=(PORTS[PLANT_INDEX],))
-    _p0(f"[WF-17 s14] (In) solve calls {len(calls)}; geometry {st.geometry!r}; material "
+    _p0(
+        f"[WF-17 s14] (In) solve calls {len(calls)}; geometry {st.geometry!r}; material "
         f"{st.material!r}; excitation {st.excitation!r}; frequency "
         f"{float(st.frequency_hz).hex()} (want {FREQUENCY_64_HZ.hex()}); degree {st.degree}; "
         f"conductor {st.conductor!r}; c_f hex {float(st.excitation.c_f).hex()} (C_F "
-        f"{C_F.hex()}); exec {time.perf_counter() - t0:.2f} s")
+        f"{C_F.hex()}); exec {time.perf_counter() - t0:.2f} s"
+    )
     assert len(calls) == 1 and calls[0] is st
     assert type(st.geometry) is FourPortBirdcageGeometry and st.geometry == _geometry()
     assert st.geometry.strip_fraction == GATED_WIDTH_FRACTION
@@ -292,9 +308,11 @@ def test_wf17_s14_docrefs_zero_dead():
     rc, counts = run_checker("--docs-root", "docs/guide", "--check-links")
     link = LINK_PASS_RE.search(_checker_stdout("--docs-root", "docs/guide", "--check-links"))
     assert link is not None, "(D) no 'Link pass:' line"
-    print(f"[WF-17 s14] (D) dead={counts['dead']} links={link.group(1)} pages={link.group(2)} "
-          f"link-dead={link.group(3)} guide={counts['guide']} stale={counts['stale']} "
-          f"exit={counts['exit']} rc={rc}")
+    print(
+        f"[WF-17 s14] (D) dead={counts['dead']} links={link.group(1)} pages={link.group(2)} "
+        f"link-dead={link.group(3)} guide={counts['guide']} stale={counts['stale']} "
+        f"exit={counts['exit']} rc={rc}"
+    )
     assert counts["dead"] == 0
     assert int(link.group(3)) == 0
     assert int(link.group(2)) >= MIN_GUIDE_PAGES
@@ -329,17 +347,22 @@ def test_wf17_s14_esr_block_reproduces_wf16_s10(monkeypatch):
         t0 = time.perf_counter()
         plant = _study(CapacitorSheets(C_F, PLANT_OHM, on=(PORTS[PLANT_INDEX],))).solve(comm)
         t_plant = time.perf_counter() - t0
-    _p0(f"[WF-17 s14] build cache: {cache['real']} real build, {cache['hits']} hits (3 Studies); "
-        f"S0 {t_s0:.1f} s, page block {t_page:.1f} s, S_plant {t_plant:.1f} s")
+    _p0(
+        f"[WF-17 s14] build cache: {cache['real']} real build, {cache['hits']} hits (3 Studies); "
+        f"S0 {t_s0:.1f} s, page block {t_page:.1f} s, S_plant {t_plant:.1f} s"
+    )
 
     # (R0)
     s0 = s0_res.s_matrix
     means = _class_means(s0)
     want = ANS6_EXACT_STRIP_CLASS_MEANS_P1["64"]["cu"]
     rel_r0 = {c: abs(means[c] - want[c]) / abs(want[c]) for c in CLASSES}
-    _p0(f"[WF-17 s14] (R0) cells {s0_res.cells} (record {ANS6_EXACT_STRIP_HOLE_CELL_RECORD}); "
-        "Cu class means vs record: " + " / ".join(f"{c} {rel_r0[c]:.3e}" for c in CLASSES)
-        + f" (ASSERTED <= {LEG_D0_REPRODUCTION_BAND:.0e}; W1:976 {W1_R0})")
+    _p0(
+        f"[WF-17 s14] (R0) cells {s0_res.cells} (record {ANS6_EXACT_STRIP_HOLE_CELL_RECORD}); "
+        "Cu class means vs record: "
+        + " / ".join(f"{c} {rel_r0[c]:.3e}" for c in CLASSES)
+        + f" (ASSERTED <= {LEG_D0_REPRODUCTION_BAND:.0e}; W1:976 {W1_R0})"
+    )
 
     # (I) the page's identity
     result = ns["result"]
@@ -347,15 +370,19 @@ def test_wf17_s14_esr_block_reproduces_wf16_s10(monkeypatch):
     z0 = float(REFERENCE_IMPEDANCE_OHM)
     pred = reduce_terminated_ports(s0, z0, {PLANT_INDEX: _rc(ESR_OHM)})
     r_i = _rel(result.s_matrix, pred)
-    _p0(f"[WF-17 s14] (I) page ports {ids}; Z {result.capacitor_impedance_ohm!r} (want "
+    _p0(
+        f"[WF-17 s14] (I) page ports {ids}; Z {result.capacitor_impedance_ohm!r} (want "
         f"{_rc(ESR_OHM)!r}); S {result.s_matrix.shape}; rel {r_i:.6e} "
-        f"({r_i / REDUCTION_BAND:.4f} x REDUCTION_BAND {REDUCTION_BAND:.0e}; W1:980 {W1_I_P2})")
+        f"({r_i / REDUCTION_BAND:.4f} x REDUCTION_BAND {REDUCTION_BAND:.0e}; W1:980 {W1_I_P2})"
+    )
 
     # (N1) planted 0.4 ohm on P2
     r_n1 = _rel(plant.s_matrix, pred)
-    _p0(f"[WF-17 s14] (N1) planted r = {PLANT_OHM:g} on P{PLANT_INDEX + 1}: {r_n1:.6e} = "
+    _p0(
+        f"[WF-17 s14] (N1) planted r = {PLANT_OHM:g} on P{PLANT_INDEX + 1}: {r_n1:.6e} = "
         f"{r_n1 / REDUCTION_BAND:.3f} x REDUCTION_BAND (ASSERTED > {REDUCTION_BAND:.0e}; "
-        f"W1:996 {W1_N1})")
+        f"W1:996 {W1_N1})"
+    )
     _p0(f"[WF-17 s14] W-esr node {time.perf_counter() - t_node:.1f} s")
 
     assert cache["real"] == 1 and cache["hits"] == 2

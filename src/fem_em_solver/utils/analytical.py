@@ -1,30 +1,27 @@
 """Analytical solutions for electromagnetic validation cases."""
 
 import numpy as np
-from typing import Union, Callable
 
 from .constants import MU_0
 
 
 class AnalyticalSolutions:
     """Collection of analytical solutions for EM validation."""
-    
+
     @staticmethod
     def straight_wire_magnetic_field(
-        points: np.ndarray,
-        current: float,
-        wire_position: np.ndarray = None
+        points: np.ndarray, current: float, wire_position: np.ndarray = None
     ) -> np.ndarray:
         """Analytical B-field for infinite straight wire.
-        
+
         For a wire along the z-axis carrying current I:
             B_φ = μ₀I / (2πr)
-        
+
         In Cartesian coordinates:
             B_x = -μ₀I * y / (2πr²)
             B_y =  μ₀I * x / (2πr²)
             B_z = 0
-        
+
         Parameters
         ----------
         points : np.ndarray
@@ -33,7 +30,7 @@ class AnalyticalSolutions:
             Current in wire [A]
         wire_position : np.ndarray, optional
             (x, y) position of wire. Default is (0, 0)
-            
+
         Returns
         -------
         np.ndarray
@@ -41,38 +38,38 @@ class AnalyticalSolutions:
         """
         if wire_position is None:
             wire_position = np.array([0.0, 0.0])
-        
+
         mu_0 = 4 * np.pi * 1e-7  # H/m
-        
+
         # Extract coordinates relative to wire
         x = points[:, 0] - wire_position[0]
         y = points[:, 1] - wire_position[1]
-        
+
         # Cylindrical radius
         r = np.sqrt(x**2 + y**2)
-        
+
         # Avoid division by zero at wire location
         r = np.maximum(r, 1e-10)
-        
+
         # B-field magnitude (azimuthal direction)
         B_phi = mu_0 * current / (2 * np.pi * r)
-        
+
         # Convert to Cartesian
         # B_φ direction is (-y/r, x/r, 0)
         B = np.zeros_like(points)
         B[:, 0] = -B_phi * y / r  # B_x
-        B[:, 1] =  B_phi * x / r  # B_y
-        B[:, 2] = 0.0              # B_z
-        
+        B[:, 1] = B_phi * x / r  # B_y
+        B[:, 2] = 0.0  # B_z
+
         return B
-    
+
     @staticmethod
     def straight_wire_vector_potential(
         points: np.ndarray,
         current: float,
         wire_position: np.ndarray = None,
         A_ref: float = 0.0,
-        wire_radius: float = None
+        wire_radius: float = None,
     ) -> np.ndarray:
         """Analytical A-field for infinite straight wire.
 
@@ -136,21 +133,14 @@ class AnalyticalSolutions:
 
         outside = r >= wire_radius
         a_z = np.empty_like(r)
-        a_z[outside] = (
-            -mu_0 * current / (2 * np.pi) * np.log(r[outside] / wire_radius)
-        )
-        a_z[~outside] = (
-            mu_0 * current / (4 * np.pi) * (1.0 - (r[~outside] / wire_radius) ** 2)
-        )
+        a_z[outside] = -mu_0 * current / (2 * np.pi) * np.log(r[outside] / wire_radius)
+        a_z[~outside] = mu_0 * current / (4 * np.pi) * (1.0 - (r[~outside] / wire_radius) ** 2)
         A[:, 2] = a_z + A_ref
         return A
 
     @staticmethod
     def circular_loop_vector_potential(
-        points: np.ndarray,
-        current: float,
-        radius: float,
-        loop_center: float = 0.0
+        points: np.ndarray, current: float, radius: float, loop_center: float = 0.0
     ) -> np.ndarray:
         """Off-axis vector potential of a circular current loop (Jackson 5.37).
 
@@ -207,7 +197,9 @@ class AnalyticalSolutions:
         m = 4.0 * radius * rho_a / ((radius + rho_a) ** 2 + z_a**2)  # m = k²
         k = np.sqrt(m)
         a_phi = (
-            mu_0 * current / np.pi
+            mu_0
+            * current
+            / np.pi
             * np.sqrt(radius / rho_a)
             * ((1.0 - m / 2.0) * ellipk(m) - ellipe(m))
             / k
@@ -220,10 +212,7 @@ class AnalyticalSolutions:
 
     @staticmethod
     def circular_loop_magnetic_field(
-        points: np.ndarray,
-        current: float,
-        radius: float,
-        loop_center: float = 0.0
+        points: np.ndarray, current: float, radius: float, loop_center: float = 0.0
     ) -> np.ndarray:
         """Off-axis B-field of a circular current loop (elliptic integrals).
 
@@ -307,16 +296,13 @@ class AnalyticalSolutions:
 
     @staticmethod
     def circular_loop_magnetic_field_on_axis(
-        z: np.ndarray,
-        current: float,
-        radius: float,
-        loop_center: float = 0.0
+        z: np.ndarray, current: float, radius: float, loop_center: float = 0.0
     ) -> np.ndarray:
         """B-field on axis of circular current loop.
-        
+
         For a loop of radius a in the xy-plane, centered at z=z0:
             B_z(z) = μ₀Ia² / (2(a² + (z-z0)²)^(3/2))
-        
+
         Parameters
         ----------
         z : np.ndarray
@@ -327,34 +313,31 @@ class AnalyticalSolutions:
             Loop radius [m]
         loop_center : float
             z-position of loop center [m]
-            
+
         Returns
         -------
         np.ndarray
             B_z at positions z
         """
         mu_0 = 4 * np.pi * 1e-7
-        
+
         dz = z - loop_center
-        denom = 2 * (radius**2 + dz**2)**(3/2)
-        
+        denom = 2 * (radius**2 + dz**2) ** (3 / 2)
+
         B_z = mu_0 * current * radius**2 / denom
-        
+
         return B_z
-    
+
     @staticmethod
     def helmholtz_coil_field_on_axis(
-        z: np.ndarray,
-        current: float,
-        radius: float,
-        separation: float = None
+        z: np.ndarray, current: float, radius: float, separation: float = None
     ) -> np.ndarray:
         """B-field on axis of Helmholtz coil.
-        
+
         Helmholtz coil: two identical loops separated by distance = radius,
         carrying current in same direction. This configuration gives
         maximally uniform field in the center.
-        
+
         Parameters
         ----------
         z : np.ndarray
@@ -365,7 +348,7 @@ class AnalyticalSolutions:
             Loop radius [m]
         separation : float, optional
             Distance between loops. Default is radius (Helmholtz condition)
-            
+
         Returns
         -------
         np.ndarray
@@ -373,30 +356,22 @@ class AnalyticalSolutions:
         """
         if separation is None:
             separation = radius  # Helmholtz condition
-        
+
         # Center the configuration at z=0
         z1 = -separation / 2
         z2 = separation / 2
-        
-        B1 = AnalyticalSolutions.circular_loop_magnetic_field_on_axis(
-            z, current, radius, z1
-        )
-        B2 = AnalyticalSolutions.circular_loop_magnetic_field_on_axis(
-            z, current, radius, z2
-        )
-        
+
+        B1 = AnalyticalSolutions.circular_loop_magnetic_field_on_axis(z, current, radius, z1)
+        B2 = AnalyticalSolutions.circular_loop_magnetic_field_on_axis(z, current, radius, z2)
+
         return B1 + B2
 
 
 _ARC_GAUSS_ORDER = 64
-_ARC_GAUSS_NODES, _ARC_GAUSS_WEIGHTS = np.polynomial.legendre.leggauss(
-    _ARC_GAUSS_ORDER
-)
+_ARC_GAUSS_NODES, _ARC_GAUSS_WEIGHTS = np.polynomial.legendre.leggauss(_ARC_GAUSS_ORDER)
 
 
-def _finite_segment_kernel(
-    points: np.ndarray, start: np.ndarray, end: np.ndarray
-) -> np.ndarray:
+def _finite_segment_kernel(points: np.ndarray, start: np.ndarray, end: np.ndarray) -> np.ndarray:
     """B per unit current of one straight filament from ``start`` to ``end``.
 
     The closed form is the standard finite-segment Biot--Savart result written
@@ -447,9 +422,7 @@ def _arc_kernel(
         axis=1,
     )
     # dl/dphi = radius * phi_hat
-    tangent = radius * np.stack(
-        [-np.sin(phi), np.cos(phi), np.zeros_like(phi)], axis=1
-    )
+    tangent = radius * np.stack([-np.sin(phi), np.cos(phi), np.zeros_like(phi)], axis=1)
 
     delta = points[:, None, :] - source[None, :, :]
     dist = np.linalg.norm(delta, axis=2)
@@ -562,8 +535,7 @@ def birdcage_filament_field(
                 f"N = {n_legs}; got {rings.shape}"
             )
 
-    dtype = np.result_type(float, legs.dtype, np.asarray(top).dtype,
-                           np.asarray(bottom).dtype)
+    dtype = np.result_type(float, legs.dtype, np.asarray(top).dtype, np.asarray(bottom).dtype)
     field = np.zeros((points.shape[0], 3), dtype=dtype)
 
     theta = 2.0 * np.pi * np.arange(n_legs) / n_legs
@@ -573,8 +545,7 @@ def birdcage_filament_field(
         if legs[n] == 0:
             continue
         foot = np.array(
-            [ring_radius * np.cos(theta[n]), ring_radius * np.sin(theta[n]),
-             -half_length]
+            [ring_radius * np.cos(theta[n]), ring_radius * np.sin(theta[n]), -half_length]
         )
         head = foot + np.array([0.0, 0.0, coil_length])
         field += legs[n] * _finite_segment_kernel(points, foot, head)
@@ -585,9 +556,7 @@ def birdcage_filament_field(
         for z_plane, current in ((half_length, top[n]), (-half_length, bottom[n])):
             if current == 0:
                 continue
-            field += current * _arc_kernel(
-                points, ring_radius, z_plane, phi_start, phi_end
-            )
+            field += current * _arc_kernel(points, ring_radius, z_plane, phi_start, phi_end)
 
     return field
 
@@ -779,12 +748,8 @@ class LossySphereSeries:
         xi_x, dxi_x = xi_x[:, 0], dxi_x[:, 0]
         psi_mx, dpsi_mx = psi_mx[:, 0], dpsi_mx[:, 0]
 
-        a_n = (m * psi_mx * dpsi_x - psi_x * dpsi_mx) / (
-            m * psi_mx * dxi_x - xi_x * dpsi_mx
-        )
-        b_n = (psi_mx * dpsi_x - m * psi_x * dpsi_mx) / (
-            psi_mx * dxi_x - m * xi_x * dpsi_mx
-        )
+        a_n = (m * psi_mx * dpsi_x - psi_x * dpsi_mx) / (m * psi_mx * dxi_x - xi_x * dpsi_mx)
+        b_n = (psi_mx * dpsi_x - m * psi_x * dpsi_mx) / (psi_mx * dxi_x - m * xi_x * dpsi_mx)
         wronskian = m * (psi_x * dxi_x - xi_x * dpsi_x)
         c_n = wronskian / (psi_mx * dxi_x - m * xi_x * dpsi_mx)
         d_n = wronskian / (m * psi_mx * dxi_x - xi_x * dpsi_mx)
@@ -806,16 +771,10 @@ class LossySphereSeries:
         n = self.n_terms
         e_n = (2.0 * n + 1.0) / (n * (n + 1.0))
         radial = abs(
-            complex(
-                self._sph_jn(
-                    np.array([n]), np.array([self.m * self.k0 * self.radius])
-                )[0]
-            )
+            complex(self._sph_jn(np.array([n]), np.array([self.m * self.k0 * self.radius]))[0])
         )
         return float(
-            e_n
-            * max(abs(self._coefficients["c"][-1]), abs(self._coefficients["d"][-1]))
-            * radial
+            e_n * max(abs(self._coefficients["c"][-1]), abs(self._coefficients["d"][-1])) * radial
         )
 
     # ------------------------------------------------------------------ fields
@@ -829,9 +788,7 @@ class LossySphereSeries:
         pi_n[1] = 1.0
         tau_n[1] = mu
         for n in range(2, n_max + 1):
-            pi_n[n] = ((2 * n - 1) / (n - 1)) * mu * pi_n[n - 1] - (n / (n - 1)) * pi_n[
-                n - 2
-            ]
+            pi_n[n] = ((2 * n - 1) / (n - 1)) * mu * pi_n[n - 1] - (n / (n - 1)) * pi_n[n - 2]
             tau_n[n] = n * mu * pi_n[n] - (n + 1) * pi_n[n - 1]
         return pi_n[1:], tau_n[1:]
 
@@ -851,12 +808,8 @@ class LossySphereSeries:
         sin_theta = np.sqrt(np.maximum(0.0, 1.0 - mu**2))
         phi = np.arctan2(points[:, 1], points[:, 0])
         cos_phi, sin_phi = np.cos(phi), np.sin(phi)
-        e_r = np.stack(
-            [sin_theta * cos_phi, sin_theta * sin_phi, mu], axis=1
-        )
-        e_theta = np.stack(
-            [mu * cos_phi, mu * sin_phi, -sin_theta], axis=1
-        )
+        e_r = np.stack([sin_theta * cos_phi, sin_theta * sin_phi, mu], axis=1)
+        e_theta = np.stack([mu * cos_phi, mu * sin_phi, -sin_theta], axis=1)
         e_phi = np.stack([-sin_phi, cos_phi, np.zeros_like(phi)], axis=1)
         return r, mu, sin_theta, cos_phi, sin_phi, e_r, e_theta, e_phi
 
@@ -866,9 +819,7 @@ class LossySphereSeries:
         Returns the textbook (``e^{-iωt}``) field; the public methods conjugate.
         """
         n_max = self.n_terms
-        r, mu, sin_theta, cos_phi, sin_phi, e_r, e_theta, e_phi = (
-            self._spherical_frame(points)
-        )
+        r, mu, sin_theta, cos_phi, sin_phi, e_r, e_theta, e_phi = self._spherical_frame(points)
         pi_n, tau_n = self._angular_functions(n_max, mu)
         n = np.arange(1, n_max + 1).reshape(-1, 1)
 
@@ -890,7 +841,7 @@ class LossySphereSeries:
 
         z_n = psi / rho  # the radial function itself
         d_n = d_psi / rho  # [ρ z_n(ρ)]'/ρ
-        e_n = 1j**n.astype(float) * self.e0 * (2.0 * n + 1.0) / (n * (n + 1.0))
+        e_n = 1j ** n.astype(float) * self.e0 * (2.0 * n + 1.0) / (n * (n + 1.0))
         coeff_m = coeff_m.reshape(-1, 1)
         coeff_n = coeff_n.reshape(-1, 1)
 
@@ -912,11 +863,7 @@ class LossySphereSeries:
         comp_theta = np.sum(e_n * (w_m * m_theta + w_n * n_theta), axis=0)
         comp_phi = np.sum(e_n * (w_m * m_phi + w_n * n_phi), axis=0)
 
-        return (
-            comp_r[:, None] * e_r
-            + comp_theta[:, None] * e_theta
-            + comp_phi[:, None] * e_phi
-        )
+        return comp_r[:, None] * e_r + comp_theta[:, None] * e_theta + comp_phi[:, None] * e_phi
 
     def incident_field(self, points: np.ndarray) -> np.ndarray:
         """Series form of the incident plane wave, shape (n, 3), complex."""
@@ -964,44 +911,44 @@ class LossySphereSeries:
 
 class ErrorMetrics:
     """Error metrics for comparing numerical and analytical solutions."""
-    
+
     @staticmethod
     def l2_error(numerical: np.ndarray, analytical: np.ndarray) -> float:
         """Compute L2 norm of error.
-        
+
         ||u_num - u_ana||₂ = sqrt(∫ |u_num - u_ana|² dx)
-        
+
         For discrete points:
             L2_error = sqrt(sum(|u_num - u_ana|²))
         """
         diff = numerical - analytical
         return np.sqrt(np.sum(diff**2))
-    
+
     @staticmethod
     def l2_relative_error(numerical: np.ndarray, analytical: np.ndarray) -> float:
         """Compute relative L2 error."""
         l2_err = ErrorMetrics.l2_error(numerical, analytical)
         l2_ana = np.sqrt(np.sum(analytical**2))
-        
+
         if l2_ana < 1e-15:
             return l2_err
-        
+
         return l2_err / l2_ana
-    
+
     @staticmethod
     def max_error(numerical: np.ndarray, analytical: np.ndarray) -> float:
         """Compute maximum absolute error (L∞ norm)."""
         return np.max(np.abs(numerical - analytical))
-    
+
     @staticmethod
     def max_relative_error(numerical: np.ndarray, analytical: np.ndarray) -> float:
         """Compute maximum relative error."""
         abs_err = np.abs(numerical - analytical)
         max_abs_ana = np.max(np.abs(analytical))
-        
+
         if max_abs_ana < 1e-15:
             return np.max(abs_err)
-        
+
         return np.max(abs_err / (np.abs(analytical) + 1e-15))
 
 
@@ -1074,8 +1021,7 @@ def robin_sphere_linear_source_coefficients(*, radius, k, q0, alpha, h):
     lam1 = float(robin_sphere_eigenvalues(bi, 1)[0])
     if m * R >= lam1:
         raise ValueError(
-            f"m*R = {m * R!r} >= lambda_1 = {lam1!r}: thermal runaway, "
-            "no steady state"
+            f"m*R = {m * R!r} >= lambda_1 = {lam1!r}: thermal runaway, " "no steady state"
         )
     D = m * R * np.cos(m * R) + (bi - 1.0) * np.sin(m * R)
     A = bi * R / (alpha * D)
@@ -1246,8 +1192,7 @@ def robin_sphere_eigenvalues(biot: float, n: int):
     for i in range(1, int(n) + 1):
         lo = (i - 1) * np.pi + 1e-12
         hi = i * np.pi - 1e-12
-        roots[i - 1] = brentq(f, lo, hi, xtol=1e-15, rtol=4 * np.finfo(float).eps,
-                              maxiter=500)
+        roots[i - 1] = brentq(f, lo, hi, xtol=1e-15, rtol=4 * np.finfo(float).eps, maxiter=500)
     return roots
 
 
@@ -1327,10 +1272,8 @@ def robin_sphere_transient_temperature(
     x = lam * rho
     with np.errstate(invalid="ignore", divide="ignore"):
         X = np.where(x == 0.0, 1.0, np.sin(x) / np.where(x == 0.0, 1.0, x))
-    series = np.sum((theta_i * C - B) * np.exp(-lam**2 * alpha * tt / R**2) * X, axis=-1)
-    theta_ss = robin_sphere_steady_temperature(
-        rho[..., 0] * R, radius=R, k=k, q=q, h=h, t_inf=0.0
-    )
+    series = np.sum((theta_i * C - B) * np.exp(-(lam**2) * alpha * tt / R**2) * X, axis=-1)
+    theta_ss = robin_sphere_steady_temperature(rho[..., 0] * R, radius=R, k=k, q=q, h=h, t_inf=0.0)
     return t_inf + theta_ss + series
 
 
@@ -1395,9 +1338,7 @@ def robin_sphere_perfusion_transient_temperature(
     x = lam * rho
     with np.errstate(invalid="ignore", divide="ignore"):
         X = np.where(x == 0.0, 1.0, np.sin(x) / np.where(x == 0.0, 1.0, x))
-    series = np.sum(
-        (theta_i * C - B) * np.exp(-(lam**2 + x2) * alpha * tt / R**2) * X, axis=-1
-    )
+    series = np.sum((theta_i * C - B) * np.exp(-(lam**2 + x2) * alpha * tt / R**2) * X, axis=-1)
     theta_ss = robin_sphere_perfusion_temperature(
         rho[..., 0] * R, radius=R, k=k, q=q, w=w, h=h, t_inf=0.0
     )
@@ -1581,9 +1522,7 @@ def prolate_spheroidal_coordinates(points, focal):
     return np.maximum(xi, 1.0), eta
 
 
-def pec_prolate_spheroid_potential(
-    points, *, semi_major, semi_minor, e0=1.0, scattered_only=False
-):
+def pec_prolate_spheroid_potential(points, *, semi_major, semi_minor, e0=1.0, scattered_only=False):
     """Quasi-static potential ``φ = −E₀ f η [ξ − ξ₀ Q₁(ξ)/Q₁(ξ₀)]`` outside a
     grounded PEC prolate spheroid (semi-axis ``semi_major`` = c along z,
     ``semi_minor`` = a) in the uniform field E₀ẑ (φ₀ = −E₀z); zero inside.
@@ -1607,9 +1546,7 @@ def pec_prolate_spheroid_potential(
     return out
 
 
-def pec_prolate_spheroid_field(
-    points, *, semi_major, semi_minor, e0=1.0, interior="zero"
-):
+def pec_prolate_spheroid_field(points, *, semi_major, semi_minor, e0=1.0, interior="zero"):
     """Quasi-static field ``E = E₀ẑ − ∇φ_s`` outside the grounded PEC prolate
     spheroid of :func:`pec_prolate_spheroid_potential` (`IMP-2` step 1, §9
     item 144), as an (N, 3) array.
@@ -1892,8 +1829,7 @@ def robin_slab_eigenvalues(biot: float, n: int):
     for i in range(1, int(n) + 1):
         lo = (i - 1) * np.pi
         hi = (i - 0.5) * np.pi
-        roots[i - 1] = brentq(f, lo, hi, xtol=1e-15, rtol=4 * np.finfo(float).eps,
-                              maxiter=500)
+        roots[i - 1] = brentq(f, lo, hi, xtol=1e-15, rtol=4 * np.finfo(float).eps, maxiter=500)
     return roots
 
 
@@ -1919,8 +1855,7 @@ def robin_cylinder_eigenvalues(biot: float, n: int):
 
     roots = np.empty(n)
     for i in range(n):
-        roots[i] = brentq(f, z1[i], z0[i], xtol=1e-15, rtol=4 * np.finfo(float).eps,
-                          maxiter=500)
+        roots[i] = brentq(f, z1[i], z0[i], xtol=1e-15, rtol=4 * np.finfo(float).eps, maxiter=500)
     return roots
 
 
@@ -1940,9 +1875,9 @@ def _robin_slab_coefficients(gamma):
     return 2.0 * np.sin(gamma) / (gamma + np.sin(gamma) * np.cos(gamma))
 
 
-def robin_finite_cylinder_steady_temperature(r, z, *, radius, half_height, k, q, h,
-                                             t_inf=0.0, n_terms=400,
-                                             return_gradient=False):
+def robin_finite_cylinder_steady_temperature(
+    r, z, *, radius, half_height, k, q, h, t_inf=0.0, n_terms=400, return_gradient=False
+):
     """Steady temperature of the finite cylinder ``r ≤ a, |z| ≤ L`` with a
     uniform source ``q`` and Robin walls ``−k∂ₙT = h(T − T∞)`` everywhere
     (`MAT-15` step 2(a)).
@@ -1970,8 +1905,8 @@ def robin_finite_cylinder_steady_temperature(r, z, *, radius, half_height, k, q,
     cn = _robin_slab_coefficients(gam)
     sn = (q * L**2 / k) * cn / gam**2
     xa = gam * a / L
-    denom = k * (gam / L) * i1e(xa) + h * i0e(xa)   # scaled by e^{−xa}
-    dn_s = -h * sn / denom                           # Dₙ e^{xa}
+    denom = k * (gam / L) * i1e(xa) + h * i0e(xa)  # scaled by e^{−xa}
+    dn_s = -h * sn / denom  # Dₙ e^{xa}
     rr = r[..., None]
     zz = z[..., None]
     xr = gam * rr / L
@@ -1985,10 +1920,25 @@ def robin_finite_cylinder_steady_temperature(r, z, *, radius, half_height, k, q,
     return t_inf + theta, dr, dz
 
 
-def robin_finite_cylinder_transient_temperature(r, z, t, *, radius, half_height, k, q, h,
-                                                rho_c, t_inf=0.0, t_init=None,
-                                                n_radial=200, n_axial=200, n_terms=400,
-                                                radial_roots=None, return_gradient=False):
+def robin_finite_cylinder_transient_temperature(
+    r,
+    z,
+    t,
+    *,
+    radius,
+    half_height,
+    k,
+    q,
+    h,
+    rho_c,
+    t_inf=0.0,
+    t_init=None,
+    n_radial=200,
+    n_axial=200,
+    n_terms=400,
+    radial_roots=None,
+    return_gradient=False,
+):
     """Transient temperature of the finite Robin cylinder, uniform source ``q``
     switched on at ``t = 0`` from the uniform ``T(0) = t_init`` (default T∞)
     (`MAT-15` step 2(a)).
@@ -2011,8 +1961,11 @@ def robin_finite_cylinder_transient_temperature(r, z, t, *, radius, half_height,
     alpha = k / rho_c
     r = np.asarray(r, dtype=float)
     z = np.asarray(z, dtype=float)
-    beta = (robin_cylinder_eigenvalues(h * a / k, n_radial) if radial_roots is None
-            else np.asarray(radial_roots, dtype=float))
+    beta = (
+        robin_cylinder_eigenvalues(h * a / k, n_radial)
+        if radial_roots is None
+        else np.asarray(radial_roots, dtype=float)
+    )
     gam = robin_slab_eigenvalues(h * L / k, n_axial)
     cm = _robin_cylinder_coefficients(beta)
     cn = _robin_slab_coefficients(gam)
@@ -2024,8 +1977,17 @@ def robin_finite_cylinder_transient_temperature(r, z, t, *, radius, half_height,
     cz = np.cos(gam * zz / L)
     s = np.einsum("...m,mn,...n->...", jr, amp, cz)
     ss = robin_finite_cylinder_steady_temperature(
-        r, z, radius=a, half_height=L, k=k, q=q, h=h, t_inf=t_inf, n_terms=n_terms,
-        return_gradient=return_gradient)
+        r,
+        z,
+        radius=a,
+        half_height=L,
+        k=k,
+        q=q,
+        h=h,
+        t_inf=t_inf,
+        n_terms=n_terms,
+        return_gradient=return_gradient,
+    )
     if not return_gradient:
         return ss + s
     tss, dr_ss, dz_ss = ss
@@ -2038,7 +2000,7 @@ def robin_finite_cylinder_transient_temperature(r, z, t, *, radius, half_height,
 # MAT-21 step 0: the rectangular Robin box with a uniform source (closed form)
 # ---------------------------------------------------------------------------
 
-_ROBIN_BOX_CHUNK = 2**22   # doubles in the (P × N_y·N_z) intermediate (32 MiB)
+_ROBIN_BOX_CHUNK = 2**22  # doubles in the (P × N_y·N_z) intermediate (32 MiB)
 
 
 def _robin_box_axes(half_widths, k, h, n_terms, roots):
@@ -2048,8 +2010,9 @@ def _robin_box_axes(half_widths, k, h, n_terms, roots):
     out = []
     for L, n, rt in zip(half_widths, n_terms, roots):
         L = float(L)
-        gam = (robin_slab_eigenvalues(h * L / k, int(n)) if rt is None
-               else np.asarray(rt, dtype=float))
+        gam = (
+            robin_slab_eigenvalues(h * L / k, int(n)) if rt is None else np.asarray(rt, dtype=float)
+        )
         out.append((L, gam, _robin_slab_coefficients(gam)))
     return out
 
@@ -2090,22 +2053,27 @@ def _robin_box_sum(W, x, y, z, axes, deriv=(False, False, False)):
 
 
 def _robin_box_eval(W, x, y, z, axes, t_inf, return_gradient):
-    x, y, z = np.broadcast_arrays(np.asarray(x, dtype=float), np.asarray(y, dtype=float),
-                                  np.asarray(z, dtype=float))
+    x, y, z = np.broadcast_arrays(
+        np.asarray(x, dtype=float), np.asarray(y, dtype=float), np.asarray(z, dtype=float)
+    )
     shape = x.shape
     T = t_inf + _robin_box_sum(W, x, y, z, axes).reshape(shape)
     if not return_gradient:
         return T
     grads = tuple(
         _robin_box_sum(W, x, y, z, axes, deriv=tuple(i == d for i in range(3))).reshape(shape)
-        for d in range(3))
+        for d in range(3)
+    )
     return T, grads
 
 
 def _robin_box_lambda(axes):
     (Lx, gx, _), (Ly, gy, _), (Lz, gz, _) = axes
-    return ((gx / Lx) ** 2)[:, None, None] + ((gy / Ly) ** 2)[None, :, None] \
+    return (
+        ((gx / Lx) ** 2)[:, None, None]
+        + ((gy / Ly) ** 2)[None, :, None]
         + ((gz / Lz) ** 2)[None, None, :]
+    )
 
 
 def _robin_box_c3(axes):
@@ -2113,8 +2081,20 @@ def _robin_box_c3(axes):
     return cx[:, None, None] * cy[None, :, None] * cz[None, None, :]
 
 
-def robin_box_steady_temperature(x, y, z, *, half_widths, k, q, h, t_inf=0.0,
-                                 n_terms=(40, 40, 40), roots=None, return_gradient=False):
+def robin_box_steady_temperature(
+    x,
+    y,
+    z,
+    *,
+    half_widths,
+    k,
+    q,
+    h,
+    t_inf=0.0,
+    n_terms=(40, 40, 40),
+    roots=None,
+    return_gradient=False,
+):
     """Steady temperature of the box ``|x| ≤ A, |y| ≤ B, |z| ≤ C`` with a
     uniform source ``q`` and Robin walls ``−k∂ₙT = h(T − T∞)`` on all six
     faces (`MAT-21` step 0).
@@ -2145,9 +2125,23 @@ def robin_box_steady_temperature(x, y, z, *, half_widths, k, q, h, t_inf=0.0,
     return _robin_box_eval(W, x, y, z, axes, float(t_inf), return_gradient)
 
 
-def robin_box_transient_temperature(x, y, z, t, *, half_widths, k, q, h, rho_c, t_inf=0.0,
-                                    t_init=None, n_terms=(40, 40, 40), roots=None,
-                                    return_gradient=False):
+def robin_box_transient_temperature(
+    x,
+    y,
+    z,
+    t,
+    *,
+    half_widths,
+    k,
+    q,
+    h,
+    rho_c,
+    t_inf=0.0,
+    t_init=None,
+    n_terms=(40, 40, 40),
+    roots=None,
+    return_gradient=False,
+):
     """Transient temperature of the Robin box, uniform ``q`` switched on at
     ``t = 0`` from the uniform ``T(0) = t_init`` (default T∞) (`MAT-21` step 0).
 
@@ -2202,9 +2196,20 @@ def _robin_box_separable_axes(half_widths, k, h, n_terms, profiles):
     return axes, axes_p
 
 
-def robin_box_separable_steady_temperature(x, y, z, *, half_widths, k, q, h, profiles,
-                                           t_inf=0.0, n_terms=(40, 40, 40),
-                                           return_gradient=False):
+def robin_box_separable_steady_temperature(
+    x,
+    y,
+    z,
+    *,
+    half_widths,
+    k,
+    q,
+    h,
+    profiles,
+    t_inf=0.0,
+    n_terms=(40, 40, 40),
+    return_gradient=False,
+):
     """Steady Robin box (as ``robin_box_steady_temperature``) under the
     separable source ``q·q_x(x)q_y(y)q_z(z)``, ``q_d(s) = a_d + b_d cos(j_d π s/L_d)``
     (`MAT-21` step 6; Carslaw & Jaeger's product solution as a pointer).
@@ -2221,9 +2226,22 @@ def robin_box_separable_steady_temperature(x, y, z, *, half_widths, k, q, h, pro
     return _robin_box_eval(W, x, y, z, axes, float(t_inf), return_gradient)
 
 
-def robin_box_separable_transient_temperature(x, y, z, t, *, half_widths, k, q, h, rho_c,
-                                              profiles, t_inf=0.0, n_terms=(40, 40, 40),
-                                              return_gradient=False):
+def robin_box_separable_transient_temperature(
+    x,
+    y,
+    z,
+    t,
+    *,
+    half_widths,
+    k,
+    q,
+    h,
+    rho_c,
+    profiles,
+    t_inf=0.0,
+    n_terms=(40, 40, 40),
+    return_gradient=False,
+):
     """Transient separable-source Robin box from θ₀ = 0 (`MAT-21` step 6):
     ``θ = Σ P_l P_m P_n XYZ (q/(kΛ))(−expm1(−αΛt))``; Duhamel
     ``θ = (q/ρc)∫₀ᵗ U′_x U′_y U′_z ds``, ``U′_d = Σ P_n X_n e^{−α(γₙ/L_d)²s}``.
@@ -2260,14 +2278,29 @@ def _robin_box_quadratic_tensor(half_widths, k, h, n_terms, weights):
     axes_ex = [ax_e[0], axes[1], axes[2]]
     axes_ey = [axes[0], ax_e[1], axes[2]]
     axes_ez = [axes[0], axes[1], ax_e[2]]
-    T = (w0 * _robin_box_c3(axes) + wx * _robin_box_c3(axes_ex)
-         + wy * _robin_box_c3(axes_ey) + wz * _robin_box_c3(axes_ez))
+    T = (
+        w0 * _robin_box_c3(axes)
+        + wx * _robin_box_c3(axes_ex)
+        + wy * _robin_box_c3(axes_ey)
+        + wz * _robin_box_c3(axes_ez)
+    )
     return axes, T
 
 
-def robin_box_quadratic_steady_temperature(x, y, z, *, half_widths, k, q, h, weights,
-                                           t_inf=0.0, n_terms=(40, 40, 40),
-                                           return_gradient=False):
+def robin_box_quadratic_steady_temperature(
+    x,
+    y,
+    z,
+    *,
+    half_widths,
+    k,
+    q,
+    h,
+    weights,
+    t_inf=0.0,
+    n_terms=(40, 40, 40),
+    return_gradient=False,
+):
     """Steady Robin box (as ``robin_box_steady_temperature``) under the
     quadratic source ``q·[w₀ + w_x(x/A)² + w_y(y/B)² + w_z(z/C)²]``,
     ``weights = (w₀, w_x, w_y, w_z)`` (`MAT-21` step 9; Carslaw & Jaeger's
@@ -2288,9 +2321,22 @@ def robin_box_quadratic_steady_temperature(x, y, z, *, half_widths, k, q, h, wei
     return _robin_box_eval(W, x, y, z, axes, float(t_inf), return_gradient)
 
 
-def robin_box_quadratic_transient_temperature(x, y, z, t, *, half_widths, k, q, h, rho_c,
-                                              weights, t_inf=0.0, n_terms=(40, 40, 40),
-                                              return_gradient=False):
+def robin_box_quadratic_transient_temperature(
+    x,
+    y,
+    z,
+    t,
+    *,
+    half_widths,
+    k,
+    q,
+    h,
+    rho_c,
+    weights,
+    t_inf=0.0,
+    n_terms=(40, 40, 40),
+    return_gradient=False,
+):
     """Transient quadratic-source Robin box from θ₀ = 0 (`MAT-21` step 9):
     ``θ = Σ T_lmn XYZ (q/(kΛ))(−expm1(−αΛt))``, ``α = k/ρc``.  Duhamel
     ``θ = (q/ρc)∫₀ᵗ[w₀U_xU_yU_z + w_xU″_xU_yU_z + w_yU_xU″_yU_z + w_zU_xU_yU″_z] ds``,
@@ -2328,8 +2374,7 @@ def robin_slab_odd_eigenvalues(biot: float, n: int):
     for i in range(1, int(n) + 1):
         lo = (i - 0.5) * np.pi
         hi = i * np.pi
-        roots[i - 1] = brentq(f, lo, hi, xtol=1e-15, rtol=4 * np.finfo(float).eps,
-                              maxiter=500)
+        roots[i - 1] = brentq(f, lo, hi, xtol=1e-15, rtol=4 * np.finfo(float).eps, maxiter=500)
     return roots
 
 
@@ -2348,7 +2393,7 @@ def robin_slab_odd_linear_coefficients(gamma):
     return 2.0 * (s - g * c) / (g * (g - s * c))
 
 
-_ROBIN_GRAD_CHUNK = 2**18   # points per chunk of the per-axis (P × N) factors
+_ROBIN_GRAD_CHUNK = 2**18  # points per chunk of the per-axis (P × N) factors
 
 
 def _robin_axis_factor(s, L, gam, coef, rate, odd, deriv):
@@ -2362,9 +2407,23 @@ def _robin_axis_factor(s, L, gam, coef, rate, odd, deriv):
     return B @ w
 
 
-def robin_box_initial_gradient_temperature(x, y, z, t, *, half_widths, k, h, rho_c, g,
-                                           t_inf=0.0, theta_uniform=0.0, n_terms=40,
-                                           roots_z=None, return_gradient=False):
+def robin_box_initial_gradient_temperature(
+    x,
+    y,
+    z,
+    t,
+    *,
+    half_widths,
+    k,
+    h,
+    rho_c,
+    g,
+    t_inf=0.0,
+    theta_uniform=0.0,
+    n_terms=40,
+    roots_z=None,
+    return_gradient=False,
+):
     """Temperature of the source-free Robin box from the non-uniform initial
     state ``T(0) = T∞ + ḡ + g·z`` (``ḡ = theta_uniform``) (`MAT-21` step 19).
 
@@ -2395,14 +2454,18 @@ def robin_box_initial_gradient_temperature(x, y, z, t, *, half_widths, k, h, rho
     gbar = float(theta_uniform)
     axes = _robin_box_axes(half_widths, k, h, n_terms, None)
     Lz = float(half_widths[2])
-    gz_odd = (robin_slab_odd_eigenvalues(h * Lz / k, int(n_terms[2])) if roots_z is None
-              else np.asarray(roots_z, dtype=float))
+    gz_odd = (
+        robin_slab_odd_eigenvalues(h * Lz / k, int(n_terms[2]))
+        if roots_z is None
+        else np.asarray(roots_z, dtype=float)
+    )
     bz = robin_slab_odd_linear_coefficients(gz_odd)
     rate_odd = alpha * (gz_odd / Lz) ** 2 * t
     rates = [alpha * (gam / L) ** 2 * t for (L, gam, _) in axes]
 
-    x, y, z = np.broadcast_arrays(np.asarray(x, dtype=float), np.asarray(y, dtype=float),
-                                  np.asarray(z, dtype=float))
+    x, y, z = np.broadcast_arrays(
+        np.asarray(x, dtype=float), np.asarray(y, dtype=float), np.asarray(z, dtype=float)
+    )
     shape = x.shape
     xr, yr, zr = x.ravel(), y.ravel(), z.ravel()
     p = xr.size
@@ -2413,14 +2476,16 @@ def robin_box_initial_gradient_temperature(x, y, z, t, *, half_widths, k, h, rho
         sl = slice(i0, min(p, i0 + _ROBIN_GRAD_CHUNK))
         ux = _robin_axis_factor(xr[sl], Lx, gx, cx, rates[0], False, False)
         uy = _robin_axis_factor(yr[sl], Ly, gy, cy, rates[1], False, False)
-        wz = gbar * _robin_axis_factor(zr[sl], Lz, gze, cz, rates[2], False, False) \
-            + g * Lz * _robin_axis_factor(zr[sl], Lz, gz_odd, bz, rate_odd, True, False)
+        wz = gbar * _robin_axis_factor(
+            zr[sl], Lz, gze, cz, rates[2], False, False
+        ) + g * Lz * _robin_axis_factor(zr[sl], Lz, gz_odd, bz, rate_odd, True, False)
         T[sl] = ux * uy * wz
         if return_gradient:
             dux = _robin_axis_factor(xr[sl], Lx, gx, cx, rates[0], False, True)
             duy = _robin_axis_factor(yr[sl], Ly, gy, cy, rates[1], False, True)
-            dwz = gbar * _robin_axis_factor(zr[sl], Lz, gze, cz, rates[2], False, True) \
-                + g * Lz * _robin_axis_factor(zr[sl], Lz, gz_odd, bz, rate_odd, True, True)
+            dwz = gbar * _robin_axis_factor(
+                zr[sl], Lz, gze, cz, rates[2], False, True
+            ) + g * Lz * _robin_axis_factor(zr[sl], Lz, gz_odd, bz, rate_odd, True, True)
             G[0][sl] = dux * uy * wz
             G[1][sl] = ux * duy * wz
             G[2][sl] = ux * uy * dwz
@@ -2443,8 +2508,9 @@ def wall_effective_heat_transfer(h, wall, k_w):
     return 1.0 / (1.0 / float(h) + float(wall) / float(k_w))
 
 
-def two_layer_slab_steady_temperature(z, *, half_thickness, wall, k, k_w, q, h, t_inf=0.0,
-                                      return_gradient=False):
+def two_layer_slab_steady_temperature(
+    z, *, half_thickness, wall, k, k_w, q, h, t_inf=0.0, return_gradient=False
+):
     """Steady temperature of the symmetric 1D two-layer slab (`MAT-21` step 20).
 
     Gel ``|z| ≤ C`` (conductivity k, uniform source q) inside a source-free
@@ -2468,8 +2534,9 @@ def two_layer_slab_steady_temperature(z, *, half_thickness, wall, k, k_w, q, h, 
     t_c = float(t_inf) + q * C * (1.0 / float(h) + d / float(k_w))
     a = np.abs(z)
     gel = a <= C
-    T = np.where(gel, t_c + q * (C * C - z * z) / (2.0 * float(k)),
-                 t_c - (q * C / float(k_w)) * (a - C))
+    T = np.where(
+        gel, t_c + q * (C * C - z * z) / (2.0 * float(k)), t_c - (q * C / float(k_w)) * (a - C)
+    )
     if not return_gradient:
         return T
     dT = np.where(gel, -q * z / float(k), -(q * C / float(k_w)) * np.sign(z))
@@ -2491,15 +2558,14 @@ def _two_layer_slab_mu(x, k, k_w, rho_c, rho_c_w):
     return x * np.sqrt(float(rho_c) / float(k)), x * np.sqrt(float(rho_c_w) / float(k_w))
 
 
-def _two_layer_slab_F(x, *, half_thickness, wall, k, k_w, rho_c, rho_c_w, h,
-                      return_scale=False):
+def _two_layer_slab_F(x, *, half_thickness, wall, k, k_w, rho_c, rho_c_w, h, return_scale=False):
     """Robin residual of the even mode at ``|z| = C + d`` as a function of
     ``x = √λ``: ``F = k_w X′(C + d) + h X(C + d)``.  Entire in λ, ``F(0) = h``."""
     C, d = float(half_thickness), float(wall)
     m1, m2 = _two_layer_slab_mu(x, k, k_w, rho_c, rho_c_w)
     c1, s1 = np.cos(m1 * C), np.sin(m1 * C)
-    c2, s2 = np.cos(m2 * d), np.sin(m2 * d)
-    sd = d * _sinc_x(m2 * d)                     # sin(μ₂d)/μ₂
+    c2 = np.cos(m2 * d)
+    sd = d * _sinc_x(m2 * d)  # sin(μ₂d)/μ₂
     t1 = h * c1 * c2
     t2 = -float(k) * m1 * s1 * c2
     t3 = -float(k_w) * m2 * m2 * c1 * sd
@@ -2510,8 +2576,7 @@ def _two_layer_slab_F(x, *, half_thickness, wall, k, k_w, rho_c, rho_c_w, h,
     return F
 
 
-def two_layer_slab_eigenvalues(*, half_thickness, wall, k, k_w, rho_c, rho_c_w, h, n,
-                               refine=64):
+def two_layer_slab_eigenvalues(*, half_thickness, wall, k, k_w, rho_c, rho_c_w, h, n, refine=64):
     r"""First ``n`` decay rates ``λₙ`` [1/s] of the symmetric two-layer Robin slab
     (`MAT-21` step 20b): even modes of ``(k X′)′ + ρc λ X = 0`` on
     ``0 ≤ z ≤ C + d`` with ``X′(0) = 0``, T and flux continuous at ``z = C``,
@@ -2526,10 +2591,10 @@ def two_layer_slab_eigenvalues(*, half_thickness, wall, k, k_w, rho_c, rho_c_w, 
     """
     from scipy.optimize import brentq
 
-    kw = dict(half_thickness=half_thickness, wall=wall, k=k, k_w=k_w, rho_c=rho_c,
-              rho_c_w=rho_c_w, h=h)
-    lam_len = (float(half_thickness) * np.sqrt(rho_c / k)
-               + float(wall) * np.sqrt(rho_c_w / k_w))
+    kw = dict(
+        half_thickness=half_thickness, wall=wall, k=k, k_w=k_w, rho_c=rho_c, rho_c_w=rho_c_w, h=h
+    )
+    lam_len = float(half_thickness) * np.sqrt(rho_c / k) + float(wall) * np.sqrt(rho_c_w / k_w)
     step = np.pi / (float(refine) * lam_len)
     n = int(n)
     roots = []
@@ -2541,8 +2606,14 @@ def two_layer_slab_eigenvalues(*, half_thickness, wall, k, k_w, rho_c, rho_c_w, 
         fs = _two_layer_slab_F(xs, **kw)
         idx = np.nonzero(np.sign(fs[:-1]) * np.sign(fs[1:]) < 0)[0]
         for i in idx:
-            x0 = brentq(lambda x: float(_two_layer_slab_F(x, **kw)), xs[i], xs[i + 1],
-                        xtol=1e-300, rtol=4 * np.finfo(float).eps, maxiter=500)
+            x0 = brentq(
+                lambda x: float(_two_layer_slab_F(x, **kw)),
+                xs[i],
+                xs[i + 1],
+                xtol=1e-300,
+                rtol=4 * np.finfo(float).eps,
+                maxiter=500,
+            )
             cand = x0 + np.spacing(x0) * np.arange(-16, 17)
             roots.append(float(cand[np.argmin(np.abs(_two_layer_slab_F(cand, **kw)))]))
             if len(roots) == n:
@@ -2565,10 +2636,10 @@ def two_layer_slab_mode(z, lam, *, half_thickness, wall, k, k_w, rho_c, rho_c_w,
     gel = a <= C
     s = np.where(gel, 0.0, a - C)
     A = np.cos(m1 * C)
-    Bt = -(float(k) / float(k_w)) * m1 * np.sin(m1 * C)    # X′ at s = 0⁺
+    Bt = -(float(k) / float(k_w)) * m1 * np.sin(m1 * C)  # X′ at s = 0⁺
     cg, sg = np.cos(m1 * z), np.sin(m1 * z)
-    cw, sw = np.cos(m2 * s), np.sin(m2 * s)
-    S = s * _sinc_x(m2 * s)                                 # sin(μ₂s)/μ₂
+    cw = np.cos(m2 * s)
+    S = s * _sinc_x(m2 * s)  # sin(μ₂s)/μ₂
     if deriv == 0:
         return np.where(gel, cg, A * cw + Bt * S)
     if deriv == 1:
@@ -2600,17 +2671,30 @@ def two_layer_slab_mode_integrals(lam, *, half_thickness, wall, k, k_w, rho_c, r
     G = C * _sinc_x(m1 * C)
     n_gel = rho_c * (0.5 * C + 0.5 * C * _sinc_x(2 * m1 * C))
     # wall: X = A cos(μ₂s) + B̃ sin(μ₂s)/μ₂
-    cc = 0.5 * d + 0.5 * d * _sinc_x(2 * x2)                # ∫cos²
-    ss = _sin2_over(x2, d)                                  # ∫sin²/μ₂²
-    cs = 0.5 * d * d * _sinc_x(x2) ** 2                     # ∫cos·sin/μ₂ = sin²(μ₂d)/(2μ₂²)
+    cc = 0.5 * d + 0.5 * d * _sinc_x(2 * x2)  # ∫cos²
+    ss = _sin2_over(x2, d)  # ∫sin²/μ₂²
+    cs = 0.5 * d * d * _sinc_x(x2) ** 2  # ∫cos·sin/μ₂ = sin²(μ₂d)/(2μ₂²)
     n_wall = rho_c_w * (A * A * cc + Bt * Bt * ss + 2.0 * A * Bt * cs)
     i_wall = rho_c_w * (A * d * _sinc_x(x2) + Bt * 0.5 * d * d * _sinc_x(0.5 * x2) ** 2)
     return n_gel + n_wall, rho_c * G + i_wall, G
 
 
-def two_layer_slab_transient_temperature(z, t, *, half_thickness, wall, k, k_w, rho_c,
-                                         rho_c_w, q, h, t_inf=0.0, n_terms=400,
-                                         eigenvalues=None):
+def two_layer_slab_transient_temperature(
+    z,
+    t,
+    *,
+    half_thickness,
+    wall,
+    k,
+    k_w,
+    rho_c,
+    rho_c_w,
+    q,
+    h,
+    t_inf=0.0,
+    n_terms=400,
+    eigenvalues=None,
+):
     r"""Transient of the symmetric 1D two-layer slab (`MAT-21` step 20b).
 
     Gel ``|z| < C`` (k, ρc, uniform q switched on at t = 0), source-free wall
@@ -2629,24 +2713,27 @@ def two_layer_slab_transient_temperature(z, t, *, half_thickness, wall, k, k_w, 
     is the closed form of `two_layer_slab_mode_integrals`.  Both integrals are
     over the half-slab 0 ≤ z ≤ C + d.  ``z`` is 1D, ``t`` a scalar.
     """
-    kw = dict(half_thickness=half_thickness, wall=wall, k=k, k_w=k_w, rho_c=rho_c,
-              rho_c_w=rho_c_w)
-    lam = (two_layer_slab_eigenvalues(h=h, n=n_terms, **kw) if eigenvalues is None
-           else np.asarray(eigenvalues, dtype=float))
+    kw = dict(half_thickness=half_thickness, wall=wall, k=k, k_w=k_w, rho_c=rho_c, rho_c_w=rho_c_w)
+    lam = (
+        two_layer_slab_eigenvalues(h=h, n=n_terms, **kw)
+        if eigenvalues is None
+        else np.asarray(eigenvalues, dtype=float)
+    )
     a = two_layer_slab_transient_coefficients(lam, q=q, **kw)
     z = np.atleast_1d(np.asarray(z, dtype=float))
     t = np.asarray(t, dtype=float)
-    ss = two_layer_slab_steady_temperature(z, half_thickness=half_thickness, wall=wall, k=k,
-                                           k_w=k_w, q=q, h=h, t_inf=t_inf)
+    ss = two_layer_slab_steady_temperature(
+        z, half_thickness=half_thickness, wall=wall, k=k, k_w=k_w, q=q, h=h, t_inf=t_inf
+    )
     X = two_layer_slab_mode(z, lam, **kw)
     return ss - X @ (a * np.exp(-lam * t))
 
 
-def two_layer_slab_transient_coefficients(lam, *, half_thickness, wall, k, k_w, rho_c,
-                                          rho_c_w, q):
+def two_layer_slab_transient_coefficients(lam, *, half_thickness, wall, k, k_w, rho_c, rho_c_w, q):
     """``aₙ = (q/λₙ) Gₙ / Nₙ`` (Green's identity; see the transient docstring)."""
-    N, _, G = two_layer_slab_mode_integrals(lam, half_thickness=half_thickness, wall=wall,
-                                            k=k, k_w=k_w, rho_c=rho_c, rho_c_w=rho_c_w)
+    N, _, G = two_layer_slab_mode_integrals(
+        lam, half_thickness=half_thickness, wall=wall, k=k, k_w=k_w, rho_c=rho_c, rho_c_w=rho_c_w
+    )
     return float(q) * G / (np.asarray(lam, dtype=float) * N)
 
 
@@ -2689,9 +2776,25 @@ def _two_layer_slab_duty_state(t, lam, a, *, period, duty, side="right"):
         j += 1
 
 
-def two_layer_slab_duty_cycle_temperature(z, t, *, half_thickness, wall, k, k_w, rho_c,
-                                          rho_c_w, q, h, period, duty, t_inf=0.0,
-                                          n_terms=400, eigenvalues=None, side="right"):
+def two_layer_slab_duty_cycle_temperature(
+    z,
+    t,
+    *,
+    half_thickness,
+    wall,
+    k,
+    k_w,
+    rho_c,
+    rho_c_w,
+    q,
+    h,
+    period,
+    duty,
+    t_inf=0.0,
+    n_terms=400,
+    eigenvalues=None,
+    side="right",
+):
     r"""Duty-cycled transient of the symmetric 1D two-layer slab (`MAT-21`
     step 21a, §9 item 687).
 
@@ -2721,15 +2824,18 @@ def two_layer_slab_duty_cycle_temperature(z, t, *, half_thickness, wall, k, k_w,
         raise ValueError(f"period must be positive, got {period}")
     if side not in ("left", "right"):
         raise ValueError("side must be 'left' or 'right'")
-    kw = dict(half_thickness=half_thickness, wall=wall, k=k, k_w=k_w, rho_c=rho_c,
-              rho_c_w=rho_c_w)
-    lam = (two_layer_slab_eigenvalues(h=h, n=n_terms, **kw) if eigenvalues is None
-           else np.asarray(eigenvalues, dtype=float))
+    kw = dict(half_thickness=half_thickness, wall=wall, k=k, k_w=k_w, rho_c=rho_c, rho_c_w=rho_c_w)
+    lam = (
+        two_layer_slab_eigenvalues(h=h, n=n_terms, **kw)
+        if eigenvalues is None
+        else np.asarray(eigenvalues, dtype=float)
+    )
     a = two_layer_slab_transient_coefficients(lam, q=q, **kw)
     z = np.atleast_1d(np.asarray(z, dtype=float))
     s, A = _two_layer_slab_duty_state(t, lam, a, period=period, duty=duty, side=side)
-    ss = two_layer_slab_steady_temperature(z, half_thickness=half_thickness, wall=wall, k=k,
-                                           k_w=k_w, q=q, h=h, t_inf=0.0)
+    ss = two_layer_slab_steady_temperature(
+        z, half_thickness=half_thickness, wall=wall, k=k, k_w=k_w, q=q, h=h, t_inf=0.0
+    )
     X = two_layer_slab_mode(z, lam, **kw)
     return float(t_inf) + s * ss - X @ (a * s - A)
 
@@ -2798,8 +2904,21 @@ def _robin_sphere_complex_w_dR(*, radius, k, q, h, w):
 
 
 def _duty_cycle_modal(
-    r, t, *, radius, k, rho_c, q, h, period, duty, n_terms=400, periodic=False,
-    lam=None, geometric=True, want="theta",
+    r,
+    t,
+    *,
+    radius,
+    k,
+    rho_c,
+    q,
+    h,
+    period,
+    duty,
+    n_terms=400,
+    periodic=False,
+    lam=None,
+    geometric=True,
+    want="theta",
 ):
     """Modal duty-cycle excess (see :func:`robin_sphere_duty_cycle_temperature`).
 
@@ -2900,8 +3019,17 @@ def robin_sphere_duty_cycle_temperature(
     ``duty ∉ (0, 1]``.
     """
     return t_inf + _duty_cycle_modal(
-        r, t, radius=radius, k=k, rho_c=rho_c, q=q, h=h, period=period,
-        duty=duty, n_terms=n_terms, periodic=periodic,
+        r,
+        t,
+        radius=radius,
+        k=k,
+        rho_c=rho_c,
+        q=q,
+        h=h,
+        period=period,
+        duty=duty,
+        n_terms=n_terms,
+        periodic=periodic,
     )
 
 
@@ -2918,10 +3046,16 @@ def _two_layer_sphere_steady(r, *, a, b, k1, k2, q1, q2, h, layer=None, want="th
     theta_b = (q1 * a**3 + q2 * (b**3 - a**3)) / (3.0 * h * b**2)
     safe = np.where(r > 0.0, r, 1.0)
     if want == "theta":
-        shell = (theta_b + (q1 - q2) * a**3 * (1.0 / safe - 1.0 / b) / (3.0 * k2)
-                 + q2 * (b**2 - r**2) / (6.0 * k2))
-        theta_a = (theta_b + (q1 - q2) * a**3 * (1.0 / a - 1.0 / b) / (3.0 * k2)
-                   + q2 * (b**2 - a**2) / (6.0 * k2))
+        shell = (
+            theta_b
+            + (q1 - q2) * a**3 * (1.0 / safe - 1.0 / b) / (3.0 * k2)
+            + q2 * (b**2 - r**2) / (6.0 * k2)
+        )
+        theta_a = (
+            theta_b
+            + (q1 - q2) * a**3 * (1.0 / a - 1.0 / b) / (3.0 * k2)
+            + q2 * (b**2 - a**2) / (6.0 * k2)
+        )
         core = theta_a + q1 * (a**2 - r**2) / (6.0 * k1)
     elif want == "dr":
         shell = -((q1 - q2) * a**3 / (3.0 * k2 * safe**2) + q2 * r / (3.0 * k2))
@@ -2976,8 +3110,7 @@ def _two_layer_sphere_shell_start(mu1, a, k1, k2, flux_jump=True):
     return ua, (k1 * du1 - (k1 - k2) * ua / a) / k2
 
 
-def _two_layer_sphere_F(x, *, a, b, k1, k2, rho_c1, rho_c2, h, flux_jump=True,
-                        want="F"):
+def _two_layer_sphere_F(x, *, a, b, k1, k2, rho_c1, rho_c2, h, flux_jump=True, want="F"):
     """Eigen-function ``F = k₂u₂′(b) − (k₂/b − h)u₂(b)`` at ``√s = x``.
 
     ``want="scale"`` returns the rounding scale of ``F``: the sum of the
@@ -3007,19 +3140,18 @@ def _two_layer_sphere_F(x, *, a, b, k1, k2, rho_c1, rho_c2, h, flux_jump=True,
         return k2 * np.abs(dub) + abs(k2 / b - h) * np.abs(ub)
     if want == "scale":
         z = mu1 * a
-        bbar = np.where(pos, (k1 * np.abs(np.cos(z))
-                              + abs(k1 - k2) * np.abs(np.sin(z)) / z) / k2, 1.0)
+        bbar = np.where(
+            pos, (k1 * np.abs(np.cos(z)) + abs(k1 - k2) * np.abs(np.sin(z)) / z) / k2, 1.0
+        )
         if not flux_jump:
             bbar = np.where(pos, np.abs(np.cos(z)), 1.0)
-        return (k2 * (np.abs(A) * np.where(pos, mu2, 0.0) * np.abs(np.sin(th))
-                      + bbar * np.abs(np.cos(th)))
-                + abs(k2 / b - h) * (np.abs(A) * np.abs(np.cos(th))
-                                     + bbar * np.abs(sinc_l)))
+        return k2 * (
+            np.abs(A) * np.where(pos, mu2, 0.0) * np.abs(np.sin(th)) + bbar * np.abs(np.cos(th))
+        ) + abs(k2 / b - h) * (np.abs(A) * np.abs(np.cos(th)) + bbar * np.abs(sinc_l))
     return k2 * dub - (k2 / b - h) * ub
 
 
-def two_layer_sphere_eigenvalues(*, a, b, k1, k2, rho_c1, rho_c2, h, n,
-                                 _flux_jump=True):
+def two_layer_sphere_eigenvalues(*, a, b, k1, k2, rho_c1, rho_c2, h, n, _flux_jump=True):
     r"""First ``n`` decay rates ``sₙ`` [1/s] of the two-layer Robin sphere (`MAT-18`).
 
     Modes ``ψ = u/r`` of ``−∇·(k∇ψ) = sρcψ``; ``μᵢ = √(s/αᵢ)``, ``αᵢ = kᵢ/ρcᵢ``.
@@ -3040,8 +3172,7 @@ def two_layer_sphere_eigenvalues(*, a, b, k1, k2, rho_c1, rho_c2, h, n,
     """
     from scipy.optimize import brentq
 
-    kw = dict(a=a, b=b, k1=k1, k2=k2, rho_c1=rho_c1, rho_c2=rho_c2, h=h,
-              flux_jump=_flux_jump)
+    kw = dict(a=a, b=b, k1=k1, k2=k2, rho_c1=rho_c1, rho_c2=rho_c2, h=h, flux_jump=_flux_jump)
     lam_len = a * np.sqrt(rho_c1 / k1) + (b - a) * np.sqrt(rho_c2 / k2)
     step = np.pi / (32.0 * lam_len)
     n = int(n)
@@ -3054,9 +3185,14 @@ def two_layer_sphere_eigenvalues(*, a, b, k1, k2, rho_c1, rho_c2, h, n,
         fs = _two_layer_sphere_F(xs, **kw)
         idx = np.nonzero(np.sign(fs[:-1]) * np.sign(fs[1:]) < 0)[0]
         for i in idx:
-            x0 = brentq(lambda x: float(_two_layer_sphere_F(x, **kw)),
-                        xs[i], xs[i + 1], xtol=1e-300,
-                        rtol=4 * np.finfo(float).eps, maxiter=500)
+            x0 = brentq(
+                lambda x: float(_two_layer_sphere_F(x, **kw)),
+                xs[i],
+                xs[i + 1],
+                xtol=1e-300,
+                rtol=4 * np.finfo(float).eps,
+                maxiter=500,
+            )
             # brentq stops at rtol = 4ε; polish to the |F|-minimising double
             # within ±16 ulp (the argument μ₁a reaches ≈ 1e3 at n = 400).
             cand = x0 + np.spacing(x0) * np.arange(-16, 17)
@@ -3068,8 +3204,7 @@ def two_layer_sphere_eigenvalues(*, a, b, k1, k2, rho_c1, rho_c2, h, n,
     return x * x
 
 
-def _two_layer_sphere_modes(r, s, *, a, b, k1, k2, rho_c1, rho_c2, layer=None,
-                            flux_jump=True):
+def _two_layer_sphere_modes(r, s, *, a, b, k1, k2, rho_c1, rho_c2, layer=None, flux_jump=True):
     """``(ψ, ∂ᵣψ)`` of the modes at ``s`` (last axis) and radii ``r``."""
     r = np.asarray(r, dtype=float)[..., None]
     s = np.asarray(s, dtype=float)
@@ -3094,8 +3229,7 @@ def _two_layer_sphere_modes(r, s, *, a, b, k1, k2, rho_c1, rho_c2, layer=None,
     return np.where(core, psi_c, psi_s), np.where(core, dpsi_c, dpsi_s)
 
 
-def _two_layer_sphere_mode_integrals(s, *, a, b, k1, k2, rho_c1, rho_c2,
-                                     flux_jump=True):
+def _two_layer_sphere_mode_integrals(s, *, a, b, k1, k2, rho_c1, rho_c2, flux_jump=True):
     """``(Nₙ, I₁, I₂)``: ``Nₙ = ∫₀ᵇρc u² dr``, ``I₁ = ∫₀ᵃ u r dr``,
     ``I₂ = ∫ₐᵇ u r dr`` (so ``∫ρcψ r²dr = ρc₁I₁ + ρc₂I₂``), all analytic."""
     s = np.asarray(s, dtype=float)
@@ -3106,9 +3240,15 @@ def _two_layer_sphere_mode_integrals(s, *, a, b, k1, k2, rho_c1, rho_c2,
     z = mu1 * a
     T = mu2 * (b - a)
     n_core = rho_c1 / mu1**2 * (a / 2.0 - np.sin(2.0 * z) / (4.0 * mu1))
-    n_shell = rho_c2 / mu2 * (A**2 * (T / 2.0 + np.sin(2.0 * T) / 4.0)
-                              + A * c * np.sin(T) ** 2
-                              + c**2 * (T / 2.0 - np.sin(2.0 * T) / 4.0))
+    n_shell = (
+        rho_c2
+        / mu2
+        * (
+            A**2 * (T / 2.0 + np.sin(2.0 * T) / 4.0)
+            + A * c * np.sin(T) ** 2
+            + c**2 * (T / 2.0 - np.sin(2.0 * T) / 4.0)
+        )
+    )
     I1 = (np.sin(z) - z * np.cos(z)) / mu1**3
     int_cos = b * np.sin(T) / mu2 + (np.cos(T) - 1.0) / mu2**2
     int_sin = -b * np.cos(T) / mu2 + a / mu2 + np.sin(T) / mu2**2
@@ -3116,16 +3256,33 @@ def _two_layer_sphere_mode_integrals(s, *, a, b, k1, k2, rho_c1, rho_c2,
     return n_core + n_shell, I1, I2
 
 
-def _two_layer_sphere_series(r, t, *, a, b, k1, k2, rho_c1, rho_c2, q1, q2, h,
-                             theta_i, n_terms=400, s=None, layer=None,
-                             want="theta", flux_jump=True):
+def _two_layer_sphere_series(
+    r,
+    t,
+    *,
+    a,
+    b,
+    k1,
+    k2,
+    rho_c1,
+    rho_c2,
+    q1,
+    q2,
+    h,
+    theta_i,
+    n_terms=400,
+    s=None,
+    layer=None,
+    want="theta",
+    flux_jump=True,
+):
     """``θ − θ_ss`` (``want="theta"``) or its ∂ᵣ (``"dr"``), shape bcast(r, t)."""
     mk = dict(a=a, b=b, k1=k1, k2=k2, rho_c1=rho_c1, rho_c2=rho_c2)
     if s is None:
         s = two_layer_sphere_eigenvalues(**mk, h=h, n=n_terms, _flux_jump=flux_jump)
     N, I1, I2 = _two_layer_sphere_mode_integrals(s, **mk, flux_jump=flux_jump)
-    cn = (q1 * I1 + q2 * I2) / (s * N)          # θ_ss projection (Green form)
-    pn = (rho_c1 * I1 + rho_c2 * I2) / N        # projection of the constant 1
+    cn = (q1 * I1 + q2 * I2) / (s * N)  # θ_ss projection (Green form)
+    pn = (rho_c1 * I1 + rho_c2 * I2) / N  # projection of the constant 1
     dn = theta_i * pn - cn
     rr, tt = np.broadcast_arrays(np.asarray(r, dtype=float), np.asarray(t, dtype=float))
     psi, dpsi = _two_layer_sphere_modes(rr, s, **mk, layer=layer, flux_jump=flux_jump)
@@ -3134,7 +3291,20 @@ def _two_layer_sphere_series(r, t, *, a, b, k1, k2, rho_c1, rho_c2, q1, q2, h,
 
 
 def two_layer_sphere_transient_temperature(
-    r, t, *, a, b, k1, k2, rho_c1, rho_c2, q1, q2=0.0, h, t_inf, t_init,
+    r,
+    t,
+    *,
+    a,
+    b,
+    k1,
+    k2,
+    rho_c1,
+    rho_c2,
+    q1,
+    q2=0.0,
+    h,
+    t_inf,
+    t_init,
     n_terms=400,
 ):
     r"""Transient two-layer Robin sphere with a step source (`MAT-18` step 1).
@@ -3168,8 +3338,19 @@ def two_layer_sphere_transient_temperature(
     """
     ss = _two_layer_sphere_steady(r, a=a, b=b, k1=k1, k2=k2, q1=q1, q2=q2, h=h)
     ser = _two_layer_sphere_series(
-        r, t, a=a, b=b, k1=k1, k2=k2, rho_c1=rho_c1, rho_c2=rho_c2, q1=q1,
-        q2=q2, h=h, theta_i=t_init - t_inf, n_terms=n_terms,
+        r,
+        t,
+        a=a,
+        b=b,
+        k1=k1,
+        k2=k2,
+        rho_c1=rho_c1,
+        rho_c2=rho_c2,
+        q1=q1,
+        q2=q2,
+        h=h,
+        theta_i=t_init - t_inf,
+        n_terms=n_terms,
     )
     return t_inf + ss + ser
 
@@ -3257,8 +3438,7 @@ def _cylinder_polar(points):
     return pts, rho
 
 
-def pec_cylinder_tm0_field(points, *, k, radius, e0=1.0, interior="zero",
-                           _hankel_kind=2):
+def pec_cylinder_tm0_field(points, *, k, radius, e0=1.0, interior="zero", _hankel_kind=2):
     """Total E (complex, (N, 3) Cartesian) of the TM_z n = 0 drive on an
     infinite PEC cylinder of radius ``radius`` along z (derivation above).
 
@@ -3270,16 +3450,16 @@ def pec_cylinder_tm0_field(points, *, k, radius, e0=1.0, interior="zero",
         raise ValueError(f"interior must be 'zero' or 'continue', got {interior!r}")
     pts, rho = _cylinder_polar(points)
     out = np.zeros((pts.shape[0], 3), dtype=complex)
-    f, _, _ = _pec_cylinder_tm0_radial(rho, k=k, radius=radius,
-                                       hankel_kind=_hankel_kind)
+    f, _, _ = _pec_cylinder_tm0_radial(rho, k=k, radius=radius, hankel_kind=_hankel_kind)
     out[:, 2] = e0 * f
     if interior == "zero":
         out[rho < radius] = 0.0
     return out
 
 
-def pec_cylinder_te1_field(points, *, k, radius, omega, e0=1.0,
-                           interior="zero", _condition="neumann"):
+def pec_cylinder_te1_field(
+    points, *, k, radius, omega, e0=1.0, interior="zero", _condition="neumann"
+):
     """Total E (complex, (N, 3) Cartesian) of the TE_z n = 1 drive on an
     infinite PEC cylinder (derivation above): incident E0 ŷ on the axis.
 
@@ -3300,8 +3480,7 @@ def pec_cylinder_te1_field(points, *, k, radius, omega, e0=1.0,
     rho_safe = np.where(on_axis, 1.0, rho)
     cos_p = np.where(on_axis, 1.0, pts[:, 0] / rho_safe)
     sin_p = np.where(on_axis, 0.0, pts[:, 1] / rho_safe)
-    f, fp, _ = _pec_cylinder_te1_radial(rho_safe, k=k, radius=radius,
-                                        condition=_condition)
+    f, fp, _ = _pec_cylinder_te1_radial(rho_safe, k=k, radius=radius, condition=_condition)
     e_rho = pref * f * sin_p / rho_safe
     e_phi = pref * fp * cos_p
     out = np.zeros((pts.shape[0], 3), dtype=complex)
@@ -3381,7 +3560,8 @@ def _coated_cylinder_validate(radius, coat_radius, drive, condition, region=None
     if not (0.0 < radius <= coat_radius):
         raise ValueError(
             f"need 0 < radius <= coat_radius, got radius={radius!r}, "
-            f"coat_radius={coat_radius!r}")
+            f"coat_radius={coat_radius!r}"
+        )
     if drive not in ("tm0", "te1"):
         raise ValueError(f"drive must be 'tm0' or 'te1', got {drive!r}")
     if condition not in ("exact", "swapped"):
@@ -3390,8 +3570,7 @@ def _coated_cylinder_validate(radius, coat_radius, drive, condition, region=None
         raise ValueError(f"region must be None, 'coat' or 'host', got {region!r}")
 
 
-def _coated_cylinder_coefficients(drive, *, k_host, k_coat, radius, coat_radius,
-                                  condition="exact"):
+def _coated_cylinder_coefficients(drive, *, k_host, k_coat, radius, coat_radius, condition="exact"):
     """Return (c, s) (TM n = 0) or (c, t) (TE n = 1): the 2 × 2 interface
     solve at ρ = coat_radius (derivation above)."""
     from scipy import special
@@ -3411,16 +3590,17 @@ def _coated_cylinder_coefficients(drive, *, k_host, k_coat, radius, coat_radius,
         u_b = special.jv(1, zb1) * ypa - special.yv(1, zb1) * jpa
         up_b = k1 * (special.jvp(1, zb1, 1) * ypa - special.yvp(1, zb1, 1) * jpa)
         w = r if condition == "exact" else 1.0
-    mat = np.array([[u_b, -special.hankel2(n, zb2)],
-                    [up_b, -w * k2 * special.h2vp(n, zb2, 1)]], dtype=complex)
-    rhs = np.array([special.jv(n, zb2), w * k2 * special.jvp(n, zb2, 1)],
-                   dtype=complex)
+    mat = np.array(
+        [[u_b, -special.hankel2(n, zb2)], [up_b, -w * k2 * special.h2vp(n, zb2, 1)]], dtype=complex
+    )
+    rhs = np.array([special.jv(n, zb2), w * k2 * special.jvp(n, zb2, 1)], dtype=complex)
     c, s = np.linalg.solve(mat, rhs)
     return complex(c), complex(s)
 
 
-def _coated_cylinder_radial(rho, drive, region, *, k_host, k_coat, radius,
-                            coat_radius, condition="exact"):
+def _coated_cylinder_radial(
+    rho, drive, region, *, k_host, k_coat, radius, coat_radius, condition="exact"
+):
     """Return (F, F', F'') of the region's radial function: E_z = E0 F (TM
     n = 0) or H_z = H0 F cos φ (TE n = 1). ``region`` is "coat" (c·g or c·h
     with k_coat) or "host" (J_n + coef·H_n^(2) with k_host); derivatives are
@@ -3430,9 +3610,14 @@ def _coated_cylinder_radial(rho, drive, region, *, k_host, k_coat, radius,
     _coated_cylinder_validate(radius, coat_radius, drive, condition, region)
     if region is None:
         raise ValueError("region must be 'coat' or 'host' here")
-    c, s = _coated_cylinder_coefficients(drive, k_host=k_host, k_coat=k_coat,
-                                         radius=radius, coat_radius=coat_radius,
-                                         condition=condition)
+    c, s = _coated_cylinder_coefficients(
+        drive,
+        k_host=k_host,
+        k_coat=k_coat,
+        radius=radius,
+        coat_radius=coat_radius,
+        condition=condition,
+    )
     rho = np.asarray(rho, dtype=float)
     n = 0 if drive == "tm0" else 1
     if region == "coat":
@@ -3466,9 +3651,18 @@ def _coated_region_masks(rho, radius, coat_radius, interior, region):
     return ~host, host, zero
 
 
-def coated_pec_cylinder_tm0_field(points, *, k_host, k_coat, radius, coat_radius,
-                                  e0=1.0, interior="zero", region=None,
-                                  _condition="exact"):
+def coated_pec_cylinder_tm0_field(
+    points,
+    *,
+    k_host,
+    k_coat,
+    radius,
+    coat_radius,
+    e0=1.0,
+    interior="zero",
+    region=None,
+    _condition="exact",
+):
     """Total E (complex, (N, 3) Cartesian) of the TM_z n = 0 drive on an
     infinite PEC cylinder of radius ``radius`` with a dielectric coating to
     ``coat_radius`` in a host of wavenumber ``k_host`` (derivation above).
@@ -3480,11 +3674,11 @@ def coated_pec_cylinder_tm0_field(points, *, k_host, k_coat, radius, coat_radius
     """
     _coated_cylinder_validate(radius, coat_radius, "tm0", _condition, region)
     pts, rho = _cylinder_polar(points)
-    coat, host, zero = _coated_region_masks(rho, radius, coat_radius, interior,
-                                            region)
+    coat, host, zero = _coated_region_masks(rho, radius, coat_radius, interior, region)
     out = np.zeros((pts.shape[0], 3), dtype=complex)
-    kw = dict(k_host=k_host, k_coat=k_coat, radius=radius,
-              coat_radius=coat_radius, condition=_condition)
+    kw = dict(
+        k_host=k_host, k_coat=k_coat, radius=radius, coat_radius=coat_radius, condition=_condition
+    )
     for mask, reg in ((coat, "coat"), (host, "host")):
         if np.any(mask):
             f, _, _ = _coated_cylinder_radial(rho[mask], "tm0", reg, **kw)
@@ -3494,9 +3688,19 @@ def coated_pec_cylinder_tm0_field(points, *, k_host, k_coat, radius, coat_radius
     return out
 
 
-def coated_pec_cylinder_te1_field(points, *, k_host, k_coat, radius, coat_radius,
-                                  omega, e0=1.0, interior="zero", region=None,
-                                  _condition="exact"):
+def coated_pec_cylinder_te1_field(
+    points,
+    *,
+    k_host,
+    k_coat,
+    radius,
+    coat_radius,
+    omega,
+    e0=1.0,
+    interior="zero",
+    region=None,
+    _condition="exact",
+):
     """Total E (complex, (N, 3) Cartesian) of the TE_z n = 1 drive on the
     coated PEC cylinder (derivation above): incident E0 ŷ on the axis.
 
@@ -3515,12 +3719,12 @@ def coated_pec_cylinder_te1_field(points, *, k_host, k_coat, radius, coat_radius
     rho_safe = np.where(on_axis, 1.0, rho)
     cos_p = np.where(on_axis, 1.0, pts[:, 0] / rho_safe)
     sin_p = np.where(on_axis, 0.0, pts[:, 1] / rho_safe)
-    coat, host, zero = _coated_region_masks(rho, radius, coat_radius, interior,
-                                            region)
+    coat, host, zero = _coated_region_masks(rho, radius, coat_radius, interior, region)
     e_rho = np.zeros(pts.shape[0], dtype=complex)
     e_phi = np.zeros(pts.shape[0], dtype=complex)
-    kw = dict(k_host=k_host, k_coat=k_coat, radius=radius,
-              coat_radius=coat_radius, condition=_condition)
+    kw = dict(
+        k_host=k_host, k_coat=k_coat, radius=radius, coat_radius=coat_radius, condition=_condition
+    )
     for mask, reg, eps in ((coat, "coat", eps_coat), (host, "host", eps_host)):
         if np.any(mask):
             pref = -h0 / (1j * omega * eps)
@@ -3536,13 +3740,13 @@ def coated_pec_cylinder_te1_field(points, *, k_host, k_coat, radius, coat_radius
     return out
 
 
-def coated_pec_cylinder_tm0_current(*, k_host, k_coat, radius, coat_radius, omega,
-                                    e0=1.0):
+def coated_pec_cylinder_tm0_current(*, k_host, k_coat, radius, coat_radius, omega, e0=1.0):
     """Total axial wire current of the coated TM_z n = 0 drive:
     I = 2πa H_φ(a) = −4 E0 c/(jωμ0) (Wronskian, derivation above)."""
     mu_0 = 4 * np.pi * 1e-7
-    c, _ = _coated_cylinder_coefficients("tm0", k_host=k_host, k_coat=k_coat,
-                                         radius=radius, coat_radius=coat_radius)
+    c, _ = _coated_cylinder_coefficients(
+        "tm0", k_host=k_host, k_coat=k_coat, radius=radius, coat_radius=coat_radius
+    )
     return -4.0 * e0 * c / (1j * omega * mu_0)
 
 
@@ -3577,8 +3781,7 @@ def pec_sphere_implant_source(points, *, radius, q_far, beta=1.0):
     u = (radius / r_safe) ** 3
     mu = pts[:, 2] / r_safe
     p2 = 0.5 * (3.0 * mu * mu - 1.0)
-    q = q_far * (1.0 + 2.0 * beta**2 * u**2
-                 + (4.0 * beta * u + 2.0 * beta**2 * u**2) * p2)
+    q = q_far * (1.0 + 2.0 * beta**2 * u**2 + (4.0 * beta * u + 2.0 * beta**2 * u**2) * p2)
     return np.where(r2 < radius * radius, 0.0, q)
 
 
@@ -3587,16 +3790,18 @@ def _pec_sphere_implant_terms(coeffs, l):
     a, k2 = coeffs["radius"], coeffs["k_gel"]
     q, beta = coeffs["q_far"], coeffs["beta"]
     if l == 0:
-        return [(coeffs["A0"], 0), (coeffs["B0"], -1),
-                (-q / (6.0 * k2), 2), (-beta**2 * q * a**6 / (6.0 * k2), -4)]
+        return [
+            (coeffs["A0"], 0),
+            (coeffs["B0"], -1),
+            (-q / (6.0 * k2), 2),
+            (-(beta**2) * q * a**6 / (6.0 * k2), -4),
+        ]
     if l == 2:
-        return [(coeffs["D"], 2), (coeffs["E"], -3),
-                (coeffs["C1"], -1), (coeffs["C2"], -4)]
+        return [(coeffs["D"], 2), (coeffs["E"], -3), (coeffs["C1"], -1), (coeffs["C2"], -4)]
     raise ValueError(f"l must be 0 or 2, got {l!r}")
 
 
-def pec_sphere_implant_coefficients(*, radius, outer_radius, k_core, k_gel, q_far,
-                                    h, beta=1.0):
+def pec_sphere_implant_coefficients(*, radius, outer_radius, k_core, k_gel, q_far, h, beta=1.0):
     r"""Coefficients of the exact steady temperature ``θ = T − T∞ =
     R₀(r) + R₂(r)P₂(cos ϑ)`` around a sphere implant (`IMP-7` step 0).
 
@@ -3677,10 +3882,22 @@ def pec_sphere_implant_coefficients(*, radius, outer_radius, k_core, k_gel, q_fa
     else:
         F = r2a / a**2
     return {
-        "radius": a, "outer_radius": b, "q_far": q, "k_gel": k2, "k_core": k1,
-        "h": hh, "beta": be,
-        "A0": A0, "B0": B0, "C1": C1, "C2": C2, "D": D, "E": E, "F": F,
-        "theta0_core": theta0_core, "theta0_b": theta0_b,
+        "radius": a,
+        "outer_radius": b,
+        "q_far": q,
+        "k_gel": k2,
+        "k_core": k1,
+        "h": hh,
+        "beta": be,
+        "A0": A0,
+        "B0": B0,
+        "C1": C1,
+        "C2": C2,
+        "D": D,
+        "E": E,
+        "F": F,
+        "theta0_core": theta0_core,
+        "theta0_b": theta0_b,
         "power": 4.0 * np.pi * q * shape / 3.0,
     }
 
@@ -3702,25 +3919,33 @@ def pec_sphere_implant_radial(r, coeffs, l, *, derivative=0):
     return out
 
 
-def pec_sphere_implant_steady_temperature(points, *, radius, outer_radius, k_core,
-                                          k_gel, q_far, h, t_inf, beta=1.0):
+def pec_sphere_implant_steady_temperature(
+    points, *, radius, outer_radius, k_core, k_gel, q_far, h, t_inf, beta=1.0
+):
     """Exact steady temperature ``T`` at ``points`` (shape ``(N, 3)``) around a
     sphere implant heated by its own dipole SAR (`IMP-7` step 0; derivation in
     :func:`pec_sphere_implant_coefficients`).  Shell points (``r ≥ a``):
     ``T∞ + R₀(r) + R₂(r)P₂(z/r)``.  Core points: ``T∞ + θ₀_core + F r²P₂``,
     or NaN on the adiabatic branch (``k_core = 0``: the core is not part of
     the domain)."""
-    c = pec_sphere_implant_coefficients(radius=radius, outer_radius=outer_radius,
-                                        k_core=k_core, k_gel=k_gel, q_far=q_far,
-                                        h=h, beta=beta)
+    c = pec_sphere_implant_coefficients(
+        radius=radius,
+        outer_radius=outer_radius,
+        k_core=k_core,
+        k_gel=k_gel,
+        q_far=q_far,
+        h=h,
+        beta=beta,
+    )
     pts = np.atleast_2d(np.asarray(points, dtype=float))
     r2 = np.sum(pts * pts, axis=1)
     shell = r2 >= radius * radius
     r2_s = np.where(shell, r2, radius * radius)
     r_s = np.sqrt(r2_s)
     r2p2 = 0.5 * (3.0 * pts[:, 2] ** 2 - r2)  # r² P₂(μ), regular at r = 0
-    th_shell = (pec_sphere_implant_radial(r_s, c, 0)
-                + pec_sphere_implant_radial(r_s, c, 2) * r2p2 / r2_s)
+    th_shell = (
+        pec_sphere_implant_radial(r_s, c, 0) + pec_sphere_implant_radial(r_s, c, 2) * r2p2 / r2_s
+    )
     if c["k_core"] == 0.0:
         th_core = np.full_like(r2, np.nan)
     else:
@@ -3750,13 +3975,14 @@ def _imp7_sph_bessel(l, x, derivative=0):
     if derivative != 2:
         raise ValueError(f"derivative must be 0, 1 or 2, got {derivative!r}")
     if l == 0:
-        return (-spherical_jn(1, x, derivative=True),
-                -spherical_yn(1, x, derivative=True))
+        return (-spherical_jn(1, x, derivative=True), -spherical_yn(1, x, derivative=True))
     out = []
     for f in (spherical_jn, spherical_yn):
-        out.append(f(l - 1, x, derivative=True)
-                   - (l + 1) / x * f(l, x, derivative=True)
-                   + (l + 1) / x**2 * f(l, x))
+        out.append(
+            f(l - 1, x, derivative=True)
+            - (l + 1) / x * f(l, x, derivative=True)
+            + (l + 1) / x**2 * f(l, x)
+        )
     return tuple(out)
 
 
@@ -3780,14 +4006,13 @@ def _imp7_robin_det(lam, l, radius, outer_radius, k, h, inner):
     coefficients — same roots, tame magnitude."""
     ja, ya = _imp7_sph_bessel(l, lam * radius, 1 if inner == "neumann" else 0)
     scale = np.hypot(ja, ya)
-    return (k * pec_sphere_implant_mode(outer_radius, lam, l, radius=radius,
-                                        inner=inner, derivative=1)
-            + h * pec_sphere_implant_mode(outer_radius, lam, l, radius=radius,
-                                          inner=inner)) / scale
+    return (
+        k * pec_sphere_implant_mode(outer_radius, lam, l, radius=radius, inner=inner, derivative=1)
+        + h * pec_sphere_implant_mode(outer_radius, lam, l, radius=radius, inner=inner)
+    ) / scale
 
 
-def pec_sphere_implant_eigenvalues(l, n, *, radius, outer_radius, k, h,
-                                   inner="neumann"):
+def pec_sphere_implant_eigenvalues(l, n, *, radius, outer_radius, k, h, inner="neumann"):
     r"""First ``n`` roots ``λ`` of ``k R′(b) + h R(b) = 0`` for the hollow-sphere
     mode :func:`pec_sphere_implant_mode` (`IMP-7` step 4).
 
@@ -3812,10 +4037,17 @@ def pec_sphere_implant_eigenvalues(l, n, *, radius, outer_radius, k, h,
         if f_lo == 0.0:
             roots.append(lo)
         elif np.sign(f_lo) != np.sign(f_hi) and f_hi != 0.0:
-            roots.append(brentq(_imp7_robin_det, lo, hi,
-                                args=(l, a, b, k, h, inner),
-                                xtol=1e-15 * hi, rtol=4.0 * np.finfo(float).eps,
-                                maxiter=500))
+            roots.append(
+                brentq(
+                    _imp7_robin_det,
+                    lo,
+                    hi,
+                    args=(l, a, b, k, h, inner),
+                    xtol=1e-15 * hi,
+                    rtol=4.0 * np.finfo(float).eps,
+                    maxiter=500,
+                )
+            )
         lo, f_lo = hi, f_hi
     return np.asarray(roots[:n])
 
@@ -3839,9 +4071,18 @@ def pec_sphere_implant_source_radial(r, l, *, radius, q_far, beta=1.0):
     raise ValueError(f"l must be 0 or 2, got {l!r}")
 
 
-def pec_sphere_implant_transient_modes(*, radius, outer_radius, k_gel, q_far, h,
-                                       beta=1.0, n_terms=200, inner="neumann",
-                                       t_init_offset=0.0):
+def pec_sphere_implant_transient_modes(
+    *,
+    radius,
+    outer_radius,
+    k_gel,
+    q_far,
+    h,
+    beta=1.0,
+    n_terms=200,
+    inner="neumann",
+    t_init_offset=0.0,
+):
     r"""Eigenvalues ``λ_{l,n}``, coefficients ``c_{l,n}`` and r²-norms of the
     hollow-sphere expansion (`IMP-7` step 4), for ``l`` ∈ {0, 2}.
 
@@ -3857,16 +4098,15 @@ def pec_sphere_implant_transient_modes(*, radius, outer_radius, k_gel, q_far, h,
     a, b = float(radius), float(outer_radius)
     rq, wq = _imp7_gl_nodes(a, b, max(64, 2 * int(n_terms)))
     wr = wq * rq * rq
-    coeffs = pec_sphere_implant_coefficients(radius=a, outer_radius=b, k_core=0.0,
-                                             k_gel=k_gel, q_far=q_far, h=h,
-                                             beta=beta)
-    out = {"inner": inner, "coeffs": coeffs, "radius": a, "outer_radius": b,
-           "k_gel": float(k_gel)}
+    coeffs = pec_sphere_implant_coefficients(
+        radius=a, outer_radius=b, k_core=0.0, k_gel=k_gel, q_far=q_far, h=h, beta=beta
+    )
+    out = {"inner": inner, "coeffs": coeffs, "radius": a, "outer_radius": b, "k_gel": float(k_gel)}
     for l in (0, 2):
-        lam = pec_sphere_implant_eigenvalues(l, n_terms, radius=a, outer_radius=b,
-                                             k=k_gel, h=h, inner=inner)
-        R = np.array([pec_sphere_implant_mode(rq, lm, l, radius=a, inner=inner)
-                      for lm in lam])
+        lam = pec_sphere_implant_eigenvalues(
+            l, n_terms, radius=a, outer_radius=b, k=k_gel, h=h, inner=inner
+        )
+        R = np.array([pec_sphere_implant_mode(rq, lm, l, radius=a, inner=inner) for lm in lam])
         scale = np.max(np.abs(R), axis=1)
         R = R / scale[:, None]
         norms = R**2 @ wr
@@ -3876,8 +4116,7 @@ def pec_sphere_implant_transient_modes(*, radius, outer_radius, k_gel, q_far, h,
                 f = f - t_init_offset
             c = (R @ (f * wr)) / norms
         else:
-            ql = pec_sphere_implant_source_radial(rq, l, radius=a, q_far=q_far,
-                                                  beta=beta)
+            ql = pec_sphere_implant_source_radial(rq, l, radius=a, q_far=q_far, beta=beta)
             c = (R @ (ql * wr)) / (k_gel * lam**2 * norms)
         out[l] = {"lam": lam, "scale": scale, "norms": norms, "c": c}
     return out
@@ -3892,13 +4131,15 @@ def _imp7_points_rmu(points):
 
 def _imp7_mode_matrix(r, modes, l):
     m = modes[l]
-    return np.array([pec_sphere_implant_mode(r, lm, l, radius=modes["radius"],
-                                             inner=modes["inner"]) / s
-                     for lm, s in zip(m["lam"], m["scale"])])
+    return np.array(
+        [
+            pec_sphere_implant_mode(r, lm, l, radius=modes["radius"], inner=modes["inner"]) / s
+            for lm, s in zip(m["lam"], m["scale"])
+        ]
+    )
 
 
-def pec_sphere_implant_transient_from_modes(points, t, modes, *, rho_c, t_inf,
-                                            ls=(0, 2)):
+def pec_sphere_implant_transient_from_modes(points, t, modes, *, rho_c, t_inf, ls=(0, 2)):
     r"""``T(r, ϑ, t)`` from a :func:`pec_sphere_implant_transient_modes` dict.
     Neumann: ``θ = θ_ss − Σ_l P_l Σ_n c R e^{−κλ²t}`` (θ_ss exact).
     Dirichlet: ``θ = Σ_l P_l Σ_n c R (1 − e^{−κλ²t})`` (steady part as its
@@ -3912,17 +4153,16 @@ def pec_sphere_implant_transient_from_modes(points, t, modes, *, rho_c, t_inf,
         R = _imp7_mode_matrix(r, modes, l)
         dec = np.exp(-kappa * m["lam"] ** 2 * float(t))
         if modes["inner"] == "neumann":
-            part = (pec_sphere_implant_radial(r, modes["coeffs"], l)
-                    - (m["c"] * dec) @ R)
+            part = pec_sphere_implant_radial(r, modes["coeffs"], l) - (m["c"] * dec) @ R
         else:
             part = (m["c"] * (1.0 - dec)) @ R
         theta = theta + (part if l == 0 else part * p2)
     return t_inf + theta
 
 
-def pec_sphere_implant_transient_temperature(points, t, *, radius, outer_radius,
-                                             k_gel, rho_c, q_far, h, t_inf,
-                                             beta=1.0, n_terms=200):
+def pec_sphere_implant_transient_temperature(
+    points, t, *, radius, outer_radius, k_gel, rho_c, q_far, h, t_inf, beta=1.0, n_terms=200
+):
     r"""Exact-series transient temperature around the adiabatic hole
     (`IMP-7` step 4, §10 I45): ``ρc ∂ₜθ = k Δθ + q`` in ``a < r < b`` with
     ``q`` :func:`pec_sphere_implant_source`, ``∂ᵣθ = 0`` at ``r = a``,
@@ -3935,14 +4175,18 @@ def pec_sphere_implant_transient_temperature(points, t, *, radius, outer_radius,
     :func:`pec_sphere_implant_transient_modes`.  Truncated at ``n_terms`` per
     harmonic; (IC) / (Slope) converge with ``n_terms`` only."""
     modes = pec_sphere_implant_transient_modes(
-        radius=radius, outer_radius=outer_radius, k_gel=k_gel, q_far=q_far, h=h,
-        beta=beta, n_terms=n_terms)
-    return pec_sphere_implant_transient_from_modes(points, t, modes, rho_c=rho_c,
-                                                   t_inf=t_inf)
+        radius=radius,
+        outer_radius=outer_radius,
+        k_gel=k_gel,
+        q_far=q_far,
+        h=h,
+        beta=beta,
+        n_terms=n_terms,
+    )
+    return pec_sphere_implant_transient_from_modes(points, t, modes, rho_c=rho_c, t_inf=t_inf)
 
 
-def pec_sphere_implant_duty_cycle_from_modes(points, t, modes, *, rho_c, t_inf,
-                                             period, duty=0.5):
+def pec_sphere_implant_duty_cycle_from_modes(points, t, modes, *, rho_c, t_inf, period, duty=0.5):
     r"""Direct modal duty-cycled transient (source on for ``duty·period`` at the
     start of each period), Neumann modes only.  Each modal amplitude ``A_n``
     obeys ``Ȧ = μ(c s(t) − A)``, ``μ = κλ²``, ``A(0) = 0``, advanced exactly
@@ -3970,7 +4214,6 @@ def pec_sphere_implant_duty_cycle_from_modes(points, t, modes, *, rho_c, t_inf,
             e = np.exp(-mu_ * (t1 - t0))
             A = on * m["c"] + (A - on * m["c"]) * e
         R = _imp7_mode_matrix(r, modes, l)
-        part = (s_now * pec_sphere_implant_radial(r, modes["coeffs"], l)
-                - (s_now * m["c"] - A) @ R)
+        part = s_now * pec_sphere_implant_radial(r, modes["coeffs"], l) - (s_now * m["c"] - A) @ R
         theta = theta + (part if l == 0 else part * p2)
     return t_inf + theta

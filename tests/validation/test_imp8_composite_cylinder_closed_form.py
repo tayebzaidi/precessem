@@ -148,17 +148,37 @@ def _modes(k_r, rhoc_r, n, hole=False):
     def z1(x):
         return A * special.j1(x) + B * special.y1(x)
 
-    shell_n = RHO_C * (0.5 * b**2 * (z0(mu2 * b) ** 2 + z1(mu2 * b) ** 2)
-                       - 0.5 * a**2 * (z0(mu2 * a) ** 2 + z1(mu2 * a) ** 2))
-    core_n = 0.0 if hole else rhoc_r * 0.5 * a**2 * (special.j0(mu1 * a) ** 2 + special.j1(mu1 * a) ** 2)
+    shell_n = RHO_C * (
+        0.5 * b**2 * (z0(mu2 * b) ** 2 + z1(mu2 * b) ** 2)
+        - 0.5 * a**2 * (z0(mu2 * a) ** 2 + z1(mu2 * a) ** 2)
+    )
+    core_n = (
+        0.0 if hole else rhoc_r * 0.5 * a**2 * (special.j0(mu1 * a) ** 2 + special.j1(mu1 * a) ** 2)
+    )
     norm = core_n + shell_n
     int_shell = (b * z1(mu2 * b) - a * z1(mu2 * a)) / mu2  # ∫ₐᵇ Z r dr
     int_core = 0.0 if hole else a * special.j1(mu1 * a) / mu1
     c = Q_SHELL * int_shell / (s * norm)
-    return dict(sig=sig, s=s, A=A, B=B, mu1=mu1, mu2=mu2, norm=norm, c=c,
-                fval=fval, fscale=fscale, env=env, lo=lo, hi=hi,
-                int_shell=int_shell, int_core=int_core, hole=hole,
-                rhoc_r=rhoc_r, k_r=k_r)
+    return dict(
+        sig=sig,
+        s=s,
+        A=A,
+        B=B,
+        mu1=mu1,
+        mu2=mu2,
+        norm=norm,
+        c=c,
+        fval=fval,
+        fscale=fscale,
+        env=env,
+        lo=lo,
+        hi=hi,
+        int_shell=int_shell,
+        int_core=int_core,
+        hole=hole,
+        rhoc_r=rhoc_r,
+        k_r=k_r,
+    )
 
 
 def _psi(m, r):
@@ -205,8 +225,15 @@ def _gram(m, n):
             val = 0.0
             if not m["hole"]:
                 al, be = m["mu1"][i], m["mu1"][j]
-                val += m["rhoc_r"] * cross(al, be, special.j0(al * a), special.j1(al * a),
-                                           special.j0(be * a), special.j1(be * a), a)
+                val += m["rhoc_r"] * cross(
+                    al,
+                    be,
+                    special.j0(al * a),
+                    special.j1(al * a),
+                    special.j0(be * a),
+                    special.j1(be * a),
+                    a,
+                )
             al, be = m["mu2"][i], m["mu2"][j]
             Ai, Bi, Aj, Bj = m["A"][i], m["B"][i], m["A"][j], m["B"][j]
             for r, sgn in ((b, 1.0), (a, -1.0)):
@@ -222,23 +249,38 @@ def _gram(m, n):
 def test_imp8_composite_cylinder_closed_form():
     gates = {}
     scale = _theta_ss(A_ROD)
-    _p(f"[I64] a = {A_ROD:.4g} m, b = {B_WALL:.4g} m, t_c = {T_C:.7g} s, t* = {T_STAR:.7g} s, "
-       f"q = {Q_SHELL:.7g} W/m3, kappa_gel = {KAPPA_GEL:.7g}, kappa_Ti = {ROD_K / ROD_RHO_C:.7g} (nominal)")
-    _p(f"[I64] theta_ss(a) = {float(_theta_ss(A_ROD)):.7f} (review 0.1148409), "
-       f"theta_ss(3 mm) = {float(_theta_ss(3e-3)):.7f} (review 0.0827736) K per W/m")
+    _p(
+        f"[I64] a = {A_ROD:.4g} m, b = {B_WALL:.4g} m, t_c = {T_C:.7g} s, t* = {T_STAR:.7g} s, "
+        f"q = {Q_SHELL:.7g} W/m3, kappa_gel = {KAPPA_GEL:.7g}, kappa_Ti = {ROD_K / ROD_RHO_C:.7g} (nominal)"
+    )
+    _p(
+        f"[I64] theta_ss(a) = {float(_theta_ss(A_ROD)):.7f} (review 0.1148409), "
+        f"theta_ss(3 mm) = {float(_theta_ss(3e-3)):.7f} (review 0.0827736) K per W/m"
+    )
 
     # Precondition.
     pre = {}
-    for name, kr, rc, hole in (("Ti", ROD_K, ROD_RHO_C, False), ("gel", K_GEL, RHO_C, False),
-                               ("hole", ROD_K, ROD_RHO_C, True), ("ctrl", ROD_K, RHO_C, False)):
+    for name, kr, rc, hole in (
+        ("Ti", ROD_K, ROD_RHO_C, False),
+        ("gel", K_GEL, RHO_C, False),
+        ("hole", ROD_K, ROD_RHO_C, True),
+        ("ctrl", ROD_K, RHO_C, False),
+    ):
         m = _modes(float(kr), float(rc), N_MODES, hole)
         rel = np.abs(m["fval"]) / m["env"]
-        rel_old = np.abs(m["fval"]) / m["fscale"]  # attempt-1 scale |A J0| + |B Y0|: printed control only
-        pre[name] = (float(rel.max()), len(m["sig"]),
-                     float(np.min(np.diff(m["sig"])) / (np.pi / _lam(kr, rc, hole))))
-        _p(f"[pre] {name}: max |F|/env = {rel.max():.3e} (n = {int(np.argmax(rel)) + 1}), roots = {len(m['sig'])}, "
-           f"min spacing / (pi/Lambda) = {pre[name][2]:.4g}, sqrt(s)_1 = {m['sig'][0]:.7g}; "
-           f"control (printed): max |F|/(|A J0|+|B Y0|) = {rel_old.max():.3e}")
+        rel_old = (
+            np.abs(m["fval"]) / m["fscale"]
+        )  # attempt-1 scale |A J0| + |B Y0|: printed control only
+        pre[name] = (
+            float(rel.max()),
+            len(m["sig"]),
+            float(np.min(np.diff(m["sig"])) / (np.pi / _lam(kr, rc, hole))),
+        )
+        _p(
+            f"[pre] {name}: max |F|/env = {rel.max():.3e} (n = {int(np.argmax(rel)) + 1}), roots = {len(m['sig'])}, "
+            f"min spacing / (pi/Lambda) = {pre[name][2]:.4g}, sqrt(s)_1 = {m['sig'][0]:.7g}; "
+            f"control (printed): max |F|/(|A J0|+|B Y0|) = {rel_old.max():.3e}"
+        )
     gates["pre_F"] = max(v[0] for v in pre.values())
     gates["pre_count_ok"] = all(v[1] == N_MODES for v in pre.values())
     G = _gram(_modes(float(ROD_K), float(ROD_RHO_C), 20, False), 20)
@@ -250,25 +292,41 @@ def test_imp8_composite_cylinder_closed_form():
     st = [abs(_theta(r, T_ST) - float(_theta_ss(r))) / scale for r in R_PTS]
     sc = Q_SHELL * B_WALL**2 / K_GEL
     r3 = np.array([1.5e-3, 3e-3, 4.5e-3])
-    res = [abs(float(_theta_ss(B_WALL))) / sc,
-           abs(K_GEL * _theta_ss_d1(A_ROD)) * B_WALL / (K_GEL * sc)]
-    res += list(np.abs(K_GEL * (_theta_ss_d2(r3) + _theta_ss_d1(r3) / r3) + Q_SHELL) * B_WALL**2 / (K_GEL * sc))
+    res = [
+        abs(float(_theta_ss(B_WALL))) / sc,
+        abs(K_GEL * _theta_ss_d1(A_ROD)) * B_WALL / (K_GEL * sc),
+    ]
+    res += list(
+        np.abs(K_GEL * (_theta_ss_d2(r3) + _theta_ss_d1(r3) / r3) + Q_SHELL)
+        * B_WALL**2
+        / (K_GEL * sc)
+    )
     gates["St_series"] = max(st)
     gates["St_resid"] = max(res)
-    _p(f"[St] series at 50 b2/kappa vs theta_ss: {', '.join(f'{v:.3e}' for v in st)}; "
-       f"residuals: {', '.join(f'{v:.3e}' for v in res)}")
+    _p(
+        f"[St] series at 50 b2/kappa vs theta_ss: {', '.join(f'{v:.3e}' for v in st)}; "
+        f"residuals: {', '.join(f'{v:.3e}' for v in res)}"
+    )
 
     # (En).
     m = _modes(float(ROD_K), float(ROD_RHO_C), N_MODES, False)
     lhs = m["s"] * (ROD_RHO_C * m["int_core"] + RHO_C * m["int_shell"])
     zb1 = m["A"] * special.j1(m["mu2"] * B_WALL) + m["B"] * special.y1(m["mu2"] * B_WALL)
     rhs = -K_GEL * B_WALL * (-m["mu2"] * zb1)
-    mag = np.abs(m["s"] * ROD_RHO_C * m["int_core"]) + np.abs(m["s"] * RHO_C * m["int_shell"]) + np.abs(rhs)
+    mag = (
+        np.abs(m["s"] * ROD_RHO_C * m["int_core"])
+        + np.abs(m["s"] * RHO_C * m["int_shell"])
+        + np.abs(rhs)
+    )
     gates["En_modes"] = float(np.max(np.abs(lhs - rhs) / mag))
     bal = -K_GEL * B_WALL * _theta_ss_d1(B_WALL)
-    gates["En_steady"] = abs(bal - Q_SHELL * (B_WALL**2 - A_ROD**2) / 2) / (Q_SHELL * (B_WALL**2 - A_ROD**2) / 2)
-    _p(f"[En] modes max rel = {gates['En_modes']:.3e}, steady balance rel = {gates['En_steady']:.3e} "
-       f"(q(b2-a2)/2 = {Q_SHELL * (B_WALL**2 - A_ROD**2) / 2:.7g} W/m)")
+    gates["En_steady"] = abs(bal - Q_SHELL * (B_WALL**2 - A_ROD**2) / 2) / (
+        Q_SHELL * (B_WALL**2 - A_ROD**2) / 2
+    )
+    _p(
+        f"[En] modes max rel = {gates['En_modes']:.3e}, steady balance rel = {gates['En_steady']:.3e} "
+        f"(q(b2-a2)/2 = {Q_SHELL * (B_WALL**2 - A_ROD**2) / 2:.7g} W/m)"
+    )
 
     # (Lim).
     lim = []
@@ -277,8 +335,10 @@ def test_imp8_composite_cylinder_closed_form():
             comp = _theta(r, t, k_r=K_GEL, rhoc_r=RHO_C)
             ref = _theta_j0(r, t)
             lim.append(abs(comp - ref) / scale)
-            _p(f"[Lim] r = {r * 1e3:.1f} mm, t = {t:.7g} s: composite {comp:.7g}, J0 series {ref:.7g}, "
-               f"diff {lim[-1]:.3e}")
+            _p(
+                f"[Lim] r = {r * 1e3:.1f} mm, t = {t:.7g} s: composite {comp:.7g}, J0 series {ref:.7g}, "
+                f"diff {lim[-1]:.3e}"
+            )
     mg = _modes(float(K_GEL), float(RHO_C), N_MODES, False)
     lam_c = mg["mu2"][:50]
     lam_j = special.jn_zeros(0, 50) / B_WALL
@@ -287,7 +347,9 @@ def test_imp8_composite_cylinder_closed_form():
     _p(f"[Lim] first 50 roots max rel = {gates['Lim_roots']:.3e}")
 
     # (Bq).
-    bq = [abs(_theta(r, t, n_modes=200) - _theta(r, t)) / scale for t in (T_C, T_STAR) for r in R_PTS]
+    bq = [
+        abs(_theta(r, t, n_modes=200) - _theta(r, t)) / scale for t in (T_C, T_STAR) for r in R_PTS
+    ]
     gates["Bq"] = max(bq)
     _p(f"[Bq] N=200 vs 400: {', '.join(f'{v:.3e}' for v in bq)}")
 
@@ -297,11 +359,15 @@ def test_imp8_composite_cylinder_closed_form():
         ti = _theta(r, T_C)
         cc = _theta(r, T_C, rhoc_r=RHO_C)
         ctrl.append(abs(cc - ti) / abs(ti))
-        _p(f"[ctrl] r = {r * 1e3:.1f} mm, t_c: Ti {ti:.7g}, rhoc->RHO_C {cc:.7g}, rel miss {ctrl[-1]:.4g}, "
-           f"abs/theta_ss(a) {abs(cc - ti) / scale:.4g}")
+        _p(
+            f"[ctrl] r = {r * 1e3:.1f} mm, t_c: Ti {ti:.7g}, rhoc->RHO_C {cc:.7g}, rel miss {ctrl[-1]:.4g}, "
+            f"abs/theta_ss(a) {abs(cc - ti) / scale:.4g}"
+        )
     gates["ctrl_min"] = min(ctrl[0], ctrl[1])
-    _p(f"[ctrl] r = 0 / a: measured {ctrl[0]:.4g} / {ctrl[1]:.4g}, predicted {PRED_CTRL[0]} / {PRED_CTRL[1]}; "
-       f"(a+b)/2 printed only {ctrl[2]:.4g}")
+    _p(
+        f"[ctrl] r = 0 / a: measured {ctrl[0]:.4g} / {ctrl[1]:.4g}, predicted {PRED_CTRL[0]} / {PRED_CTRL[1]}; "
+        f"(a+b)/2 printed only {ctrl[2]:.4g}"
+    )
 
     # Printed record: three cores.
     cores = (("Ti", dict()), ("gel", dict(k_r=K_GEL, rhoc_r=RHO_C)), ("hole", dict(hole=True)))
@@ -325,8 +391,12 @@ def test_imp8_composite_cylinder_closed_form():
         tail = [abs(_theta(r, 0.0, n_modes=n)) / scale for r in R_PTS]
         _p(f"[rec] t = 0 tail, Ti, N = {n}: {', '.join(f'{v:.3e}' for v in tail)} (of theta_ss(a))")
 
-    _p("[gates] " + ", ".join(f"{k} = {v:.3e}" if isinstance(v, float) else f"{k} = {v}"
-                              for k, v in gates.items()))
+    _p(
+        "[gates] "
+        + ", ".join(
+            f"{k} = {v:.3e}" if isinstance(v, float) else f"{k} = {v}" for k, v in gates.items()
+        )
+    )
     assert gates["pre_count_ok"], pre
     assert gates["pre_F"] <= 1e-12, pre
     assert gates["St_series"] <= B1_BAND, gates

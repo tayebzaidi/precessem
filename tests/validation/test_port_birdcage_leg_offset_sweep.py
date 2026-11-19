@@ -90,7 +90,6 @@ from fem_em_solver.core import HomogeneousMaterial, TimeHarmonicProblem
 from fem_em_solver.ports.definitions import PortDefinition
 from fem_em_solver.ports.lumped import LumpedSheetPortSpec
 from fem_em_solver.ports.sparameters import run_n_port_sparameter_sweep
-
 from tests.complex_mode import complex_only
 from tests.mesh.test_birdcage_leg_offset import (
     LEG_OFFSET_RAD,
@@ -182,9 +181,7 @@ def _narrowed_radial(msh, facet_tags, tag, fraction, centre, radial, half_width)
     keep = np.ones(sheet_facets.size, dtype=bool)
     if sheet_facets.size:
         mid = dolfinx.mesh.compute_midpoints(msh, fdim, sheet_facets)
-        keep = np.abs(mid @ np.asarray(radial, dtype=float) - centre) <= (
-            fraction * half_width
-        )
+        keep = np.abs(mid @ np.asarray(radial, dtype=float) - centre) <= (fraction * half_width)
     new_idx = np.concatenate([idx[~on_sheet], sheet_facets[keep]]).astype(np.int32)
     new_val = np.concatenate(
         [
@@ -277,9 +274,7 @@ def _four_port_rung(
     narrow_fraction = GATED_WIDTH_FRACTION
     if sheet_width_fraction is not None:
         if leg_sheet_strip_fraction is not None:
-            raise ValueError(
-                "sheet_width_fraction and leg_sheet_strip_fraction are exclusive"
-            )
+            raise ValueError("sheet_width_fraction and leg_sheet_strip_fraction are exclusive")
         f_w = float(sheet_width_fraction)
         if not 0.0 < f_w < 1.0:
             raise ValueError(f"sheet_width_fraction={f_w!r}: must lie in (0, 1)")
@@ -325,9 +320,7 @@ def _four_port_rung(
             tag = SHEET_IFACE + i
             azimuth = _sheet_azimuth_deg(msh, tags_f, tag, comm)
             radial, azimuthal, axial = _port_frame(azimuth)
-            spans, centres = _projected_extents(
-                msh, tags_f, tag, comm, [radial, azimuthal, axial]
-            )
+            spans, centres = _projected_extents(msh, tags_f, tag, comm, [radial, azimuthal, axial])
             geometry[i] = {
                 "tag": tag,
                 "azimuth_deg": float(azimuth),
@@ -475,15 +468,9 @@ def _four_port_rung(
     spreads = {n: _class_spread(v) for n, v in classes.items()}
     sigma = np.linalg.svd(s_matrix, compute_uv=False)
     column_power = np.sum(np.abs(s_matrix) ** 2, axis=0)
-    reciprocity = float(
-        np.linalg.norm(s_matrix - s_matrix.T) / np.linalg.norm(s_matrix)
-    )
-    z_reciprocity = float(
-        np.linalg.norm(z_matrix - z_matrix.T) / np.linalg.norm(z_matrix)
-    )
-    pooled = _class_spread(
-        np.concatenate([classes["adjacent"], classes["opposite"]])
-    )
+    reciprocity = float(np.linalg.norm(s_matrix - s_matrix.T) / np.linalg.norm(s_matrix))
+    z_reciprocity = float(np.linalg.norm(z_matrix - z_matrix.T) / np.linalg.norm(z_matrix))
+    pooled = _class_spread(np.concatenate([classes["adjacent"], classes["opposite"]]))
 
     if comm.rank == 0:
         print(
@@ -518,7 +505,7 @@ def _four_port_rung(
             f"    ||S - S^T||/||S|| = {reciprocity:.9e}   "
             f"||Z - Z^T||/||Z|| = {z_reciprocity:.9e}\n"
             f"    sigma(S) = " + ", ".join(f"{v:.9f}" for v in sigma) + "\n"
-            f"    column power sums = "
+            "    column power sums = "
             + ", ".join(f"{v:.9f}" for v in column_power)
             + f"\n    class spreads: self {spreads['self'] * 100:.4f}%  adjacent "
             f"{spreads['adjacent'] * 100:.4f}%  opposite "
@@ -614,9 +601,7 @@ def test_both_rungs_drove_four_solved_field_ports(offset_rungs):
         assert rung["z"].shape == (LEG_COUNT, LEG_COUNT)
         assert np.all(np.isfinite(rung["z"].real))
         assert np.all(np.isfinite(rung["z"].imag))
-        assert set(r.excitation_results) == {
-            f"P{i}" for i in range(1, LEG_COUNT + 1)
-        }
+        assert set(r.excitation_results) == {f"P{i}" for i in range(1, LEG_COUNT + 1)}
         for driven, response in r.excitation_results.items():
             assert response.responses[driven].is_driven
             for pid, est in response.responses.items():
@@ -801,11 +786,7 @@ def test_gate_iii_detects_the_broken_c4(offset_rungs):
         )
         for cls in ("self", "adjacent", "opposite"):
             gated = "gated" if cls in ("self", "adjacent") else "reported"
-            verdict = (
-                "EXCEEDS (detected)"
-                if disp[cls] > ADJACENT_SPREAD_BAND
-                else "inside (blind)"
-            )
+            verdict = "EXCEEDS (detected)" if disp[cls] > ADJACENT_SPREAD_BAND else "inside (blind)"
             print(
                 f"    {cls:9s} [{gated:8s}]  zero {zero[cls] * 100:9.4f}%   "
                 f"displaced {disp[cls] * 100:9.4f}%   amplification "

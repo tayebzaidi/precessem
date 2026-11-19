@@ -26,6 +26,7 @@ only (the asymmetric-mesh floor step 3 will face).
 Not claimed: a mesh cutter, the birdcage, multi-port S, κ on cut sheets, any
 memory figure, the eigen path.
 """
+
 import os
 import time
 
@@ -42,7 +43,6 @@ from fem_em_solver.ports.definitions import PortDefinition
 from fem_em_solver.ports.lumped import LumpedSheetPortSpec, run_lumped_sheet_port_case
 from fem_em_solver.ports.symmetry import full_impedance, halve_sheet_spec
 from fem_em_solver.post.evaluation import evaluate_vector_field_parallel
-
 from tests.complex_mode import complex_only
 from tests.validation.test_lossy_sphere_fullwave import (
     FREQUENCY_64_HZ,
@@ -149,7 +149,10 @@ def _distribute(x, cells, comm):
     domain = ufl.Mesh(basix.ufl.element("Lagrange", "tetrahedron", 1, shape=(3,)))
     partitioner = dmesh.create_cell_partitioner(dmesh.GhostMode.shared_facet, 2)
     return dmesh.create_mesh(
-        comm, cells=np.ascontiguousarray(cells), x=np.ascontiguousarray(x), e=domain,
+        comm,
+        cells=np.ascontiguousarray(cells),
+        x=np.ascontiguousarray(x),
+        e=domain,
         partitioner=partitioner,
     )
 
@@ -159,19 +162,24 @@ def _tag(msh, extent):
     msh.topology.create_connectivity(fdim, 3)
     idx, val = [], []
     for tag, axis, v in (
-        (X0, 0, 0.0), (X1, 0, extent[0]), (Y0, 1, 0.0), (Y1, 1, extent[1]),
-        (Z0, 2, 0.0), (Z1, 2, extent[2]),
+        (X0, 0, 0.0),
+        (X1, 0, extent[0]),
+        (Y0, 1, 0.0),
+        (Y1, 1, extent[1]),
+        (Z0, 2, 0.0),
+        (Z1, 2, extent[2]),
     ):
-        f = dmesh.locate_entities_boundary(
-            msh, fdim, lambda p, a=axis, c=v: np.abs(p[a] - c) < TOL
-        )
+        f = dmesh.locate_entities_boundary(msh, fdim, lambda p, a=axis, c=v: np.abs(p[a] - c) < TOL)
         idx.append(f)
         val.append(np.full(f.size, tag, dtype=np.int32))
     sheet = dmesh.locate_entities(
-        msh, fdim,
+        msh,
+        fdim,
         lambda p: (np.abs(p[2] - SHEET_Z) < TOL)
-        & (p[0] > SHEET_X[0] - TOL) & (p[0] < SHEET_X[1] + TOL)
-        & (p[1] > SHEET_Y[0] - TOL) & (p[1] < SHEET_Y[1] + TOL),
+        & (p[0] > SHEET_X[0] - TOL)
+        & (p[0] < SHEET_X[1] + TOL)
+        & (p[1] > SHEET_Y[0] - TOL)
+        & (p[1] < SHEET_Y[1] + TOL),
     )
     idx.append(sheet)
     val.append(np.full(sheet.size, SHEET_TAG, dtype=np.int32))
@@ -208,23 +216,41 @@ def _cut_plane_exterior(msh):
 
 def _solve(msh, tags, spec, pec_tags, points, return_fields=False):
     problem = TimeHarmonicProblem(
-        mesh=msh, frequency_hz=FREQUENCY_64_HZ, material=SALINE,
-        boundary_condition="pec_zero_tangential_a", facet_tags=tags,
+        mesh=msh,
+        frequency_hz=FREQUENCY_64_HZ,
+        material=SALINE,
+        boundary_condition="pec_zero_tangential_a",
+        facet_tags=tags,
         pec_facet_tags=pec_tags,
     )
     port = PortDefinition(
-        port_id="P1", positive_tag=SHEET_TAG, negative_tag=SHEET_TAG + 1,
-        orientation="sheet_plus_y", z0_ohm=Z_PORT,
+        port_id="P1",
+        positive_tag=SHEET_TAG,
+        negative_tag=SHEET_TAG + 1,
+        orientation="sheet_plus_y",
+        z0_ohm=Z_PORT,
     )
     result, fields = run_lumped_sheet_port_case(
-        problem, [port], [spec], facet_tags=tags, driven_port_id="P1", degree=1,
-        verbose=False, return_fields=True,
+        problem,
+        [port],
+        [spec],
+        facet_tags=tags,
+        driven_port_id="P1",
+        degree=1,
+        verbose=False,
+        return_fields=True,
     )
     r = result.responses["P1"]
     v, i = complex(r.voltage_v), complex(r.current_a)
     values, valid = evaluate_vector_field_parallel(fields.e_complex, points)
-    out = {"V": v, "I": i, "Z": v / i, "P": 0.5 * (v * np.conj(i)).real,
-           "E": values, "valid": valid}
+    out = {
+        "V": v,
+        "I": i,
+        "Z": v / i,
+        "P": 0.5 * (v * np.conj(i)).real,
+        "E": values,
+        "valid": valid,
+    }
     if return_fields:
         out["fields"] = fields
     return out
@@ -248,9 +274,14 @@ def build_cases():
     x_full, c_full = _mirror(x_pmc, c_pmc, 0, X_CUT)
 
     full_spec = LumpedSheetPortSpec(
-        port_id="P1", facet_tag=SHEET_TAG, port_impedance_ohm=Z_PORT + 0.0j,
-        gap_height_m=SHEET_Y[1] - SHEET_Y[0], sheet_width_m=SHEET_X[1] - SHEET_X[0],
-        drive_direction=(0.0, 1.0, 0.0), drive_voltage_v=V_DRIVE + 0.0j, interior=True,
+        port_id="P1",
+        facet_tag=SHEET_TAG,
+        port_impedance_ohm=Z_PORT + 0.0j,
+        gap_height_m=SHEET_Y[1] - SHEET_Y[0],
+        sheet_width_m=SHEET_X[1] - SHEET_X[0],
+        drive_direction=(0.0, 1.0, 0.0),
+        drive_voltage_v=V_DRIVE + 0.0j,
+        interior=True,
     )
     pmc_spec = halve_sheet_spec(full_spec, "pmc", plane_normal=(1.0, 0.0, 0.0))
     pec_spec = halve_sheet_spec(full_spec, "pec", plane_normal=(0.0, 1.0, 0.0))
@@ -292,16 +323,22 @@ def run():
         pts = full_points if name == "full" else POINTS
         out["solve"][name] = _solve(msh, tags, spec, pec_tags, pts)
         r = out["solve"][name]
-        _say(comm, f"{name}: V={r['V']:.12e} I={r['I']:.12e} Z={r['Z']:.12e} "
-                   f"P={r['P']:.12e} valid={int(np.sum(r['valid']))}/{len(pts)}")
+        _say(
+            comm,
+            f"{name}: V={r['V']:.12e} I={r['I']:.12e} Z={r['Z']:.12e} "
+            f"P={r['P']:.12e} valid={int(np.sum(r['valid']))}/{len(pts)}",
+        )
         if name == "pmc_half":
             # NC1: same mesh and spec, the x = 0.24 cut pinned (wrong condition).
             out["nc1"] = _solve(msh, tags, spec, ALL_FACES, POINTS)
 
     # NC2: a directly meshed (not mirror-symmetric) full box.
     box = dmesh.create_box(
-        comm, [np.zeros(3), np.array([FULL_X, FULL_Y, 0.48])], (12, 10, 12),
-        dmesh.CellType.tetrahedron, ghost_mode=dmesh.GhostMode.shared_facet,
+        comm,
+        [np.zeros(3), np.array([FULL_X, FULL_Y, 0.48])],
+        (12, 10, 12),
+        dmesh.CellType.tetrahedron,
+        ghost_mode=dmesh.GhostMode.shared_facet,
     )
     btags = _tag(box, (FULL_X, FULL_Y, 0.48))
     out["nc2"] = _solve(box, btags, full_spec, ALL_FACES, POINTS)
@@ -309,12 +346,18 @@ def run():
     zf = out["solve"]["full"]["Z"]
     out["nc1_metric"] = abs(out["nc1"]["Z"] / (2.0 * zf) - 1.0)
     out["nc2_metric"] = abs(out["solve"]["pmc_half"]["Z"] / (2.0 * out["nc2"]["Z"]) - 1.0)
-    _say(comm, f"NC1 (PMC half, cut pinned) |Z/(2Z_f) - 1| = {out['nc1_metric']:.6e} "
-               f"(Z = {out['nc1']['Z']:.12e}); predicted >= {NC1_FLOOR:.0%}: "
-               f"{'HOLDS' if out['nc1_metric'] >= NC1_FLOOR else 'FAILS'}; "
-               f"asserted: {CONTROL}")
-    _say(comm, f"NC2 (create_box (12,10,12) full vs PMC half) |Z_h/(2Z_box) - 1| = "
-               f"{out['nc2_metric']:.6e} (Z_box = {out['nc2']['Z']:.12e}) — printed only")
+    _say(
+        comm,
+        f"NC1 (PMC half, cut pinned) |Z/(2Z_f) - 1| = {out['nc1_metric']:.6e} "
+        f"(Z = {out['nc1']['Z']:.12e}); predicted >= {NC1_FLOOR:.0%}: "
+        f"{'HOLDS' if out['nc1_metric'] >= NC1_FLOOR else 'FAILS'}; "
+        f"asserted: {CONTROL}",
+    )
+    _say(
+        comm,
+        f"NC2 (create_box (12,10,12) full vs PMC half) |Z_h/(2Z_box) - 1| = "
+        f"{out['nc2_metric']:.6e} (Z_box = {out['nc2']['Z']:.12e}) — printed only",
+    )
     out["elapsed"] = time.perf_counter() - t0
     _say(comm, f"fixture elapsed {out['elapsed']:.1f} s")
     return out
@@ -343,13 +386,16 @@ def test_full_field_mirror_symmetric(run):
     assert r["valid"].all()
     e = r["E"]
     n = POINTS.shape[0]
-    e0, ex, ey, exy = e[:n], e[n:2 * n], e[2 * n:3 * n], e[3 * n:]
+    e0, ex, ey, exy = e[:n], e[n : 2 * n], e[2 * n : 3 * n], e[3 * n :]
     scale = np.max(np.linalg.norm(e0, axis=1))
-    resid = max(
-        np.max(np.linalg.norm(ex - S_X * e0, axis=1)),
-        np.max(np.linalg.norm(ey - S_Y * e0, axis=1)),
-        np.max(np.linalg.norm(exy - S_X * S_Y * e0, axis=1)),
-    ) / scale
+    resid = (
+        max(
+            np.max(np.linalg.norm(ex - S_X * e0, axis=1)),
+            np.max(np.linalg.norm(ey - S_Y * e0, axis=1)),
+            np.max(np.linalg.norm(exy - S_X * S_Y * e0, axis=1)),
+        )
+        / scale
+    )
     _say(MPI.COMM_WORLD, f"(1) mirror residual {resid:.3e} (max|E| = {scale:.6e})")
     assert resid <= LEG_D0_REPRODUCTION_BAND
 

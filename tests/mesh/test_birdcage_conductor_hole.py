@@ -54,8 +54,6 @@ Scope: a mesh route and its identities.  No solve, no S-matrix, no PEC gate, no
 
 from __future__ import annotations
 
-import time
-
 import numpy as np
 import pytest
 from mpi4py import MPI
@@ -66,18 +64,6 @@ from fem_em_solver.io.mesh import (
     _interface_facet_tags,
 )
 
-# Bands, fixture and layout are imported, never restated (`ANS-1`).
-from tests.mesh.test_birdcage_port_sheet_prerequisite import CELL_COUNT_BAND
-from tests.mesh.test_birdcage_leg_offset import SHEET_AREA_BAND
-from tests.mesh.test_birdcage_leg_gaps import _analytic_box_volume
-from tests.mesh.test_birdcage_port_sheets import (
-    PORT_LOWER,
-    PORT_UPPER,
-    SHEET_IFACE,
-    _build,
-)
-from tests.mesh.test_birdcage_port_tags import LEG_COUNT
-
 # The reduction helpers step 0/2a scored the two-torus with, so the birdcage is
 # measured by the identical machinery.  `_census` is only ever applied to an
 # **owned** slice — see `_owned_census`.
@@ -86,6 +72,18 @@ from tests.mesh.probe_two_torus_conductor_hole import (
     _exterior_facet_area,
     _facet_area,
 )
+from tests.mesh.test_birdcage_leg_gaps import _analytic_box_volume
+from tests.mesh.test_birdcage_leg_offset import SHEET_AREA_BAND
+
+# Bands, fixture and layout are imported, never restated (`ANS-1`).
+from tests.mesh.test_birdcage_port_sheet_prerequisite import CELL_COUNT_BAND
+from tests.mesh.test_birdcage_port_sheets import (
+    PORT_LOWER,
+    PORT_UPPER,
+    SHEET_IFACE,
+    _build,
+)
+from tests.mesh.test_birdcage_port_tags import LEG_COUNT
 
 # The `PORT-9` record of this exact solid fixture: 116 085 cells on the 0.11
 # image (`20260905T201151Z_EX-49.log`, and the `GEO-19` step-B re-record in
@@ -152,9 +150,7 @@ def _measure(msh, cell_tags, comm):
     msh.topology.create_entity_permutations()
     ports = list(range(1, LEG_COUNT + 1))
     return {
-        "n_cells": comm.allreduce(
-            msh.topology.index_map(tdim).size_local, op=MPI.SUM
-        ),
+        "n_cells": comm.allreduce(msh.topology.index_map(tdim).size_local, op=MPI.SUM),
         "n_verts": comm.allreduce(msh.topology.index_map(0).size_local, op=MPI.SUM),
         "cells": _owned_census(msh, cell_tags, tdim, comm),
         "sheet_area": _sheet_areas(msh, cell_tags, ports, comm),
@@ -177,17 +173,11 @@ def routes():
         hole_msh, hole_facets, BIRDCAGE_CONDUCTOR_SURFACE_TAG, comm
     )
     hole["cavity_facets"] = comm.allreduce(
-        int(
-            np.count_nonzero(
-                np.asarray(hole_facets.values) == BIRDCAGE_CONDUCTOR_SURFACE_TAG
-            )
-        ),
+        int(np.count_nonzero(np.asarray(hole_facets.values) == BIRDCAGE_CONDUCTOR_SURFACE_TAG)),
         op=MPI.SUM,
     )
 
-    solid_msh, solid_cells, _solid_facets, solid_diag, t_solid = _build(
-        emit_port_sheets=True
-    )
+    solid_msh, solid_cells, _solid_facets, solid_diag, t_solid = _build(emit_port_sheets=True)
     solid = _measure(solid_msh, solid_cells, comm)
     solid["diag"] = solid_diag
     solid["t_mesh"] = t_solid
@@ -195,8 +185,7 @@ def routes():
     # The whole boundary of the meshed coil: air, phantom and both halves of
     # every port box (the terminal disks).  The air-only subtotal is carried
     # alongside so both readings of anchor (iii) are printed.
-    conductor_pairs = [(CONDUCTOR_CELL_TAG, AIR_CELL_TAG),
-                       (CONDUCTOR_CELL_TAG, PHANTOM_CELL_TAG)]
+    conductor_pairs = [(CONDUCTOR_CELL_TAG, AIR_CELL_TAG), (CONDUCTOR_CELL_TAG, PHANTOM_CELL_TAG)]
     for i in ports:
         conductor_pairs.append((CONDUCTOR_CELL_TAG, PORT_LOWER + i))
         conductor_pairs.append((CONDUCTOR_CELL_TAG, PORT_UPPER + i))
@@ -215,12 +204,8 @@ def routes():
             )
         },
     )
-    solid["interface_area"] = _facet_area(
-        solid_msh, iface, SOLID_CONDUCTOR_IFACE, comm
-    )
-    solid["interface_area_air"] = _facet_area(
-        solid_msh, iface_air, SOLID_CONDUCTOR_AIR_IFACE, comm
-    )
+    solid["interface_area"] = _facet_area(solid_msh, iface, SOLID_CONDUCTOR_IFACE, comm)
+    solid["interface_area_air"] = _facet_area(solid_msh, iface_air, SOLID_CONDUCTOR_AIR_IFACE, comm)
     solid["interface_facets"] = comm.allreduce(
         int(np.count_nonzero(np.asarray(iface.values) == SOLID_CONDUCTOR_IFACE)),
         op=MPI.SUM,
@@ -304,9 +289,9 @@ def test_the_hole_route_keeps_all_four_port_sheets_exact(routes):
         nominal_area = dx * dz
         for i in sorted(route["sheet_area"]):
             area = route["sheet_area"][i]
-            assert np.isfinite(area), (
-                f"{label} route has no facets in sheet group {SHEET_IFACE + i}"
-            )
+            assert np.isfinite(
+                area
+            ), f"{label} route has no facets in sheet group {SHEET_IFACE + i}"
             dev = abs(area / nominal_area - 1.0)
             if MPI.COMM_WORLD.rank == 0:
                 print(
@@ -383,9 +368,7 @@ def test_the_cavity_wall_is_the_solid_routes_conductor_interface(routes):
     hole, solid = routes
     cavity = hole["cavity_area"]
     interface = solid["interface_area"]
-    assert np.isfinite(cavity), (
-        f"the hole has no facets in group {BIRDCAGE_CONDUCTOR_SURFACE_TAG}"
-    )
+    assert np.isfinite(cavity), f"the hole has no facets in group {BIRDCAGE_CONDUCTOR_SURFACE_TAG}"
     dev = abs(cavity / interface - 1.0)
     if MPI.COMM_WORLD.rank == 0:
         print(

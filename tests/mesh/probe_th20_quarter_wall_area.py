@@ -167,7 +167,12 @@ def _quadrant_pieces(tri, nbr, q):
         pieces_a.append(ar)
         pieces_c.append(c)
         pieces_n.append(nbr[i])
-    return np.asarray(pieces_a), np.asarray(pieces_c).reshape(-1, 3), np.asarray(pieces_n), n_straddle
+    return (
+        np.asarray(pieces_a),
+        np.asarray(pieces_c).reshape(-1, 3),
+        np.asarray(pieces_n),
+        n_straddle,
+    )
 
 
 def _band_sums(areas, cents, nbrs, h):
@@ -184,7 +189,8 @@ def _build(kwargs, comm):
 
     t0 = time.perf_counter()
     msh, cells, facets, diag = MeshGenerator.birdcage_port_domain(
-        comm=comm, return_diagnostics=True, **kwargs)
+        comm=comm, return_diagnostics=True, **kwargs
+    )
     t_build = time.perf_counter() - t0
     tdim = msh.topology.dim
     msh.topology.create_entities(tdim - 1)
@@ -208,16 +214,27 @@ def _readout(records, tag, key_da, key_rho, key_r_ok, key_n_ok):
     d2 = bool(all(records[h][key_n_ok] for h in hs))
     tri = t1 and t2 and t3
     cut = d1 or d2
-    verdict = "TRIANGULATION" if (tri and not cut) else "CUTTER DEFECT" if (cut and not tri) else "Mixed"
+    verdict = (
+        "TRIANGULATION" if (tri and not cut) else "CUTTER DEFECT" if (cut and not tri) else "Mixed"
+    )
     prov = "" if len(hs) >= 3 else f" (PROVISIONAL: {len(hs)} of 3 rungs)"
-    print(f"{tag} rungs {['%.1e' % h for h in hs]} dA {['%+.4e' % v for v in da]} "
-          f"rho {['%+.3f' % v for v in rho]}", flush=True)
-    print(f"{tag} TRIANGULATION criteria: rho in [0.5,2] all rungs {t1}; dA sign change "
-          f"{sign_change} or spread (max-min)/|mean| {spread:.3f} > 0.30 -> {t2}; band R "
-          f"within facet-model share all rungs {t3}  => {tri}", flush=True)
-    print(f"{tag} CUTTER DEFECT criteria: one sign {one_sign} and max|dA/mean-1| {dev:.3f} "
-          f"<= 0.20 -> {d1}; >80% of (dA-model) in band N with dN_N~0 all rungs {d2}  "
-          f"=> {cut}", flush=True)
+    print(
+        f"{tag} rungs {['%.1e' % h for h in hs]} dA {['%+.4e' % v for v in da]} "
+        f"rho {['%+.3f' % v for v in rho]}",
+        flush=True,
+    )
+    print(
+        f"{tag} TRIANGULATION criteria: rho in [0.5,2] all rungs {t1}; dA sign change "
+        f"{sign_change} or spread (max-min)/|mean| {spread:.3f} > 0.30 -> {t2}; band R "
+        f"within facet-model share all rungs {t3}  => {tri}",
+        flush=True,
+    )
+    print(
+        f"{tag} CUTTER DEFECT criteria: one sign {one_sign} and max|dA/mean-1| {dev:.3f} "
+        f"<= 0.20 -> {d1}; >80% of (dA-model) in band N with dN_N~0 all rungs {d2}  "
+        f"=> {cut}",
+        flush=True,
+    )
     print(f"{tag} READING: {verdict}{prov}", flush=True)
 
 
@@ -257,17 +274,21 @@ def main():
         A = _exterior_facet_area(msh, facets, CAVITY_TAG, comm)
         cad = float(diag["conductor_cavity_cad"]["area_m2"])
         split = _owned_facet_split(
-            msh,
-            np.asarray(facets.indices)[np.asarray(facets.values) == CAVITY_TAG],
-            nbr, comm)
+            msh, np.asarray(facets.indices)[np.asarray(facets.values) == CAVITY_TAG], nbr, comm
+        )
         meshes[name] = dict(tri=tri, nbr=nbr, A=A, cad=cad, n_cells=n_cells, N=len(tri))
-        print(f"{tag} {name}: cells {n_cells}; build {t_build:.1f} s; gmsh mesh "
-              f"{diag.get('mesh_wall_time_s', float('nan')):.1f} s; peak RSS {rss:.3f} GiB; "
-              f"401 facets {len(tri)}; A {A:.10e} m^2; A_CAD {cad:.10e}; "
-              f"delta {A / cad - 1.0:+.6e}", flush=True)
+        print(
+            f"{tag} {name}: cells {n_cells}; build {t_build:.1f} s; gmsh mesh "
+            f"{diag.get('mesh_wall_time_s', float('nan')):.1f} s; peak RSS {rss:.3f} GiB; "
+            f"401 facets {len(tri)}; A {A:.10e} m^2; A_CAD {cad:.10e}; "
+            f"delta {A / cad - 1.0:+.6e}",
+            flush=True,
+        )
         for c in sorted(split):
-            print(f"{tag}   {name} class {c}: area {split[c][0]:.10e} m^2, facets {split[c][1]}",
-                  flush=True)
+            print(
+                f"{tag}   {name} class {c}: area {split[c][0]:.10e} m^2, facets {split[c][1]}",
+                flush=True,
+            )
         del msh, cells, facets
 
     f, q = meshes["full"], meshes["quarter"]
@@ -285,16 +306,28 @@ def main():
         quad[k] = dict(A=float(a.sum()), a=a, c=c, n=n, straddle=ns)
     dA = A_q - quad[1]["A"]
 
-    print(f"{tag} A_f {A_f:.10e} (geo {A_f_geo:.10e}) A_q {A_q:.10e} (geo {A_q_geo:.10e}); "
-          f"delta_f {d_f:+.6e} delta_q {d_q:+.6e}", flush=True)
-    print(f"{tag} N_f {f['N']} N_q {q['N']} 4N_q/N_f-1 {4.0 * q['N'] / f['N'] - 1.0:+.6e}; "
-          f"4q/f-1 {r:+.6e}; model |delta_f|(4N_q/N_f-1) {model:+.6e}; rho {rho:+.4f}", flush=True)
+    print(
+        f"{tag} A_f {A_f:.10e} (geo {A_f_geo:.10e}) A_q {A_q:.10e} (geo {A_q_geo:.10e}); "
+        f"delta_f {d_f:+.6e} delta_q {d_q:+.6e}",
+        flush=True,
+    )
+    print(
+        f"{tag} N_f {f['N']} N_q {q['N']} 4N_q/N_f-1 {4.0 * q['N'] / f['N'] - 1.0:+.6e}; "
+        f"4q/f-1 {r:+.6e}; model |delta_f|(4N_q/N_f-1) {model:+.6e}; rho {rho:+.4f}",
+        flush=True,
+    )
     for k in QUADS:
-        print(f"{tag} clip Q{k}: A_f∩Q {quad[k]['A']:.10e} pieces {len(quad[k]['a'])} "
-              f"(straddling triangles clipped {quad[k]['straddle']}); 4A/A_f-1 "
-              f"{4.0 * quad[k]['A'] / A_f_geo - 1.0:+.6e}", flush=True)
-    print(f"{tag} dA = A_q - A_f∩Q1 = {dA:+.6e} m^2; dA/(A_f/4) {dA / (A_f / 4):+.6e}; "
-          f"model in m^2 {model * A_f / 4:+.6e}", flush=True)
+        print(
+            f"{tag} clip Q{k}: A_f∩Q {quad[k]['A']:.10e} pieces {len(quad[k]['a'])} "
+            f"(straddling triangles clipped {quad[k]['straddle']}); 4A/A_f-1 "
+            f"{4.0 * quad[k]['A'] / A_f_geo - 1.0:+.6e}",
+            flush=True,
+        )
+    print(
+        f"{tag} dA = A_q - A_f∩Q1 = {dA:+.6e} m^2; dA/(A_f/4) {dA / (A_f / 4):+.6e}; "
+        f"model in m^2 {model * A_f / 4:+.6e}",
+        flush=True,
+    )
 
     bq = _band_sums(_tri_area(q["tri"]), q["tri"].mean(axis=1), q["nbr"], h)
     bf = _band_sums(quad[1]["a"], quad[1]["c"], quad[1]["n"], h)
@@ -306,14 +339,24 @@ def main():
         dn = (nq - nf) / nf if nf else float("nan")
         mod_b = abs(d_f) * af * dn if nf else 0.0
         bands[b] = dict(dA=da_b, A=af, dN=dn, model=mod_b, Nq=nq, Nf=nf)
-        print(f"{tag} band {b}: A_q {aq:.10e} A_f∩Q1 {af:.10e} dA {da_b:+.6e} m^2 dA/A "
-              f"{(da_b / af if af else float('nan')):+.6e}; N_q {nq} N_f∩Q1 {nf} dN/N "
-              f"{dn:+.6e}; facet-model share {mod_b:+.6e} m^2", flush=True)
+        print(
+            f"{tag} band {b}: A_q {aq:.10e} A_f∩Q1 {af:.10e} dA {da_b:+.6e} m^2 dA/A "
+            f"{(da_b / af if af else float('nan')):+.6e}; N_q {nq} N_f∩Q1 {nf} dN/N "
+            f"{dn:+.6e}; facet-model share {mod_b:+.6e} m^2",
+            flush=True,
+        )
     sum_band = sum(v["dA"] for v in bands.values())
-    print(f"{tag} sum of band dA {sum_band:+.6e} vs dA {dA:+.6e} (|diff| {abs(sum_band - dA):.2e})",
-          flush=True)
-    other_ring = sorted({int(t) for t in quad[1]["n"]
-                         if _class_of(int(t)).startswith("ring") and int(t) not in R_TAGS})
+    print(
+        f"{tag} sum of band dA {sum_band:+.6e} vs dA {dA:+.6e} (|diff| {abs(sum_band - dA):.2e})",
+        flush=True,
+    )
+    other_ring = sorted(
+        {
+            int(t)
+            for t in quad[1]["n"]
+            if _class_of(int(t)).startswith("ring") and int(t) not in R_TAGS
+        }
+    )
     print(f"{tag} Q1 pieces with ring-port tags outside the kept R set: {other_ring}", flush=True)
 
     R = bands["R"]
@@ -322,11 +365,16 @@ def main():
     N = bands["N"]
     frac_N = (N["dA"] - N["model"]) / resid if resid != 0 else float("nan")
     n_ok = bool(frac_N > 0.8 and abs(N["dN"]) <= 1e-3)
-    print(f"{tag} band R: |dA_R - model_R| {abs(R['dA'] - R['model']):.3e} vs "
-          f"0.5|model_R| + 1e-8 A_R {0.5 * abs(R['model']) + 1e-8 * R['A']:.3e} -> agrees {r_ok}",
-          flush=True)
-    print(f"{tag} band N: (dA_N - model_N)/(dA - model) {frac_N:+.4f}; dN_N/N_N {N['dN']:+.3e} "
-          f"-> defect-criterion (b) at this rung {n_ok}", flush=True)
+    print(
+        f"{tag} band R: |dA_R - model_R| {abs(R['dA'] - R['model']):.3e} vs "
+        f"0.5|model_R| + 1e-8 A_R {0.5 * abs(R['model']) + 1e-8 * R['A']:.3e} -> agrees {r_ok}",
+        flush=True,
+    )
+    print(
+        f"{tag} band N: (dA_N - model_N)/(dA - model) {frac_N:+.4f}; dN_N/N_N {N['dN']:+.3e} "
+        f"-> defect-criterion (b) at this rung {n_ok}",
+        flush=True,
+    )
 
     # ---- negative controls
     p1 = sum(quad[k]["A"] for k in QUADS) / A_f_geo - 1.0
@@ -338,16 +386,34 @@ def main():
     rho3 = r3 / model if model != 0 else float("nan")
     dA3 = A_q3 - quad[1]["A"]
     print(f"{tag} (P1) sum_i A_f∩Qi/A_f - 1 = {p1:+.3e} (predicted |.| <= 1e-12)", flush=True)
-    print(f"{tag} (P2) max_i |4 A_f∩Qi/A_f - 1| = {p2:.6e} (no cutter; magnitude unmeasured)",
-          flush=True)
-    print(f"{tag} (P3) planted missing face: tag-117 wall {a117:.6e} m^2 ({n117} facets; "
-          f"predicted ~4.9/4.8/4.5e-5); dA_P3 {dA3:+.6e} m^2 ({abs(dA3) / abs(dA) if dA else float('nan'):.2f}x |dA|); "
-          f"4q'/f-1 {r3:+.6e}; rho_P3 {rho3:+.4f}", flush=True)
+    print(
+        f"{tag} (P2) max_i |4 A_f∩Qi/A_f - 1| = {p2:.6e} (no cutter; magnitude unmeasured)",
+        flush=True,
+    )
+    print(
+        f"{tag} (P3) planted missing face: tag-117 wall {a117:.6e} m^2 ({n117} facets; "
+        f"predicted ~4.9/4.8/4.5e-5); dA_P3 {dA3:+.6e} m^2 ({abs(dA3) / abs(dA) if dA else float('nan'):.2f}x |dA|); "
+        f"4q'/f-1 {r3:+.6e}; rho_P3 {rho3:+.4f}",
+        flush=True,
+    )
 
-    rec = dict(h=h, dA=dA, rho=rho, r_ok=bool(r_ok), n_ok=n_ok,
-               dA_P3=dA3, rho_P3=rho3, r_ok_P3=False, n_ok_P3=False,
-               n_full=f["n_cells"], n_quarter=q["n_cells"], N_f=f["N"], N_q=q["N"],
-               A_f=A_f, A_q=A_q)
+    rec = dict(
+        h=h,
+        dA=dA,
+        rho=rho,
+        r_ok=bool(r_ok),
+        n_ok=n_ok,
+        dA_P3=dA3,
+        rho_P3=rho3,
+        r_ok_P3=False,
+        n_ok_P3=False,
+        n_full=f["n_cells"],
+        n_quarter=q["n_cells"],
+        N_f=f["N"],
+        N_q=q["N"],
+        A_f=A_f,
+        A_q=A_q,
+    )
     os.makedirs(RECORD_DIR, exist_ok=True)
     with open(os.path.join(RECORD_DIR, f"rung_{h:.1e}.json"), "w") as fh:
         json.dump(rec, fh)
@@ -361,8 +427,14 @@ def main():
     _readout(records, f"{tag} [measured]", "dA", "rho", "r_ok", "n_ok")
     # P3: band R is the planted face, so it cannot agree with its facet model;
     # criterion (b) is not the planted mechanism — both set False on purpose.
-    _readout(records, f"{tag} [P3 control, must read CUTTER DEFECT]", "dA_P3", "rho_P3",
-             "r_ok_P3", "n_ok_P3")
+    _readout(
+        records,
+        f"{tag} [P3 control, must read CUTTER DEFECT]",
+        "dA_P3",
+        "rho_P3",
+        "r_ok_P3",
+        "n_ok_P3",
+    )
 
 
 if __name__ == "__main__":

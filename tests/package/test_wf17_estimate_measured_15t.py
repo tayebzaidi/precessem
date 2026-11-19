@@ -49,9 +49,11 @@ def test_wf17_s52_ledger_strings_and_custody():
     got = {p["entry"]: (p["ranks"], p["cells"], p["gib"], p["seconds"]) for p in prices}
     custody = _custody(prices)
     for p in prices:
-        _p0(f"\n[WF-17 s52] (X-ledger) entry {p['entry']} {p['chunk']} `{p['log']}`: ranks "
+        _p0(
+            f"\n[WF-17 s52] (X-ledger) entry {p['entry']} {p['chunk']} `{p['log']}`: ranks "
             f"{p['ranks']!r} cells {p['cells']!r} GiB {p['gib']!r} seconds {p['seconds']!r}; "
-            f"custody failures {custody[p['entry']]}")
+            f"custody failures {custody[p['entry']]}"
+        )
     assert [p["entry"] for p in prices] == ["48", "52", "59"]
     assert got == EXPECTED_15T
     assert custody == {"48": [], "52": [], "59": []}
@@ -60,8 +62,10 @@ def test_wf17_s52_ledger_strings_and_custody():
 def test_wf17_s52_tag403_keys():
     keys = set(gen.TAG403_15T)
     entries = {e for e, _, _ in gen.MEASURED_15T}
-    _p0(f"\n[WF-17 s52] (Tag15) TAG403_15T {gen.TAG403_15T!r}; MEASURED_15T entries "
-        f"{sorted(entries)}; TAG403 keys {sorted(gen.TAG403)}")
+    _p0(
+        f"\n[WF-17 s52] (Tag15) TAG403_15T {gen.TAG403_15T!r}; MEASURED_15T entries "
+        f"{sorted(entries)}; TAG403 keys {sorted(gen.TAG403)}"
+    )
     assert keys == entries
     assert all(v.isascii() for v in gen.TAG403_15T.values())
     assert keys.isdisjoint(gen.TAG403)
@@ -97,25 +101,34 @@ def test_wf17_s52_fc1_row_section_and_order():
     rcs = comm.allgather(row["rc"])
     pin = PRICE_TABLE_CLINICAL[0]
     pr = row["printed"]
-    _p0(f"\n[WF-17 s52] (K15) {row['label']}: rc per rank {rcs}; complete={complete} "
+    _p0(
+        f"\n[WF-17 s52] (K15) {row['label']}: rc per rank {rcs}; complete={complete} "
         f"differ={differ}; rows_used={est.rows_used!r}; printed ranks {pr['ranks']!r} "
         f"seconds {pr['predicted_seconds']!r} GiB {pr['predicted_peak_gib']!r} "
-        f"cells {pr['cells']!r} (brief's prediction 49.07 / 203.3)")
+        f"cells {pr['cells']!r} (brief's prediction 49.07 / 203.3)"
+    )
     for r in measured["ratios"]:
-        _p0(f"[WF-17 s52] ratio entry {r['entry']}: GiB {r['gib']} seconds {r['seconds']} "
-            "(estimator / measured; a record)")
-    _p0(f"[WF-17 s52] (c-3T) 1.5 T rows_used {est.rows_used!r}; "
-        f"3 T rows_used {measured_3t['row']['est'].rows_used!r}")
+        _p0(
+            f"[WF-17 s52] ratio entry {r['entry']}: GiB {r['gib']} seconds {r['seconds']} "
+            "(estimator / measured; a record)"
+        )
+    _p0(
+        f"[WF-17 s52] (c-3T) 1.5 T rows_used {est.rows_used!r}; "
+        f"3 T rows_used {measured_3t['row']['est'].rows_used!r}"
+    )
 
     tracked = PAGE.read_text(encoding="utf-8")
     lines = tracked.splitlines()
-    fresh = gen.render_measured(measured, gen.MEASURED_15T_HEADING, "1.5 T", gen.FC15_MESH,
-                               tags=gen.TAG403_15T)
+    fresh = gen.render_measured(
+        measured, gen.MEASURED_15T_HEADING, "1.5 T", gen.FC15_MESH, tags=gen.TAG403_15T
+    )
     pos15 = tracked.find(gen.MEASURED_15T_HEADING)
     pos3 = tracked.find(gen.MEASURED_HEADING)
     section = tracked[pos15:pos3] if 0 <= pos15 < pos3 else ""
-    _p0(f"[WF-17 s52] (Sec15) headings at {pos15} / {pos3}; section {len(section)} chars vs "
-        f"fresh {len(fresh)} + 1; equal={section == fresh + chr(10)}")
+    _p0(
+        f"[WF-17 s52] (Sec15) headings at {pos15} / {pos3}; section {len(section)} chars vs "
+        f"fresh {len(fresh)} + 1; equal={section == fresh + chr(10)}"
+    )
     i15 = lines.index(gen.MEASURED_15T_HEADING) if gen.MEASURED_15T_HEADING in lines else -1
     i3 = lines.index(gen.MEASURED_HEADING) if gen.MEASURED_HEADING in lines else -1
     # The 14-row table's rows: every "| `" line between the table's own heading (the page's
@@ -124,8 +137,10 @@ def test_wf17_s52_fc1_row_section_and_order():
     cut = next((i for i in range(top + 1, len(lines)) if lines[i].startswith("## ")), len(lines))
     table_rows = [i for i in range(top + 1, cut) if lines[i].startswith("| `")]
     last_table = table_rows[-1] if table_rows else -1
-    _p0(f"[WF-17 s52] (Order) table rows {len(table_rows)}, last at line {last_table}; "
-        f"1.5 T heading line {i15}; 3 T heading line {i3}")
+    _p0(
+        f"[WF-17 s52] (Order) table rows {len(table_rows)}, last at line {last_table}; "
+        f"1.5 T heading line {i15}; 3 T heading line {i3}"
+    )
 
     gates = {
         "K15 rc": rcs == [0] * comm.size,

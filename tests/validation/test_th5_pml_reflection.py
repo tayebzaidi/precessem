@@ -21,11 +21,10 @@ import time
 import numpy as np
 import pytest
 import ufl
-from mpi4py import MPI
-from petsc4py import PETSc
-
 from dolfinx import fem
 from dolfinx.fem.petsc import LinearProblem
+from mpi4py import MPI
+from petsc4py import PETSc
 
 from fem_em_solver.core.boundary_terms import (
     pml_reflection_pec_backed,
@@ -89,8 +88,10 @@ def test_pml_closed_form_numpy():
         worst = max(worst, abs(g + r) / r)
     g0 = pml_reflection_pec_backed(0.0, PML_D, PML_M, K0)
     worst = max(worst, abs(abs(g0) - 1.0))
-    print(f"\n[TH-5 s3 (Z)] S_ABSORB = {S_ABSORB:.5f}, S_CLOSED = {S_CLOSED:.5f}, "
-          f"worst identity = {worst:.3e}")
+    print(
+        f"\n[TH-5 s3 (Z)] S_ABSORB = {S_ABSORB:.5f}, S_CLOSED = {S_CLOSED:.5f}, "
+        f"worst identity = {worst:.3e}"
+    )
     assert abs(S_ABSORB - 2.19880) < 1e-5 and abs(S_CLOSED - 1.09940) < 1e-5
     assert worst <= IDENTITY_TOLERANCE, worst
 
@@ -115,9 +116,14 @@ def _solve_terms(msh, tags, degree, drive, pec_tags, extra):
     wall_facets = np.unique(np.concatenate([tags.find(t) for t in walls]))
     bcs.append(fem.dirichletbc(zero, fem.locate_dofs_topological(V, fdim, wall_facets)))
     problem = LinearProblem(
-        a, L, bcs=bcs,
-        petsc_options={"ksp_type": "preonly", "pc_type": "lu",
-                       "pc_factor_mat_solver_type": "mumps"},
+        a,
+        L,
+        bcs=bcs,
+        petsc_options={
+            "ksp_type": "preonly",
+            "pc_type": "lu",
+            "pc_factor_mat_solver_type": "mumps",
+        },
         petsc_options_prefix=f"fem_em_th5_pml_{degree}_",
     )
     e_h = problem.solve()
@@ -130,8 +136,9 @@ def _pml_tem(comm, h, s_max, scan=True):
     length = L_N + PML_D
     w = 2.0 * h
     msh, tags, ncells = _box(comm, length, w, w, int(round(length / h)), 2, 2)
-    drive = lambda x: np.vstack([np.zeros(x.shape[1]), np.zeros(x.shape[1]),
-                                 np.ones(x.shape[1])]).astype(PETSc.ScalarType)
+    drive = lambda x: np.vstack(
+        [np.zeros(x.shape[1]), np.zeros(x.shape[1]), np.ones(x.shape[1])]
+    ).astype(PETSc.ScalarType)
     term = pml_slab_term(msh, L_N, PML_D, s_max, PML_M, OMEGA)
     e_h = _solve_terms(msh, tags, 1, drive, [TAG_Z], [term])
     proj = _Projection(e_h[2], msh, PROJ_N[0], PROJ_N[1], K0)
@@ -163,11 +170,13 @@ def test_pml_tem_line():
         w = 2.0 * h
         rel_slab = abs(r["slab_vol"] / (PML_D * w * w) - 1.0)
         rel_win = abs(r["win_vol"] / (0.60 * w * w) - 1.0)
-        _p(f"\n[TH-5 s3 A] lambda0/{n}: cells {r['cells']}, {r['seconds']:.1f} s; "
-           f"k0 read |G-Gc| = {abs(r['proj'] - gc_a):.4e}; "
-           f"k_fit-k0 = {r['k_fit'] - K0:+.4e} rad/m (interior {r['scan_interior']}), "
-           f"k_fit read |G| = {abs(r['gamma_k_fit']):.4e}, |G-Gc| = {abs(r['gamma_k_fit'] - gc_a):.4e}; "
-           f"slab vol rel {rel_slab:.2e}, window vol rel {rel_win:.2e}")
+        _p(
+            f"\n[TH-5 s3 A] lambda0/{n}: cells {r['cells']}, {r['seconds']:.1f} s; "
+            f"k0 read |G-Gc| = {abs(r['proj'] - gc_a):.4e}; "
+            f"k_fit-k0 = {r['k_fit'] - K0:+.4e} rad/m (interior {r['scan_interior']}), "
+            f"k_fit read |G| = {abs(r['gamma_k_fit']):.4e}, |G-Gc| = {abs(r['gamma_k_fit'] - gc_a):.4e}; "
+            f"slab vol rel {rel_slab:.2e}, window vol rel {rel_win:.2e}"
+        )
         assert r["cells"] == 24 * int(round((L_N + PML_D) / h)), r["cells"]
         assert rel_slab <= IDENTITY_TOLERANCE, rel_slab
         assert rel_win <= IDENTITY_TOLERANCE, rel_win
@@ -184,11 +193,15 @@ def test_pml_tem_line():
     err_c = abs(c40["gamma_k_fit"] - gc_c)
     g_ungraded = -np.exp(-2.0 * K0 * S_CLOSED * PML_D)
     g_m3 = pml_reflection_pec_backed(S_CLOSED, PML_D, 3, K0)
-    _p(f"[TH-5 s3 C] lambda0/40: Gc = {gc_c:.6e}; k_fit read G = {c40['gamma_k_fit']:.6e}, "
-       f"|G| = {abs(c40['gamma_k_fit']):.6e}, |G-Gc| = {err_c:.4e} "
-       f"(interior {c40['scan_interior']}); k0 read |G-Gc| = {abs(c40['proj'] - gc_c):.4e}")
-    _p(f"[TH-5 s3 NC-grade] miss vs ungraded (9.133) {abs(c40['gamma_k_fit'] - g_ungraded):.4e}; "
-       f"vs m=3 formula {abs(c40['gamma_k_fit'] - g_m3):.4e}")
+    _p(
+        f"[TH-5 s3 C] lambda0/40: Gc = {gc_c:.6e}; k_fit read G = {c40['gamma_k_fit']:.6e}, "
+        f"|G| = {abs(c40['gamma_k_fit']):.6e}, |G-Gc| = {err_c:.4e} "
+        f"(interior {c40['scan_interior']}); k0 read |G-Gc| = {abs(c40['proj'] - gc_c):.4e}"
+    )
+    _p(
+        f"[TH-5 s3 NC-grade] miss vs ungraded (9.133) {abs(c40['gamma_k_fit'] - g_ungraded):.4e}; "
+        f"vs m=3 formula {abs(c40['gamma_k_fit'] - g_m3):.4e}"
+    )
     assert c40["scan_interior"], c40["k_fit"] - K0
 
     # NC-0 and NC-conj.
@@ -200,12 +213,16 @@ def test_pml_tem_line():
     # NC-ABC on the same line and read.
     abc = _tem(comm, LAMBDA0 / 40, 1, "abc", scan=True)
     ratio = abs(abc["gamma_k_fit"]) / abs(a40["gamma_k_fit"])
-    _p(f"[TH-5 s3 NC-ABC] lambda0/40: k0 read |G| = {abs(abc['proj']):.6e} "
-       f"(record {ABC_K0_RECORD_40:.6e}); k_fit-k0 = {abc['k_fit'] - K0:+.4e} "
-       f"(interior {abc['scan_interior']}), k_fit read |G| = {abs(abc['gamma_k_fit']):.4e}; "
-       f"|G_ABC|/|G_PML| at k_fit = {ratio:.1f}")
-    _p(f"[TH-5 s3 summary] (A) |G-Gc| = {err_a:.4e}, (C) |G-Gc| = {err_c:.4e}, "
-       f"bar {PML_REFLECTION_BAR:.1e}")
+    _p(
+        f"[TH-5 s3 NC-ABC] lambda0/40: k0 read |G| = {abs(abc['proj']):.6e} "
+        f"(record {ABC_K0_RECORD_40:.6e}); k_fit-k0 = {abc['k_fit'] - K0:+.4e} "
+        f"(interior {abc['scan_interior']}), k_fit read |G| = {abs(abc['gamma_k_fit']):.4e}; "
+        f"|G_ABC|/|G_PML| at k_fit = {ratio:.1f}"
+    )
+    _p(
+        f"[TH-5 s3 summary] (A) |G-Gc| = {err_a:.4e}, (C) |G-Gc| = {err_c:.4e}, "
+        f"bar {PML_REFLECTION_BAR:.1e}"
+    )
 
     assert abc["scan_interior"], abc["k_fit"] - K0
     assert abs(abc["proj"]) > PML_REFLECTION_BAR, abc["proj"]

@@ -123,12 +123,11 @@ from mpi4py import MPI
 from fem_em_solver.ports import run_n_port_sparameter_sweep, superpose_drives
 from fem_em_solver.ports.definitions import PortDefinition
 from fem_em_solver.post import magnetic_flux_density_from_e, mean_sar, project_to_cg1
-
 from tests.complex_mode import complex_only
 from tests.mesh.test_birdcage_port_sheets import SHEET_IFACE
 from tests.validation.test_birdcage_b1_plus_map import (  # noqa: F401 — imported bands/helpers
-    CG1_RECORD_RTOL,
     C4_COVARIANCE_BAND,
+    CG1_RECORD_RTOL,
     MIN_SAMPLE_POINTS,
     PHANTOM_RHO_KG_PER_M3,
     POWER_BALANCE_BAND,
@@ -281,9 +280,7 @@ def _loss_power_w(sweep, e_complex, sigma_field):
         mean_sar(e_complex, subdomain_ids=PHANTOM_CELL_TAG, **kwargs)["dissipated_power_w"]
     )
     conductor = float(
-        mean_sar(e_complex, subdomain_ids=CONDUCTOR_CELL_TAG, **kwargs)[
-            "dissipated_power_w"
-        ]
+        mean_sar(e_complex, subdomain_ids=CONDUCTOR_CELL_TAG, **kwargs)["dissipated_power_w"]
     )
     return phantom, conductor
 
@@ -350,9 +347,7 @@ def _exact_shares_w(sweep, e_w, w_by_pid, omega, *, step1):
         pid: step1._sheet_total_field_dissipation_w(sweep, sheet, e_w)
         for pid, sheet in sheets.items()
     }
-    p_src = float(
-        sum(step1._source_power_w(sweep, sheet, e_w, omega) for sheet in sheets.values())
-    )
+    p_src = float(sum(step1._source_power_w(sweep, sheet, e_w, omega) for sheet in sheets.values()))
     return {
         "sheet_field": field,
         "sheet_ceiling": ceiling,
@@ -390,18 +385,13 @@ def superposition_case():
     )
     port_ids = list(result.port_ids)
 
-    azimuths = {
-        f"P{s['tag'] - SHEET_IFACE}": float(s["azimuth_deg"]) for s in sweep["sheets"]
-    }
+    azimuths = {f"P{s['tag'] - SHEET_IFACE}": float(s["azimuth_deg"]) for s in sweep["sheets"]}
     delta_deg = (azimuths["P2"] - azimuths["P1"]) % 360.0
     slots = {
-        pid: _port_index(azimuths[pid], azimuths["P1"], QUADRATURE_STEP_DEG)
-        for pid in port_ids
+        pid: _port_index(azimuths[pid], azimuths["P1"], QUADRATURE_STEP_DEG) for pid in port_ids
     }
     ks = np.array([slots[pid] for pid in port_ids], dtype=float)
-    weights = {
-        sense: quadrature_phase_weights(ks, sense) for sense in ("ccw", "cw")
-    }
+    weights = {sense: quadrature_phase_weights(ks, sense) for sense in ("ccw", "cw")}
 
     drives = {sense: superpose_drives(result, weights[sense]) for sense in weights}
 
@@ -409,8 +399,7 @@ def superposition_case():
     # superpose the DG0 B.  This is the in-run comparison anchor (i) rests on.
     omega = 2.0 * np.pi * float(sweep["problem"].frequency_hz)
     b_per_drive = {
-        pid: magnetic_flux_density_from_e(result.fields[pid].e_complex, omega)
-        for pid in port_ids
+        pid: magnetic_flux_density_from_e(result.fields[pid].e_complex, omega) for pid in port_ids
     }
     fixture_dg0 = {
         sense: _superpose_dg0(
@@ -496,9 +485,7 @@ def superposition_case():
         # rather than differenced so the control is an independent evaluation.
         control_column = column.copy()
         control_column[index] = 0.0
-        control_acc = 0.5 * abs(a_k) ** 2 * (
-            1.0 - float(np.sum(np.abs(control_column) ** 2))
-        )
+        control_acc = 0.5 * abs(a_k) ** 2 * (1.0 - float(np.sum(np.abs(control_column) ** 2)))
 
         sh = shares[pid]
         net = float(sh["supplied"]) - float(sh["sheet_total"])
@@ -516,8 +503,7 @@ def superposition_case():
             "control_acc": control_acc,
             "control_miss": abs(control_acc - net) / abs(net),
             # The closed-form ceiling on the control's miss, from S alone.
-            "control_ceiling": float(abs(s_matrix[index, index]) ** 2)
-            / (1.0 - reflected_fraction),
+            "control_ceiling": float(abs(s_matrix[index, index]) ** 2) / (1.0 - reflected_fraction),
             "s_kk": complex(s_matrix[index, index]),
             "reflected_fraction": reflected_fraction,
         }
@@ -526,9 +512,7 @@ def superposition_case():
         # ``w = e_k`` through the weighted path vs step 1's own single-drive
         # call on the *same* stored solve.
         unit_by_pid = {p: (1.0 + 0.0j if p == pid else 0.0j) for p in port_ids}
-        generalised = _exact_shares_w(
-            sweep, drive_k.e_complex, unit_by_pid, omega, step1=step1
-        )
+        generalised = _exact_shares_w(sweep, drive_k.e_complex, unit_by_pid, omega, step1=step1)
         reference = step1._exact_shares(
             sweep,
             {"omega": omega, "fields": result.fields[pid], "driven": pid},
@@ -589,12 +573,10 @@ def superposition_case():
             p_vol=p_vol,
             sheets_terminal=sheets_terminal,
             accepted=accepted,
-            identity_dev=abs(ex["p_src"] - p_vol - ex["sheet_field_total"])
-            / abs(ex["p_src"]),
+            identity_dev=abs(ex["p_src"] - p_vol - ex["sheet_field_total"]) / abs(ex["p_src"]),
             attribution_lhs=attribution_lhs,
             attribution_rhs=attribution_rhs,
-            attribution_dev=abs(attribution_lhs - attribution_rhs)
-            / abs(attribution_lhs),
+            attribution_dev=abs(attribution_lhs - attribution_rhs) / abs(attribution_lhs),
         )
         exact_w[sense] = ex
 
@@ -726,8 +708,7 @@ def superposition_case():
             print(
                 f"        {pid}  "
                 + "   ".join(
-                    f"{key} {gen:.9e} vs {ref:.9e} (rel dev "
-                    f"{abs(gen - ref) / abs(ref):.3e})"
+                    f"{key} {gen:.9e} vs {ref:.9e} (rel dev " f"{abs(gen - ref) / abs(ref):.3e})"
                     for key, (gen, ref) in fields.items()
                 ),
                 flush=True,
@@ -773,13 +754,8 @@ def test_the_sweep_kept_one_field_per_drive_on_one_space(superposition_case):
     # Each solve builds its own ``functionspace`` *object*; what has to be
     # shared is the mesh and the element, which is what makes the four solves
     # four right-hand sides of one operator.
-    spaces = [
-        result.fields[pid].e_complex.function_space
-        for pid in superposition_case["port_ids"]
-    ]
-    same = {
-        (id(s.mesh), str(s.ufl_element()), s.dofmap.index_map.size_local) for s in spaces
-    }
+    spaces = [result.fields[pid].e_complex.function_space for pid in superposition_case["port_ids"]]
+    same = {(id(s.mesh), str(s.ufl_element()), s.dofmap.index_map.size_local) for s in spaces}
     assert len(same) == 1, (
         "the four drives do not share one function space, so they are not four "
         "right-hand sides of one operator and their superposition is not a drive"
@@ -811,8 +787,7 @@ def test_a_unit_weight_vector_returns_that_drives_own_field(superposition_case):
             np.asarray(single.e_complex.x.array),
             np.asarray(result.fields[pid].e_complex.x.array),
         ), (
-            f"superpose_drives with w = e_{index} does not return drive '{pid}' "
-            "bit for bit"
+            f"superpose_drives with w = e_{index} does not return drive '{pid}' " "bit for bit"
         )
         for other in superposition_case["port_ids"]:
             expected = complex(result.excitation_results[pid].responses[other].current_a)
@@ -835,13 +810,11 @@ def test_the_drive_is_linear_in_its_weight_vector(superposition_case):
     w_cw = superposition_case["weights"]["cw"]
 
     combined = superpose_drives(result, w_ccw + w_cw)
-    summed = np.asarray(
-        superposition_case["drives"]["ccw"].e_complex.x.array
-    ) + np.asarray(superposition_case["drives"]["cw"].e_complex.x.array)
-    reference = np.linalg.norm(summed)
-    deviation = float(
-        np.linalg.norm(np.asarray(combined.e_complex.x.array) - summed) / reference
+    summed = np.asarray(superposition_case["drives"]["ccw"].e_complex.x.array) + np.asarray(
+        superposition_case["drives"]["cw"].e_complex.x.array
     )
+    reference = np.linalg.norm(summed)
+    deviation = float(np.linalg.norm(np.asarray(combined.e_complex.x.array) - summed) / reference)
     assert deviation <= PATH_AGREEMENT_MAX, (
         f"superpose_drives(w1 + w2) differs from its own w1 and w2 drives summed "
         f"by {deviation:.3e} relative — the entry point is not linear in the "
@@ -971,9 +944,7 @@ def test_the_single_drive_power_residuals_reproduce_step_1(superposition_case):
             f"[{pid}] the single-drive power accounting misses by {residual:.6e}, "
             f"outside the imported {POWER_BALANCE_BAND:.0e} band"
         )
-        assert residual == pytest.approx(
-            STEP1_GATE_I_P1_RESIDUAL, rel=CG1_RECORD_RTOL
-        ), (
+        assert residual == pytest.approx(STEP1_GATE_I_P1_RESIDUAL, rel=CG1_RECORD_RTOL), (
             f"[{pid}] the residual reads {residual:.9e}, not step 1's "
             f"{STEP1_GATE_I_P1_RESIDUAL:.6e} — these are not the solves the "
             "records were made on"
@@ -1145,9 +1116,7 @@ def test_the_superposed_accepted_power_reproduces_step_1(superposition_case):
     9-significant-digit precision the record was stored at.
     """
     accepted = superposition_case["power"]["ccw"]["accepted"]
-    assert accepted == pytest.approx(
-        STEP1_SUPERPOSED_ACCEPTED_W, rel=STEP1B_ACCEPTED_RTOL
-    ), (
+    assert accepted == pytest.approx(STEP1_SUPERPOSED_ACCEPTED_W, rel=STEP1B_ACCEPTED_RTOL), (
         f"the ccw drive accepts {accepted:.9e} W, not step 1's "
         f"{STEP1_SUPERPOSED_ACCEPTED_W:.9e} W — these are not the solves the "
         "11.6% residual was measured on, and the single-drive numbers printed "
@@ -1184,9 +1153,7 @@ def test_zeroing_the_reflection_diagonal_breaks_the_power_wave_identity(
             f"P_net = {q['net']:.9e} W — the identity does not see the port's "
             "own reflection, so passing it says nothing"
         )
-        assert q["control_miss"] == pytest.approx(
-            ceiling, rel=2.0 * STEP1B_POWER_WAVE_RTOL
-        ), (
+        assert q["control_miss"] == pytest.approx(ceiling, rel=2.0 * STEP1B_POWER_WAVE_RTOL), (
             f"[{pid}] the control misses by {q['control_miss']:.9e} but S alone "
             f"predicts |S_kk|²/(1 − Σ|S_ik|²) = {ceiling:.9e}; the perturbation "
             "is not the one this control claims to make"
@@ -1306,8 +1273,7 @@ def _ring_quadrature_slots(sheets):
     for sign in (1.0, -1.0):
         ks = sorted(k for k, sg in slots.values() if sg == sign)
         assert ks == list(range(SCALED_LEG_COUNT)), (
-            f"ring sign {sign:+.0f} fills slots {ks}, not each of 0…"
-            f"{SCALED_LEG_COUNT - 1} once"
+            f"ring sign {sign:+.0f} fills slots {ks}, not each of 0…" f"{SCALED_LEG_COUNT - 1} once"
         )
     return az_ref, slots
 
@@ -1378,16 +1344,11 @@ def _build_ring_quadrature_case(built=None, cell_record=None):
     say(f"32-drive sweep (PORT-19 reuse default, keep_fields) {t_sweep:.2f} s")
 
     az_ref, slots = _ring_quadrature_slots(built["sheets"])
-    ks = np.array(
-        [slots[pid][0] * AZIMUTH_STEP_DEG / QUADRATURE_STEP_DEG for pid in port_ids]
-    )
+    ks = np.array([slots[pid][0] * AZIMUTH_STEP_DEG / QUADRATURE_STEP_DEG for pid in port_ids])
     ring_sign = np.array([slots[pid][1] for pid in port_ids])
-    weights = {
-        sense: ring_sign * quadrature_phase_weights(ks, sense) for sense in ("ccw", "cw")
-    }
+    weights = {sense: ring_sign * quadrature_phase_weights(ks, sense) for sense in ("ccw", "cw")}
     drives = {
-        sense: superpose_drives(result, weights[sense], name=f"E_ring_{sense}")
-        for sense in weights
+        sense: superpose_drives(result, weights[sense], name=f"E_ring_{sense}") for sense in weights
     }
 
     sweep = {
@@ -1413,12 +1374,8 @@ def _build_ring_quadrature_case(built=None, cell_record=None):
     rotations = tuple(range(1, SCALED_LEG_COUNT))
     ccw_reads = {0: _read_senses(cg1["ccw"], points)}
     for m in rotations:
-        ccw_reads[m] = _read_senses(
-            cg1["ccw"], _rotate_z(points, np.radians(m * AZIMUTH_STEP_DEG))
-        )
-    cw_plus_mx, cw_minus_mx, cw_valid = _read_senses(
-        cg1["cw"], _mirror_xy(points, az_ref)
-    )
+        ccw_reads[m] = _read_senses(cg1["ccw"], _rotate_z(points, np.radians(m * AZIMUTH_STEP_DEG)))
+    cw_plus_mx, cw_minus_mx, cw_valid = _read_senses(cg1["cw"], _mirror_xy(points, az_ref))
     mask = np.logical_and.reduce([r[2] for r in ccw_reads.values()] + [cw_valid])
     comm.Barrier()
     t_eval = time.perf_counter() - t0
@@ -1545,13 +1502,13 @@ def test_step3_the_ring_drive_came_off_the_port13_fixture(ring_quadrature_case):
     SCALED_LEG_COUNT = names.SCALED_LEG_COUNT
     c = ring_quadrature_case
     ratio = c["cells"] / RING_LONGITUDINAL_SCALED_CELL_RECORD
-    assert abs(ratio - 1.0) < CELL_COUNT_BAND, (
-        f"{c['cells']} cells against the record {RING_LONGITUDINAL_SCALED_CELL_RECORD}"
-    )
+    assert (
+        abs(ratio - 1.0) < CELL_COUNT_BAND
+    ), f"{c['cells']} cells against the record {RING_LONGITUDINAL_SCALED_CELL_RECORD}"
     assert len(c["port_ids"]) == 2 * SCALED_LEG_COUNT
-    assert c["n_valid"] >= MIN_SAMPLE_POINTS, (
-        f"only {c['n_valid']} sample points are valid on every rotated/mirrored image"
-    )
+    assert (
+        c["n_valid"] >= MIN_SAMPLE_POINTS
+    ), f"only {c['n_valid']} sample points are valid on every rotated/mirrored image"
     for sense, w in c["weights"].items():
         assert np.allclose(np.abs(w), 1.0, rtol=0.0, atol=1e-12), sense
 
@@ -1603,7 +1560,7 @@ def test_the_four_leg_cw_control_reproduces_its_record_with_its_separation(
     CW_SEPARATION_FACTOR = names.CW_SEPARATION_FACTOR
     identities = superposition_case["package_identities"]
     control = identities["control |B1+|_cw(Mx) vs |B1+|_ccw(x)"]
-    c4 =identities["(a) C4 |B1+|_ccw(Rx) vs |B1+|_ccw(x)"]
+    c4 = identities["(a) C4 |B1+|_ccw(Rx) vs |B1+|_ccw(x)"]
     assert control == pytest.approx(RECORDED_CW_SPREAD, rel=CG1_RECORD_RTOL), (
         f"the 4-leg cw control reads {control * 100:.6f}%, not the recorded "
         f"{RECORDED_CW_SPREAD * 100:.4f}%"

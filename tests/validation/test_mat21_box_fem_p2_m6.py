@@ -27,7 +27,6 @@ from mpi4py import MPI
 
 from fem_em_solver.post.evaluation import evaluate_vector_field_parallel
 from fem_em_solver.thermal import solve_steady_conduction
-
 from tests.complex_mode import complex_only
 from tests.validation.test_imp6_oblate_fem import _rss_gib
 from tests.validation.test_mat10_sar_to_heat_sphere import ROBIN_TAG, _allsum, _say
@@ -39,8 +38,8 @@ from tests.validation.test_mat15_finite_cylinder_fem import (
     S2_GAUSS_BAND,
     _max_imag,
 )
-from tests.validation.test_mat21_box_closed_form import H, K, Q
 from tests.validation.test_mat21_box_closed_form import RHO_C as RHO_C_0
+from tests.validation.test_mat21_box_closed_form import H, K, Q
 from tests.validation.test_mat21_box_fem import V_BOX, _interior_chi, _steady_ex
 from tests.validation.test_mat21_box_fem_p2 import (
     CMP_DEGREE,
@@ -79,8 +78,10 @@ def steady_m6():
     t0 = time.perf_counter()
     clk = _Clock5("steady")
     out = {}
-    _say(f"\nMAT21-5 DEGREE = {DEGREE}, comparand P{CMP_DEGREE}, quadrature {QDEG_P}; "
-         f"rung m = {M6}; comparand floor = {COMPARAND_FLOOR:.4e} (printed)")
+    _say(
+        f"\nMAT21-5 DEGREE = {DEGREE}, comparand P{CMP_DEGREE}, quadrature {QDEG_P}; "
+        f"rung m = {M6}; comparand floor = {COMPARAND_FLOOR:.4e} (printed)"
+    )
 
     # 1. solve, then RSS while the factor is alive.
     msh, ft, ns, n, v_h, st = _rung_p(M6, clk, DEGREE)
@@ -111,42 +112,55 @@ def steady_m6():
         _say(f"MAT21-5 centre evaluation failed: {exc!r}")
         th_c = float("nan")
     th_c_ex = float(np.real(_steady_ex()(np.zeros(1), np.zeros(1), np.zeros(1))[0]))
-    _say(f"MAT21-5 rung m = {M6} {tuple(ns)}: cells {n} (6*prod N = {6 * int(np.prod(ns))}); "
-         f"P2 dofs {out['ndof']} (predicted {_dofs_pred(M6)}); P3 points {npts} "
-         f"(predicted {_dofs_pred(M6, CMP_DEGREE)}, 1260775); V_h = {v_h:.15e} vs 8ABC "
-         f"{V_BOX:.15e} ({v_h / V_BOX - 1.0:+.3e}); h_eff = {h_eff:.6e} m (predicted 4.500343e-3)")
-    _say(f"MAT21-5 (S1-int) interior rel L2 = {out['interior']:.6e} (bound {INTERIOR_BAND:.0e}, "
-         f"predicted 5.0e-6, range 4e-6 to 1.2e-5; step 3 P2 m = 4 read 1.669359e-5, different mask); "
-         f"/floor = {out['interior'] / COMPARAND_FLOOR:.4f}")
-    _say(f"MAT21-5 whole rel L2 = {out['whole']:.6e} (printed; predicted 7.5e-6, range 6.5e-6 "
-         f"to 1.2e-5); /floor = {out['whole'] / COMPARAND_FLOOR:.4f}")
+    _say(
+        f"MAT21-5 rung m = {M6} {tuple(ns)}: cells {n} (6*prod N = {6 * int(np.prod(ns))}); "
+        f"P2 dofs {out['ndof']} (predicted {_dofs_pred(M6)}); P3 points {npts} "
+        f"(predicted {_dofs_pred(M6, CMP_DEGREE)}, 1260775); V_h = {v_h:.15e} vs 8ABC "
+        f"{V_BOX:.15e} ({v_h / V_BOX - 1.0:+.3e}); h_eff = {h_eff:.6e} m (predicted 4.500343e-3)"
+    )
+    _say(
+        f"MAT21-5 (S1-int) interior rel L2 = {out['interior']:.6e} (bound {INTERIOR_BAND:.0e}, "
+        f"predicted 5.0e-6, range 4e-6 to 1.2e-5; step 3 P2 m = 4 read 1.669359e-5, different mask); "
+        f"/floor = {out['interior'] / COMPARAND_FLOOR:.4f}"
+    )
+    _say(
+        f"MAT21-5 whole rel L2 = {out['whole']:.6e} (printed; predicted 7.5e-6, range 6.5e-6 "
+        f"to 1.2e-5); /floor = {out['whole'] / COMPARAND_FLOOR:.4f}"
+    )
     _say(f"MAT21-5 (S2) Gauss = {out['gauss']:.3e} (bound {S2_GAUSS_BAND:.0e}, predicted <= 5e-12)")
-    _say(f"MAT21-5 theta_h(0) = {th_c:.6f} K vs 40-term series {th_c_ex:.6f} K "
-         f"(rel {th_c / th_c_ex - 1.0:+.3e}) and 120-term record 12.003957 K "
-         f"(predicted 12.003957-12.003961; P2 m = 4 read 12.003960)")
+    _say(
+        f"MAT21-5 theta_h(0) = {th_c:.6f} K vs 40-term series {th_c_ex:.6f} K "
+        f"(rel {th_c / th_c_ex - 1.0:+.3e}) and 120-term record 12.003957 K "
+        f"(predicted 12.003957-12.003961; P2 m = 4 read 12.003960)"
+    )
     clk.lap("readings")
 
     # 4. (c1) comparand at 2h.
     ex_c1, _ = _exact_p(msh, _steady_ex(h=2.0 * H))
     out["c1"] = _rel_p(msh, th_h, ex_c1, chi)
-    _say(f"MAT21-5 control (c1) comparand at 2h: interior miss = {out['c1']:.5f} "
-         f"(predicted 0.5973, range 0.5960-0.5990; step 1 P1 m = 6 read 0.59734 same mask; "
-         f"P2 m = 4 read 0.60389, different mask; asserted > {INTERIOR_BAND:.0e})")
+    _say(
+        f"MAT21-5 control (c1) comparand at 2h: interior miss = {out['c1']:.5f} "
+        f"(predicted 0.5973, range 0.5960-0.5990; step 1 P1 m = 6 read 0.59734 same mask; "
+        f"P2 m = 4 read 0.60389, different mask; asserted > {INTERIOR_BAND:.0e})"
+    )
     clk.lap("control (c1)")
 
     # 5. (c-deg) degree 1 on the same mesh and ft, same P3 comparand and chi.
-    st1 = solve_steady_conduction(msh, ft, k=K_GEL, q=Q, h=H_GEL, t_inf=T_INF,
-                                  robin_tag=ROBIN_TAG, degree=1)
+    st1 = solve_steady_conduction(
+        msh, ft, k=K_GEL, q=Q, h=H_GEL, t_inf=T_INF, robin_tag=ROBIN_TAG, degree=1
+    )
     clk.lap(f"(c-deg) steady solve m={M6} degree=1")
     th1 = st1.temperature - T_INF
     out["e1_int"] = _rel_p(msh, th1, ex, chi)
     out["e1_whole"] = _rel_p(msh, th1, ex)
     ndof1 = int(st1.temperature.function_space.dofmap.index_map.size_global)
-    _say(f"MAT21-5 control (c-deg) m = {M6}: P1 dofs {ndof1} (predicted {_dofs_pred(M6, 1)}); "
-         f"interior P1 {out['e1_int']:.6e} (predicted 1.41e-3 to 1.43e-3; step 1 1.417055e-3) vs "
-         f"P2 {out['interior']:.6e}, ratio e1/e2 = {out['e1_int'] / out['interior']:.2f} "
-         f"(predicted 280, range 120-360; asserted > 1); whole P1 {out['e1_whole']:.6e} "
-         f"(predicted 1.540e-3 to 1.555e-3; step 1 1.547121e-3)")
+    _say(
+        f"MAT21-5 control (c-deg) m = {M6}: P1 dofs {ndof1} (predicted {_dofs_pred(M6, 1)}); "
+        f"interior P1 {out['e1_int']:.6e} (predicted 1.41e-3 to 1.43e-3; step 1 1.417055e-3) vs "
+        f"P2 {out['interior']:.6e}, ratio e1/e2 = {out['e1_int'] / out['interior']:.2f} "
+        f"(predicted 280, range 120-360; asserted > 1); whole P1 {out['e1_whole']:.6e} "
+        f"(predicted 1.540e-3 to 1.555e-3; step 1 1.547121e-3)"
+    )
     clk.lap("control (c-deg)")
 
     # 6. printed rate.
@@ -154,14 +168,20 @@ def steady_m6():
     hs = np.array([STEP3_HEFF[m] for m in ms] + [h_eff])
     es = np.array([STEP3_WHOLE[m] for m in ms] + [out["whole"]])
     out["slope"] = float(np.polyfit(np.log(hs), np.log(es), 1)[0])
-    out["pairwise"] = [float(np.log(es[i] / es[i + 1]) / np.log(hs[i] / hs[i + 1]))
-                       for i in range(len(hs) - 1)]
-    _say(f"MAT21-5 P2 rate m in (2,3,4,6) (m = 2-4 from step 3 W1, printed only): LSQ slope = "
-         f"{out['slope']:.4f} (≈ 3; RATE_BAR {RATE_BAR} named, not asserted; predicted 2.85-3.0); "
-         f"pairwise " + ", ".join(f"{p:.4f}" for p in out["pairwise"])
-         + " (4 -> 6 predicted 2.9, range 1.8-3.3; < 2.5 reads as comparand floor)")
-    _say(f"MAT21-5 max|Im theta| = {out['imag']:.3e} (predicted 0); "
-         f"elapsed {time.perf_counter() - t0:.1f} s")
+    out["pairwise"] = [
+        float(np.log(es[i] / es[i + 1]) / np.log(hs[i] / hs[i + 1])) for i in range(len(hs) - 1)
+    ]
+    _say(
+        f"MAT21-5 P2 rate m in (2,3,4,6) (m = 2-4 from step 3 W1, printed only): LSQ slope = "
+        f"{out['slope']:.4f} (≈ 3; RATE_BAR {RATE_BAR} named, not asserted; predicted 2.85-3.0); "
+        f"pairwise "
+        + ", ".join(f"{p:.4f}" for p in out["pairwise"])
+        + " (4 -> 6 predicted 2.9, range 1.8-3.3; < 2.5 reads as comparand floor)"
+    )
+    _say(
+        f"MAT21-5 max|Im theta| = {out['imag']:.3e} (predicted 0); "
+        f"elapsed {time.perf_counter() - t0:.1f} s"
+    )
     return out
 
 
@@ -173,8 +193,9 @@ def test_precondition_constants():
 
 @complex_only
 def test_precondition_degree_dofs_m6(steady_m6):
-    assert steady_m6["ndof"] == _dofs_pred(M6) == 380725, (
-        f"(Pdeg) {steady_m6['ndof']} != {_dofs_pred(M6)}")
+    assert (
+        steady_m6["ndof"] == _dofs_pred(M6) == 380725
+    ), f"(Pdeg) {steady_m6['ndof']} != {_dofs_pred(M6)}"
 
 
 @complex_only
@@ -194,5 +215,6 @@ def test_control_c1_p2_m6_doubled_h_misses(steady_m6):
 
 @complex_only
 def test_control_cdeg_p1_m6_worse(steady_m6):
-    assert steady_m6["e1_int"] > steady_m6["interior"], (
-        f"(c-deg) e1 {steady_m6['e1_int']:.6e} <= e2 {steady_m6['interior']:.6e}")
+    assert (
+        steady_m6["e1_int"] > steady_m6["interior"]
+    ), f"(c-deg) e1 {steady_m6['e1_int']:.6e} <= e2 {steady_m6['interior']:.6e}"

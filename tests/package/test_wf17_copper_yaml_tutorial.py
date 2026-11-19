@@ -39,12 +39,15 @@ from mpi4py import MPI
 
 import fem_em_solver
 from fem_em_solver.study import COPPER_SIGMA
-
 from tests.complex_mode import IS_COMPLEX
-from tests.package.test_wf16_study_copper import NEGATIVE_CONTROL_FLOOR, _rel_means
-from tests.package.test_wf17_first_study_tutorial import LINK_PASS_RE, _checker_stdout, extract_tagged_block
 from tests.package.test_wf1_study_yaml import _mapping
 from tests.package.test_wf1_yaml_copper import COPPER_FILE, KEY, PEC_CONTROL_FILE
+from tests.package.test_wf16_study_copper import NEGATIVE_CONTROL_FLOOR, _rel_means
+from tests.package.test_wf17_first_study_tutorial import (
+    LINK_PASS_RE,
+    _checker_stdout,
+    extract_tagged_block,
+)
 from tests.unit.test_doc_reference_exit_codes import run_checker
 from tests.validation import test_th14_birdcage_copper as th14
 from tests.validation.test_ans6_exact_strip import (
@@ -145,8 +148,10 @@ def _knob() -> bool:
 
 def _solve_preamble():
     if not _knob():
-        pytest.skip(f"{S12_ENV} unset: the tutorial solve window is environment-selected "
-                    "(complex build, -n 2)")
+        pytest.skip(
+            f"{S12_ENV} unset: the tutorial solve window is environment-selected "
+            "(complex build, -n 2)"
+        )
     comm = MPI.COMM_WORLD
     assert IS_COMPLEX, "the copper four-port port Study needs the complex build"
     assert comm.size == ANS6_EXACT_STRIP_RECORD_RANK_WIDTH, comm.size
@@ -168,15 +173,20 @@ def exec_copper_block(tag: str, monkeypatch):
     name = _file_arg(block)
     scratch = SCRATCH_ROOT / tag
     if comm.rank == 0:
-        print(f"[WF-17 s12] page sha256 {_sha(raw)}; block {tag} sha256 {_sha(block.encode())}",
-              flush=True)
+        print(
+            f"[WF-17 s12] page sha256 {_sha(raw)}; block {tag} sha256 {_sha(block.encode())}",
+            flush=True,
+        )
         if scratch.exists():
             shutil.rmtree(scratch)
         scratch.mkdir(parents=True)
         data = (COPPER_FILE.parent / name).read_bytes()
         (scratch / name).write_bytes(data)
-        print(f"[WF-17 s12] copied {name} sha256 {_sha(data)} (tracked "
-              f"{_sha(COPPER_FILE.read_bytes())})", flush=True)
+        print(
+            f"[WF-17 s12] copied {name} sha256 {_sha(data)} (tracked "
+            f"{_sha(COPPER_FILE.read_bytes())})",
+            flush=True,
+        )
     comm.Barrier()
     monkeypatch.chdir(scratch)
     calls = {"n": 0, "paths": []}
@@ -207,8 +217,10 @@ def test_wf17_s12_blocks_and_file():
     n_run = len(_calls_named(block, "run_study_file"))
     n_study = len(_calls_named(block, "Study"))
     name = _file_arg(block)
-    _p0(f"[WF-17 s12] (X) {COPPER_TAG}: run_study_file calls {n_run}, Study calls {n_study}; "
-        f"file {name!r} (want {COPPER_FILE.name!r})")
+    _p0(
+        f"[WF-17 s12] (X) {COPPER_TAG}: run_study_file calls {n_run}, Study calls {n_study}; "
+        f"file {name!r} (want {COPPER_FILE.name!r})"
+    )
     assert block.count("run_study_file(") == 1
     assert n_run == 1 and n_study == 0 and "Study(" not in block
     assert name == COPPER_FILE.name
@@ -222,8 +234,10 @@ def test_wf17_s12_blocks_and_file():
     extract_tagged_block(text, BANDS_TAG, lang="text")
     # the YAML's conductor mapping (parse only, no mesh)
     cond = _mapping(COPPER_FILE)["conductor"]
-    _p0(f"[WF-17 s12] (X) conductor {cond!r}; sigma hex "
-        f"{float(cond['sigma_s_per_m']).hex()} (COPPER_SIGMA {COPPER_SIGMA.hex()})")
+    _p0(
+        f"[WF-17 s12] (X) conductor {cond!r}; sigma hex "
+        f"{float(cond['sigma_s_per_m']).hex()} (COPPER_SIGMA {COPPER_SIGMA.hex()})"
+    )
     assert set(cond) == {"kind", "sigma_s_per_m"}
     assert cond["kind"] == "leontovich"
     assert float(cond["sigma_s_per_m"]).hex() == COPPER_SIGMA.hex()
@@ -231,10 +245,16 @@ def test_wf17_s12_blocks_and_file():
     # (c-page), by construction: a removed / doubled tag raises
     for tag, lang in ((COPPER_TAG, "python"), (CLI_TAG, "bash"), (BANDS_TAG, "text")):
         with pytest.raises(LookupError):
-            extract_tagged_block(text.replace(f"```{lang} {tag}\n", f"```{lang} other\n"), tag,
-                                 lang=lang)
-        doubled = (text + "\n" + f"```{lang} {tag}\n"
-                   + extract_tagged_block(text, tag, lang=lang) + "```\n")
+            extract_tagged_block(
+                text.replace(f"```{lang} {tag}\n", f"```{lang} other\n"), tag, lang=lang
+            )
+        doubled = (
+            text
+            + "\n"
+            + f"```{lang} {tag}\n"
+            + extract_tagged_block(text, tag, lang=lang)
+            + "```\n"
+        )
         with pytest.raises(LookupError):
             extract_tagged_block(doubled, tag, lang=lang)
     _p0("[WF-17 s12] (c-page) removed / doubled tags raise LookupError for all three blocks")
@@ -259,9 +279,11 @@ def test_wf17_s12_docrefs_zero_dead():
     rc, counts = run_checker("--docs-root", "docs/guide", "--check-links")
     link = LINK_PASS_RE.search(_checker_stdout("--docs-root", "docs/guide", "--check-links"))
     assert link is not None, "(D) no 'Link pass:' line"
-    print(f"[WF-17 s12] (D) dead={counts['dead']} links={link.group(1)} pages={link.group(2)} "
-          f"link-dead={link.group(3)} guide={counts['guide']} stale={counts['stale']} "
-          f"exit={counts['exit']} rc={rc}")
+    print(
+        f"[WF-17 s12] (D) dead={counts['dead']} links={link.group(1)} pages={link.group(2)} "
+        f"link-dead={link.group(3)} guide={counts['guide']} stale={counts['stale']} "
+        f"exit={counts['exit']} rc={rc}"
+    )
     assert counts["dead"] == 0
     assert int(link.group(3)) == 0
     assert int(link.group(2)) >= MIN_GUIDE_PAGES
@@ -295,29 +317,43 @@ def test_wf17_s12_copper_block_reproduces_ans6(monkeypatch):
     rel_pec_tie = _rel_means(pec, ANS6_EXACT_STRIP_CLASS_MEANS_P1[KEY]["pec"])
     rel_c1 = _rel_means(pec, ANS6_EXACT_STRIP_CLASS_MEANS_P1[KEY]["cu"])
 
-    _p0(f"[WF-17 s12] (R-run) block spy calls {n_calls} {paths}; family {s['family']!r}; "
+    _p0(
+        f"[WF-17 s12] (R-run) block spy calls {n_calls} {paths}; family {s['family']!r}; "
         f"degree {s['degree']!r}; conductor {s.get('conductor', '<absent>')!r}; touchstone "
-        f"{run.paths['touchstone'].name!r}")
-    _p0(f"[WF-17 s12] (R) cells {run.result.cells} (record {ANS6_EXACT_STRIP_HOLE_CELL_RECORD}); "
-        f"cu class means {_fmt(means)}")
-    _p0("[WF-17 s12] (R) page cu vs record 'cu', relative: " + " / ".join(
-        f"{c} {rel[c]:.3e}" for c in CLASSES)
+        f"{run.paths['touchstone'].name!r}"
+    )
+    _p0(
+        f"[WF-17 s12] (R) cells {run.result.cells} (record {ANS6_EXACT_STRIP_HOLE_CELL_RECORD}); "
+        f"cu class means {_fmt(means)}"
+    )
+    _p0(
+        "[WF-17 s12] (R) page cu vs record 'cu', relative: "
+        + " / ".join(f"{c} {rel[c]:.3e}" for c in CLASSES)
         + f" (ASSERTED <= {LEG_D0_REPRODUCTION_BAND:.0e}; digits printed, never asserted; "
-        f"RGCu:2714 {RGCU_R})")
-    _p0(f"[WF-17 s12] (g) reciprocity {rec['reciprocity']:.3e} (ASSERTED <= "
+        f"RGCu:2714 {RGCU_R})"
+    )
+    _p0(
+        f"[WF-17 s12] (g) reciprocity {rec['reciprocity']:.3e} (ASSERTED <= "
         f"{RECIPROCITY_BAND:.0e}); sigma {[f'{v:.12f}' for v in rec['sigma']]}, max "
         f"{sigma_max:.12f} (ASSERTED <= 1 + {PASSIVITY_SIGMA_TOLERANCE:.0e}); spreads "
-        f"{rec['spreads']} (ASSERTED <= {ADJACENT_SPREAD_BAND:.0e}); RGCu:2718 {RGCU_G}")
+        f"{rec['spreads']} (ASSERTED <= {ADJACENT_SPREAD_BAND:.0e}); RGCu:2718 {RGCU_G}"
+    )
     _p0(f"[WF-17 s12] (c1) PEC control cells {run_pec.result.cells}; class means {_fmt(pec)}")
-    _p0("[WF-17 s12] (c1) PEC control vs record 'pec' (tie, printed): " + " / ".join(
-        f"{c} {rel_pec_tie[c]:.3e}" for c in CLASSES)
-        + f" (ASSERTED <= {LEG_D0_REPRODUCTION_BAND:.0e})")
-    _p0("[WF-17 s12] (c1) PEC control vs record 'cu' (miss): " + " / ".join(
-        f"{c} {rel_c1[c]:.3e}" for c in CLASSES)
+    _p0(
+        "[WF-17 s12] (c1) PEC control vs record 'pec' (tie, printed): "
+        + " / ".join(f"{c} {rel_pec_tie[c]:.3e}" for c in CLASSES)
+        + f" (ASSERTED <= {LEG_D0_REPRODUCTION_BAND:.0e})"
+    )
+    _p0(
+        "[WF-17 s12] (c1) PEC control vs record 'cu' (miss): "
+        + " / ".join(f"{c} {rel_c1[c]:.3e}" for c in CLASSES)
         + f" (ASSERTED > {NEGATIVE_CONTROL_FLOOR:.0e}; RGCu:2716 {RGCU_C1}); min/floor "
-        f"{min(rel_c1.values()) / NEGATIVE_CONTROL_FLOOR:.1f}x")
-    _p0(f"[WF-17 s12] W-cu block (cu run_study_file) {t_block:.1f} s; PEC control "
-        f"run_study_file {t_pec:.1f} s; node {time.perf_counter() - t0:.1f} s")
+        f"{min(rel_c1.values()) / NEGATIVE_CONTROL_FLOOR:.1f}x"
+    )
+    _p0(
+        f"[WF-17 s12] W-cu block (cu run_study_file) {t_block:.1f} s; PEC control "
+        f"run_study_file {t_pec:.1f} s; node {time.perf_counter() - t0:.1f} s"
+    )
 
     # (R-run)
     assert n_calls == 1

@@ -47,13 +47,13 @@ from mpi4py import MPI
 from fem_em_solver.io.mesh import _model_to_mesh
 from fem_em_solver.post.evaluation import evaluate_vector_field_parallel
 from fem_em_solver.thermal import solve_steady_conduction, solve_transient_conduction
-
 from tests.mesh.test_birdcage_implant_rod import ROD_RADIUS
+from tests.validation.test_geo36_rod_f_clinical_heating import PERTURBED_SOURCE
 from tests.validation.test_imp8_rod_line_source_closed_form import (
-    L,
     MM,
     T_PRINT,
     T_STEADY,
+    L,
     _phi,
     _phi_steady,
 )
@@ -61,7 +61,6 @@ from tests.validation.test_mat10_sar_to_heat_sphere import B_BAND, ROBIN_TAG, _a
 from tests.validation.test_mat12_transient_sar_heating_sphere import E_BAND, RHO_C
 from tests.validation.test_mat13_transient_perfusion_sphere import INTERIOR_BAND
 from tests.validation.test_mat15_coil_driven_heating_phantom import H_GEL, K_GEL, N_MAIN
-from tests.validation.test_geo36_rod_f_clinical_heating import PERTURBED_SOURCE
 
 # Fixture parameters (rule (f)), not bands.
 HALF_WIDTH = 0.10
@@ -101,8 +100,9 @@ def _graded_box(comm, *, half_width=HALF_WIDTH, axis_half=AXIS_HALF):
         surfs = [s for _, s in gmsh.model.getBoundary([(3, box)], oriented=False)]
         gmsh.model.addPhysicalGroup(3, [box], tag=1)
         gmsh.model.addPhysicalGroup(2, surfs, tag=ROBIN_TAG)
-        pts = [occ.addPoint(0.0, 0.0, float(z)) for z in
-               np.linspace(-axis_half, axis_half, N_AXIS_PTS)]
+        pts = [
+            occ.addPoint(0.0, 0.0, float(z)) for z in np.linspace(-axis_half, axis_half, N_AXIS_PTS)
+        ]
         occ.synchronize()
         fm = gmsh.model.mesh.field
         fd = fm.add("Distance")
@@ -137,8 +137,11 @@ def _graded_box(comm, *, half_width=HALF_WIDTH, axis_half=AXIS_HALF):
         gmsh.model.mesh.generate(3)
         _, etags, _ = gmsh.model.mesh.getElements(3)
         ntet = sum(len(t) for t in etags)
-        print(f"[imp8-fem] gmsh: algo3d {algo or 'default'}; tets {ntet}; generate "
-              f"{time.perf_counter() - tg:.1f} s", flush=True)
+        print(
+            f"[imp8-fem] gmsh: algo3d {algo or 'default'}; tets {ntet}; generate "
+            f"{time.perf_counter() - tg:.1f} s",
+            flush=True,
+        )
     msh, ct, ft = _model_to_mesh(gmsh.model, comm, rank, gdim=3)
     if comm.rank == rank:
         gmsh.finalize()
@@ -180,8 +183,10 @@ def _rod_source(msh, power=P, length=L, radius=ROD_RADIUS):
 def _theta_pts(T, pts_mm):
     pts = np.array([[r * MM, 0.0, z * MM] for r, z in pts_mm], dtype=float)
     vals, ok = evaluate_vector_field_parallel(T, pts)
-    return [float(np.real(np.ravel(vals[i])[0])) - T_INF if bool(ok[i]) else float("nan")
-            for i in range(len(pts))]
+    return [
+        float(np.real(np.ravel(vals[i])[0])) - T_INF if bool(ok[i]) else float("nan")
+        for i in range(len(pts))
+    ]
 
 
 def _h_near(msh, pts_mm):
@@ -233,8 +238,10 @@ def box():
     msh, ct, ft = _graded_box(comm)
     n = _cells_global(msh)
     t_build = time.perf_counter() - t0
-    _say(f"\n[imp8-fem] graded box: cells {n} (W0c {W0C_CELLS}; cap {CELL_CAP}); "
-         f"ranks {comm.size}; t_build {t_build:.1f} s; phase {_phase()}")
+    _say(
+        f"\n[imp8-fem] graded box: cells {n} (W0c {W0C_CELLS}; cap {CELL_CAP}); "
+        f"ranks {comm.size}; t_build {t_build:.1f} s; phase {_phase()}"
+    )
     return msh, ct, ft, n
 
 
@@ -245,8 +252,10 @@ def test_w0_build(box):
     q, n_sel, v_sel = _rod_source(msh)
     a_eff = np.sqrt(v_sel / (np.pi * L))
     hs = _h_near(msh, GATE_PTS + PRINT_PTS)
-    _say(f"[imp8-fem] W0 selected cells {n_sel}; selected volume {v_sel:.6e} m^3; effective "
-         f"radius {a_eff / MM:.4f} mm (ROD_RADIUS {ROD_RADIUS / MM:g} mm)")
+    _say(
+        f"[imp8-fem] W0 selected cells {n_sel}; selected volume {v_sel:.6e} m^3; effective "
+        f"radius {a_eff / MM:.4f} mm (ROD_RADIUS {ROD_RADIUS / MM:g} mm)"
+    )
     for (r, z), h in zip(GATE_PTS + PRINT_PTS, hs):
         _say(f"[imp8-fem] W0 h within 3 mm of ({r:g}, {z:g}) mm: {h / MM:.3f} mm")
     assert n <= CELL_CAP, n
@@ -273,8 +282,9 @@ def steady_run(box):
     msh, ct, ft, n = box
     q, out = _source_and_s0(msh)
     t1 = time.perf_counter()
-    st = solve_steady_conduction(msh, ft, k=K_GEL, q=q, h=H_GEL, t_inf=T_INF,
-                                 robin_tag=ROBIN_TAG, degree=DEGREE)
+    st = solve_steady_conduction(
+        msh, ft, k=K_GEL, q=q, h=H_GEL, t_inf=T_INF, robin_tag=ROBIN_TAG, degree=DEGREE
+    )
     out["t_call"] = time.perf_counter() - t1
     pts = GATE_PTS + PRINT_PTS
     th_s = _theta_pts(st.temperature, pts)
@@ -285,14 +295,18 @@ def steady_run(box):
         rel = abs(v / ex - 1.0)
         if (r, z) in GATE_PTS:
             out["St"].append(rel)
-        _say(f"[imp8-fem] (St) ({r:g}, {z:g}) mm steady box: theta {v:.6e} K/W, Phi_inf form "
-             f"{ex:.6e} (t=1e9 Phi {ex_t:.6e}), offset {v - ex:+.4e} K/W, rel {rel:.3e} "
-             f"(band {INTERIOR_BAND:.0e}; PREDICTED RED range [{ST_LO}, {ST_HI}])")
+        _say(
+            f"[imp8-fem] (St) ({r:g}, {z:g}) mm steady box: theta {v:.6e} K/W, Phi_inf form "
+            f"{ex:.6e} (t=1e9 Phi {ex_t:.6e}), offset {v - ex:+.4e} K/W, rel {rel:.3e} "
+            f"(band {INTERIOR_BAND:.0e}; PREDICTED RED range [{ST_LO}, {ST_HI}])"
+        )
     gauss = abs(float(st.convected_power) - P) / P
-    _say(f"[imp8-fem] W1s t_call (steady) {out['t_call']:.1f} s; convected vs P {gauss:.3e} "
-         f"(printed); (S0) {out['S0']:.3e} (band {B_BAND:.0e}), selected cells {out['n_sel']}, "
-         f"effective radius {out['a_eff'] / MM:.4f} mm; W2 projection = the box line's "
-         f"t_build + 3 x {out['t_call']:.1f} s (-n 2 if <= 480 s)")
+    _say(
+        f"[imp8-fem] W1s t_call (steady) {out['t_call']:.1f} s; convected vs P {gauss:.3e} "
+        f"(printed); (S0) {out['S0']:.3e} (band {B_BAND:.0e}), selected cells {out['n_sel']}, "
+        f"effective radius {out['a_eff'] / MM:.4f} mm; W2 projection = the box line's "
+        f"t_build + 3 x {out['t_call']:.1f} s (-n 2 if <= 480 s)"
+    )
     return out
 
 
@@ -304,8 +318,10 @@ def test_w1s_s0_source_power(steady_run):
 def test_w1s_st_steady_against_infinite_medium(steady_run):
     """PREDICTED RED: (St) range [0.03, 0.30] (box Robin walls at 0.10 m)."""
     st = steady_run["St"]
-    _say(f"[imp8-fem] (St) max rel {max(st):.4e}; inside PREDICTED RED range "
-         f"[{ST_LO}, {ST_HI}]: {ST_LO <= max(st) <= ST_HI and min(st) >= 0.0}")
+    _say(
+        f"[imp8-fem] (St) max rel {max(st):.4e}; inside PREDICTED RED range "
+        f"[{ST_LO}, {ST_HI}]: {ST_LO <= max(st) <= ST_HI and min(st) >= 0.0}"
+    )
     assert max(st) <= INTERIOR_BAND, st
 
 
@@ -320,13 +336,27 @@ def transient_run(box):
     dt = T_PRINT / N_MAIN
     t1 = time.perf_counter()
     res = solve_transient_conduction(
-        msh, ft, k=K_GEL, rho_c=RHO_C, q=q, h=H_GEL, t_inf=T_INF, t_init=T_INF,
-        robin_tag=ROBIN_TAG, dt=dt, n_steps=N_MAIN, theta=0.5, startup_half_steps=2,
-        degree=DEGREE)
+        msh,
+        ft,
+        k=K_GEL,
+        rho_c=RHO_C,
+        q=q,
+        h=H_GEL,
+        t_inf=T_INF,
+        t_init=T_INF,
+        robin_tag=ROBIN_TAG,
+        dt=dt,
+        n_steps=N_MAIN,
+        theta=0.5,
+        startup_half_steps=2,
+        degree=DEGREE,
+    )
     out["t_call"] = time.perf_counter() - t1
     out["E"] = float(res.max_balance_residual)
-    _say(f"[imp8-fem] W2 CN N={N_MAIN} dt={dt:g} s: t_call {out['t_call']:.1f} s; "
-         f"n_factorizations {res.n_factorizations}")
+    _say(
+        f"[imp8-fem] W2 CN N={N_MAIN} dt={dt:g} s: t_call {out['t_call']:.1f} s; "
+        f"n_factorizations {res.n_factorizations}"
+    )
     pts = GATE_PTS + PRINT_PTS
     th = _theta_pts(res.temperature, pts)
     out["I"], out["c2L"] = [], None
@@ -337,16 +367,20 @@ def transient_run(box):
         gated = (r, z) in GATE_PTS
         if gated:
             out["I"].append(rel)
-        _say(f"[imp8-fem] (I) ({r:g}, {z:g}) mm t*={T_PRINT:g} s: theta_FEM {v:.6e} K/W, "
-             f"closed form {ex:.6e}, rel {rel:.3e} ({'gated' if gated else 'printed only'}, "
-             f"band {INTERIOR_BAND:.0e}); (a/r)^2 {a2:.3e}")
+        _say(
+            f"[imp8-fem] (I) ({r:g}, {z:g}) mm t*={T_PRINT:g} s: theta_FEM {v:.6e} K/W, "
+            f"closed form {ex:.6e}, rel {rel:.3e} ({'gated' if gated else 'printed only'}, "
+            f"band {INTERIOR_BAND:.0e}); (a/r)^2 {a2:.3e}"
+        )
         if (r, z) == C2L_PT:
             ex2 = P / (2 * L) / (4.0 * np.pi * K_GEL) * _phi(r * MM, z * MM, T_PRINT, length=2 * L)
             out["c2L"] = abs(v / ex2 - 1.0)
-    _say(f"[imp8-fem] (c-2L) L->2L comparand at {C2L_PT} mm misses by {out['c2L']:.4e} "
-         f"(asserted > INTERIOR_BAND {INTERIOR_BAND:.0e}; predicted {C2L_PREDICTED} "
-         f"(item 778), not asserted); (E) {out['E']:.3e} (band {E_BAND:.0e}); (S0) "
-         f"{out['S0']:.3e}")
+    _say(
+        f"[imp8-fem] (c-2L) L->2L comparand at {C2L_PT} mm misses by {out['c2L']:.4e} "
+        f"(asserted > INTERIOR_BAND {INTERIOR_BAND:.0e}; predicted {C2L_PREDICTED} "
+        f"(item 778), not asserted); (E) {out['E']:.3e} (band {E_BAND:.0e}); (S0) "
+        f"{out['S0']:.3e}"
+    )
     return out
 
 
@@ -380,8 +414,19 @@ def ce_run(box):
     dt = T_PRINT / N_MAIN
     qe = fem.Function(q.function_space)
     qe.x.array[:] = q.x.array * (1.0 + PERTURBED_SOURCE)
-    kw = dict(k=K_GEL, rho_c=RHO_C, h=H_GEL, t_inf=T_INF, t_init=T_INF, robin_tag=ROBIN_TAG,
-              dt=dt, n_steps=1, theta=0.5, startup_half_steps=2, degree=DEGREE)
+    kw = dict(
+        k=K_GEL,
+        rho_c=RHO_C,
+        h=H_GEL,
+        t_inf=T_INF,
+        t_init=T_INF,
+        robin_tag=ROBIN_TAG,
+        dt=dt,
+        n_steps=1,
+        theta=0.5,
+        startup_half_steps=2,
+        degree=DEGREE,
+    )
     t1 = time.perf_counter()
     pert = solve_transient_conduction(msh, ft, q=qe, **kw)
     out["t_call"] = time.perf_counter() - t1
@@ -394,14 +439,16 @@ def ce_run(box):
     out["cE_lo"] = abs(ratio - 1.0) - ratio * r_1
     out["cE_hi"] = abs(ratio - 1.0) + ratio * r_1
     out["n_half"] = len(pert.balance_residuals)
-    _say(f"[imp8-fem] W3 one step (2 BE half-steps), perturbed only: t_call {out['t_call']:.1f} s; "
-         f"n_factorizations {pert.n_factorizations}; residual count {out['n_half']}\n"
-         f"[imp8-fem] (c-E) perturbed: own first-half-step residual {r_1:.3e} (own max "
-         f"{float(pert.max_balance_residual):.3e}); int Qe / P - 1 = {ratio - 1.0:.6e}; first "
-         f"half-step miss against nominal P in [{out['cE_lo']:.6e}, {out['cE_hi']:.6e}] "
-         f"(asserted > E_BAND {E_BAND:.0e}; predicted approx {PERTURBED_SOURCE:.0e}, not "
-         f"asserted); nominal reference: W2's (E) line, 20261103T182723Z_IMP-8-I55-W2-n8.log; "
-         f"(S0) {out['S0']:.3e}")
+    _say(
+        f"[imp8-fem] W3 one step (2 BE half-steps), perturbed only: t_call {out['t_call']:.1f} s; "
+        f"n_factorizations {pert.n_factorizations}; residual count {out['n_half']}\n"
+        f"[imp8-fem] (c-E) perturbed: own first-half-step residual {r_1:.3e} (own max "
+        f"{float(pert.max_balance_residual):.3e}); int Qe / P - 1 = {ratio - 1.0:.6e}; first "
+        f"half-step miss against nominal P in [{out['cE_lo']:.6e}, {out['cE_hi']:.6e}] "
+        f"(asserted > E_BAND {E_BAND:.0e}; predicted approx {PERTURBED_SOURCE:.0e}, not "
+        f"asserted); nominal reference: W2's (E) line, 20261103T182723Z_IMP-8-I55-W2-n8.log; "
+        f"(S0) {out['S0']:.3e}"
+    )
     return out
 
 
@@ -409,5 +456,3 @@ def test_w3_control_ce(ce_run):
     """Asserted at factor 1 (> ``E_BAND``); the ≈ 1e-3 miss is predicted, printed."""
     assert ce_run["S0"] <= B_BAND, ce_run["S0"]
     assert ce_run["cE_lo"] > E_BAND, ce_run["cE_lo"]
-
-

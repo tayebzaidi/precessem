@@ -35,21 +35,18 @@ import numpy as np
 from mpi4py import MPI
 
 from fem_em_solver.post.sar import averaging_ball_radius
-
 from tests.mesh.test_birdcage_implant_rod import ROD_LENGTH, ROD_RADIUS
 from tests.validation import test_geo36_rod_f_clinical as i35
 from tests.validation.test_birdcage_sar_mass_averaged import PHANTOM_RHO_KG_PER_M3
 from tests.validation.test_geo36_rod_f_clinical_drive import _probe_points
 from tests.validation.test_geo36_rod_f_clinical_heating import _p37_fixture
-from tests.validation.test_imp8_rod_line_source_closed_form import (
+from tests.validation.test_imp8_rod_line_source_closed_form import (  # noqa: F401  (re-run as imported)
     K_GEL,
-    L,
     T_PRINT,
+    L,
     _phi,
     _phi_steady,
     _phi_tips,
-)
-from tests.validation.test_imp8_rod_line_source_closed_form import (  # noqa: F401  (re-run as imported)
     test_en_energy_identities,
     test_far_steady_limit,
 )
@@ -148,8 +145,10 @@ def _tips_steady(r, z):
 def test_inputs_from_the_logs():
     centre = i35._rod_centre()
     tips, _t1 = _probe_points(centre)
-    _p(f"[imp8 I58] P_rod = {P_ROD_LOG} W (log string); centre {tuple(map(float, centre))}; "
-       f"tips {tips['top']} / {tips['bottom']}; apexes {tips['top_apex']} / {tips['bottom_apex']}")
+    _p(
+        f"[imp8 I58] P_rod = {P_ROD_LOG} W (log string); centre {tuple(map(float, centre))}; "
+        f"tips {tips['top']} / {tips['bottom']}; apexes {tips['top_apex']} / {tips['bottom_apex']}"
+    )
     assert np.allclose(centre, CENTRE_LOG, rtol=0.0, atol=1e-15)
     assert np.isclose(tips["top"][2] - centre[2], TIP_HALF_LOG, rtol=0.0, atol=1e-15)
     assert np.isclose(centre[2] - tips["bottom"][2], TIP_HALF_LOG, rtol=0.0, atol=1e-15)
@@ -163,8 +162,10 @@ def test_bq_kernel_identity():
     for n in (N_BQ, 2 * N_BQ):
         avg = _ball_average_axis(lambda r, z: 1.0 / np.hypot(r, z), 0.0, a, n)
         rel = abs(avg / (1.5 / a) - 1.0)
-        _p(f"[imp8 I58] (Bq-k) n={n} a={a:.7g} m avg={avg:.9e} 3/(2a)={1.5 / a:.9e} rel={rel:.3e} "
-           f"band={BQ_BAND:.0e}")
+        _p(
+            f"[imp8 I58] (Bq-k) n={n} a={a:.7g} m avg={avg:.9e} 3/(2a)={1.5 / a:.9e} rel={rel:.3e} "
+            f"band={BQ_BAND:.0e}"
+        )
         assert rel <= BQ_BAND
 
 
@@ -173,14 +174,18 @@ def test_bq_mono_and_record():
     half = 0.5 * L
     rows = {}
     for label, z_c in (("top", half), ("bottom", -half)):
-        for name, f, f_inf in (("line", _line, lambda r, z: _phi_steady(r, z)),
-                               ("tips", _tips, _tips_steady)):
+        for name, f, f_inf in (
+            ("line", _line, lambda r, z: _phi_steady(r, z)),
+            ("tips", _tips, _tips_steady),
+        ):
             lo = _ball_average_axis(f, z_c, a, N_BQ)
             hi = _ball_average_axis(f, z_c, a, 2 * N_BQ)
             rel = abs(lo / hi - 1.0)
             steady = _ball_average_axis(f_inf, z_c, a, 2 * N_BQ)
-            _p(f"[imp8 I58] (Bq) {label} ball {name}: n={N_BQ} {lo:.9e} 2n={hi:.9e} rel={rel:.3e} "
-               f"band={BQ_BAND:.0e}; steady {steady:.7g}")
+            _p(
+                f"[imp8 I58] (Bq) {label} ball {name}: n={N_BQ} {lo:.9e} 2n={hi:.9e} rel={rel:.3e} "
+                f"band={BQ_BAND:.0e}; steady {steady:.7g}"
+            )
             assert rel <= BQ_BAND
             assert hi < steady, (label, name, hi, steady)  # (Mono)
             rows[(label, name, "ball")] = hi
@@ -193,10 +198,12 @@ def test_bq_mono_and_record():
     for label in ("top", "bottom"):
         for where in ("ball", "surface"):
             ln, tp = rows[(label, "line", where)], rows[(label, "tips", where)]
-            _p(f"[imp8 I58] (print) {label} tip {where}: Φ {ln:.7g} Φ₂ {tp:.7g}; "
-               f"θ_line {ln * PER_WATT:.7g} K/W = {ln * PER_WATT * P_ROD:.7g} K at P_rod; "
-               f"θ_tips {tp * PER_WATT:.7g} K/W = {tp * PER_WATT * P_ROD:.7g} K at P_rod; "
-               f"θ_tips/θ_line {tp / ln:.7g}")
+            _p(
+                f"[imp8 I58] (print) {label} tip {where}: Φ {ln:.7g} Φ₂ {tp:.7g}; "
+                f"θ_line {ln * PER_WATT:.7g} K/W = {ln * PER_WATT * P_ROD:.7g} K at P_rod; "
+                f"θ_tips {tp * PER_WATT:.7g} K/W = {tp * PER_WATT * P_ROD:.7g} K at P_rod; "
+                f"θ_tips/θ_line {tp / ln:.7g}"
+            )
 
 
 def test_six_box_points_and_mono():
@@ -208,10 +215,12 @@ def test_six_box_points_and_mono():
         z = float(x[2] - centre[2])
         ln, tp = _line(r, z), _tips(r, z)
         ln_s, tp_s = _phi_steady(r, z), _tips_steady(r, z)
-        _p(f"[imp8 I58] (print) {lab} at {tuple(float(v) for v in x)} (r {r:.4g}, z {z:.4g}) m: "
-           f"θ_line {ln * PER_WATT:.3e} K/W = {ln * PER_WATT * P_ROD:.3e} K; "
-           f"θ_tips {tp * PER_WATT:.3e} K/W = {tp * PER_WATT * P_ROD:.3e} K (≈ 0); "
-           f"steady {ln_s * PER_WATT:.4g} / {tp_s * PER_WATT:.4g} K/W")
+        _p(
+            f"[imp8 I58] (print) {lab} at {tuple(float(v) for v in x)} (r {r:.4g}, z {z:.4g}) m: "
+            f"θ_line {ln * PER_WATT:.3e} K/W = {ln * PER_WATT * P_ROD:.3e} K; "
+            f"θ_tips {tp * PER_WATT:.3e} K/W = {tp * PER_WATT * P_ROD:.3e} K (≈ 0); "
+            f"steady {ln_s * PER_WATT:.4g} / {tp_s * PER_WATT:.4g} K/W"
+        )
         assert ln < ln_s and tp < tp_s  # (Mono)
 
 
@@ -220,6 +229,8 @@ def test_control_off_axis_ball():
     on = _ball_average_axis(_line, 0.5 * L, a, 2 * N_BQ)
     off = _ball_average_off(_line, a, 0.5 * L, a, N_OFF)
     change = abs(off / on - 1.0)
-    _p(f"[imp8 I58] (c-off) on-axis {on:.7g} off-axis {off:.7g} change={change:.3e} "
-       f"> {OFF_AXIS_MIN:.0e}")
+    _p(
+        f"[imp8 I58] (c-off) on-axis {on:.7g} off-axis {off:.7g} change={change:.3e} "
+        f"> {OFF_AXIS_MIN:.0e}"
+    )
     assert change > OFF_AXIS_MIN

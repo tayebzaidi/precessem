@@ -162,9 +162,8 @@ import time
 import numpy as np
 import pytest
 import ufl
-from mpi4py import MPI
-
 from dolfinx import fem
+from mpi4py import MPI
 
 from fem_em_solver.core import (
     HomogeneousMaterial,
@@ -172,15 +171,14 @@ from fem_em_solver.core import (
     TimeHarmonicSolver,
 )
 from fem_em_solver.io.mesh import MeshGenerator
+from fem_em_solver.ports.systematics import GAP_PHYSICS_SYSTEMATIC as _GAP_PHYSICS_SYSTEMATIC
+from fem_em_solver.ports.systematics import PEC_BOX_SYSTEMATIC as _PEC_BOX_SYSTEMATIC
 from fem_em_solver.ports.systematics import (
-    GAP_PHYSICS_SYSTEMATIC as _GAP_PHYSICS_SYSTEMATIC,
-    PEC_BOX_SYSTEMATIC as _PEC_BOX_SYSTEMATIC,
     PEC_BOX_SYSTEMATIC_EXPONENT as _PEC_BOX_SYSTEMATIC_EXPONENT,
-    mutual_systematics_ladder,
 )
+from fem_em_solver.ports.systematics import mutual_systematics_ladder
 from fem_em_solver.post.evaluation import evaluate_vector_field_parallel
 from fem_em_solver.utils.constants import EPSILON_0, MU_0
-
 from tests.complex_mode import complex_only
 from tests.validation.test_port_reaction_impedance import (
     AIR_PADDING,
@@ -539,9 +537,7 @@ def test_lifted_systematics_ladder_is_bit_identical():
         # MUTUAL_TOLERANCE rather than from the lifted module.
         wrapped = _mutual_systematics_ladder(im_z12, omega_m12)
         assert wrapped["corrected"] == expected_corrected
-        assert wrapped["passes"] == (
-            abs(expected_corrected - 1.0) < MUTUAL_TOLERANCE
-        )
+        assert wrapped["passes"] == (abs(expected_corrected - 1.0) < MUTUAL_TOLERANCE)
 
     if MPI.COMM_WORLD.rank == 0:
         print(
@@ -587,9 +583,7 @@ def _tags_measure(msh, cell_tags, tags):
 
 def _port_facet_measure(msh, facet_tags, tag):
     """The two arc-end discs of one port. ``dS``, not ``ds``: they are interior."""
-    return ufl.Measure(
-        "dS", domain=msh, subdomain_data=facet_tags, subdomain_id=(tag,)
-    )
+    return ufl.Measure("dS", domain=msh, subdomain_data=facet_tags, subdomain_id=(tag,))
 
 
 def _side_indicator(msh, cell_tags, tags) -> "fem.Function":
@@ -754,9 +748,7 @@ def _segment_voltage(
     return complex(-MAJOR_RADIUS * np.sum(weights * e_tangential))
 
 
-def _path_voltage(
-    e_field, port_index: int, order: int, comm, owner: str | None = None
-) -> complex:
+def _path_voltage(e_field, port_index: int, order: int, comm, owner: str | None = None) -> complex:
     """``V = −∫E·t̂ dl`` terminal to terminal, by ``order``-point Gauss-Legendre.
 
     Same limits as :func:`_gap_arc_quadrature` — step 3b-x's one change of
@@ -765,9 +757,7 @@ def _path_voltage(
     (wedge + both buried segments = this) is measurable off one field.
     """
     phi_term = _gap_box_edge_angle()
-    return _segment_voltage(
-        e_field, port_index, -phi_term, phi_term, order, comm, owner=owner
-    )
+    return _segment_voltage(e_field, port_index, -phi_term, phi_term, order, comm, owner=owner)
 
 
 def _segment_orders(name: str):
@@ -793,9 +783,7 @@ def _closure_decomposition(e_field, comm):
         record = {}
         for name, phi_start, phi_end, _material in _closure_segments():
             record[name] = {
-                order: _segment_voltage(
-                    e_field, port_index, phi_start, phi_end, order, comm
-                )
+                order: _segment_voltage(e_field, port_index, phi_start, phi_end, order, comm)
                 for order in _segment_orders(name)
             }
         decomposition.append(record)
@@ -804,10 +792,7 @@ def _closure_decomposition(e_field, comm):
 
 def _closure_sum(record) -> complex:
     """``−∮E·t̂ dl`` — the four segments at their finest orders."""
-    return sum(
-        record[name][_segment_orders(name)[-1]]
-        for name, _s, _e, _m in _closure_segments()
-    )
+    return sum(record[name][_segment_orders(name)[-1]] for name, _s, _e, _m in _closure_segments())
 
 
 def _print_closure(label: str, context: str, decomposition, i_driven, omega_m) -> None:
@@ -867,8 +852,14 @@ def _azimuthal_unit(x):
 
 
 def _reaction_impedance(
-    msh, cell_tags, e_field, test_tag: int, test_volume: float,
-    test_arc_length: float, i_driven: complex, comm
+    msh,
+    cell_tags,
+    e_field,
+    test_tag: int,
+    test_volume: float,
+    test_arc_length: float,
+    i_driven: complex,
+    comm,
 ) -> complex:
     """``Z = −∫E·J_test dV /(I_driven I_test)`` — step 1/2's reaction route.
 
@@ -891,9 +882,7 @@ def _reaction_impedance(
     i_test = j_magnitude * test_volume / test_arc_length
     x = ufl.SpatialCoordinate(msh)
     j_vec = j_magnitude * _azimuthal_unit(x)
-    total = _reduce(
-        ufl.inner(e_field, j_vec) * _tag_measure(msh, cell_tags, test_tag), comm
-    )
+    total = _reduce(ufl.inner(e_field, j_vec) * _tag_measure(msh, cell_tags, test_tag), comm)
     return complex(-total / (i_driven * i_test))
 
 
@@ -956,12 +945,7 @@ def _measure_terminal_angles(msh, cell_tags, facet_tags, comm):
 
             area = float(np.real(_reduce(both * chi_sign * dS_port, comm)))
             mean_y = (
-                float(
-                    np.real(
-                        _reduce(both * chi_sign * ufl.avg(x_ufl[1]) * dS_port, comm)
-                    )
-                )
-                / area
+                float(np.real(_reduce(both * chi_sign * ufl.avg(x_ufl[1]) * dS_port, comm))) / area
             )
             per_side_mean.append(float(np.arcsin(mean_y / MAJOR_RADIUS)))
         angles.append(per_side)
@@ -1067,9 +1051,7 @@ def _solve_gap_ports(
     # exactly.  y is single-valued on the facet, so `avg` is the value.
     chi_ypos = ufl.avg(ufl.conditional(ufl.gt(x_ufl[1], 0.0), 1.0, 0.0))
     chi_yneg = ufl.avg(ufl.conditional(ufl.lt(x_ufl[1], 0.0), 1.0, 0.0))
-    disc_measures = [
-        _port_facet_measure(msh, facet_tags, t) for t in PORT_FACET_TAGS
-    ]
+    disc_measures = [_port_facet_measure(msh, facet_tags, t) for t in PORT_FACET_TAGS]
     disc_areas, disc_areas_split = [], []
     for dS_port in disc_measures:
         both = chi_gap("+") + chi_gap("-")  # exactly one side is gap: = 1
@@ -1167,9 +1149,7 @@ def _solve_gap_ports(
         for name, phi_start, phi_end, material in _closure_segments():
             for order in _segment_orders(name):
                 points, _, _ = _arc_quadrature(port_index, phi_start, phi_end, order)
-                values, valid = evaluate_vector_field_parallel(
-                    chi_material, points, comm
-                )
+                values, valid = evaluate_vector_field_parallel(chi_material, points, comm)
                 closure_node_materials[(port_index, name, order)] = {
                     "valid": valid,
                     "expected": material,
@@ -1208,9 +1188,7 @@ def _solve_gap_ports(
             material=HomogeneousMaterial(sigma=0.0, epsilon_r=1.0, mu_r=1.0),
             cell_tags=cell_tags,
             material_map={
-                tag: HomogeneousMaterial(
-                    sigma=SIGMA_WIRE_S_PER_M, epsilon_r=1.0, mu_r=1.0
-                )
+                tag: HomogeneousMaterial(sigma=SIGMA_WIRE_S_PER_M, epsilon_r=1.0, mu_r=1.0)
                 for tag in WIRE_TAGS
             },
             boundary_condition="pec_zero_tangential_a",
@@ -1236,8 +1214,7 @@ def _solve_gap_ports(
             for k, tag in enumerate(WIRE_TAGS)
         ]
         gap_voltages = [
-            -_reduce(ufl.inner(e, y_hat) * _tag_measure(msh, cell_tags, tag), comm)
-            / gap_areas[k]
+            -_reduce(ufl.inner(e, y_hat) * _tag_measure(msh, cell_tags, tag), comm) / gap_areas[k]
             for k, tag in enumerate(GAP_TAGS)
         ]
         # Diagnostic (printed, never gated): the same average restricted to the
@@ -1255,9 +1232,7 @@ def _solve_gap_ports(
             chi = ufl.conditional(ufl.lt(r2, MINOR_RADIUS**2), 1.0, 0.0)
             dx_tag = _tag_measure(msh, cell_tags, tag)
             area = float(np.real(_reduce(chi * dx_tag, comm))) / gap_length
-            shadow_voltages.append(
-                -_reduce(chi * ufl.inner(e, y_hat) * dx_tag, comm) / area
-            )
+            shadow_voltages.append(-_reduce(chi * ufl.inner(e, y_hat) * dx_tag, comm) / area)
         # The step: V from the terminal discs alone.  <E·ŷ> over the disc pair,
         # taken on the *gap* side of the interface, times the ŷ chord that joins
         # the two terminals — i.e. −∫E·dl over exactly the conductor
@@ -1270,12 +1245,9 @@ def _solve_gap_ports(
         for k, dS_port in enumerate(disc_measures):
             e_y = ufl.inner(e, y_hat)
             mean_gap = _reduce(_restrict(chi_gap, e_y) * dS_port, comm) / disc_areas[k]
-            mean_wire = (
-                _reduce(_restrict(chi_wire, e_y) * dS_port, comm) / disc_areas[k]
-            )
+            mean_wire = _reduce(_restrict(chi_wire, e_y) * dS_port, comm) / disc_areas[k]
             per_disc = [
-                _reduce(_restrict(chi_gap, e_y) * chi_sign * dS_port, comm)
-                / disc_areas_split[k][s]
+                _reduce(_restrict(chi_gap, e_y) * chi_sign * dS_port, comm) / disc_areas_split[k][s]
                 for s, chi_sign in enumerate((chi_ypos, chi_yneg))
             ]
             facet_voltages.append(-mean_gap * gap_length)
@@ -1295,9 +1267,7 @@ def _solve_gap_ports(
             # below makes for that order, so `voltages` is the same number.
             path_voltages_by_order = None
             path_voltages = [
-                _path_voltage(
-                    e, port_index, PATH_QUADRATURE_GATE_ORDERS[-1], comm, owner=owner
-                )
+                _path_voltage(e, port_index, PATH_QUADRATURE_GATE_ORDERS[-1], comm, owner=owner)
                 for port_index in range(2)
             ]
         else:
@@ -1321,16 +1291,20 @@ def _solve_gap_ports(
         half_gap = 0.5 * GAP_ANGLE
         phi_term = _gap_box_edge_angle()
         fine = PATH_QUADRATURE_GATE_ORDERS[-1]
-        retiling = None if padding_only else [
-            _segment_voltage(e, p, -half_gap, half_gap, fine, comm, owner=owner)
-            + _segment_voltage(
-                e, p, -phi_term, -half_gap, RETILING_BURIED_ORDER, comm, owner=owner
-            )
-            + _segment_voltage(
-                e, p, half_gap, phi_term, RETILING_BURIED_ORDER, comm, owner=owner
-            )
-            for p in range(2)
-        ]
+        retiling = (
+            None
+            if padding_only
+            else [
+                _segment_voltage(e, p, -half_gap, half_gap, fine, comm, owner=owner)
+                + _segment_voltage(
+                    e, p, -phi_term, -half_gap, RETILING_BURIED_ORDER, comm, owner=owner
+                )
+                + _segment_voltage(
+                    e, p, half_gap, phi_term, RETILING_BURIED_ORDER, comm, owner=owner
+                )
+                for p in range(2)
+            ]
+        )
 
         i_driven = loop_currents[col]
 
@@ -1371,9 +1345,7 @@ def _solve_gap_ports(
                     if j == 0:
                         step = ""
                     else:
-                        prev = path_voltages_by_order[PATH_QUADRATURE_ORDERS[j - 1]][
-                            port_index
-                        ]
+                        prev = path_voltages_by_order[PATH_QUADRATURE_ORDERS[j - 1]][port_index]
                         step = f", |dV|/|V| vs previous order {abs(v - prev) / abs(v):.4e}"
                     print(
                         f"[{label}] port {col + 1} driven: V_path port "
@@ -1405,9 +1377,8 @@ def _solve_gap_ports(
                 f"{facet_voltages[1]:+.6e} V",
                 flush=True,
             )
-            omega_m = OMEGA * mutual_inductance(
-                MAJOR_RADIUS, MAJOR_RADIUS, SEPARATION
-            )
+            omega_m = OMEGA * mutual_inductance(MAJOR_RADIUS, MAJOR_RADIUS, SEPARATION)
+
             # Four estimators, one solve: the gated path route beside the three
             # excluded ones (box 3b-ii/3b-iii, tube shadow, facet 3b-v).  If the
             # path number lands in the shadow average's 0.687-0.814 band too,
@@ -1430,9 +1401,7 @@ def _solve_gap_ports(
                 flush=True,
             )
             if not padding_only:
-                _print_closure(
-                    label, f"port {col + 1} driven", closure, i_driven, omega_m
-                )
+                _print_closure(label, f"port {col + 1} driven", closure, i_driven, omega_m)
             v_undriven = path_voltages[1 - col]
             z_gap = v_undriven / i_driven
             print(
@@ -1536,13 +1505,10 @@ def _solve_gap_ports(
         # J is real, so inner()'s conjugation of the second argument is a no-op:
         # this is ∫E·J, not ∫E·J̄.
         total = _reduce(
-            ufl.inner(e_control, control_j * phi_hat)
-            * _tags_measure(msh, cell_tags, tags),
+            ufl.inner(e_control, control_j * phi_hat) * _tags_measure(msh, cell_tags, tags),
             comm,
         )
-        control_reaction[name] = complex(
-            -total / (i_control_prime * i_test)
-        )
+        control_reaction[name] = complex(-total / (i_control_prime * i_test))
     control = {
         "z21": control_reaction["footprint"],
         "z21_wire_only": control_reaction["wire_only"],
@@ -1634,8 +1600,7 @@ def _solve_gap_ports(
         i_ladder_conduction = complex(
             sigma
             * _reduce(
-                ufl.inner(e_ladder, phi_hat)
-                * _tags_measure(msh, cell_tags, control_regions[0]),
+                ufl.inner(e_ladder, phi_hat) * _tags_measure(msh, cell_tags, control_regions[0]),
                 comm,
             )
             / loop_length
@@ -1648,9 +1613,7 @@ def _solve_gap_ports(
             volume = float(
                 np.real(
                     _reduce(
-                        fem.Constant(
-                            msh, np.array(1.0, dtype=np.complex128).item()
-                        )
+                        fem.Constant(msh, np.array(1.0, dtype=np.complex128).item())
                         * _tags_measure(msh, cell_tags, tags),
                         comm,
                     )
@@ -1658,8 +1621,7 @@ def _solve_gap_ports(
             )
             i_test = control_j * volume / loop_length
             total = _reduce(
-                ufl.inner(e_ladder, control_j * phi_hat)
-                * _tags_measure(msh, cell_tags, tags),
+                ufl.inner(e_ladder, control_j * phi_hat) * _tags_measure(msh, cell_tags, tags),
                 comm,
             )
             ladder_reaction[name] = complex(-total / (i_ladder_prime * i_test))
@@ -1716,8 +1678,7 @@ def _solve_gap_ports(
             material=HomogeneousMaterial(sigma=0.0, epsilon_r=1.0, mu_r=1.0),
             cell_tags=cell_tags,
             material_map={
-                tag: HomogeneousMaterial(sigma=sigma, epsilon_r=1.0, mu_r=1.0)
-                for tag in WIRE_TAGS
+                tag: HomogeneousMaterial(sigma=sigma, epsilon_r=1.0, mu_r=1.0) for tag in WIRE_TAGS
             },
             boundary_condition="pec_zero_tangential_a",
         )
@@ -1792,8 +1753,7 @@ def _solve_gap_ports(
             material=HomogeneousMaterial(sigma=0.0, epsilon_r=1.0, mu_r=1.0),
             cell_tags=cell_tags,
             material_map={
-                tag: HomogeneousMaterial(sigma=sigma, epsilon_r=1.0, mu_r=1.0)
-                for tag in WIRE_TAGS
+                tag: HomogeneousMaterial(sigma=sigma, epsilon_r=1.0, mu_r=1.0) for tag in WIRE_TAGS
             },
             boundary_condition="pec_zero_tangential_a",
         )
@@ -1823,15 +1783,12 @@ def _solve_gap_ports(
         i_conduction = (
             sigma
             * _reduce(
-                ufl.inner(e_rung, phi_hat)
-                * _tag_measure(msh, cell_tags, WIRE_TAGS[ladder_col]),
+                ufl.inner(e_rung, phi_hat) * _tag_measure(msh, cell_tags, WIRE_TAGS[ladder_col]),
                 comm,
             )
             / arc_lengths[ladder_col]
         )
-        v_undriven = _path_voltage(
-            e_rung, 1 - ladder_col, PATH_QUADRATURE_GATE_ORDERS[-1], comm
-        )
+        v_undriven = _path_voltage(e_rung, 1 - ladder_col, PATH_QUADRATURE_GATE_ORDERS[-1], comm)
         z_impressed = v_undriven / i_impressed
         rung = {
             "sigma": sigma,
@@ -1938,9 +1895,7 @@ def _solve_gap_ports(
         "sigma_sweep": None if padding_only else sigma_sweep,
         "control": control,
         "control_sigma_ladder": None if padding_only else control_sigma_ladder,
-        "production_sigma_ladder": (
-            None if padding_only else production_sigma_ladder
-        ),
+        "production_sigma_ladder": (None if padding_only else production_sigma_ladder),
         "omega_m": omega_m_ref,
     }
 
@@ -2229,9 +2184,9 @@ def test_terminal_to_terminal_voltage_retiles_the_closure_decomposition(gap_port
         i_driven = record["driven"]
         driven_index = GAP_TAGS.index(tag)
         for port_index in range(2):
-            corrected = record["path_voltages_by_order"][
-                PATH_QUADRATURE_GATE_ORDERS[-1]
-            ][port_index]
+            corrected = record["path_voltages_by_order"][PATH_QUADRATURE_GATE_ORDERS[-1]][
+                port_index
+            ]
             tiled = record["retiling"][port_index]
             per_segment = record["closure"][port_index]
             recorded = (
@@ -2440,9 +2395,7 @@ def test_gap_voltage_mutual_matches_the_same_fixture_reaction_control(gap_ports)
         z_gap = record["voltages"][port_index] / record["driven"]
         # Matched topology: both terms off the gapped solve, same field, same
         # quadrature family.  V_loop closes the contour by adding the wire arc.
-        v_terminal = record["path_voltages_by_order"][
-            PATH_QUADRATURE_GATE_ORDERS[-1]
-        ][port_index]
+        v_terminal = record["path_voltages_by_order"][PATH_QUADRATURE_GATE_ORDERS[-1]][port_index]
         v_wire = record["closure"][port_index]["wire"][WIRE_ARC_ORDERS[-1]]
         v_loop = v_terminal + v_wire
         z_loop = v_loop / record["driven"]
@@ -2510,12 +2463,7 @@ def test_control_sigma_ladder_separates_loss_from_gap(gap_ports):
 
     control_zero = abs(gap_ports["control"]["z21"].imag) / omega_m
     estimators = [
-        abs(
-            (
-                record["voltages"][1 - GAP_TAGS.index(tag)] / record["driven"]
-            ).imag
-        )
-        / omega_m
+        abs((record["voltages"][1 - GAP_TAGS.index(tag)] / record["driven"]).imag) / omega_m
         for tag, record in sorted(gap_ports["currents"].items())
     ]
     estimator = float(np.mean(estimators))
@@ -2525,10 +2473,7 @@ def test_control_sigma_ladder_separates_loss_from_gap(gap_ports):
         print(
             f"\n[PORT-1 step 3b-xiii] ladder (x omega*M12): control(sigma=0) = "
             f"{control_zero:.6f}; "
-            + "; ".join(
-                f"control(sigma={r['sigma']:.3e}) = {v:.6f}"
-                for r, v in zip(ladder, rungs)
-            )
+            + "; ".join(f"control(sigma={r['sigma']:.3e}) = {v:.6f}" for r, v in zip(ladder, rungs))
             + f"; estimator = {estimator:.6f} "
             f"({', '.join(f'{e:.6f}' for e in estimators)})",
             flush=True,
@@ -2614,19 +2559,14 @@ def test_production_sigma_ladder_removes_the_loss_from_the_gapped_route(gap_port
     control_zero = abs(gap_ports["control"]["z21"].imag) / omega_m
     record = gap_ports["currents"][GAP_TAGS[PRODUCTION_LADDER_DRIVEN_COLUMN]]
     record_estimator = (
-        abs(
-            (
-                record["voltages"][1 - PRODUCTION_LADDER_DRIVEN_COLUMN]
-                / record["driven"]
-            ).imag
-        )
+        abs((record["voltages"][1 - PRODUCTION_LADDER_DRIVEN_COLUMN] / record["driven"]).imag)
         / omega_m
     )
 
     if MPI.COMM_WORLD.rank == 0:
         print(
-            f"\n[PORT-1 step 3b-xiv] gapped ladder on the impressed "
-            f"normalisation (x omega*M12): "
+            "\n[PORT-1 step 3b-xiv] gapped ladder on the impressed "
+            "normalisation (x omega*M12): "
             + "; ".join(
                 f"sigma={r['sigma']:.3e} -> {r['estimator_impressed']:.6f} "
                 f"(|I_cond/I'| = {r['conduction_ratio']:.6e})"
@@ -2701,9 +2641,7 @@ def test_production_sigma_ladder_removes_the_loss_from_the_gapped_route(gap_port
     )
     assert bottom["estimator_conduction"] is None
     # (3) The ordering.
-    lo, hi = sorted(
-        (bottom["estimator_impressed"], top["estimator_impressed"])
-    )
+    lo, hi = sorted((bottom["estimator_impressed"], top["estimator_impressed"]))
     assert lo <= mid["estimator_impressed"] <= hi, (
         f"the gapped sigma ladder is not monotone: sigma=0 -> "
         f"{bottom['estimator_impressed']:.6f}, sigma="
@@ -2917,8 +2855,7 @@ def test_undriven_port_is_open_and_the_diagonal_is_reported(gap_ports):
         ratio = abs(record["undriven"]) / abs(record["driven"])
         if MPI.COMM_WORLD.rank == 0:
             print(
-                f"[PORT-1 step 3b-vi] gap {tag} driven: |I_undriven/I_driven| = "
-                f"{ratio:.4e}",
+                f"[PORT-1 step 3b-vi] gap {tag} driven: |I_undriven/I_driven| = " f"{ratio:.4e}",
                 flush=True,
             )
         assert ratio < 1.0e-2, (

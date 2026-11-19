@@ -141,7 +141,8 @@ def _wall_split(msh, facet_indices, neighbour_tag, comm):
     facets = facet_indices[keep]
     nbr = neighbour_tag[keep]
     geom_ids = dolfinx.cpp.mesh.entities_to_geometry(
-        msh._cpp_object, fdim, facets.astype(np.int32), False)
+        msh._cpp_object, fdim, facets.astype(np.int32), False
+    )
     x = msh.geometry.x
     p0, p1, p2 = x[geom_ids[:, 0]], x[geom_ids[:, 1]], x[geom_ids[:, 2]]
     area = 0.5 * np.linalg.norm(np.cross(p1 - p0, p2 - p0), axis=1)
@@ -198,11 +199,20 @@ def _rss_gib(comm):
 def _analytic_box(kwargs, port_dy):
     """`io/mesh.py:4232–4233`'s own extents on this call's kwargs."""
     leg_radius_eff = 0.5 * kwargs["leg_width"]
-    radial = (kwargs["ring_radius"] + max(leg_radius_eff, kwargs["ring_minor_radius"])
-              + port_dy + kwargs["air_padding"])
-    z = (max(0.5 * kwargs["coil_length"],
-             0.5 * kwargs["leg_spacing"] + kwargs["ring_minor_radius"],
-             0.5 * kwargs["phantom_height"]) + kwargs["air_padding"])
+    radial = (
+        kwargs["ring_radius"]
+        + max(leg_radius_eff, kwargs["ring_minor_radius"])
+        + port_dy
+        + kwargs["air_padding"]
+    )
+    z = (
+        max(
+            0.5 * kwargs["coil_length"],
+            0.5 * kwargs["leg_spacing"] + kwargs["ring_minor_radius"],
+            0.5 * kwargs["phantom_height"],
+        )
+        + kwargs["air_padding"]
+    )
     return 8.0 * radial * radial * z
 
 
@@ -242,7 +252,8 @@ def _ring_sheet_areas(msh, cell_tags, ring_ports, comm):
     from tests.mesh.test_birdcage_port_sheets import PORT_LOWER, PORT_UPPER, SHEET_IFACE
 
     tags = _interface_facet_tags(
-        msh, cell_tags,
+        msh,
+        cell_tags,
         {SHEET_IFACE + i: (PORT_LOWER + i, PORT_UPPER + i) for i in ring_ports},
     )
     return {i: _facet_area(msh, tags, SHEET_IFACE + i, comm) for i in ring_ports}
@@ -284,36 +295,52 @@ def test_wf12_step1_hole_mesh_identities():
             kwargs["as_hole"] = True
         t0 = time.perf_counter()
         msh, cells, facets, diag = MeshGenerator.birdcage_port_domain(
-            comm=comm, return_diagnostics=True, **kwargs)
+            comm=comm, return_diagnostics=True, **kwargs
+        )
         t_build = time.perf_counter() - t0
         tdim = msh.topology.dim
         msh.topology.create_connectivity(tdim - 1, tdim)
         msh.topology.create_entity_permutations()
         n_cells = int(msh.topology.index_map(tdim).size_global)
-        return {"msh": msh, "cells": cells, "facets": facets, "diag": diag, "kwargs": kwargs,
-                "t_build": t_build, "n_cells": n_cells,
-                "census": _owned_census(msh, cells, comm)}
+        return {
+            "msh": msh,
+            "cells": cells,
+            "facets": facets,
+            "diag": diag,
+            "kwargs": kwargs,
+            "t_build": t_build,
+            "n_cells": n_cells,
+            "census": _owned_census(msh, cells, comm),
+        }
 
     hole = build(True)
     if comm.rank == 0:
-        print(f"\n[WF-12 step1] hole: {hole['n_cells']} cells, build {hole['t_build']:.1f} s "
-              f"(gmsh mesh_wall_time_s {hole['diag'].get('mesh_wall_time_s', float('nan')):.1f}), "
-              f"-n {comm.size}; census {hole['census']}", flush=True)
+        print(
+            f"\n[WF-12 step1] hole: {hole['n_cells']} cells, build {hole['t_build']:.1f} s "
+            f"(gmsh mesh_wall_time_s {hole['diag'].get('mesh_wall_time_s', float('nan')):.1f}), "
+            f"-n {comm.size}; census {hole['census']}",
+            flush=True,
+        )
     hole["sheet_area"] = _ring_sheet_areas(hole["msh"], hole["cells"], ring_ports, comm)
     hole["cavity_area"] = _exterior_facet_area(
-        hole["msh"], hole["facets"], BIRDCAGE_CONDUCTOR_SURFACE_TAG, comm)
+        hole["msh"], hole["facets"], BIRDCAGE_CONDUCTOR_SURFACE_TAG, comm
+    )
     hole["split"] = _hole_wall_split(
-        hole["msh"], hole["cells"], hole["facets"], BIRDCAGE_CONDUCTOR_SURFACE_TAG, comm)
+        hole["msh"], hole["cells"], hole["facets"], BIRDCAGE_CONDUCTOR_SURFACE_TAG, comm
+    )
     _mine, _per, hole_rss = _rss_gib(comm)
 
     solid = build(False)
     solid_tags = sorted(t for t in solid["census"] if t != CONDUCTOR_CELL_TAG)
     iface = _interface_facet_tags(
-        solid["msh"], solid["cells"],
-        {SOLID_CONDUCTOR_IFACE: tuple((CONDUCTOR_CELL_TAG, t) for t in solid_tags)})
+        solid["msh"],
+        solid["cells"],
+        {SOLID_CONDUCTOR_IFACE: tuple((CONDUCTOR_CELL_TAG, t) for t in solid_tags)},
+    )
     solid["interface_area"] = _facet_area(solid["msh"], iface, SOLID_CONDUCTOR_IFACE, comm)
     solid["split"] = _solid_wall_split(
-        solid["msh"], solid["cells"], iface, SOLID_CONDUCTOR_IFACE, CONDUCTOR_CELL_TAG, comm)
+        solid["msh"], solid["cells"], iface, SOLID_CONDUCTOR_IFACE, CONDUCTOR_CELL_TAG, comm
+    )
     _mine, _per, both_rss = _rss_gib(comm)
 
     layout = hole["diag"]["ring_port_layout"]
@@ -335,7 +362,7 @@ def test_wf12_step1_hole_mesh_identities():
     s_ring = solid["split"].get("ring_port", empty)
     h_air = hole["split"].get("air", empty)
     s_air = solid["split"].get("air", empty)
-    ring_dev = (abs(h_ring[0] / s_ring[0] - 1.0) if s_ring[0] > 0.0 else float("inf"))
+    ring_dev = abs(h_ring[0] / s_ring[0] - 1.0) if s_ring[0] > 0.0 else float("inf")
     a_cad = float(hole["diag"].get("conductor_cavity_cad", {}).get("area_m2", float("nan")))
     census_fails = _census_checks(hole["census"], hole["n_cells"], ring_ports)
     record_ratio = solid["n_cells"] / F_HUMAN_BRANCH_B_CELL_RECORD
@@ -433,30 +460,44 @@ def test_wf12_step1_one_drive_price():
     unknowns = int(_v.dofmap.index_map.size_global * _v.dofmap.index_map_bs)
     del _v
     if comm.rank == 0:
-        print(f"\n[WF-12 step1 W2] hole: {built['cells']} cells (solid record "
-              f"{F_HUMAN_BRANCH_B_CELL_RECORD}), build {t_build:.1f} s at -n {comm.size}; "
-              f"unknowns {unknowns} (PREDICTED ≈{PREDICTED_UNKNOWNS}); census {census}; "
-              f"(iv) failures {census_fails or 'none'}; outer-box census {oc}", flush=True)
+        print(
+            f"\n[WF-12 step1 W2] hole: {built['cells']} cells (solid record "
+            f"{F_HUMAN_BRANCH_B_CELL_RECORD}), build {t_build:.1f} s at -n {comm.size}; "
+            f"unknowns {unknowns} (PREDICTED ≈{PREDICTED_UNKNOWNS}); census {census}; "
+            f"(iv) failures {census_fails or 'none'}; outer-box census {oc}",
+            flush=True,
+        )
     assert not census_fails, census_fails
     assert oc["tag_collision"] == 0 and oc["cavity"] > 0, oc
-    assert oc["cavity_exterior"] == oc["cavity"] and oc["outer"] + oc["cavity"] == oc["exterior"], oc
+    assert (
+        oc["cavity_exterior"] == oc["cavity"] and oc["outer"] + oc["cavity"] == oc["exterior"]
+    ), oc
 
     z_s = (1.0 + 1.0j) * surface_resistance_ohm(omega, COPPER_SIGMA)
     wall = _leontovich_term(msh, built["facets"], z_s, omega)
     port_sheets = [sp.sheet(driven=(sp.port_id == DRIVEN)) for sp in ctx["specs"]]
     driven_sheet = next(s for s in port_sheets if s.port_id == DRIVEN)
     bilinear = [wall] + [
-        (lambda trial, test, _s=s: lumped_port_bilinear_term(
-            msh, tags_f, _s, trial, test, omega_rad_per_s=omega))
+        (
+            lambda trial, test, _s=s: lumped_port_bilinear_term(
+                msh, tags_f, _s, trial, test, omega_rad_per_s=omega
+            )
+        )
         for s in port_sheets
     ]
-    linear = [lambda test, _s=driven_sheet: lumped_port_linear_term(
-        msh, tags_f, _s, test, omega_rad_per_s=omega)]
+    linear = [
+        lambda test, _s=driven_sheet: lumped_port_linear_term(
+            msh, tags_f, _s, test, omega_rad_per_s=omega
+        )
+    ]
     comm.Barrier()
     t0 = time.perf_counter()
     fields = ctx["solver"].solve(
-        current_density=None, project_source=False,
-        extra_bilinear_terms=bilinear, extra_linear_terms=linear)
+        current_density=None,
+        project_source=False,
+        extra_bilinear_terms=bilinear,
+        extra_linear_terms=linear,
+    )
     comm.Barrier()
     t_solve = time.perf_counter() - t0
     rss_mine, rss_per, rss_sum = _rss_gib(comm)

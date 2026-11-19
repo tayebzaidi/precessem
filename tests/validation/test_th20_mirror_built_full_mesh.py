@@ -152,15 +152,22 @@ def _distribute(x, cells, comm):
     domain = ufl.Mesh(basix.ufl.element("Lagrange", "tetrahedron", 1, shape=(3,)))
     partitioner = dmesh.create_cell_partitioner(dmesh.GhostMode.shared_facet, 2)
     return dmesh.create_mesh(
-        comm, cells=np.ascontiguousarray(cells), x=np.ascontiguousarray(x), e=domain,
+        comm,
+        cells=np.ascontiguousarray(cells),
+        x=np.ascontiguousarray(x),
+        e=domain,
         partitioner=partitioner,
     )
 
 
 def _array_moments(p, tags):
     """(256, 4) per-tag [volume, V·cx, V·cy, V·cz] from cell node coords p (n, 4, 3)."""
-    v = np.abs(np.einsum("ij,ij->i", np.cross(p[:, 1] - p[:, 0], p[:, 2] - p[:, 0]),
-                         p[:, 3] - p[:, 0])) / 6.0
+    v = (
+        np.abs(
+            np.einsum("ij,ij->i", np.cross(p[:, 1] - p[:, 0], p[:, 2] - p[:, 0]), p[:, 3] - p[:, 0])
+        )
+        / 6.0
+    )
     c = p.mean(axis=1)
     out = np.zeros((256, 4))
     if len(tags):
@@ -209,7 +216,8 @@ def _sheet_stats(msh, cells, ordinals, comm):
         s = np.zeros(5)
         if len(f):
             g = dolfinx.cpp.mesh.entities_to_geometry(
-                msh._cpp_object, fdim, f.astype(np.int32), False)
+                msh._cpp_object, fdim, f.astype(np.int32), False
+            )
             p = msh.geometry.x[g][:, :3, :]
             a = 0.5 * np.linalg.norm(np.cross(p[:, 1] - p[:, 0], p[:, 2] - p[:, 0]), axis=1)
             s = np.array([a.sum(), *(a[:, None] * p.mean(axis=1)).sum(axis=0), len(f)])
@@ -255,11 +263,15 @@ def _derived_facets(msh, cells, r_e, z_e, comm):
         g = dolfinx.cpp.mesh.entities_to_geometry(msh._cpp_object, fdim, ext, False)
         p = msh.geometry.x[g][:, :3, :]
         a = 0.5 * np.linalg.norm(np.cross(p[:, 1] - p[:, 0], p[:, 2] - p[:, 0]), axis=1)
-        on_plane = int(np.count_nonzero(np.all(np.abs(p[:, :, 0]) < PLANE_TOL, axis=1))
-                       + np.count_nonzero(np.all(np.abs(p[:, :, 1]) < PLANE_TOL, axis=1)))
-        outer = (np.all(np.abs(np.abs(p[:, :, 0]) - r_e) < FACE_TOL, axis=1)
-                 | np.all(np.abs(np.abs(p[:, :, 1]) - r_e) < FACE_TOL, axis=1)
-                 | np.all(np.abs(np.abs(p[:, :, 2]) - z_e) < FACE_TOL, axis=1))
+        on_plane = int(
+            np.count_nonzero(np.all(np.abs(p[:, :, 0]) < PLANE_TOL, axis=1))
+            + np.count_nonzero(np.all(np.abs(p[:, :, 1]) < PLANE_TOL, axis=1))
+        )
+        outer = (
+            np.all(np.abs(np.abs(p[:, :, 0]) - r_e) < FACE_TOL, axis=1)
+            | np.all(np.abs(np.abs(p[:, :, 1]) - r_e) < FACE_TOL, axis=1)
+            | np.all(np.abs(np.abs(p[:, :, 2]) - z_e) < FACE_TOL, axis=1)
+        )
         cav = ~outer
         outer_n, cav_n = int(outer.sum()), int(cav.sum())
         outer_a, cav_a = float(a[outer].sum()), float(a[cav].sum())
@@ -268,8 +280,15 @@ def _derived_facets(msh, cells, r_e, z_e, comm):
         nbr = set(int(t) for t in np.unique(cv[f2c.array[f2c.offsets[ext[cav]]]]).tolist())
     nbr = set().union(*comm.allgather(nbr))
     s = lambda v: comm.allreduce(v, op=MPI.SUM)  # noqa: E731
-    return {"n_ext": s(n_ext), "on_plane": s(on_plane), "outer_n": s(outer_n),
-            "cav_n": s(cav_n), "outer_a": s(outer_a), "cav_a": s(cav_a), "nbr": nbr}
+    return {
+        "n_ext": s(n_ext),
+        "on_plane": s(on_plane),
+        "outer_n": s(outer_n),
+        "cav_n": s(cav_n),
+        "outer_a": s(outer_a),
+        "cav_a": s(cav_a),
+        "nbr": nbr,
+    }
 
 
 def test_th20_m0_to_m5_mirror_built_full_mesh():
@@ -306,8 +325,7 @@ def test_th20_m0_to_m5_mirror_built_full_mesh():
         xi, ci, ti = xq, cq, tq
         for axis in (1, 0):
             xi, ci, ti = _mirror(xi, ci, ti, axis, None)
-        c4 = (set(int(v) for v in np.unique(ti).tolist()),
-              _array_moments(xi[ci], ti))
+        c4 = (set(int(v) for v in np.unique(ti).tolist()), _array_moments(xi[ci], ti))
         del xi, ci, ti
         # (C5) no vertex reuse
         xn, cn, tn = xq, cq, tq
@@ -330,7 +348,9 @@ def test_th20_m0_to_m5_mirror_built_full_mesh():
     local_entities, local_values = dolfinx.io.distribute_entity_data(msh, tdim, ents, vals)
     msh.topology.create_connectivity(tdim, tdim)
     cells = dolfinx.mesh.meshtags_from_entities(
-        msh, tdim, dolfinx.graph.adjacencylist(local_entities),
+        msh,
+        tdim,
+        dolfinx.graph.adjacencylist(local_entities),
         local_values.astype(np.int32, copy=False),
     )
     del x, c, t, ents, vals
@@ -340,9 +360,12 @@ def test_th20_m0_to_m5_mirror_built_full_mesh():
     t_build = time.perf_counter() - t0
     rss = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024.0**2
     n_cells = int(msh.topology.index_map(tdim).size_global)
-    _rank0_print(comm, f"\n[TH-20 0b] mirror build {t_build:.2f} s, peak RSS rank0 {rss:.2f} "
-                 f"GiB, -n {comm.size}; mirror cells {n_cells} vs direct full "
-                 f"{full['n_cells']} (record {FULL_HOLE_CELL_RECORD})")
+    _rank0_print(
+        comm,
+        f"\n[TH-20 0b] mirror build {t_build:.2f} s, peak RSS rank0 {rss:.2f} "
+        f"GiB, -n {comm.size}; mirror cells {n_cells} vs direct full "
+        f"{full['n_cells']} (record {FULL_HOLE_CELL_RECORD})",
+    )
 
     # ---- (M0)
     census = _owned_census(msh, cells, comm)
@@ -352,10 +375,13 @@ def test_th20_m0_to_m5_mirror_built_full_mesh():
     mf, cnt_f = _moments(full["msh"], full["cells"], comm)
     vol_m, vol_q = float(mm[:, 0].sum()), float(mq[:, 0].sum())
     dv = abs(vol_m / (4.0 * vol_q) - 1.0)
-    _rank0_print(comm, f"[TH-20 0b] (M0) cells {n_cells} vs 4×{q['n_cells']} = "
-                 f"{4 * q['n_cells']}; vertices {n_vert} vs builder {builder_vertices}; census "
-                 f"sum {sum(census.values())}; V {vol_m:.12e} vs 4 V_q dev {dv:.3e} "
-                 f"(band {EXACT_IDENTITY_RTOL:g})")
+    _rank0_print(
+        comm,
+        f"[TH-20 0b] (M0) cells {n_cells} vs 4×{q['n_cells']} = "
+        f"{4 * q['n_cells']}; vertices {n_vert} vs builder {builder_vertices}; census "
+        f"sum {sum(census.values())}; V {vol_m:.12e} vs 4 V_q dev {dv:.3e} "
+        f"(band {EXACT_IDENTITY_RTOL:g})",
+    )
     if n_cells != 4 * q["n_cells"]:
         fails.append(f"M0 cells {n_cells}")
     if n_vert != builder_vertices:
@@ -367,9 +393,12 @@ def test_th20_m0_to_m5_mirror_built_full_mesh():
 
     # ---- (M1) tag census + preimage map
     tagset = set(int(v) for v in np.nonzero(cnt_m)[0].tolist())
-    _rank0_print(comm, f"[TH-20 0b] (M1) {len(tagset)} tags; == FULL_TAGS "
-                 f"{tagset == FULL_TAGS}; tag 2 {cnt_m[2]} vs 4×{cnt_q[2]}, tag 3 {cnt_m[3]} "
-                 f"vs 4×{cnt_q[3]}")
+    _rank0_print(
+        comm,
+        f"[TH-20 0b] (M1) {len(tagset)} tags; == FULL_TAGS "
+        f"{tagset == FULL_TAGS}; tag 2 {cnt_m[2]} vs 4×{cnt_q[2]}, tag 3 {cnt_m[3]} "
+        f"vs 4×{cnt_q[3]}",
+    )
     if tagset != FULL_TAGS:
         fails.append(f"M1 tag set diff {sorted(tagset ^ FULL_TAGS)}")
     for tt in (2, 3):
@@ -382,9 +411,12 @@ def test_th20_m0_to_m5_mirror_built_full_mesh():
     if set(pre) != PORT_TAGS or any(len(v) != 1 for v in pre.values()):
         fails.append("M1 preimage map not a bijection onto the 80 port tags")
     bad_cnt = [tt for tt, ((tq_, _g),) in pre.items() if cnt_m[tt] != cnt_q[tq_]]
-    _rank0_print(comm, f"[TH-20 0b] (M1) preimage map: {len(pre)} images, bijection "
-                 f"{set(pre) == PORT_TAGS and all(len(v) == 1 for v in pre.values())}; "
-                 f"count mismatches {bad_cnt}")
+    _rank0_print(
+        comm,
+        f"[TH-20 0b] (M1) preimage map: {len(pre)} images, bijection "
+        f"{set(pre) == PORT_TAGS and all(len(v) == 1 for v in pre.values())}; "
+        f"count mismatches {bad_cnt}",
+    )
     if bad_cnt:
         fails.append(f"M1 counts off preimage at {bad_cnt}")
 
@@ -415,9 +447,12 @@ def test_th20_m0_to_m5_mirror_built_full_mesh():
             worst3_map = max(worst3_map, dmap)
             if not dmap <= tol_c:
                 fails.append(f"M3 map ({tq_},{g})->{tt} miss {dmap:.3e}")
-    _rank0_print(comm, f"[TH-20 0b] (M2) 80 port volumes worst dev {worst2:.3e} (band "
-                 f"{EXACT:g}); (M3) worst centroid miss vs direct {worst3:.3e} m, vs "
-                 f"g·c_q(preimage) {worst3_map:.3e} m (tol {tol_c:.3e} m)")
+    _rank0_print(
+        comm,
+        f"[TH-20 0b] (M2) 80 port volumes worst dev {worst2:.3e} (band "
+        f"{EXACT:g}); (M3) worst centroid miss vs direct {worst3:.3e} m, vs "
+        f"g·c_q(preimage) {worst3_map:.3e} m (tol {tol_c:.3e} m)",
+    )
     dv3 = mm[3, 0] / mf[3, 0] - 1.0
     _rank0_print(comm, f"[TH-20 0b] (printed) tag-3 volume mirror/direct - 1 = {dv3:+.3e}")
 
@@ -426,21 +461,32 @@ def test_th20_m0_to_m5_mirror_built_full_mesh():
     fd = _derived_facets(msh, cells, r_e, z_e, comm)
     a_q = _exterior_facet_area(q["msh"], q["facets"], CAVITY_TAG, comm)
     a_f = _exterior_facet_area(full["msh"], full["facets"], CAVITY_TAG, comm)
-    n_q401 = comm.allreduce(int(np.count_nonzero(
-        (np.asarray(q["facets"].values) == CAVITY_TAG)
-        & (np.asarray(q["facets"].indices) < q["msh"].topology.index_map(fdim).size_local))),
-        op=MPI.SUM)
+    n_q401 = comm.allreduce(
+        int(
+            np.count_nonzero(
+                (np.asarray(q["facets"].values) == CAVITY_TAG)
+                & (np.asarray(q["facets"].indices) < q["msh"].topology.index_map(fdim).size_local)
+            )
+        ),
+        op=MPI.SUM,
+    )
     a_outer = 8.0 * r_e**2 + 16.0 * r_e * z_e
     d_cav = abs(fd["cav_a"] / (4.0 * a_q) - 1.0)
     d_out = abs(fd["outer_a"] / a_outer - 1.0)
     bad_nbr = sorted(fd["nbr"] - ({2} | RING_PORT_TAGS))
-    _rank0_print(comm, f"[TH-20 0b] (M4) exterior {fd['n_ext']} = outer {fd['outer_n']} + "
-                 f"401 {fd['cav_n']}; on planes {fd['on_plane']}; N401 {fd['cav_n']} vs "
-                 f"4×{n_q401} = {4 * n_q401}; A401 {fd['cav_a']:.9e} vs 4 A_q dev {d_cav:.3e}; "
-                 f"outer {fd['outer_a']:.12e} vs {a_outer:.12e} dev {d_out:.3e}; 401 "
-                 f"neighbours outside {{2}}∪ring-port {bad_nbr}")
-    _rank0_print(comm, f"[TH-20 0b] (printed) |A401 mirror/direct - 1| = "
-                 f"{abs(fd['cav_a'] / a_f - 1.0):.3e} (Q3 record 1.498e-4, two triangulations)")
+    _rank0_print(
+        comm,
+        f"[TH-20 0b] (M4) exterior {fd['n_ext']} = outer {fd['outer_n']} + "
+        f"401 {fd['cav_n']}; on planes {fd['on_plane']}; N401 {fd['cav_n']} vs "
+        f"4×{n_q401} = {4 * n_q401}; A401 {fd['cav_a']:.9e} vs 4 A_q dev {d_cav:.3e}; "
+        f"outer {fd['outer_a']:.12e} vs {a_outer:.12e} dev {d_out:.3e}; 401 "
+        f"neighbours outside {{2}}∪ring-port {bad_nbr}",
+    )
+    _rank0_print(
+        comm,
+        f"[TH-20 0b] (printed) |A401 mirror/direct - 1| = "
+        f"{abs(fd['cav_a'] / a_f - 1.0):.3e} (Q3 record 1.498e-4, two triangulations)",
+    )
     if fd["on_plane"] != 0:
         fails.append(f"M4 {fd['on_plane']} exterior facets on a plane")
     if fd["outer_n"] + fd["cav_n"] != fd["n_ext"]:
@@ -473,8 +519,11 @@ def test_th20_m0_to_m5_mirror_built_full_mesh():
             fails.append(f"M5 sheet {o} area dev {da:.3e}")
         if not dc <= tol_c:
             fails.append(f"M5 sheet {o} centroid miss {dc:.3e}")
-    _rank0_print(comm, f"[TH-20 0b] (M5) 32 sheets: worst area dev {worst5a:.3e} (band "
-                 f"{SHEET_AREA_BAND:g}); worst centroid miss {worst5c:.3e} m (tol {tol_c:.3e})")
+    _rank0_print(
+        comm,
+        f"[TH-20 0b] (M5) 32 sheets: worst area dev {worst5a:.3e} (band "
+        f"{SHEET_AREA_BAND:g}); worst centroid miss {worst5c:.3e} m (tol {tol_c:.3e})",
+    )
 
     # ---- (C4) identity relabel
     c4_tags, c4_m = c4
@@ -484,13 +533,19 @@ def test_th20_m0_to_m5_mirror_built_full_mesh():
         rho = math.hypot(cf[0], cf[1])
         miss = float(np.linalg.norm(_centroid(c4_m, tq_) - cf))
         c4_worst = max(c4_worst, abs(miss / rho - 1.0))
-    _rank0_print(comm, f"[TH-20 0b] (C4) identity relabel: {len(c4_tags)} tags, "
-                 f"{len(FULL_TAGS - c4_tags)} of FULL_TAGS missing; worst |miss/ρ_f - 1| "
-                 f"{c4_worst:.3e} (band {EXACT:g}; M3 tol {tol_c:.3e} m)")
+    _rank0_print(
+        comm,
+        f"[TH-20 0b] (C4) identity relabel: {len(c4_tags)} tags, "
+        f"{len(FULL_TAGS - c4_tags)} of FULL_TAGS missing; worst |miss/ρ_f - 1| "
+        f"{c4_worst:.3e} (band {EXACT:g}; M3 tol {tol_c:.3e} m)",
+    )
     # ---- (C5) no vertex reuse
-    _rank0_print(comm, f"[TH-20 0b] (C5) once-seen plane faces x=0 / y=0: no reuse {c5} "
-                 f"(predicted {(4 * CUT_FACES_X0, 4 * CUT_FACES_Y0)}); real build "
-                 f"{real_census}")
+    _rank0_print(
+        comm,
+        f"[TH-20 0b] (C5) once-seen plane faces x=0 / y=0: no reuse {c5} "
+        f"(predicted {(4 * CUT_FACES_X0, 4 * CUT_FACES_Y0)}); real build "
+        f"{real_census}",
+    )
     if real_census != (0, 0):
         fails.append(f"M4 builder plane faces {real_census}")
     if CONTROL:

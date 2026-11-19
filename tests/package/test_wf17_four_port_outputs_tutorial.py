@@ -38,13 +38,16 @@ from mpi4py import MPI
 import fem_em_solver
 from fem_em_solver import cli, load_study
 from fem_em_solver.post.sar import point_sar
-
 from tests.complex_mode import IS_COMPLEX
-from tests.package.test_wf16_study_four_port import _record, _rel
-from tests.package.test_wf17_first_study_tutorial import LINK_PASS_RE, _checker_stdout, extract_tagged_block
 from tests.package.test_wf1_study_yaml import WF1
 from tests.package.test_wf1_yaml_em_probes import EM_PROBES, POINTS, _field
 from tests.package.test_wf1_yaml_sar_b1 import MALFORMED_SAR, SAR, SAR_B1_FILE, _diag
+from tests.package.test_wf16_study_four_port import _record, _rel
+from tests.package.test_wf17_first_study_tutorial import (
+    LINK_PASS_RE,
+    _checker_stdout,
+    extract_tagged_block,
+)
 from tests.unit.test_doc_reference_exit_codes import run_checker
 from tests.validation.test_ans4_exact_strip_records import ANS4_EXACT_STRIP_RECORD_RANK_WIDTH
 from tests.validation.test_birdcage_b1_plus_map import (
@@ -144,8 +147,10 @@ def _knob() -> bool:
 
 def _solve_preamble():
     if not _knob():
-        pytest.skip(f"{S8_ENV} unset: the tutorial solve windows are environment-selected "
-                    "(complex build, -n 2)")
+        pytest.skip(
+            f"{S8_ENV} unset: the tutorial solve windows are environment-selected "
+            "(complex build, -n 2)"
+        )
     comm = MPI.COMM_WORLD
     assert IS_COMPLEX, "the four-port port Study needs the complex build"
     assert comm.size == ANS4_EXACT_STRIP_RECORD_RANK_WIDTH, comm.size
@@ -163,8 +168,10 @@ def exec_four_port_block(tag: str, monkeypatch):
     name = _file_arg(block)
     scratch = SCRATCH_ROOT / tag
     if comm.rank == 0:
-        print(f"[WF-17 s8] page sha256 {_sha(raw)}; block {tag} sha256 {_sha(block.encode())}",
-              flush=True)
+        print(
+            f"[WF-17 s8] page sha256 {_sha(raw)}; block {tag} sha256 {_sha(block.encode())}",
+            flush=True,
+        )
         if scratch.exists():
             shutil.rmtree(scratch)
         scratch.mkdir(parents=True)
@@ -194,8 +201,10 @@ def exec_four_port_block(tag: str, monkeypatch):
 
 def _check_r_run(namespace, calls, tag):
     run = namespace["run"]
-    _p0(f"[WF-17 s8] (R-run) {tag}: spy calls {calls['n']} {calls['paths']}; family "
-        f"{run.summary['family']!r}")
+    _p0(
+        f"[WF-17 s8] (R-run) {tag}: spy calls {calls['n']} {calls['paths']}; family "
+        f"{run.summary['family']!r}"
+    )
     assert calls["n"] == 1
     assert calls["paths"] == [BLOCK_FILES[tag]]
     assert run.summary["family"] == "four_port_birdcage"
@@ -205,8 +214,10 @@ def _check_r_run(namespace, calls, tag):
 def _s_tie(run):
     s = np.array([[complex(re, im) for re, im in row] for row in run.summary["s_matrix"]])
     rel = _rel(s, _record(1))
-    _p0(f"[WF-17 s8] (R) ||S_yaml - P1|| / ||P1|| = {rel:.3e} (ASSERTED <= "
-        f"{LEG_D0_REPRODUCTION_BAND:.0e}; digits printed, never asserted)")
+    _p0(
+        f"[WF-17 s8] (R) ||S_yaml - P1|| / ||P1|| = {rel:.3e} (ASSERTED <= "
+        f"{LEG_D0_REPRODUCTION_BAND:.0e}; digits printed, never asserted)"
+    )
     return rel
 
 
@@ -220,8 +231,10 @@ def test_wf17_s8_blocks_and_files():
         n_run = len(_calls_named(block, "run_study_file"))
         n_study = len(_calls_named(block, "Study"))
         name = _file_arg(block)
-        _p0(f"[WF-17 s8] (X) {tag}: run_study_file calls {n_run}, Study calls {n_study}; "
-            f"file {name!r} (want {want!r})")
+        _p0(
+            f"[WF-17 s8] (X) {tag}: run_study_file calls {n_run}, Study calls {n_study}; "
+            f"file {name!r} (want {want!r})"
+        )
         assert block.count("run_study_file(") == 1
         assert n_run == 1 and n_study == 0 and "Study(" not in block
         assert name == want
@@ -272,9 +285,11 @@ def test_wf17_s8_docrefs_zero_dead():
     rc, counts = run_checker("--docs-root", "docs/guide", "--check-links")
     link = LINK_PASS_RE.search(_checker_stdout("--docs-root", "docs/guide", "--check-links"))
     assert link is not None, "(D) no 'Link pass:' line"
-    print(f"[WF-17 s8] (D) dead={counts['dead']} links={link.group(1)} pages={link.group(2)} "
-          f"link-dead={link.group(3)} guide={counts['guide']} stale={counts['stale']} "
-          f"exit={counts['exit']} rc={rc}")
+    print(
+        f"[WF-17 s8] (D) dead={counts['dead']} links={link.group(1)} pages={link.group(2)} "
+        f"link-dead={link.group(3)} guide={counts['guide']} stale={counts['stale']} "
+        f"exit={counts['exit']} rc={rc}"
+    )
     assert counts["dead"] == 0
     assert int(link.group(3)) == 0
     assert int(link.group(2)) >= MIN_GUIDE_PAGES
@@ -306,14 +321,18 @@ def test_wf17_s8_sar_b1_block_reproduces_item344(monkeypatch):
     d = {k: _diag(case, k) for k in range(4)}
     pairs = [abs(d[(k + 1) % 4] - d[k]) / d[k] for k in range(4)]
     pairs_s = [f"{100 * p:.4f}" for p in pairs]
-    _p0(f"[WF-17 s8] (ii) sheet order {order}; by_k {by_k}; cyclic pairs (%) {pairs_s} "
-        f"(record {PAIRS_RECORD}; ASSERTED <= {C4_COVARIANCE_BAND * 100:.1f}%); {SAR} key")
+    _p0(
+        f"[WF-17 s8] (ii) sheet order {order}; by_k {by_k}; cyclic pairs (%) {pairs_s} "
+        f"(record {PAIRS_RECORD}; ASSERTED <= {C4_COVARIANCE_BAND * 100:.1f}%); {SAR} key"
+    )
 
     # (c1) the far-side ball misses each diagonal
     miss = [abs(_diag(case, k, centre_of=lambda j: (j + 2) % 4) - d[k]) / d[k] for k in range(4)]
-    _p0(f"[WF-17 s8] (c1) far-side ball miss (%) {[f'{100 * m:.4f}' for m in miss]} "
+    _p0(
+        f"[WF-17 s8] (c1) far-side ball miss (%) {[f'{100 * m:.4f}' for m in miss]} "
         f"(RG-SB 88.1162 / 87.9366 / 88.6600 / 88.9315; ASSERTED > "
-        f"{C4_COVARIANCE_BAND * 100:.1f}%)")
+        f"{C4_COVARIANCE_BAND * 100:.1f}%)"
+    )
 
     # (B1) |B1+| C4 covariance on the run's Study (the gate's images)
     delta = np.radians((az["P2"] - az["P1"]) % 360.0)
@@ -324,19 +343,25 @@ def test_wf17_s8_sar_b1_block_reproduces_item344(monkeypatch):
         "P4@-D": ("P4", _rotate_z(points, -delta)),
         "P3@2D": ("P3", _rotate_z(points, 2.0 * delta)),
     }
-    read = {label: study.b1_plus_at(pts, drives=[pid], comm=comm)[pid]
-            for label, (pid, pts) in images.items()}
+    read = {
+        label: study.b1_plus_at(pts, drives=[pid], comm=comm)[pid]
+        for label, (pid, pts) in images.items()
+    }
     n = points.shape[0]
     counts = {label: int(v.sum()) for label, (_, v) in read.items()}
     mask = np.logical_and.reduce([v for _, v in read.values()])
     ref = read["P1@0"][0]
     b1 = [_relative_l2(read[label][0], ref, mask) for label in ("P2@+D", "P4@-D", "P3@2D")]
     b1_s = [f"{100 * v:.4f}" for v in b1]
-    _p0(f"[WF-17 s8] (B1) valid per image (of {n}) {counts}; P2@+D / P4@-D / P3@2D (%) {b1_s} "
+    _p0(
+        f"[WF-17 s8] (B1) valid per image (of {n}) {counts}; P2@+D / P4@-D / P3@2D (%) {b1_s} "
         f"(record {B1_RECORD}; ASSERTED <= {C4_COVARIANCE_BAND * 100:.1f}%); "
-        f"Δ {np.degrees(delta):.6f} deg")
-    _p0(f"[WF-17 s8] W33 block {t_block:.1f} s (summary elapsed {run.summary['elapsed_s']:.1f} s); "
-        f"node {time.perf_counter() - t0:.1f} s")
+        f"Δ {np.degrees(delta):.6f} deg"
+    )
+    _p0(
+        f"[WF-17 s8] W33 block {t_block:.1f} s (summary elapsed {run.summary['elapsed_s']:.1f} s); "
+        f"node {time.perf_counter() - t0:.1f} s"
+    )
 
     assert rel <= LEG_D0_REPRODUCTION_BAND
     for k in range(4):
@@ -366,37 +391,62 @@ def test_wf17_s8_probes_block_reproduces_u70(monkeypatch):
     sar = np.array([pr["values"][p]["sar_w_per_kg"] for p in order])
     eab = np.array([pr["values"][p]["e_abs_v_per_m"] for p in order])
     hex_equal = [[float(x).hex() for x in p] for p in pr["points"]] == [
-        [float(x).hex() for x in p] for p in POINTS]
+        [float(x).hex() for x in p] for p in POINTS
+    ]
 
     rel = _s_tie(run)
 
     # (U′) the summary is point_sar on the run's own fields, same five-point batch
-    own = np.array([
-        point_sar(res.fields[pid].e_real, res.fields[pid].e_imag, pts, sigma=sigma, rho=rho,
-                  comm=res.comm)
-        for pid in order
-    ])
+    own = np.array(
+        [
+            point_sar(
+                res.fields[pid].e_real,
+                res.fields[pid].e_imag,
+                pts,
+                sigma=sigma,
+                rho=rho,
+                comm=res.comm,
+            )
+            for pid in order
+        ]
+    )
     exact = bool(np.array_equal(own, sar))
-    ident = float(np.max(np.abs(eab ** 2 * sigma / (2.0 * rho) - sar) / sar))
+    ident = float(np.max(np.abs(eab**2 * sigma / (2.0 * rho) - sar) / sar))
 
     # (c-disp) point 0 displaced 1 mm radially
-    disp = np.array([
-        point_sar(res.fields[pid].e_real, res.fields[pid].e_imag, np.asarray([DISPLACED_0]),
-                  sigma=sigma, rho=rho, comm=res.comm)[0]
-        for pid in order
-    ])
+    disp = np.array(
+        [
+            point_sar(
+                res.fields[pid].e_real,
+                res.fields[pid].e_imag,
+                np.asarray([DISPLACED_0]),
+                sigma=sigma,
+                rho=rho,
+                comm=res.comm,
+            )[0]
+            for pid in order
+        ]
+    )
     c_disp = np.abs(disp - sar[:, 0]) / sar[:, 0]
-    _p0(f"[WF-17 s8] (PR) ports {order}; points hex equal {hex_equal}; sigma {sigma!r}; "
-        f"rho {rho!r}")
+    _p0(
+        f"[WF-17 s8] (PR) ports {order}; points hex equal {hex_equal}; sigma {sigma!r}; "
+        f"rho {rho!r}"
+    )
     for i, pid in enumerate(order):
         _p0(f"[WF-17 s8]   {pid}: SAR [W/kg per 1 V] {[f'{v:.6e}' for v in sar[i]]}")
-    _p0(f"[WF-17 s8] (U′) summary == point_sar on run fields (same 5-point batch) {exact}; "
+    _p0(
+        f"[WF-17 s8] (U′) summary == point_sar on run fields (same 5-point batch) {exact}; "
         f"max |E|^2 sigma/(2 rho) vs SAR rel {ident:.3e} (ASSERTED <= {EXACT_IDENTITY_RTOL:.0e}; "
-        f"U70 read 2.213e-16)")
-    _p0(f"[WF-17 s8] (c-disp) per port {[f'{v:.4e}' for v in c_disp]} (U70 6.3865e-02 / "
-        f"2.1232e-01 / 8.3482e-02 / 5.6184e-02; ASSERTED > {WIDTH_RTOL:.0e})")
-    _p0(f"[WF-17 s8] W34 block {t_block:.1f} s (summary elapsed {run.summary['elapsed_s']:.1f} s); "
-        f"node {time.perf_counter() - t0:.1f} s")
+        f"U70 read 2.213e-16)"
+    )
+    _p0(
+        f"[WF-17 s8] (c-disp) per port {[f'{v:.4e}' for v in c_disp]} (U70 6.3865e-02 / "
+        f"2.1232e-01 / 8.3482e-02 / 5.6184e-02; ASSERTED > {WIDTH_RTOL:.0e})"
+    )
+    _p0(
+        f"[WF-17 s8] W34 block {t_block:.1f} s (summary elapsed {run.summary['elapsed_s']:.1f} s); "
+        f"node {time.perf_counter() - t0:.1f} s"
+    )
 
     assert hex_equal
     assert rel <= LEG_D0_REPRODUCTION_BAND

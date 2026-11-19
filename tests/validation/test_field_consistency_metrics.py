@@ -45,7 +45,10 @@ def test_field_consistency_metrics_emit_actionable_warnings_for_extreme_imbalanc
 
     assert diagnostics["e_span_ratio"] == 1.0
     assert diagnostics["b_span_ratio"] == 1.0
-    assert diagnostics["mean_balance_rel_diff"] > diagnostics["thresholds"]["max_mean_balance_rel_diff_warn"]
+    assert (
+        diagnostics["mean_balance_rel_diff"]
+        > diagnostics["thresholds"]["max_mean_balance_rel_diff_warn"]
+    )
 
     warnings = " | ".join(diagnostics["warnings"])
     assert "span ratio" in warnings
@@ -67,8 +70,8 @@ POST2_BAND = 0.05  # `TH-6`'s MVP 5 %, PROJECT_PLAN §7 `POST-2` Done-when.
 @functools.lru_cache(maxsize=None)
 def _post2_read_diagnostics(n: int):
     import numpy as np
-    from mpi4py import MPI
     from dolfinx import mesh as dmesh
+    from mpi4py import MPI
 
     from fem_em_solver.post import compute_tagged_vector_magnitude_stats
     from fem_em_solver.post.faraday import magnetic_flux_density_from_e
@@ -79,9 +82,7 @@ def _post2_read_diagnostics(n: int):
     )
 
     comm = MPI.COMM_WORLD
-    _rel, alpha_fit, beta_fit, ncells, msh, fields = _solve_plane_wave(
-        n, SIGMA, return_fields=True
-    )
+    _rel, alpha_fit, beta_fit, ncells, msh, fields = _solve_plane_wave(n, SIGMA, return_fields=True)
     omega = 2.0 * np.pi * FREQUENCY_HZ
     b_fn = magnetic_flux_density_from_e(fields.e_complex, omega)
 
@@ -194,17 +195,25 @@ def test_post2_balance_is_dimensionless_against_a_reference_speed():
     readings = {}
     for n in (24, 12):
         diag_none, e_stats, b_stats, *_rest = _post2_read_diagnostics(n)  # cached: no new solve
-        at_cf = compute_field_consistency_diagnostics(e_stats, b_stats, reference_speed_m_per_s=v_cf)
+        at_cf = compute_field_consistency_diagnostics(
+            e_stats, b_stats, reference_speed_m_per_s=v_cf
+        )
         at_blind = compute_field_consistency_diagnostics(
             e_stats, b_stats, reference_speed_m_per_s=v_blind
         )
-        at_one = compute_field_consistency_diagnostics(e_stats, b_stats, reference_speed_m_per_s=1.0)
+        at_one = compute_field_consistency_diagnostics(
+            e_stats, b_stats, reference_speed_m_per_s=1.0
+        )
         tight_cf = compute_field_consistency_diagnostics(
-            e_stats, b_stats, reference_speed_m_per_s=v_cf,
+            e_stats,
+            b_stats,
+            reference_speed_m_per_s=v_cf,
             max_mean_balance_rel_diff_warn=POST2_BAND,
         )
         tight_blind = compute_field_consistency_diagnostics(
-            e_stats, b_stats, reference_speed_m_per_s=v_blind,
+            e_stats,
+            b_stats,
+            reference_speed_m_per_s=v_blind,
             max_mean_balance_rel_diff_warn=POST2_BAND,
         )
         r = at_cf["e_to_b_mean_ratio"]

@@ -81,7 +81,6 @@ from mpi4py import MPI
 from fem_em_solver.core.resonance import stored_electric_energy
 from fem_em_solver.ports.lumped import lumped_port_linear_term, run_lumped_sheet_port_case
 from fem_em_solver.utils.constants import MU_0
-
 from tests.complex_mode import complex_only
 from tests.validation.test_birdcage_power_identity import (
     DISCRETE_IDENTITY_RTOL,
@@ -271,9 +270,9 @@ def test_the_mesh_is_the_record_mesh_and_degree_reaches_the_space(degree_rows):
 def test_degree1_control_reproduces_port16_step1(degree_rows):
     """Negative control (asserted, by record at 10 MHz; theorems at 128 MHz)."""
     row = degree_rows[1]
-    assert row["a_resid"] <= DISCRETE_IDENTITY_RTOL, (
-        f"degree 1: discrete power identity rel dev {row['a_resid']:.3e}"
-    )
+    assert (
+        row["a_resid"] <= DISCRETE_IDENTITY_RTOL
+    ), f"degree 1: discrete power identity rel dev {row['a_resid']:.3e}"
     if degree_rows["key"] == "10":
         for name, rec in PORT16_STEP1_P1_10MHZ_W.items():
             got = row["exact"][name]

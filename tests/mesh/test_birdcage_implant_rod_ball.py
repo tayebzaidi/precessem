@@ -58,7 +58,6 @@ from tests.mesh.test_birdcage_implant_rod_tip import (
     RUNAWAY_CELL_GUARD,
     T1,
     T1_RADIUS,
-    _ball_and_t1,
     _cell_geometry,
     _mean_edge,
     _summarise,
@@ -119,9 +118,7 @@ def _t1_geometry(msh, comm):
     n_t1 = comm.allreduce(int(np.count_nonzero(near)), op=MPI.SUM)
     vmax = comm.allreduce(float(vdist[near].max()) if near.any() else 0.0, op=MPI.MAX)
     cmin = comm.allreduce(
-        float(np.linalg.norm(centroids[near] - TOP_CAP, axis=1).min())
-        if near.any()
-        else np.inf,
+        float(np.linalg.norm(centroids[near] - TOP_CAP, axis=1).min()) if near.any() else np.inf,
         op=MPI.MIN,
     )
     inside = {
@@ -244,9 +241,7 @@ def test_a1_to_a6_per_build(builds):
     for s in (b2, b4):
         cad = s["diag"]["implant_rod_cad"]
         a1 = abs(s["diag"]["cad_mass_by_group"]["phantom"] / target - 1.0)
-        a2 = abs(
-            (sum(s["diag"]["cad_mass_by_group"].values()) + cad["rod_mass_m3"]) / s_off - 1.0
-        )
+        a2 = abs((sum(s["diag"]["cad_mass_by_group"].values()) + cad["rod_mass_m3"]) / s_off - 1.0)
         a3 = abs(cad["wall_area_m2"] / _rod_area() - 1.0)
         a4 = s["area402"] / _rod_area()
         xb, yb, zb = cad["wall_centroid_m"]
@@ -342,8 +337,10 @@ def test_t1_inside_4mm_and_outside_2mm(builds):
 def test_i30_price_printed(builds):
     _, _, b4 = builds
     ratio = b4["dofs"][2] / PRICE_DOFS
-    _say(f"{TAG} I30 price (rod arm, degree 2, `-n 8`, basis item 305 W1 "
-         f"{PRICE_CELLS} cells / d2 {PRICE_DOFS}):")
+    _say(
+        f"{TAG} I30 price (rod arm, degree 2, `-n 8`, basis item 305 W1 "
+        f"{PRICE_CELLS} cells / d2 {PRICE_DOFS}):"
+    )
     _say(f"{TAG}   cells | d2 | build s | e | sweep s | window s | RSS GiB")
     windows = {}
     for e in PRICE_EXPONENTS:

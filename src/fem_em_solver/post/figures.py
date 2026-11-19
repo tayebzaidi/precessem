@@ -115,7 +115,9 @@ def read_xdmf_cell_field(xdmf, name) -> Tuple[np.ndarray, np.ndarray]:
         topology = np.asarray(f["/Mesh/mesh/topology"][...], dtype=np.int64)
         values = np.asarray(f[f"/Function/{name}/0"][...]).ravel()
     if values.shape[0] != topology.shape[0]:
-        raise ValueError(f"{name!r} is not cell-centred ({values.shape[0]} values, {topology.shape[0]} cells)")
+        raise ValueError(
+            f"{name!r} is not cell-centred ({values.shape[0]} values, {topology.shape[0]} cells)"
+        )
     centroids = geometry[topology].mean(axis=1)
     return centroids, values
 
@@ -212,7 +214,9 @@ def plot_sparameters(path, out, comm=None) -> Optional[FigureResult]:
     return _rank0(lambda: _save(draw_sparameters(*read_sparameters(path)), out), comm)
 
 
-def plot_xdmf_slice(xdmf, name, out, axis="z", center=None, half_width=None, comm=None) -> Optional[FigureResult]:
+def plot_xdmf_slice(
+    xdmf, name, out, axis="z", center=None, half_width=None, comm=None
+) -> Optional[FigureResult]:
     """Draw cell-centred ``name`` on a centroid slab normal to ``axis``."""
 
     def build():
@@ -225,4 +229,6 @@ def plot_xdmf_slice(xdmf, name, out, axis="z", center=None, half_width=None, com
 
 def plot_probe_series(csv, column, out, comm=None) -> Optional[FigureResult]:
     """Draw CSV ``column`` against ``t_s``."""
-    return _rank0(lambda: _save(draw_series(*read_probe_series(csv, column), label=column), out), comm)
+    return _rank0(
+        lambda: _save(draw_series(*read_probe_series(csv, column), label=column), out), comm
+    )

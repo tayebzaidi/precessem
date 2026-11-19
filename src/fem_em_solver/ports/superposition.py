@@ -105,8 +105,7 @@ def _weight_vector(port_ids: Sequence[str], weights) -> np.ndarray:
         vector = np.asarray(weights, dtype=np.complex128).reshape(-1)
         if vector.size != len(port_ids):
             raise ValueError(
-                f"weights has {vector.size} entries for {len(port_ids)} ports "
-                f"{list(port_ids)}"
+                f"weights has {vector.size} entries for {len(port_ids)} ports " f"{list(port_ids)}"
             )
     if not np.all(np.isfinite(vector.real)) or not np.all(np.isfinite(vector.imag)):
         raise ValueError("weights contains non-finite values")
@@ -159,8 +158,7 @@ def superpose_drives(
     # ``Function`` is accepted too, so a caller may hand in phasors from any
     # source that shares the space.
     drives = [
-        getattr(sweep_result.fields[pid], "e_complex", sweep_result.fields[pid])
-        for pid in port_ids
+        getattr(sweep_result.fields[pid], "e_complex", sweep_result.fields[pid]) for pid in port_ids
     ]
     space = drives[0].function_space
     # Each solve builds its *own* ``functionspace`` object on the same mesh, so
@@ -243,9 +241,7 @@ def superpose_drives(
     # power of a source of amplitude ``V_src`` into ``z0`` is ``|V_src|²/(8z0)``
     # and ``½|a|²`` is exactly that.
     available = 0.5 * float(np.sum(np.abs(a_vector) ** 2))
-    accepted = 0.5 * float(
-        np.real(np.vdot(a_vector, a_vector) - np.vdot(b_vector, b_vector))
-    )
+    accepted = 0.5 * float(np.real(np.vdot(a_vector, a_vector) - np.vdot(b_vector, b_vector)))
 
     return SuperposedDrive(
         port_ids=port_ids,

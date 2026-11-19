@@ -32,7 +32,6 @@ from mpi4py import MPI
 
 from fem_em_solver.io.mesh import MeshGenerator
 from tests.mesh.helpers import global_cell_tag_set
-from tests.mesh.test_coil_phantom_conforming import _tag_volume, _total_volume
 from tests.mesh.test_birdcage_port_tags import (
     AIR_PADDING,
     COIL_LENGTH,
@@ -47,6 +46,7 @@ from tests.mesh.test_birdcage_port_tags import (
     RING_RADIUS,
     _analytic_box_volume,
 )
+from tests.mesh.test_coil_phantom_conforming import _tag_volume, _total_volume
 
 # The `GEO-8` rule at this fixture's ring minor radius: 0.4 x 0.004 = 0.0016 m.
 # The ladder approaches it from above so a cell explosion is visible one rung
@@ -201,9 +201,10 @@ def test_graded_conductor_sizing_recovers_the_cad_mass():
     baseline = _mesh(conductor_resolution=BASELINE_CONTROL_RESOLUTION)
     _check_geo9_identities(baseline, comm)
 
-    v_conductor_analytic = 2.0 * (
-        2.0 * np.pi**2 * RING_RADIUS * RING_MINOR_RADIUS**2
-    ) + LEG_COUNT * np.pi * (0.5 * LEG_WIDTH) ** 2 * COIL_LENGTH
+    v_conductor_analytic = (
+        2.0 * (2.0 * np.pi**2 * RING_RADIUS * RING_MINOR_RADIUS**2)
+        + LEG_COUNT * np.pi * (0.5 * LEG_WIDTH) ** 2 * COIL_LENGTH
+    )
     cad_conductor = baseline["cad_mass"]["conductor"]
 
     rungs = [baseline]
@@ -215,9 +216,7 @@ def test_graded_conductor_sizing_recovers_the_cad_mass():
         # rule is about *ladder* rungs, not about which sizing is set.
         # The decision is reduced (``_ladder_budget_allows``): every rank breaks
         # or none does. The ``len(rungs) > 1`` guard is already collective.
-        if len(rungs) > 1 and not _ladder_budget_allows(
-            comm, remaining, rungs[-1]["wall_time_s"]
-        ):
+        if len(rungs) > 1 and not _ladder_budget_allows(comm, remaining, rungs[-1]["wall_time_s"]):
             if comm.rank == 0:
                 print(
                     f"[GEO-15] ladder stopped before h_c={h_c:.6e} m: "

@@ -42,7 +42,6 @@ from fem_em_solver import (
     QuasiStaticSphereField,
     Study,
 )
-
 from tests.complex_mode import complex_only
 from tests.materials.test_phantom_material_model import MAT4_BAND
 from tests.package.test_wf15_study_lossy_sphere import (
@@ -261,7 +260,9 @@ def test_wf17_docrefs_detects_a_planted_dead_link(tmp_path):
     )
     _, with_links = run_checker("--docs-root", str(guides), "--check-links")
     _, without = run_checker("--docs-root", str(guides))
-    print(f"[WF-17] (c3) with --check-links dead={with_links['dead']}; without dead={without['dead']} (printed)")
+    print(
+        f"[WF-17] (c3) with --check-links dead={with_links['dead']}; without dead={without['dead']} (printed)"
+    )
     assert with_links["dead"] == 1
 
 

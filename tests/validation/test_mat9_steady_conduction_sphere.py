@@ -24,7 +24,8 @@ import time
 import numpy as np
 import pytest
 import ufl
-from dolfinx import default_scalar_type, fem, mesh as dmesh
+from dolfinx import default_scalar_type, fem
+from dolfinx import mesh as dmesh
 from mpi4py import MPI
 
 from fem_em_solver.io.mesh import MeshGenerator
@@ -107,9 +108,9 @@ def test_closed_form_values():
     assert 4.0 / 3.0 * np.pi * R**3 * Q == pytest.approx(8.37758, rel=1e-5)
     # Surface flux -k dT/dr = QR/3 matches h(T_s - T∞).
     r = np.array([R - 1e-7, R])
-    dTdr = np.diff(
-        robin_sphere_steady_temperature(r, radius=R, k=K, q=Q, h=H, t_inf=T_INF)
-    )[0] / 1e-7
+    dTdr = (
+        np.diff(robin_sphere_steady_temperature(r, radius=R, k=K, q=Q, h=H, t_inf=T_INF))[0] / 1e-7
+    )
     assert -K * dTdr == pytest.approx(H * (ts - T_INF), rel=1e-5)
 
 
@@ -180,29 +181,61 @@ def test_negative_controls():
 
     # (a) Dirichlet θ = 0 on r = R: drops the QR/(3h) offset.
     sol_a = _solve(
-        msh, ft, k=K, q=Q, h=H, t_inf=T_INF, robin_tag=ROBIN_TAG, degree=1,
-        dirichlet_value=T_INF, petsc_prefix="mat9_ctrl_a_",
+        msh,
+        ft,
+        k=K,
+        q=Q,
+        h=H,
+        t_inf=T_INF,
+        robin_tag=ROBIN_TAG,
+        degree=1,
+        dirichlet_value=T_INF,
+        petsc_prefix="mat9_ctrl_a_",
     )
     e_in_a, _, _, _ = _errors(msh, sol_a.temperature)
-    _say(comm, f"MAT9 control (a) Dirichlet: interior_rel_L2={e_in_a:.4e} "
-         "(asserted > 1e-2; predicted ≈ 0.695)")
+    _say(
+        comm,
+        f"MAT9 control (a) Dirichlet: interior_rel_L2={e_in_a:.4e} "
+        "(asserted > 1e-2; predicted ≈ 0.695)",
+    )
     assert e_in_a > 1e-2, f"control (a) reads {e_in_a:.4e} <= 1 %"
 
     # (b) Robin term with flipped sign.
     sol_b = _solve(
-        msh, ft, k=K, q=Q, h=H, t_inf=T_INF, robin_tag=ROBIN_TAG, degree=1,
-        robin_sign=-1.0, petsc_prefix="mat9_ctrl_b_",
+        msh,
+        ft,
+        k=K,
+        q=Q,
+        h=H,
+        t_inf=T_INF,
+        robin_tag=ROBIN_TAG,
+        degree=1,
+        robin_sign=-1.0,
+        petsc_prefix="mat9_ctrl_b_",
     )
     bal_b = _balance(sol_b)
-    _say(comm, f"MAT9 control (b) flipped Robin: balance={bal_b:.6f} "
-         "(asserted > 1e-3; predicted 2.000)")
+    _say(
+        comm,
+        f"MAT9 control (b) flipped Robin: balance={bal_b:.6f} "
+        "(asserted > 1e-3; predicted 2.000)",
+    )
     assert bal_b > 1e-3, f"control (b) balance {bal_b:.3e} <= 1e-3"
 
     # Printed only: flipped Q passes (iii) and reads ≈ 200 % on (i).
     sol_c = _solve(
-        msh, ft, k=K, q=-Q, h=H, t_inf=T_INF, robin_tag=ROBIN_TAG, degree=1,
+        msh,
+        ft,
+        k=K,
+        q=-Q,
+        h=H,
+        t_inf=T_INF,
+        robin_tag=ROBIN_TAG,
+        degree=1,
         petsc_prefix="mat9_ctrl_c_",
     )
     e_in_c, _, _, _ = _errors(msh, sol_c.temperature)
-    _say(comm, f"MAT9 printed-only flipped Q: balance={_balance(sol_c):.3e} "
-         f"interior_rel_L2={e_in_c:.4e} (predicted passes (iii), ≈ 2.0 on (i))")
+    _say(
+        comm,
+        f"MAT9 printed-only flipped Q: balance={_balance(sol_c):.3e} "
+        f"interior_rel_L2={e_in_c:.4e} (predicted passes (iii), ≈ 2.0 on (i))",
+    )

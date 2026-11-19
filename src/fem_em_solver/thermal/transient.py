@@ -49,10 +49,10 @@ import itertools
 from dataclasses import dataclass, field
 from typing import Callable, Dict, Optional, Sequence
 
+import dolfinx.fem.petsc as fem_petsc
 import numpy as np
 import ufl
 from dolfinx import default_scalar_type, fem
-import dolfinx.fem.petsc as fem_petsc
 from mpi4py import MPI
 from petsc4py import PETSc
 
@@ -155,15 +155,26 @@ def solve_transient_conduction(
     old normalisation is used unchanged.
     """
     if perfusion_w_per_m3_k < 0.0:
-        raise ValueError(
-            f"perfusion_w_per_m3_k must be >= 0, got {perfusion_w_per_m3_k!r}"
-        )
+        raise ValueError(f"perfusion_w_per_m3_k must be >= 0, got {perfusion_w_per_m3_k!r}")
     return _solve_transient(
-        mesh, facet_tags, k=k, rho_c=rho_c, q=q, h=h, t_inf=t_inf, t_init=t_init,
-        robin_tag=robin_tag, dt=dt, n_steps=n_steps, theta=theta,
-        startup_half_steps=startup_half_steps, degree=degree,
-        snapshot_steps=snapshot_steps, perfusion_w_per_m3_k=perfusion_w_per_m3_k,
-        source_schedule=source_schedule, t_init_expr=t_init_expr,
+        mesh,
+        facet_tags,
+        k=k,
+        rho_c=rho_c,
+        q=q,
+        h=h,
+        t_inf=t_inf,
+        t_init=t_init,
+        robin_tag=robin_tag,
+        dt=dt,
+        n_steps=n_steps,
+        theta=theta,
+        startup_half_steps=startup_half_steps,
+        degree=degree,
+        snapshot_steps=snapshot_steps,
+        perfusion_w_per_m3_k=perfusion_w_per_m3_k,
+        source_schedule=source_schedule,
+        t_init_expr=t_init_expr,
     )
 
 
@@ -238,7 +249,9 @@ def _solve_transient(
     w_c = fem.Constant(mesh, default_scalar_type(perfusion_w_per_m3_k)) if perfused else None
 
     def kh(a, z):
-        out = k_c * ufl.inner(ufl.grad(a), ufl.grad(z)) * ufl.dx + h_c * ufl.inner(a, z) * ds(robin_tag)
+        out = k_c * ufl.inner(ufl.grad(a), ufl.grad(z)) * ufl.dx + h_c * ufl.inner(a, z) * ds(
+            robin_tag
+        )
         if perfused:
             out = out + w_c * ufl.inner(a, z) * ufl.dx
         return out
@@ -264,24 +277,28 @@ def _solve_transient(
         L_expr = L_expr + ufl.inner(w_c * tinf_c, v) * ufl.dx
     L_form = fem.form(L_expr)
     storage_form = fem.form(rc_c * (T_new - T_old) / dt_c * ufl.dx)
-    conv_form = fem.form(
-        h_c * (th_c * T_new + (1.0 - th_c) * T_old - tinf_c) * ds(robin_tag)
-    )
+    conv_form = fem.form(h_c * (th_c * T_new + (1.0 - th_c) * T_old - tinf_c) * ds(robin_tag))
     perf_form = (
         fem.form(w_c * (th_c * T_new + (1.0 - th_c) * T_old - tinf_c) * ufl.dx)
         if perfused
         else None
     )
-    src = float(np.real(comm.allreduce(
-        fem.assemble_scalar(fem.form(q_c * ufl.dx(domain=mesh))), op=MPI.SUM
-    )))
+    src = float(
+        np.real(
+            comm.allreduce(fem.assemble_scalar(fem.form(q_c * ufl.dx(domain=mesh))), op=MPI.SUM)
+        )
+    )
     # `MAT-21` step 19: with no source the old normalisation divides by zero;
     # normalise by the initial stored energy (per step, below) instead.
     e0 = None
     if src == 0.0:
-        e0 = float(np.real(comm.allreduce(
-            fem.assemble_scalar(fem.form(rc_c * abs(T_new - tinf_c) * ufl.dx)), op=MPI.SUM
-        )))
+        e0 = float(
+            np.real(
+                comm.allreduce(
+                    fem.assemble_scalar(fem.form(rc_c * abs(T_new - tinf_c) * ufl.dx)), op=MPI.SUM
+                )
+            )
+        )
 
     b = T_new.x.petsc_vec.duplicate()
     result = TransientConductionResult(temperature=T_new, source_power=src)
@@ -349,12 +366,16 @@ def _solve_transient(
 
     m = startup_half_steps
     if m:
-        _run(0.5 * dt, 1.0, m, lambda i: (i + 1) // 2 if (i % 2) else None,
-             lambda i: (i + 0.5) * (0.5 * dt))
+        _run(
+            0.5 * dt,
+            1.0,
+            m,
+            lambda i: (i + 1) // 2 if (i % 2) else None,
+            lambda i: (i + 0.5) * (0.5 * dt),
+        )
     n_rest = n_steps - m // 2
     if n_rest:
-        _run(dt, theta, n_rest, lambda i: m // 2 + i + 1,
-             lambda i: (m // 2 + i + 0.5) * dt)
+        _run(dt, theta, n_rest, lambda i: m // 2 + i + 1, lambda i: (m // 2 + i + 0.5) * dt)
 
     b.destroy()
     result.max_balance_residual = max(result.balance_residuals, default=0.0)

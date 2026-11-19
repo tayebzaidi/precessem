@@ -70,8 +70,11 @@ def _checkerboard(q_u):
     imap = sub.topology.index_map(tdim)
     cells = np.arange(imap.size_local + imap.num_ghosts, dtype=np.int32)
     mids = dmesh.compute_midpoints(sub, tdim, cells)
-    s = np.sign(np.sin(np.pi * mids[:, 0] / H0) * np.sin(np.pi * mids[:, 1] / H0)
-                * np.sin(np.pi * mids[:, 2] / H0))
+    s = np.sign(
+        np.sin(np.pi * mids[:, 0] / H0)
+        * np.sin(np.pi * mids[:, 1] / H0)
+        * np.sin(np.pi * mids[:, 2] / H0)
+    )
     dofs = np.asarray(V0.dofmap.list)[cells, 0]
     q_r = fem.Function(V0)
     q_r.x.array[:] = q_u.x.array
@@ -85,8 +88,10 @@ def _owned_min_max(f):
     comm = f.function_space.mesh.comm
     n = f.function_space.dofmap.index_map.size_local
     v = np.real(f.x.array[:n])
-    return (comm.allreduce(float(v.min()) if n else np.inf, op=MPI.MIN),
-            comm.allreduce(float(v.max()) if n else -np.inf, op=MPI.MAX))
+    return (
+        comm.allreduce(float(v.min()) if n else np.inf, op=MPI.MIN),
+        comm.allreduce(float(v.max()) if n else -np.inf, op=MPI.MAX),
+    )
 
 
 def _projections(q, V1, tag):
@@ -94,10 +99,15 @@ def _projections(q, V1, tag):
     u, v = ufl.TrialFunction(V1), ufl.TestFunction(V1)
     dx = ufl.dx(domain=V1.mesh)
     problem = LinearProblem(
-        ufl.inner(u, v) * dx, ufl.inner(q, v) * dx, bcs=[],
+        ufl.inner(u, v) * dx,
+        ufl.inner(q, v) * dx,
+        bcs=[],
         petsc_options_prefix=f"fem_em_ops83_proj_{tag}_",
-        petsc_options={"ksp_type": "preonly", "pc_type": "lu",
-                       "pc_factor_mat_solver_type": "mumps"},
+        petsc_options={
+            "ksp_type": "preonly",
+            "pc_type": "lu",
+            "pc_factor_mat_solver_type": "mumps",
+        },
     )
     pq = problem.solve()
     pq.x.scatter_forward()
@@ -122,17 +132,28 @@ def test_ops83_s2tip_form_on_stub(monkeypatch, tmp_path):
     msh, cell_tags = fx[0], fx[1]
     root = comm.bcast(str(tmp_path), root=0)
     a_1g = averaging_ball_radius(mass_kg=ONE_GRAM_KG, rho=PHANTOM_RHO_KG_PER_M3)
-    v_ball = 4.0 / 3.0 * np.pi * a_1g ** 3
-    balls = {"tip": np.asarray(fx[4]["a"], dtype=float),
-             "interior": np.asarray(STUB_PROBES["interior"], dtype=float)}
+    v_ball = 4.0 / 3.0 * np.pi * a_1g**3
+    balls = {
+        "tip": np.asarray(fx[4]["a"], dtype=float),
+        "interior": np.asarray(STUB_PROBES["interior"], dtype=float),
+    }
     dts = {"dt1": DT_1_BOX, "dt1/10": DT_1_BOX / 10.0}
     R, E, S2 = {}, {}, {}
     with monkeypatch.context() as m:
         e_sup, sigma_f, _ = _columns_e_sup(m, fx, root)
         merged = _merge_rod_into_phantom(msh, cell_tags)
-        P = float(np.real(mean_sar(e_sup, sigma=sigma_f, rho=PHANTOM_RHO_KG_PER_M3,
-                                   cell_tags=merged, comm=comm,
-                                   subdomain_ids=PHANTOM_CELL_TAG)["dissipated_power_w"]))
+        P = float(
+            np.real(
+                mean_sar(
+                    e_sup,
+                    sigma=sigma_f,
+                    rho=PHANTOM_RHO_KG_PER_M3,
+                    cell_tags=merged,
+                    comm=comm,
+                    subdomain_ids=PHANTOM_CELL_TAG,
+                )["dissipated_power_w"]
+            )
+        )
         G = 1.0 / P
         sub, parent_ids = _tag_submesh(msh, merged, PHANTOM_CELL_TAG)
         ft, counts = _outer_robin_tags(sub, STUB_CENTRE)
@@ -140,12 +161,18 @@ def test_ops83_s2tip_form_on_stub(monkeypatch, tmp_path):
         v_sub = float(np.real(_allsum(comm, one * ufl.dx(domain=sub))))
         q_u = _heat_source(msh, merged, e_sup, sigma_f, G, sub, parent_ids)
         q_r, n_zero = _checkerboard(q_u)
-        _say(comm, f"[OPS-83] P_gel {P:.12e} W, G {G:.12e} 1/W, V_sub {v_sub:.12e} m^3, facets "
-                   f"{counts} (Robin tag {ROBIN_TAG}); ball quadrature degree {QUADRATURE_DEGREE}; a_1g {a_1g * 1e3:.4f} mm, 4/3 pi a^3 {v_ball:.6e} m^3")
+        _say(
+            comm,
+            f"[OPS-83] P_gel {P:.12e} W, G {G:.12e} 1/W, V_sub {v_sub:.12e} m^3, facets "
+            f"{counts} (Robin tag {ROBIN_TAG}); ball quadrature degree {QUADRATURE_DEGREE}; a_1g {a_1g * 1e3:.4f} mm, 4/3 pi a^3 {v_ball:.6e} m^3",
+        )
         for name, q in (("u", q_u), ("r", q_r)):
             lo, hi = _owned_min_max(q)
-            _say(comm, f"[OPS-83] q_{name} owned min {lo:.12e} max {hi:.12e} W/m^3"
-                       + (f"; zero-sign midpoints {n_zero}" if name == "r" else ""))
+            _say(
+                comm,
+                f"[OPS-83] q_{name} owned min {lo:.12e} max {hi:.12e} W/m^3"
+                + (f"; zero-sign midpoints {n_zero}" if name == "r" else ""),
+            )
         V1 = None
         proj = {}
         for name, q in (("u", q_u), ("r", q_r)):
@@ -169,21 +196,32 @@ def test_ops83_s2tip_form_on_stub(monkeypatch, tmp_path):
                     vol, mb = read(c, a_1g)
                     lhs = RHO_C * mb["th1"] / dt
                     R[(name, dname, bname)] = {
-                        "DG0": abs(lhs / mb["q"] - 1.0), "Pi": abs(lhs / mb["pq"] - 1.0),
-                        "L": abs(lhs / mb["plq"] - 1.0), "pq/q": abs(mb["pq"] / mb["q"] - 1.0),
+                        "DG0": abs(lhs / mb["q"] - 1.0),
+                        "Pi": abs(lhs / mb["pq"] - 1.0),
+                        "L": abs(lhs / mb["plq"] - 1.0),
+                        "pq/q": abs(mb["pq"] / mb["q"] - 1.0),
                         "vol": vol,
                     }
                     r = R[(name, dname, bname)]
-                    _say(comm, f"[OPS-83] q_{name} {dname} ({dt:.6e} s) ball {bname} {tuple(c)}: vol "
-                               f"{vol:.6e} m^3 ({vol / v_ball:.6f} x 4/3 pi a^3); <q> {mb['q']:.12e} "
-                               f"<Pq> {mb['pq']:.12e} <PLq> {mb['plq']:.12e}; R_DG0 {r['DG0']:.4e} "
-                               f"R_Pi {r['Pi']:.4e} R_L {r['L']:.4e}; |<Pq>/<q> - 1| {r['pq/q']:.3e}")
-                _say(comm, f"[OPS-83] q_{name} {dname}: (E) {E[(name, dname)]:.3e} (band {E_BAND:.0e}, "
-                           f"ASSERTED); global (S2) {S2[(name, dname)]:.4e} (band {S2_BAND:.0e}, "
-                           f"ASSERTED)")
+                    _say(
+                        comm,
+                        f"[OPS-83] q_{name} {dname} ({dt:.6e} s) ball {bname} {tuple(c)}: vol "
+                        f"{vol:.6e} m^3 ({vol / v_ball:.6f} x 4/3 pi a^3); <q> {mb['q']:.12e} "
+                        f"<Pq> {mb['pq']:.12e} <PLq> {mb['plq']:.12e}; R_DG0 {r['DG0']:.4e} "
+                        f"R_Pi {r['Pi']:.4e} R_L {r['L']:.4e}; |<Pq>/<q> - 1| {r['pq/q']:.3e}",
+                    )
+                _say(
+                    comm,
+                    f"[OPS-83] q_{name} {dname}: (E) {E[(name, dname)]:.3e} (band {E_BAND:.0e}, "
+                    f"ASSERTED); global (S2) {S2[(name, dname)]:.4e} (band {S2_BAND:.0e}, "
+                    f"ASSERTED)",
+                )
     ratio = {}
-    _say(comm, "[OPS-83] table: source ball | R_DG0(dt1) R_DG0(dt1/10) ratio | R_Pi(dt1) "
-               "R_Pi(dt1/10) ratio | R_L(dt1) R_L(dt1/10) ratio")
+    _say(
+        comm,
+        "[OPS-83] table: source ball | R_DG0(dt1) R_DG0(dt1/10) ratio | R_Pi(dt1) "
+        "R_Pi(dt1/10) ratio | R_L(dt1) R_L(dt1/10) ratio",
+    )
     for name in ("u", "r"):
         for bname in balls:
             a, b = R[(name, "dt1", bname)], R[(name, "dt1/10", bname)]
@@ -195,10 +233,12 @@ def test_ops83_s2tip_form_on_stub(monkeypatch, tmp_path):
     # The pre-stated reading (rule (e): printed, never asserted).
     rough = [R[("r", d, bn)] for d in dts for bn in balls]
     refuted = any(r["Pi"] > S2_BAND for r in rough)
-    confirmed = (not refuted
-                 and all(R[("r", "dt1", bn)]["DG0"] > S2_BAND for bn in balls)
-                 and all(CONST_RATIO[0] <= ratio[("r", bn, "DG0")] <= CONST_RATIO[1] for bn in balls)
-                 and all(ratio[("r", bn, "Pi")] >= SCALING_RATIO for bn in balls))
+    confirmed = (
+        not refuted
+        and all(R[("r", "dt1", bn)]["DG0"] > S2_BAND for bn in balls)
+        and all(CONST_RATIO[0] <= ratio[("r", bn, "DG0")] <= CONST_RATIO[1] for bn in balls)
+        and all(ratio[("r", bn, "Pi")] >= SCALING_RATIO for bn in balls)
+    )
     reading = "form REFUTED" if refuted else ("form CONFIRMED" if confirmed else "INCONCLUSIVE")
     _say(comm, f"[OPS-83] READING (printed, not asserted): {reading}")
 
@@ -206,10 +246,13 @@ def test_ops83_s2tip_form_on_stub(monkeypatch, tmp_path):
         assert E[key] <= E_BAND, (key, E[key])
         assert S2[key] <= S2_BAND, (key, S2[key])
     tip = R[("u", "dt1", "tip")]["DG0"]
-    _say(comm, f"[OPS-83] reproduction control: tip R_DG0(u, dt1) {tip:.6e} vs K10-S {K10S_TIP:.4e}: "
-               f"|diff| {abs(tip - K10S_TIP):.3e} (tol {K10S_TIP_TOL:.0e}, ASSERTED); projection "
-               f"identity tip {R[('u', 'dt1', 'tip')]['pq/q']:.3e} interior "
-               f"{R[('u', 'dt1', 'interior')]['pq/q']:.3e} (tol {PROJECTION_ID_TOL:.0e}, ASSERTED)")
+    _say(
+        comm,
+        f"[OPS-83] reproduction control: tip R_DG0(u, dt1) {tip:.6e} vs K10-S {K10S_TIP:.4e}: "
+        f"|diff| {abs(tip - K10S_TIP):.3e} (tol {K10S_TIP_TOL:.0e}, ASSERTED); projection "
+        f"identity tip {R[('u', 'dt1', 'tip')]['pq/q']:.3e} interior "
+        f"{R[('u', 'dt1', 'interior')]['pq/q']:.3e} (tol {PROJECTION_ID_TOL:.0e}, ASSERTED)",
+    )
     assert abs(tip - K10S_TIP) <= K10S_TIP_TOL, tip
     for bname in balls:
         assert R[("u", "dt1", bname)]["pq/q"] <= PROJECTION_ID_TOL, (bname, R[("u", "dt1", bname)])

@@ -28,10 +28,9 @@ import basix
 import numpy as np
 import pytest
 import ufl
+from dolfinx import fem
 from mpi4py import MPI
 from petsc4py import PETSc
-
-from dolfinx import fem
 
 from fem_em_solver.core import (
     HomogeneousMaterial,
@@ -45,7 +44,6 @@ from fem_em_solver.utils.analytical import (
     pec_prolate_spheroid_potential,
     prolate_spheroid_depolarisation,
 )
-
 from tests.complex_mode import complex_only
 from tests.validation.test_imp1_pec_sphere_lossy_host import (
     CAVITY_TAG,
@@ -94,9 +92,7 @@ def _mesh(aspect):
 
 
 def _ncells(msh):
-    return int(
-        msh.comm.allreduce(msh.topology.index_map(msh.topology.dim).size_local, op=MPI.SUM)
-    )
+    return int(msh.comm.allreduce(msh.topology.index_map(msh.topology.dim).size_local, op=MPI.SUM))
 
 
 def _rss_gib(comm):
@@ -241,7 +237,8 @@ def _solve_spheroid(aspect, drive, *, return_fields=False):
     uniform[:, 0 if drive == "transverse" else 2] = E0
     beta = float(np.sum((e_re - uniform) * basis) / np.sum(basis * basis))
     imag_ratio = float(
-        np.max(np.linalg.norm(e_im, axis=1)) / max(float(np.max(np.linalg.norm(e_re, axis=1))), 1e-300)
+        np.max(np.linalg.norm(e_im, axis=1))
+        / max(float(np.max(np.linalg.norm(e_re, axis=1))), 1e-300)
     )
 
     chi = _tip_mask(msh, aspect)
@@ -266,12 +263,17 @@ def _solve_spheroid(aspect, drive, *, return_fields=False):
     dmap = msh.geometry.dofmap
     v = msh.geometry.x[dmap[cells]] if cells.size else np.zeros((0, 4, 3))
     if cells.size:
-        edges = [np.linalg.norm(v[:, i] - v[:, j], axis=1) for i in range(4) for j in range(i + 1, 4)]
+        edges = [
+            np.linalg.norm(v[:, i] - v[:, j], axis=1) for i in range(4) for j in range(i + 1, 4)
+        ]
         mid = v.mean(axis=1)
-        near = np.minimum(
-            np.linalg.norm(mid - [0, 0, SEMI_MAJOR], axis=1),
-            np.linalg.norm(mid + [0, 0, SEMI_MAJOR], axis=1),
-        ) < rho_t
+        near = (
+            np.minimum(
+                np.linalg.norm(mid - [0, 0, SEMI_MAJOR], axis=1),
+                np.linalg.norm(mid + [0, 0, SEMI_MAJOR], axis=1),
+            )
+            < rho_t
+        )
         h_tip_local = float(np.max(np.max(edges, axis=0)[near])) if np.any(near) else 0.0
     else:
         h_tip_local = 0.0
@@ -301,7 +303,12 @@ def test_census_and_numpy():
     comm = MPI.COMM_WORLD
     c = SEMI_MAJOR
     omega = 2.0 * np.pi * FREQUENCY_HZ
-    k = omega * np.sqrt(4e-7 * np.pi * 8.8541878128e-12 * (EPSILON_R_HOST - 1j * SIGMA_HIGH / (omega * 8.8541878128e-12)))
+    k = omega * np.sqrt(
+        4e-7
+        * np.pi
+        * 8.8541878128e-12
+        * (EPSILON_R_HOST - 1j * SIGMA_HIGH / (omega * 8.8541878128e-12))
+    )
     corner = float(np.linalg.norm(BOX_HALF_EXTENTS))
     if comm.rank == 0:
         print(
@@ -438,15 +445,17 @@ def test_both_aspects():
                 f"{abs(d['phi_h'] / d['phi_cf_h'] - 1):.4%} (band {MAT4_BAND:.0%}); "
                 f"pointwise tip (1/L_z)^2 = {1 / lz**2:.1f}"
             )
-            print(
-                f"  cavity dofs {d['n_cavity']}, max |E| {d['cavity_max']:.3e}"
-            )
+            print(f"  cavity dofs {d['n_cavity']}, max |E| {d['cavity_max']:.3e}")
     for aspect, d in results.items():
         assert d["n_cavity"] > 0
         assert d["cavity_max"] < 1e-12
         assert abs(d["beta"] - 1.0) <= TH15_BETA_BAND, (aspect, d["beta"], d["h_tip_over_rho"])
         assert abs(d["phi_h"] / d["phi_cf_h"] - 1.0) <= MAT4_BAND, (
-            aspect, d["phi_h"], d["phi_cf_h"], d["h_tip_over_rho"])
+            aspect,
+            d["phi_h"],
+            d["phi_cf_h"],
+            d["h_tip_over_rho"],
+        )
 
 
 # --------------------------------------------------------------------- W2

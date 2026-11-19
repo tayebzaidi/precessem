@@ -27,7 +27,6 @@ import ufl
 from mpi4py import MPI
 
 from fem_em_solver.thermal.dose import cem43, running_average
-
 from tests.complex_mode import complex_only
 from tests.validation.test_mat10_sar_to_heat_sphere import _say
 from tests.validation.test_mat12_transient_sar_heating_sphere import E_BAND
@@ -36,8 +35,9 @@ from tests.validation.test_mat15_coil_driven_heating_phantom import N_MAIN, T_IN
 from tests.validation.test_mat15_finite_cylinder_fem import _max_imag
 from tests.validation.test_mat17_duty_cycle_coil_driven import DUTY
 from tests.validation.test_mat17_duty_cycle_fem import _census
-from tests.validation.test_mat21_box_closed_form import B_BOX, C_BOX, Q
+from tests.validation.test_mat21_box_closed_form import B_BOX, C_BOX
 from tests.validation.test_mat21_box_closed_form import T_INF as T_INF_0
+from tests.validation.test_mat21_box_closed_form import Q
 from tests.validation.test_mat21_box_dose_closed_form import (
     AVG_BAR,
     DOSE_BAR,
@@ -77,10 +77,13 @@ P42_FEM_EQ = ("1.275667", "1.275667", "1.006985", "1.316409")
 P43_FEM_DOSE = ("4.1094392184e-11", "4.1094392184e-11", "4.3189685419e-11")
 RUNS = (("default", None, 1.0), ("d50", _chi_box, DUTY), ("d25", _chi25, DUTY25))
 SIX = tuple(("h", j, HIST_LABELS[j]) for j in range(len(DOSE_PTS))) + tuple(
-    ("n", j, NEW_LABELS[j]) for j in range(len(NEW_PTS)))
+    ("n", j, NEW_LABELS[j]) for j in range(len(NEW_PTS))
+)
 # Predictions written first (brief), printed only.
-PRED_M = {"d50": {"x": (3.5e-5, 9e-5), "z": (1.0e-4, 2.5e-4)},
-          "d25": {"x": (1.8e-5, 9e-5), "z": (5e-5, 2.5e-4)}}
+PRED_M = {
+    "d50": {"x": (3.5e-5, 9e-5), "z": (1.0e-4, 2.5e-4)},
+    "d25": {"x": (1.8e-5, 9e-5), "z": (5e-5, 2.5e-4)},
+}
 PRED_HEAD = {"d50": {"x": (3.0, 7.5), "z": (2.0, 5.5)}, "d25": {"x": (1.5, 7.5), "z": (1.0, 5.5)}}
 PRED_RATIO = (0.01, 1.0)
 PRED_RC = (1e6, 1e7)
@@ -111,8 +114,10 @@ def pdd_m4():
     t0 = time.perf_counter()
     clk = _Clock16("pdd")
     out = {"imag": 0.0, "E": {}, "ndof": {}, "th": {}, "ok": {}, "sched": {}, "census": {}}
-    _say(f"\nMAT21-16 DEGREE = {DEGREE}; m = {M4}; N_MAIN = {N_MAIN}; ranks {comm.size}; "
-         f"HIST_PTS {HIST_PTS}; NEW_PTS {NEW_PTS} (two fixed batches)")
+    _say(
+        f"\nMAT21-16 DEGREE = {DEGREE}; m = {M4}; N_MAIN = {N_MAIN}; ranks {comm.size}; "
+        f"HIST_PTS {HIST_PTS}; NEW_PTS {NEW_PTS} (two fixed batches)"
+    )
 
     msh, ft, ns, n, v_h, st = _rung_p(M4, clk, DEGREE)
     out["ndof"]["uniform"] = int(st.temperature.function_space.dofmap.index_map.size_global)
@@ -156,10 +161,14 @@ def pdd_m4():
 
     out["s"] = {
         "default": {"h": _series_hist(HIST_PTS), "n": _series_hist(NEW_PTS)},
-        "d50": {"h": _duty_hist(HIST_PTS, switch_times=T_SW),
-                "n": _duty_hist(NEW_PTS, switch_times=T_SW)},
-        "d25": {"h": _duty_hist(HIST_PTS, switch_times=T_SW25),
-                "n": _duty_hist(NEW_PTS, switch_times=T_SW25)},
+        "d50": {
+            "h": _duty_hist(HIST_PTS, switch_times=T_SW),
+            "n": _duty_hist(NEW_PTS, switch_times=T_SW),
+        },
+        "d25": {
+            "h": _duty_hist(HIST_PTS, switch_times=T_SW25),
+            "n": _duty_hist(NEW_PTS, switch_times=T_SW25),
+        },
     }
     clk.lap("series histories (continuous + D = 0.5 + D = 0.25, two batches)")
     _say(f"MAT21-16 fixture elapsed {time.perf_counter() - t0:.1f} s; max|Im T| {out['imag']:.3e}")
@@ -179,14 +188,19 @@ def test_preconditions(pdd_m4):
     for key, v in pdd_m4["ndof"].items():
         assert v == pred, f"(Pdeg) {key}: {v}"
     assert tuple(NEW_PTS) == tuple(PROBE_PTS[3:6])
-    _say(f"MAT21-16 (S0) schedules {pdd_m4['sched']} (must equal d50 {SCHEDULE}, d25 {SCHEDULE_25})")
+    _say(
+        f"MAT21-16 (S0) schedules {pdd_m4['sched']} (must equal d50 {SCHEDULE}, d25 {SCHEDULE_25})"
+    )
     assert pdd_m4["census"] == {"d50": True, "d25": True}
     assert pdd_m4["sched"]["d50"] == SCHEDULE and pdd_m4["sched"]["d25"] == SCHEDULE_25
     for key, (ok_h, ok_n) in pdd_m4["ok"].items():
         _say(f"MAT21-16 validity {key}: HIST_PTS {ok_h.tolist()} NEW_PTS {ok_n.tolist()}")
         assert bool(np.all(ok_h)) and bool(np.all(ok_n)), key
-    _say("MAT21-16 (E) max balance residual: " + ", ".join(
-        f"{k_} {v:.3e}" for k_, v in pdd_m4["E"].items()) + f" (bound {E_BAND:.0e}; predicted 2.3e-13)")
+    _say(
+        "MAT21-16 (E) max balance residual: "
+        + ", ".join(f"{k_} {v:.3e}" for k_, v in pdd_m4["E"].items())
+        + f" (bound {E_BAND:.0e}; predicted 2.3e-13)"
+    )
     assert len(pdd_m4["E"]) == 3
     for key, v in pdd_m4["E"].items():
         assert v <= E_BAND, (key, v)
@@ -195,8 +209,10 @@ def test_preconditions(pdd_m4):
     r36 = (f"{th_d['h'][40, 2]:.6f}", f"{th_d['h'][40, 3]:.6f}")
     same_h = bool(np.array_equal(th_d["h"][40], pdd_m4["fin_h"]))
     same_n = bool(np.array_equal(th_d["n"][40], pdd_m4["fin_n"]))
-    _say(f"MAT21-16 (R36) theta_h(t*) centre / (0,0.9B,0) {r36} (P36 {R36}); snapshot n=40 "
-         f"array_equal final: HIST_PTS {same_h}, NEW_PTS {same_n}")
+    _say(
+        f"MAT21-16 (R36) theta_h(t*) centre / (0,0.9B,0) {r36} (P36 {R36}); snapshot n=40 "
+        f"array_equal final: HIST_PTS {same_h}, NEW_PTS {same_n}"
+    )
     assert r36 == R36, r36
     assert same_h and same_n
     for label, _sch, D in RUNS:
@@ -210,8 +226,12 @@ def test_preconditions(pdd_m4):
 @complex_only
 def test_string_reproductions(pdd_m4):
     th = pdd_m4["th"]
-    got39 = tuple(f"{cem43(T_GRID, _T(th['default']['h'][:, j])):.10e}" for j in range(len(DOSE_PTS)))
-    got43 = tuple(f"{cem43(T_GRID, _T(th['default']['n'][:, j])):.10e}" for j in range(len(NEW_PTS)))
+    got39 = tuple(
+        f"{cem43(T_GRID, _T(th['default']['h'][:, j])):.10e}" for j in range(len(DOSE_PTS))
+    )
+    got43 = tuple(
+        f"{cem43(T_GRID, _T(th['default']['n'][:, j])):.10e}" for j in range(len(NEW_PTS))
+    )
     eq = {}
     for label, _sch, D in RUNS[1:]:
         g = []
@@ -239,14 +259,20 @@ def test_q_hp_win_hp_new_points(pdd_m4):
                 th = th_d[:, j] * scale
                 dose, ref, rel, swap, miss = _q_check(_T(th))
                 mx, t_mx, lo, hi, wref, wrel = _win_check(th)
-                _say(f"MAT21-16 (Q-hP) {label} {lab} {NEW_LABELS[j]}: FEM CEM43 {dose:.15e} s vs "
-                     f"quad {ref:.15e} s rel {rel:.3e} (bar {DOSE_BAR:g}, ASSERTED)")
-                _say(f"MAT21-16 control (Rc'-hP) PREDICTED {label} {lab} {NEW_LABELS[j]}: R swap "
-                     f"miss {miss:.4e}; factor {swap / ref:.4e} (predicted range {PRED_RC}; "
-                     f"printed only, ruling 18:00 (3))")
-                _say(f"MAT21-16 (Win-hP) {label} {lab} {NEW_LABELS[j]}: max six-minute mean "
-                     f"{mx:.15e} K at {t_mx:.4f} s; (ii) [{lo:.12e}, {hi:.12e}]; (iii) quad "
-                     f"{wref:.15e} rel {wrel:.3e} (bar {AVG_BAR:g}, ASSERTED)")
+                _say(
+                    f"MAT21-16 (Q-hP) {label} {lab} {NEW_LABELS[j]}: FEM CEM43 {dose:.15e} s vs "
+                    f"quad {ref:.15e} s rel {rel:.3e} (bar {DOSE_BAR:g}, ASSERTED)"
+                )
+                _say(
+                    f"MAT21-16 control (Rc'-hP) PREDICTED {label} {lab} {NEW_LABELS[j]}: R swap "
+                    f"miss {miss:.4e}; factor {swap / ref:.4e} (predicted range {PRED_RC}; "
+                    f"printed only, ruling 18:00 (3))"
+                )
+                _say(
+                    f"MAT21-16 (Win-hP) {label} {lab} {NEW_LABELS[j]}: max six-minute mean "
+                    f"{mx:.15e} K at {t_mx:.4f} s; (ii) [{lo:.12e}, {hi:.12e}]; (iii) quad "
+                    f"{wref:.15e} rel {wrel:.3e} (bar {AVG_BAR:g}, ASSERTED)"
+                )
                 assert rel <= DOSE_BAR, (label, lab, pt, rel)
                 assert T_GRID[0] + W_B2 <= t_mx <= T_GRID[-1], (label, lab, t_mx)
                 assert lo <= mx <= hi, (label, lab, lo, mx, hi)
@@ -260,8 +286,10 @@ def test_rc_hp_hist_points(pdd_m4):
         for scale, lab in ((1.0, "peak"), (1.0 / D, "equal-mean")):
             for j, pt in enumerate(DOSE_PTS):
                 _dose, ref, _rel, swap, miss = _q_check(_T(th_d[:, j] * scale))
-                _say(f"MAT21-16 (Rc'-hP) {label} {lab} {HIST_LABELS[j]}: R swap miss {miss:.4e} "
-                     f"(asserted > {DOSE_BAR:g}); factor {swap / ref:.4e}")
+                _say(
+                    f"MAT21-16 (Rc'-hP) {label} {lab} {HIST_LABELS[j]}: R swap miss {miss:.4e} "
+                    f"(asserted > {DOSE_BAR:g}); factor {swap / ref:.4e}"
+                )
                 assert miss > DOSE_BAR, (label, lab, pt, miss)
 
 
@@ -281,18 +309,28 @@ def _bd_test(pdd_m4, label, D, tag):
     for lab, name, d_h, d_s, m, M, cap in rows:
         kz = "z" if name.startswith("P5") else "x"
         new = name.startswith(("P3", "P4", "P5"))
-        pred = (f"predicted M {PRED_M[label][kz]} K at peak, headroom {PRED_HEAD[label][kz]}"
-                if new else "P0-P2: reprints P41 / P42")
+        pred = (
+            f"predicted M {PRED_M[label][kz]} K at peak, headroom {PRED_HEAD[label][kz]}"
+            if new
+            else "P0-P2: reprints P41 / P42"
+        )
         extra = ""
         if label == "d25" and name.startswith("P5"):
-            extra = (f"; M_p/(INTERIOR_BAND max theta_s) {M / cap:.4f} (PREDICTED RED range "
-                     f"{PRED_RED_BD25_P5})")
-        _say(f"MAT21-16 ({tag}) {lab} {name}: D_h {d_h:.10e} s, D_s {d_s:.15e} s; (i) m_p {m:.4e} "
-             f"<= ln4*M_p {LN4 * M:.4e} (exact e^(ln4 M)-1 {math.expm1(LN4 * M):.4e}, printed "
-             f"only); ratio {m / (LN4 * M):.4f} (predicted {PRED_RATIO}); (ii) M_p {M:.4e} K <= "
-             f"INTERIOR_BAND*max theta_s {cap:.4e} K, headroom {cap / M:.2f}x ({pred}){extra}")
-    bad = [(lab, name, m, LN4 * M, M, cap) for lab, name, d_h, d_s, m, M, cap in rows
-           if not (m <= LN4 * M and M <= cap)]
+            extra = (
+                f"; M_p/(INTERIOR_BAND max theta_s) {M / cap:.4f} (PREDICTED RED range "
+                f"{PRED_RED_BD25_P5})"
+            )
+        _say(
+            f"MAT21-16 ({tag}) {lab} {name}: D_h {d_h:.10e} s, D_s {d_s:.15e} s; (i) m_p {m:.4e} "
+            f"<= ln4*M_p {LN4 * M:.4e} (exact e^(ln4 M)-1 {math.expm1(LN4 * M):.4e}, printed "
+            f"only); ratio {m / (LN4 * M):.4f} (predicted {PRED_RATIO}); (ii) M_p {M:.4e} K <= "
+            f"INTERIOR_BAND*max theta_s {cap:.4e} K, headroom {cap / M:.2f}x ({pred}){extra}"
+        )
+    bad = [
+        (lab, name, m, LN4 * M, M, cap)
+        for lab, name, d_h, d_s, m, M, cap in rows
+        if not (m <= LN4 * M and M <= cap)
+    ]
     assert not bad, (f"({tag})", bad)
 
 
@@ -313,15 +351,19 @@ def test_wrong_schedule_controls(pdd_m4):
     for j, name in enumerate(NEW_LABELS):
         Mw = float(np.max(np.abs(th["d25"]["n"][:, j] - s["d50"]["n"][:, j])))
         r = Mw / float(np.max(s["d25"]["n"][:, j]))
-        _say(f"MAT21-16 control (c-50-dose) PREDICTED {name}: M_w / max theta_s25 {r:.4f} "
-             f"(asserted > INTERIOR_BAND {INTERIOR_BAND:g}; predicted {PRED_C50})")
+        _say(
+            f"MAT21-16 control (c-50-dose) PREDICTED {name}: M_w / max theta_s25 {r:.4f} "
+            f"(asserted > INTERIOR_BAND {INTERIOR_BAND:g}; predicted {PRED_C50})"
+        )
         rows.append(("c-50", name, r))
     for b, j, name in SIX:
         Mw = float(np.max(np.abs(th["d50"][b][:, j] - s["d25"][b][:, j])))
         r = Mw / float(np.max(s["d50"][b][:, j]))
-        _say(f"MAT21-16 control (c-25-dose) PREDICTED {name}: M_w / max theta_s50 {r:.4f} "
-             f"(asserted > INTERIOR_BAND {INTERIOR_BAND:g}; predicted {PRED_C25}; ratio to band "
-             f"{r / INTERIOR_BAND:.1f})")
+        _say(
+            f"MAT21-16 control (c-25-dose) PREDICTED {name}: M_w / max theta_s50 {r:.4f} "
+            f"(asserted > INTERIOR_BAND {INTERIOR_BAND:g}; predicted {PRED_C25}; ratio to band "
+            f"{r / INTERIOR_BAND:.1f})"
+        )
         rows.append(("c-25", name, r))
     bad = [x for x in rows if not x[2] > INTERIOR_BAND]
     assert not bad, bad
@@ -341,8 +383,10 @@ def test_printed_records(pdd_m4):
         _say(f"MAT21-16 (Bd)(ii) HEADROOM MATRIX (peak) {name}: " + "; ".join(cells))
     for label, _sch, D in RUNS[1:]:
         d = [cem43(T_GRID, _T(th[label]["n"][:, j])) for j in range(len(NEW_PTS))]
-        _say(f"MAT21-16 {label} +x / -x FEM dose asymmetry {d[0] / d[1] - 1.0:+.4e} (predicted "
-             f"|.| <= {PRED_ASYM:g})")
+        _say(
+            f"MAT21-16 {label} +x / -x FEM dose asymmetry {d[0] / d[1] - 1.0:+.4e} (predicted "
+            f"|.| <= {PRED_ASYM:g})"
+        )
         for b, j, name in SIX + (("h", 3, "(0,0.9B,0) [printed only]"),):
             dc_h = cem43(T_GRID, _T(th["default"][b][:, j]))
             dd_h = cem43(T_GRID, _T(th[label][b][:, j]))
@@ -355,11 +399,13 @@ def test_printed_records(pdd_m4):
             a_h = _a
             good = ~np.isnan(a_h)
             da = float(np.max(np.abs(a_h[good] - a_s[good])))
-            _say(f"MAT21-16 DUTY DOSE {label} {name}: FEM ratio equal-mean {de_h / dc_h:.6f} / peak "
-                 f"{dd_h / dc_h:.6f} (W1 closed form {de_s / dc_s:.6f} / {dd_s / dc_s:.6f}); FEM "
-                 f"dose peak {dd_h:.10e} s / equal-mean {de_h:.10e} s; six-minute peak FEM "
-                 f"{mx_h:.9f} K at {t_h:.2f} s vs series {mx_s:.9f} K at {t_s:.2f} s; "
-                 f"(FEM-c-win) max|a_h - a_s| {da:.4e} K (printed only)")
+            _say(
+                f"MAT21-16 DUTY DOSE {label} {name}: FEM ratio equal-mean {de_h / dc_h:.6f} / peak "
+                f"{dd_h / dc_h:.6f} (W1 closed form {de_s / dc_s:.6f} / {dd_s / dc_s:.6f}); FEM "
+                f"dose peak {dd_h:.10e} s / equal-mean {de_h:.10e} s; six-minute peak FEM "
+                f"{mx_h:.9f} K at {t_h:.2f} s vs series {mx_s:.9f} K at {t_s:.2f} s; "
+                f"(FEM-c-win) max|a_h - a_s| {da:.4e} K (printed only)"
+            )
             assert np.isfinite(de_h / dc_h)
     for norm in ("peak", "equal-mean"):
         for b, j, name in SIX:
@@ -367,5 +413,8 @@ def test_printed_records(pdd_m4):
             for label, _sch, D in RUNS:
                 sc = 1.0 if norm == "peak" else 1.0 / D
                 row.append(f"{label} {cem43(T_GRID, _T(th[label][b][:, j] * sc)):.10e}")
-            _say(f"MAT21-16 SIX-POINT x THREE-SCHEDULE FEM DOSE TABLE ({norm}) {name}: "
-                 + "; ".join(row) + " s")
+            _say(
+                f"MAT21-16 SIX-POINT x THREE-SCHEDULE FEM DOSE TABLE ({norm}) {name}: "
+                + "; ".join(row)
+                + " s"
+            )

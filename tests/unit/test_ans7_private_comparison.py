@@ -30,10 +30,10 @@ SCRIPT = CASE / "07_tuned_copper_birdcage_driven_sweep.py"
 TRACKED = ("metrics.json", "COMPARISON.md")
 
 # Sentinels: values that occur nowhere in our metrics; formatted as the writer does.
-F0 = 61.2345678e6          # -> "61.234568"
-R_IN = 4.4444321e3         # -> "4.444432e+03"
-Q = 777.7777               # -> "777.7777"
-K_SHARE = 0.123456         # -> "0.123456"
+F0 = 61.2345678e6  # -> "61.234568"
+R_IN = 4.4444321e3  # -> "4.444432e+03"
+Q = 777.7777  # -> "777.7777"
+K_SHARE = 0.123456  # -> "0.123456"
 SENTINELS = ("61.234568", "4.444432e+03", "777.7777", "0.123456")
 
 
@@ -47,22 +47,47 @@ def ans7():
 
 
 def _synthetic_aed() -> dict:
-    rows = {"f0_hz": F0, "r_in_ohm": R_IN, "q_loaded": Q, "dbdf_s_per_hz": 1.0,
-            "bracket_hz": [F0 - 5e4, F0 + 5e4], "crossings_up_hz": [F0],
-            "crossings_down_hz": []}
+    rows = {
+        "f0_hz": F0,
+        "r_in_ohm": R_IN,
+        "q_loaded": Q,
+        "dbdf_s_per_hz": 1.0,
+        "bracket_hz": [F0 - 5e4, F0 + 5e4],
+        "crossings_up_hz": [F0],
+        "crossings_down_hz": [],
+    }
     return {
-        "_provenance": "synthetic", "_meta": {}, "_reading": "",
+        "_provenance": "synthetic",
+        "_meta": {},
+        "_reading": "",
         "design_first_order": {
-            "FineWindow": {"freq_hz": [F0], "Zin": [{"re": 1.0, "im": 0.0}],
-                           "Z4": [], "S4": [], "zin_z_vs_s_max_rel": 0.0,
-                           "rows": rows, "k1_share_at_f0": K_SHARE},
-            "elements": 0, "passes": 0, "delta_s": 0.0, "solve_time": 0.0,
-            "basis_order": "first_order", "model": "synthetic",
+            "FineWindow": {
+                "freq_hz": [F0],
+                "Zin": [{"re": 1.0, "im": 0.0}],
+                "Z4": [],
+                "S4": [],
+                "zin_z_vs_s_max_rel": 0.0,
+                "rows": rows,
+                "k1_share_at_f0": K_SHARE,
+            },
+            "elements": 0,
+            "passes": 0,
+            "delta_s": 0.0,
+            "solve_time": 0.0,
+            "basis_order": "first_order",
+            "model": "synthetic",
         },
-        "_route_comparison": {"cu_first_order|FineWindow": {
-            "df0_rel": 0.0, "dq_rel": 0.0, "dr_in_rel": 0.0, "max_dzin_rel": 0.0}},
-        "_column_difference": {"first_order|B|FineWindow": {
-            "df0_hz": 0.0, "dq": 0.0, "dr_in_ohm": 0.0}},
+        "_route_comparison": {
+            "cu_first_order|FineWindow": {
+                "df0_rel": 0.0,
+                "dq_rel": 0.0,
+                "dr_in_rel": 0.0,
+                "max_dzin_rel": 0.0,
+            }
+        },
+        "_column_difference": {
+            "first_order|B|FineWindow": {"df0_hz": 0.0, "dq": 0.0, "dr_in_ohm": 0.0}
+        },
     }
 
 

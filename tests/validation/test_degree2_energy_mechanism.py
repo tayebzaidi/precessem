@@ -93,7 +93,6 @@ from fem_em_solver.core import (
 )
 from fem_em_solver.core.resonance import stored_electric_energy
 from fem_em_solver.post.power_balance import poynting_power_balance
-
 from tests.complex_mode import complex_only
 from tests.solver.test_time_harmonic_smoke import (
     AXIAL_RECORD_DISSIPATED_W,
@@ -166,9 +165,7 @@ def _solve_smoke_at_degree(degree: int, comm) -> dict:
         return ufl.as_vector([0.0, 0.0, 1.0])
 
     fields = solver.solve(current_density=current_density, subdomain_id=1)
-    balance = poynting_power_balance(
-        fields.e_complex, omega=fields.omega, sigma=SIGMA, comm=comm
-    )
+    balance = poynting_power_balance(fields.e_complex, omega=fields.omega, sigma=SIGMA, comm=comm)
     tdim = mesh.topology.dim
     ncells = int(comm.allreduce(mesh.topology.index_map(tdim).size_local, op=MPI.SUM))
     v_space = fields.e_complex.function_space
@@ -214,20 +211,14 @@ def mechanism_rows():
     """Both fixtures at both orders — four solves, one per (fixture, degree)."""
     comm = MPI.COMM_WORLD
     smoke = {degree: _solve_smoke_at_degree(degree, comm) for degree in (1, 2)}
-    sphere = {
-        degree: _energies_of_sphere_row(_run_at_degree(degree), comm)
-        for degree in (1, 2)
-    }
+    sphere = {degree: _energies_of_sphere_row(_run_at_degree(degree), comm) for degree in (1, 2)}
     return {"smoke": smoke, "sphere": sphere}
 
 
 def _verdict(smoke_move: float, sphere_move: float) -> str:
     if smoke_move >= GENERIC_RATIO_FACTOR:
         return "GENERIC (incompatible drive x second-order gradient space)"
-    if (
-        smoke_move <= COIL_SPECIFIC_RATIO_FACTOR
-        and sphere_move <= COIL_SPECIFIC_RATIO_FACTOR
-    ):
+    if smoke_move <= COIL_SPECIFIC_RATIO_FACTOR and sphere_move <= COIL_SPECIFIC_RATIO_FACTOR:
         return "COIL-SPECIFIC (the feed model, not the drive class)"
     return "IN-BETWEEN (recorded, not forced)"
 
@@ -239,10 +230,7 @@ def _print_table(rows: dict) -> None:
     smoke_move = _ratio_move(rows["smoke"])
     sphere_move = _ratio_move(rows["sphere"])
     print("\n[TH-12 step 3] stored energies at N1curl degree 1 vs 2:")
-    print(
-        "  fixture      deg   cells     DOFs        W_m [J]        W_e [J]"
-        "      W_e/W_m"
-    )
+    print("  fixture      deg   cells     DOFs        W_m [J]        W_e [J]" "      W_e/W_m")
     for name in ("smoke", "sphere"):
         for degree in (1, 2):
             row = rows[name][degree]
@@ -286,9 +274,7 @@ def test_the_smoke_column_reproduces_the_post5_dissipated_power(mechanism_rows):
         f"1 405 — the fixture moved under the `POST-5` record, so the degree-1 "
         f"column is not the rung it claims to be"
     )
-    assert np.isclose(
-        row["dissipated_power_w"], AXIAL_RECORD_DISSIPATED_W, rtol=1e-6
-    ), (
+    assert np.isclose(row["dissipated_power_w"], AXIAL_RECORD_DISSIPATED_W, rtol=1e-6), (
         f"the degree-1 smoke solve dissipated {row['dissipated_power_w']:.6e} W "
         f"against the `POST-5` record {AXIAL_RECORD_DISSIPATED_W:.6e} W; this "
         f"column is not the recorded rung"

@@ -158,13 +158,11 @@ def test_current_drive_route_s_is_the_closed_form(label, z_builder):
     # is against a physically meaningful S in the first place.
     assert np.allclose(z_matrix, z_matrix.T, atol=1e-14), "the fixture Z must be reciprocal"
     eigenvalues = np.linalg.eigvalsh(0.5 * (z_matrix + z_matrix.conj().T))
-    assert float(np.min(eigenvalues.real)) > 0.0, (
-        f"the fixture Z's Hermitian part is not positive-definite: {eigenvalues}"
-    )
+    assert (
+        float(np.min(eigenvalues.real)) > 0.0
+    ), f"the fixture Z's Hermitian part is not positive-definite: {eigenvalues}"
 
-    assembled_z, assembled_s = _assemble_current_drive_route_matrices(
-        ports, states, z0_ohm=Z0_OHM
-    )
+    assembled_z, assembled_s = _assemble_current_drive_route_matrices(ports, states, z0_ohm=Z0_OHM)
     analytic_s = _analytic_s(z_matrix)
 
     z_miss = float(np.max(np.abs(assembled_z - z_matrix)))

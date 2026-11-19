@@ -101,9 +101,7 @@ def format_expected_tag_counts(
         name = required_tags[tag]
         actual = int(counts.get(tag, 0))
         status = "OK" if actual >= minimum_count else "MISSING"
-        rendered.append(
-            f"{name}(tag={tag}): expected>={minimum_count}, actual={actual} [{status}]"
-        )
+        rendered.append(f"{name}(tag={tag}): expected>={minimum_count}, actual={actual} [{status}]")
 
     return "; ".join(rendered)
 
@@ -206,9 +204,7 @@ def cad_identity_report(
 
     tag_volumes: Dict[int, float] = {}
     for tag in expected:
-        dx_tag = ufl.Measure(
-            "dx", domain=mesh, subdomain_data=cell_tags, subdomain_id=(int(tag),)
-        )
+        dx_tag = ufl.Measure("dx", domain=mesh, subdomain_data=cell_tags, subdomain_id=(int(tag),))
         one = fem.Constant(mesh, default_scalar_type(1.0))
         local = fem.assemble_scalar(fem.form(one * dx_tag))
         tag_volumes[tag] = float(np.real(comm.allreduce(local, op=MPI.SUM)))

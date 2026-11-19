@@ -14,7 +14,6 @@ from fem_em_solver.core import (
     classify_residual_trend,
 )
 from fem_em_solver.io.mesh import MeshGenerator
-
 from tests.complex_mode import complex_only
 
 

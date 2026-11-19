@@ -32,7 +32,6 @@ from fem_em_solver.utils.analytical import (
     oblate_spheroid_depolarisation,
     pec_oblate_spheroid_field,
 )
-
 from tests.complex_mode import complex_only
 from tests.validation.test_imp1_pec_sphere_lossy_host import CAVITY_TAG, E0, MAT4_BAND
 from tests.validation.test_imp6_oblate_fem import (  # private names only (never test_*)
@@ -122,13 +121,19 @@ def _surface_moments(msh, facet_tags):
         sign = np.sign(np.sum(cr * (ccent - fcent), axis=1))
         cr = cr * sign[:, None]  # area-weighted normal (x2), into the air cell
         pts, wts = basix.make_quadrature(basix.CellType.triangle, 3)
-        phys = fv[:, 0][:, None, :] + pts[None, :, 0:1] * e1[:, None, :] + pts[None, :, 1:2] * e2[:, None, :]
+        phys = (
+            fv[:, 0][:, None, :]
+            + pts[None, :, 0:1] * e1[:, None, :]
+            + pts[None, :, 1:2] * e2[:, None, :]
+        )
         # ∫ f n_i dS = Σ_q w_q f(x_q) cr_i  (reference area 1/2 ↔ |cr|/2)
         vs = float(np.sum(np.sum(wts[None, :] * phys[:, :, 0], axis=1) * cr[:, 0]))
-        ii = np.array([
-            float(np.sum(np.sum(wts[None, :] * phys[:, :, i] ** 3 / 3.0, axis=1) * cr[:, i]))
-            for i in range(3)
-        ])
+        ii = np.array(
+            [
+                float(np.sum(np.sum(wts[None, :] * phys[:, :, i] ** 3 / 3.0, axis=1) * cr[:, i]))
+                for i in range(3)
+            ]
+        )
         bad_adj = int(np.sum(nadj != 1))
         nzero = int(np.sum(sign == 0))
         # wall nodes: extents
@@ -149,8 +154,9 @@ def _phi_cf(msh, cells, a_, c_):
     bad = [0]
 
     def fn(p):
-        e = pec_oblate_spheroid_field(p, semi_major=a_, semi_minor=c_, drive="inplane",
-                                      e0=E0, interior="continue")
+        e = pec_oblate_spheroid_field(
+            p, semi_major=a_, semi_minor=c_, drive="inplane", e0=E0, interior="continue"
+        )
         bad[0] += int(np.sum(~np.isfinite(np.sum(np.abs(e) ** 2, axis=1))))
         return e
 
@@ -199,33 +205,54 @@ def test_body_grain():
         mv_i = [abs(is_[i] / ih[i] - 1.0) for i in range(3)]
         out[d] = dict(r=r, r_i=r_i, a_i=a_i, c_i=c_i)
         if comm.rank == 0:
-            print(f"\n[item 466] rung rho_r/{d:g} (rho_r = {_rho_r(ASPECT) * 1e3:.4f} mm): "
-                  f"cells {cells_n} (record {I28_CELLS[d]}), mesh {_mesh_seconds(d):.1f} s, "
-                  f"rung {dt:.1f} s, mask cells {n_mask}, cavity facets {nfac} "
-                  f"(adjacency != 1: {bad_adj}, zero-sign: {nzero})")
-            print(f"  (V1) deficit {deficit:.3e} (record {I28_DEFICIT_STR[d]}); "
-                  f"|V_h/V - 1 - deficit| = {v1:.3e}")
-            print(f"  (Mv) V_h = {vh:.12e}, V_s = {vs:.12e}, |V_s/V_h - 1| = {mv_v:.3e}; "
-                  f"I_ii,h = {ih[0]:.9e} / {ih[1]:.9e} / {ih[2]:.9e}; "
-                  f"|I_s/I_h - 1| = {mv_i[0]:.3e} / {mv_i[1]:.3e} / {mv_i[2]:.3e}")
+            print(
+                f"\n[item 466] rung rho_r/{d:g} (rho_r = {_rho_r(ASPECT) * 1e3:.4f} mm): "
+                f"cells {cells_n} (record {I28_CELLS[d]}), mesh {_mesh_seconds(d):.1f} s, "
+                f"rung {dt:.1f} s, mask cells {n_mask}, cavity facets {nfac} "
+                f"(adjacency != 1: {bad_adj}, zero-sign: {nzero})"
+            )
+            print(
+                f"  (V1) deficit {deficit:.3e} (record {I28_DEFICIT_STR[d]}); "
+                f"|V_h/V - 1 - deficit| = {v1:.3e}"
+            )
+            print(
+                f"  (Mv) V_h = {vh:.12e}, V_s = {vs:.12e}, |V_s/V_h - 1| = {mv_v:.3e}; "
+                f"I_ii,h = {ih[0]:.9e} / {ih[1]:.9e} / {ih[2]:.9e}; "
+                f"|I_s/I_h - 1| = {mv_i[0]:.3e} / {mv_i[1]:.3e} / {mv_i[2]:.3e}"
+            )
             print(f"  centroid (m) = ({cent[0]:.3e}, {cent[1]:.3e}, {cent[2]:.3e})")
-            print(f"  (N-ext, control) a_v/a - 1 = {a_v / a - 1:+.3e}, c_v/c - 1 = {c_v / c - 1:+.3e} "
-                  f"(predicted <= 1e-9: extents carry nothing)")
-            print(f"  moment body: a_I/a - 1 = {a_i / a - 1:+.4e}, c_I/c - 1 = {c_i / c - 1:+.4e} "
-                  f"(predicted |.| in [1e-4, 5e-3], c more negative); c_I/a_I = {c_i / a_i:.6f} "
-                  f"(nominal {c / a:.6f})")
-            print(f"  L_x: {lx_nom:.8f} -> {lx_i:.8f} (1/L_x {1 / lx_nom:.6f} -> {1 / lx_i:.6f}); "
-                  f"L_z {lz_nom:.8f} -> {lz_i:.8f}; (L_x/L_x^I)^2 - 1 = {(lx_nom / lx_i) ** 2 - 1:+.4%}")
-            print(f"  (V0) Phi_cf(a, c) = {phi_nom:.12f} vs item 426 {ITEM426_RUNGS[d]['phi_cf_h']:.6f}: "
-                  f"|ratio - 1| = {v0:.3e} (bar {ITEM450_REPRO_BAR:g})"
-                  + (f"; vs item 440 {ITEM440_R1['phi_cf_h8']:.12f}: {v0_r4:.3e} (bar 1e-12)"
-                     if v0_r4 is not None else "")
-                  + f"; I28 (Wk')/(Wk) {I28_WK[d]}")
-            print(f"  Phi_cf(a_I, c_I) = {phi_i:.12f}; Phi_cf(a_I,c_I)/Phi_cf(a,c) - 1 = "
-                  f"{phi_i / phi_nom - 1:+.4%} (predicted |.| in [0.05 %, 3 %], sign not predicted)")
+            print(
+                f"  (N-ext, control) a_v/a - 1 = {a_v / a - 1:+.3e}, c_v/c - 1 = {c_v / c - 1:+.3e} "
+                f"(predicted <= 1e-9: extents carry nothing)"
+            )
+            print(
+                f"  moment body: a_I/a - 1 = {a_i / a - 1:+.4e}, c_I/c - 1 = {c_i / c - 1:+.4e} "
+                f"(predicted |.| in [1e-4, 5e-3], c more negative); c_I/a_I = {c_i / a_i:.6f} "
+                f"(nominal {c / a:.6f})"
+            )
+            print(
+                f"  L_x: {lx_nom:.8f} -> {lx_i:.8f} (1/L_x {1 / lx_nom:.6f} -> {1 / lx_i:.6f}); "
+                f"L_z {lz_nom:.8f} -> {lz_i:.8f}; (L_x/L_x^I)^2 - 1 = {(lx_nom / lx_i) ** 2 - 1:+.4%}"
+            )
+            print(
+                f"  (V0) Phi_cf(a, c) = {phi_nom:.12f} vs item 426 {ITEM426_RUNGS[d]['phi_cf_h']:.6f}: "
+                f"|ratio - 1| = {v0:.3e} (bar {ITEM450_REPRO_BAR:g})"
+                + (
+                    f"; vs item 440 {ITEM440_R1['phi_cf_h8']:.12f}: {v0_r4:.3e} (bar 1e-12)"
+                    if v0_r4 is not None
+                    else ""
+                )
+                + f"; I28 (Wk')/(Wk) {I28_WK[d]}"
+            )
+            print(
+                f"  Phi_cf(a_I, c_I) = {phi_i:.12f}; Phi_cf(a_I,c_I)/Phi_cf(a,c) - 1 = "
+                f"{phi_i / phi_nom - 1:+.4%} (predicted |.| in [0.05 %, 3 %], sign not predicted)"
+            )
             print(f"  non-finite |E|^2: nominal {bad_nom}, measured {bad_i}")
-            print(f"  (Vr) r_d = {r:+.4%} (I28 {I28_MISS_STR[d]}); body-corrected r_d^I = {r_i:+.4%}"
-                  + ("  [no correction applied]" if r_i == r else ""))
+            print(
+                f"  (Vr) r_d = {r:+.4%} (I28 {I28_MISS_STR[d]}); body-corrected r_d^I = {r_i:+.4%}"
+                + ("  [no correction applied]" if r_i == r else "")
+            )
         # asserts outside the rank-0 branch (all values reduced / rank-identical)
         checks = [
             ("Ce", cells_n == I28_CELLS[d]),
@@ -246,8 +273,9 @@ def test_body_grain():
     del45 = out[d5]["r_i"] - out[d4]["r_i"]
     q = del45 / del34 if del34 != 0 else float("nan")
     r_inf = out[d5]["r_i"] + del45 * q / (1 - q) if 0 < q < 1 else float("nan")
-    level = (all(abs(out[d]["r_i"]) <= abs(out[d]["r"]) for d in DIVISORS)
-             and abs(out[d5]["r_i"]) <= E3_QUARTER * abs(out[d5]["r"]))
+    level = all(abs(out[d]["r_i"]) <= abs(out[d]["r"]) for d in DIVISORS) and abs(
+        out[d5]["r_i"]
+    ) <= E3_QUARTER * abs(out[d5]["r"])
     partial = all(abs(out[d]["r_i"]) < abs(out[d]["r"]) for d in DIVISORS)
     verdict = "E3-level" if level else ("E3-partial" if partial else "E3-not")
     if comm.rank == 0:
@@ -256,11 +284,15 @@ def test_body_grain():
         print("  r_d^I      : " + " / ".join(f"{out[d]['r_i']:+.4%}" for d in DIVISORS))
         print("  a_I/a - 1  : " + " / ".join(f"{out[d]['a_i'] / a - 1:+.4e}" for d in DIVISORS))
         print("  c_I/c - 1  : " + " / ".join(f"{out[d]['c_i'] / c - 1:+.4e}" for d in DIVISORS))
-        print(f"  Delta^I_34 = {del34 * 100:+.4f} pp (predicted within +-0.05 pp of "
-              f"{I28_DELTA['34'] * 100:+.3f}); Delta^I_45 = {del45 * 100:+.4f} pp (predicted within "
-              f"+-0.05 pp of {I28_DELTA['45'] * 100:+.3f}); q^I = {q:.4f}; r_inf^I = "
-              f"{r_inf:+.4%} (I28 {I28_R_INF})")
-        print(f"  reading rule: {verdict} (predicted: not E3-level). "
-              f"The step-2 family is frozen (10-14 weekly).")
+        print(
+            f"  Delta^I_34 = {del34 * 100:+.4f} pp (predicted within +-0.05 pp of "
+            f"{I28_DELTA['34'] * 100:+.3f}); Delta^I_45 = {del45 * 100:+.4f} pp (predicted within "
+            f"+-0.05 pp of {I28_DELTA['45'] * 100:+.3f}); q^I = {q:.4f}; r_inf^I = "
+            f"{r_inf:+.4%} (I28 {I28_R_INF})"
+        )
+        print(
+            f"  reading rule: {verdict} (predicted: not E3-level). "
+            f"The step-2 family is frozen (10-14 weekly)."
+        )
         print(f"  failures: {fails}")
     assert not fails, f"item 466 anchors red: {fails}"

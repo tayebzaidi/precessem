@@ -98,8 +98,11 @@ def _call_check(calls, lines) -> dict:
 
 
 def _row_tracked():
-    return [ln for ln in gen.XXL_LEDGER.read_text(encoding="utf-8").splitlines()
-            if ln.startswith("| 2026-11-14 | GEO-38-C19 | ")]
+    return [
+        ln
+        for ln in gen.XXL_LEDGER.read_text(encoding="utf-8").splitlines()
+        if ln.startswith("| 2026-11-14 | GEO-38-C19 | ")
+    ]
 
 
 def test_wf17_s53_ledger_strings_and_custody():
@@ -107,9 +110,11 @@ def test_wf17_s53_ledger_strings_and_custody():
     got = {p["entry"]: (p["ranks"], p["cells"], p["gib"], p["seconds"]) for p in prices}
     custody = _custody(prices)
     for p in prices:
-        _p0(f"\n[WF-17 s53] (X-ledger-d2) window: entry {p['entry']} {p['chunk']} `{p['log']}`: "
+        _p0(
+            f"\n[WF-17 s53] (X-ledger-d2) window: entry {p['entry']} {p['chunk']} `{p['log']}`: "
             f"ranks {p['ranks']!r} cells {p['cells']!r} GiB {p['gib']!r} seconds "
-            f"{p['seconds']!r}; custody failures {custody[p['entry']]}")
+            f"{p['seconds']!r}; custody failures {custody[p['entry']]}"
+        )
     assert [p["entry"] for p in prices] == ["62"]
     assert got == EXPECTED_D2
     assert custody == {"62": []}
@@ -120,9 +125,11 @@ def test_wf17_s53_calls():
     lines = _log_lines()
     check = _call_check(calls, lines)
     for c in calls:
-        _p0(f"\n[WF-17 s53] (Call) {c['key']} ({gen.CALL_LABELS_D2[c['key']]}): seconds "
+        _p0(
+            f"\n[WF-17 s53] (Call) {c['key']} ({gen.CALL_LABELS_D2[c['key']]}): seconds "
             f"{c['seconds']!r} at log line {c['line']}: {lines[int(c['line']) - 1]!r}; "
-            f"failures {check[c['key']]}")
+            f"failures {check[c['key']]}"
+        )
     assert tuple((c["key"], c["seconds"], c["line"]) for c in calls) == EXPECTED_CALLS
     assert check == {"62 call 1": [], "62 call 2": []}
 
@@ -132,9 +139,11 @@ def test_wf17_s53_tag403_d2():
     lines = _log_lines()
     keys = set(gen.TAG403_D2)
     l1, l2 = lines[int(calls[0]["line"]) - 1], lines[TAG_LINE - 1]
-    _p0(f"\n[WF-17 s53] (Tag-d2) TAG403_D2 {gen.TAG403_D2!r}; call keys "
+    _p0(
+        f"\n[WF-17 s53] (Tag-d2) TAG403_D2 {gen.TAG403_D2!r}; call keys "
         f"{sorted(c['key'] for c in calls)}\n[WF-17 s53] tag line :{calls[0]['line']}: {l1!r}"
-        f"\n[WF-17 s53] tag line :{TAG_LINE}: {l2!r}")
+        f"\n[WF-17 s53] tag line :{TAG_LINE}: {l2!r}"
+    )
     assert keys == {c["key"] for c in calls}
     assert all(v.isascii() for v in gen.TAG403_D2.values())
     assert keys.isdisjoint(gen.TAG403) and keys.isdisjoint(gen.TAG403_15T)
@@ -146,8 +155,10 @@ def test_wf17_s53_fixture_two_lines():
     a = FC15.read_text(encoding="utf-8").splitlines()
     b = gen.FC2_FILE.read_text(encoding="utf-8").splitlines()
     diff = [i for i, (x, y) in enumerate(zip(a, b)) if x != y]
-    _p0(f"\n[WF-17 s53] (Fix) {len(a)} / {len(b)} lines; differing indices {diff}: "
-        f"{[(a[i], b[i]) for i in diff]}")
+    _p0(
+        f"\n[WF-17 s53] (Fix) {len(a)} / {len(b)} lines; differing indices {diff}: "
+        f"{[(a[i], b[i]) for i in diff]}"
+    )
     assert len(a) == len(b)
     assert len(diff) == 2 and diff[0] == 0
     assert (a[diff[1]], b[diff[1]]) == ("  degree: 1", "  degree: 2")
@@ -155,7 +166,6 @@ def test_wf17_s53_fixture_two_lines():
 
 def test_wf17_s53_fc2_row():
     from fem_em_solver.study import PRICE_TABLE_CLINICAL, ResourceEstimate
-
     from tests.package.test_wf13_estimate_f_clinical_d2 import FC2_LITERALS
 
     comm = MPI.COMM_WORLD
@@ -170,17 +180,23 @@ def test_wf17_s53_fc2_row():
     pin = PRICE_TABLE_CLINICAL[1]
     pr = row["printed"]
     strings = (pr["ranks"], pr["predicted_seconds"], pr["predicted_peak_gib"])
-    _p0(f"\n[WF-17 s53] (K-d2) {row['label']}: rc per rank {rcs}; complete={complete} "
+    _p0(
+        f"\n[WF-17 s53] (K-d2) {row['label']}: rc per rank {rcs}; complete={complete} "
         f"differ={differ}; rows_used={est.rows_used!r}; degree {est.degree!r}; printed ranks "
         f"{pr['ranks']!r} seconds {pr['predicted_seconds']!r} GiB {pr['predicted_peak_gib']!r} "
         f"cells {pr['cells']!r} (brief's strings '16' / '2892.1' / '472.42': "
-        f"{strings == (['16'], ['2892.1'], ['472.42'])})")
+        f"{strings == (['16'], ['2892.1'], ['472.42'])})"
+    )
     for r in measured["ratios"]:
-        _p0(f"[WF-17 s53] ratio entry {r['entry']} window: GiB {r['gib']} seconds {r['seconds']} "
-            "(estimator / measured; a record; predicted 0.9709 / 0.2653)")
+        _p0(
+            f"[WF-17 s53] ratio entry {r['entry']} window: GiB {r['gib']} seconds {r['seconds']} "
+            "(estimator / measured; a record; predicted 0.9709 / 0.2653)"
+        )
     for cr in measured["call_ratios"]:
-        _p0(f"[WF-17 s53] ratio {cr['key']}: seconds {cr['seconds']} (a record; predicted "
-            f"{ {'62 call 1': '0.6723', '62 call 2': '0.4388'}[cr['key']] })")
+        _p0(
+            f"[WF-17 s53] ratio {cr['key']}: seconds {cr['seconds']} (a record; predicted "
+            f"{ {'62 call 1': '0.6723', '62 call 2': '0.4388'}[cr['key']] })"
+        )
     gates = {
         "K rc": rcs == [0] * comm.size,
         "K CLI=API": complete and differ == set(),
@@ -203,14 +219,20 @@ def test_wf17_s53_section_and_order():
     fresh = gen.render_measured_d2(gen.measured_d2(comm))
     pos = tracked.find(gen.MEASURED_D2_HEADING)
     section = tracked[pos:] if pos >= 0 else ""
-    _p0(f"\n[WF-17 s53] (Sec-d2) heading at {pos}; section {len(section)} chars vs fresh "
-        f"{len(fresh)}; equal={section == fresh}")
-    idx = {h: (lines.index(h) if h in lines else -1)
-           for h in (gen.MEASURED_15T_HEADING, gen.MEASURED_HEADING, gen.MEASURED_D2_HEADING)}
+    _p0(
+        f"\n[WF-17 s53] (Sec-d2) heading at {pos}; section {len(section)} chars vs fresh "
+        f"{len(fresh)}; equal={section == fresh}"
+    )
+    idx = {
+        h: (lines.index(h) if h in lines else -1)
+        for h in (gen.MEASURED_15T_HEADING, gen.MEASURED_HEADING, gen.MEASURED_D2_HEADING)
+    }
     i15, i3, id2 = idx.values()
     h2 = [i for i, ln in enumerate(lines) if ln.startswith("## ")]
-    _p0(f"[WF-17 s53] (Order-d2) heading lines 1.5 T {i15} / 3 T {i3} / d2 {id2}; "
-        f"`## ` lines {h2}")
+    _p0(
+        f"[WF-17 s53] (Order-d2) heading lines 1.5 T {i15} / 3 T {i3} / d2 {id2}; "
+        f"`## ` lines {h2}"
+    )
     gates = {
         "Sec-d2": tracked.count(gen.MEASURED_D2_HEADING) == 1 and section == fresh,
         "Order-d2": 0 <= i15 < i3 < id2 and h2[-1] == id2,
@@ -227,8 +249,10 @@ def test_wf17_s53_c_sec_landed_slice_fails():
     landed = tracked[pos3:]
     end = tracked.find("\n## ", pos3 + 1)
     edited = tracked[pos3:end] if end >= 0 else tracked[pos3:]
-    _p0(f"\n[WF-17 s53] (c-Sec) landed slice {len(landed)} chars equal={landed == fresh3}; "
-        f"edited slice {len(edited)} chars equal={edited == fresh3}; fresh {len(fresh3)}")
+    _p0(
+        f"\n[WF-17 s53] (c-Sec) landed slice {len(landed)} chars equal={landed == fresh3}; "
+        f"edited slice {len(edited)} chars equal={edited == fresh3}; fresh {len(fresh3)}"
+    )
     assert pos3 >= 0
     assert landed != fresh3
     assert edited == fresh3
@@ -241,11 +265,14 @@ def test_wf17_s53_c_order_cut_preserved():
     old_cut = min(i for i in (i15, i3, len(lines)) if i >= 0)
     old_rows = [i for i in range(old_cut) if lines[i].startswith("| `")]
     top = lines.index(TITLE)
-    new_cut = next((i for i in range(top + 1, len(lines)) if lines[i].startswith("## ")),
-                   len(lines))
+    new_cut = next(
+        (i for i in range(top + 1, len(lines)) if lines[i].startswith("## ")), len(lines)
+    )
     new_rows = [i for i in range(top + 1, new_cut) if lines[i].startswith("| `")]
-    _p0(f"\n[WF-17 s53] (c-Order) landed cut {old_cut} ({len(old_rows)} rows); edited cut "
-        f"{new_cut} ({len(new_rows)} rows)")
+    _p0(
+        f"\n[WF-17 s53] (c-Order) landed cut {old_cut} ({len(old_rows)} rows); edited cut "
+        f"{new_cut} ({len(new_rows)} rows)"
+    )
     assert old_cut == new_cut
     assert len(old_rows) == len(new_rows) == 14
 
@@ -302,8 +329,10 @@ def test_wf17_s53_c_gz_d2(tmp_path, monkeypatch):
     monkeypatch.setattr(module, "LOGS", gzdir)
     zipped = _log_lines()
     check = _call_check(gen.ledger_calls(), zipped)
-    _p0(f"\n[WF-17 s53] (c-gz-d2) {name}: tracked {len(plain)} lines, gzip-only {len(zipped)} "
-        f"lines, equal={zipped == plain}; (Call) on the gzip read {check}")
+    _p0(
+        f"\n[WF-17 s53] (c-gz-d2) {name}: tracked {len(plain)} lines, gzip-only {len(zipped)} "
+        f"lines, equal={zipped == plain}; (Call) on the gzip read {check}"
+    )
     assert zipped == plain
     assert check == {"62 call 1": [], "62 call 2": []}
 

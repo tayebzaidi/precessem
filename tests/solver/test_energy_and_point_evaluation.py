@@ -38,9 +38,8 @@ from __future__ import annotations
 import numpy as np
 import pytest
 import ufl
-from mpi4py import MPI
-
 from dolfinx import fem
+from mpi4py import MPI
 
 from fem_em_solver.core.solvers import (
     DEFAULT_GAUGE_PENALTY,
@@ -232,9 +231,7 @@ def test_energy_satisfies_discrete_work_energy_identity(solved_wire):
     w_method = solver.compute_magnetic_energy()
 
     j_vec = ufl.as_vector([0.0, 0.0, J_MAGNITUDE])
-    dx_wire = ufl.Measure(
-        "dx", domain=mesh, subdomain_data=cell_tags, subdomain_id=1
-    )
+    dx_wire = ufl.Measure("dx", domain=mesh, subdomain_data=cell_tags, subdomain_id=1)
     work = _global_scalar(mesh, ufl.inner(j_vec, solver.A) * dx_wire)
     w_identity = 0.5 * work
 

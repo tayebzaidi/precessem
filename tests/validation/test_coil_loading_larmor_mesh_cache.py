@@ -54,9 +54,9 @@ from pathlib import Path
 
 import numpy as np
 import pytest
+from dolfinx import io
+from dolfinx import mesh as dmesh
 from mpi4py import MPI
-
-from dolfinx import io, mesh as dmesh
 
 from fem_em_solver.io.mesh import MeshGenerator
 from tests.validation.test_coil_loading_larmor_third_rung import (
@@ -146,9 +146,7 @@ def _owned_tag_counts(msh, tags, comm) -> dict[int, int]:
 
 
 def _owned_cells(msh, comm) -> int:
-    return int(
-        comm.allreduce(msh.topology.index_map(msh.topology.dim).size_local, op=MPI.SUM)
-    )
+    return int(comm.allreduce(msh.topology.index_map(msh.topology.dim).size_local, op=MPI.SUM))
 
 
 @pytest.fixture(scope="module")
@@ -225,11 +223,9 @@ def cached_rung():
         facet_tags_name=facet_tags_r.name,
     )
     if comm.rank == 0:
-        size_mb = sum(
-            p.stat().st_size
-            for p in (path, path.with_suffix(".h5"))
-            if p.exists()
-        ) / 1024.0**2
+        size_mb = (
+            sum(p.stat().st_size for p in (path, path.with_suffix(".h5")) if p.exists()) / 1024.0**2
+        )
         print(
             f"[TH-11 step 5a] cache {path} ({size_mb:.1f} MiB): write "
             f"{t_write:.1f} s, read-back {t_read:.1f} s at -n {comm.size}; "
@@ -278,8 +274,7 @@ def test_the_round_trip_preserves_the_cell_count(cached_rung):
     written, read = cached_rung["written"]["ncells"], cached_rung["read"]["ncells"]
     print(f"\n  cells: written {written}, read back {read}")
     assert read == written, (
-        f"the XDMF round trip changed the cell count: {written} written, "
-        f"{read} read back"
+        f"the XDMF round trip changed the cell count: {written} written, " f"{read} read back"
     )
 
 
@@ -302,8 +297,7 @@ def test_the_round_trip_preserves_the_tag_populations(cached_rung, which):
         f"written, {sorted(read)} read back"
     )
     assert read == written, (
-        f"the XDMF round trip changed per-tag {which}: {written} written, "
-        f"{read} read back"
+        f"the XDMF round trip changed per-tag {which}: {written} written, " f"{read} read back"
     )
 
 

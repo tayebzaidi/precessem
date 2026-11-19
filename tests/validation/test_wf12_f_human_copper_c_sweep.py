@@ -139,20 +139,30 @@ def _drive(ctx, built, specs, driven_id, *, held, wall_term, z_s, partition, kee
     z_p = complex(TERMINATED_PORT_IMPEDANCE_OHM)
     sheets = [sp.sheet(driven=(sp.port_id == driven_id)) for sp in specs]
     dsheet = next(s for s in sheets if s.port_id == driven_id)
-    linear = [lambda test, _s=dsheet: lumped_port_linear_term(
-        msh, tags_f, _s, test, omega_rad_per_s=omega)]
+    linear = [
+        lambda test, _s=dsheet: lumped_port_linear_term(
+            msh, tags_f, _s, test, omega_rad_per_s=omega
+        )
+    ]
     comm.Barrier()
     t0 = time.perf_counter()
     if held:
         fields = solver.solve_with_held_factorization(extra_linear_terms=linear)
     else:
         bil = ([wall_term] if wall_term is not None else []) + [
-            (lambda trial, test, _s=s: lumped_port_bilinear_term(
-                msh, tags_f, _s, trial, test, omega_rad_per_s=omega))
+            (
+                lambda trial, test, _s=s: lumped_port_bilinear_term(
+                    msh, tags_f, _s, trial, test, omega_rad_per_s=omega
+                )
+            )
             for s in sheets
         ]
-        fields = solver.solve(current_density=None, project_source=False,
-                              extra_bilinear_terms=bil, extra_linear_terms=linear)
+        fields = solver.solve(
+            current_density=None,
+            project_source=False,
+            extra_bilinear_terms=bil,
+            extra_linear_terms=linear,
+        )
     comm.Barrier()
     t_solve = time.perf_counter() - t0
     t1 = time.perf_counter()
@@ -163,8 +173,7 @@ def _drive(ctx, built, specs, driven_id, *, held, wall_term, z_s, partition, kee
     for s in sheets:
         v = complex(s.source_voltage_v) - currents[s.port_id] * z_p
         s_col[s.port_id] = (v - z_p * currents[s.port_id]) / v_src
-    out = {"s": s_col, "kind": "held" if held else "solve", "t_solve": t_solve,
-           "sheets": sheets}
+    out = {"s": s_col, "kind": "held" if held else "solve", "t_solve": t_solve, "sheets": sheets}
     if partition:
         sigma_f = fields.sigma_field
         dx = ufl.Measure("dx", domain=msh, subdomain_data=cell_tags)
@@ -174,8 +183,7 @@ def _drive(ctx, built, specs, driven_id, *, held, wall_term, z_s, partition, kee
             form = fem.form(0.5 * sigma_f * ufl.inner(e, e) * measure)
             return float(np.real(comm.allreduce(fem.assemble_scalar(form), op=MPI.SUM)))
 
-        out["p_sheets"] = float(sum(_sheet_field_dissipation_w(acct, s, e, omega)
-                                    for s in sheets))
+        out["p_sheets"] = float(sum(_sheet_field_dissipation_w(acct, s, e, omega) for s in sheets))
         out["p_src"] = float(_source_power_w(acct, dsheet, e, omega))
         p_total = _vol(dx)
         out["p_phantom"] = _vol(dx(PHANTOM_CELL_TAG))
@@ -196,7 +204,6 @@ def test_wf12_step2p_copper_c_sweep():
 
     from fem_em_solver.core.cavity import surface_resistance_ohm
     from fem_em_solver.ports.shares import terminal_form_deficit
-
     from tests.mesh.test_birdcage_port_sheet_prerequisite import CELL_COUNT_BAND
     from tests.validation.test_birdcage_f_human_rung import _ring_ports
     from tests.validation.test_birdcage_power_identity import DISCRETE_IDENTITY_RTOL
@@ -221,6 +228,11 @@ def test_wf12_step2p_copper_c_sweep():
     from tests.validation.test_port_lumped_sheet_sweep import RECIPROCITY_BAND
     from tests.validation.test_port_package_sparameters import REFERENCE_IMPEDANCE_OHM
     from tests.validation.test_th14_birdcage_copper import _leontovich_term
+    from tests.validation.test_wf7_f_human_b1_quadrature import (
+        DEGREE,
+        FREQUENCY_HZ,
+        _build_f_human,
+    )
     from tests.validation.test_wf10_f_human_tuned_circuit import (
         ANTI_MODE_C_PF,
         C_MODE_F,
@@ -246,11 +258,6 @@ def test_wf12_step2p_copper_c_sweep():
         _census_checks,
         _owned_census,
         _rss_gib,
-    )
-    from tests.validation.test_wf7_f_human_b1_quadrature import (
-        DEGREE,
-        FREQUENCY_HZ,
-        _build_f_human,
     )
 
     comm = MPI.COMM_WORLD
@@ -285,23 +292,29 @@ def test_wf12_step2p_copper_c_sweep():
     oc = built["outer_census"]
     n_cells = built["cells"]
     cell_rel = n_cells / HOLE_CELL_RECORD - 1.0
-    say(f"(A0) hole cells {n_cells} vs record {HOLE_CELL_RECORD}, rel {cell_rel:.3e} "
+    say(
+        f"(A0) hole cells {n_cells} vs record {HOLE_CELL_RECORD}, rel {cell_rel:.3e} "
         f"(band {CELL_COUNT_BAND}, ASSERTED; solid sigma=800 route 507266 — binary control); "
-        f"build {t_build:.1f} s; (iv) failures {census_fails or 'none'}; outer census {oc}")
+        f"build {t_build:.1f} s; (iv) failures {census_fails or 'none'}; outer census {oc}"
+    )
     assert abs(cell_rel) <= CELL_COUNT_BAND, cell_rel
     assert not census_fails, census_fails
     assert oc["tag_collision"] == 0 and oc["cavity"] > 0, oc
-    assert oc["cavity_exterior"] == oc["cavity"] and oc["outer"] + oc["cavity"] == oc["exterior"], oc
+    assert (
+        oc["cavity_exterior"] == oc["cavity"] and oc["outer"] + oc["cavity"] == oc["exterior"]
+    ), oc
 
     z_s = (1.0 + 1.0j) * surface_resistance_ohm(omega, COPPER_SIGMA)
     wall = _leontovich_term(msh, built["facets"], z_s, omega)
     base_specs = list(ctx["specs"])
     az_ref, slots = _ring_quadrature_slots(built["sheets"])
     ref_k, ref_sign = slots[DRIVEN]
-    feed2 = next(pid for pid, (k, sg) in slots.items()
-                 if sg == ref_sign and k == (ref_k + QUADRATURE_SLOT_OFFSET) % 16)
-    others = sorted((pid for pid in slots if pid not in (DRIVEN, feed2)),
-                    key=lambda p: int(p[1:]))
+    feed2 = next(
+        pid
+        for pid, (k, sg) in slots.items()
+        if sg == ref_sign and k == (ref_k + QUADRATURE_SLOT_OFFSET) % 16
+    )
+    others = sorted((pid for pid in slots if pid not in (DRIVEN, feed2)), key=lambda p: int(p[1:]))
     order = [DRIVEN, feed2] + others
     feeds = order[:2]
     assert len(order) == 32
@@ -320,8 +333,17 @@ def test_wf12_step2p_copper_c_sweep():
         t_p = time.perf_counter()
         cols, kinds = {}, []
         for n_drive, pid in enumerate(feeds):
-            d = _drive(ctx, built, specs_c, pid, held=(n_drive > 0), wall_term=wall,
-                       z_s=z_s, partition=False, keep_e=False)
+            d = _drive(
+                ctx,
+                built,
+                specs_c,
+                pid,
+                held=(n_drive > 0),
+                wall_term=wall,
+                z_s=z_s,
+                partition=False,
+                keep_e=False,
+            )
             cols[pid] = d["s"]
             kinds.append(d["kind"])
         meas = np.array([[cols[pj][pi] for pj in feeds] for pi in feeds], dtype=np.complex128)
@@ -335,43 +357,69 @@ def test_wf12_step2p_copper_c_sweep():
         sh = _k1_shares(cur, order, slots)
         route = np.array([(1.0 if i == 0 else 0.0) - 2.0 * z0 * cur[i] for i in range(2)])
         route_diff = float(np.max(np.abs(pred[:, 0] - route)))
-        say(f"{label}: C = {c_f:.12e} F ({c_f * 1e12:.4f} pF), {kinds}, pair {dt:.2f} s "
-            f"(PREDICTED {PRED_PAIR_S} s); t={time.perf_counter() - t_window:.1f} s")
+        say(
+            f"{label}: C = {c_f:.12e} F ({c_f * 1e12:.4f} pF), {kinds}, pair {dt:.2f} s "
+            f"(PREDICTED {PRED_PAIR_S} s); t={time.perf_counter() - t_window:.1f} s"
+        )
         for name, m in (("PRED", pred), ("MEAS", meas)):
-            say(f"    {name} " + "; ".join(
-                ", ".join(f"{complex(v):.10e}" for v in row) for row in m))
-        say(f"    residual {r:.6e}  cond {cond:.6e}  residual/cond {r / cond:.6e}  "
-            f"k=+-1 shares ring+ {sh[1.0]:.6f} ring- {sh[-1.0]:.6f}")
-        say(f"    circuit routes (printed): max|tuned_input col0 - (delta - 2 z0 I)| "
+            say(
+                f"    {name} "
+                + "; ".join(", ".join(f"{complex(v):.10e}" for v in row) for row in m)
+            )
+        say(
+            f"    residual {r:.6e}  cond {cond:.6e}  residual/cond {r / cond:.6e}  "
+            f"k=+-1 shares ring+ {sh[1.0]:.6f} ring- {sh[-1.0]:.6f}"
+        )
+        say(
+            f"    circuit routes (printed): max|tuned_input col0 - (delta - 2 z0 I)| "
             f"{route_diff:.3e} (beside {CURRENT_ROUTE_CONVERSION_BAND:g}; sigma=800 "
-            f"{SIGMA800_ROUTE_PRECEDENT:g})")
+            f"{SIGMA800_ROUTE_PRECEDENT:g})"
+        )
         checks.append((label, pred, meas))
         return meas, pred, r, cond, sh
 
     if mode == "W1":
         # ---- uncorrected Cu P17: (R), (P), NEG, κ ----------------------------
-        d = _drive(ctx, built, base_specs, DRIVEN, held=False, wall_term=wall, z_s=z_s,
-                   partition=True, keep_e=True)
+        d = _drive(
+            ctx,
+            built,
+            base_specs,
+            DRIVEN,
+            held=False,
+            wall_term=wall,
+            z_s=z_s,
+            partition=True,
+            keep_e=True,
+        )
         p_vol = d["p_phantom"] + d["p_rest"]
         rel_p = abs(d["p_src"] - d["p_sheets"] - p_vol - d["p_surf"]) / abs(d["p_src"])
         blind = abs(d["p_src"] - d["p_sheets"] - p_vol) / abs(d["p_src"])
         r_src = abs(d["p_src"] / P17_P_SRC_RECORD_W - 1.0)
         r_surf = abs(d["p_surf"] / P17_P_SURF_RECORD_W - 1.0)
         t_k = time.perf_counter()
-        kappa = float(terminal_form_deficit(msh, ctx["tags_f"], d["sheets"], d["e"],
-                                            comm)["pooled"])
+        kappa = float(
+            terminal_form_deficit(msh, ctx["tags_f"], d["sheets"], d["e"], comm)["pooled"]
+        )
         del d["e"]
-        say(f"Cu P17 uncorrected: {d['kind']} {d['t_solve']:.2f} s + post {d['t_post']:.2f} s; "
-            f"S_driven {d['s'][DRIVEN]:.6f} beside H12b {S_DRIVEN_H12B} (printed)")
-        say(f"(R) P_src {d['p_src']:.9e} vs {P17_P_SRC_RECORD_W:.9e} rel {r_src:.3e}; P_surf "
+        say(
+            f"Cu P17 uncorrected: {d['kind']} {d['t_solve']:.2f} s + post {d['t_post']:.2f} s; "
+            f"S_driven {d['s'][DRIVEN]:.6f} beside H12b {S_DRIVEN_H12B} (printed)"
+        )
+        say(
+            f"(R) P_src {d['p_src']:.9e} vs {P17_P_SRC_RECORD_W:.9e} rel {r_src:.3e}; P_surf "
             f"{d['p_surf']:.9e} vs {P17_P_SURF_RECORD_W:.9e} rel {r_surf:.3e} (band "
-            f"{REUSE_REPRODUCTION_RTOL:g}, ASSERTED)")
-        say(f"(P) rel {rel_p:.3e} (band {DISCRETE_IDENTITY_RTOL:g}, ASSERTED); NEG blind "
+            f"{REUSE_REPRODUCTION_RTOL:g}, ASSERTED)"
+        )
+        say(
+            f"(P) rel {rel_p:.3e} (band {DISCRETE_IDENTITY_RTOL:g}, ASSERTED); NEG blind "
             f"{blind:.4e} = {blind / DISCRETE_IDENTITY_RTOL:.1f}x band (bar {BLIND_FACTOR:.0f}x, "
-            f"ASSERTED; ceiling ≈124x)")
-        say(f"kappa_Cu = {kappa:.6e} beside sigma=800 {SIGMA800_KAPPA:.6e} (PREDICTED "
+            f"ASSERTED; ceiling ≈124x)"
+        )
+        say(
+            f"kappa_Cu = {kappa:.6e} beside sigma=800 {SIGMA800_KAPPA:.6e} (PREDICTED "
             f"{PRED_KAPPA}); eval {time.perf_counter() - t_k:.2f} s — DIAGNOSTIC ONLY, not "
-            f"applied (operator ruling 2026-10-02: exact-rectangle sheets, kappa off)")
+            f"applied (operator ruling 2026-10-02: exact-rectangle sheets, kappa off)"
+        )
         assert r_src <= REUSE_REPRODUCTION_RTOL, r_src
         assert r_surf <= REUSE_REPRODUCTION_RTOL, r_surf
         assert rel_p <= DISCRETE_IDENTITY_RTOL, rel_p
@@ -382,22 +430,35 @@ def test_wf12_step2p_copper_c_sweep():
         specs32 = _respec(base_specs, KAPPA_APPLIED)
         cols, kinds, cad = {}, [], []
         for n_drive, pid in enumerate(order):
-            d = _drive(ctx, built, specs32, pid, held=(n_drive > 0), wall_term=wall, z_s=z_s,
-                       partition=False, keep_e=False)
+            d = _drive(
+                ctx,
+                built,
+                specs32,
+                pid,
+                held=(n_drive > 0),
+                wall_term=wall,
+                z_s=z_s,
+                partition=False,
+                keep_e=False,
+            )
             cols[pid] = d["s"]
             kinds.append(d["kind"])
             cad.append(d["t_solve"] + d["t_post"])
         s32 = np.array([[cols[pj][pi] for pj in order] for pi in order], dtype=np.complex128)
-        say(f"32x32 (uncorrected widths, kappa not applied): {kinds.count('solve')} factorising, {kinds.count('held')} held; first "
-            f"{cad[0]:.2f} s, held max {max(cad[1:]):.2f} s; t={time.perf_counter() - t_window:.1f} s")
+        say(
+            f"32x32 (uncorrected widths, kappa not applied): {kinds.count('solve')} factorising, {kinds.count('held')} held; first "
+            f"{cad[0]:.2f} s, held max {max(cad[1:]):.2f} s; t={time.perf_counter() - t_window:.1f} s"
+        )
         assert kinds.count("solve") == 1 and kinds.count("held") == 31, kinds
     else:
         kappa = float(saved["kappa"])
         s32 = np.array(saved["s32"], dtype=np.complex128)
         saved_order = [str(p) for p in saved["order"]]
         cells_saved = int(saved["cells"])
-        say(f"npz: cells {cells_saved}, kappa {kappa:.6e} (diagnostic only, not applied; "
-            f"ASSERTED cells and order equal)")
+        say(
+            f"npz: cells {cells_saved}, kappa {kappa:.6e} (diagnostic only, not applied; "
+            f"ASSERTED cells and order equal)"
+        )
         assert n_cells == cells_saved, (n_cells, cells_saved)
         assert saved_order == order, saved_order
 
@@ -405,18 +466,22 @@ def test_wf12_step2p_copper_c_sweep():
     ratio32 = _reciprocity_ratio(s32)
     sigma32 = float(np.linalg.norm(s32, 2))
     eye32 = np.eye(32)
-    say(f"(M) 32x32 reciprocity {ratio32:.6e} (band {RECIPROCITY_BAND:.0e}, ASSERTED; PREDICTED "
+    say(
+        f"(M) 32x32 reciprocity {ratio32:.6e} (band {RECIPROCITY_BAND:.0e}, ASSERTED; PREDICTED "
         f"≈{PRED_RECIP:.0e}); sigma_max {sigma32:.12f} (ceiling {MATRIX_PASSIVITY_CEILING}, "
         f"ASSERTED), 1-sigma_max {1.0 - sigma32:.3e} (PREDICTED {PRED_SMAX_MARGIN}); "
         f"cond(I-S32) {np.linalg.cond(eye32 - s32):.6e}, cond(I+S32) "
         f"{np.linalg.cond(eye32 + s32):.6e} (printed); S_driven(P17) {s32[0, 0]:.6f}; "
-        f"beside H12b uncorrected sigma_max {H12B_UNCORRECTED_SIGMA_MAX} (ring order, printed)")
+        f"beside H12b uncorrected sigma_max {H12B_UNCORRECTED_SIGMA_MAX} (ring order, printed)"
+    )
     if os.path.exists(H8A_NPZ):
         h8a = np.load(H8A_NPZ, allow_pickle=False)
         if [str(p) for p in h8a["order"]] == order:
             s800 = np.array(h8a["s32"], dtype=np.complex128)
-            say(f"||S_Cu - S_800||_F/||S_800||_F = "
-                f"{np.linalg.norm(s32 - s800) / np.linalg.norm(s800):.6e} (printed)")
+            say(
+                f"||S_Cu - S_800||_F/||S_800||_F = "
+                f"{np.linalg.norm(s32 - s800) / np.linalg.norm(s800):.6e} (printed)"
+            )
         else:
             say("H8a npz order differs; S_Cu vs S_800 not printed")
     else:
@@ -427,25 +492,36 @@ def test_wf12_step2p_copper_c_sweep():
     # ---- circuit sweep and dense scan ---------------------------------------
     _g, _v, roots = tuning_sweep(s32, FREQUENCY_HZ, terminated=terminated)
     tuned = select_c_tuned(roots)
-    say(f"tuning sweep: {len(roots)} sign change(s) of Im Z_in; copper select_c_tuned "
+    say(
+        f"tuning sweep: {len(roots)} sign change(s) of Im Z_in; copper select_c_tuned "
         + (f"{tuned['c_f'] * 1e12:.4f} pF" if tuned is not None else "NONE")
-        + f" beside sigma=800 {SIGMA800_C_TUNED_PF} pF (PREDICTED {PRED_C_TUNED_PF} pF, printed)")
+        + f" beside sigma=800 {SIGMA800_C_TUNED_PF} pF (PREDICTED {PRED_C_TUNED_PF} pF, printed)"
+    )
     grid = np.geomspace(C_TUNED_F, C_MODE_F, SCAN_POINTS)
     conds, s11s, shp, shm = _circuit_scan(s32, FREQUENCY_HZ, grid, order, slots, z0)
     maxima, pts = _rule_points(grid, conds)
-    say(f"scan: {SCAN_POINTS} log-spaced C in [C_tuned, C_mode]; {len(maxima)} interior local "
-        f"maxima of cond; cond at C_tuned {conds[0]:.6e}")
+    say(
+        f"scan: {SCAN_POINTS} log-spaced C in [C_tuned, C_mode]; {len(maxima)} interior local "
+        f"maxima of cond; cond at C_tuned {conds[0]:.6e}"
+    )
     if mode == "W1":
-        extrema = set(maxima) | {i for i in range(1, SCAN_POINTS - 1)
-                                 if conds[i] < conds[i - 1] and conds[i] <= conds[i + 1]}
+        extrema = set(maxima) | {
+            i
+            for i in range(1, SCAN_POINTS - 1)
+            if conds[i] < conds[i - 1] and conds[i] <= conds[i + 1]
+        }
         say("    i     C [pF]        cond(I-GS_tt)   |S11|      share ring+  share ring-")
         for i in range(SCAN_POINTS):
             if i % 20 == 0 or i in extrema or i == SCAN_POINTS - 1:
                 tag = " MAX" if i in maxima else (" min" if i in extrema else "")
-                say(f"    {i:4d}  {grid[i] * 1e12:12.6f}  {conds[i]:14.6e}  {s11s[i]:.6f}  "
-                    f"{shp[i]:.6f}     {shm[i]:.6f}{tag}")
-    say("    all-C anti-mode capacitances (sigma=800, printed): "
-        + ", ".join(f"k={k} {v} pF" for k, v in ANTI_MODE_C_PF.items()))
+                say(
+                    f"    {i:4d}  {grid[i] * 1e12:12.6f}  {conds[i]:14.6e}  {s11s[i]:.6f}  "
+                    f"{shp[i]:.6f}     {shm[i]:.6f}{tag}"
+                )
+    say(
+        "    all-C anti-mode capacitances (sigma=800, printed): "
+        + ", ".join(f"k={k} {v} pF" for k, v in ANTI_MODE_C_PF.items())
+    )
     cu_pts = {}
     if pts is not None:
         for key in ("on_lo", "on_hi", "off1", "off2"):
@@ -454,52 +530,79 @@ def test_wf12_step2p_copper_c_sweep():
                 say(f"    copper rule point {key}: NONE")
                 continue
             cu_pts[key] = float(grid[i])
-            say(f"    copper rule point {key}: C = {grid[i]:.12e} F ({grid[i] * 1e12:.4f} pF) "
-                f"beside sigma=800 {sig800[key][0] * 1e12:.4f} pF; cond {conds[i]:.6e}")
+            say(
+                f"    copper rule point {key}: C = {grid[i]:.12e} F ({grid[i] * 1e12:.4f} pF) "
+                f"beside sigma=800 {sig800[key][0] * 1e12:.4f} pF; cond {conds[i]:.6e}"
+            )
         for key, ref in zip(("on_lo", "on_hi"), SIGMA800_COND_MAX_PF):
             if key in cu_pts:
-                say(f"    cond max {key}: {cu_pts[key] * 1e12:.4f} pF vs {ref} pF rel "
-                    f"{cu_pts[key] * 1e12 / ref - 1.0:+.4f} (PREDICTED ±{PRED_COND_MAX_RTOL})")
+                say(
+                    f"    cond max {key}: {cu_pts[key] * 1e12:.4f} pF vs {ref} pF rel "
+                    f"{cu_pts[key] * 1e12 / ref - 1.0:+.4f} (PREDICTED ±{PRED_COND_MAX_RTOL})"
+                )
     else:
         say(f"    fewer than 2 interior local maxima of cond ({maxima}): no copper rule points")
 
     if mode == "W1":
         meas_t, pred_t, r_t, cond_t, _ = pair_at(C_TUNED_F, "C_tuned", KAPPA_APPLIED, s32)
-        _, pred_ctl = tuned_input(s32, FREQUENCY_HZ, NEGATIVE_CONTROL_FACTOR * C_TUNED_F,
-                                  terminated=terminated)
+        _, pred_ctl = tuned_input(
+            s32, FREQUENCY_HZ, NEGATIVE_CONTROL_FACTOR * C_TUNED_F, terminated=terminated
+        )
         r_ctl = _residual(meas_t, pred_ctl)
         mult = r_ctl / REDUCTION_BAND
-        say(f"negative control (PREDICTED {PRED_NEG}x, printed, not asserted): "
+        say(
+            f"negative control (PREDICTED {PRED_NEG}x, printed, not asserted): "
             f"{NEGATIVE_CONTROL_FACTOR} x C_tuned prediction vs MEAS at C_tuned residual "
             f"{r_ctl:.6e} = {mult:.1f}x REDUCTION_BAND (>= 10x: "
-            f"{'held' if mult >= 10.0 else 'NOT held'}; sigma=800 {SIGMA800_NEG_MULTIPLE:.0f}x)")
+            f"{'held' if mult >= 10.0 else 'NOT held'}; sigma=800 {SIGMA800_NEG_MULTIPLE:.0f}x)"
+        )
         meas_m, pred_m, r_m, cond_m, _ = pair_at(C_MODE_F, "C_mode", KAPPA_APPLIED, s32)
-        say(f"W1 residuals (printed): C_tuned r_Cu {r_t:.6e} vs r_800 {sig800['tuned'][1]:.6e}; "
+        say(
+            f"W1 residuals (printed): C_tuned r_Cu {r_t:.6e} vs r_800 {sig800['tuned'][1]:.6e}; "
             f"C_mode r_Cu {r_m:.6e} vs r_800 {sig800['mode'][1]:.6e} (rho "
             f"{r_m / sig800['mode'][1]:.4f}; PREDICTED r_Cu(C_mode) in {PRED_R_MODE}); CAVEAT: "
-            f"r_Cu at uncorrected widths, r_800 kappa-corrected")
+            f"r_Cu at uncorrected widths, r_800 kappa-corrected"
+        )
         if comm.rank == 0:
             os.makedirs(os.path.dirname(STEP2P_NPZ), exist_ok=True)
-            np.savez(STEP2P_NPZ, s32=s32, kappa=kappa, order=np.array(order), cells=n_cells,
-                     meas_tuned=meas_t, r_tuned=r_t, cond_tuned=cond_t,
-                     meas_mode=meas_m, r_mode=r_m, cond_mode=cond_m)
+            np.savez(
+                STEP2P_NPZ,
+                s32=s32,
+                kappa=kappa,
+                order=np.array(order),
+                cells=n_cells,
+                meas_tuned=meas_t,
+                r_tuned=r_t,
+                cond_tuned=cond_t,
+                meas_mode=meas_m,
+                r_mode=r_m,
+                cond_mode=cond_m,
+            )
             say(f"saved {STEP2P_NPZ}")
         comm.Barrier()
     else:
-        meas_t, pred_t, r_t, cond_t, _ = pair_at(C_TUNED_F, "(A3) guard C_tuned", KAPPA_APPLIED,
-                                                 s32)
+        meas_t, pred_t, r_t, cond_t, _ = pair_at(
+            C_TUNED_F, "(A3) guard C_tuned", KAPPA_APPLIED, s32
+        )
         a3 = _entrywise_rel(meas_t, np.array(saved["meas_tuned"]))
-        say(f"(A3) guard MEAS vs W1 npz entrywise {a3:.3e} (band {LEG_D0_REPRODUCTION_BAND:.0e}, "
-            f"ASSERTED)")
+        say(
+            f"(A3) guard MEAS vs W1 npz entrywise {a3:.3e} (band {LEG_D0_REPRODUCTION_BAND:.0e}, "
+            f"ASSERTED)"
+        )
         assert a3 <= LEG_D0_REPRODUCTION_BAND, a3
-        res = {"tuned": (C_TUNED_F, r_t, cond_t),
-               "mode": (C_MODE_F, float(saved["r_mode"]), float(saved["cond_mode"]))}
+        res = {
+            "tuned": (C_TUNED_F, r_t, cond_t),
+            "mode": (C_MODE_F, float(saved["r_mode"]), float(saved["cond_mode"])),
+        }
         for key in ("on_lo", "off1", "on_hi", "off2"):
             _, _, r, cond, _ = pair_at(sig800[key][0], f"sigma=800 rule {key}", KAPPA_APPLIED, s32)
             res[key] = (sig800[key][0], r, cond)
         guard_s = pair_times[0]
-        extra = [k for k in ("on_lo", "on_hi") if k in cu_pts
-                 and abs(cu_pts[k] / sig800[k][0] - 1.0) > ON_POINT_C_RTOL]
+        extra = [
+            k
+            for k in ("on_lo", "on_hi")
+            if k in cu_pts and abs(cu_pts[k] / sig800[k][0] - 1.0) > ON_POINT_C_RTOL
+        ]
         projection = t_build + (1 + 4 + len(extra)) * guard_s + 50.0
         cu_own = {}
         if extra and projection <= W2_PRICE_CEILING_S:
@@ -513,16 +616,22 @@ def test_wf12_step2p_copper_c_sweep():
 
         # ---- reading table and rule (printed only) --------------------------
         keys = ["tuned", "on_lo", "off1", "on_hi", "off2", "mode"]
-        say("CAVEAT: r_Cu is copper at UNCORRECTED widths (kappa not applied, ruling "
+        say(
+            "CAVEAT: r_Cu is copper at UNCORRECTED widths (kappa not applied, ruling "
             "2026-10-02); r_800 / cond_800 are sigma=800 KAPPA-CORRECTED (step1c-W2), so rho "
-            "compares across that difference; rule printed as pre-registered, not refit")
-        say("reading table: key  C[pF]  r_Cu  r_800  rho=r_Cu/r_800  cond_Cu  r_Cu/cond_Cu  cond_800")
+            "compares across that difference; rule printed as pre-registered, not refit"
+        )
+        say(
+            "reading table: key  C[pF]  r_Cu  r_800  rho=r_Cu/r_800  cond_Cu  r_Cu/cond_Cu  cond_800"
+        )
         rho = {}
         for k in keys:
             c, r, cd = res[k]
             rho[k] = r / sig800[k][1]
-            say(f"    {k:6s} {c * 1e12:10.4f}  {r:.6e}  {sig800[k][1]:.6e}  {rho[k]:.4f}  "
-                f"{cd:.6e}  {r / cd:.6e}  {sig800[k][2]:.6e}")
+            say(
+                f"    {k:6s} {c * 1e12:10.4f}  {r:.6e}  {sig800[k][1]:.6e}  {rho[k]:.4f}  "
+                f"{cd:.6e}  {r / cd:.6e}  {sig800[k][2]:.6e}"
+            )
         for k, (c, r, cd) in cu_own.items():
             say(f"    copper own {k}: {c * 1e12:.4f} pF  r_Cu {r:.6e}  cond {cd:.6e}")
         cs = np.array([res[k][0] for k in keys])
@@ -530,32 +639,46 @@ def test_wf12_step2p_copper_c_sweep():
         slope_cu = float(np.polyfit(np.log(cs), np.log(rs), 1)[0])
         r_mode = res["mode"][1]
         big = [k for k in keys if res[k][0] >= RULE_CONDUCTOR_C_MIN_F]
-        conductor = r_mode <= RULE_CONDUCTOR_R_MODE and all(rho[k] <= RULE_CONDUCTOR_RHO for k in big)
-        tracks = (all(RULE_TRACKS_RHO[0] <= rho[k] <= RULE_TRACKS_RHO[1] for k in keys)
-                  and abs(slope_cu - RULE_TRACKS_SLOPE[0]) <= RULE_TRACKS_SLOPE[1])
+        conductor = r_mode <= RULE_CONDUCTOR_R_MODE and all(
+            rho[k] <= RULE_CONDUCTOR_RHO for k in big
+        )
+        tracks = (
+            all(RULE_TRACKS_RHO[0] <= rho[k] <= RULE_TRACKS_RHO[1] for k in keys)
+            and abs(slope_cu - RULE_TRACKS_SLOPE[0]) <= RULE_TRACKS_SLOPE[1]
+        )
         verdict = "conductor" if conductor else ("tracks" if tracks else "mixed")
-        say(f"log-log slope r_Cu vs C (6 points) {slope_cu:+.4f} beside sigma=800 "
-            f"{SIGMA800_SLOPE:+.4f} (PREDICTED {PRED_SLOPE[0]} ± {PRED_SLOPE[1]})")
-        say(f"rho range {min(rho.values()):.4f} .. {max(rho.values()):.4f} (PREDICTED "
+        say(
+            f"log-log slope r_Cu vs C (6 points) {slope_cu:+.4f} beside sigma=800 "
+            f"{SIGMA800_SLOPE:+.4f} (PREDICTED {PRED_SLOPE[0]} ± {PRED_SLOPE[1]})"
+        )
+        say(
+            f"rho range {min(rho.values()):.4f} .. {max(rho.values()):.4f} (PREDICTED "
             f"{PRED_RHO}); r_Cu(C_mode) {r_mode:.6e} (PREDICTED {PRED_R_MODE}); C >= 75 pF "
-            f"points {big}")
+            f"points {big}"
+        )
         say(f"reading rule (pre-registered, printed only): classification = {verdict.upper()}")
-        say(f"H8b-configuration estimate {H8B_TRANSFER} x r_Cu(C_mode) = "
+        say(
+            f"H8b-configuration estimate {H8B_TRANSFER} x r_Cu(C_mode) = "
             f"{H8B_TRANSFER * r_mode:.6e} — assumed transfer, not measured (H8b sigma=800 "
-            f"{H8B_RESIDUAL:.6e}, not the comparand)")
+            f"{H8B_RESIDUAL:.6e}, not the comparand)"
+        )
 
     for label, pred, meas in checks:
         rp, rm = _reciprocity_ratio(pred), _reciprocity_ratio(meas)
         cp = float(np.max(np.sum(np.abs(pred) ** 2, axis=0)))
         cm = float(np.max(np.sum(np.abs(meas) ** 2, axis=0)))
-        say(f"(C) {label}: reciprocity circuit {rp:.3e} in-model {rm:.3e} (band "
+        say(
+            f"(C) {label}: reciprocity circuit {rp:.3e} in-model {rm:.3e} (band "
             f"{RECIPROCITY_BAND:.0e}, ASSERTED); col sum|S|^2 circuit {cp:.9f} in-model "
-            f"{cm:.9f} (ceiling {COLUMN_PASSIVITY_CEILING}, ASSERTED)")
+            f"{cm:.9f} (ceiling {COLUMN_PASSIVITY_CEILING}, ASSERTED)"
+        )
     _m, rss_per, rss_sum = _rss_gib(comm)
-    say(f"price: pairs {', '.join(f'{t:.1f}' for t in pair_times)} s; window "
+    say(
+        f"price: pairs {', '.join(f'{t:.1f}' for t in pair_times)} s; window "
         f"{time.perf_counter() - t_window:.1f} s at -n {comm.size}; RSS per rank "
         f"{', '.join(f'{r:.2f}' for r in (rss_per or []))} GiB, summed {rss_sum:.2f} GiB "
-        f"(PREDICTED <= {PRED_RSS_GIB} GiB)")
+        f"(PREDICTED <= {PRED_RSS_GIB} GiB)"
+    )
     for label, pred, meas in checks:
         assert _reciprocity_ratio(pred) <= RECIPROCITY_BAND, label
         assert _reciprocity_ratio(meas) <= RECIPROCITY_BAND, label

@@ -30,11 +30,7 @@ from mpi4py import MPI
 
 from fem_em_solver import LumpedPortDrive, Study, StudyConfigError, cli, load_study, run_study_file
 from fem_em_solver.ports.touchstone import load_touchstone
-
 from tests.complex_mode import complex_only
-from tests.package.test_wf13_estimate_f_clinical import FC
-from tests.package.test_wf16_load_result_sweep import FREQS, SWEEP, _zk
-from tests.package.test_wf16_study_load_result import _synthetic_s, _write
 from tests.package.test_wf1_study_yaml import _fresh_dir, _rc_all
 from tests.package.test_wf1_yaml_load_result import (
     _hex,
@@ -44,6 +40,9 @@ from tests.package.test_wf1_yaml_load_result import (
     _tune_block_hex_equal,
     _write_yaml,
 )
+from tests.package.test_wf13_estimate_f_clinical import FC
+from tests.package.test_wf16_load_result_sweep import FREQS, SWEEP, _zk
+from tests.package.test_wf16_study_load_result import _synthetic_s, _write
 from tests.validation.test_port_birdcage_four_port import LEG_D0_REPRODUCTION_BAND
 from tests.validation.test_port_lumped_rlc_termination import REDUCTION_BAND
 
@@ -104,12 +103,18 @@ def test_wf1_s27_yaml_at_hz_equals_api(capsys):
         rcs = _rc_all(rc, comm)
         diff = _summary_diff(js_api, js_cli)
         hex_bad = _tune_block_hex_equal(block, api) + _tune_block_hex_equal(js_api["tune"], api)
-        _p0(f"[WF-1 s27 I=] at_hz {f:.3e}: selected {block['frequency_hz']:.3e}, C "
-            f"{block['c_mode_farad'].hex()} vs api {_hex(api.c_mode_farad)}, differing {hex_bad}")
-        _p0(f"[WF-1 s27 C=] {f:.3e} Hz: {block['c_mode_farad']:.12e} vs record "
-            f"{ITEM722_C_MODE_F[i]:.12e}, rel {rel:.3e} (REDUCTION_BAND {REDUCTION_BAND:.0e})")
-        _p0(f"[WF-1 s27 CLI=API] {f:.3e} Hz: rc {rcs}, fields differing {diff}; summary "
-            f"frequency_hz {js_api['frequency_hz']:.3e} (the Study's)")
+        _p0(
+            f"[WF-1 s27 I=] at_hz {f:.3e}: selected {block['frequency_hz']:.3e}, C "
+            f"{block['c_mode_farad'].hex()} vs api {_hex(api.c_mode_farad)}, differing {hex_bad}"
+        )
+        _p0(
+            f"[WF-1 s27 C=] {f:.3e} Hz: {block['c_mode_farad']:.12e} vs record "
+            f"{ITEM722_C_MODE_F[i]:.12e}, rel {rel:.3e} (REDUCTION_BAND {REDUCTION_BAND:.0e})"
+        )
+        _p0(
+            f"[WF-1 s27 CLI=API] {f:.3e} Hz: rc {rcs}, fields differing {diff}; summary "
+            f"frequency_hz {js_api['frequency_hz']:.3e} (the Study's)"
+        )
         bad[f] = (hex_bad, rel <= REDUCTION_BAND, rcs, diff, block["frequency_hz"] == f)
     assert n_calls == 0
     for f, (hex_bad, in_band, rcs, diff, selected) in bad.items():
@@ -120,8 +125,10 @@ def test_wf1_s27_yaml_at_hz_equals_api(capsys):
     c128 = summaries[FREQS[2]]["tune"]["c_mode_farad"]
     miss = abs(c128 / c64 - 1.0)
     ceiling = abs(1.0 - (FREQS[1] * _zk(_stack[1])[1].imag) / (FREQS[2] * _zk(_stack[2])[1].imag))
-    _p0(f"[WF-1 s27 ctl] 128 MHz against 64 MHz: miss {miss:.6f}, ceiling {ceiling:.6f} "
-        f"(asserted > {LEG_D0_REPRODUCTION_BAND:.0e})")
+    _p0(
+        f"[WF-1 s27 ctl] 128 MHz against 64 MHz: miss {miss:.6f}, ceiling {ceiling:.6f} "
+        f"(asserted > {LEG_D0_REPRODUCTION_BAND:.0e})"
+    )
     assert miss > LEG_D0_REPRODUCTION_BAND
     assert abs(miss - ceiling) <= REDUCTION_BAND
 
@@ -162,8 +169,10 @@ def test_wf1_s27_refusals(capsys):
             reasons[name] = err.value.reason
     assert comm.allreduce(calls["n"], op=MPI.SUM) == 0
     for name, reading in readings.items():  # printed here, past capsys
-        _p0(f"\n[WF-1 s27 Ref] {name}: {reading[0]}: {reasons[name]}; rc {reading[1]}, "
-            f"output dir {reading[2]}")
+        _p0(
+            f"\n[WF-1 s27 Ref] {name}: {reading[0]}: {reasons[name]}; rc {reading[1]}, "
+            f"output dir {reading[2]}"
+        )
     for name, reading in readings.items():
         assert reading == ("tune.at_hz", (2, 2), False), name
 
@@ -220,8 +229,10 @@ def test_ops76_no_at_hz_refused_by_field(capsys):
         _p0(f"[OPS-76 S0] solve, _solve_ports, build and gmsh.initialize patched: {n_calls} calls")
         _p0(f"[OPS-76 O] output directory written: {wrote}")
         _p0(f"[OPS-76 API=] tune(1): {type(err.value).__name__}: {err.value}")
-        _p0(f"[OPS-76 ctl] one-frequency file, no at_hz: C {run.summary['tune']['c_mode_farad'].hex()}"
-            f" vs api {_hex(api.c_mode_farad)}, differing {hex_bad}")
+        _p0(
+            f"[OPS-76 ctl] one-frequency file, no at_hz: C {run.summary['tune']['c_mode_farad'].hex()}"
+            f" vs api {_hex(api.c_mode_farad)}, differing {hex_bad}"
+        )
     assert rcs == (2, 2)
     assert named
     assert n_calls == 0

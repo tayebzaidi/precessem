@@ -61,12 +61,13 @@ from mpi4py import MPI
 
 from fem_em_solver.io.mesh import MeshGenerator, _interface_facet_tags
 from tests.mesh.helpers import global_cell_tag_set
-from tests.mesh.test_coil_phantom_conforming import _tag_volume
-from tests.mesh.test_birdcage_port_sheet_prerequisite import CONDUCTOR_RESOLUTION
-from tests.mesh.test_birdcage_port_terminals import (
-    CONDUCTOR_IFACE,
-    _interface_area_or_zero,
+from tests.mesh.test_birdcage_leg_gaps import (
+    LEG_GAP_LENGTH,
+    TERMINAL_AREA_BAND,
+    _analytic_terminal_area,
 )
+from tests.mesh.test_birdcage_port_sheet_prerequisite import CONDUCTOR_RESOLUTION
+from tests.mesh.test_birdcage_port_sheets import PORT_LOWER, PORT_UPPER, SHEET_IFACE
 from tests.mesh.test_birdcage_port_tags import (
     AIR_PADDING,
     COIL_LENGTH,
@@ -80,12 +81,11 @@ from tests.mesh.test_birdcage_port_tags import (
     RING_MINOR_RADIUS,
     RING_RADIUS,
 )
-from tests.mesh.test_birdcage_leg_gaps import (
-    LEG_GAP_LENGTH,
-    TERMINAL_AREA_BAND,
-    _analytic_terminal_area,
+from tests.mesh.test_birdcage_port_terminals import (
+    CONDUCTOR_IFACE,
+    _interface_area_or_zero,
 )
-from tests.mesh.test_birdcage_port_sheets import PORT_LOWER, PORT_UPPER, SHEET_IFACE
+from tests.mesh.test_coil_phantom_conforming import _tag_volume
 
 # A quarter of the inter-leg spacing: leg 1 moves to 22.5 deg, so its two
 # azimuthal neighbours sit 67.5 and 112.5 deg away instead of 90 and 90.  Large
@@ -159,9 +159,7 @@ def _build(
         air_padding=AIR_PADDING,
         resolution=(RESOLUTION if resolution is None else float(resolution)),
         conductor_resolution=(
-            CONDUCTOR_RESOLUTION
-            if conductor_resolution is None
-            else float(conductor_resolution)
+            CONDUCTOR_RESOLUTION if conductor_resolution is None else float(conductor_resolution)
         ),
         c4_congruent_sheets=bool(c4_congruent_sheets),
         comm=MPI.COMM_WORLD,
@@ -177,9 +175,7 @@ def _sheet_nodes(msh, facet_tags, tag):
     facets = np.asarray(facet_tags.find(tag), dtype=np.int32)
     if not facets.size:
         return np.zeros((0, 3))
-    nodes = dolfinx.cpp.mesh.entities_to_geometry(
-        msh._cpp_object, fdim, facets, False
-    )
+    nodes = dolfinx.cpp.mesh.entities_to_geometry(msh._cpp_object, fdim, facets, False)
     return msh.geometry.x[nodes.reshape(-1)]
 
 
@@ -232,9 +228,7 @@ def _sheet_areas(msh, cell_tags, ports, comm):
         cell_tags,
         {SHEET_IFACE + i: (PORT_LOWER + i, PORT_UPPER + i) for i in ports},
     )
-    areas = {
-        i: _interface_area_or_zero(msh, tags_f, SHEET_IFACE + i, comm) for i in ports
-    }
+    areas = {i: _interface_area_or_zero(msh, tags_f, SHEET_IFACE + i, comm) for i in ports}
     return tags_f, areas
 
 
@@ -280,8 +274,7 @@ def rungs():
             "n_cells": int(msh.topology.index_map(tdim).size_global),
             "tag_set": global_cell_tag_set(msh, cells),
             "azimuth_deg": {
-                i: _sheet_azimuth_deg(msh, tags_f, SHEET_IFACE + i, comm)
-                for i in ports
+                i: _sheet_azimuth_deg(msh, tags_f, SHEET_IFACE + i, comm) for i in ports
             },
             "diag": diag,
             "elapsed": elapsed,
@@ -446,12 +439,10 @@ def test_the_displaced_mesh_keeps_every_geo18_identity(rungs):
             "azimuthal direction — the rotated facet set is not a plane"
         )
         assert abs(h / dz - 1.0) < SHEET_AREA_BAND, (
-            f"port P{i}: the sheet spans {h:.9e} m along the leg against the "
-            f"gap {dz:.9e} m"
+            f"port P{i}: the sheet spans {h:.9e} m along the leg against the " f"gap {dz:.9e} m"
         )
         assert abs(w / dx - 1.0) < SHEET_AREA_BAND, (
-            f"port P{i}: the sheet spans {w:.9e} m radially against the box's "
-            f"{dx:.9e} m"
+            f"port P{i}: the sheet spans {w:.9e} m radially against the box's " f"{dx:.9e} m"
         )
 
 

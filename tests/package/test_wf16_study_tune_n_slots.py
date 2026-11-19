@@ -60,8 +60,8 @@ from tests.validation.test_geo38_f_clinical_c_mode import (
 )
 from tests.validation.test_port_birdcage_ring_matrix import REUSE_REPRODUCTION_RTOL
 from tests.validation.test_port_lumped_rlc_termination import REDUCTION_BAND
-from tests.validation.test_wf10_f_human_copper_esr_root import ESR_OHM
 from tests.validation.test_wf7_f_human_b1_quadrature import DEGREE, FREQUENCY_HZ
+from tests.validation.test_wf10_f_human_copper_esr_root import ESR_OHM
 
 S13_ENV = "FEM_EM_WF16_S13"
 REPO = Path(__file__).resolve().parents[2]
@@ -122,9 +122,16 @@ def _worst_vs_reader(local, ref, n):
 
 
 def _pkg_rows(s, pm, n):
-    return rm.ring_mode_rows(s, port_map=pm, n_slots=n, freq_hz=FREQUENCY_HZ, c_f=C0_F,
-                             feeds=[(0, "bottom"), (n // 4, "bottom")],
-                             drives={"x": (1.0, 0.0)}, z0=Z0)
+    return rm.ring_mode_rows(
+        s,
+        port_map=pm,
+        n_slots=n,
+        freq_hz=FREQUENCY_HZ,
+        c_f=C0_F,
+        feeds=[(0, "bottom"), (n // 4, "bottom")],
+        drives={"x": (1.0, 0.0)},
+        z0=Z0,
+    )
 
 
 def _broken(n, seed_noise, seed_shuffle):
@@ -141,7 +148,6 @@ def test_wf16_s13_n_slots_coding(monkeypatch):
     _knob()  # a bad knob value raises here too
     comm = MPI.COMM_WORLD
     calls = _stub_builds(monkeypatch)
-    c2_closed = 1.0 / (OMEGA * 52.0)
 
     # (N16 / N32) on (i) the closed-form synthetics, (ii) C16-broken, (iii) C3a's 64x64.
     cases = {}
@@ -163,20 +169,27 @@ def test_wf16_s13_n_slots_coding(monkeypatch):
         ref = _pkg_rows(s, pm, n)
         worst[label] = _worst_vs_reader(loc, ref, n)
         nmodes[label] = (len(ref["modes"]), n // 2 + 1)
-        _p0(f"\n[WF-16 s13 N] {label}: worst rel vs C10a ring_c_modes {worst[label]:.3e} "
+        _p0(
+            f"\n[WF-16 s13 N] {label}: worst rel vs C10a ring_c_modes {worst[label]:.3e} "
             f"(asserted == 0; predicted 0); modes {nmodes[label][0]} (N/2+1 = {nmodes[label][1]}); "
-            f"off-block {ref['off_block']:.3e}")
+            f"off-block {ref['off_block']:.3e}"
+        )
 
     # (U2) the closed form on (i).
     u2 = {}
     for n in (16, 32):
         r = _pkg_rows(*syn[n], n)
-        u2[n] = (abs(r["c_mode_f"] / C0_F - 1.0), abs(r["c_k2_f"] * OMEGA * 52.0 - 1.0),
-                 r["modes"]["1"]["anti"])
-        _p0(f"[WF-16 s13 U2] N={n}: |C_mode/c0-1| {u2[n][0]:.3e}, |C2 w 52 - 1| {u2[n][1]:.3e} "
+        u2[n] = (
+            abs(r["c_mode_f"] / C0_F - 1.0),
+            abs(r["c_k2_f"] * OMEGA * 52.0 - 1.0),
+            r["modes"]["1"]["anti"],
+        )
+        _p0(
+            f"[WF-16 s13 U2] N={n}: |C_mode/c0-1| {u2[n][0]:.3e}, |C2 w 52 - 1| {u2[n][1]:.3e} "
             f"(band REUSE_REPRODUCTION_RTOL {REUSE_REPRODUCTION_RTOL:g}; beside "
             f"EXACT_IDENTITY_RTOL {EXACT_IDENTITY_RTOL:g}; C10a read <= 1.6e-15; predicted "
-            f"<= {PRED_U2:g}); anti(k=1) {u2[n][2]:.15f}")
+            f"<= {PRED_U2:g}); anti(k=1) {u2[n][2]:.15f}"
+        )
 
     # (T32) Study.tune(n_slots=32) on the injected shuffled N = 32 synthetic.
     g32 = FHumanBirdcageGeometry(leg_count=32, as_hole=True)
@@ -189,40 +202,62 @@ def test_wf16_s13_n_slots_coding(monkeypatch):
     assert map_from_names_64(ids_sh) == syn[32][1]
     assert rm.ring_port_map_from_names(ids_sh, n_slots=32) == map_from_names_64(ids_sh)
     st32 = _study(geom=g32)
-    st32.result = SimpleNamespace(s_matrix=s32,
-                                  port_definitions=[SimpleNamespace(port_id=n) for n in ids_sh])
+    st32.result = SimpleNamespace(
+        s_matrix=s32, port_definitions=[SimpleNamespace(port_id=n) for n in ids_sh]
+    )
     t1, t2 = st32.tune(k=1, n_slots=32), st32.tune(k=2, n_slots=32)
     t1d = st32.tune(k=1)
-    rd = ring_c_modes(s32, map_from_names_64(ids_sh), freq_hz=FREQUENCY_HZ, n_slots=32,
-                      z0=float(st32.excitation.z0_ohm))
+    rd = ring_c_modes(
+        s32,
+        map_from_names_64(ids_sh),
+        freq_hz=FREQUENCY_HZ,
+        n_slots=32,
+        z0=float(st32.excitation.z0_ohm),
+    )
     t_e1 = abs(t1.c_mode_farad / C0_F - 1.0)
     t_e2 = abs(t2.c_mode_farad * OMEGA * 52.0 - 1.0)
     bit = _bitwise_equal_across_ranks(comm, np.array([t1.c_mode_farad, t2.c_mode_farad]))
-    _p0(f"[WF-16 s13 T32] tune(k=1, n_slots=32) {t1.c_mode_farad:.12e} F (rel vs c0 {t_e1:.3e}), "
+    _p0(
+        f"[WF-16 s13 T32] tune(k=1, n_slots=32) {t1.c_mode_farad:.12e} F (rel vs c0 {t_e1:.3e}), "
         f"tune(k=2) {t2.c_mode_farad:.12e} F (|C2 w 52 - 1| {t_e2:.3e}); == reader: "
         f"{t1.c_mode_farad == rd['c_mode_f']} / {t2.c_mode_farad == rd['c_k2_f']}; len(z_k) "
         f"{len(t1.z_k)}; default == explicit {t1d.c_mode_farad == t1.c_mode_farad}; "
-        f"bitwise across {comm.size} ranks {bit}")
+        f"bitwise across {comm.size} ranks {bit}"
+    )
 
     # (c-k2) asserted, backed: the k = 2 read misses c0 by far more than REDUCTION_BAND.
     miss = abs(t2.c_mode_farad / C0_F - 1.0)
-    _p0(f"[WF-16 s13 c-k2] |C(k=2)/c0 - 1| {miss:.4f} (> REDUCTION_BAND {REDUCTION_BAND:g}; "
-        f"predicted {PRED_C_K2_MISS})")
+    _p0(
+        f"[WF-16 s13 c-k2] |C(k=2)/c0 - 1| {miss:.4f} (> REDUCTION_BAND {REDUCTION_BAND:g}; "
+        f"predicted {PRED_C_K2_MISS})"
+    )
 
     # Printed only: the top ring offset by one slot at N = 32.
     pm_off = [(j if r == "bottom" else (j + 1) % 32, r) for j, r in syn[32][1]]
     r_off = _pkg_rows(syn[32][0], pm_off, 32)
-    _p0(f"[WF-16 s13 print] top ring offset one slot, N=32: C_mode rel "
+    _p0(
+        f"[WF-16 s13 print] top ring offset one slot, N=32: C_mode rel "
         f"{abs(r_off['c_mode_f'] / C0_F - 1.0):.3e}, anti(k=1) {r_off['modes']['1']['anti']:.6f} "
-        f"(cos^2(pi/32) = {np.cos(np.pi / 32) ** 2:.6f})")
+        f"(cos^2(pi/32) = {np.cos(np.pi / 32) ** 2:.6f})"
+    )
 
     # (X) refusals naming n_slots, no build.
     for bad in (2, 3, 15, True, 16.0):
         with pytest.raises((ValueError, TypeError), match="n_slots") as ei:
-            _pkg_rows(*syn[16], bad) if not isinstance(bad, (bool, float)) else \
-                rm.ring_mode_rows(syn[16][0], port_map=syn[16][1], n_slots=bad,
-                                  freq_hz=FREQUENCY_HZ, c_f=C0_F, feeds=[(0, "bottom")],
-                                  drives={"x": (1.0,)}, z0=Z0)
+            (
+                _pkg_rows(*syn[16], bad)
+                if not isinstance(bad, (bool, float))
+                else rm.ring_mode_rows(
+                    syn[16][0],
+                    port_map=syn[16][1],
+                    n_slots=bad,
+                    freq_hz=FREQUENCY_HZ,
+                    c_f=C0_F,
+                    feeds=[(0, "bottom")],
+                    drives={"x": (1.0,)},
+                    z0=Z0,
+                )
+            )
         expect = TypeError if isinstance(bad, (bool, float)) else ValueError
         assert ei.type is expect, (bad, ei.type)
     with pytest.raises(ValueError, match="n_slots"):
@@ -237,17 +272,29 @@ def test_wf16_s13_n_slots_coding(monkeypatch):
     with pytest.raises(ValueError, match="n_slots"):
         st32.tune(k=1, n_slots=16)
     assert st32.result is held
-    four = Study(FourPortBirdcageGeometry.f_small(), _phantom(), LumpedPortDrive(),
-                 frequency_hz=FREQUENCY_HZ, degree=DEGREE)
-    sphere = Study(SphereInBoxGeometry(0.05, 0.15, 0.01, 0.03), _phantom(),
-                   QuasiStaticSphereField(), frequency_hz=FREQUENCY_HZ, degree=DEGREE)
+    four = Study(
+        FourPortBirdcageGeometry.f_small(),
+        _phantom(),
+        LumpedPortDrive(),
+        frequency_hz=FREQUENCY_HZ,
+        degree=DEGREE,
+    )
+    sphere = Study(
+        SphereInBoxGeometry(0.05, 0.15, 0.01, 0.03),
+        _phantom(),
+        QuasiStaticSphereField(),
+        frequency_hz=FREQUENCY_HZ,
+        degree=DEGREE,
+    )
     for other in (four, sphere):
         with pytest.raises(TypeError, match="n_slots"):
             other.tune(k=1, n_slots=16)
         assert other.result is None
-    _p0(f"[WF-16 s13 X] refusals: n_slots in (2, 3, 15, True, 16.0); 64-port at 16; P17 at 32; "
+    _p0(
+        f"[WF-16 s13 X] refusals: n_slots in (2, 3, 15, True, 16.0); 64-port at 16; P17 at 32; "
         f"32-leg Study at 16 (result untouched); four-port / sphere TypeError; builds "
-        f"{calls['n']}")
+        f"{calls['n']}"
+    )
 
     for label in cases:
         assert worst[label] == 0.0, (label, worst[label])
@@ -269,9 +316,19 @@ def test_wf16_s13_n_slots_coding(monkeypatch):
 def pre():
     """The pre-change ``ring_modes`` module, from the pinned commit."""
     src = subprocess.run(
-        ["git", "-c", f"safe.directory={REPO}", "-C", str(REPO), "show",
-         f"{PRE_CHANGE_SHA}:{RING_MODES_PATH}"],
-        check=True, capture_output=True, text=True).stdout
+        [
+            "git",
+            "-c",
+            f"safe.directory={REPO}",
+            "-C",
+            str(REPO),
+            "show",
+            f"{PRE_CHANGE_SHA}:{RING_MODES_PATH}",
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout
     assert "n_slots" not in src, "pinned pre-change source already carries n_slots"
     assert "esr_ohm" in src, "pinned pre-change source predates PORT-24 step 1"
     mod = types.ModuleType("fem_em_solver.ports._ring_modes_pre_wf16s13")
@@ -306,8 +363,12 @@ def test_wf16_s13_default_bitwise_records(monkeypatch, pre):
 
     rm_ok, kb_ok, map_ok, cbit = [], [], [], []
     for tag, (s, order) in recs.items():
-        kw = dict(port_map=pre.ring_port_map_from_names(order), freq_hz=FREQUENCY_HZ,
-                  feeds=FEEDS, drives=DRIVES)
+        kw = dict(
+            port_map=pre.ring_port_map_from_names(order),
+            freq_hz=FREQUENCY_HZ,
+            feeds=FEEDS,
+            drives=DRIVES,
+        )
         map_ok.append(rm.ring_port_map_from_names(order) == pre.ring_port_map_from_names(order))
         for c in (C_MODE_CU_D1_RECORD_F, C_MODE_CU_D2_COMPARAND_F):
             for r in (None, ESR_OHM):
@@ -319,37 +380,47 @@ def test_wf16_s13_default_bitwise_records(monkeypatch, pre):
                 if not rm_ok[-1]:
                     _p0(f"[WF-16 s13 B-rm] {tag} c={c!r} r={r}: DIFFER")
             # (c-bit): the comparator sees an ESR change.
-            cbit.append(_canon(rm.ring_mode_rows(s, c_f=c, esr_ohm=ESR_OHM, **kw))
-                        != _canon(pre.ring_mode_rows(s, c_f=c, **kw)))
+            cbit.append(
+                _canon(rm.ring_mode_rows(s, c_f=c, esr_ohm=ESR_OHM, **kw))
+                != _canon(pre.ring_mode_rows(s, c_f=c, **kw))
+            )
         perm = pre._canonical_permutation(pre.ring_port_map_from_names(order))
         zc = s_to_z(s, Z0)[np.ix_(perm, perm)]
         bn, on = rm.k_blocks(zc)
         bo, oo = pre.k_blocks(zc)
         kb_ok.append(all(np.array_equal(bn[k], bo[k]) for k in range(16)) and on == oo)
-    _p0(f"\n[WF-16 s13 B-rm] ring_mode_rows bitwise vs {PRE_CHANGE_SHA} (default and n_slots=16, "
+    _p0(
+        f"\n[WF-16 s13 B-rm] ring_mode_rows bitwise vs {PRE_CHANGE_SHA} (default and n_slots=16, "
         f"r in (0, ESR_OHM), two C, two records): {sum(rm_ok)}/{len(rm_ok)}; name route "
-        f"{map_ok}; k_blocks + off-block {kb_ok}; (c-bit) ESR-vs-lossless differs {cbit}")
+        f"{map_ok}; k_blocks + off-block {kb_ok}; (c-bit) ESR-vs-lossless differs {cbit}"
+    )
 
     tune_ok, prints, rel = {}, {}, {}
     for tag, (s, order) in recs.items():
         st = _study()
-        st.result = SimpleNamespace(s_matrix=s,
-                                    port_definitions=[SimpleNamespace(port_id=n) for n in order])
+        st.result = SimpleNamespace(
+            s_matrix=s, port_definitions=[SimpleNamespace(port_id=n) for n in order]
+        )
         oks = []
         for k in (1, 2):
             t = st.tune(k=k)
             c_old, lam_old, off_old = _pre_tune_ring(pre, st, k)
-            oks.append(t.c_mode_farad == c_old and np.array_equal(t.z_k, lam_old)
-                       and t.off_diagonal_residual == off_old)
+            oks.append(
+                t.c_mode_farad == c_old
+                and np.array_equal(t.z_k, lam_old)
+                and t.off_diagonal_residual == off_old
+            )
             if k == 1:
                 prints[tag] = f"{t.c_mode_farad:.12e}"
                 const = C_MODE_CU_D1_RECORD_F if tag == "d1" else C_MODE_CU_D2_COMPARAND_F
                 rel[tag] = abs(t.c_mode_farad / const - 1.0)
         tune_ok[tag] = oks
-        _p0(f"[WF-16 s13 B-tune] {tag}: tune(k=1,2) == pre-change body {oks}; C_mode "
+        _p0(
+            f"[WF-16 s13 B-tune] {tag}: tune(k=1,2) == pre-change body {oks}; C_mode "
             f"{prints[tag]} F (record print {RECORD_PRINTS[tag]}; rel vs constant {rel[tag]:.3e}, "
             f"band REUSE_REPRODUCTION_RTOL {REUSE_REPRODUCTION_RTOL:g}; C10a read 3.515e-13 / "
-            f"4.212e-13)")
+            f"4.212e-13)"
+        )
 
     assert all(rm_ok) and len(rm_ok) == 8  # 2 records x 2 C x 2 r, each old == new == new16
     assert all(map_ok) and all(kb_ok)

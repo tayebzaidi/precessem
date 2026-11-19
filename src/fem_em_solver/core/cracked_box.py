@@ -11,6 +11,7 @@ lips, each an exterior facet set. ``merge=True`` merges the plane vertices
 
 Importable in the real and the complex build (no complex-only imports).
 """
+
 import basix.ufl
 import numpy as np
 import ufl
@@ -35,7 +36,10 @@ def _distribute(x, cells, comm):
     domain = ufl.Mesh(basix.ufl.element("Lagrange", "tetrahedron", 1, shape=(3,)))
     partitioner = dmesh.create_cell_partitioner(dmesh.GhostMode.shared_facet, 2)
     return dmesh.create_mesh(
-        comm, cells=np.ascontiguousarray(cells), x=np.ascontiguousarray(x), e=domain,
+        comm,
+        cells=np.ascontiguousarray(cells),
+        x=np.ascontiguousarray(x),
+        e=domain,
         partitioner=partitioner,
     )
 
@@ -62,7 +66,12 @@ def _tag(msh):
     mid = dmesh.compute_midpoints(msh, fdim, ext) if ext.size else np.zeros((0, 3))
     vals = np.zeros(ext.size, dtype=np.int32)
     for tag, axis, c in (
-        (X0, 0, 0.0), (X1, 0, A), (Y0, 1, 0.0), (Y1, 1, B), (Z0, 2, 0.0), (Z1, 2, D),
+        (X0, 0, 0.0),
+        (X1, 0, A),
+        (Y0, 1, 0.0),
+        (Y1, 1, B),
+        (Z0, 2, 0.0),
+        (Z1, 2, D),
     ):
         vals[np.abs(mid[:, axis] - c) < FACE_TOL] = tag
     on_plane = np.abs(mid[:, 1] - Y_PLANE) < PLANE_TOL
@@ -109,9 +118,7 @@ def cracked_box_mesh(merge: bool, comm=MPI.COMM_WORLD, septum_tag=None):
         cells = np.vstack([ch, ch[:, [1, 0, 2, 3]] + xh.shape[0]])
         if merge:
             key = np.round(x, 9)
-            _, first, inverse = np.unique(
-                key, axis=0, return_index=True, return_inverse=True
-            )
+            _, first, inverse = np.unique(key, axis=0, return_index=True, return_inverse=True)
             x = x[first]
             cells = inverse.reshape(-1)[cells]
     spread = comm.bcast(spread, root=0)

@@ -37,14 +37,23 @@ import pytest
 from mpi4py import MPI
 
 from fem_em_solver.io.mesh import (
-    MeshGenerator,
     TWO_TORUS_CONDUCTOR_SURFACE_TAG,
+    MeshGenerator,
     _interface_facet_tags,
 )
 
+# The area helpers step 0 used, imported from the probe so the executed route is
+# scored by the identical reduction.  `_census` is imported too, but only ever
+# applied to an **owned** slice — see `_owned_census` below.
+from tests.mesh.probe_two_torus_conductor_hole import (
+    _census,
+    _exterior_facet_area,
+    _facet_area,
+)
+from tests.mesh.test_birdcage_leg_offset import SHEET_AREA_BAND
+
 # Bands and fixture arguments are imported, never restated (`ANS-1`).
 from tests.mesh.test_birdcage_port_sheet_prerequisite import CELL_COUNT_BAND
-from tests.mesh.test_birdcage_leg_offset import SHEET_AREA_BAND
 from tests.validation.test_port_gap_voltage_impedance import (
     AIR_PADDING,
     GAP_ANGLE,
@@ -60,22 +69,13 @@ from tests.validation.test_port_gap_voltage_impedance import (
 )
 from tests.validation.test_port_lumped_two_torus import _build
 
-# The area helpers step 0 used, imported from the probe so the executed route is
-# scored by the identical reduction.  `_census` is imported too, but only ever
-# applied to an **owned** slice — see `_owned_census` below.
-from tests.mesh.probe_two_torus_conductor_hole import (
-    _census,
-    _exterior_facet_area,
-    _facet_area,
-)
-
 # --- step 0's records (`20260905T051023Z_TH-15.log:507–513` hole,
 # `20260905T050518Z_TH-15.log:942–952` solid), both on image tag v0.11.0
 # (dolfinx 0.11.0.post0, gmsh 4.15.2).  Version-tagged environment-dependent
 # cell counts under the (1*) licence, judged at the imported 1% band; the probe
 # reproduced each of them bit-identically inside one image.
 HOLE_CELL_RECORD = 161461
-SOLID_CELL_RECORD = 184176            # the landed 0.11 record, unchanged
+SOLID_CELL_RECORD = 184176  # the landed 0.11 record, unchanged
 SOLID_WIRE_CELL_RECORDS = {1: 9471, 2: 9348}
 
 # The hole's cavity wall against the solid route's conductor/air interface.
@@ -139,16 +139,12 @@ def _measure(msh, cell_tags, facet_tags, comm):
     msh.topology.create_connectivity(tdim - 1, tdim)
     msh.topology.create_entity_permutations()
     out = {
-        "n_cells": comm.allreduce(
-            msh.topology.index_map(tdim).size_local, op=MPI.SUM
-        ),
+        "n_cells": comm.allreduce(msh.topology.index_map(tdim).size_local, op=MPI.SUM),
         "n_verts": comm.allreduce(msh.topology.index_map(0).size_local, op=MPI.SUM),
         "cells": _owned_census(msh, cell_tags, tdim, comm),
         "facets": _owned_census(msh, facet_tags, tdim - 1, comm),
     }
-    out["sheet_area"] = {
-        tag: _facet_area(msh, facet_tags, tag, comm) for tag in (211, 212)
-    }
+    out["sheet_area"] = {tag: _facet_area(msh, facet_tags, tag, comm) for tag in (211, 212)}
     return out
 
 
@@ -169,12 +165,8 @@ def routes():
     solid = _measure(solid_msh, solid_cells, solid_facets, comm)
     solid["t_mesh"] = t_solid
     cond_ft = _interface_facet_tags(solid_msh, solid_cells, SOLID_INTERFACES)
-    cond_census = _owned_census(
-        solid_msh, cond_ft, solid_msh.topology.dim - 1, comm
-    )
-    solid["interface_facets"] = {
-        1: cond_census.get(311, 0), 2: cond_census.get(312, 0)
-    }
+    cond_census = _owned_census(solid_msh, cond_ft, solid_msh.topology.dim - 1, comm)
+    solid["interface_facets"] = {1: cond_census.get(311, 0), 2: cond_census.get(312, 0)}
     solid["interface_area"] = {
         1: _facet_area(solid_msh, cond_ft, 311, comm),
         2: _facet_area(solid_msh, cond_ft, 312, comm),
@@ -262,8 +254,7 @@ def test_hole_route_keeps_both_port_sheets_exact(routes):
         for tag in (211, 212):
             area = route["sheet_area"][tag]
             assert np.isfinite(area), (
-                f"{label} route has no facets in sheet group {tag}: census "
-                f"{route['facets']}"
+                f"{label} route has no facets in sheet group {tag}: census " f"{route['facets']}"
             )
             dev = abs(area / nominal_area - 1.0)
             if MPI.COMM_WORLD.rank == 0:

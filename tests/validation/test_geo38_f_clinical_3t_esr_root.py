@@ -52,9 +52,15 @@ from tests.complex_mode import complex_only
 C12_ENV = "FEM_EM_GEO38_C12"
 C12_NODES_ENV = "FEM_EM_GEO38_C12_NODES_PF"
 C12_DEGREE_ENV = "FEM_EM_GEO38_C12_DEGREE"
-FOREIGN_ENVS = ("FEM_EM_GEO38_C4", "FEM_EM_GEO38_C4_NODES_PF", "FEM_EM_GEO38_C4_DEGREE",
-                "FEM_EM_GEO38_C11", "FEM_EM_GEO38_C11_DRIVES", "FEM_EM_GEO38_C3",
-                "FEM_EM_GEO38_C8")
+FOREIGN_ENVS = (
+    "FEM_EM_GEO38_C4",
+    "FEM_EM_GEO38_C4_NODES_PF",
+    "FEM_EM_GEO38_C4_DEGREE",
+    "FEM_EM_GEO38_C11",
+    "FEM_EM_GEO38_C11_DRIVES",
+    "FEM_EM_GEO38_C3",
+    "FEM_EM_GEO38_C8",
+)
 FOREIGN_PREFIX = "FEM_EM_GEO38_STEP"
 
 # Printed only (brief "Predictions, written first"; never asserted).
@@ -64,7 +70,7 @@ PREDICTED_RSS_SUM_GIB = 2.0
 PREDICTED_F = 2_242_229
 PREDICTED_Z_RC = complex(0.2, -12.43397993)
 C11_PRINTED_3T_COLUMN_S = 318.0  # C11's printed 3 T column (projection input only)
-ENTRY40_15T_COLUMN_S = 199.0     # entry 40's measured 1.5 T column (beside it, printed)
+ENTRY40_15T_COLUMN_S = 199.0  # entry 40's measured 1.5 T column (beside it, printed)
 
 _REC_DEG: list = []
 
@@ -149,8 +155,9 @@ def _c12_patches(monkeypatch):
     def degree_recorder(ctx, comm):
         out = orig(ctx, comm)
         problem = out[0].problem
-        _REC_DEG.append((int(out[1]), float(problem.frequency_hz),
-                         dict(problem.material_map or {})))
+        _REC_DEG.append(
+            (int(out[1]), float(problem.frequency_hz), dict(problem.material_map or {}))
+        )
         return out
 
     monkeypatch.setattr(c4, "_apply_degree_c4", degree_recorder)
@@ -173,8 +180,9 @@ def _path_state(p):
 # ---------------------------------------------------------------------------
 # Coding tests; skip whenever FEM_EM_GEO38_C12 is set.
 # ---------------------------------------------------------------------------
-_coding = pytest.mark.skipif(os.environ.get(C12_ENV, "").strip() != "",
-                             reason=f"{C12_ENV} set: coding tests skip in windows")
+_coding = pytest.mark.skipif(
+    os.environ.get(C12_ENV, "").strip() != "", reason=f"{C12_ENV} set: coding tests skip in windows"
+)
 
 
 @_coding
@@ -225,9 +233,12 @@ def test_c12_k0_knob_parsing(monkeypatch):
             with pytest.raises(ValueError):
                 _guard_foreign()
     _guard_foreign()
-    print(f"\n[GEO-38 C12 K0] C12 unset/build/1 accepted, 2/x refused; node/degree knobs refused "
-          f"under build, copied under 1 (C4a parsers: [58.5, 60.25], collision refused); "
-          f"{len(FOREIGN_ENVS) + 2} foreign variables refused", flush=True)
+    print(
+        f"\n[GEO-38 C12 K0] C12 unset/build/1 accepted, 2/x refused; node/degree knobs refused "
+        f"under build, copied under 1 (C4a parsers: [58.5, 60.25], collision refused); "
+        f"{len(FOREIGN_ENVS) + 2} foreign variables refused",
+        flush=True,
+    )
 
 
 class _Sentinel(Exception):
@@ -260,8 +271,11 @@ def test_c12_k1_routing_tripwire():
         mp.setattr(MeshGenerator, "birdcage_port_domain", staticmethod(recorder))
         with pytest.raises(_Sentinel):
             c4._build_c4_fixture(MPI.COMM_WORLD)
-    print(f"\n[GEO-38 C12 K1] tripwire: ring_radius {seen.get('ring_radius')}, shield_radius "
-          f"{seen.get('shield_radius')}; JSON name {name}", flush=True)
+    print(
+        f"\n[GEO-38 C12 K1] tripwire: ring_radius {seen.get('ring_radius')}, shield_radius "
+        f"{seen.get('shield_radius')}; JSON name {name}",
+        flush=True,
+    )
     assert abs(seen["ring_radius"] - 0.352) <= 1e-15, seen["ring_radius"]
     assert abs(seen["shield_radius"] - 0.3715) <= 1e-15, seen["shield_radius"]
     assert c4.FREQUENCY_HZ_C4 == 64e6
@@ -281,10 +295,17 @@ def test_c12_z128_specs_and_n_z():
 
     m = _modules()
     c4, t3 = m["c4"], m["t3"]
-    base = [LumpedSheetPortSpec(port_id=f"P{i}", facet_tag=1000 + i, port_impedance_ohm=50.0,
-                                gap_height_m=0.01, sheet_width_m=0.01,
-                                drive_direction=(0.0, 0.0, 1.0))
-            for i in range(33, 97)]
+    base = [
+        LumpedSheetPortSpec(
+            port_id=f"P{i}",
+            facet_tag=1000 + i,
+            port_impedance_ohm=50.0,
+            gap_height_m=0.01,
+            sheet_width_m=0.01,
+            drive_direction=(0.0, 0.0, 1.0),
+        )
+        for i in range(33, 97)
+    ]
     ids = [sp.port_id for sp in base]
     feeds = ["P33", "P41"]
     c_f = c4.SPEC_WIRING_C_PF * 1e-12
@@ -293,9 +314,12 @@ def test_c12_z128_specs_and_n_z():
     fails, im_w, th_w = c4._z_failures(specs, ids, feeds, c_f, f3, 50.0)
     x_ref = -1.0 / (2.0 * np.pi * 128e6 * 100e-12)
     fails64, im64, th64 = c4._z_failures(specs, ids, feeds, c_f, 64e6, 50.0)
-    print(f"\n[GEO-38 C12 Z128] Z_RC {z_rc:.9e} (Im ref {x_ref:.9e}), Z_th {z_th:.9e}, fails "
-          f"{fails or 'none'}; N-Z vs 64 MHz: worst Im rel {im64:.15f}, Z_th rel {th64:.3e}, "
-          f"{len(fails64)} failures", flush=True)
+    print(
+        f"\n[GEO-38 C12 Z128] Z_RC {z_rc:.9e} (Im ref {x_ref:.9e}), Z_th {z_th:.9e}, fails "
+        f"{fails or 'none'}; N-Z vs 64 MHz: worst Im rel {im64:.15f}, Z_th rel {th64:.3e}, "
+        f"{len(fails64)} failures",
+        flush=True,
+    )
     assert f3 == 128e6
     assert not fails, fails
     assert z_rc.real == c4.ESR_OHM == 0.2
@@ -321,8 +345,11 @@ def test_c12_n_f_frequency_patch_load_bearing():
     with pytest.MonkeyPatch.context() as mp:
         _c12_patches(mp)
         f_rel_c12 = omega / (2.0 * np.pi * c4.FREQUENCY_HZ_C4) - 1.0
-    print(f"\n[GEO-38 C12 N-f] C11 patches only: f-C4 rel {f_rel_c11!r} (ASSERTED 1.0 > 1e-12); "
-          f"C12 patches: {f_rel_c12!r}", flush=True)
+    print(
+        f"\n[GEO-38 C12 N-f] C11 patches only: f-C4 rel {f_rel_c11!r} (ASSERTED 1.0 > 1e-12); "
+        f"C12 patches: {f_rel_c12!r}",
+        flush=True,
+    )
     assert abs(f_rel_c11 - 1.0) <= 1e-15, f_rel_c11
     assert abs(f_rel_c11) > 1e-12
     assert abs(f_rel_c12) <= 1e-12, f_rel_c12
@@ -358,10 +385,9 @@ def test_geo38_c12_3t_esr_root(monkeypatch):
     _copy_node_knobs(monkeypatch, mode)
     m = _modules()
     c4, c11, c3, t3 = m["c4"], m["c11"], m["c3"], m["t3"]
+    from fem_em_solver.io.mesh import BIRDCAGE_IMPLANT_CELL_TAG
     from tests.validation.test_lossy_sphere_fullwave import SALINE_EPSILON_R, SALINE_SIGMA
     from tests.validation.test_port_birdcage_lumped_column import PHANTOM_CELL_TAG
-
-    from fem_em_solver.io.mesh import BIRDCAGE_IMPLANT_CELL_TAG
 
     comm = MPI.COMM_WORLD
     c3_save = c3.SAVE_PATH
@@ -369,14 +395,20 @@ def test_geo38_c12_3t_esr_root(monkeypatch):
     c11_state = _path_state(c11.C11_SAVE_PATH)
     files_before = _record_files()
     tb, tb_range = PREDICTED_T_BUILD_S
-    _say(comm, f"PREDICTED (printed, never asserted): (A0) rel 0; (Az) worst ≈5.7e-14 deg; t_build "
-               f"≈{tb} s {tb_range} at loadavg <= 4; window ≈{PREDICTED_WINDOW_S} s; summed RSS "
-               f"≈{PREDICTED_RSS_SUM_GIB} GiB after degree 2; F = {PREDICTED_F}; (F) P33 / P41 at "
-               f"5.625 / 95.625 deg, bisector 50.625; (Z) Z_RC {PREDICTED_Z_RC}; C4a's (f-C4) label "
-               f"reads 'rel to 64 MHz' (string literal) — C12's (f) line is the reading of record")
-    _say(comm, f"start: mode {mode}, -n {comm.size}; C3 npz {c3_save} (exists, mtime) {c3_state}; "
-               f"C11 npz {c11.C11_SAVE_PATH} exists {c11_state[0]}; record JSONs before "
-               f"{len(files_before)}")
+    _say(
+        comm,
+        f"PREDICTED (printed, never asserted): (A0) rel 0; (Az) worst ≈5.7e-14 deg; t_build "
+        f"≈{tb} s {tb_range} at loadavg <= 4; window ≈{PREDICTED_WINDOW_S} s; summed RSS "
+        f"≈{PREDICTED_RSS_SUM_GIB} GiB after degree 2; F = {PREDICTED_F}; (F) P33 / P41 at "
+        f"5.625 / 95.625 deg, bisector 50.625; (Z) Z_RC {PREDICTED_Z_RC}; C4a's (f-C4) label "
+        f"reads 'rel to 64 MHz' (string literal) — C12's (f) line is the reading of record",
+    )
+    _say(
+        comm,
+        f"start: mode {mode}, -n {comm.size}; C3 npz {c3_save} (exists, mtime) {c3_state}; "
+        f"C11 npz {c11.C11_SAVE_PATH} exists {c11_state[0]}; record JSONs before "
+        f"{len(files_before)}",
+    )
 
     _c12_patches(monkeypatch)
     t0 = time.perf_counter()
@@ -390,8 +422,11 @@ def test_geo38_c12_3t_esr_root(monkeypatch):
     omega = c11._REC["omega"]
     omega_ref = 2.0 * np.pi * t3.FREQUENCY_3T_HZ
     f_rel = abs(omega / omega_ref - 1.0)
-    _say(comm, f"(f) recorded omega {omega.real:.12e} vs 2*pi*128e6 {omega_ref:.12e}: rel {f_rel:.3e} "
-               f"(band {c11.OMEGA_REL_BAND:.0e}, ASSERTED; the reading of record for f)")
+    _say(
+        comm,
+        f"(f) recorded omega {omega.real:.12e} vs 2*pi*128e6 {omega_ref:.12e}: rel {f_rel:.3e} "
+        f"(band {c11.OMEGA_REL_BAND:.0e}, ASSERTED; the reading of record for f)",
+    )
     assert f_rel <= c11.OMEGA_REL_BAND, (omega, omega_ref)
 
     # (T3) the 3 T table reached the builder.
@@ -401,9 +436,12 @@ def test_geo38_c12_3t_esr_root(monkeypatch):
     shield_d = 2.0 * float(diag["shield_radius_m"])
     shield_l = float(diag["shield_length_m"])
     rung_d = 2.0 * kw["ring_radius"]
-    _say(comm, f"(T3) shield Ø {shield_d:.12f} (vs {t3.SHIELD_DIAMETER_3T_M}), length {shield_l:.12f} "
-               f"(vs {t3.SHIELD_LENGTH_3T_M}), rung Ø {rung_d:.12f} (vs {t3.RUNG_DIAMETER_3T_M}) "
-               f"(IDENTITY_BAND {band:.0e}, ASSERTED)")
+    _say(
+        comm,
+        f"(T3) shield Ø {shield_d:.12f} (vs {t3.SHIELD_DIAMETER_3T_M}), length {shield_l:.12f} "
+        f"(vs {t3.SHIELD_LENGTH_3T_M}), rung Ø {rung_d:.12f} (vs {t3.RUNG_DIAMETER_3T_M}) "
+        f"(IDENTITY_BAND {band:.0e}, ASSERTED)",
+    )
     assert abs(shield_d / t3.SHIELD_DIAMETER_3T_M - 1.0) <= band, shield_d
     assert abs(shield_l / t3.SHIELD_LENGTH_3T_M - 1.0) <= band, shield_l
     assert abs(rung_d / t3.RUNG_DIAMETER_3T_M - 1.0) <= band, rung_d
@@ -412,12 +450,15 @@ def test_geo38_c12_3t_esr_root(monkeypatch):
     degrees = [d for d, _f, _mm in _REC_DEG]
     for d, f_hz, mm in _REC_DEG:
         gel = mm.get(PHANTOM_CELL_TAG)
-        _say(comm, f"(G) degree {d}: problem.frequency_hz {f_hz!r} (== {t3.FREQUENCY_3T_HZ!r}); "
-                   f"material_map tags {sorted(mm)}; tag {PHANTOM_CELL_TAG} sigma "
-                   f"{getattr(gel, 'sigma', None)} eps_r {getattr(gel, 'epsilon_r', None)} mu_r "
-                   f"{getattr(gel, 'mu_r', None)} (== SALINE_SIGMA {SALINE_SIGMA}, SALINE_EPSILON_R "
-                   f"{SALINE_EPSILON_R}, 1; provisional gel ruling W3); tag "
-                   f"{BIRDCAGE_IMPLANT_CELL_TAG} absent {BIRDCAGE_IMPLANT_CELL_TAG not in mm} (ASSERTED)")
+        _say(
+            comm,
+            f"(G) degree {d}: problem.frequency_hz {f_hz!r} (== {t3.FREQUENCY_3T_HZ!r}); "
+            f"material_map tags {sorted(mm)}; tag {PHANTOM_CELL_TAG} sigma "
+            f"{getattr(gel, 'sigma', None)} eps_r {getattr(gel, 'epsilon_r', None)} mu_r "
+            f"{getattr(gel, 'mu_r', None)} (== SALINE_SIGMA {SALINE_SIGMA}, SALINE_EPSILON_R "
+            f"{SALINE_EPSILON_R}, 1; provisional gel ruling W3); tag "
+            f"{BIRDCAGE_IMPLANT_CELL_TAG} absent {BIRDCAGE_IMPLANT_CELL_TAG not in mm} (ASSERTED)",
+        )
     expected_degrees = [1, 2] if mode == "build" else [int(c4._degree_knob_c4() or 1)]
     assert degrees == expected_degrees, degrees
     for d, f_hz, mm in _REC_DEG:
@@ -432,15 +473,21 @@ def test_geo38_c12_3t_esr_root(monkeypatch):
     # (File guard) build-only wrote and touched no record file.
     c3_after = _path_state(c3_save)
     files_after = _record_files()
-    _say(comm, f"(File guard) C11 npz {c11.C11_SAVE_PATH} exists {c11.C11_SAVE_PATH.exists()} (before "
-               f"{c11_state[0]}; ASSERTED False); C3 npz (exists, mtime) {c3_after} == before "
-               f"{c3_state} (ASSERTED); c4-node-* / c12-node-* files {len(files_after)} == before "
-               f"{len(files_before)}, mtimes unchanged (ASSERTED)")
+    _say(
+        comm,
+        f"(File guard) C11 npz {c11.C11_SAVE_PATH} exists {c11.C11_SAVE_PATH.exists()} (before "
+        f"{c11_state[0]}; ASSERTED False); C3 npz (exists, mtime) {c3_after} == before "
+        f"{c3_state} (ASSERTED); c4-node-* / c12-node-* files {len(files_after)} == before "
+        f"{len(files_before)}, mtimes unchanged (ASSERTED)",
+    )
     assert not c11.C11_SAVE_PATH.exists(), c11.C11_SAVE_PATH
     assert c3_after == c3_state, (c3_after, c3_state)
     assert files_after == files_before, sorted(set(files_after.items()) ^ set(files_before.items()))
 
-    _say(comm, f"BUILD-ONLY return: c4._run_build {t_run:.1f} s at -n {comm.size}. PRICE INPUT "
-               f"(projection, printed only): build {t_run:.1f} s + C11's printed 3 T column "
-               f"{C11_PRINTED_3T_COLUMN_S} s = {t_run + C11_PRINTED_3T_COLUMN_S:.1f} s per degree-1 "
-               f"node window floor, beside entry 40's measured 1.5 T column {ENTRY40_15T_COLUMN_S} s")
+    _say(
+        comm,
+        f"BUILD-ONLY return: c4._run_build {t_run:.1f} s at -n {comm.size}. PRICE INPUT "
+        f"(projection, printed only): build {t_run:.1f} s + C11's printed 3 T column "
+        f"{C11_PRINTED_3T_COLUMN_S} s = {t_run + C11_PRINTED_3T_COLUMN_S:.1f} s per degree-1 "
+        f"node window floor, beside entry 40's measured 1.5 T column {ENTRY40_15T_COLUMN_S} s",
+    )

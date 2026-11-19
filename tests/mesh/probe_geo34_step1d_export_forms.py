@@ -35,19 +35,24 @@ import time
 import gmsh
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from probe_geo37_interior_facet import RECT, RECT_AREA  # noqa: E402
 from probe_geo34_step_names import (  # noqa: E402
     PORT_NAME,
     VOL_NAME,
     write_named_box_port_step,
 )
+from probe_geo37_interior_facet import RECT, RECT_AREA  # noqa: E402
 
 FORMS = ("F-frag", "F-solid", "F-comp", "F-shell", "F-two")
 SCRATCH = "/workspace/logs/geo34_step1d_probe"
-OCC_OPTIONS = ("OCCImportLabels", "OCCSewFaces", "OCCMakeSolids",
-               "OCCFixDegenerated", "OCCFixSmallEdges", "OCCFixSmallFaces")
-RECT_BBOX = (RECT[0], RECT[1], RECT[2],
-             RECT[0] + RECT[3], RECT[1] + RECT[4], RECT[2])
+OCC_OPTIONS = (
+    "OCCImportLabels",
+    "OCCSewFaces",
+    "OCCMakeSolids",
+    "OCCFixDegenerated",
+    "OCCFixSmallEdges",
+    "OCCFixSmallFaces",
+)
+RECT_BBOX = (RECT[0], RECT[1], RECT[2], RECT[0] + RECT[3], RECT[1] + RECT[4], RECT[2])
 
 
 def _p(msg):
@@ -111,8 +116,9 @@ def _write_form(form):
 def _is_rect(s):
     a = gmsh.model.occ.getMass(2, s)
     bb = gmsh.model.getBoundingBox(2, s)
-    return (abs(a / RECT_AREA - 1.0) <= 1e-12
-            and all(abs(b - r) <= 1e-6 for b, r in zip(bb, RECT_BBOX)))
+    return abs(a / RECT_AREA - 1.0) <= 1e-12 and all(
+        abs(b - r) <= 1e-6 for b, r in zip(bb, RECT_BBOX)
+    )
 
 
 def _census(label):
@@ -121,19 +127,23 @@ def _census(label):
     _p(f"--- {label} ---")
     _p(f"dim 3: {len(vols)} entities")
     for v in vols:
-        _p(f"  (3,{v}) name={gmsh.model.getEntityName(3, v)!r} "
-           f"mass={gmsh.model.occ.getMass(3, v)!r} "
-           f"bbox={tuple(round(x, 9) for x in gmsh.model.getBoundingBox(3, v))}")
+        _p(
+            f"  (3,{v}) name={gmsh.model.getEntityName(3, v)!r} "
+            f"mass={gmsh.model.occ.getMass(3, v)!r} "
+            f"bbox={tuple(round(x, 9) for x in gmsh.model.getBoundingBox(3, v))}"
+        )
     _p(f"dim 2: {len(faces)} entities")
     n_rect = n_free = n_emb = 0
     for s in faces:
         up, _ = gmsh.model.getAdjacencies(2, s)
         up = [int(u) for u in up]
         rect = _is_rect(s)
-        _p(f"  (2,{s}) name={gmsh.model.getEntityName(2, s)!r} "
-           f"mass={gmsh.model.occ.getMass(2, s)!r} "
-           f"bbox={tuple(round(x, 9) for x in gmsh.model.getBoundingBox(2, s))} "
-           f"up={up} rect={rect}")
+        _p(
+            f"  (2,{s}) name={gmsh.model.getEntityName(2, s)!r} "
+            f"mass={gmsh.model.occ.getMass(2, s)!r} "
+            f"bbox={tuple(round(x, 9) for x in gmsh.model.getBoundingBox(2, s))} "
+            f"up={up} rect={rect}"
+        )
         if not rect:
             continue
         n_rect += 1
@@ -149,10 +159,14 @@ def _census(label):
             _p(f"  volume {v} getEmbedded failed: {exc}")
     for dim in (2, 3):
         pgs = gmsh.model.getPhysicalGroups(dim)
-        _p(f"  physical groups dim {dim}: "
-           f"{[(d, t, gmsh.model.getPhysicalName(d, t)) for d, t in pgs]}")
-    _p(f"counts {label}: dim3={len(vols)} dim2={len(faces)} "
-       f"rect048={n_rect} free={n_free} embedded={n_emb}")
+        _p(
+            f"  physical groups dim {dim}: "
+            f"{[(d, t, gmsh.model.getPhysicalName(d, t)) for d, t in pgs]}"
+        )
+    _p(
+        f"counts {label}: dim3={len(vols)} dim2={len(faces)} "
+        f"rect048={n_rect} free={n_free} embedded={n_emb}"
+    )
     return len(vols), len(faces), n_rect, n_free, n_emb
 
 
@@ -197,14 +211,15 @@ def child(form):
         n_ent = len(re.findall(r"^#\d+\s*=", txt, flags=re.M))
         cp, ca = txt.count(PORT_NAME), txt.count(VOL_NAME)
         names.append((cp, ca))
-        _p(f"file {p}: {os.path.getsize(p)} bytes, {n_ent} STEP entities, "
-           f"'{PORT_NAME}' x{cp}, '{VOL_NAME}' x{ca}")
+        _p(
+            f"file {p}: {os.path.getsize(p)} bytes, {n_ent} STEP entities, "
+            f"'{PORT_NAME}' x{cp}, '{VOL_NAME}' x{ca}"
+        )
     port_occ = sum(c[0] for c in names)
     vol_occ = sum(c[1] for c in names)
     for read in ("r1", "r2"):
         for stage, (d3, d2, nr, nf, ne) in _read(form, paths, read):
-            _p(f"ROW|{form}|{read}|{stage}|OK|{d3}|{d2}|{nr}|{nf}|{ne}|"
-               f"{port_occ}/{vol_occ}")
+            _p(f"ROW|{form}|{read}|{stage}|OK|{d3}|{d2}|{nr}|{nf}|{ne}|" f"{port_occ}/{vol_occ}")
 
 
 # ----------------------------------------------------------------- driver ---
@@ -212,8 +227,11 @@ def driver():
     rows, worst = [], 0
     for form in FORMS:
         t0 = time.perf_counter()
-        r = subprocess.run([sys.executable, os.path.abspath(__file__),
-                            "--form", form], capture_output=True, text=True)
+        r = subprocess.run(
+            [sys.executable, os.path.abspath(__file__), "--form", form],
+            capture_output=True,
+            text=True,
+        )
         dt = time.perf_counter() - t0
         sys.stdout.write(r.stdout)
         sys.stdout.flush()
@@ -227,10 +245,11 @@ def driver():
             rows.append(f"{form}|-|-|FAIL|-|-|-|-|-|-|{tail}")
         rows.extend(got)
     _p("")
-    _p("TABLE (form | read | stage | OK/FAIL | dim-3 | dim-2 | 0.48-faces | "
-       "free | embedded | PortSheet/AirBox occurrences)")
-    _p("| form | read | stage | OK/FAIL | dim-3 | dim-2 | 0.48 | free | "
-       "embedded | names |")
+    _p(
+        "TABLE (form | read | stage | OK/FAIL | dim-3 | dim-2 | 0.48-faces | "
+        "free | embedded | PortSheet/AirBox occurrences)"
+    )
+    _p("| form | read | stage | OK/FAIL | dim-3 | dim-2 | 0.48 | free | " "embedded | names |")
     _p("|---|---|---|---|---|---|---|---|---|---|")
     for row in rows:
         _p("| " + " | ".join(row.split("|")) + " |")

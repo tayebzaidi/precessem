@@ -39,7 +39,6 @@ from fem_em_solver.post.sar import uniform_sphere_sar_closed_form
 from fem_em_solver.thermal.steady import solve_steady_conduction
 from fem_em_solver.utils.analytical import robin_sphere_steady_temperature
 from fem_em_solver.utils.constants import EPSILON_0
-
 from tests.complex_mode import complex_only
 from tests.materials.test_phantom_material_model import _dg0_owned_diff
 from tests.package.test_wf15_study_lossy_sphere import (
@@ -54,16 +53,17 @@ from tests.validation.test_lossy_sphere_sar import (
     RHO_KG_M3,
     SIGMA_HIGH,
 )
+from tests.validation.test_mat5_em_coupled_sphere import L0_BAND
 from tests.validation.test_mat10_sar_to_heat_sphere import (
     A_BAND,
     B_BAND,
     C_BAND,
-    G,
-    H,
-    K,
     P_BAND,
     ROBIN_TAG,
     T_INF,
+    G,
+    H,
+    K,
     _allsum,
     _cell_average_dg0,
     _interior_indicator,
@@ -74,7 +74,6 @@ from tests.validation.test_mat10_sar_to_heat_sphere import (
     _theta_cf,
     _to_sub,
 )
-from tests.validation.test_mat5_em_coupled_sphere import L0_BAND
 
 # `MAT-10`'s recorded digits (20260930T021802Z_MAT-10-step1-W1.log:158–167,
 # reproduced 2026-10-03 at 20261003T185646Z_MAT-18-step2b-W3a-regate.log).
@@ -160,28 +159,38 @@ def _temperature_leg(study, res, comm):
     sp = comm.bcast(sp, root=0)
     rd["c2"] = _dg0_owned_diff(planted, th.heat_source, comm)
     rd["c2_spacing"] = sp
-    _say(f"WF15T (c2) planted spacing {sp!r}: read max|d| {rd['c2'][0]!r}, differing "
-         f"{rd['c2'][1]}")
+    _say(
+        f"WF15T (c2) planted spacing {sp!r}: read max|d| {rd['c2'][0]!r}, differing "
+        f"{rd['c2'][1]}"
+    )
 
     # (IT) MAT-10's thermal call on the helper-built inputs.
-    res_h = solve_steady_conduction(sub_h, ft_h, k=K, q=q_hh, h=H, t_inf=T_INF,
-                                    robin_tag=ROBIN_TAG, degree=1)
+    res_h = solve_steady_conduction(
+        sub_h, ft_h, k=K, q=q_hh, h=H, t_inf=T_INF, robin_tag=ROBIN_TAG, degree=1
+    )
     rd["it"], th_max = _theta_owned_rel(th.temperature, res_h.temperature, comm)
-    _say(f"WF15T (IT) owned max|dT| / max|T - Tinf| = {rd['it']:.3e}  (band {L0_BAND:.0e}); "
-         f"theta_h max = {th_max:.6f} K")
+    _say(
+        f"WF15T (IT) owned max|dT| / max|T - Tinf| = {rd['it']:.3e}  (band {L0_BAND:.0e}); "
+        f"theta_h max = {th_max:.6f} K"
+    )
 
     # (G) MAT-10's gates on the Study's outputs.
     cf = uniform_sphere_sar_closed_form(
-        e0=E0, epsilon_r=EPSILON_R_SPHERE, sigma=SIGMA_HIGH, omega=OMEGA,
-        rho=RHO_KG_M3, epsilon_0=EPSILON_0,
+        e0=E0,
+        epsilon_r=EPSILON_R_SPHERE,
+        sigma=SIGMA_HIGH,
+        omega=OMEGA,
+        rho=RHO_KG_M3,
+        epsilon_0=EPSILON_0,
     )
     q_cf = G * RHO_KG_M3 * cf["sar_w_per_kg"]
     sub, ft = th.submesh, th.facet_tags
     chi = _interior_indicator(sub)
     theta = _theta_cf(sub, q_cf)
     rd["err_A"] = _interior_rel(sub, chi, (th.temperature - T_INF) - theta, theta)
-    res_P = solve_steady_conduction(sub, ft, k=K, q=q_cf, h=H, t_inf=T_INF,
-                                    robin_tag=ROBIN_TAG, degree=1)
+    res_P = solve_steady_conduction(
+        sub, ft, k=K, q=q_cf, h=H, t_inf=T_INF, robin_tag=ROBIN_TAG, degree=1
+    )
     rd["err_P"] = _interior_rel(sub, chi, (res_P.temperature - T_INF) - theta, theta)
     int_q = float(np.real(_allsum(comm, th.heat_source * ufl.dx(domain=sub))))
     p_parent = spec.source_scale * study.mean_sar()["dissipated_power_w"]
@@ -195,24 +204,33 @@ def _temperature_leg(study, res, comm):
     thR = robin_sphere_steady_temperature(R, radius=R, k=K, q=q_cf, h=H, t_inf=T_INF) - T_INF
     rd["surface_ratio"] = th_s / thR
     rd["thermal_degree"] = _space_degree(th.temperature.function_space)
-    _say(f"WF15T (G) (A) = {rd['err_A']:.10e} [{rd['err_A']:.4e}] (band {A_BAND}); "
-         f"(P) = {rd['err_P']:.10e} [{rd['err_P']:.4e}] (band {P_BAND:.0e}); "
-         f"(B) = {rd['err_B']:.3e} (band {B_BAND:.0e}); (C) = {rd['err_C']:.3e} "
-         f"(band {C_BAND:.0e})")
-    _say(f"WF15T surface-mean theta_h / theta(R) = {rd['surface_ratio']:.6f} "
-         f"(degree-1 record {MAT10_SURFACE_RATIO_RECORD}); thermal degree "
-         f"{rd['thermal_degree']}; q_cf {q_cf:.6f} W/m^3")
+    _say(
+        f"WF15T (G) (A) = {rd['err_A']:.10e} [{rd['err_A']:.4e}] (band {A_BAND}); "
+        f"(P) = {rd['err_P']:.10e} [{rd['err_P']:.4e}] (band {P_BAND:.0e}); "
+        f"(B) = {rd['err_B']:.3e} (band {B_BAND:.0e}); (C) = {rd['err_C']:.3e} "
+        f"(band {C_BAND:.0e})"
+    )
+    _say(
+        f"WF15T surface-mean theta_h / theta(R) = {rd['surface_ratio']:.6f} "
+        f"(degree-1 record {MAT10_SURFACE_RATIO_RECORD}); thermal degree "
+        f"{rd['thermal_degree']}; q_cf {q_cf:.6f} W/m^3"
+    )
 
     # (c1) missing ½ through the public knob.
     th2 = study.temperature(RobinCooling(K, H, T_INF, source_scale=2.0 * G))
     sub2 = th2.submesh  # each temperature() call builds its own submesh
     theta2 = _theta_cf(sub2, q_cf)
-    rd["c1"] = _interior_rel(sub2, _interior_indicator(sub2),
-                             (th2.temperature - T_INF) - theta2, theta2)
-    _say(f"WF15T (c1) source_scale = 2G: (A) comparator = {rd['c1']:.4e} "
-         f"(MAT-10 record {MAT10_B_MISSING_HALF_PRINT}; band {A_BAND})")
-    _say(f"WF15T bridge + thermal (Study) {rd['t_bridge_thermal']:.1f} s; summed "
-         f"ru_maxrss {_summed_rss_gib(comm):.2f} GiB")
+    rd["c1"] = _interior_rel(
+        sub2, _interior_indicator(sub2), (th2.temperature - T_INF) - theta2, theta2
+    )
+    _say(
+        f"WF15T (c1) source_scale = 2G: (A) comparator = {rd['c1']:.4e} "
+        f"(MAT-10 record {MAT10_B_MISSING_HALF_PRINT}; band {A_BAND})"
+    )
+    _say(
+        f"WF15T bridge + thermal (Study) {rd['t_bridge_thermal']:.1f} s; summed "
+        f"ru_maxrss {_summed_rss_gib(comm):.2f} GiB"
+    )
     return rd
 
 
@@ -248,13 +266,16 @@ def test_wf15_temperature_spec_and_refusals():
     ):
         with pytest.raises(ValueError):
             RobinCooling(**bad)
-    port = Study(FourPortBirdcageGeometry.f_small(), _material_057(), LumpedPortDrive(),
-                 frequency_hz=64e6)
+    port = Study(
+        FourPortBirdcageGeometry.f_small(), _material_057(), LumpedPortDrive(), frequency_hz=64e6
+    )
     with pytest.raises(TypeError):
         port.temperature(spec)
     assert port.result is None  # no mesh was built
-    _say("WF15T (K) defaults degree 1 / scale 1.0; 6 ValueErrors; port Study TypeError, "
-         "result None")
+    _say(
+        "WF15T (K) defaults degree 1 / scale 1.0; 6 ValueErrors; port Study TypeError, "
+        "result None"
+    )
 
 
 @complex_only
@@ -267,8 +288,10 @@ def test_wf15_temperature_degree1_reproduces_mat10_record():
     t_em = time.perf_counter() - t0
     _say(f"WF15T degree-1 EM solve + mesh {t_em:.1f} s")
     rd = _temperature_leg(study, res, comm)
-    _say(f"WF15T (R) (A) {rd['err_A']:.4e} vs {MAT10_A_PRINT}; (P) {rd['err_P']:.4e} vs "
-         f"{MAT10_P_PRINT}")
+    _say(
+        f"WF15T (R) (A) {rd['err_A']:.4e} vs {MAT10_A_PRINT}; (P) {rd['err_P']:.4e} vs "
+        f"{MAT10_P_PRINT}"
+    )
     _assert_common(rd)
     assert rd["n_sub_study"] == MAT10_SUB_CELLS, f"(UT) sub cells {rd['n_sub_study']}"
     assert f"{rd['err_A']:.4e}" == MAT10_A_PRINT, f"(R) (A) {rd['err_A']:.4e}"
@@ -285,12 +308,15 @@ def test_wf15_temperature_default_degree2_leg():
     res = study.solve(comm)
     t_em = time.perf_counter() - t0
     em_degree = _space_degree(res.fields.e_complex.function_space)
-    _say(f"WF15T degree-2 EM solve + mesh {t_em:.1f} s; study.degree {study.degree}; "
-         f"EM space degree {em_degree}; summed ru_maxrss {_summed_rss_gib(comm):.2f} GiB")
+    _say(
+        f"WF15T degree-2 EM solve + mesh {t_em:.1f} s; study.degree {study.degree}; "
+        f"EM space degree {em_degree}; summed ru_maxrss {_summed_rss_gib(comm):.2f} GiB"
+    )
     rd = _temperature_leg(study, res, comm)
-    _say(f"WF15T degree-2 (A) record = {rd['err_A']:.4e} (predicted [0.1, 1.0] %); "
-         f"(c1) {rd['c1']:.4e} (predicted ≈ 1.00, printed only)")
+    _say(
+        f"WF15T degree-2 (A) record = {rd['err_A']:.4e} (predicted [0.1, 1.0] %); "
+        f"(c1) {rd['c1']:.4e} (predicted ≈ 1.00, printed only)"
+    )
     assert study.degree == 2 and res.degree == 2, "(Deg) study degree"
     assert em_degree == 2, f"(Deg) EM space degree {em_degree}"
     _assert_common(rd)
-

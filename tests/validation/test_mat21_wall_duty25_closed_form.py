@@ -63,8 +63,10 @@ def _say(msg):
 
 def _edges(duty):
     """Every switch instant in (0, t₂]."""
-    return sorted([j * PERIOD for j in range(1, N_CYC + 1)]
-                  + [j * PERIOD + duty * PERIOD for j in range(N_CYC)])
+    return sorted(
+        [j * PERIOD for j in range(1, N_CYC + 1)]
+        + [j * PERIOD + duty * PERIOD for j in range(N_CYC)]
+    )
 
 
 def test_preconditions_switches_on_the_grid():
@@ -72,8 +74,10 @@ def test_preconditions_switches_on_the_grid():
     assert abs(N_CYC * PERIOD / T2 - 1.0) <= 1e-14
     for d in DUTIES:
         off = max(abs(te / DT - round(te / DT)) for te in _edges(d))
-        _say(f"MAT21-25 D={d}: on-phase {d * PERIOD / DT:.9f} DT; {len(_edges(d))} switches, max "
-             f"off-grid {off:.3e} DT")
+        _say(
+            f"MAT21-25 D={d}: on-phase {d * PERIOD / DT:.9f} DT; {len(_edges(d))} switches, max "
+            f"off-grid {off:.3e} DT"
+        )
         assert off <= 1e-9, (d, off)
 
 
@@ -82,7 +86,9 @@ def test_d1_duty_one_equals_step_response():
     worst = 0.0
     for f in (0.3, 1.0, 2.0, 8.0):
         t = f * T_STAR
-        worst = max(worst, float(np.abs(_duty(HEIGHTS, t, duty=1.0) - _step(HEIGHTS, t)).max() / ss0))
+        worst = max(
+            worst, float(np.abs(_duty(HEIGHTS, t, duty=1.0) - _step(HEIGHTS, t)).max() / ss0)
+        )
     _say(f"MAT21-25 (D1) max {worst:.3e} of theta_ss(0) (band {D1_BAND:g}, ASSERTED)")
     assert worst <= D1_BAND, worst
 
@@ -104,8 +110,10 @@ def test_duh_from_rest_equals_duhamel_superposition():
                     if te <= t:
                         duh -= _step(HEIGHTS, t - te)
                 worst = max(worst, float(np.abs(_duty(HEIGHTS, t, duty=d) - duh).max() / ss0))
-        _say(f"MAT21-25 (Duh) D={d}: cycles 0-{N_CYC - 1}, 8 fractions/cycle, {HEIGHTS.size} "
-             f"heights: max {worst:.3e} of theta_ss(0) (band {DUH_BAND:g}, ASSERTED)")
+        _say(
+            f"MAT21-25 (Duh) D={d}: cycles 0-{N_CYC - 1}, 8 fractions/cycle, {HEIGHTS.size} "
+            f"heights: max {worst:.3e} of theta_ss(0) (band {DUH_BAND:g}, ASSERTED)"
+        )
         assert worst <= DUH_BAND, (d, worst)
 
 
@@ -113,9 +121,18 @@ def test_edge_prime_at_every_switch():
     ss0 = _ss0()
     lam = _lam()
     a = two_layer_slab_transient_coefficients(lam, q=Q, **WALL)
-    resid = (two_layer_slab_steady_temperature(Z_GEL, q=Q, h=H, half_thickness=WALL[
-        "half_thickness"], wall=WALL["wall"], k=WALL["k"], k_w=WALL["k_w"])
-        - two_layer_slab_mode(Z_GEL, lam, **WALL) @ a)
+    resid = (
+        two_layer_slab_steady_temperature(
+            Z_GEL,
+            q=Q,
+            h=H,
+            half_thickness=WALL["half_thickness"],
+            wall=WALL["wall"],
+            k=WALL["k"],
+            k_w=WALL["k_w"],
+        )
+        - two_layer_slab_mode(Z_GEL, lam, **WALL) @ a
+    )
     for d in DUTIES:
         jumps, a_jumps, id_err = [], [], []
         for te in _edges(d):
@@ -126,9 +143,11 @@ def test_edge_prime_at_every_switch():
             jumps.append(np.abs(thR - thL).max() / ss0)
             a_jumps.append(np.abs(AR - AL).max() / np.abs(a).max())
             id_err.append(np.abs((thR - thL) - (sR - sL) * resid).max() / ss0)
-        _say(f"MAT21-25 (Edge') D={d}: {len(jumps)} switches; (a) max |A_R - A_L|/max a "
-             f"{max(a_jumps):.3e}; (b) jump - ds*r_N {max(id_err):.3e} (band {EDGE_BAND:g}, "
-             f"ASSERTED); raw jump {max(jumps):.3e} (record)")
+        _say(
+            f"MAT21-25 (Edge') D={d}: {len(jumps)} switches; (a) max |A_R - A_L|/max a "
+            f"{max(a_jumps):.3e}; (b) jump - ds*r_N {max(id_err):.3e} (band {EDGE_BAND:g}, "
+            f"ASSERTED); raw jump {max(jumps):.3e} (record)"
+        )
         assert max(a_jumps) <= EDGE_BAND, (d, max(a_jumps))
         assert max(id_err) <= EDGE_BAND, (d, max(id_err))
 
@@ -138,8 +157,10 @@ def test_col_and_printed_six_points():
     for d in DUTIES:
         for name, t in (("t*", T_STAR), ("t2", T2)):
             vals = [float(_duty(p[2], t, duty=d, side="left")[0]) for p in PROBE_PTS]
-            _say(f"MAT21-25 (Col) D={d} {name}: "
-                 + "; ".join(f"{lab} {v:.6f} K" for lab, v in zip(PROBE_LABELS, vals)))
+            _say(
+                f"MAT21-25 (Col) D={d} {name}: "
+                + "; ".join(f"{lab} {v:.6f} K" for lab, v in zip(PROBE_LABELS, vals))
+            )
             assert len(set(vals[:5])) == 1, (d, name, vals)
             assert vals[5] != vals[0], (d, name, vals)
 
@@ -153,9 +174,11 @@ def test_negative_controls():
         ml = _duty(Z_GEL, T_STAR, duty=d, side="left", rho_c_w=MASSLESS * WALL["rho_c_w"])
         miss_ml = float(np.abs(ml - nom).max() / ss0)
         above = miss_ml > NEG_FLOOR
-        _say(f"MAT21-25 (neg) D={d}: continuous miss {miss:.4e} (floor {NEG_FLOOR}, ASSERTED); "
-             f"massless-wall miss {miss_ml:.4e} (floor {NEG_FLOOR}; item 689 read 1.9941e-3 at "
-             f"D = 0.5): {'ABOVE floor, asserted' if above else 'BELOW floor, a record'}")
+        _say(
+            f"MAT21-25 (neg) D={d}: continuous miss {miss:.4e} (floor {NEG_FLOOR}, ASSERTED); "
+            f"massless-wall miss {miss_ml:.4e} (floor {NEG_FLOOR}; item 689 read 1.9941e-3 at "
+            f"D = 0.5): {'ABOVE floor, asserted' if above else 'BELOW floor, a record'}"
+        )
         assert miss > NEG_FLOOR, (d, miss)
         if d == 0.5:
             assert above, (d, miss_ml)

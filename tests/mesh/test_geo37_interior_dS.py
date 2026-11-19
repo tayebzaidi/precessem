@@ -54,9 +54,11 @@ def _fmt(x):
 
 
 def _table(mode, recs):
-    print(f"\n[GEO-37 s2] ghost={mode}: width | cells | cells_ghost | count_201 | "
-          "I1/0.48-1 | I2/2.88-1 | I3/1.92-1 | u+ only | I4/6-1 | dS(999) | "
-          "c2 drop/0.48-1 | per-rank owned / one-sided 201 | s_mesh/import/assemble")
+    print(
+        f"\n[GEO-37 s2] ghost={mode}: width | cells | cells_ghost | count_201 | "
+        "I1/0.48-1 | I2/2.88-1 | I3/1.92-1 | u+ only | I4/6-1 | dS(999) | "
+        "c2 drop/0.48-1 | per-rank owned / one-sided 201 | s_mesh/import/assemble"
+    )
     for w, r in recs.items():
         if r is None:
             print(f"[GEO-37 s2] ghost={mode} {w} | MISSING RECORD (hang or crash)")
@@ -84,6 +86,7 @@ def _green(recs):
             if r[k] is None or abs(r[k] / cf - 1) > STRIP_BAND:
                 return False
         return True
+
     return all(ok(r, w) for w, r in recs.items())
 
 
@@ -91,8 +94,10 @@ def _green(recs):
 def records():
     sf = {w: _load("sf", w) for w in WIDTHS}
     _table("shared_facet", sf)
-    print(f"[GEO-37 step2] VERDICT dS over native tag (ghost shared_facet): "
-          f"{'GREEN' if _green(sf) else 'RED'}")
+    print(
+        f"[GEO-37 step2] VERDICT dS over native tag (ghost shared_facet): "
+        f"{'GREEN' if _green(sf) else 'RED'}"
+    )
     return sf
 
 
@@ -151,9 +156,11 @@ def test_c1_absent_tag_assembles_to_zero(records, w):
 def test_c2_planted_drop_detected(records, w):
     r = records[w]
     assert r["c2_drop_error"] is None, r["c2_drop_error"]
-    print(f"[GEO-37 s2] (c2) n={w} drop_rank={r['drop_rank']} "
-          f"drop/0.48-1 = {r['c2_drop'] / I1_CF - 1:+.3e} "
-          f"(one-facet share ~1/N_gmsh = {1.0 / r['N_gmsh']:.3e})")
+    print(
+        f"[GEO-37 s2] (c2) n={w} drop_rank={r['drop_rank']} "
+        f"drop/0.48-1 = {r['c2_drop'] / I1_CF - 1:+.3e} "
+        f"(one-facet share ~1/N_gmsh = {1.0 / r['N_gmsh']:.3e})"
+    )
     assert abs(r["c2_drop"] / I1_CF - 1) > STRIP_BAND
 
 

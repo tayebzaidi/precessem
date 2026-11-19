@@ -116,7 +116,6 @@ from fem_em_solver.post.phantom_fields import (
     _tagged_cells,
     compute_tagged_vector_magnitude_stats,
 )
-
 from tests.complex_mode import complex_only
 from tests.validation.test_dielectric_sphere import (
     BOX_HALF_WIDTH,
@@ -176,9 +175,7 @@ def _solve_sphere_fields(resolution_sphere: float, resolution_far: float):
         frequency_hz=FREQUENCY_HZ,
         material=HomogeneousMaterial(sigma=0.0, epsilon_r=1.0),
         cell_tags=cell_tags,
-        material_map={
-            SPHERE_TAG: HomogeneousMaterial(sigma=0.0, epsilon_r=EPSILON_R_SPHERE)
-        },
+        material_map={SPHERE_TAG: HomogeneousMaterial(sigma=0.0, epsilon_r=EPSILON_R_SPHERE)},
         boundary_condition="pec_zero_tangential_a",
         dirichlet_e_field=_exact_exterior_numpy(EPSILON_R_SPHERE),
     )
@@ -277,8 +274,7 @@ def test_drop_set_semantics_against_the_sphere_closed_form():
         print(f"  (a) vs (b): {err_a:.3%} vs {err_b:.3%}  [reported, not gated]")
         print(f"  separation (c)/(a) in mean error: {err_c / err_a:.3f}x")
         print(
-            f"  spread: surviving {range_a:.6f}, full {range_b:.6f} "
-            f"-> ratio {range_ratio:.3f}x"
+            f"  spread: surviving {range_a:.6f}, full {range_b:.6f} " f"-> ratio {range_ratio:.3f}x"
         )
 
     # Exact integer identity: the guardrail partitions the owned tagged set.
@@ -290,9 +286,9 @@ def test_drop_set_semantics_against_the_sphere_closed_form():
         f"degenerate classification (interior {n_interior}, drop {n_drop}); "
         "with an empty class this module compares nothing"
     )
-    assert surviving["count"] == n_interior and full["count"] == n_tagged, (
-        "production sampled a different set than the classification says"
-    )
+    assert (
+        surviving["count"] == n_interior and full["count"] == n_tagged
+    ), "production sampled a different set than the classification says"
 
     # Anchor: what production reports today, against the closed form.
     lo, hi = SURVIVING_ERROR_BAND
@@ -375,9 +371,7 @@ def test_drop_set_semantics_scored_on_the_phasor_magnitude():
 
     # The mechanism, measured: how much phase does this solve actually carry?
     points = _cell_centroids(msh, tagged)
-    values, _pts, _valid, _invalid = _evaluate_on_cells(
-        fields.e_complex, points, tagged
-    )
+    values, _pts, _valid, _invalid = _evaluate_on_cells(fields.e_complex, points, tagged)
     if values.shape[0] > 0:
         local_imag = float(np.max(np.abs(np.imag(values))))
         local_mag = float(np.max(np.abs(np.linalg.norm(values, axis=1))))
@@ -433,18 +427,17 @@ def test_drop_set_semantics_scored_on_the_phasor_magnitude():
             f"{mag_max:.6e} -> {imag_content:.3e}"
         )
         print(
-            f"  worst |E|-vs-Re E disagreement over 12 statistics: "
-            f"{worst:.3e} at [{worst_key}]"
+            f"  worst |E|-vs-Re E disagreement over 12 statistics: " f"{worst:.3e} at [{worst_key}]"
         )
 
     # Same partition identity as the Re E table — the sets are classification,
     # not sampling, so this is unchanged and exact by construction.
-    assert n_interior + n_drop == n_tagged, (
-        f"interior {n_interior} + drop {n_drop} != tagged {n_tagged}"
-    )
-    assert a["count"] == n_interior and b["count"] == n_tagged, (
-        "production sampled a different set than the classification says"
-    )
+    assert (
+        n_interior + n_drop == n_tagged
+    ), f"interior {n_interior} + drop {n_drop} != tagged {n_tagged}"
+    assert (
+        a["count"] == n_interior and b["count"] == n_tagged
+    ), "production sampled a different set than the classification says"
 
     # The mechanism: this fixture is lossless with real data, so the phasor is
     # real and Re E *is* |E| here.  This is the assumption step 3 rested on
@@ -485,6 +478,6 @@ def test_drop_set_semantics_scored_on_the_phasor_magnitude():
         f"on |E| the full-set spread is only {range_ratio:.4f}x the surviving "
         f"spread (measured 1.3337x), below {MIN_RANGE_RATIO}"
     )
-    assert c["count"] == n_drop and n_drop > 0, (
-        f"drop set stats sampled {c['count']} of {n_drop} classified cells"
-    )
+    assert (
+        c["count"] == n_drop and n_drop > 0
+    ), f"drop set stats sampled {c['count']} of {n_drop} classified cells"

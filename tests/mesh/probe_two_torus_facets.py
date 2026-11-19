@@ -13,11 +13,10 @@ from __future__ import annotations
 
 import sys
 
+import dolfinx
 import numpy as np
 import ufl
 from mpi4py import MPI
-
-import dolfinx
 
 from fem_em_solver.io.mesh import MeshGenerator, _interface_facet_tags
 
@@ -51,16 +50,14 @@ def main() -> None:
         f"facet_tags={None if facet_tags is None else facet_tags.values.size}"
     )
 
-    mark(f"facet index map before create_entities: "
-         f"{msh.topology.index_map(tdim - 1)}")
+    mark(f"facet index map before create_entities: " f"{msh.topology.index_map(tdim - 1)}")
     msh.topology.create_entities(tdim - 1)
     mark("create_entities(fdim) returned")
     msh.topology.create_connectivity(tdim - 1, tdim)
     mark("create_connectivity(fdim, tdim) returned")
 
     ft = _interface_facet_tags(msh, cell_tags, {201: (101, 1), 202: (102, 2)})
-    mark(f"interface tags: {sorted(set(np.unique(ft.values).tolist()))} "
-         f"n={ft.values.size}")
+    mark(f"interface tags: {sorted(set(np.unique(ft.values).tolist()))} " f"n={ft.values.size}")
     COMM.Barrier()
     mark("mesh stage done")
 
@@ -77,8 +74,7 @@ def main() -> None:
     one = dolfinx.fem.Constant(msh, dolfinx.default_scalar_type(1.0))
     for tag in (201, 202):
         mark(f"tag {tag}: ufl.Measure ...")
-        dS_tag = ufl.Measure("dS", domain=msh, subdomain_data=ft,
-                             subdomain_id=(tag,))
+        dS_tag = ufl.Measure("dS", domain=msh, subdomain_data=ft, subdomain_id=(tag,))
         expr = ufl.avg(one) * dS_tag
 
         mark(f"tag {tag}: fem.form (JIT) ...")

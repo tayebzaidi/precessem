@@ -32,7 +32,6 @@ from mpi4py import MPI
 from fem_em_solver.io.mesh import _model_to_mesh
 from fem_em_solver.post.evaluation import evaluate_vector_field_parallel
 from fem_em_solver.thermal import solve_steady_conduction, solve_transient_conduction
-
 from tests.validation.test_imp8_composite_cylinder_closed_form import (
     A_ROD,
     B_WALL,
@@ -115,8 +114,14 @@ def _composite_cylinder(comm, *, h_a=0.30e-3, h_b=2.0e-3):
             r_max = max(abs(bb[0]), abs(bb[1]), abs(bb[3]), abs(bb[4]))
             (core if r_max < 0.5 * (A_ROD + B_WALL) else shell).append(v)
         assert len(core) == 1 and len(shell) == 1, (core, shell)
-        surfs = sorted({s for _, s in gmsh.model.getBoundary(
-            [(3, core[0]), (3, shell[0])], combined=False, oriented=False)})
+        surfs = sorted(
+            {
+                s
+                for _, s in gmsh.model.getBoundary(
+                    [(3, core[0]), (3, shell[0])], combined=False, oriented=False
+                )
+            }
+        )
         outer, lateral_a = [], []
         for s in surfs:
             bb = gmsh.model.getBoundingBox(2, s)
@@ -152,8 +157,11 @@ def _composite_cylinder(comm, *, h_a=0.30e-3, h_b=2.0e-3):
         tg = time.perf_counter()
         gmsh.model.mesh.generate(3)
         gmsh.model.mesh.setOrder(2)
-        print(f"[imp8-i65] gmsh generate + setOrder(2) {time.perf_counter() - tg:.1f} s "
-              f"(h_a {h_a / MM:g} mm, h_b {h_b / MM:g} mm)", flush=True)
+        print(
+            f"[imp8-i65] gmsh generate + setOrder(2) {time.perf_counter() - tg:.1f} s "
+            f"(h_a {h_a / MM:g} mm, h_b {h_b / MM:g} mm)",
+            flush=True,
+        )
     msh, ct, ft = _model_to_mesh(gmsh.model, comm, rank, gdim=3)
     if comm.rank == rank:
         gmsh.finalize()
@@ -169,8 +177,10 @@ def cyl():
     msh, ct, ft = _composite_cylinder(comm)
     t_build = time.perf_counter() - t0
     n = msh.topology.index_map(msh.topology.dim).size_global
-    _say(f"\n[imp8-i65] composite cylinder: cells {n} (cap {CELL_CAP}); ranks {comm.size}; "
-         f"t_build {t_build:.1f} s; phase {_phase()}")
+    _say(
+        f"\n[imp8-i65] composite cylinder: cells {n} (cap {CELL_CAP}); ranks {comm.size}; "
+        f"t_build {t_build:.1f} s; phase {_phase()}"
+    )
     return msh, ct, ft, n, t_build
 
 
@@ -187,8 +197,9 @@ def test_w0_preconditions(cyl):
     rr = np.hypot(x[gidx.ravel(), 0], x[gidx.ravel(), 1]) if facets.size else np.zeros(0)
     dev_loc = float(np.max(np.abs(rr - B_WALL))) if rr.size else 0.0
     dev = comm.allreduce(dev_loc, op=MPI.MAX)
-    n_fac = comm.allreduce(int(np.count_nonzero(
-        facets < msh.topology.index_map(fdim).size_local)), op=MPI.SUM)
+    n_fac = comm.allreduce(
+        int(np.count_nonzero(facets < msh.topology.index_map(fdim).size_local)), op=MPI.SUM
+    )
     mid = dmesh.compute_midpoints(msh, fdim, facets) if facets.size else np.zeros((0, 3))
     zmax_loc = float(np.max(np.abs(mid[:, 2]))) if facets.size else 0.0
     zmax = comm.allreduce(zmax_loc, op=MPI.MAX)
@@ -198,20 +209,30 @@ def test_w0_preconditions(cyl):
     f.interpolate(lambda X: X[0] + 2.0 * X[1] + 3.0 * X[2])
     pts = np.array([[r * MM, 0.0, z * MM] for r, z in READ_PTS], dtype=float)
     vals, ok = evaluate_vector_field_parallel(f, pts)
-    werr = max(abs(float(np.real(np.ravel(vals[i])[0])) - (p[0] + 2 * p[1] + 3 * p[2]))
-               if bool(ok[i]) else np.inf for i, p in enumerate(pts))
+    werr = max(
+        (
+            abs(float(np.real(np.ravel(vals[i])[0])) - (p[0] + 2 * p[1] + 3 * p[2]))
+            if bool(ok[i])
+            else np.inf
+        )
+        for i, p in enumerate(pts)
+    )
     dx = ufl.Measure("dx", domain=msh, subdomain_data=ct)
     v_core = _allsum(comm, fem.Constant(msh, 1.0) * dx(1))
     v_shell = _allsum(comm, fem.Constant(msh, 1.0) * dx(2))
     loc_tags = set(int(t) for t in np.unique(ct.values))
     all_tags = set().union(*comm.allgather(loc_tags))
-    _say(f"[imp8-i65] W0 cells {n}; coordinate degree {deg}; cell tags {sorted(all_tags)}; "
-         f"tag-{ROBIN_TAG} owned facets {n_fac}, max |r - b| over their geometry nodes "
-         f"{dev:.3e} m, max |z| of their midpoints {zmax / MM:.4f} mm (L/2 = {LEN / 2 / MM:g}); "
-         f"P2 wiring max err {werr:.3e}")
-    _say(f"[imp8-i65] W0 V_core,h/(pi a^2 L) - 1 = {v_core / (np.pi * A_ROD**2 * LEN) - 1:.4e}; "
-         f"V_shell,h/(pi (b^2-a^2) L) - 1 = "
-         f"{v_shell / (np.pi * (B_WALL**2 - A_ROD**2) * LEN) - 1:.4e}")
+    _say(
+        f"[imp8-i65] W0 cells {n}; coordinate degree {deg}; cell tags {sorted(all_tags)}; "
+        f"tag-{ROBIN_TAG} owned facets {n_fac}, max |r - b| over their geometry nodes "
+        f"{dev:.3e} m, max |z| of their midpoints {zmax / MM:.4f} mm (L/2 = {LEN / 2 / MM:g}); "
+        f"P2 wiring max err {werr:.3e}"
+    )
+    _say(
+        f"[imp8-i65] W0 V_core,h/(pi a^2 L) - 1 = {v_core / (np.pi * A_ROD**2 * LEN) - 1:.4e}; "
+        f"V_shell,h/(pi (b^2-a^2) L) - 1 = "
+        f"{v_shell / (np.pi * (B_WALL**2 - A_ROD**2) * LEN) - 1:.4e}"
+    )
     assert deg == 2, deg
     assert n <= CELL_CAP, n
     assert all_tags == {1, 2}, all_tags
@@ -239,19 +260,35 @@ def run(cyl):
     dt = T_STAR / N_STEPS
     t1 = time.perf_counter()
     res = solve_transient_conduction(
-        msh, ft, k=k, rho_c=rc, q=q, h=H_DIR, t_inf=T_INF, t_init=T_INF,
-        robin_tag=ROBIN_TAG, dt=dt, n_steps=N_STEPS, theta=0.5, startup_half_steps=2,
-        degree=DEGREE, snapshot_steps=(SNAP,))
+        msh,
+        ft,
+        k=k,
+        rho_c=rc,
+        q=q,
+        h=H_DIR,
+        t_inf=T_INF,
+        t_init=T_INF,
+        robin_tag=ROBIN_TAG,
+        dt=dt,
+        n_steps=N_STEPS,
+        theta=0.5,
+        startup_half_steps=2,
+        degree=DEGREE,
+        snapshot_steps=(SNAP,),
+    )
     t_tr = time.perf_counter() - t1
     out["E"] = float(res.max_balance_residual)
     t2 = time.perf_counter()
-    st = solve_steady_conduction(msh, ft, k=k, q=q, h=H_DIR, t_inf=T_INF,
-                                 robin_tag=ROBIN_TAG, degree=DEGREE)
+    st = solve_steady_conduction(
+        msh, ft, k=k, q=q, h=H_DIR, t_inf=T_INF, robin_tag=ROBIN_TAG, degree=DEGREE
+    )
     t_st = time.perf_counter() - t2
-    _say(f"[imp8-i65] W1 cells {n}; t_build {t_build:.1f} s; t_call transient {t_tr:.1f} s "
-         f"(CN N={N_STEPS}, dt={dt:.6g} s, snapshot {SNAP} -> t = {SNAP * dt:.6g} s = t_c "
-         f"{T_C:.6g}), n_factorizations {res.n_factorizations}; t_call steady {t_st:.1f} s; "
-         f"NaN left {out['nan']}")
+    _say(
+        f"[imp8-i65] W1 cells {n}; t_build {t_build:.1f} s; t_call transient {t_tr:.1f} s "
+        f"(CN N={N_STEPS}, dt={dt:.6g} s, snapshot {SNAP} -> t = {SNAP * dt:.6g} s = t_c "
+        f"{T_C:.6g}), n_factorizations {res.n_factorizations}; t_call steady {t_st:.1f} s; "
+        f"NaN left {out['nan']}"
+    )
     th_c = _theta_pts(res.snapshots[SNAP], READ_PTS)
     th_s = _theta_pts(res.temperature, READ_PTS + WIT_PTS)
     th_ss = _theta_pts(st.temperature, READ_PTS)
@@ -271,30 +308,42 @@ def run(cyl):
                 out["I"].append(rel)
             if gated and tag == "(I0)":
                 out["I0"] = rel
-            _say(f"[imp8-i65] {tag} ({r:g}, {z:g}) mm {key}: theta_FEM {v:.6e}, composite "
-                 f"{e:.6e} K per W/m, rel {rel:.3e} "
-                 f"({'gated' if gated else 'printed only'}, band {INTERIOR_BAND:.0e})")
-    _say(f"[imp8-i65] z-invariance at t*: theta_FEM(a, 0) {th_s[0]:.6e}, (a, +L/4) "
-         f"{th_s[3]:.6e}, (a, -L/4) {th_s[4]:.6e}")
+            _say(
+                f"[imp8-i65] {tag} ({r:g}, {z:g}) mm {key}: theta_FEM {v:.6e}, composite "
+                f"{e:.6e} K per W/m, rel {rel:.3e} "
+                f"({'gated' if gated else 'printed only'}, band {INTERIOR_BAND:.0e})"
+            )
+    _say(
+        f"[imp8-i65] z-invariance at t*: theta_FEM(a, 0) {th_s[0]:.6e}, (a, +L/4) "
+        f"{th_s[3]:.6e}, (a, -L/4) {th_s[4]:.6e}"
+    )
     # Control: the k_r = K_GEL comparand at (0, t_c); same swap at the weekly's points.
     c0 = float(_theta(0.0, T_C, k_r=K_GEL))
     out["ctrl"] = abs(th_c[2] / c0 - 1.0)
-    _say(f"[imp8-i65] control (k_r = K_GEL) at (0, t_c): comparand {c0:.6e}, miss "
-         f"{out['ctrl']:.4e} (asserted > {INTERIOR_BAND:.0e}; predicted approx {PRED_CTRL}, "
-         f"not asserted)")
-    oth = [abs(th_c[0] / float(_theta(A_ROD, T_C, k_r=K_GEL)) - 1.0),
-           abs(th_s[0] / float(_theta(A_ROD, T_STAR, k_r=K_GEL)) - 1.0),
-           abs(th_ss[0] / float(_theta_ss(A_ROD)) - 1.0)]
-    _say(f"[imp8-i65] control swap at the weekly's points (printed): (a, t_c) {oth[0]:.3e}, "
-         f"(a, t*) {oth[1]:.3e}, (a, steady) {oth[2]:.3e} (predicted {PRED_CTRL_OTHERS})")
+    _say(
+        f"[imp8-i65] control (k_r = K_GEL) at (0, t_c): comparand {c0:.6e}, miss "
+        f"{out['ctrl']:.4e} (asserted > {INTERIOR_BAND:.0e}; predicted approx {PRED_CTRL}, "
+        f"not asserted)"
+    )
+    oth = [
+        abs(th_c[0] / float(_theta(A_ROD, T_C, k_r=K_GEL)) - 1.0),
+        abs(th_s[0] / float(_theta(A_ROD, T_STAR, k_r=K_GEL)) - 1.0),
+        abs(th_ss[0] / float(_theta_ss(A_ROD)) - 1.0),
+    ]
+    _say(
+        f"[imp8-i65] control swap at the weekly's points (printed): (a, t_c) {oth[0]:.3e}, "
+        f"(a, t*) {oth[1]:.3e}, (a, steady) {oth[2]:.3e} (predicted {PRED_CTRL_OTHERS})"
+    )
     # Robin offset: the steady wall temperature over theta_ss(a).
     ds = ufl.Measure("ds", domain=msh, subdomain_data=ft)
     area = _allsum(comm, fem.Constant(msh, 1.0) * ds(ROBIN_TAG))
     t_wall = _allsum(comm, st.temperature * ds(ROBIN_TAG)) / area
-    _say(f"[imp8-i65] Robin offset: mean wall theta / theta_ss(a) = "
-         f"{t_wall / float(_theta_ss(A_ROD)):.4e} (predicted {PRED_ROBIN:.1e}); steady "
-         f"convected / source {st.convected_power / st.source_power - 1:.3e}; (E) {out['E']:.3e} "
-         f"(band {E_BAND:.0e}); (S0) {out['S0']:.3e} (band {B_BAND:.0e}), core {out['S0core']:.3e}")
+    _say(
+        f"[imp8-i65] Robin offset: mean wall theta / theta_ss(a) = "
+        f"{t_wall / float(_theta_ss(A_ROD)):.4e} (predicted {PRED_ROBIN:.1e}); steady "
+        f"convected / source {st.convected_power / st.source_power - 1:.3e}; (E) {out['E']:.3e} "
+        f"(band {E_BAND:.0e}); (S0) {out['S0']:.3e} (band {B_BAND:.0e}), core {out['S0core']:.3e}"
+    )
     return out
 
 

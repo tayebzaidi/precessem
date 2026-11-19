@@ -31,7 +31,6 @@ from dolfinx import fem
 from mpi4py import MPI
 
 from fem_em_solver.thermal.dose import running_average
-
 from tests.complex_mode import complex_only
 from tests.validation.test_mat10_sar_to_heat_sphere import _say
 from tests.validation.test_mat15_coil_driven_heating_phantom import (
@@ -90,18 +89,38 @@ def _fem_history(*, keep_duty_fields=False):
     if keep_duty_fields:
         duty_fields = [np.real(r_duty.snapshots[n].x.array).copy() - T_INF for n in STEPS]
     duty = _series(r_duty, work, f_mean, comm, v_sub)
-    hs =[_series(_transient_s(sub, ft, q0, _heaviside(m), snapshot_steps=STEPS),
-                  work, f_mean, comm, v_sub) for m in range(N_SWITCH)]
+    hs = [
+        _series(
+            _transient_s(sub, ft, q0, _heaviside(m), snapshot_steps=STEPS),
+            work,
+            f_mean,
+            comm,
+            v_sub,
+        )
+        for m in range(N_SWITCH)
+    ]
     t_thermal = time.perf_counter() - t1
     times = np.arange(N_MAIN + 1) * DT
-    _say(f"\nMAT20fem fixture: _run_heated {t_base:.1f} s; 11 transients + "
-         f"{11 * len(STEPS)} reductions {t_thermal:.1f} s; DT = {DT:.6f} s, "
-         f"W/DT = {W / DT:.4f} samples, ranks = {comm.size}")
+    _say(
+        f"\nMAT20fem fixture: _run_heated {t_base:.1f} s; 11 transients + "
+        f"{11 * len(STEPS)} reductions {t_thermal:.1f} s; DT = {DT:.6f} s, "
+        f"W/DT = {W / DT:.4f} samples, ranks = {comm.size}"
+    )
     out = {"t": times, "duty": duty, "H": hs}
     if keep_duty_fields:
-        out.update({"base": base, "sub": sub, "ft": ft, "V1": V1, "work": work,
-                    "f_mean": f_mean, "v_sub": v_sub, "q0": q0,
-                    "duty_fields": duty_fields})
+        out.update(
+            {
+                "base": base,
+                "sub": sub,
+                "ft": ft,
+                "V1": V1,
+                "work": work,
+                "f_mean": f_mean,
+                "v_sub": v_sub,
+                "q0": q0,
+                "duty_fields": duty_fields,
+            }
+        )
     return out
 
 
@@ -113,10 +132,21 @@ def hist():
     if comm.rank == 0:
         os.makedirs(os.path.dirname(OUT_JSON), exist_ok=True)
         with open(OUT_JSON, "w") as fh:
-            json.dump({"times": times.tolist(), "duty": duty.tolist(),
-                       "H": [h.tolist() for h in hs], "DT": DT, "HALF": HALF,
-                       "N_SWITCH": N_SWITCH, "T_INF": T_INF, "T_STAR": T_STAR,
-                       "ranks": comm.size}, fh, indent=1)
+            json.dump(
+                {
+                    "times": times.tolist(),
+                    "duty": duty.tolist(),
+                    "H": [h.tolist() for h in hs],
+                    "DT": DT,
+                    "HALF": HALF,
+                    "N_SWITCH": N_SWITCH,
+                    "T_INF": T_INF,
+                    "T_STAR": T_STAR,
+                    "ranks": comm.size,
+                },
+                fh,
+                indent=1,
+            )
     comm.Barrier()
     return out
 
@@ -144,10 +174,26 @@ def _identities(t, duty, hs):
     b9 = b - signs[9] * ra[9][0]
     dc = float(np.max(np.abs(a[ok] - b9[ok])) / scale)
     _, h0_mx, h0_tmx = ra[0]
-    return {"signs": signs, "h0": h0, "a": a, "a_mx": a_mx, "a_tmx": a_tmx, "ra": ra,
-            "b": b, "ok": ok, "scale": scale, "res": res, "fem": fem_v, "fem2d": fem2d,
-            "fem2d_eq": fem2d_eq, "idx": idx, "wc": wc, "dc": dc, "h0_mx": h0_mx,
-            "h0_tmx": h0_tmx}
+    return {
+        "signs": signs,
+        "h0": h0,
+        "a": a,
+        "a_mx": a_mx,
+        "a_tmx": a_tmx,
+        "ra": ra,
+        "b": b,
+        "ok": ok,
+        "scale": scale,
+        "res": res,
+        "fem": fem_v,
+        "fem2d": fem2d,
+        "fem2d_eq": fem2d_eq,
+        "idx": idx,
+        "wc": wc,
+        "dc": dc,
+        "h0_mx": h0_mx,
+        "h0_tmx": h0_tmx,
+    }
 
 
 @complex_only
@@ -158,37 +204,49 @@ def test_mat20_fem_history(hist):
     # Records against the step-3 W1 log (:1960–1969, :1974).
     for m, h in enumerate(hs):
         _say(f"MAT20fem record H_{m} (t_m = {m * HALF:.4f} s): <theta>(t*) = {h[-1]:.12e} K")
-    _say(f"MAT20fem record duty <theta> n=32 {duty[32]:.9f} K  n=36 {duty[36]:.9f} K  "
-         f"n=40 {duty[40]:.9f} K  (step-3 log :1974: 0.466250330 / 0.584438780 / 0.568835514)")
+    _say(
+        f"MAT20fem record duty <theta> n=32 {duty[32]:.9f} K  n=36 {duty[36]:.9f} K  "
+        f"n=40 {duty[40]:.9f} K  (step-3 log :1974: 0.466250330 / 0.584438780 / 0.568835514)"
+    )
 
     # (H0) Duhamel on the per-step series.
     h0 = ids["h0"]
-    _say(f"MAT20fem (H0) max_n |duty - sum (-1)^m H_m| / max|duty| = {h0:.3e} "
-         f"(bound L_BAND {L_BAND:.0e}, predicted <= 5e-14)")
+    _say(
+        f"MAT20fem (H0) max_n |duty - sum (-1)^m H_m| / max|duty| = {h0:.3e} "
+        f"(bound L_BAND {L_BAND:.0e}, predicted <= 5e-14)"
+    )
 
     # (FEM) the operator column-wise.
     fem_v = ids["fem"]
-    _say(f"MAT20fem (FEM) W = {W} s: max |a - b| / max|a| over {int(ids['ok'].sum())} windows = "
-         f"{fem_v:.3e} (bound D_BAND {D_BAND:.0e}, predicted <= 5e-14)")
+    _say(
+        f"MAT20fem (FEM) W = {W} s: max |a - b| / max|a| over {int(ids['ok'].sum())} windows = "
+        f"{fem_v:.3e} (bound D_BAND {D_BAND:.0e}, predicted <= 5e-14)"
+    )
     _say("MAT20fem (FEM) per-window residuals: " + " ".join(f"{x:.2e}" for x in ids["res"]))
 
     # (FEM-2d) through the 2-D call.
     fem2d = ids["fem2d"]
-    _say(f"MAT20fem (FEM-2d) 2-D call: {fem2d:.3e} (bound D_BAND {D_BAND:.0e}); "
-         f"2-D duty column == 1-D: {ids['fem2d_eq']}")
+    _say(
+        f"MAT20fem (FEM-2d) 2-D call: {fem2d:.3e} (bound D_BAND {D_BAND:.0e}); "
+        f"2-D duty column == 1-D: {ids['fem2d_eq']}"
+    )
 
     # (Wc-FEM) a at t_i against b at t_{i-4}.
     wc = ids["wc"]
-    _say(f"MAT20fem control (Wc-FEM) shift P/2 = {STEPS_PER_HALF} samples: miss {wc:.3e} "
-         f"over {ids['idx'].size} windows (asserted > {D_BAND:.0e}; predicted ~1e-2-1e-1)")
+    _say(
+        f"MAT20fem control (Wc-FEM) shift P/2 = {STEPS_PER_HALF} samples: miss {wc:.3e} "
+        f"over {ids['idx'].size} windows (asserted > {D_BAND:.0e}; predicted ~1e-2-1e-1)"
+    )
 
     # (Dc) printed only: m = 9 dropped.
     _say(f"MAT20fem control (Dc) m = 9 dropped, printed: {ids['dc']:.6f}")
 
     # Records: six-minute maxima.
-    _say(f"MAT20fem record duty max six-minute mean {ids['a_mx']:.9e} K at t_max = "
-         f"{ids['a_tmx']:.4f} s; H_0 max {ids['h0_mx']:.9e} K at t_max = "
-         f"{ids['h0_tmx']:.4f} s (t* = {T_STAR:.4f} s)")
+    _say(
+        f"MAT20fem record duty max six-minute mean {ids['a_mx']:.9e} K at t_max = "
+        f"{ids['a_tmx']:.4f} s; H_0 max {ids['h0_mx']:.9e} K at t_max = "
+        f"{ids['h0_tmx']:.4f} s (t* = {T_STAR:.4f} s)"
+    )
 
     assert h0 <= L_BAND
     assert fem_v <= D_BAND

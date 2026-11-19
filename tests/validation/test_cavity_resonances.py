@@ -105,9 +105,7 @@ def test_pec_cavity_resonances_improve_under_refinement():
 
     err_coarse = np.abs(coarse.frequencies_hz - analytic) / analytic
     err_fine = np.abs(fine.frequencies_hz - analytic) / analytic
-    rate = np.log(err_coarse.max() / err_fine.max()) / np.log(
-        coarse.cell_size / fine.cell_size
-    )
+    rate = np.log(err_coarse.max() / err_fine.max()) / np.log(coarse.cell_size / fine.cell_size)
 
     if comm.rank == 0:
         print(
@@ -116,9 +114,9 @@ def test_pec_cavity_resonances_improve_under_refinement():
             f"rate={rate:.2f}; elapsed={elapsed:.1f}s"
         )
 
-    assert np.all(err_fine < err_coarse), (
-        f"refinement did not improve every mode: coarse={err_coarse}, fine={err_fine}"
-    )
+    assert np.all(
+        err_fine < err_coarse
+    ), f"refinement did not improve every mode: coarse={err_coarse}, fine={err_fine}"
     # Degree-2 edge elements converge as O(h^4) in the eigenvalue; the measured
     # rate on 2026-07-30 was 3.85. The floor is set at 2.0 so a genuine loss of
     # order fails while mode-to-mode variation does not.
@@ -186,14 +184,11 @@ def _old_analytic_cavity_frequencies(edges, n_modes, max_index=4):
             for p in range(max_index + 1):
                 if [m, n, p].count(0) > 1:
                     continue
-                values.append(
-                    0.5 * C_0 * np.sqrt((m / a) ** 2 + (n / b) ** 2 + (p / d) ** 2)
-                )
+                values.append(0.5 * C_0 * np.sqrt((m / a) ** 2 + (n / b) ** 2 + (p / d) ** 2))
     values = np.sort(np.asarray(values))
     if values.size < n_modes:
         raise ValueError(
-            f"max_index={max_index} yields only {values.size} modes; "
-            f"{n_modes} were requested"
+            f"max_index={max_index} yields only {values.size} modes; " f"{n_modes} were requested"
         )
     return values[:n_modes]
 

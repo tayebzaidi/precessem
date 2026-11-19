@@ -66,8 +66,8 @@ from fem_em_solver import (
 from fem_em_solver.ports.circuit import reduce_terminated_ports, s_to_z
 from fem_em_solver.study import GATED_WIDTH_FRACTION
 from fem_em_solver.study_yaml import _load, load_study
-
 from tests.complex_mode import IS_COMPLEX
+from tests.package.test_wf1_yaml_capacitors import ITEM429_C_MODE_F
 from tests.package.test_wf16_study_copper import _geometry
 from tests.package.test_wf16_study_tune import TH17_STEP3_C_MODE_RECORD_F
 from tests.package.test_wf16_study_tune_capacitors import _phantom, _study
@@ -76,7 +76,6 @@ from tests.package.test_wf17_first_study_tutorial import (
     _checker_stdout,
     extract_tagged_block,
 )
-from tests.package.test_wf1_yaml_capacitors import ITEM429_C_MODE_F
 from tests.unit.test_doc_reference_exit_codes import run_checker
 from tests.validation.test_ans6_exact_strip import (
     ANS6_EXACT_STRIP_CLASS_MEANS_P1,
@@ -151,8 +150,9 @@ def _py_defect(block: str):
     if len(tunes) != 1:
         return f"{len(tunes)} .tune( calls; need exactly one"
     t = tunes[0]
-    ks = [ast.literal_eval(a) for a in t.args] + [ast.literal_eval(k.value) for k in t.keywords
-                                                  if k.arg == "k"]
+    ks = [ast.literal_eval(a) for a in t.args] + [
+        ast.literal_eval(k.value) for k in t.keywords if k.arg == "k"
+    ]
     if ks != [1]:
         return f".tune( k arguments {ks!r} != [1]"
     for name in ("solve", "solve_sweep", "run_study_file", "CapacitorSheets"):
@@ -205,8 +205,10 @@ def _knob() -> bool:
 
 def _solve_preamble():
     if not _knob():
-        pytest.skip(f"{S16_ENV} unset: the tutorial solve window is environment-selected "
-                    "(complex build, -n 2)")
+        pytest.skip(
+            f"{S16_ENV} unset: the tutorial solve window is environment-selected "
+            "(complex build, -n 2)"
+        )
     comm = MPI.COMM_WORLD
     assert IS_COMPLEX, "the four-port tune Study needs the complex build"
     assert comm.size == ANS6_EXACT_STRIP_RECORD_RANK_WIDTH, comm.size
@@ -225,8 +227,11 @@ def _prepare_scratch():
         target = SCRATCH_ROOT / FILE_REL
         target.parent.mkdir(parents=True)
         target.write_bytes(data)
-        print(f"[WF-17 s16] copied {FILE_REL} sha256 {_sha(target.read_bytes())} (tracked "
-              f"{_sha(data)})", flush=True)
+        print(
+            f"[WF-17 s16] copied {FILE_REL} sha256 {_sha(target.read_bytes())} (tracked "
+            f"{_sha(data)})",
+            flush=True,
+        )
     comm.Barrier()
 
 
@@ -246,9 +251,11 @@ def exec_block(monkeypatch, tag):
 
 
 def _assert_gate_inputs(st, label):
-    _p0(f"[WF-17 s16] (In) {label}: geometry {st.geometry!r}; material {st.material!r}; "
+    _p0(
+        f"[WF-17 s16] (In) {label}: geometry {st.geometry!r}; material {st.material!r}; "
         f"excitation {st.excitation!r}; frequency {float(st.frequency_hz).hex()} (want "
-        f"{FREQUENCY_64_HZ.hex()}); degree {st.degree}; conductor {st.conductor!r}")
+        f"{FREQUENCY_64_HZ.hex()}); degree {st.degree}; conductor {st.conductor!r}"
+    )
     assert type(st.geometry) is FourPortBirdcageGeometry and st.geometry == _geometry()
     assert st.geometry.strip_fraction == GATED_WIDTH_FRACTION
     assert st.material == _phantom()
@@ -269,12 +276,16 @@ def test_wf17_s16_blocks_and_inputs(monkeypatch, tmp_path):
     yblock = extract_tagged_block(text, YAML_TAG)
     extract_tagged_block(text, BANDS_TAG, lang="text")
     p_reason, y_reason = _py_defect(pblock), _yaml_defect(yblock)
-    _p0(f"[WF-17 s16] (X) {PY_TAG}: Study {len(_calls_named(pblock, 'Study'))}, tune "
+    _p0(
+        f"[WF-17 s16] (X) {PY_TAG}: Study {len(_calls_named(pblock, 'Study'))}, tune "
         f"{len(_calls_named(pblock, 'tune'))}, solve {len(_calls_named(pblock, 'solve'))}, "
-        f"run_study_file {len(_calls_named(pblock, 'run_study_file'))}; defect {p_reason}")
-    _p0(f"[WF-17 s16] (X) {YAML_TAG}: run_study_file "
+        f"run_study_file {len(_calls_named(pblock, 'run_study_file'))}; defect {p_reason}"
+    )
+    _p0(
+        f"[WF-17 s16] (X) {YAML_TAG}: run_study_file "
         f"{len(_calls_named(yblock, 'run_study_file'))}, Study {len(_calls_named(yblock, 'Study'))}, "
-        f"tune {len(_calls_named(yblock, 'tune'))}; defect {y_reason}")
+        f"tune {len(_calls_named(yblock, 'tune'))}; defect {y_reason}"
+    )
     assert p_reason is None, p_reason
     assert y_reason is None, y_reason
     assert pblock.count("Study(") == 1 and "run_study_file" not in pblock
@@ -287,10 +298,16 @@ def test_wf17_s16_blocks_and_inputs(monkeypatch, tmp_path):
     # (c-page), by construction: a removed / doubled tag raises
     for tag, lang in ((PY_TAG, "python"), (YAML_TAG, "python"), (BANDS_TAG, "text")):
         with pytest.raises(LookupError):
-            extract_tagged_block(text.replace(f"```{lang} {tag}\n", f"```{lang} other\n"), tag,
-                                 lang=lang)
-        doubled = (text + "\n" + f"```{lang} {tag}\n"
-                   + extract_tagged_block(text, tag, lang=lang) + "```\n")
+            extract_tagged_block(
+                text.replace(f"```{lang} {tag}\n", f"```{lang} other\n"), tag, lang=lang
+            )
+        doubled = (
+            text
+            + "\n"
+            + f"```{lang} {tag}\n"
+            + extract_tagged_block(text, tag, lang=lang)
+            + "```\n"
+        )
         with pytest.raises(LookupError):
             extract_tagged_block(doubled, tag, lang=lang)
     # a tmp copy of the page tuning k = 2 fails (X); one naming another file fails (X)
@@ -299,11 +316,14 @@ def test_wf17_s16_blocks_and_inputs(monkeypatch, tmp_path):
     k2.write_text(text.replace("study.tune(1)", "study.tune(2)", 1))
     k2_reason = _py_defect(extract_tagged_block(k2.read_text(), PY_TAG))
     other = tmp_path / "page2.md"
-    other.write_text(text.replace(f'run_study_file("{FILE_REL}")',
-                                  f'run_study_file("{OTHER_REL}")', 1))
+    other.write_text(
+        text.replace(f'run_study_file("{FILE_REL}")', f'run_study_file("{OTHER_REL}")', 1)
+    )
     other_reason = _yaml_defect(extract_tagged_block(other.read_text(), YAML_TAG))
-    _p0(f"[WF-17 s16] (c-page) tags removed / doubled raise LookupError for all three blocks; "
-        f"k = 2 -> {k2_reason}; other file -> {other_reason}")
+    _p0(
+        f"[WF-17 s16] (c-page) tags removed / doubled raise LookupError for all three blocks; "
+        f"k = 2 -> {k2_reason}; other file -> {other_reason}"
+    )
     assert k2_reason is not None and "k arguments" in k2_reason
     assert other_reason is not None and "f_small_hole_pec_control" in other_reason
     for token in (".json", ".npz", ".s4p", ".xdmf", "AED", "HFSS"):
@@ -325,8 +345,10 @@ def test_wf17_s16_blocks_and_inputs(monkeypatch, tmp_path):
     t0 = time.perf_counter()
     ns, _ = exec_block(monkeypatch, PY_TAG)
     st = ns["study"]
-    _p0(f"[WF-17 s16] (In) tune calls {[(a, k) for _, a, k in calls]}; exec "
-        f"{time.perf_counter() - t0:.2f} s")
+    _p0(
+        f"[WF-17 s16] (In) tune calls {[(a, k) for _, a, k in calls]}; exec "
+        f"{time.perf_counter() - t0:.2f} s"
+    )
     assert len(calls) == 1 and calls[0][0] is st and calls[0][1] == (1,) and calls[0][2] == {}
     _assert_gate_inputs(st, PY_TAG)
 
@@ -342,8 +364,9 @@ def test_wf17_s16_bands_on_the_page():
     block = extract_tagged_block(_text(), BANDS_TAG, lang="text")
     _p0(f"[WF-17 s16] (E) bands block {block.strip().splitlines()} (rendered {_bands_lines()})")
     assert _bands_defect(block) is None, _bands_defect(block)
-    altered = block.replace(f"{LEG_D0_REPRODUCTION_BAND:.0e}",
-                            f"{LEG_D0_REPRODUCTION_BAND * 10:.0e}", 1)
+    altered = block.replace(
+        f"{LEG_D0_REPRODUCTION_BAND:.0e}", f"{LEG_D0_REPRODUCTION_BAND * 10:.0e}", 1
+    )
     reason = _bands_defect(altered)
     _p0(f"[WF-17 s16] (c-page) one exponent altered -> {reason}")
     assert reason is not None and "perfect-conductor record" in reason
@@ -355,9 +378,11 @@ def test_wf17_s16_docrefs_zero_dead():
     rc, counts = run_checker("--docs-root", "docs/guide", "--check-links")
     link = LINK_PASS_RE.search(_checker_stdout("--docs-root", "docs/guide", "--check-links"))
     assert link is not None, "(D) no 'Link pass:' line"
-    print(f"[WF-17 s16] (D) dead={counts['dead']} links={link.group(1)} pages={link.group(2)} "
-          f"link-dead={link.group(3)} guide={counts['guide']} stale={counts['stale']} "
-          f"exit={counts['exit']} rc={rc}")
+    print(
+        f"[WF-17 s16] (D) dead={counts['dead']} links={link.group(1)} pages={link.group(2)} "
+        f"link-dead={link.group(3)} guide={counts['guide']} stale={counts['stale']} "
+        f"exit={counts['exit']} rc={rc}"
+    )
     assert counts["dead"] == 0
     assert int(link.group(3)) == 0
     assert int(link.group(2)) >= MIN_GUIDE_PAGES
@@ -411,28 +436,35 @@ def test_wf17_s16_tune_blocks_reproduce_wf16_s6b(monkeypatch):
         t0 = time.perf_counter()
         ns_y, _ = exec_block(monkeypatch, YAML_TAG)
         t_yaml = time.perf_counter() - t0
-    _p0(f"[WF-17 s16] build cache: {cache['real']} real build, {cache['hits']} hits (4 Studies); "
+    _p0(
+        f"[WF-17 s16] build cache: {cache['real']} real build, {cache['hits']} hits (4 Studies); "
         f"S0 + two tunes {t_s0:.1f} s, python block {t_py:.1f} s, Route A {t_a:.1f} s, "
-        f"yaml block {t_yaml:.1f} s")
+        f"yaml block {t_yaml:.1f} s"
+    )
 
     # (R0)
     s0m = np.asarray(s0_res.s_matrix, dtype=np.complex128)
     means = _class_means(s0m)
     want = ANS6_EXACT_STRIP_CLASS_MEANS_P1["64"]["pec"]
     rel_r0 = {c: abs(means[c] - want[c]) / abs(want[c]) for c in CLASSES}
-    _p0(f"[WF-17 s16] (R0) cells {s0_res.cells} (record {ANS6_EXACT_STRIP_HOLE_CELL_RECORD}); "
-        "PEC class means vs record: " + " / ".join(f"{c} {rel_r0[c]:.3e}" for c in CLASSES)
-        + f" (ASSERTED <= {LEG_D0_REPRODUCTION_BAND:.0e})")
+    _p0(
+        f"[WF-17 s16] (R0) cells {s0_res.cells} (record {ANS6_EXACT_STRIP_HOLE_CELL_RECORD}); "
+        "PEC class means vs record: "
+        + " / ".join(f"{c} {rel_r0[c]:.3e}" for c in CLASSES)
+        + f" (ASSERTED <= {LEG_D0_REPRODUCTION_BAND:.0e})"
+    )
 
     # (T) the python block's C_mode
     tuned = ns_p["tuned"]
     c1 = float(t1.c_mode_farad)
     r_t = abs(c_page / c1 - 1.0)
     a_t = c_page / TH17_STEP3_C_MODE_RECORD_F - 1.0
-    _p0(f"[WF-17 s16] (T) block k {tuned.k}, C_mode {c_page:.9e} F (hex {c_page.hex()}); S0 "
+    _p0(
+        f"[WF-17 s16] (T) block k {tuned.k}, C_mode {c_page:.9e} F (hex {c_page.hex()}); S0 "
         f"tune C_1 {c1:.9e} F (hex {c1.hex()}): rel {r_t:.3e} (ASSERTED <= {REDUCTION_BAND:.0e}); "
         f"vs TH-17 record {a_t:+.6e} (ASSERTED |.| <= {REDUCTION_BAND:.0e}); gate W1:940 C_1 "
-        f"{W1_C1}, C_2 {W1_C2}; S0 C_2 {float(t2.c_mode_farad):.9e} F (printed)")
+        f"{W1_C1}, C_2 {W1_C2}; S0 C_2 {float(t2.c_mode_farad):.9e} F (printed)"
+    )
 
     # (I-A) Route A at the block's C_mode, lossless, P2-P4
     z0 = float(REFERENCE_IMPEDANCE_OHM)
@@ -440,29 +472,35 @@ def test_wf17_s16_tune_blocks_reproduce_wf16_s6b(monkeypatch):
     pa = reduce_terminated_ports(s0m, z0, {1: zc, 2: zc, 3: zc})
     ids_a = [p.port_id for p in res_a.port_definitions]
     r_ia = abs(res_a.s_matrix[0, 0] - pa[0, 0]) / abs(pa[0, 0])
-    _p0(f"[WF-17 s16] (I-A) ports {ids_a}; Z {res_a.capacitor_impedance_ohm!r} (want {zc!r}); "
+    _p0(
+        f"[WF-17 s16] (I-A) ports {ids_a}; Z {res_a.capacitor_impedance_ohm!r} (want {zc!r}); "
         f"S11 {complex(res_a.s_matrix[0, 0]):.9e} vs reduction {complex(pa[0, 0]):.9e}: rel "
         f"{r_ia:.6e} ({r_ia / REDUCTION_BAND:.4f} x REDUCTION_BAND {REDUCTION_BAND:.0e}; "
-        f"W1:954 {W1_IA})")
+        f"W1:954 {W1_IA})"
+    )
 
     # (c1) the k = 2 capacitance leaves Im z_1 of order 0.33 |z_1|
     zc2 = CapacitorSheets(float(t2.c_mode_farad), 0.0, on=SHEETS).impedance_ohm(FREQUENCY_64_HZ)
     z1 = complex(t1.z_k[1])
     zt2 = _modal_z(s_to_z(s0m, z0) + zc2 * np.eye(4))[0]
     r_c1 = abs(zt2[1].imag) / abs(z1)
-    _p0(f"[WF-17 s16] (c1) |Im z_1(C_2)|/|z_1| = {r_c1:.4e} ({r_c1 / REDUCTION_BAND:.1f} x "
-        f"REDUCTION_BAND; ASSERTED > {REDUCTION_BAND:.0e}; W1:970 {W1_C1_CONTROL})")
+    _p0(
+        f"[WF-17 s16] (c1) |Im z_1(C_2)|/|z_1| = {r_c1:.4e} ({r_c1 / REDUCTION_BAND:.1f} x "
+        f"REDUCTION_BAND; ASSERTED > {REDUCTION_BAND:.0e}; W1:970 {W1_C1_CONTROL})"
+    )
 
     # (TY) the yaml block's summary["tune"]
     run = ns_y["run"]
     tsum = run.summary["tune"]
     c_y = float(tsum["c_mode_farad"])
     a_y = ITEM429_C_MODE_F / c_y - 1.0
-    _p0(f"[WF-17 s16] (TY) spy calls {calls['n']} {calls['paths']}; family "
+    _p0(
+        f"[WF-17 s16] (TY) spy calls {calls['n']} {calls['paths']}; family "
         f"{run.summary['family']!r}; cells {run.summary['cells']}; tune k {tsum['k']}, C_mode "
         f"{c_y:.9e} F (hex {c_y.hex()}); ITEM429_C_MODE_F {ITEM429_C_MODE_F.hex()} vs in-run: "
         f"{a_y:+.3e} (ASSERTED |.| <= {REDUCTION_BAND:.0e}); vs python block "
-        f"{c_y / c_page - 1.0:+.3e}, hex equal {c_y.hex() == c_page.hex()} (printed)")
+        f"{c_y / c_page - 1.0:+.3e}, hex equal {c_y.hex() == c_page.hex()} (printed)"
+    )
     _p0(f"[WF-17 s16] W-tune node {time.perf_counter() - t_node:.1f} s")
 
     assert cache["real"] == 1 and cache["hits"] == 3

@@ -55,7 +55,6 @@ from fem_em_solver import (
     Study,
 )
 from fem_em_solver.materials import GelledSalinePhantomMaterial
-
 from tests.complex_mode import complex_only
 from tests.mesh.test_birdcage_leg_offset import _sheet_azimuth_deg
 from tests.mesh.test_birdcage_port_sheet_prerequisite import CELL_COUNT_BAND
@@ -128,17 +127,20 @@ def test_wf16_f_human_w0_kwargs_tags_refusals():
     """(W0): no mesh anywhere in this node."""
     geom = FHumanBirdcageGeometry()
     assert geom.generator_kwargs() == _f_human_kwargs()
-    assert FHumanBirdcageGeometry(emit_leg_ports=True).generator_kwargs() == \
-        _f_human_kwargs(emit_leg_ports=True)
-    assert "emit_leg_ports" not in FHumanBirdcageGeometry(
-        emit_leg_ports=True).generator_kwargs()
+    assert FHumanBirdcageGeometry(emit_leg_ports=True).generator_kwargs() == _f_human_kwargs(
+        emit_leg_ports=True
+    )
+    assert "emit_leg_ports" not in FHumanBirdcageGeometry(emit_leg_ports=True).generator_kwargs()
     assert geom.leg_count == LEG_COUNT
     assert geom.ring_ordinals() == list(range(LEG_COUNT + 1, 3 * LEG_COUNT + 1))
     for i in geom.ring_ordinals():
         ref = np.asarray(_ring_gap_frame(i, LEG_COUNT)[0], dtype=float)
         assert np.array_equal(np.asarray(geom.drive_direction(i)), ref), i
     assert (geom.sheet_iface, geom.port_lower, geom.port_upper) == (
-        SHEET_IFACE, PORT_LOWER, PORT_UPPER)
+        SHEET_IFACE,
+        PORT_LOWER,
+        PORT_UPPER,
+    )
     assert geom.conductor_tag == CONDUCTOR_CELL_TAG
     assert geom.phantom_tag == PHANTOM_CELL_TAG
     assert geom.conductor_sigma_s_per_m == SIGMA_WIRE_S_PER_M
@@ -147,8 +149,7 @@ def test_wf16_f_human_w0_kwargs_tags_refusals():
     with pytest.raises(dataclasses_frozen_error()):
         geom.ring_radius = 0.2
 
-    st = Study(geom, _phantom(), LumpedPortDrive(), frequency_hz=FREQUENCY_HZ,
-               degree=DEGREE)
+    st = Study(geom, _phantom(), LumpedPortDrive(), frequency_hz=FREQUENCY_HZ, degree=DEGREE)
     with pytest.raises(TypeError):
         st.mean_sar()
     with pytest.raises(TypeError):
@@ -164,11 +165,18 @@ def test_wf16_f_human_w0_kwargs_tags_refusals():
     with pytest.raises(TypeError):
         st.solve_sweep([FREQUENCY_HZ])
     with pytest.raises(TypeError):
-        Study(geom, _phantom(), LumpedPortDrive(), frequency_hz=FREQUENCY_HZ,
-              degree=DEGREE, conductor=LeontovichWall()).solve()
+        Study(
+            geom,
+            _phantom(),
+            LumpedPortDrive(),
+            frequency_hz=FREQUENCY_HZ,
+            degree=DEGREE,
+            conductor=LeontovichWall(),
+        ).solve()
     with pytest.raises(TypeError):
-        Study(geom, _phantom(), QuasiStaticSphereField(), frequency_hz=FREQUENCY_HZ,
-              degree=DEGREE).solve()
+        Study(
+            geom, _phantom(), QuasiStaticSphereField(), frequency_hz=FREQUENCY_HZ, degree=DEGREE
+        ).solve()
 
 
 class _BuildReached(Exception):
@@ -186,8 +194,10 @@ def test_wf16_f_human_s_reproduces_wf7():
     """(F), (R), (G), (c1); (c2) under ``FEM_EM_WF7_LEG_PORTS=boxed``."""
     comm = MPI.COMM_WORLD
     if comm.size != RECORD_RANK_WIDTH:
-        pytest.skip(f"(R) is asserted at -n {RECORD_RANK_WIDTH} only (the record "
-                    f"width); this run is -n {comm.size}")
+        pytest.skip(
+            f"(R) is asserted at -n {RECORD_RANK_WIDTH} only (the record "
+            f"width); this run is -n {comm.size}"
+        )
     boxed = _boxed_knob()
 
     def say(msg):
@@ -196,32 +206,42 @@ def test_wf16_f_human_s_reproduces_wf7():
 
     t_all = time.perf_counter()
     geom = FHumanBirdcageGeometry(emit_leg_ports=boxed)
-    say(f"start: -n {comm.size}, f = {FREQUENCY_HZ:.3e} Hz, degree {DEGREE}, "
-        f"route {'BOXED (c2)' if boxed else 'leg-box-free default'}")
-    st = Study(geom, _phantom(), LumpedPortDrive(), frequency_hz=FREQUENCY_HZ,
-               degree=DEGREE)
+    say(
+        f"start: -n {comm.size}, f = {FREQUENCY_HZ:.3e} Hz, degree {DEGREE}, "
+        f"route {'BOXED (c2)' if boxed else 'leg-box-free default'}"
+    )
+    st = Study(geom, _phantom(), LumpedPortDrive(), frequency_hz=FREQUENCY_HZ, degree=DEGREE)
     res = st.solve(comm)
-    say(f"solve: mesh {res.mesh_time:.2f} s, sweep {res.sweep_time:.2f} s, total "
+    say(
+        f"solve: mesh {res.mesh_time:.2f} s, sweep {res.sweep_time:.2f} s, total "
         f"{time.perf_counter() - t_all:.2f} s; summed ru_maxrss "
-        f"{_rss_summed_gib(comm):.3f} GiB")
+        f"{_rss_summed_gib(comm):.3f} GiB"
+    )
 
     # ---- (F) ---------------------------------------------------------------
     msh, cell_tags, tags_f = res.mesh, res.cell_tags, res.facet_tags
     cells = int(res.cells)
     rel_b = cells / F_HUMAN_BRANCH_B_CELL_RECORD - 1.0
-    leg_tags = ([PORT_LOWER + i for i in range(1, LEG_COUNT + 1)]
-                + [PORT_UPPER + i for i in range(1, LEG_COUNT + 1)])
+    leg_tags = [PORT_LOWER + i for i in range(1, LEG_COUNT + 1)] + [
+        PORT_UPPER + i for i in range(1, LEG_COUNT + 1)
+    ]
     census = sum(_owned_census(msh, cell_tags, leg_tags, comm).values())
     facets = [s["facets"] for s in res.sheets]
     cell_rec = WF7_BOXED_CELL_RECORD if boxed else WF7_CELL_RECORD
-    say(f"(F) cells {cells} vs {'WF7_BOXED_CELL_RECORD' if boxed else 'WF7_CELL_RECORD'}"
+    say(
+        f"(F) cells {cells} vs {'WF7_BOXED_CELL_RECORD' if boxed else 'WF7_CELL_RECORD'}"
         f" {cell_rec} (== ASSERTED); vs F_HUMAN_BRANCH_B {F_HUMAN_BRANCH_B_CELL_RECORD} "
-        f"rel {rel_b:+.4e} (band {CELL_COUNT_BAND}, ASSERTED)")
-    say(f"(N') leg census {census} ({'printed: boxed' if boxed else '== 0 ASSERTED'}); "
-        f"sheets {len(facets)}, facets min {min(facets)} max {max(facets)} (> 0 ASSERTED)")
+        f"rel {rel_b:+.4e} (band {CELL_COUNT_BAND}, ASSERTED)"
+    )
+    say(
+        f"(N') leg census {census} ({'printed: boxed' if boxed else '== 0 ASSERTED'}); "
+        f"sheets {len(facets)}, facets min {min(facets)} max {max(facets)} (> 0 ASSERTED)"
+    )
     chord = res.sheets[0]["h"]
-    say(f"chord {chord:.6e} m beside {CHORD_PRINT_REFERENCE_M:.6e} m (printed); sheet "
-        f"areas {min(s['area'] for s in res.sheets):.6e}..{max(s['area'] for s in res.sheets):.6e}")
+    say(
+        f"chord {chord:.6e} m beside {CHORD_PRINT_REFERENCE_M:.6e} m (printed); sheet "
+        f"areas {min(s['area'] for s in res.sheets):.6e}..{max(s['area'] for s in res.sheets):.6e}"
+    )
     assert cells == cell_rec
     assert abs(rel_b) <= CELL_COUNT_BAND
     if not boxed:
@@ -232,10 +252,12 @@ def test_wf16_f_human_s_reproduces_wf7():
     s = np.asarray(res.s_matrix, dtype=complex)
     ids = [d.port_id for d in res.port_definitions]
     assert ids == [f"P{i}" for i in geom.ring_ordinals()]
-    az = np.array([_sheet_azimuth_deg(msh, tags_f, SHEET_IFACE + i, comm)
-                   for i in geom.ring_ordinals()])
-    zc = np.array([_sheet_centre_z(msh, tags_f, SHEET_IFACE + i, comm)
-                   for i in geom.ring_ordinals()])
+    az = np.array(
+        [_sheet_azimuth_deg(msh, tags_f, SHEET_IFACE + i, comm) for i in geom.ring_ordinals()]
+    )
+    zc = np.array(
+        [_sheet_centre_z(msh, tags_f, SHEET_IFACE + i, comm) for i in geom.ring_ordinals()]
+    )
 
     # ---- (G) ---------------------------------------------------------------
     ratio = _reciprocity_ratio(s)
@@ -246,31 +268,45 @@ def test_wf16_f_human_s_reproduces_wf7():
     col_norms = np.sum(np.abs(s) ** 2, axis=0)
     classes, spreads, residual = _class_means(s, az, zc)
     worst = max(spreads, key=lambda k: spreads[k][0])
-    say(f"(G) reciprocity {ratio:.6e} (band {RECIPROCITY_BAND:.0e}); sigma_max "
+    say(
+        f"(G) reciprocity {ratio:.6e} (band {RECIPROCITY_BAND:.0e}); sigma_max "
         f"{sigma_max:.9f} margin {MATRIX_PASSIVITY_CEILING - sigma_max:+.3e}; column "
         f"norms {col_norms.min():.6f}..{col_norms.max():.6f} (ceiling "
         f"{MATRIX_PASSIVITY_CEILING}); classes {len(classes)} (== {N_SYMMETRY_CLASSES}); "
         f"azimuth residual {residual:.3e} deg (< {AZIMUTH_MATCH_DEG:.0e}); worst spread "
         f"{spreads[worst][0]:.4e} {worst} (band {OPPOSITE_SPREAD_BAND}); control lift "
-        f"{lift:.3e}x (bar {CONTROL_RATIO_LIFT:.0e}x) -- all ASSERTED")
+        f"{lift:.3e}x (bar {CONTROL_RATIO_LIFT:.0e}x) -- all ASSERTED"
+    )
 
     # ---- (R) and the controls ------------------------------------------------
-    own_sig, own_cls = ((SIGMA_MAX_D1_RECORD_BOXED, CLASS_MEAN_D1_RECORD_BOXED) if boxed
-                        else (SIGMA_MAX_D1_RECORD, CLASS_MEAN_D1_RECORD))
-    oth_sig, oth_cls = ((SIGMA_MAX_D1_RECORD, CLASS_MEAN_D1_RECORD) if boxed
-                        else (SIGMA_MAX_D1_RECORD_BOXED, CLASS_MEAN_D1_RECORD_BOXED))
+    own_sig, own_cls = (
+        (SIGMA_MAX_D1_RECORD_BOXED, CLASS_MEAN_D1_RECORD_BOXED)
+        if boxed
+        else (SIGMA_MAX_D1_RECORD, CLASS_MEAN_D1_RECORD)
+    )
+    oth_sig, oth_cls = (
+        (SIGMA_MAX_D1_RECORD, CLASS_MEAN_D1_RECORD)
+        if boxed
+        else (SIGMA_MAX_D1_RECORD_BOXED, CLASS_MEAN_D1_RECORD_BOXED)
+    )
     r_sig, r_cls, r_rels, _sp, _r = _record_rel(s, az, zc, own_sig, own_cls)
     c_sig, c_cls, c_rels, _sp, _r = _record_rel(s, az, zc, oth_sig, oth_cls)
     lab = "BOXED records" if boxed else "leg-box-free records"
-    say(f"(R) vs {lab}: sigma_max {sigma_max:.9f} vs {own_sig:.9f} rel {r_sig:.3e}; "
-        f"worst class-mean rel {r_cls:.3e} (band {LEG_D0_REPRODUCTION_BAND:g}, ASSERTED)")
+    say(
+        f"(R) vs {lab}: sigma_max {sigma_max:.9f} vs {own_sig:.9f} rel {r_sig:.3e}; "
+        f"worst class-mean rel {r_cls:.3e} (band {LEG_D0_REPRODUCTION_BAND:g}, ASSERTED)"
+    )
     for k in own_cls:
-        say(f"     {'same ' if k[0] else 'other'} ring, {k[1]} steps  mean |S| "
+        say(
+            f"     {'same ' if k[0] else 'other'} ring, {k[1]} steps  mean |S| "
             f"{spreads[k][2]:.12e} vs {own_cls[k]:.9e} rel {r_rels[k]:.3e}  | other "
-            f"record rel {c_rels[k]:.3e}")
-    say(f"({'c2' if boxed else 'c1'}) vs the other fixture's records: sigma_max rel "
+            f"record rel {c_rels[k]:.3e}"
+        )
+    say(
+        f"({'c2' if boxed else 'c1'}) vs the other fixture's records: sigma_max rel "
         f"{c_sig:.3e} = {c_sig / LEG_D0_REPRODUCTION_BAND:.1f}x the band; worst class "
-        f"rel {c_cls:.3e} = {c_cls / LEG_D0_REPRODUCTION_BAND:.3e}x (> 1x each ASSERTED)")
+        f"rel {c_cls:.3e} = {c_cls / LEG_D0_REPRODUCTION_BAND:.3e}x (> 1x each ASSERTED)"
+    )
     s17 = complex(s[ids.index("P17"), ids.index("P17")])
     s_rec = S_DRIVEN_STEP0_RECORD_BOXED if boxed else S_DRIVEN_STEP0_RECORD
     say(f"S_driven(P17) {s17:.6f} beside {s_rec} (printed)")
@@ -283,8 +319,10 @@ def test_wf16_f_human_s_reproduces_wf7():
         if same:
             ent = float(np.max(np.abs(s - ref)) / np.max(np.abs(ref)))
             ent_rel = float(np.max(np.abs(s - ref) / np.abs(ref)))
-            say(f"npz {npz}: order equal; max|dS|/max|S| {ent:.3e}, entrywise max rel "
-                f"{ent_rel:.3e} (printed only)")
+            say(
+                f"npz {npz}: order equal; max|dS|/max|S| {ent:.3e}, entrywise max rel "
+                f"{ent_rel:.3e} (printed only)"
+            )
         else:
             say(f"npz {npz}: order differs (printed only)")
     else:

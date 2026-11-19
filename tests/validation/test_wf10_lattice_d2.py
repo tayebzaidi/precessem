@@ -55,8 +55,8 @@ H18_LOG = "20261011T125304Z_WF-10-step3b-W3.log"
 # item 422 outcome) — printed beside only.
 H24_FOUR_PORT_SPREAD_PCT = (3.2122, 4.2668, 0.7809)
 
-PRINT_ROUNDING_ABS = 6.0e-7     # `.4f` % prints are +-5e-7 absolute
-COORD_TOL_MM = 1.0e-3           # `.3f` mm prints
+PRINT_ROUNDING_ABS = 6.0e-7  # `.4f` % prints are +-5e-7 absolute
+COORD_TOL_MM = 1.0e-3  # `.3f` mm prints
 EXPECTED_POINTS = 18
 REDUCED_POINTS = 12
 # (K1) known values at degree 1, from the brief (drafter's stdlib re-computation).
@@ -68,24 +68,60 @@ PREDICTED_MIRROR = (0.003, 0.03)
 
 _NUM = r"([-+]?\d+\.\d+(?:e[-+]?\d+)?)"
 ROW_RE = re.compile(
-    r"^\[WF-10 step2s\]   (r=\d+ dz=[-+]\d+ az17[-+]\d+)\s+ccw " + _NUM + r" cw\(M\) " + _NUM
-    + r" W/kg, rel " + _NUM + r"%(\s+<- c\*)?\s*$")
+    r"^\[WF-10 step2s\]   (r=\d+ dz=[-+]\d+ az17[-+]\d+)\s+ccw "
+    + _NUM
+    + r" cw\(M\) "
+    + _NUM
+    + r" W/kg, rel "
+    + _NUM
+    + r"%(\s+<- c\*)?\s*$"
+)
 HEAD_RE = re.compile(r"^\[WF-10 step2s\] ccw 10 g table \((\d+) points(, REDUCED)?\)")
 CSTAR_RE = re.compile(
-    r"^\[WF-10 step2s\] c\* = (r=\d+ dz=[-+]\d+ az17[-+]\d+) \(" + _NUM + r", " + _NUM + r", "
-    + _NUM + r"\) mm, SAR10g\(c\*\) " + _NUM)
+    r"^\[WF-10 step2s\] c\* = (r=\d+ dz=[-+]\d+ az17[-+]\d+) \("
+    + _NUM
+    + r", "
+    + _NUM
+    + r", "
+    + _NUM
+    + r"\) mm, SAR10g\(c\*\) "
+    + _NUM
+)
 IIIA_RE = re.compile(r"^\[WF-10 step2s\] \(iii-a\) mirror at c\*: " + _NUM + r"%")
-IIIB_RE = re.compile(r"^\[WF-10 step2s\] \(iii-b\) mirror lattice rel L2 over (\d+) points: "
-                     + _NUM + r"%")
-SPREAD_RE = re.compile(r"^\[WF-10 step2s\] azimuthal spread of the four z_c rows .*?: "
-                       r"r=15 mm " + _NUM + r"%, r=30 mm " + _NUM + r"%, r=45 mm " + _NUM + r"%")
-H18_SPREAD_RE = re.compile(r"^\[WF-10 step3b\] azimuthal spread of the four z_c rows .*?: "
-                           r"r=15 mm " + _NUM + r"%.*?r=30 mm " + _NUM + r"%.*?r=45 mm "
-                           + _NUM + r"%")
-GEOM_RE = re.compile(r"^\[WF-10 step2\] phantom bbox .*centre \(" + _NUM + r", " + _NUM + r", "
-                     + _NUM + r"\) m,.*az17 " + _NUM + r" deg, mirror plane " + _NUM + r" deg")
-BALL_RE = re.compile(r"^\[WF-10 step2\]   ball ccw (r=\d+ dz=[-+]\d+ az17[-+]\d+)\s+at \(\s*"
-                     + _NUM + r",\s*" + _NUM + r",\s*" + _NUM + r"\) mm: SAR10g " + _NUM)
+IIIB_RE = re.compile(
+    r"^\[WF-10 step2s\] \(iii-b\) mirror lattice rel L2 over (\d+) points: " + _NUM + r"%"
+)
+SPREAD_RE = re.compile(
+    r"^\[WF-10 step2s\] azimuthal spread of the four z_c rows .*?: "
+    r"r=15 mm " + _NUM + r"%, r=30 mm " + _NUM + r"%, r=45 mm " + _NUM + r"%"
+)
+H18_SPREAD_RE = re.compile(
+    r"^\[WF-10 step3b\] azimuthal spread of the four z_c rows .*?: "
+    r"r=15 mm " + _NUM + r"%.*?r=30 mm " + _NUM + r"%.*?r=45 mm " + _NUM + r"%"
+)
+GEOM_RE = re.compile(
+    r"^\[WF-10 step2\] phantom bbox .*centre \("
+    + _NUM
+    + r", "
+    + _NUM
+    + r", "
+    + _NUM
+    + r"\) m,.*az17 "
+    + _NUM
+    + r" deg, mirror plane "
+    + _NUM
+    + r" deg"
+)
+BALL_RE = re.compile(
+    r"^\[WF-10 step2\]   ball ccw (r=\d+ dz=[-+]\d+ az17[-+]\d+)\s+at \(\s*"
+    + _NUM
+    + r",\s*"
+    + _NUM
+    + r",\s*"
+    + _NUM
+    + r"\) mm: SAR10g "
+    + _NUM
+)
 PPH_CCW_RE = re.compile(r"^\[WF-10 step2\] \[ccw\] w = .*P_phantom " + _NUM + r" ")
 SIGMA_P_RE = re.compile(r"^\[WF-10 step2s\] \(Sigma_P\) P_phantom " + _NUM)
 
@@ -114,12 +150,19 @@ def parse_table(path):
     m = HEAD_RE.match(lines[h])
     n_head, reduced = int(m.group(1)), bool(m.group(2))
     rows = []
-    for ln in lines[h + 1:]:
+    for ln in lines[h + 1 :]:
         mm = ROW_RE.match(ln)
         if not mm:
             break
-        rows.append((mm.group(1), float(mm.group(2)), float(mm.group(3)),
-                     float(mm.group(4)) / 100.0, bool(mm.group(5))))
+        rows.append(
+            (
+                mm.group(1),
+                float(mm.group(2)),
+                float(mm.group(3)),
+                float(mm.group(4)) / 100.0,
+                bool(mm.group(5)),
+            )
+        )
     assert len(rows) == n_head, (path, len(rows), n_head)
     assert n_head == (REDUCED_POINTS if reduced else EXPECTED_POINTS), (n_head, reduced)
 
@@ -144,8 +187,10 @@ def parse_table(path):
     for ln in lines[:h]:
         b = BALL_RE.match(ln)
         if b:
-            balls[b.group(1)] = (np.array([float(b.group(i)) for i in (2, 3, 4)]),
-                                 float(b.group(5)))
+            balls[b.group(1)] = (
+                np.array([float(b.group(i)) for i in (2, 3, 4)]),
+                float(b.group(5)),
+            )
     return {
         "path": path,
         "reduced": reduced,
@@ -206,12 +251,15 @@ def _check_reproduction(t, rc, tag):
     d_b = abs(rc["iiib"] - t["iiib_printed"])
     d_rel = float(np.max(np.abs(rc["rel"] - t["rel_printed"])))
     d_sp = float(np.max(np.abs(rc["spreads"] - t["spreads_printed"])))
-    print(f"[WF-10 H27] ({tag}) {os.path.basename(t['path'])}: {len(t['labels'])} rows; "
-          f"c* {rc['cstar_label']} (logged {t['cstar_label']}); (iii-a) {rc['iiia']:.7e} vs "
-          f"printed {t['iiia_printed']:.6e} |d| {d_a:.2e}; (iii-b) {rc['iiib']:.7e} vs "
-          f"{t['iiib_printed']:.6e} |d| {d_b:.2e}; per-row rel max |d| {d_rel:.2e}; spreads "
-          f"{np.array2string(rc['spreads'], precision=7)} max |d| {d_sp:.2e} (all <= "
-          f"{PRINT_ROUNDING_ABS:g} ASSERTED)", flush=True)
+    print(
+        f"[WF-10 H27] ({tag}) {os.path.basename(t['path'])}: {len(t['labels'])} rows; "
+        f"c* {rc['cstar_label']} (logged {t['cstar_label']}); (iii-a) {rc['iiia']:.7e} vs "
+        f"printed {t['iiia_printed']:.6e} |d| {d_a:.2e}; (iii-b) {rc['iiib']:.7e} vs "
+        f"{t['iiib_printed']:.6e} |d| {d_b:.2e}; per-row rel max |d| {d_rel:.2e}; spreads "
+        f"{np.array2string(rc['spreads'], precision=7)} max |d| {d_sp:.2e} (all <= "
+        f"{PRINT_ROUNDING_ABS:g} ASSERTED)",
+        flush=True,
+    )
     assert rc["cstar_label"] == t["cstar_label"], (rc["cstar_label"], t["cstar_label"])
     assert [i for i, f in enumerate(t["star_flags"]) if f] == [t["labels"].index(t["cstar_label"])]
     assert abs(t["cstar_sar"] - t["ccw"][t["labels"].index(t["cstar_label"])]) == 0.0
@@ -233,9 +281,12 @@ def _check_label_geometry(t, tag):
         worst = max(worst, float(np.max(np.abs(t["balls"][lab][0] - lat[lab]))))
         assert t["balls"][lab][1] == t["ccw"][t["labels"].index(lab)], lab
     d_star = float(np.max(np.abs(t["cstar_mm"] - lat[t["cstar_label"]])))
-    print(f"[WF-10 H27] ({tag}) label geometry: az17 {t['az17']:.9f} deg, z_c {t['z_c']:.6e} m; "
-          f"worst ccw ball centre vs _lattice {worst:.2e} mm, c* {d_star:.2e} mm (<= "
-          f"{COORD_TOL_MM:g} mm ASSERTED)", flush=True)
+    print(
+        f"[WF-10 H27] ({tag}) label geometry: az17 {t['az17']:.9f} deg, z_c {t['z_c']:.6e} m; "
+        f"worst ccw ball centre vs _lattice {worst:.2e} mm, c* {d_star:.2e} mm (<= "
+        f"{COORD_TOL_MM:g} mm ASSERTED)",
+        flush=True,
+    )
     assert worst <= COORD_TOL_MM, worst
     assert d_star <= COORD_TOL_MM, d_star
 
@@ -243,8 +294,10 @@ def _check_label_geometry(t, tag):
 def test_wf10_h27_parser_coding():
     """(L0)-style: the row regex reads a synthetic table, rejects a truncated one,
     and the no-flip permutation pairs rows 0<->1, 2<->3."""
-    good = ("[WF-10 step2s]   r=45 dz=+0 az17+0          ccw 2.873208988e-03 cw(M) "
-            "2.844402845e-03 W/kg, rel 1.0026%   <- c*")
+    good = (
+        "[WF-10 step2s]   r=45 dz=+0 az17+0          ccw 2.873208988e-03 cw(M) "
+        "2.844402845e-03 W/kg, rel 1.0026%   <- c*"
+    )
     m = ROW_RE.match(good)
     assert m and m.group(1) == "r=45 dz=+0 az17+0" and m.group(5)
     assert float(m.group(2)) == 2.873208988e-03 and float(m.group(4)) == 1.0026
@@ -255,8 +308,11 @@ def test_wf10_h27_parser_coding():
     ccw = np.array([1.0, 2.0, 3.0] * 2 + [4.0, 5.0, 6.0] * 2 + [7.0] * 6)
     rc_rows = ccw[:12].reshape(4, 3)
     assert np.array_equal(rc_rows[[1, 0, 3, 2]], rc_rows)
-    print("[WF-10 H27 L0] row regex, c* flag, ball-line rejection, image permutation "
-          "(all ASSERTED)", flush=True)
+    print(
+        "[WF-10 H27 L0] row regex, c* flag, ball-line rejection, image permutation "
+        "(all ASSERTED)",
+        flush=True,
+    )
 
 
 def test_wf10_h27_k1_degree1_control():
@@ -266,12 +322,16 @@ def test_wf10_h27_k1_degree1_control():
     rc = recompute(t)
     _check_reproduction(t, rc, "K1 d1")
     _check_label_geometry(t, "K1 d1")
-    d_known = max(abs(rc["iiib"] - K1_IIIB),
-                  float(np.max(np.abs(rc["spreads"] - np.array(K1_SPREADS)))))
-    print(f"[WF-10 H27] (K1 d1) vs the brief's known values (iii-b) {K1_IIIB} / spreads "
-          f"{K1_SPREADS}: max |d| {d_known:.2e} (<= {PRINT_ROUNDING_ABS:g} ASSERTED); no-flip "
-          f"{rc['noflip'] * 100:.4f}% (brief 17.93%), flip over 12 z_c {rc['flip12'] * 100:.4f}% "
-          f"(brief 1.47%)", flush=True)
+    d_known = max(
+        abs(rc["iiib"] - K1_IIIB), float(np.max(np.abs(rc["spreads"] - np.array(K1_SPREADS))))
+    )
+    print(
+        f"[WF-10 H27] (K1 d1) vs the brief's known values (iii-b) {K1_IIIB} / spreads "
+        f"{K1_SPREADS}: max |d| {d_known:.2e} (<= {PRINT_ROUNDING_ABS:g} ASSERTED); no-flip "
+        f"{rc['noflip'] * 100:.4f}% (brief 17.93%), flip over 12 z_c {rc['flip12'] * 100:.4f}% "
+        f"(brief 1.47%)",
+        flush=True,
+    )
     assert d_known <= PRINT_ROUNDING_ABS, d_known
     assert abs(rc["noflip"] - K1_NOFLIP_PREDICTED) <= 5e-5, rc["noflip"]
 
@@ -296,19 +356,27 @@ def test_wf10_h27_degree2_lattice():
     assert d1["labels"][:n] == d2["labels"], (d1["labels"], d2["labels"])
     assert abs(d2["az17"] - d1["az17"]) == 0.0 and abs(d2["z_c"] - d1["z_c"]) == 0.0
     if d2["reduced"]:
-        print(f"[WF-10 H27] REDUCED ({n} of {EXPECTED_POINTS}): dz = +-50 mm move unrecorded",
-              flush=True)
+        print(
+            f"[WF-10 H27] REDUCED ({n} of {EXPECTED_POINTS}): dz = +-50 mm move unrecorded",
+            flush=True,
+        )
 
     # ---- (M2) the gate + no-flip control --------------------------------------------
-    print(f"[WF-10 H27] (M2) d2 (iii-a) mirror at c*: {rc2['iiia'] * 100:.4f}% ; (iii-b) rel L2 "
-          f"over {n}: {rc2['iiib'] * 100:.4f}% (band {C4_COVARIANCE_BAND * 100:.1f}%, ASSERTED; "
-          f"PREDICTED {PREDICTED_MIRROR[0] * 100:g}-{PREDICTED_MIRROR[1] * 100:g}%); d1 "
-          f"{rc1['iiia'] * 100:.4f}% / {rc1['iiib'] * 100:.4f}%", flush=True)
-    print(f"[WF-10 H27] (NC) no-flip rel L2 over 12 z_c: d2 {rc2['noflip'] * 100:.4f}% vs flip "
-          f"{rc2['flip12'] * 100:.4f}% (> band {C4_COVARIANCE_BAND * 100:.1f}% ASSERTED; "
-          f"PREDICTED {PREDICTED_NOFLIP[0] * 100:g}-{PREDICTED_NOFLIP[1] * 100:g}%); d1 "
-          f"{rc1['noflip'] * 100:.4f}% vs {rc1['flip12'] * 100:.4f}%; separation "
-          f"{rc2['noflip'] / C4_COVARIANCE_BAND:.2f}x band", flush=True)
+    print(
+        f"[WF-10 H27] (M2) d2 (iii-a) mirror at c*: {rc2['iiia'] * 100:.4f}% ; (iii-b) rel L2 "
+        f"over {n}: {rc2['iiib'] * 100:.4f}% (band {C4_COVARIANCE_BAND * 100:.1f}%, ASSERTED; "
+        f"PREDICTED {PREDICTED_MIRROR[0] * 100:g}-{PREDICTED_MIRROR[1] * 100:g}%); d1 "
+        f"{rc1['iiia'] * 100:.4f}% / {rc1['iiib'] * 100:.4f}%",
+        flush=True,
+    )
+    print(
+        f"[WF-10 H27] (NC) no-flip rel L2 over 12 z_c: d2 {rc2['noflip'] * 100:.4f}% vs flip "
+        f"{rc2['flip12'] * 100:.4f}% (> band {C4_COVARIANCE_BAND * 100:.1f}% ASSERTED; "
+        f"PREDICTED {PREDICTED_NOFLIP[0] * 100:g}-{PREDICTED_NOFLIP[1] * 100:g}%); d1 "
+        f"{rc1['noflip'] * 100:.4f}% vs {rc1['flip12'] * 100:.4f}%; separation "
+        f"{rc2['noflip'] / C4_COVARIANCE_BAND:.2f}x band",
+        flush=True,
+    )
 
     # ---- readout (printed, rule (e)) -------------------------------------------------
     mv_ccw = d2["ccw"] / d1["ccw"][:n] - 1.0
@@ -321,40 +389,62 @@ def test_wf10_h27_degree2_lattice():
     pw_ratio = (p1_regate if p1_regate is not None else np.nan) / p2
     mv_ccw_w = (1.0 + mv_ccw) * pw_ratio - 1.0
     mv_cw_w = (1.0 + mv_cw) * pw_ratio - 1.0
-    print(f"[WF-10 H27] per-point d1 -> d2 move (d2/d1 - 1), raw and per P_phantom (d1 ccw "
-          f"P_phantom {p1_regate!r} W, {D1_PPH_LOG}; d2 {p2:.9e} W; 359's table log reads "
-          f"{p1:.9e} W):", flush=True)
+    print(
+        f"[WF-10 H27] per-point d1 -> d2 move (d2/d1 - 1), raw and per P_phantom (d1 ccw "
+        f"P_phantom {p1_regate!r} W, {D1_PPH_LOG}; d2 {p2:.9e} W; 359's table log reads "
+        f"{p1:.9e} W):",
+        flush=True,
+    )
     for i, lab in enumerate(d2["labels"]):
-        print(f"[WF-10 H27]   {lab:<22s} ccw {d1['ccw'][i]:.6e} -> {d2['ccw'][i]:.6e} "
-              f"{mv_ccw[i] * 100:+8.3f}% | cw(M) {d1['cw'][i]:.6e} -> {d2['cw'][i]:.6e} "
-              f"{mv_cw[i] * 100:+8.3f}% | per-W ccw {mv_ccw_w[i] * 100:+7.3f}% cw(M) "
-              f"{mv_cw_w[i] * 100:+7.3f}%", flush=True)
+        print(
+            f"[WF-10 H27]   {lab:<22s} ccw {d1['ccw'][i]:.6e} -> {d2['ccw'][i]:.6e} "
+            f"{mv_ccw[i] * 100:+8.3f}% | cw(M) {d1['cw'][i]:.6e} -> {d2['cw'][i]:.6e} "
+            f"{mv_cw[i] * 100:+8.3f}% | per-W ccw {mv_ccw_w[i] * 100:+7.3f}% cw(M) "
+            f"{mv_cw_w[i] * 100:+7.3f}%",
+            flush=True,
+        )
     allmv = np.concatenate([mv_ccw, mv_cw])
     allmv_w = np.concatenate([mv_ccw_w, mv_cw_w])
-    print(f"[WF-10 H27] move raw: max |move| {np.max(np.abs(allmv)) * 100:.3f}%, RMS "
-          f"{np.sqrt(np.mean(allmv ** 2)) * 100:.3f}%, mean {np.mean(allmv) * 100:+.3f}% over "
-          f"{allmv.size} values (PREDICTED 0.5-8%)", flush=True)
-    print(f"[WF-10 H27] move per P_phantom: max |move| {np.max(np.abs(allmv_w)) * 100:.3f}%, RMS "
-          f"{np.sqrt(np.mean(allmv_w ** 2)) * 100:.3f}%, mean {np.mean(allmv_w) * 100:+.3f}% "
-          f"(P_phantom d1/d2 {pw_ratio:.6f}; printed, never asserted)", flush=True)
+    print(
+        f"[WF-10 H27] move raw: max |move| {np.max(np.abs(allmv)) * 100:.3f}%, RMS "
+        f"{np.sqrt(np.mean(allmv ** 2)) * 100:.3f}%, mean {np.mean(allmv) * 100:+.3f}% over "
+        f"{allmv.size} values (PREDICTED 0.5-8%)",
+        flush=True,
+    )
+    print(
+        f"[WF-10 H27] move per P_phantom: max |move| {np.max(np.abs(allmv_w)) * 100:.3f}%, RMS "
+        f"{np.sqrt(np.mean(allmv_w ** 2)) * 100:.3f}%, mean {np.mean(allmv_w) * 100:+.3f}% "
+        f"(P_phantom d1/d2 {pw_ratio:.6f}; printed, never asserted)",
+        flush=True,
+    )
     h18 = [H18_SPREAD_RE.match(ln) for ln in read_log_text(_path(H18_LOG)).splitlines()]
     h18 = [x for x in h18 if x][0]
     h18_sp = [float(h18.group(i)) for i in (1, 2, 3)]
-    print("[WF-10 H27] z_c spread per radius r = 15 / 30 / 45 mm: d2 "
-          + " / ".join(f"{v * 100:.4f}" for v in rc2["spreads"]) + " %; 359 (d1, 0.015 m) "
-          + " / ".join(f"{v * 100:.4f}" for v in rc1["spreads"]) + " %; H18 (d1, 0.0075 m) "
-          + " / ".join(f"{v:.4f}" for v in h18_sp) + " %; H24 four-port "
-          + " / ".join(f"{v:.4f}" for v in H24_FOUR_PORT_SPREAD_PCT)
-          + " % (PREDICTED d2 12-22%)", flush=True)
+    print(
+        "[WF-10 H27] z_c spread per radius r = 15 / 30 / 45 mm: d2 "
+        + " / ".join(f"{v * 100:.4f}" for v in rc2["spreads"])
+        + " %; 359 (d1, 0.015 m) "
+        + " / ".join(f"{v * 100:.4f}" for v in rc1["spreads"])
+        + " %; H18 (d1, 0.0075 m) "
+        + " / ".join(f"{v:.4f}" for v in h18_sp)
+        + " %; H24 four-port "
+        + " / ".join(f"{v:.4f}" for v in H24_FOUR_PORT_SPREAD_PCT)
+        + " % (PREDICTED d2 12-22%)",
+        flush=True,
+    )
     s1, s2 = d1["cstar_sar"], d2["cstar_sar"]
-    print(f"[WF-10 H27] c*: d1 {d1['cstar_label']} -> d2 {d2['cstar_label']} "
-          f"({'unchanged' if d1['cstar_label'] == d2['cstar_label'] else 'MOVED'}); SAR10g(c*) "
-          f"{s1:.9e} -> {s2:.9e} W/kg ({s2 / s1 - 1:+.4%}); per P_phantom "
-          f"{s1 / p1_regate if p1_regate else np.nan:.6e} -> {s2 / p2:.6e} W/kg/W "
-          f"({s2 / s1 * pw_ratio - 1:+.4%})", flush=True)
+    print(
+        f"[WF-10 H27] c*: d1 {d1['cstar_label']} -> d2 {d2['cstar_label']} "
+        f"({'unchanged' if d1['cstar_label'] == d2['cstar_label'] else 'MOVED'}); SAR10g(c*) "
+        f"{s1:.9e} -> {s2:.9e} W/kg ({s2 / s1 - 1:+.4%}); per P_phantom "
+        f"{s1 / p1_regate if p1_regate else np.nan:.6e} -> {s2 / p2:.6e} W/kg/W "
+        f"({s2 / s1 * pw_ratio - 1:+.4%})",
+        flush=True,
+    )
     if p1_regate is None:
-        print(f"[WF-10 H27] d1 ccw P_phantom NOT printed in {D1_PPH_LOG}: raw move only",
-              flush=True)
+        print(
+            f"[WF-10 H27] d1 ccw P_phantom NOT printed in {D1_PPH_LOG}: raw move only", flush=True
+        )
 
     assert rc2["iiia"] <= C4_COVARIANCE_BAND, f"(iii-a) {rc2['iiia']:.4e} — never re-band"
     assert rc2["iiib"] <= C4_COVARIANCE_BAND, f"(iii-b) {rc2['iiib']:.4e} — never re-band"

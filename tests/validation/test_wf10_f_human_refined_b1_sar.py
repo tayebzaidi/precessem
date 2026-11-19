@@ -90,7 +90,6 @@ PREDICTED_SREP = 1.0e-10
 def test_wf10_step3_lattice_coding():
     """(L0), 359's assertions re-run through the imported helpers."""
     from fem_em_solver.post.sar import averaging_ball_radius
-
     from tests.validation.test_birdcage_b1_plus_map import PHANTOM_RHO_KG_PER_M3
     from tests.validation.test_mass_averaged_sar_standard_masses import TEN_GRAM_KG
 
@@ -103,16 +102,24 @@ def test_wf10_step3_lattice_coding():
         img = _mirror_xy(pts, az_m)
         rows = pts[:12].reshape(4, 3, 3)
         irow = img[:12].reshape(4, 3, 3)
-        d_pair = max(np.max(np.abs(irow[0] - rows[1])), np.max(np.abs(irow[1] - rows[0])),
-                     np.max(np.abs(irow[2] - rows[3])), np.max(np.abs(irow[3] - rows[2])))
+        d_pair = max(
+            np.max(np.abs(irow[0] - rows[1])),
+            np.max(np.abs(irow[1] - rows[0])),
+            np.max(np.abs(irow[2] - rows[3])),
+            np.max(np.abs(irow[3] - rows[2])),
+        )
         dist = _plane_distance(pts, az_m)
         bar = min(LATTICE_R_M) * np.sin(np.radians(45.0))
-        worst = max(_containment(c, (0.0, 0.0, 0.0), NOMINAL_R_M, NOMINAL_HALF_H_M, a10)
-                    for c in np.vstack([pts, img]))
-        print(f"[WF-10 step3b L0] az17 {az17}: 18 points; mirror pairing {d_pair:.3e} m "
-              f"(<= 1e-12 ASSERTED); min plane distance {dist.min() * 1e3:.4f} mm (>= "
-              f"{bar * 1e3:.4f} mm ASSERTED); worst containment {worst * 1e3:.4f} mm (<= 0 "
-              f"ASSERTED, a10 {a10 * 1e3:.4f} mm, margin {CONTAINMENT_MARGIN_M})")
+        worst = max(
+            _containment(c, (0.0, 0.0, 0.0), NOMINAL_R_M, NOMINAL_HALF_H_M, a10)
+            for c in np.vstack([pts, img])
+        )
+        print(
+            f"[WF-10 step3b L0] az17 {az17}: 18 points; mirror pairing {d_pair:.3e} m "
+            f"(<= 1e-12 ASSERTED); min plane distance {dist.min() * 1e3:.4f} mm (>= "
+            f"{bar * 1e3:.4f} mm ASSERTED); worst containment {worst * 1e3:.4f} mm (<= 0 "
+            f"ASSERTED, a10 {a10 * 1e3:.4f} mm, margin {CONTAINMENT_MARGIN_M})"
+        )
         assert d_pair <= 1e-12, d_pair
         assert dist.min() >= bar - 1e-12, dist.min()
         assert worst <= 0.0, worst
@@ -154,9 +161,11 @@ def build_refined_quadrature(comm):
         with open(ROOT_JSON) as fh:
             root = json.load(fh)
     root = comm.bcast(root, root=0)
-    say(f"C_IN_REFINED_PF {C_IN_REFINED_PF} pF beside h18-root.json full precision "
+    say(
+        f"C_IN_REFINED_PF {C_IN_REFINED_PF} pF beside h18-root.json full precision "
         f"{root['c_in_prime_pf']!r} pF (bracket {root['bracket_pf']}); diff "
-        f"{C_IN_REFINED_PF - root['c_in_prime_pf']:+.3e} pF")
+        f"{C_IN_REFINED_PF - root['c_in_prime_pf']:+.3e} pF"
+    )
     assert abs(C_IN_REFINED_PF - root["c_in_prime_pf"]) <= 5e-5, root["c_in_prime_pf"]
 
     fx = build_refined_fixture(comm)
@@ -178,8 +187,10 @@ def build_refined_quadrature(comm):
     assert e17.function_space.mesh is e21.function_space.mesh is msh
     assert e17.x.array.shape == e21.x.array.shape
     assert str(e17.function_space.ufl_element()) == str(e21.function_space.ufl_element())
-    assert (e17.function_space.dofmap.index_map.size_local
-            == e21.function_space.dofmap.index_map.size_local)
+    assert (
+        e17.function_space.dofmap.index_map.size_local
+        == e21.function_space.dofmap.index_map.size_local
+    )
 
     def _vol(sigma_f, e, measure):
         form = fem.form(0.5 * sigma_f * ufl.inner(e, e) * measure)
@@ -204,22 +215,34 @@ def build_refined_quadrature(comm):
         e_s[sense] = ef
         wf = {feeds[0]: w17, feeds[1]: w21}
         cur_s[sense] = w17 * cur_node[0] + w21 * cur_node[1]
-        sheets = {pid: (dataclasses.replace(specs_by[pid].sheet(driven=True),
-                                            source_voltage_v=complex(wf[pid]))
-                        if pid in feeds else specs_by[pid].sheet(driven=False))
-                  for pid in order}
-        cur_read = np.array([sheet_terminal_current(msh, tags_f, sheets[pid], ef, comm)
-                             for pid in order], dtype=np.complex128)
+        sheets = {
+            pid: (
+                dataclasses.replace(
+                    specs_by[pid].sheet(driven=True), source_voltage_v=complex(wf[pid])
+                )
+                if pid in feeds
+                else specs_by[pid].sheet(driven=False)
+            )
+            for pid in order
+        }
+        cur_read = np.array(
+            [sheet_terminal_current(msh, tags_f, sheets[pid], ef, comm) for pid in order],
+            dtype=np.complex128,
+        )
         r_lin = float(np.max(np.abs(cur_read - cur_s[sense])) / np.max(np.abs(cur_s[sense])))
-        y_cur = [complex(1.0 / z_rc + cur_read[i] / (wf[pid] - z_th * cur_read[i]))
-                 for i, pid in enumerate(feeds)]
+        y_cur = [
+            complex(1.0 / z_rc + cur_read[i] / (wf[pid] - z_th * cur_read[i]))
+            for i, pid in enumerate(feeds)
+        ]
         y_ref = _active_y_in(s_node, (w17, w21), z0)
         r_y = float(max(abs(a - b) for a, b in zip(y_cur, y_ref)) / max(abs(b) for b in y_ref))
         y_in[sense] = y_ref
         p = {
             "p_src": float(sum(_source_power_w(acct, sheets[pid], ef, omega) for pid in feeds)),
-            "p_sheet_by_id": {pid: float(_sheet_field_dissipation_w(acct, sheets[pid], ef, omega))
-                              for pid in order},
+            "p_sheet_by_id": {
+                pid: float(_sheet_field_dissipation_w(acct, sheets[pid], ef, omega))
+                for pid in order
+            },
         }
         p["p_sheets"] = float(sum(p["p_sheet_by_id"].values()))
         p_total = _vol(sigma, ef, dx)
@@ -230,26 +253,38 @@ def build_refined_quadrature(comm):
         p["rel"], p["blind"] = rel_w, blind_w
         parts[sense] = p
         lin[sense] = (r_lin, r_y)
-        say(f"[{sense}] w = ({w17:.3f}, {w21:.3f}); (P_w) P_src {p['p_src']:.9e} sumP_sheet "
+        say(
+            f"[{sense}] w = ({w17:.3f}, {w21:.3f}); (P_w) P_src {p['p_src']:.9e} sumP_sheet "
             f"{p['p_sheets']:.9e} P_phantom {p['p_phantom']:.9e} P_rest {p['p_rest']:.9e} P_surf "
             f"{p['p_surf']:.9e} W; rel {rel_w:.3e} (band {DISCRETE_IDENTITY_RTOL:g}, ASSERTED); "
-            f"P_surf-blind miss {blind_w:.4e} (PREDICTED ≈ {PREDICTED_BLIND:g}, printed)")
-        say(f"[{sense}] (Lin) currents rel {r_lin:.3e} (band UNIT_WEIGHT_CONTROL_RTOL, ASSERTED); "
-            f"Y_in current route vs _active_y_in {r_y:.3e} (band {Y0_CODING_BAND:g}, ASSERTED)")
+            f"P_surf-blind miss {blind_w:.4e} (PREDICTED ≈ {PREDICTED_BLIND:g}, printed)"
+        )
+        say(
+            f"[{sense}] (Lin) currents rel {r_lin:.3e} (band UNIT_WEIGHT_CONTROL_RTOL, ASSERTED); "
+            f"Y_in current route vs _active_y_in {r_y:.3e} (band {Y0_CODING_BAND:g}, ASSERTED)"
+        )
     times["superposition"] = time.perf_counter() - t0
     anchors["lin"] = lin
     anchors["p_w"] = {s: (parts[s]["rel"], parts[s]["blind"]) for s in parts}
 
     rec = {
-        "c_f": c_f, "c_in_pf": C_IN_REFINED_PF, "r_ohm": ESR_OHM, "freq_hz": float(FREQUENCY_HZ),
-        "order": order, "feeds": feeds, "az_feeds": list(fx["az_feeds"]),
+        "c_f": c_f,
+        "c_in_pf": C_IN_REFINED_PF,
+        "r_ohm": ESR_OHM,
+        "freq_hz": float(FREQUENCY_HZ),
+        "order": order,
+        "feeds": feeds,
+        "az_feeds": list(fx["az_feeds"]),
         "az_mirror": fx["az_mirror"],
         "s_node": [[[complex(v).real, complex(v).imag] for v in row] for row in s_node],
         "w": {s: [[complex(x).real, complex(x).imag] for x in w[s]] for s in w},
         "y_in": {s: [[y.real, y.imag] for y in ys] for s, ys in y_in.items()},
         "partitions": {s: parts[s] for s in parts},
-        "partition_p17_node": dict(pn), "p_rc_node": p_rc_node, "blind_node": blind_node,
-        "times_s": dict(times), "cells": int(fx["cells"]),
+        "partition_p17_node": dict(pn),
+        "p_rc_node": p_rc_node,
+        "blind_node": blind_node,
+        "times_s": dict(times),
+        "cells": int(fx["cells"]),
         "phantom_cells": int(fx["phantom_cells"]),
     }
     if comm.rank == 0:
@@ -260,12 +295,31 @@ def build_refined_quadrature(comm):
     comm.Barrier()
 
     return {
-        "built": fx["built"], "ctx": ctx, "order": order, "slots": fx["slots"], "feeds": feeds,
-        "az_feeds": fx["az_feeds"], "az_mirror": fx["az_mirror"], "w": w, "e": e_s, "e17": e17,
-        "e21": e21, "sigma": sigma, "s_node": s_node, "cur": cur_s, "y_in": y_in,
-        "parts": parts, "p_rc_node": p_rc_node, "blind_node": blind_node, "times": times,
-        "cells": fx["cells"], "phantom_cells": fx["phantom_cells"], "anchors": anchors,
-        "say": say, "omega": omega, "t_window": fx["t_window"],
+        "built": fx["built"],
+        "ctx": ctx,
+        "order": order,
+        "slots": fx["slots"],
+        "feeds": feeds,
+        "az_feeds": fx["az_feeds"],
+        "az_mirror": fx["az_mirror"],
+        "w": w,
+        "e": e_s,
+        "e17": e17,
+        "e21": e21,
+        "sigma": sigma,
+        "s_node": s_node,
+        "cur": cur_s,
+        "y_in": y_in,
+        "parts": parts,
+        "p_rc_node": p_rc_node,
+        "blind_node": blind_node,
+        "times": times,
+        "cells": fx["cells"],
+        "phantom_cells": fx["phantom_cells"],
+        "anchors": anchors,
+        "say": say,
+        "omega": omega,
+        "t_window": fx["t_window"],
     }
 
 
@@ -303,14 +357,18 @@ def test_wf10_step3_refined_b1():
             y = out["y_in"][sense][i]
             say(f"Y_in a = {label} [{sense}] {pid}: {y.real:+.9e} {y.imag:+.9e}j S (reading)")
     yc, yw = out["y_in"]["ccw"], out["y_in"]["cw"]
-    say(f"M-paired Y_in spreads: |Y17(ccw) - Y21(cw)|/|Y17(ccw)| {abs(yc[0] - yw[1]) / abs(yc[0]):.4e}; "
-        f"|Y21(ccw) - Y17(cw)|/|Y21(ccw)| {abs(yc[1] - yw[0]) / abs(yc[1]):.4e} (reading)")
+    say(
+        f"M-paired Y_in spreads: |Y17(ccw) - Y21(cw)|/|Y17(ccw)| {abs(yc[0] - yw[1]) / abs(yc[0]):.4e}; "
+        f"|Y21(ccw) - Y17(cw)|/|Y21(ccw)| {abs(yc[1] - yw[0]) / abs(yc[1]):.4e} (reading)"
+    )
     for sense in ("ccw", "cw"):
         sh = _signed_k_shares(out["cur"][sense], order, slots)
         un = _k1_shares(out["cur"][sense], order, slots)
-        say(f"[{sense}] signed k shares: ring+ lead {sh[1.0]['lead']:.6f} lag {sh[1.0]['lag']:.6f}; "
+        say(
+            f"[{sense}] signed k shares: ring+ lead {sh[1.0]['lead']:.6f} lag {sh[1.0]['lag']:.6f}; "
             f"ring- lead {sh[-1.0]['lead']:.6f} lag {sh[-1.0]['lag']:.6f}; unsigned +-1 ring+ "
-            f"{un[1.0]:.6f} ring- {un[-1.0]:.6f} (reading)")
+            f"{un[1.0]:.6f} ring- {un[-1.0]:.6f} (reading)"
+        )
 
     comm.Barrier()
     t0 = time.perf_counter()
@@ -331,12 +389,14 @@ def test_wf10_step3_refined_b1():
     cw_x = _read_senses(cg1["cw"], points)
     cw_mx = _read_senses(cg1["cw"], _mirror_xy(points, az_m))
     cw_m17 = _read_senses(cg1["cw"], _mirror_xy(points, az17))
-    rot = {m: _read_senses(cg1["ccw"], _rotate_z(points, np.radians(m * 22.5)))
-           for m in range(1, 16)}
+    rot = {
+        m: _read_senses(cg1["ccw"], _rotate_z(points, np.radians(m * 22.5))) for m in range(1, 16)
+    }
     comm.Barrier()
     t_eval = time.perf_counter() - t0
-    mask = np.logical_and.reduce([ccw_x[2], cw_x[2], cw_mx[2], cw_m17[2]]
-                                 + [r[2] for r in rot.values()])
+    mask = np.logical_and.reduce(
+        [ccw_x[2], cw_x[2], cw_mx[2], cw_m17[2]] + [r[2] for r in rot.values()]
+    )
     n_pts, n_mask = int(points.shape[0]), int(np.count_nonzero(mask))
     plus_x, minus_x = ccw_x[0], ccw_x[1]
     mirror = _relative_l2(cw_mx[1], plus_x, mask)
@@ -350,35 +410,60 @@ def test_wf10_step3_refined_b1():
     mean_b = float(np.mean(plus_x[mask]))
     cv_b = float(np.std(plus_x[mask]) / mean_b)
     p_src_ccw = out["parts"]["ccw"]["p_src"]
-    say(f"B: two CG1 projections {t_proj:.2f} s; {n_pts} sample points, {n_mask} valid on every "
-        f"image; evaluations {t_eval:.2f} s")
-    say(f"(Sense) mean|B1+|_ccw / mean|B1-|_ccw = {sense_ratio:.4f} (> 1 ASSERTED); cw: "
-        f"mean|B1-|/mean|B1+| = {cw_ratio:.4f} (printed)")
-    say(f"(M_B) feed-bisector mirror (az {az_m:.6f} deg): |B1-|_cw(Mx) vs |B1+|_ccw(x) rel L2 "
-        f"{mirror:.4e} (band {C4_COVARIANCE_BAND:g}, ASSERTED; 0.015 m phantom {ITEM358_MIRROR:.4e})")
-    say(f"mis-paired control {mispaired:.4e} beside |B1-|_ccw vs |B1+|_ccw {mispaired_pred:.4e} "
-        f"(0.015 m phantom {ITEM358_MISPAIRED:.4f}; printed)")
+    say(
+        f"B: two CG1 projections {t_proj:.2f} s; {n_pts} sample points, {n_mask} valid on every "
+        f"image; evaluations {t_eval:.2f} s"
+    )
+    say(
+        f"(Sense) mean|B1+|_ccw / mean|B1-|_ccw = {sense_ratio:.4f} (> 1 ASSERTED); cw: "
+        f"mean|B1-|/mean|B1+| = {cw_ratio:.4f} (printed)"
+    )
+    say(
+        f"(M_B) feed-bisector mirror (az {az_m:.6f} deg): |B1-|_cw(Mx) vs |B1+|_ccw(x) rel L2 "
+        f"{mirror:.4e} (band {C4_COVARIANCE_BAND:g}, ASSERTED; 0.015 m phantom {ITEM358_MIRROR:.4e})"
+    )
+    say(
+        f"mis-paired control {mispaired:.4e} beside |B1-|_ccw vs |B1+|_ccw {mispaired_pred:.4e} "
+        f"(0.015 m phantom {ITEM358_MISPAIRED:.4f}; printed)"
+    )
     say(f"wrong-plane mirror (az17 {az17:.6f} deg): {wrong_plane:.4e} (printed, reading)")
-    say("C16 readings: " + ", ".join(f"m={m}: {v:.4e}" for m, v in c16.items())
+    say(
+        "C16 readings: "
+        + ", ".join(f"m={m}: {v:.4e}" for m, v in c16.items())
         + f"; worst m={worst_m} {c16[worst_m]:.4e} (0.015 m phantom {ITEM358_C16_WORST:.4f}; "
-        f"printed, never asserted)")
-    say(f"mean|B1+|_ccw {mean_b:.6e} T, CV {cv_b:.4e} (reading); mean|B1+|_ccw/sqrt(P_src) "
-        f"{mean_b / np.sqrt(p_src_ccw):.6e} T/sqrt(W)")
+        f"printed, never asserted)"
+    )
+    say(
+        f"mean|B1+|_ccw {mean_b:.6e} T, CV {cv_b:.4e} (reading); mean|B1+|_ccw/sqrt(P_src) "
+        f"{mean_b / np.sqrt(p_src_ccw):.6e} T/sqrt(W)"
+    )
 
-    sar = mean_sar(out["e"]["ccw"], sigma=out["sigma"], rho=PHANTOM_RHO_KG_PER_M3,
-                   cell_tags=ctx["cell_tags"], subdomain_ids=PHANTOM_CELL_TAG, comm=comm)
+    sar = mean_sar(
+        out["e"]["ccw"],
+        sigma=out["sigma"],
+        rho=PHANTOM_RHO_KG_PER_M3,
+        cell_tags=ctx["cell_tags"],
+        subdomain_ids=PHANTOM_CELL_TAG,
+        comm=comm,
+    )
     p_ph = out["parts"]["ccw"]["p_phantom"]
     r_sigma = abs(sar["dissipated_power_w"] - p_ph) / abs(p_ph)
-    say(f"(Sigma_P) P_phantom {p_ph:.12e} W vs mean_sar dissipated {sar['dissipated_power_w']:.12e} "
-        f"W, rel {r_sigma:.3e} (band {EXACT_IDENTITY_RTOL:g}, ASSERTED)")
-    say(f"SAR (ccw): whole-phantom mean {sar['mean_sar_w_per_kg']:.6e} W/kg, per W of P_src "
-        f"{sar['mean_sar_w_per_kg'] / p_src_ccw:.6e} W/kg/W; P_phantom/P_src {p_ph / p_src_ccw:.6e}")
+    say(
+        f"(Sigma_P) P_phantom {p_ph:.12e} W vs mean_sar dissipated {sar['dissipated_power_w']:.12e} "
+        f"W, rel {r_sigma:.3e} (band {EXACT_IDENTITY_RTOL:g}, ASSERTED)"
+    )
+    say(
+        f"SAR (ccw): whole-phantom mean {sar['mean_sar_w_per_kg']:.6e} W/kg, per W of P_src "
+        f"{sar['mean_sar_w_per_kg'] / p_src_ccw:.6e} W/kg/W; P_phantom/P_src {p_ph / p_src_ccw:.6e}"
+    )
 
     _m, _rss_per, rss_sum = _rss_gib(comm)
-    say(f"price: build {times['build']:.1f} s, node pair {times['node_pair']:.1f} s, "
+    say(
+        f"price: build {times['build']:.1f} s, node pair {times['node_pair']:.1f} s, "
         f"superposition + partitions {times['superposition']:.1f} s, B projections {t_proj:.1f} s "
         f"+ evaluations {t_eval:.1f} s; RSS summed {rss_sum:.2f} GiB; window elapsed "
-        f"{time.perf_counter() - out['t_window']:.1f} s at -n {comm.size}")
+        f"{time.perf_counter() - out['t_window']:.1f} s at -n {comm.size}"
+    )
 
     for sense in ("ccw", "cw"):
         r_lin, r_y = out["anchors"]["lin"][sense]
@@ -404,7 +489,6 @@ def test_wf10_step3_refined_sar10g():
         mass_averaged_sar,
         mean_sar,
     )
-
     from tests.mesh.helpers import global_cell_tag_set
     from tests.validation.test_birdcage_b1_plus_map import (
         C4_COVARIANCE_BAND,
@@ -441,8 +525,9 @@ def test_wf10_step3_refined_sar10g():
     rec = comm.bcast(rec, root=0)
     assert "c_in_pf" in rec, "the JSON is module A's node record, not W2's"
     assert abs(rec["c_in_pf"] - C_IN_REFINED_PF) == 0.0, rec["c_in_pf"]
-    s_rec = np.array([[complex(a, b) for a, b in row] for row in rec["s_node"]],
-                     dtype=np.complex128)
+    s_rec = np.array(
+        [[complex(a, b) for a, b in row] for row in rec["s_node"]], dtype=np.complex128
+    )
 
     out = build_refined_quadrature(comm)
     say, ctx, times = out["say"], out["ctx"], out["times"]
@@ -450,25 +535,31 @@ def test_wf10_step3_refined_sar10g():
 
     s_node = np.asarray(out["s_node"], dtype=np.complex128)
     r_srep = _residual(s_node, s_rec)
-    say(f"(S_rep) s_node vs W2's JSON at {C_IN_REFINED_PF} pF: residual {r_srep:.6e} (band "
+    say(
+        f"(S_rep) s_node vs W2's JSON at {C_IN_REFINED_PF} pF: residual {r_srep:.6e} (band "
         f"{REUSE_REPRODUCTION_RTOL:g}, ASSERTED; PREDICTED <= {PREDICTED_SREP:g}); JSON "
-        f"az_feeds {rec['az_feeds']} vs run {list(out['az_feeds'])}")
+        f"az_feeds {rec['az_feeds']} vs run {list(out['az_feeds'])}"
+    )
 
     centre, radius, half_height, lo, hi = _phantom_geometry(msh, cell_tags, PHANTOM_CELL_TAG, comm)
     z_c = float(centre[2])
     a10 = averaging_ball_radius(mass_kg=TEN_GRAM_KG, rho=PHANTOM_RHO_KG_PER_M3)
     az17 = float(out["az_feeds"][0])
     az_m = float(out["az_mirror"])
-    say(f"phantom bbox lo {lo} hi {hi}: centre ({centre[0]:.6e}, {centre[1]:.6e}, "
+    say(
+        f"phantom bbox lo {lo} hi {hi}: centre ({centre[0]:.6e}, {centre[1]:.6e}, "
         f"{centre[2]:.6e}) m, R {radius * 1e3:.4f} mm, H/2 {half_height * 1e3:.4f} mm; 10 g "
-        f"a = {a10 * 1e3:.4f} mm; az17 {az17:.9f} deg, mirror plane {az_m:.9f} deg")
+        f"a = {a10 * 1e3:.4f} mm; az17 {az17:.9f} deg, mirror plane {az_m:.9f} deg"
+    )
     all_tags = global_cell_tag_set(msh, cell_tags)
     rho_field = build_density_field(
-        msh, PHANTOM_RHO_KG_PER_M3, cell_tags=cell_tags,
-        density_map={int(t): 0.0 for t in sorted(all_tags) if int(t) != PHANTOM_CELL_TAG})
+        msh,
+        PHANTOM_RHO_KG_PER_M3,
+        cell_tags=cell_tags,
+        density_map={int(t): 0.0 for t in sorted(all_tags) if int(t) != PHANTOM_CELL_TAG},
+    )
 
-    fields = {"ccw": out["e"]["ccw"], "cw": out["e"]["cw"], "P17": out["e17"],
-              "P21": out["e21"]}
+    fields = {"ccw": out["e"]["ccw"], "cw": out["e"]["cw"], "P17": out["e17"], "P21": out["e21"]}
     containment = []
     walls = []
 
@@ -476,13 +567,22 @@ def test_wf10_step3_refined_sar10g():
         c = tuple(float(v) for v in c)
         containment.append((label, c, _containment(c, centre, radius, half_height, a10)))
         t = time.perf_counter()
-        r = mass_averaged_sar(fields[key], sigma=sigma, rho=rho_field, center=c, radius=a10,
-                              comm=comm, quadrature_degree=QUADRATURE_DEGREE)
+        r = mass_averaged_sar(
+            fields[key],
+            sigma=sigma,
+            rho=rho_field,
+            center=c,
+            radius=a10,
+            comm=comm,
+            quadrature_degree=QUADRATURE_DEGREE,
+        )
         r["wall_s"] = comm.allreduce(time.perf_counter() - t, op=MPI.MAX)
         walls.append(r["wall_s"])
-        say(f"  ball {key:<3s} {label:<30s} at ({c[0] * 1e3:8.3f}, {c[1] * 1e3:8.3f}, "
+        say(
+            f"  ball {key:<3s} {label:<30s} at ({c[0] * 1e3:8.3f}, {c[1] * 1e3:8.3f}, "
             f"{c[2] * 1e3:8.3f}) mm: SAR10g {r['averaged_sar_w_per_kg']:.9e} W/kg, mass "
-            f"{r['mass_kg'] * 1e3:.6f} g, {r['wall_s']:.2f} s")
+            f"{r['mass_kg'] * 1e3:.6f} g, {r['wall_s']:.2f} s"
+        )
         return r
 
     comm.Barrier()
@@ -496,8 +596,10 @@ def test_wf10_step3_refined_sar10g():
         ccw[label] = ball("ccw", c, label)
         if idx == 0 and ccw[label]["wall_s"] > FIRST_BALL_STOP_S:
             reduced = True
-            say(f"REDUCED LATTICE: first ball {ccw[label]['wall_s']:.2f} s > "
-                f"{FIRST_BALL_STOP_S:.0f} s — z = z_c rows only (pre-registered, not a red)")
+            say(
+                f"REDUCED LATTICE: first ball {ccw[label]['wall_s']:.2f} s > "
+                f"{FIRST_BALL_STOP_S:.0f} s — z = z_c rows only (pre-registered, not a red)"
+            )
     coords = {label: np.array(c) for label, *_x, c in lattice}
     used = [label for label, *_x in lattice if label in ccw]
     key_star = max(used, key=lambda k: ccw[k]["averaged_sar_w_per_kg"])
@@ -514,11 +616,23 @@ def test_wf10_step3_refined_sar10g():
     coverage_radius = float(np.hypot(radius, half_height) + COVERAGE_BALL_PAD_M)
     conductor_limit = F_HUMAN_RING_RADIUS - CONDUCTOR_CLEARANCE_M
     t = time.perf_counter()
-    whole = mass_averaged_sar(fields["ccw"], sigma=sigma, rho=rho_field,
-                              center=tuple(float(v) for v in centre), radius=coverage_radius,
-                              comm=comm, quadrature_degree=QUADRATURE_DEGREE)
-    tagged = mean_sar(fields["ccw"], sigma=sigma, rho=PHANTOM_RHO_KG_PER_M3,
-                      cell_tags=cell_tags, subdomain_ids=PHANTOM_CELL_TAG, comm=comm)
+    whole = mass_averaged_sar(
+        fields["ccw"],
+        sigma=sigma,
+        rho=rho_field,
+        center=tuple(float(v) for v in centre),
+        radius=coverage_radius,
+        comm=comm,
+        quadrature_degree=QUADRATURE_DEGREE,
+    )
+    tagged = mean_sar(
+        fields["ccw"],
+        sigma=sigma,
+        rho=PHANTOM_RHO_KG_PER_M3,
+        cell_tags=cell_tags,
+        subdomain_ids=PHANTOM_CELL_TAG,
+        comm=comm,
+    )
     t_cov = comm.allreduce(time.perf_counter() - t, op=MPI.MAX)
     t_sar = comm.allreduce(time.perf_counter() - t_sar, op=MPI.MAX)
     power_miss = abs(whole["dissipated_power_w"] / tagged["dissipated_power_w"] - 1.0)
@@ -536,70 +650,116 @@ def test_wf10_step3_refined_sar10g():
     ctl_partner = abs(ctl21_m - ctl17_c) / ctl17_c
     spreads = {}
     for r in LATTICE_R_M:
-        vals = [ccw[lab]["averaged_sar_w_per_kg"] for lab, rr, dz, _d, _c in lattice
-                if rr == r and dz == 0.0]
+        vals = [
+            ccw[lab]["averaged_sar_w_per_kg"]
+            for lab, rr, dz, _d, _c in lattice
+            if rr == r and dz == 0.0
+        ]
         spreads[r] = (max(vals) - min(vals)) / np.mean(vals)
     worst_cont = max(x[2] for x in containment)
     _m, _rss_per, rss_sum = _rss_gib(comm)
     sar_per_w = sar_star / p_src
 
     if comm.rank == 0:
-        print(f"[WF-10 step3b] ccw 10 g table ({len(used)} points"
-              f"{', REDUCED' if reduced else ''}); cw at the feed-bisector image:", flush=True)
+        print(
+            f"[WF-10 step3b] ccw 10 g table ({len(used)} points"
+            f"{', REDUCED' if reduced else ''}); cw at the feed-bisector image:",
+            flush=True,
+        )
         for k in used:
             d = abs(cw[k]["averaged_sar_w_per_kg"] / ccw[k]["averaged_sar_w_per_kg"] - 1.0)
-            print(f"[WF-10 step3b]   {k:<26s} ccw {ccw[k]['averaged_sar_w_per_kg']:.9e} cw(M) "
-                  f"{cw[k]['averaged_sar_w_per_kg']:.9e} W/kg, rel {d * 100:.4f}%"
-                  f"{'   <- c*' if k == key_star else ''}", flush=True)
-        print(f"[WF-10 step3b] c* = {key_star} ({c_star[0] * 1e3:.3f}, {c_star[1] * 1e3:.3f}, "
-              f"{c_star[2] * 1e3:.3f}) mm, SAR10g(c*) {sar_star:.9e} W/kg (reading)", flush=True)
-        print(f"[WF-10 step3b] (iii-a) mirror at c*: {mirror_star * 100:.4f}% (band "
-              f"{C4_COVARIANCE_BAND * 100:.1f}%, ASSERTED; 0.015 m phantom "
-              f"{ITEM359_MIRROR_STAR * 100:.4f}%)", flush=True)
-        print(f"[WF-10 step3b] (iii-b) mirror lattice rel L2 over {len(used)} points: "
-              f"{mirror_l2 * 100:.4f}% (band {C4_COVARIANCE_BAND * 100:.1f}%, ASSERTED; 0.015 m "
-              f"phantom {ITEM359_MIRROR_L2 * 100:.4f}%)", flush=True)
-        print("[WF-10 step3b] azimuthal spread of the four z_c rows (RECORD; PREDICTED "
-              f"{PREDICTED_SPREAD[0] * 100:g}-{PREDICTED_SPREAD[1] * 100:g}%): "
-              + ", ".join(f"r={r * 1e3:.0f} mm {v * 100:.4f}% (0.015 m: "
-                          f"{ITEM359_SPREAD.get(round(float(r), 3), float('nan')) * 100:.1f}%)"
-                          for r, v in spreads.items()), flush=True)
-        print(f"[WF-10 step3b] control (printed): P17 SAR10g(c*) {ctl17_c:.6e}, P17 SAR10g(Mc*) "
-              f"{ctl17_m:.6e} W/kg, miss {ctl_miss * 100:.4f}% (0.015 m {ITEM359_CONTROL_MISS:g}%); "
-              f"M-partner P21(Mc*) {ctl21_m:.6e} vs P17(c*): {ctl_partner * 100:.4f}% (0.015 m "
-              f"{ITEM359_PARTNER * 100:.2f}%; PREDICTED < {PREDICTED_PARTNER * 100:g}%)", flush=True)
-        print(f"[WF-10 step3b] (i) coverage ball {coverage_radius * 1e3:.4f} mm (< conductor "
-              f"limit {conductor_limit * 1e3:.1f} mm ASSERTED): power "
-              f"{whole['dissipated_power_w']:.12e} vs tagged {tagged['dissipated_power_w']:.12e} W, "
-              f"rel {power_miss:.3e}; mass {whole['mass_kg']:.12e} vs rho*V "
-              f"{PHANTOM_RHO_KG_PER_M3 * tagged['volume_m3']:.12e} kg, rel {mass_miss:.3e} (band "
-              f"{EXACT_IDENTITY_RTOL:g}, ASSERTED); {t_cov:.2f} s", flush=True)
-        print(f"[WF-10 step3b] (Sigma_P) P_phantom {p_ph:.12e} vs mean_sar dissipated "
-              f"{tagged['dissipated_power_w']:.12e} W, rel {r_sigma:.3e} (band "
-              f"{EXACT_IDENTITY_RTOL:g}, ASSERTED)", flush=True)
+            print(
+                f"[WF-10 step3b]   {k:<26s} ccw {ccw[k]['averaged_sar_w_per_kg']:.9e} cw(M) "
+                f"{cw[k]['averaged_sar_w_per_kg']:.9e} W/kg, rel {d * 100:.4f}%"
+                f"{'   <- c*' if k == key_star else ''}",
+                flush=True,
+            )
+        print(
+            f"[WF-10 step3b] c* = {key_star} ({c_star[0] * 1e3:.3f}, {c_star[1] * 1e3:.3f}, "
+            f"{c_star[2] * 1e3:.3f}) mm, SAR10g(c*) {sar_star:.9e} W/kg (reading)",
+            flush=True,
+        )
+        print(
+            f"[WF-10 step3b] (iii-a) mirror at c*: {mirror_star * 100:.4f}% (band "
+            f"{C4_COVARIANCE_BAND * 100:.1f}%, ASSERTED; 0.015 m phantom "
+            f"{ITEM359_MIRROR_STAR * 100:.4f}%)",
+            flush=True,
+        )
+        print(
+            f"[WF-10 step3b] (iii-b) mirror lattice rel L2 over {len(used)} points: "
+            f"{mirror_l2 * 100:.4f}% (band {C4_COVARIANCE_BAND * 100:.1f}%, ASSERTED; 0.015 m "
+            f"phantom {ITEM359_MIRROR_L2 * 100:.4f}%)",
+            flush=True,
+        )
+        print(
+            "[WF-10 step3b] azimuthal spread of the four z_c rows (RECORD; PREDICTED "
+            f"{PREDICTED_SPREAD[0] * 100:g}-{PREDICTED_SPREAD[1] * 100:g}%): "
+            + ", ".join(
+                f"r={r * 1e3:.0f} mm {v * 100:.4f}% (0.015 m: "
+                f"{ITEM359_SPREAD.get(round(float(r), 3), float('nan')) * 100:.1f}%)"
+                for r, v in spreads.items()
+            ),
+            flush=True,
+        )
+        print(
+            f"[WF-10 step3b] control (printed): P17 SAR10g(c*) {ctl17_c:.6e}, P17 SAR10g(Mc*) "
+            f"{ctl17_m:.6e} W/kg, miss {ctl_miss * 100:.4f}% (0.015 m {ITEM359_CONTROL_MISS:g}%); "
+            f"M-partner P21(Mc*) {ctl21_m:.6e} vs P17(c*): {ctl_partner * 100:.4f}% (0.015 m "
+            f"{ITEM359_PARTNER * 100:.2f}%; PREDICTED < {PREDICTED_PARTNER * 100:g}%)",
+            flush=True,
+        )
+        print(
+            f"[WF-10 step3b] (i) coverage ball {coverage_radius * 1e3:.4f} mm (< conductor "
+            f"limit {conductor_limit * 1e3:.1f} mm ASSERTED): power "
+            f"{whole['dissipated_power_w']:.12e} vs tagged {tagged['dissipated_power_w']:.12e} W, "
+            f"rel {power_miss:.3e}; mass {whole['mass_kg']:.12e} vs rho*V "
+            f"{PHANTOM_RHO_KG_PER_M3 * tagged['volume_m3']:.12e} kg, rel {mass_miss:.3e} (band "
+            f"{EXACT_IDENTITY_RTOL:g}, ASSERTED); {t_cov:.2f} s",
+            flush=True,
+        )
+        print(
+            f"[WF-10 step3b] (Sigma_P) P_phantom {p_ph:.12e} vs mean_sar dissipated "
+            f"{tagged['dissipated_power_w']:.12e} W, rel {r_sigma:.3e} (band "
+            f"{EXACT_IDENTITY_RTOL:g}, ASSERTED)",
+            flush=True,
+        )
         for sense in ("ccw", "cw"):
             rel_w, blind_w = out["anchors"]["p_w"][sense]
             r_lin, r_y = out["anchors"]["lin"][sense]
-            print(f"[WF-10 step3b] [{sense}] (P_w) {rel_w:.3e} (band {DISCRETE_IDENTITY_RTOL:g}, "
-                  f"ASSERTED), blind {blind_w:.4e}; (Lin) {r_lin:.3e} / Y {r_y:.3e} (ASSERTED)",
-                  flush=True)
-        print(f"[WF-10 step3b] (P_RC) {out['p_rc_node']:.3e} (ASSERTED in the node); node blind "
-              f"{out['blind_node']:.4e} (printed)", flush=True)
-        print(f"[WF-10 step3b] (iv) worst containment {worst_cont * 1e3:.4f} mm over "
-              f"{len(containment)} balls (<= 0 ASSERTED, measured bbox)", flush=True)
-        print(f"[WF-10 step3b] SAR per watt (ccw): SAR10g(c*)/P_src {sar_per_w:.6e} W/kg/W beside "
-              f"0.015 m {ITEM359_SAR_PER_W:.4e} ({sar_per_w / ITEM359_SAR_PER_W - 1.0:+.4%}; "
-              f"PREDICTED within +-{PREDICTED_SAR_PER_W_BAND * 100:g}%), /P_phantom "
-              f"{sar_star / p_ph:.6e}; whole-phantom mean {tagged['mean_sar_w_per_kg']:.6e} W/kg, "
-              f"/P_src {tagged['mean_sar_w_per_kg'] / p_src:.6e}; peak-to-mean "
-              f"{sar_star / tagged['mean_sar_w_per_kg']:.4f} (0.015 m {ITEM359_PEAK_TO_MEAN}); "
-              f"P_phantom/P_src {p_ph / p_src:.6e}", flush=True)
-        print(f"[WF-10 step3b] PRICE: {len(walls)} 10 g balls + coverage, per ball mean "
-              f"{np.mean(walls):.2f} s max {np.max(walls):.2f} s (refined-solid "
-              f"{BALL_S_REFINED_SOLID} s, default hole {BALL_S_DEFAULT_HOLE} s); SAR phase "
-              f"{t_sar:.1f} s; build {times['build']:.1f} s, node pair {times['node_pair']:.1f} s, "
-              f"superposition {times['superposition']:.1f} s; RSS summed {rss_sum:.2f} GiB; window "
-              f"{time.perf_counter() - out['t_window']:.1f} s at -n {comm.size}", flush=True)
+            print(
+                f"[WF-10 step3b] [{sense}] (P_w) {rel_w:.3e} (band {DISCRETE_IDENTITY_RTOL:g}, "
+                f"ASSERTED), blind {blind_w:.4e}; (Lin) {r_lin:.3e} / Y {r_y:.3e} (ASSERTED)",
+                flush=True,
+            )
+        print(
+            f"[WF-10 step3b] (P_RC) {out['p_rc_node']:.3e} (ASSERTED in the node); node blind "
+            f"{out['blind_node']:.4e} (printed)",
+            flush=True,
+        )
+        print(
+            f"[WF-10 step3b] (iv) worst containment {worst_cont * 1e3:.4f} mm over "
+            f"{len(containment)} balls (<= 0 ASSERTED, measured bbox)",
+            flush=True,
+        )
+        print(
+            f"[WF-10 step3b] SAR per watt (ccw): SAR10g(c*)/P_src {sar_per_w:.6e} W/kg/W beside "
+            f"0.015 m {ITEM359_SAR_PER_W:.4e} ({sar_per_w / ITEM359_SAR_PER_W - 1.0:+.4%}; "
+            f"PREDICTED within +-{PREDICTED_SAR_PER_W_BAND * 100:g}%), /P_phantom "
+            f"{sar_star / p_ph:.6e}; whole-phantom mean {tagged['mean_sar_w_per_kg']:.6e} W/kg, "
+            f"/P_src {tagged['mean_sar_w_per_kg'] / p_src:.6e}; peak-to-mean "
+            f"{sar_star / tagged['mean_sar_w_per_kg']:.4f} (0.015 m {ITEM359_PEAK_TO_MEAN}); "
+            f"P_phantom/P_src {p_ph / p_src:.6e}",
+            flush=True,
+        )
+        print(
+            f"[WF-10 step3b] PRICE: {len(walls)} 10 g balls + coverage, per ball mean "
+            f"{np.mean(walls):.2f} s max {np.max(walls):.2f} s (refined-solid "
+            f"{BALL_S_REFINED_SOLID} s, default hole {BALL_S_DEFAULT_HOLE} s); SAR phase "
+            f"{t_sar:.1f} s; build {times['build']:.1f} s, node pair {times['node_pair']:.1f} s, "
+            f"superposition {times['superposition']:.1f} s; RSS summed {rss_sum:.2f} GiB; window "
+            f"{time.perf_counter() - out['t_window']:.1f} s at -n {comm.size}",
+            flush=True,
+        )
 
     assert r_srep <= REUSE_REPRODUCTION_RTOL, f"(S_rep) {r_srep:.6e}"
     for sense in ("ccw", "cw"):

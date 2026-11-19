@@ -15,8 +15,12 @@ from fem_em_solver.ports.touchstone import export_touchstone, load_touchstone
 
 def test_touchstone_export_and_roundtrip_loader(tmp_path):
     ports = [
-        PortDefinition(port_id="P1", positive_tag=11, negative_tag=12, orientation="cw", z0_ohm=50.0),
-        PortDefinition(port_id="P2", positive_tag=21, negative_tag=22, orientation="cw", z0_ohm=50.0),
+        PortDefinition(
+            port_id="P1", positive_tag=11, negative_tag=12, orientation="cw", z0_ohm=50.0
+        ),
+        PortDefinition(
+            port_id="P2", positive_tag=21, negative_tag=22, orientation="cw", z0_ohm=50.0
+        ),
     ]
 
     sweep_results = [
@@ -110,7 +114,9 @@ def test_touchstone_loader_rejects_frequency_metadata_mismatch(tmp_path):
         encoding="utf-8",
     )
 
-    with pytest.raises(ValueError, match="frequency_points_hz metadata does not match numeric data rows"):
+    with pytest.raises(
+        ValueError, match="frequency_points_hz metadata does not match numeric data rows"
+    ):
         load_touchstone(bad_touchstone_path)
 
 
@@ -139,9 +145,7 @@ def test_touchstone_loader_rejects_z0_metadata_mismatch(tmp_path):
 
 def _placeholder_sweep(is_placeholder: bool) -> SParameterSweepResult:
     """One synthetic sweep point, flagged as requested."""
-    s_matrix = np.array(
-        [[0.1 + 0.0j, 0.2 + 0.0j], [0.2 + 0.0j, 0.4 + 0.0j]], dtype=np.complex128
-    )
+    s_matrix = np.array([[0.1 + 0.0j, 0.2 + 0.0j], [0.2 + 0.0j, 0.4 + 0.0j]], dtype=np.complex128)
     return SParameterSweepResult(
         frequency_hz=100.0e6,
         port_ids=("P1", "P2"),
@@ -154,8 +158,12 @@ def _placeholder_sweep(is_placeholder: bool) -> SParameterSweepResult:
 
 def _two_ports() -> list[PortDefinition]:
     return [
-        PortDefinition(port_id="P1", positive_tag=11, negative_tag=12, orientation="cw", z0_ohm=50.0),
-        PortDefinition(port_id="P2", positive_tag=21, negative_tag=22, orientation="cw", z0_ohm=50.0),
+        PortDefinition(
+            port_id="P1", positive_tag=11, negative_tag=12, orientation="cw", z0_ohm=50.0
+        ),
+        PortDefinition(
+            port_id="P2", positive_tag=21, negative_tag=22, orientation="cw", z0_ohm=50.0
+        ),
     ]
 
 

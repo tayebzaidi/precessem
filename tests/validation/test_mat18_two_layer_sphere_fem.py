@@ -20,9 +20,9 @@ from __future__ import annotations
 import time
 
 import numpy as np
-import pytest
 import ufl
-from dolfinx import default_scalar_type, fem, mesh as dmesh
+from dolfinx import default_scalar_type, fem
+from dolfinx import mesh as dmesh
 from mpi4py import MPI
 
 from fem_em_solver.io.mesh import MeshGenerator
@@ -35,12 +35,12 @@ from fem_em_solver.utils.analytical import (
 from tests.validation.test_mat18_two_layer_sphere_closed_form import (
     A_,
     B_,
-    H,
     K1,
     K2,
     Q1,
     Q2,
     T_INF,
+    H,
 )
 
 ROBIN_TAG = 1
@@ -61,17 +61,13 @@ def _say(msg):
 def _ball(res):
     if res not in _MESHES:
         t0 = time.perf_counter()
-        out = MeshGenerator.two_layer_ball_domain(
-            inner_radius=A_, outer_radius=B_, resolution=res
-        )
+        out = MeshGenerator.two_layer_ball_domain(inner_radius=A_, outer_radius=B_, resolution=res)
         _MESHES[res] = (*out, time.perf_counter() - t0)
     return _MESHES[res]
 
 
 def _allsum(comm, form):
-    return float(
-        np.real(comm.allreduce(fem.assemble_scalar(fem.form(form)), op=MPI.SUM))
-    )
+    return float(np.real(comm.allreduce(fem.assemble_scalar(fem.form(form)), op=MPI.SUM)))
 
 
 def _dg0(msh, ct, v_core, v_shell):
@@ -124,9 +120,7 @@ def _errors(msh, ct, T_h, theta):
         if w is None:
             out.append(np.sqrt(_allsum(comm, d**2 * dx) / _allsum(comm, theta**2 * dx)))
         else:
-            out.append(
-                np.sqrt(_allsum(comm, w * d**2 * dx) / _allsum(comm, w * theta**2 * dx))
-            )
+            out.append(np.sqrt(_allsum(comm, w * d**2 * dx) / _allsum(comm, w * theta**2 * dx)))
     return tuple(float(v) for v in out)
 
 
@@ -230,8 +224,10 @@ def test_ladder_conformity_rate_interior_balance():
             vals, ok = evaluate_vector_field_parallel(sol.temperature, pts)
             if comm.rank == 0:
                 for lab, v, o, ref in zip(
-                    ("0", "a", "0.999b"), np.ravel(vals[:, 0]) if vals.ndim == 2 else vals,
-                    ok, (14.2550, 8.6994, 5.5096),
+                    ("0", "a", "0.999b"),
+                    np.ravel(vals[:, 0]) if vals.ndim == 2 else vals,
+                    ok,
+                    (14.2550, 8.6994, 5.5096),
                 ):
                     th = float(np.real(v)) - T_INF if o else float("nan")
                     print(
@@ -249,7 +245,9 @@ def test_ladder_conformity_rate_interior_balance():
         )
     rate = float(np.polyfit(np.log(h), np.log(e), 1)[0])
     _say(f"MAT18 (S1) LSQ P1 whole-ball L2 rate = {rate:.3f} (predicted ≈ 2.0, band ≥ 1.7)")
-    _say(f"MAT18 (S2) finest interior rel L2 = {rows[-1][4]:.4e} (predicted 4e-4..1.5e-3, band ≤ 1e-2)")
+    _say(
+        f"MAT18 (S2) finest interior rel L2 = {rows[-1][4]:.4e} (predicted 4e-4..1.5e-3, band ≤ 1e-2)"
+    )
     assert rate >= 1.7, f"(S1) P1 rate {rate:.3f} < 1.7"
     assert rows[-1][4] <= 1e-2, f"(S2) interior {rows[-1][4]:.4e} > 1 %"
 
@@ -285,9 +283,7 @@ def test_e_equal_properties():
     )
     theta = _comparand(
         msh,
-        lambda r: robin_sphere_steady_temperature(
-            r, radius=B_, k=K1, q=Q1, h=H, t_inf=T_INF
-        ),
+        lambda r: robin_sphere_steady_temperature(r, radius=B_, k=K1, q=Q1, h=H, t_inf=T_INF),
     )
     e_all, e_in, e_sh = _errors(msh, ct, sol.temperature, theta)
     _say(

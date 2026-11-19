@@ -68,7 +68,6 @@ import pytest
 from mpi4py import MPI
 
 from fem_em_solver.ports.shares import terminal_form_deficit
-
 from tests.complex_mode import complex_only
 from tests.validation.test_birdcage_b1_plus_map import _solve_driven
 from tests.validation.test_port_birdcage_four_port import build_four_port_sweep
@@ -152,9 +151,7 @@ def _window_frequencies_mhz():
         value = float(token)
         match = [g for g in GRID_MHZ if abs(value - g) <= 1.0e-9 * g]
         if not match:
-            raise ValueError(
-                f"{FREQUENCY_ENV}={raw!r}: {value} MHz is not a grid point {GRID_MHZ}"
-            )
+            raise ValueError(f"{FREQUENCY_ENV}={raw!r}: {value} MHz is not a grid point {GRID_MHZ}")
         out.append(match[0])
     if not out:
         return None
@@ -181,9 +178,7 @@ def _kappa_at(built, comm):
     deficit = terminal_form_deficit(
         built["mesh"], built["facet_tags"], sheets, solved["fields"].e_complex, comm
     )
-    return float(deficit["pooled"]), {
-        k: float(v) for k, v in deficit["per_sheet"].items()
-    }
+    return float(deficit["pooled"]), {k: float(v) for k, v in deficit["per_sheet"].items()}
 
 
 def build_c_tuned():
@@ -195,9 +190,9 @@ def build_c_tuned():
     """
     _, _, roots = tuning_sweep(S_64MHZ_EPS0_RECORD, STEP3_REGISTERED_FREQUENCY_HZ)
     tuned = select_c_tuned(roots)
-    assert tuned is not None, (
-        "no zero of Im Z_in on `PORT-15` step 3's C grid — report, never widen in-slot"
-    )
+    assert (
+        tuned is not None
+    ), "no zero of Im Z_in on `PORT-15` step 3's C grid — report, never widen in-slot"
     if MPI.COMM_WORLD.rank == 0:
         print(
             f"\n[PORT-22 step1] C_tuned (recomputed through `PORT-15` step 3's own "
@@ -286,9 +281,7 @@ def run_window(frequencies_mhz, c_f):
         else:
             comm.Barrier()
             t1 = time.perf_counter()
-            uncorrected = build_four_port_sweep(
-                frequency_hz=f_hz, reuse=reuse, build_only=True
-            )
+            uncorrected = build_four_port_sweep(frequency_hz=f_hz, reuse=reuse, build_only=True)
             kappa, per_sheet = _kappa_at(uncorrected, comm)
             comm.Barrier()
             t_kappa = time.perf_counter() - t1
@@ -383,9 +376,9 @@ def window(c_tuned):
 @complex_only
 def test_the_window_ran_on_the_gate_mesh(window):
     """Fixture guard: the 116 085-cell gate mesh, one build, at the record width."""
-    assert window["cells"] == STEP1_CELL_RECORD, (
-        f"{window['cells']} cells, record {STEP1_CELL_RECORD} — not the gate mesh"
-    )
+    assert (
+        window["cells"] == STEP1_CELL_RECORD
+    ), f"{window['cells']} cells, record {STEP1_CELL_RECORD} — not the gate mesh"
 
 
 @complex_only
@@ -465,9 +458,9 @@ def test_negative_control_the_half_c_prediction_misses_the_in_model_curve(window
             f"misses by {row['residual']:.6e}",
             flush=True,
         )
-    assert row["control_miss"] > floor, (
-        f"0.5 x C_tuned misses by only {row['control_miss']:.6e}, under {floor:.0e}"
-    )
+    assert (
+        row["control_miss"] > floor
+    ), f"0.5 x C_tuned misses by only {row['control_miss']:.6e}, under {floor:.0e}"
 
 
 @complex_only
@@ -480,9 +473,9 @@ def test_the_in_run_option_is_the_hand_rolled_route_at_64mhz(window):
         pytest.skip("the route identity is registered at 64 MHz — it runs in that window")
     ident = window["rows"][mhz]["route_identity"]
     assert ident is not None, "the 64 MHz option row carries no route-identity reading"
-    assert ident["kappa_option"] == ident["kappa_hand"], (
-        f"κ option {ident['kappa_option']!r} != hand-rolled {ident['kappa_hand']!r}"
-    )
+    assert (
+        ident["kappa_option"] == ident["kappa_hand"]
+    ), f"κ option {ident['kappa_option']!r} != hand-rolled {ident['kappa_hand']!r}"
     assert ident["max_abs_ds_rel"] <= ROUTE_IDENTITY_BAND, (
         f"option vs hand-rolled max|ΔS|/max|S| {ident['max_abs_ds_rel']:.6e} > "
         f"{ROUTE_IDENTITY_BAND:.0e} — a code-path bug (fix once; still red, park)"
@@ -526,9 +519,7 @@ def test_anchor_iii_im_z_in_changes_sign_once_in_the_64mhz_bracket(window):
     mhz = np.array(sorted(rows), dtype=float)
     z = np.array([complex(*rows[m]["z_in_model"]) for m in mhz])
     im, re = z.imag, z.real
-    brackets = [
-        i for i in range(len(mhz) - 1) if np.sign(im[i]) != np.sign(im[i + 1])
-    ]
+    brackets = [i for i in range(len(mhz) - 1) if np.sign(im[i]) != np.sign(im[i + 1])]
     if comm.rank == 0:
         print(
             f"\n[PORT-22 step1] (iii) Z_in(f) from the in-model tuned drive, C_tuned = "

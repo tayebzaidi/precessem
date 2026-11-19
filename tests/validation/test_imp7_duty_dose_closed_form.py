@@ -32,9 +32,8 @@ from fem_em_solver.utils.analytical import (
     pec_sphere_implant_duty_cycle_from_modes,
     pec_sphere_implant_transient_modes,
 )
-
 from tests.validation.test_imp4_pec_cylinder_closed_form import B1_BAND
-from tests.validation.test_imp7_duty_cycle_fem import A, B, DUTY, PERIOD
+from tests.validation.test_imp7_duty_cycle_fem import DUTY, PERIOD, A, B
 from tests.validation.test_imp7_implant_heating_closed_form import FIX, T_INF
 from tests.validation.test_imp7_transient_closed_form import N_DEFAULT, T_STAR, _modes, _theta
 from tests.validation.test_mat12_transient_sar_heating_sphere import N_MAIN, RHO_C
@@ -43,7 +42,11 @@ from tests.validation.test_mat20_cem43_closed_form import _rel
 from tests.validation.test_mat20_running_average import BAR as AVG_BAR
 from tests.validation.test_mat20_running_average import W_B2
 from tests.validation.test_mat20_tuned_heating_dose import T_REF
-from tests.validation.test_mat21_wall_duty_dose_closed_form import BARE_EQ_RATIO, _q_check, _win_check
+from tests.validation.test_mat21_wall_duty_dose_closed_form import (
+    BARE_EQ_RATIO,
+    _q_check,
+    _win_check,
+)
 
 DT = T_STAR / N_MAIN
 T_END = 4 * T_STAR
@@ -63,8 +66,12 @@ def _duty_hist(modes, duty=DUTY):
     """(161, 3) θ histories; row 0 = 0.0 exactly."""
     out = np.zeros((T_GRID.size, PTS.shape[0]))
     for n in range(1, T_GRID.size):
-        out[n] = pec_sphere_implant_duty_cycle_from_modes(
-            PTS, T_GRID[n], modes, rho_c=RHO_C, t_inf=T_INF, period=PERIOD, duty=duty) - T_INF
+        out[n] = (
+            pec_sphere_implant_duty_cycle_from_modes(
+                PTS, T_GRID[n], modes, rho_c=RHO_C, t_inf=T_INF, period=PERIOD, duty=duty
+            )
+            - T_INF
+        )
     return out
 
 
@@ -85,8 +92,9 @@ def _hists():
         _CACHE["d1"] = _duty_hist(m, duty=1.0)
         _CACHE["d"] = _duty_hist(m)
         # The control builds its own modes: `_modes()` fixes beta (brief).
-        _CACHE["iso"] = _duty_hist(pec_sphere_implant_transient_modes(
-            beta=0.0, n_terms=N_DEFAULT, inner="neumann", **FIX))
+        _CACHE["iso"] = _duty_hist(
+            pec_sphere_implant_transient_modes(beta=0.0, n_terms=N_DEFAULT, inner="neumann", **FIX)
+        )
     return _CACHE
 
 
@@ -96,21 +104,27 @@ def test_precondition_grid():
     assert T_END >= W_B2, (T_END, W_B2)
     assert abs(PERIOD / DT - 20.0) < 1e-12 and abs(DUTY * PERIOD / DT - 10.0) < 1e-12
     assert np.all(_hists()["d"][0] == 0.0)
-    _p(f"IMP7-7 grid: t* {T_STAR:.4f} s, T_END {T_END:.4f} s >= W {float(W_B2):g} s, dt {DT:.4f} s, "
-       f"period {PERIOD:.4f} s; PTS {PTS.tolist()} ({LABELS})")
+    _p(
+        f"IMP7-7 grid: t* {T_STAR:.4f} s, T_END {T_END:.4f} s >= W {float(W_B2):g} s, dt {DT:.4f} s, "
+        f"period {PERIOD:.4f} s; PTS {PTS.tolist()} ({LABELS})"
+    )
 
 
 def test_c100_i_full_duty_equals_continuous():
     h = _hists()
     worst = float(np.max(np.abs(h["d1"][1:] - h["cont"][1:]) / np.abs(h["cont"][1:])))
-    _p(f"IMP7-7 (C100-i) duty = 1.0 vs continuous over {h['cont'].shape}: worst row/point rel "
-       f"{worst:.3e} (band {B1_BAND:g}, ASSERTED)")
+    _p(
+        f"IMP7-7 (C100-i) duty = 1.0 vs continuous over {h['cont'].shape}: worst row/point rel "
+        f"{worst:.3e} (band {B1_BAND:g}, ASSERTED)"
+    )
     assert worst <= B1_BAND, worst
     for j, lab in enumerate(LABELS):
         d1 = cem43(T_GRID, T_INF + h["d1"][:, j])
         d0 = cem43(T_GRID, T_INF + h["cont"][:, j])
-        _p(f"IMP7-7 (C100-i) {lab}: dose(100 %) {d1:.15e} s, dose(continuous) {d0:.15e} s, rel "
-           f"{_rel(d1, d0):.3e} (bar {DOSE_BAR:g}, ASSERTED)")
+        _p(
+            f"IMP7-7 (C100-i) {lab}: dose(100 %) {d1:.15e} s, dose(continuous) {d0:.15e} s, rel "
+            f"{_rel(d1, d0):.3e} (bar {DOSE_BAR:g}, ASSERTED)"
+        )
         assert _rel(d1, d0) <= DOSE_BAR, (lab, d1, d0)
 
 
@@ -122,13 +136,19 @@ def test_q_id_win_id_and_rc_id():
             T = T_INF + th
             dose, ref, rel, swap, miss = _q_check(T_GRID, T)
             mx, t_mx, lo, hi, wref, wrel = _win_check(T_GRID, th)
-            _p(f"IMP7-7 (Q-id) {lab} {name}: duty CEM43 {dose:.15e} s vs quad {ref:.15e} s rel "
-               f"{rel:.3e} (bar {DOSE_BAR:g}, ASSERTED); max T {np.max(T):.9f} C < {T_REF} ASSERTED")
-            _p(f"IMP7-7 (Win-id) {lab} {name}: max six-minute mean {mx:.15e} K at t_max {t_mx:.4f} s; "
-               f"(i) [{T_GRID[0] + W_B2:.3f}, {T_GRID[-1]:.3f}]; (ii) [{lo:.12e}, {hi:.12e}]; (iii) "
-               f"quad {wref:.15e} rel {wrel:.3e} (bar {AVG_BAR:g}, ASSERTED)")
-            _p(f"IMP7-7 (Rc-id) {lab} {name}: R swap miss {miss:.4e} (asserted > {DOSE_BAR:g}); "
-               f"factor {swap / ref:.4e}")
+            _p(
+                f"IMP7-7 (Q-id) {lab} {name}: duty CEM43 {dose:.15e} s vs quad {ref:.15e} s rel "
+                f"{rel:.3e} (bar {DOSE_BAR:g}, ASSERTED); max T {np.max(T):.9f} C < {T_REF} ASSERTED"
+            )
+            _p(
+                f"IMP7-7 (Win-id) {lab} {name}: max six-minute mean {mx:.15e} K at t_max {t_mx:.4f} s; "
+                f"(i) [{T_GRID[0] + W_B2:.3f}, {T_GRID[-1]:.3f}]; (ii) [{lo:.12e}, {hi:.12e}]; (iii) "
+                f"quad {wref:.15e} rel {wrel:.3e} (bar {AVG_BAR:g}, ASSERTED)"
+            )
+            _p(
+                f"IMP7-7 (Rc-id) {lab} {name}: R swap miss {miss:.4e} (asserted > {DOSE_BAR:g}); "
+                f"factor {swap / ref:.4e}"
+            )
             assert float(np.max(T)) < T_REF, (lab, name, float(np.max(T)))
             assert rel <= DOSE_BAR, (lab, name, rel)
             assert T_GRID[0] + W_B2 <= t_mx <= T_GRID[-1], (lab, t_mx)
@@ -143,8 +163,10 @@ def test_pole_id_isotropic_source_control():
     d_0 = cem43(T_GRID, T_INF + h["iso"][:, POLE])
     miss = _rel(d_0, d_b)
     # 7 digits: the first log's print at .15e / .9f tripped the private-leak guard (held).
-    _p(f"IMP7-7 (Pole-id) pole: beta = 1 {d_b:.6e} s, beta = 0 {d_0:.6e} s, ratio {d_b / d_0:.6f}, "
-       f"miss {miss:.4e} (asserted > {DOSE_BAR:g}; separation {miss / DOSE_BAR:.3e} x the bar)")
+    _p(
+        f"IMP7-7 (Pole-id) pole: beta = 1 {d_b:.6e} s, beta = 0 {d_0:.6e} s, ratio {d_b / d_0:.6f}, "
+        f"miss {miss:.4e} (asserted > {DOSE_BAR:g}; separation {miss / DOSE_BAR:.3e} x the bar)"
+    )
     assert miss > DOSE_BAR, miss
 
 
@@ -160,10 +182,12 @@ def test_printed_duty_dose_records():
         doses[j] = (d_c, d_pk, d_eq)
         _a, mx_c, t_c = running_average(T_GRID, h["cont"][:, j], window=W)
         _a, mx_d, t_d = running_average(T_GRID, h["d"][:, j], window=W)
-        _p(f"IMP7-7 DUTY DOSE {lab}: D_cont {d_c:.15e} s; D_duty(peak) {d_pk:.15e} s; D_duty(equal "
-           f"mean) {d_eq:.15e} s; equal-mean ratio {d_eq / d_c:.6f} (bare gel box {BARE_EQ_RATIO}, "
-           f"its own schedule, printed); peak ratio {d_pk / d_c:.6f}; six-minute peak cont "
-           f"{mx_c:.6f} K at {t_c:.2f} s, duty {mx_d:.6f} K at {t_d:.2f} s")
+        _p(
+            f"IMP7-7 DUTY DOSE {lab}: D_cont {d_c:.15e} s; D_duty(peak) {d_pk:.15e} s; D_duty(equal "
+            f"mean) {d_eq:.15e} s; equal-mean ratio {d_eq / d_c:.6f} (bare gel box {BARE_EQ_RATIO}, "
+            f"its own schedule, printed); peak ratio {d_pk / d_c:.6f}; six-minute peak cont "
+            f"{mx_c:.6f} K at {t_c:.2f} s, duty {mx_d:.6f} K at {t_d:.2f} s"
+        )
         assert np.isfinite(d_eq / d_c)
     for k, name in enumerate(("D_cont", "D_duty(peak)", "D_duty(equal mean)")):
         _p(f"IMP7-7 pole / equator {name}: {doses[POLE][k] / doses[EQUATOR][k]:.6f}")

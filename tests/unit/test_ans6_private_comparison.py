@@ -25,6 +25,7 @@ Negative control (asserted): the private render committed as the tracked
 location ``COMPARISON.md``; the hit count is printed beside the rendered
 sentinel-token count it is predicted to approximate.
 """
+
 from __future__ import annotations
 
 import importlib.util
@@ -49,36 +50,60 @@ COLUMNS = ("cu", "pec")
 ORDERS = ("zero_order", "first_order")
 CLASS_NAMES = ("self", "adjacent", "opposite")
 S_KEYS = tuple(f"S{i}{j}" for i in range(1, 5) for j in range(1, 5))
-META_KEYS = ("elements", "basis_order", "passes", "delta_s", "solve_time",
-             "port_model", "coil_treatment")
+META_KEYS = (
+    "elements",
+    "basis_order",
+    "passes",
+    "delta_s",
+    "solve_time",
+    "port_model",
+    "coil_treatment",
+)
 #: `.gitignore:134–135`, verbatim.
-GITIGNORE = ("examples/ansys_benchmarks/*/aed_results/\n"
-             "examples/ansys_benchmarks/*/COMPARISON_private.md\n")
+GITIGNORE = (
+    "examples/ansys_benchmarks/*/aed_results/\n"
+    "examples/ansys_benchmarks/*/COMPARISON_private.md\n"
+)
 #: `scripts/testing/test_private_leak.py:63–67`.
 GIT_ENV = {
-    "GIT_CONFIG_GLOBAL": os.devnull, "GIT_CONFIG_NOSYSTEM": "1",
-    "GIT_AUTHOR_NAME": "t", "GIT_AUTHOR_EMAIL": "t@example.invalid",
-    "GIT_COMMITTER_NAME": "t", "GIT_COMMITTER_EMAIL": "t@example.invalid",
+    "GIT_CONFIG_GLOBAL": os.devnull,
+    "GIT_CONFIG_NOSYSTEM": "1",
+    "GIT_AUTHOR_NAME": "t",
+    "GIT_AUTHOR_EMAIL": "t@example.invalid",
+    "GIT_COMMITTER_NAME": "t",
+    "GIT_COMMITTER_EMAIL": "t@example.invalid",
 }
 
 
 def _env() -> dict:
     e = dict(os.environ)
-    for k in ("PRIVATE_LEAK_ROOT", "PRIVATE_LEAK_SECRET_GLOBS", "GIT_DIR",
-              "GIT_INDEX_FILE", "GIT_WORK_TREE"):
+    for k in (
+        "PRIVATE_LEAK_ROOT",
+        "PRIVATE_LEAK_SECRET_GLOBS",
+        "GIT_DIR",
+        "GIT_INDEX_FILE",
+        "GIT_WORK_TREE",
+    ):
         e.pop(k, None)
     e.update(GIT_ENV)
     return e
 
 
 def _git(repo: Path, *args: str) -> str:
-    return subprocess.run(["git", "-C", str(repo), *args], env=_env(), check=True,
-                          capture_output=True, text=True).stdout
+    return subprocess.run(
+        ["git", "-C", str(repo), *args], env=_env(), check=True, capture_output=True, text=True
+    ).stdout
 
 
 def _checker(repo: Path) -> subprocess.CompletedProcess:
-    return subprocess.run([sys.executable, str(CHECKER), "--root", str(repo), "--audit"],
-                          cwd=repo, env=_env(), capture_output=True, text=True, timeout=60)
+    return subprocess.run(
+        [sys.executable, str(CHECKER), "--root", str(repo), "--audit"],
+        cwd=repo,
+        env=_env(),
+        capture_output=True,
+        text=True,
+        timeout=60,
+    )
 
 
 class Sentinels:
@@ -131,8 +156,12 @@ def _synthetic_aed() -> tuple[dict, Sentinels]:
     for order in ORDERS:
         for label in LABELS:
             for c in CLASS_NAMES:
-                diff[f"{order}|{label}|{c}"] = sen.cplx(("_column_difference", f"{order}|{label}|{c}"))
-            diff[f"{order}|{label}|_rel_norm"] = sen.real(("_column_difference", f"{order}|{label}|_rel_norm"))
+                diff[f"{order}|{label}|{c}"] = sen.cplx(
+                    ("_column_difference", f"{order}|{label}|{c}")
+                )
+            diff[f"{order}|{label}|_rel_norm"] = sen.real(
+                ("_column_difference", f"{order}|{label}|_rel_norm")
+            )
     out["_column_difference"] = diff
     return out, sen
 
@@ -148,14 +177,16 @@ def _expected_cell(where: tuple):
     column, order = blk.split("_", 1)
     zo = order == "zero_order"
     if key in ("elements", "basis_order", "port_model"):
-        row = {"elements": "Elements", "basis_order": "Basis order", "port_model": "Port model"}[key]
+        row = {"elements": "Elements", "basis_order": "Basis order", "port_model": "Port model"}[
+            key
+        ]
         return ("## Solve metadata", (row,), 2 if zo else 3)
     if "|" not in key:
         return None
     label, entry = key.split("|")
     if entry.startswith("class_"):
         section = f"## S-matrix, C4 classes, column {'Cu' if column == 'cu' else 'PEC'}"
-        return (section, (label, column, entry[len("class_"):]), 4 if zo else 5)
+        return (section, (label, column, entry[len("class_") :]), 4 if zo else 5)
     if entry in S_KEYS and column == "cu":
         return (f"### {label}", (entry,), 2 if zo else 3)
     if entry == "identities":
@@ -227,8 +258,10 @@ def test_private_writer_sentinels_tracked_bytes_and_leak_checker(ans6, scratch):
     assert rendered == committed, "tracked render differs from the committed COMPARISON.md"
     tracked_text = rendered.decode()
     assert "7351928" not in tracked_text
-    print(f"[ANS-6 step 3] tracked render == committed COMPARISON.md: "
-          f"{len(rendered)} bytes, byte-identical, 0 sentinels")
+    print(
+        f"[ANS-6 step 3] tracked render == committed COMPARISON.md: "
+        f"{len(rendered)} bytes, byte-identical, 0 sentinels"
+    )
 
     # -- anchor 1: every sentinel once, in its cell; unrendered keys absent ---
     text = private.read_text()
@@ -241,12 +274,13 @@ def test_private_writer_sentinels_tracked_bytes_and_leak_checker(ans6, scratch):
             absent_keys += 1
             continue
         assert count == 1, f"{where}: sentinel appears {count}x"
-        (section, cells, idx), = _locate(text, s)
+        ((section, cells, idx),) = _locate(text, s)
         want_section, want_prefix, want_idx = expect
         assert want_section in section, (where, section)
         assert idx == want_idx, (where, idx, want_idx)
-        assert all(cells[k] == p or cells[k].startswith(p + " ")
-                   for k, p in enumerate(want_prefix)), (where, cells)
+        assert all(
+            cells[k] == p or cells[k].startswith(p + " ") for k, p in enumerate(want_prefix)
+        ), (where, cells)
         rendered_keys += 1
         if where in sen.complex_keys:
             # the imaginary part sits right beside it, in the same cell
@@ -255,9 +289,11 @@ def test_private_writer_sentinels_tracked_bytes_and_leak_checker(ans6, scratch):
         else:
             tokens += 1
     assert rendered_keys > 0
-    print(f"[ANS-6 step 3] sentinels: {len(sen.by_key)} keys; {rendered_keys} rendered "
-          f"exactly once in their cells; {absent_keys} unrendered keys absent; "
-          f"{tokens} sentinel digit tokens in the private render")
+    print(
+        f"[ANS-6 step 3] sentinels: {len(sen.by_key)} keys; {rendered_keys} rendered "
+        f"exactly once in their cells; {absent_keys} unrendered keys absent; "
+        f"{tokens} sentinel digit tokens in the private render"
+    )
 
     # -- anchor 3: scratch repo, ignore rules, --audit clean -------------------
     _git(repo, "add", "-A")
@@ -267,8 +303,9 @@ def test_private_writer_sentinels_tracked_bytes_and_leak_checker(ans6, scratch):
     assert not any("aed_results" in f or "COMPARISON_private" in f for f in files), files
     clean = _checker(repo)
     out = clean.stdout + clean.stderr
-    print(f"[ANS-6 step 3] checker on the tracked render: exit {clean.returncode}; "
-          f"{out.strip()}")
+    print(
+        f"[ANS-6 step 3] checker on the tracked render: exit {clean.returncode}; " f"{out.strip()}"
+    )
     assert "SKIPPED" not in out
     assert clean.returncode == 0 and out.startswith("clean:"), out
     n_ref = int(re.search(r"carry none of the (\d+) reference figures", out).group(1))
@@ -281,9 +318,11 @@ def test_private_writer_sentinels_tracked_bytes_and_leak_checker(ans6, scratch):
     leak = _checker(repo)
     out = leak.stdout + leak.stderr
     hits = re.search(r"(\d+) match\(es\)", out)
-    print(f"[ANS-6 step 3] NEGATIVE CONTROL checker on the leaking variant: exit "
-          f"{leak.returncode}; hits {hits.group(1) if hits else None} "
-          f"(predicted ~ {tokens} sentinel tokens); reference figures {n_ref}")
+    print(
+        f"[ANS-6 step 3] NEGATIVE CONTROL checker on the leaking variant: exit "
+        f"{leak.returncode}; hits {hits.group(1) if hits else None} "
+        f"(predicted ~ {tokens} sentinel tokens); reference figures {n_ref}"
+    )
     assert leak.returncode == 1, out
     assert f"{CASE_REL / 'COMPARISON.md'}:" in out
     assert "7351928" not in out  # locations only, never the figure

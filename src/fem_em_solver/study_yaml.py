@@ -191,7 +191,15 @@ __all__ = ["StudyConfigError", "load_study", "run_study_file"]
 
 SCHEMA_VERSION = 1
 _TOP_KEYS = (
-    "femem", "study", "geometry", "material", "excitation", "conductor", "thermal", "outputs", "tune",
+    "femem",
+    "study",
+    "geometry",
+    "material",
+    "excitation",
+    "conductor",
+    "thermal",
+    "outputs",
+    "tune",
     "load_result",  # `WF-1` step 24 (§9 item 674, U99)
     "implant",  # `WF-15` step 10 (§9 item 709, U97′)
 )
@@ -199,9 +207,7 @@ _CONDUCTOR_KINDS = ("leontovich",)
 # The only bool geometry field settable from YAML (`WF-1` step 4, §9 item 343).
 _SETTABLE_BOOLS = ("as_hole",)
 _REQUIRED_SECTIONS = ("study", "geometry", "material", "excitation")
-_YAML_FLOAT_HINT = (
-    "YAML reads `64.0e6` as a string; write `6.4e+07` or `64000000.0`"
-)
+_YAML_FLOAT_HINT = "YAML reads `64.0e6` as a string; write `6.4e+07` or `64000000.0`"
 _SPHERE_NUMBERS = ("sphere_radius", "box_half_width", "resolution_sphere", "resolution_far")
 _EXCITATION_FOR = {
     "sphere_in_box": "quasi_static_sphere_field",
@@ -240,9 +246,7 @@ def _number(value, field_name, source) -> float:
             "units are given by the key name, never as a string)",
         )
     if not isinstance(value, (int, float)):
-        raise StudyConfigError(
-            source, field_name, f"expected a number, got {type(value).__name__}"
-        )
+        raise StudyConfigError(source, field_name, f"expected a number, got {type(value).__name__}")
     return float(value)
 
 
@@ -265,9 +269,7 @@ def _string(value, field_name, source) -> str:
 def _section(mapping, name, source) -> dict:
     value = mapping[name]
     if not isinstance(value, dict):
-        raise StudyConfigError(
-            source, name, f"expected a mapping, got {type(value).__name__}"
-        )
+        raise StudyConfigError(source, name, f"expected a mapping, got {type(value).__name__}")
     return value
 
 
@@ -342,8 +344,7 @@ def _parse_geometry(sec, source):
             return kind, FClinicalBirdcageGeometry()
         b0 = _number(sec["field_strength_t"], f"{p}.field_strength_t", source)
         if b0 not in (1.5, 3.0):
-            raise StudyConfigError(source, f"{p}.field_strength_t",
-                                   f"must be 1.5 or 3.0, got {b0}")
+            raise StudyConfigError(source, f"{p}.field_strength_t", f"must be 1.5 or 3.0, got {b0}")
         return kind, FClinicalBirdcageGeometry(field_strength_t=float(b0))
 
     if kind == "f_human_birdcage":
@@ -391,7 +392,9 @@ def _parse_geometry(sec, source):
     if "preset" in sec:
         preset = _string(sec["preset"], f"{p}.preset", source)
         if preset != "f_small":
-            raise StudyConfigError(source, f"{p}.preset", f"unknown preset {preset!r} (allowed: f_small)")
+            raise StudyConfigError(
+                source, f"{p}.preset", f"unknown preset {preset!r} (allowed: f_small)"
+            )
     overrides = {}
     for name in names:
         if name not in sec:
@@ -417,9 +420,7 @@ def _parse_geometry(sec, source):
             overrides[name] = _number(value, where, source)
         elif isinstance(default, tuple):
             if not isinstance(value, (list, tuple)) or len(value) != len(default):
-                raise StudyConfigError(
-                    source, where, f"expected a list of {len(default)} numbers"
-                )
+                raise StudyConfigError(source, where, f"expected a list of {len(default)} numbers")
             # A YAML list is a list; the dataclass default is a tuple.
             overrides[name] = tuple(
                 _number(v, f"{where}[{i}]", source) for i, v in enumerate(value)
@@ -440,9 +441,12 @@ def _clinical_rod(sec):
     if set(rod) != {"radius_m", "length_m", "centre_m", "axis"}:
         return None
     try:
-        got = {"radius": float(rod["radius_m"]), "length": float(rod["length_m"]),
-               "centre": tuple(float(v) for v in rod["centre_m"]),
-               "axis": tuple(float(v) for v in rod["axis"])}
+        got = {
+            "radius": float(rod["radius_m"]),
+            "length": float(rod["length_m"]),
+            "centre": tuple(float(v) for v in rod["centre_m"]),
+            "axis": tuple(float(v) for v in rod["axis"]),
+        }
     except (TypeError, ValueError):
         return None
     return got if got == F_CLINICAL_ROD_ENTRY48 else None
@@ -508,10 +512,14 @@ def _parse_material(sec, frequency_hz, source):
 def _parse_excitation(sec, geometry_kind, geometry, source):
     p = "excitation"
     kind = _kind(sec, tuple(_EXCITATION_FOR.values()) + ("capacitor_sheets",), p, source)
-    if kind != _EXCITATION_FOR[geometry_kind] and not (
-        kind == "lumped_port_drive" and geometry_kind == "f_human_birdcage"  # `WF-1` step 12
-    ) and not (
-        kind == "capacitor_sheets" and geometry_kind == "four_port_birdcage"  # `WF-1` step 13
+    if (
+        kind != _EXCITATION_FOR[geometry_kind]
+        and not (
+            kind == "lumped_port_drive" and geometry_kind == "f_human_birdcage"  # `WF-1` step 12
+        )
+        and not (
+            kind == "capacitor_sheets" and geometry_kind == "four_port_birdcage"  # `WF-1` step 13
+        )
     ):
         raise StudyConfigError(
             source,
@@ -641,8 +649,10 @@ def _parse_capacitor_sheets(sec, geometry, source) -> CapacitorSheets:
         sid = _string(v, f"{where}[{i}]", source)
         if sid not in valid:
             raise StudyConfigError(
-                source, f"{where}[{i}]", f"{sid!r} is not a port of this geometry "
-                f"(allowed: {', '.join(sorted(valid, key=lambda s: int(s[1:])))})"
+                source,
+                f"{where}[{i}]",
+                f"{sid!r} is not a port of this geometry "
+                f"(allowed: {', '.join(sorted(valid, key=lambda s: int(s[1:])))})",
             )
         sheets.append(sid)
     if len(set(sheets)) != len(sheets):
@@ -714,7 +724,8 @@ def _parse_thermal(sec, geometry_kind, source, implant=False) -> RobinCooling:
     elif geometry_kind == "f_human_birdcage":  # `WF-1` step 10a (§9 item 431a)
         return _parse_thermal_f_human(sec, source)
     elif geometry_kind == "sphere_in_box" and any(  # `WF-1` step 29 (§9 item 873)
-            k in sec for k in ("transient", "duty", "initial")):
+        k in sec for k in ("transient", "duty", "initial")
+    ):
         return _parse_thermal_sphere_transient(sec, source)
     _unknown(sec, _THERMAL_REQUIRED + ("source_scale", "degree"), p, source)
     _missing(sec, _THERMAL_REQUIRED, p, source)
@@ -762,8 +773,14 @@ def _parse_thermal_f_human(sec, source) -> _FHumanThermal:
     from .study import TransientSpec
 
     p = "thermal"
-    allowed = _THERMAL_REQUIRED + ("source_scale", "degree", "transient", "balls",
-                                   "window_s", "sense")
+    allowed = _THERMAL_REQUIRED + (
+        "source_scale",
+        "degree",
+        "transient",
+        "balls",
+        "window_s",
+        "sense",
+    )
     _unknown(sec, allowed, p, source)
     if "transient" not in sec:
         raise StudyConfigError(
@@ -807,7 +824,8 @@ def _parse_thermal_f_human(sec, source) -> _FHumanThermal:
         tkw["startup_half_steps"] < 0 or tkw["startup_half_steps"] % 2
     ):
         raise StudyConfigError(
-            source, f"{tp}.startup_half_steps",
+            source,
+            f"{tp}.startup_half_steps",
             f"must be a non-negative even integer, got {tkw['startup_half_steps']}",
         )
     transient = TransientSpec(dt_s=dt, n_steps=n_steps, rho_c_j_per_m3_k=rho_c, **tkw)
@@ -857,10 +875,17 @@ def _parse_thermal_rod(sec, source) -> _RodThermal:
     one port at 1 V (``Study.temperature(drive=...)``).
     """
     p = "thermal"
-    _unknown(sec, _THERMAL_REQUIRED + ("source_scale", "degree", "transient", "balls", "drive"),
-             p, source)
-    for key, what in (("transient", "a transient Study"), ("balls", "1 g ball centres"),
-                      ("drive", "one port name")):
+    _unknown(
+        sec,
+        _THERMAL_REQUIRED + ("source_scale", "degree", "transient", "balls", "drive"),
+        p,
+        source,
+    )
+    for key, what in (
+        ("transient", "a transient Study"),
+        ("balls", "1 g ball centres"),
+        ("drive", "one port name"),
+    ):
         if key not in sec:
             raise StudyConfigError(
                 source, p, f"the implant-rod four_port_birdcage needs `thermal.{key}` ({what})"
@@ -918,7 +943,8 @@ def _parse_thermal_sphere_transient(sec, source) -> _BallThermal:
         raise StudyConfigError(source, f"{p}.duty", _SPHERE_DUTY_REFUSAL)
     if "initial" in sec:
         raise StudyConfigError(
-            source, f"{p}.initial",
+            source,
+            f"{p}.initial",
             "initial_gradient_k_per_m is defined on a ThermalBoxGeometry only",
         )
     # Copied from _parse_thermal_box_mapping's transient block (gradient lines
@@ -953,19 +979,16 @@ def _parse_thermal_sphere_transient(sec, source) -> _BallThermal:
             source, f"{tp}.rho_c_j_per_m3_k", f"must be finite and > 0, got {rho_c!r}"
         )
     if "theta" in tkw and not 0.0 <= tkw["theta"] <= 1.0:
-        raise StudyConfigError(
-            source, f"{tp}.theta", f"must be in [0, 1], got {tkw['theta']!r}"
-        )
+        raise StudyConfigError(source, f"{tp}.theta", f"must be in [0, 1], got {tkw['theta']!r}")
     if "startup_half_steps" in tkw and (
         tkw["startup_half_steps"] < 0 or tkw["startup_half_steps"] % 2
     ):
         raise StudyConfigError(
-            source, f"{tp}.startup_half_steps",
+            source,
+            f"{tp}.startup_half_steps",
             f"must be a non-negative even integer, got {tkw['startup_half_steps']}",
         )
-    transient = TransientSpec(
-        dt_s=t_end / n_steps, n_steps=n_steps, rho_c_j_per_m3_k=rho_c, **tkw
-    )
+    transient = TransientSpec(dt_s=t_end / n_steps, n_steps=n_steps, rho_c_j_per_m3_k=rho_c, **tkw)
     base = {k: sec[k] for k in sec if k != "transient"}
     cooling = _parse_thermal(base, "sphere_in_box", source)
     return _BallThermal(cooling, transient, None)
@@ -1021,7 +1044,8 @@ def _parse_thermal_ball_mapping(mapping, source):
     _unknown(sec, _THERMAL_REQUIRED + ("degree", "source_scale", "transient", "duty"), p, source)
     if "source_scale" in sec:
         raise StudyConfigError(
-            source, f"{p}.source_scale",
+            source,
+            f"{p}.source_scale",
             "applies to an EM source; scale `excitation.q_w_per_m3` instead",
         )
     if "transient" not in sec:
@@ -1062,7 +1086,8 @@ def _parse_thermal_ball_mapping(mapping, source):
         tkw["startup_half_steps"] < 0 or tkw["startup_half_steps"] % 2
     ):
         raise StudyConfigError(
-            source, f"{tp}.startup_half_steps",
+            source,
+            f"{tp}.startup_half_steps",
             f"must be a non-negative even integer, got {tkw['startup_half_steps']}",
         )
     transient = TransientSpec(dt_s=dt, n_steps=n_steps, rho_c_j_per_m3_k=rho_c, **tkw)
@@ -1088,7 +1113,9 @@ def _parse_thermal_ball_mapping(mapping, source):
         if "directory" in osec:
             outputs["directory"] = _string(osec["directory"], "outputs.directory", source)
         if "probes" in osec:  # `WF-1` step 19 (§9 item 545)
-            if wall is not None:  # review ruling 2026-10-19 03:00, Q3: no gel-plus-wall probe record
+            if (
+                wall is not None
+            ):  # review ruling 2026-10-19 03:00, Q3: no gel-plus-wall probe record
                 raise StudyConfigError(
                     source, "outputs.probes", "probes are not admitted beside `geometry.wall`"
                 )
@@ -1176,18 +1203,23 @@ def _parse_thermal_box_mapping(mapping, source):
         _unknown(ssec, ("kind",), sp, source)
         source_kind = _kind(ssec, ("uniform", "transverse_quadratic"), sp, source)
     heat_source = (
-        TransverseQuadraticHeatSource(q) if source_kind == "transverse_quadratic"
+        TransverseQuadraticHeatSource(q)
+        if source_kind == "transverse_quadratic"
         else UniformHeatSource(q)
     )
 
     p = "thermal"
     sec = _section(mapping, "thermal", source)
-    _unknown(sec, _THERMAL_REQUIRED + ("degree", "source_scale", "transient", "duty", "initial",
-                                       "dose"),
-             p, source)
+    _unknown(
+        sec,
+        _THERMAL_REQUIRED + ("degree", "source_scale", "transient", "duty", "initial", "dose"),
+        p,
+        source,
+    )
     if "source_scale" in sec:
         raise StudyConfigError(
-            source, f"{p}.source_scale",
+            source,
+            f"{p}.source_scale",
             "applies to an EM source; scale `excitation.q_w_per_m3` instead",
         )
     if "duty" in sec and "transient" not in sec:
@@ -1196,7 +1228,9 @@ def _parse_thermal_box_mapping(mapping, source):
         if "transient" not in sec:
             raise StudyConfigError(source, f"{p}.dose", "needs `thermal.transient`")
         if "duty" in sec:
-            raise StudyConfigError(source, f"{p}.dose", "a dose is not admitted beside `thermal.duty`")
+            raise StudyConfigError(
+                source, f"{p}.dose", "a dose is not admitted beside `thermal.duty`"
+            )
         if source_kind != "uniform":
             raise StudyConfigError(
                 source, f"{p}.dose", "a dose is admitted with a uniform source only"
@@ -1263,7 +1297,8 @@ def _parse_thermal_box_mapping(mapping, source):
             tkw["startup_half_steps"] < 0 or tkw["startup_half_steps"] % 2
         ):
             raise StudyConfigError(
-                source, f"{tp}.startup_half_steps",
+                source,
+                f"{tp}.startup_half_steps",
                 f"must be a non-negative even integer, got {tkw['startup_half_steps']}",
             )
         if gradient is not None:
@@ -1296,10 +1331,10 @@ def _parse_thermal_box_mapping(mapping, source):
         _missing(osec_d, ("points_m",), op, source)
         pts = _triples(osec_d["points_m"], f"{op}.points_m", source)
         for i, pt in enumerate(pts):
-            if not all(math.isfinite(c) for c in pt) or any(
-                    abs(c) > h for c, h in zip(pt, half)):
+            if not all(math.isfinite(c) for c in pt) or any(abs(c) > h for c, h in zip(pt, half)):
                 raise StudyConfigError(
-                    source, f"{op}.points_m[{i}]",
+                    source,
+                    f"{op}.points_m[{i}]",
                     f"must be a finite point inside the gel box [-a, a] x [-b, b] x [-c, c] "
                     f"= {half!r}, got {list(pt)!r}",
                 )
@@ -1403,9 +1438,7 @@ def _parse_probes(value, geometry_kind, has_thermal, source) -> tuple:
     for i, entry in enumerate(value):
         where = f"{p}[{i}]"
         if not isinstance(entry, dict):
-            raise StudyConfigError(
-                source, where, f"expected a mapping, got {type(entry).__name__}"
-            )
+            raise StudyConfigError(source, where, f"expected a mapping, got {type(entry).__name__}")
         _unknown(entry, ("centre", "radius"), where, source)
         _missing(entry, ("centre", "radius"), where, source)
         centre = _triple(entry["centre"], f"{where}.centre", source)
@@ -1432,9 +1465,7 @@ def _parse_box_probes(value, source) -> tuple:
     for i, entry in enumerate(value):
         where = f"{p}[{i}]"
         if not isinstance(entry, dict):
-            raise StudyConfigError(
-                source, where, f"expected a mapping, got {type(entry).__name__}"
-            )
+            raise StudyConfigError(source, where, f"expected a mapping, got {type(entry).__name__}")
         _unknown(entry, ("centre", "radius"), where, source)
         _missing(entry, ("centre", "radius"), where, source)
         centre = _triple(entry["centre"], f"{where}.centre", source)
@@ -1472,7 +1503,8 @@ def _parse_outputs(sec, geometry_kind, source, has_thermal=False) -> dict:
         if key in sec:
             if geometry_kind not in ("four_port_birdcage", "f_human_birdcage"):
                 raise StudyConfigError(
-                    source, f"{p}.{key}",
+                    source,
+                    f"{p}.{key}",
                     f"{key} is defined only on a four_port_birdcage, not {geometry_kind!r}",
                 )
             out[key] = parse(sec[key], source)
@@ -1488,7 +1520,11 @@ def _parse_outputs(sec, geometry_kind, source, has_thermal=False) -> dict:
                     "give a list of [x, y, z] centres",
                 )
     if "probes" in sec:
-        out["probes"] = _parse_em_probes(sec["probes"], source) if geometry_kind == "four_port_birdcage" else _parse_probes(sec["probes"], geometry_kind, has_thermal, source)  # `WF-1` step 20
+        out["probes"] = (
+            _parse_em_probes(sec["probes"], source)
+            if geometry_kind == "four_port_birdcage"
+            else _parse_probes(sec["probes"], geometry_kind, has_thermal, source)
+        )  # `WF-1` step 20
     return out
 
 
@@ -1505,8 +1541,10 @@ def _parse_tune(sec, geometry_kind, source, excitation=None, has_load_result=Fal
     p = "tune"
     if not (
         geometry_kind == "four_port_birdcage"
-        or (geometry_kind in ("f_human_birdcage", "f_clinical_birdcage")
-            and isinstance(excitation, LumpedPortDrive))
+        or (
+            geometry_kind in ("f_human_birdcage", "f_clinical_birdcage")
+            and isinstance(excitation, LumpedPortDrive)
+        )
     ):
         raise StudyConfigError(
             source,
@@ -1555,17 +1593,25 @@ def _parse_sweep(sec, kind, geometry, excitation, conductor, outputs, has_tune, 
     for a, b in zip(freqs, freqs[1:]):
         if not b > a:
             raise StudyConfigError(
-                source, p, f"must be strictly increasing (Touchstone needs sorted points): {a!r} then {b!r}"
+                source,
+                p,
+                f"must be strictly increasing (Touchstone needs sorted points): {a!r} then {b!r}",
             )
     if kind != "four_port_birdcage":
-        raise StudyConfigError(source, p, f"a sweep is defined on a four_port_birdcage only, not {kind}")
+        raise StudyConfigError(
+            source, p, f"a sweep is defined on a four_port_birdcage only, not {kind}"
+        )
     if not isinstance(excitation, LumpedPortDrive):
         raise StudyConfigError(
-            source, p, "a sweep needs excitation.kind lumped_port_drive (Study.solve_sweep refuses others)"
+            source,
+            p,
+            "a sweep needs excitation.kind lumped_port_drive (Study.solve_sweep refuses others)",
         )
     if conductor is not None:
         raise StudyConfigError(
-            source, p, "a sweep with a conductor is not supported (Study.solve_sweep has no conductor route)"
+            source,
+            p,
+            "a sweep with a conductor is not supported (Study.solve_sweep has no conductor route)",
         )
     if getattr(geometry, "as_hole", False):
         raise StudyConfigError(source, p, "a sweep on geometry.as_hole: true is not supported")
@@ -1597,7 +1643,9 @@ def _refuse_with_load_result(mapping, source) -> None:
         for key in ("sar", "b1_plus", "probes"):
             if key in outs:
                 raise StudyConfigError(
-                    source, f"outputs.{key}", f"outputs.{key} is not supported with load_result: {why}"
+                    source,
+                    f"outputs.{key}",
+                    f"outputs.{key} is not supported with load_result: {why}",
                 )
     if "tune" not in mapping:
         raise StudyConfigError(source, "load_result", "load_result needs a tune section")
@@ -1613,8 +1661,10 @@ def _parse_load_result(value, kind, excitation, source) -> Path:
     # `WF-1` step 25 (§9 item 697), step 26 (§9 item 714)
     if kind not in ("four_port_birdcage", "f_clinical_birdcage", "f_human_birdcage"):
         raise StudyConfigError(
-            source, p, "load_result is defined on a four_port_birdcage, an f_clinical_birdcage "
-            f"or an f_human_birdcage only, not {kind}"
+            source,
+            p,
+            "load_result is defined on a four_port_birdcage, an f_clinical_birdcage "
+            f"or an f_human_birdcage only, not {kind}",
         )
     if not isinstance(excitation, LumpedPortDrive):
         raise StudyConfigError(source, p, "load_result needs excitation.kind lumped_port_drive")
@@ -1635,22 +1685,30 @@ def _parse_mapping(mapping, source):
             source, "<document>", f"expected a mapping at top level, got {type(mapping).__name__}"
         )
     if "femem" not in mapping:
-        raise StudyConfigError(source, "femem", f"required key is missing (schema version {SCHEMA_VERSION})")
+        raise StudyConfigError(
+            source, "femem", f"required key is missing (schema version {SCHEMA_VERSION})"
+        )
     version = _integer(mapping["femem"], "femem", source)
     if version != SCHEMA_VERSION:
-        raise StudyConfigError(source, "femem", f"unsupported schema version {version} (this is {SCHEMA_VERSION})")
+        raise StudyConfigError(
+            source, "femem", f"unsupported schema version {version} (this is {SCHEMA_VERSION})"
+        )
     for key in mapping:
         if key not in _TOP_KEYS:
             raise StudyConfigError(
                 source, str(key), f"unknown top-level key (allowed: {', '.join(_TOP_KEYS)})"
             )
     geo = mapping.get("geometry")  # `WF-1` step 14 (§9 item 500)
-    if "load_result" in mapping and isinstance(geo, dict) and geo.get("kind") in (
-        "thermal_ball", "thermal_box"
+    if (
+        "load_result" in mapping
+        and isinstance(geo, dict)
+        and geo.get("kind") in ("thermal_ball", "thermal_box")
     ):  # `WF-1` step 24 (§9 item 674)
         raise StudyConfigError(
-            source, "load_result", "load_result is defined on a four_port_birdcage, an "
-            f"f_clinical_birdcage or an f_human_birdcage only, not {geo.get('kind')}"
+            source,
+            "load_result",
+            "load_result is defined on a four_port_birdcage, an "
+            f"f_clinical_birdcage or an f_human_birdcage only, not {geo.get('kind')}",
         )
     if isinstance(geo, dict) and geo.get("kind") == "thermal_ball":
         return _parse_thermal_ball_mapping(mapping, source)
@@ -1668,21 +1726,21 @@ def _parse_mapping(mapping, source):
     material = _parse_material(
         _section(mapping, "material", source), study_kwargs["frequency_hz"], source
     )
-    excitation = _parse_excitation(
-        _section(mapping, "excitation", source), kind, geometry, source
-    )
+    excitation = _parse_excitation(_section(mapping, "excitation", source), kind, geometry, source)
     if "implant" in mapping:  # `WF-15` step 12 (§9 item 729): `Study`'s rod refusals, by field
         # `WF-15` step 13 (§9 item 802): admitted on the gated path only -- the PEC
         # four-port (no ``as_hole``, no ``conductor:``), at degree 1 (`study.degree` below).
         if isinstance(excitation, CapacitorSheets) and (
-                getattr(geometry, "as_hole", False) or "conductor" in mapping):
+            getattr(geometry, "as_hole", False) or "conductor" in mapping
+        ):
             raise StudyConfigError(
                 source, "implant", "implant with capacitor_sheets is not gated (WF-15 step 12)"
             )
         # Omitted means the Study's own default, degree 2 (see `_parse_study`).
         if study_kwargs.get("degree") != 1:
             raise StudyConfigError(
-                source, "study.degree",
+                source,
+                "study.degree",
                 f"implant needs degree 1, got {study_kwargs.get('degree', 'the default')} "
                 "(WF-15 step 12)",
             )
@@ -1698,8 +1756,9 @@ def _parse_mapping(mapping, source):
             "required section is missing: two_port_quadrature needs a leontovich conductor",
         )
     cooling = (
-        _parse_thermal(_section(mapping, "thermal", source), kind, source,
-                       implant="implant" in mapping)
+        _parse_thermal(
+            _section(mapping, "thermal", source), kind, source, implant="implant" in mapping
+        )
         if "thermal" in mapping
         else None
     )
@@ -1710,8 +1769,10 @@ def _parse_mapping(mapping, source):
     ring = kind == "f_human_birdcage" and isinstance(excitation, LumpedPortDrive)  # `WF-1` step 12
     if ring and cooling is not None:  # E4: the per-sense routes need two_port_quadrature
         raise StudyConfigError(
-            source, "thermal", "lumped_port_drive on an f_human_birdcage has no thermal route "
-            "(use two_port_quadrature)"
+            source,
+            "thermal",
+            "lumped_port_drive on an f_human_birdcage has no thermal route "
+            "(use two_port_quadrature)",
         )
     outputs = (
         _parse_outputs(
@@ -1722,46 +1783,60 @@ def _parse_mapping(mapping, source):
     )
     if isinstance(cooling, _BallThermal) and "probes" in outputs:  # `WF-1` step 29 (§9 item 873)
         raise StudyConfigError(
-            source, "outputs.probes", "transient probes are not defined on the EM sphere "
-            "(WF-15 step 15 gates temperature only)"
+            source,
+            "outputs.probes",
+            "transient probes are not defined on the EM sphere "
+            "(WF-15 step 15 gates temperature only)",
         )
     for key in ("sar", "b1_plus"):  # E4 (`WF-1` step 12, §9 item 484)
         if ring and key in outputs:
             raise StudyConfigError(
-                source, f"outputs.{key}", "lumped_port_drive on an f_human_birdcage has no "
-                f"{key} route (use two_port_quadrature)"
+                source,
+                f"outputs.{key}",
+                "lumped_port_drive on an f_human_birdcage has no "
+                f"{key} route (use two_port_quadrature)",
             )
     caps = isinstance(excitation, CapacitorSheets)  # `WF-1` step 13 (§9 item 496)
     for key in ("sar", "b1_plus"):
         if caps and key in outputs:
             raise StudyConfigError(
-                source, f"outputs.{key}", f"capacitor_sheets has no {key} route "
-                "(Study refuses a CapacitorSheets Study)"
+                source,
+                f"outputs.{key}",
+                f"capacitor_sheets has no {key} route " "(Study refuses a CapacitorSheets Study)",
             )
     if kind == "four_port_birdcage" and "probes" in outputs:  # `WF-1` step 20 (§9 item 564)
         if caps:
             raise StudyConfigError(
-                source, "outputs.probes", "capacitor_sheets has no probes route "
-                "(Study refuses a CapacitorSheets Study)"
+                source,
+                "outputs.probes",
+                "capacitor_sheets has no probes route " "(Study refuses a CapacitorSheets Study)",
             )
         for i, (x, y, z) in enumerate(outputs["probes"]):  # sigma and rho are the phantom's
-            if not (math.hypot(x, y) < geometry.phantom_radius
-                    and abs(z) < geometry.phantom_height / 2.0):
+            if not (
+                math.hypot(x, y) < geometry.phantom_radius
+                and abs(z) < geometry.phantom_height / 2.0
+            ):
                 raise StudyConfigError(
-                    source, f"outputs.probes.points[{i}]",
+                    source,
+                    f"outputs.probes.points[{i}]",
                     f"({x!r}, {y!r}, {z!r}) is outside the phantom (r < "
                     f"{geometry.phantom_radius!r}, |z| < {geometry.phantom_height / 2.0!r})",
                 )
     if caps and "tune" in mapping:
         raise StudyConfigError(
-            source, "tune", "capacitor_sheets has no tune route (Study.tune refuses a "
-            "CapacitorSheets Study; c_f is an input)"
+            source,
+            "tune",
+            "capacitor_sheets has no tune route (Study.tune refuses a "
+            "CapacitorSheets Study; c_f is an input)",
         )
     if "tune" in mapping:  # `WF-1` step 11 (§9 item 442): rides in outputs (4-tuple kept)
         outputs = {
             **outputs,
             "tune": _parse_tune(
-                _section(mapping, "tune", source), kind, source, excitation,
+                _section(mapping, "tune", source),
+                kind,
+                source,
+                excitation,
                 has_load_result="load_result" in mapping,
             ),
         }
@@ -1769,8 +1844,14 @@ def _parse_mapping(mapping, source):
         outputs = {
             **outputs,
             "sweep_hz": _parse_sweep(
-                mapping["study"], kind, geometry, excitation, conductor, outputs,
-                "tune" in mapping, source,
+                mapping["study"],
+                kind,
+                geometry,
+                excitation,
+                conductor,
+                outputs,
+                "tune" in mapping,
+                source,
             ),
         }
     if "load_result" in mapping:  # `WF-1` step 24 (§9 item 674): rides in outputs
@@ -1780,7 +1861,11 @@ def _parse_mapping(mapping, source):
         }
     frequency_hz = study_kwargs.pop("frequency_hz")
     study = Study(
-        geometry, material, excitation, frequency_hz=frequency_hz, conductor=conductor,
+        geometry,
+        material,
+        excitation,
+        frequency_hz=frequency_hz,
+        conductor=conductor,
         **study_kwargs,
     )
     return study, kind, outputs, cooling
@@ -1842,7 +1927,9 @@ def _read_mapping(path: Path):
         except _DuplicateKey as dup:
             parts = _path_of(root, dup.node) or ()
             raise StudyConfigError(
-                path, ".".join(parts + (str(dup.key),)), "duplicate key (YAML would keep the last silently)"
+                path,
+                ".".join(parts + (str(dup.key),)),
+                "duplicate key (YAML would keep the last silently)",
             ) from None
         except yaml.YAMLError as exc:
             raise StudyConfigError(path, "<yaml>", f"not valid YAML: {exc}") from None
@@ -2055,16 +2142,20 @@ def _run_thermal_ball(study, kind, cooling, path, out, digest, started, comm) ->
             "rho_c_j_per_m3_k": float(tr.rho_c_j_per_m3_k),
             "thermal_degree": int(cooling.cooling.degree),
             "q_w_per_m3": float(study.excitation.q_w_per_m3),
-            "duty": None
-            if duty is None
-            else {"period_s": float(duty.period_s), "duty": float(duty.duty)},
-            "wall": None
-            if wall is None
-            else {
-                "thickness_m": float(wall.thickness_m),
-                "k_w_per_m_k": float(wall.k_w_per_m_k),
-                "rho_c_j_per_m3_k": float(wall.rho_c_j_per_m3_k),
-            },
+            "duty": (
+                None
+                if duty is None
+                else {"period_s": float(duty.period_s), "duty": float(duty.duty)}
+            ),
+            "wall": (
+                None
+                if wall is None
+                else {
+                    "thickness_m": float(wall.thickness_m),
+                    "k_w_per_m_k": float(wall.k_w_per_m_k),
+                    "rho_c_j_per_m3_k": float(wall.rho_c_j_per_m3_k),
+                }
+            ),
             "source_multipliers": [float(m) for m in thermal.source_multipliers],
             "source_power_w": float(np.real(thermal.source_power)),
             "max_balance_residual": float(thermal.max_balance_residual),
@@ -2079,7 +2170,10 @@ def _run_thermal_ball(study, kind, cooling, path, out, digest, started, comm) ->
             json.dump(summary, fh, indent=1)
     comm.Barrier()
     return StudyRun(
-        study=study, result=None, summary=summary, paths={"summary": summary_path},
+        study=study,
+        result=None,
+        summary=summary,
+        paths={"summary": summary_path},
         thermal=thermal,
     )
 
@@ -2089,8 +2183,11 @@ def _run_rod_thermal(study, kind, cooling, path, out, digest, started, comm) -> 
     ``Study.temperature(drive=...)`` only -- one port-fields solve, no S summary --
     writing the per-ball θ series and the energy balance."""
     thermal = study.temperature(
-        cooling.cooling, transient=cooling.transient, balls=cooling.balls,
-        drive=cooling.drive, comm=comm,
+        cooling.cooling,
+        transient=cooling.transient,
+        balls=cooling.balls,
+        drive=cooling.drive,
+        comm=comm,
     )
     tr = cooling.transient
     summary = {
@@ -2134,7 +2231,10 @@ def _run_rod_thermal(study, kind, cooling, path, out, digest, started, comm) -> 
             json.dump(summary, fh, indent=1)
     comm.Barrier()
     return StudyRun(
-        study=study, result=None, summary=summary, paths={"summary": summary_path},
+        study=study,
+        result=None,
+        summary=summary,
+        paths={"summary": summary_path},
         thermal=thermal,
     )
 
@@ -2158,18 +2258,20 @@ def _run_thermal_box(study, kind, cooling, path, out, digest, started, comm) -> 
         "divisions": [int(v) for v in study.geometry.divisions],
         "thermal_degree": int(cooling.cooling.degree),
         "q_w_per_m3": float(study.excitation.q_w_per_m3),
-        "transient": None
-        if tr is None
-        else {
-            "dt_s": float(tr.dt_s),
-            "n_steps": int(tr.n_steps),
-            "theta": float(tr.theta),
-            "startup_half_steps": int(tr.startup_half_steps),
-            "rho_c_j_per_m3_k": float(tr.rho_c_j_per_m3_k),
-        },
-        "duty": None
-        if duty is None
-        else {"period_s": float(duty.period_s), "duty": float(duty.duty)},
+        "transient": (
+            None
+            if tr is None
+            else {
+                "dt_s": float(tr.dt_s),
+                "n_steps": int(tr.n_steps),
+                "theta": float(tr.theta),
+                "startup_half_steps": int(tr.startup_half_steps),
+                "rho_c_j_per_m3_k": float(tr.rho_c_j_per_m3_k),
+            }
+        ),
+        "duty": (
+            None if duty is None else {"period_s": float(duty.period_s), "duty": float(duty.duty)}
+        ),
         "source_power_w": float(np.real(thermal.source_power)),
     }
     if tr is None:
@@ -2179,7 +2281,8 @@ def _run_thermal_box(study, kind, cooling, path, out, digest, started, comm) -> 
         temp["max_balance_residual"] = float(thermal.max_balance_residual)
     temp["theta_max_k"] = float(comm.allreduce(local, op=MPI.MAX))
     temp["source"] = (  # `WF-1` step 16 (§9 item 528)
-        "transverse_quadratic" if isinstance(study.excitation, TransverseQuadraticHeatSource)
+        "transverse_quadratic"
+        if isinstance(study.excitation, TransverseQuadraticHeatSource)
         else "uniform"
     )
     w = study.geometry.wall  # `WF-1` step 28 (§9 item 830): keys only when set
@@ -2209,13 +2312,17 @@ def _run_thermal_box(study, kind, cooling, path, out, digest, started, comm) -> 
             json.dump(summary, fh, indent=1)
     comm.Barrier()
     return StudyRun(
-        study=study, result=None, summary=summary, paths={"summary": summary_path},
+        study=study,
+        result=None,
+        summary=summary,
+        paths={"summary": summary_path},
         thermal=thermal,
     )
 
 
-def _run_thermal_box_dose(study, kind, cooling, outputs, path, out, digest, started,
-                          comm) -> StudyRun:
+def _run_thermal_box_dose(
+    study, kind, cooling, outputs, path, out, digest, started, comm
+) -> StudyRun:
     """A ``thermal_box`` file with ``thermal.dose`` (`WF-1` step 30, §9 item 878).
 
     ``_run_thermal_box``'s lines (`WF-1` step 15's span, copied, that function
@@ -2226,7 +2333,10 @@ def _run_thermal_box_dose(study, kind, cooling, outputs, path, out, digest, star
     import numpy as np
 
     thermal = study.temperature(
-        cooling.cooling, transient=cooling.transient, duty=cooling.duty, dose=outputs["dose"],
+        cooling.cooling,
+        transient=cooling.transient,
+        duty=cooling.duty,
+        dose=outputs["dose"],
         comm=comm,
     )
     tr, duty = cooling.transient, cooling.duty
@@ -2241,18 +2351,20 @@ def _run_thermal_box_dose(study, kind, cooling, outputs, path, out, digest, star
         "divisions": [int(v) for v in study.geometry.divisions],
         "thermal_degree": int(cooling.cooling.degree),
         "q_w_per_m3": float(study.excitation.q_w_per_m3),
-        "transient": None
-        if tr is None
-        else {
-            "dt_s": float(tr.dt_s),
-            "n_steps": int(tr.n_steps),
-            "theta": float(tr.theta),
-            "startup_half_steps": int(tr.startup_half_steps),
-            "rho_c_j_per_m3_k": float(tr.rho_c_j_per_m3_k),
-        },
-        "duty": None
-        if duty is None
-        else {"period_s": float(duty.period_s), "duty": float(duty.duty)},
+        "transient": (
+            None
+            if tr is None
+            else {
+                "dt_s": float(tr.dt_s),
+                "n_steps": int(tr.n_steps),
+                "theta": float(tr.theta),
+                "startup_half_steps": int(tr.startup_half_steps),
+                "rho_c_j_per_m3_k": float(tr.rho_c_j_per_m3_k),
+            }
+        ),
+        "duty": (
+            None if duty is None else {"period_s": float(duty.period_s), "duty": float(duty.duty)}
+        ),
         "source_power_w": float(np.real(thermal.source_power)),
     }
     if tr is None:
@@ -2262,7 +2374,8 @@ def _run_thermal_box_dose(study, kind, cooling, outputs, path, out, digest, star
         temp["max_balance_residual"] = float(thermal.max_balance_residual)
     temp["theta_max_k"] = float(comm.allreduce(local, op=MPI.MAX))
     temp["source"] = (  # `WF-1` step 16 (§9 item 528)
-        "transverse_quadratic" if isinstance(study.excitation, TransverseQuadraticHeatSource)
+        "transverse_quadratic"
+        if isinstance(study.excitation, TransverseQuadraticHeatSource)
         else "uniform"
     )
     w = study.geometry.wall  # `WF-1` step 28 (§9 item 830): keys only when set
@@ -2293,13 +2406,17 @@ def _run_thermal_box_dose(study, kind, cooling, outputs, path, out, digest, star
             json.dump(summary, fh, indent=1)
     comm.Barrier()
     return StudyRun(
-        study=study, result=None, summary=summary, paths={"summary": summary_path},
+        study=study,
+        result=None,
+        summary=summary,
+        paths={"summary": summary_path},
         thermal=thermal,
     )
 
 
-def _run_thermal_box_probes(study, kind, cooling, outputs, path, out, digest, started,
-                            comm) -> StudyRun:
+def _run_thermal_box_probes(
+    study, kind, cooling, outputs, path, out, digest, started, comm
+) -> StudyRun:
     """A ``thermal_box`` file with ``outputs.probes`` (`WF-1` step 17, §9 item 539).
 
     ``_run_thermal_box`` unedited, then ``Study.probe`` (collective; it
@@ -2327,8 +2444,9 @@ def _run_thermal_box_probes(study, kind, cooling, outputs, path, out, digest, st
     return run
 
 
-def _run_thermal_ball_probes(study, kind, cooling, outputs, path, out, digest, started,
-                             comm) -> StudyRun:
+def _run_thermal_ball_probes(
+    study, kind, cooling, outputs, path, out, digest, started, comm
+) -> StudyRun:
     """A ``thermal_ball`` file with ``outputs.probes`` (`WF-1` step 19, §9 item 545).
 
     ``_run_thermal_box_probes`` copied with ``_run_thermal_ball`` in place of
@@ -2377,23 +2495,30 @@ def _palace_input_refusal(study, path, comm):
         raise StudyConfigError(path, "--backend", "palace: geometry.as_hole is not supported")
     if comm.size != 1:
         raise StudyConfigError(
-            path, "--backend",
+            path,
+            "--backend",
             f"palace: a {comm.size}-rank launch is not supported "
-            "(the case writer is serial; run at mpiexec -n 1)")
+            "(the case writer is serial; run at mpiexec -n 1)",
+        )
 
 
-def _run_palace(study, kind, outputs, path, out, digest, started, comm,
-                *, cooling=None) -> StudyRun:
+def _run_palace(
+    study, kind, outputs, path, out, digest, started, comm, *, cooling=None
+) -> StudyRun:
     """`ARCH-1` step 1a (§9 item 517): write / read a Palace case; S only."""
     if kind != "four_port_birdcage":
-        raise StudyConfigError(path, "--backend", f"palace supports four_port_birdcage only, got {kind}")
+        raise StudyConfigError(
+            path, "--backend", f"palace supports four_port_birdcage only, got {kind}"
+        )
     if cooling is not None:  # `ARCH-1` step 1d (§9 item 590)
         raise StudyConfigError(path, "--backend", "palace: thermal is not supported")
     for key in sorted(outputs):  # `ARCH-1` step 1d (§9 item 590): allow-list
         if key not in _PALACE_ROUTED_OUTPUTS:
             raise StudyConfigError(
-                path, "--backend",
-                f"palace: {_PALACE_OUTPUT_FIELD.get(key, 'outputs.' + key)} is not supported")
+                path,
+                "--backend",
+                f"palace: {_PALACE_OUTPUT_FIELD.get(key, 'outputs.' + key)} is not supported",
+            )
     if study.conductor is not None:
         raise StudyConfigError(path, "--backend", "palace: a conductor is not supported")
     if isinstance(study.excitation, CapacitorSheets):
@@ -2423,8 +2548,7 @@ def _run_palace(study, kind, outputs, path, out, digest, started, comm,
     out.mkdir(parents=True, exist_ok=True)
     with open(summary_path, "w") as fh:
         json.dump(summary, fh, indent=1)
-    return StudyRun(study=study, result=result, summary=summary,
-                    paths={"summary": summary_path})
+    return StudyRun(study=study, result=result, summary=summary, paths={"summary": summary_path})
 
 
 def _run_four_port_sweep(study, kind, outputs, path, out, digest, started, comm) -> StudyRun:
@@ -2455,8 +2579,12 @@ def _run_four_port_sweep(study, kind, outputs, path, out, digest, started, comm)
         with open(summary_path, "w") as fh:
             json.dump(summary, fh, indent=1)
     comm.Barrier()
-    return StudyRun(study=study, result=sw, summary=summary,
-                    paths={"summary": summary_path, "touchstone": touchstone})
+    return StudyRun(
+        study=study,
+        result=sw,
+        summary=summary,
+        paths={"summary": summary_path, "touchstone": touchstone},
+    )
 
 
 def _run_load_result(study, kind, outputs, path, out, digest, started, comm) -> StudyRun:
@@ -2472,8 +2600,11 @@ def _run_load_result(study, kind, outputs, path, out, digest, started, comm) -> 
         if len(freqs) < 2:
             raise StudyConfigError(path, "tune.at_hz", "at_hz needs a multi-frequency load_result")
         if not min(freqs) <= at_hz <= max(freqs):
-            raise StudyConfigError(path, "tune.at_hz", f"{at_hz!r} Hz is outside the file's "
-                                   f"span [{min(freqs)!r}, {max(freqs)!r}] Hz")
+            raise StudyConfigError(
+                path,
+                "tune.at_hz",
+                f"{at_hz!r} Hz is outside the file's " f"span [{min(freqs)!r}, {max(freqs)!r}] Hz",
+            )
     summary = {
         "femem": SCHEMA_VERSION,
         "source": str(path),
@@ -2497,8 +2628,9 @@ def _run_load_result(study, kind, outputs, path, out, digest, started, comm) -> 
     return StudyRun(study=study, result=loaded, summary=summary, paths={"summary": summary_path})
 
 
-def _run_study_file_palace(path, *, output_dir=None,
-                           comm: MPI.Intracomm = MPI.COMM_WORLD) -> StudyRun:
+def _run_study_file_palace(
+    path, *, output_dir=None, comm: MPI.Intracomm = MPI.COMM_WORLD
+) -> StudyRun:
     """``femem run --backend palace``: ``run_study_file``'s prelude, then the
     Palace write / read stages. Private, so the generated API page of
     ``run_study_file`` is unchanged (`WF-17` (G))."""
@@ -2507,8 +2639,10 @@ def _run_study_file_palace(path, *, output_dir=None,
     study, kind, outputs, cooling = _load(path)
     if kind == "f_clinical_birdcage":  # `WF-13` step 12 (§9 item 663): before any mesh
         raise StudyConfigError(
-            path, "geometry.kind", f"f_clinical_birdcage solve is {_f_clinical_tier(study.degree)} "
-            "(use `femem run --estimate`)"
+            path,
+            "geometry.kind",
+            f"f_clinical_birdcage solve is {_f_clinical_tier(study.degree)} "
+            "(use `femem run --estimate`)",
         )
     out = Path(
         output_dir
@@ -2516,8 +2650,7 @@ def _run_study_file_palace(path, *, output_dir=None,
         else outputs.get("directory", os.path.join("femem_out", path.stem))
     )
     digest = hashlib.sha256(path.read_bytes()).hexdigest()
-    return _run_palace(study, kind, outputs, path, out, digest, started, comm,
-                       cooling=cooling)
+    return _run_palace(study, kind, outputs, path, out, digest, started, comm, cooling=cooling)
 
 
 def run_study_file(path, *, output_dir=None, comm: MPI.Intracomm = MPI.COMM_WORLD) -> StudyRun:
@@ -2552,8 +2685,10 @@ def run_study_file(path, *, output_dir=None, comm: MPI.Intracomm = MPI.COMM_WORL
     # (`WF-1` step 25, §9 item 697).
     if kind == "f_clinical_birdcage" and "load_result" not in outputs:
         raise StudyConfigError(
-            path, "geometry.kind", f"f_clinical_birdcage solve is {_f_clinical_tier(study.degree)} "
-            "(use `femem run --estimate`)"
+            path,
+            "geometry.kind",
+            f"f_clinical_birdcage solve is {_f_clinical_tier(study.degree)} "
+            "(use `femem run --estimate`)",
         )
     out = Path(
         output_dir
@@ -2673,8 +2808,12 @@ def run_study_file(path, *, output_dir=None, comm: MPI.Intracomm = MPI.COMM_WORL
             summary["b1_plus"] = _b1_plus_summary(study, outputs["b1_plus"], comm)
         if cooling is not None:  # `WF-1` step 10a (§9 item 431a): an _FHumanThermal
             thermal = study.temperature(
-                cooling.cooling, transient=cooling.transient, balls=cooling.balls,
-                window_s=cooling.window_s, sense=cooling.sense, comm=comm,
+                cooling.cooling,
+                transient=cooling.transient,
+                balls=cooling.balls,
+                window_s=cooling.window_s,
+                sense=cooling.sense,
+                comm=comm,
             )  # reuses study.result (no second solve)
             summary["temperature"] = _tuned_temperature_summary(thermal)
     else:
@@ -2691,8 +2830,9 @@ def run_study_file(path, *, output_dir=None, comm: MPI.Intracomm = MPI.COMM_WORL
             )  # reuses study.result (no second solve)
             # _run_thermal_box's transient lines, copied.
             T = thermal.temperature
-            n_own = (T.function_space.dofmap.index_map.size_local
-                     * T.function_space.dofmap.index_map_bs)
+            n_own = (
+                T.function_space.dofmap.index_map.size_local * T.function_space.dofmap.index_map_bs
+            )
             theta = np.real(np.asarray(T.x.array[:n_own])) - float(cooling.cooling.t_inf_c)
             local = float(np.max(theta)) if theta.size else -np.inf
             summary["temperature"] = {

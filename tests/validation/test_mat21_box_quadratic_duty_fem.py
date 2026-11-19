@@ -24,10 +24,8 @@ import ufl
 from mpi4py import MPI
 
 from fem_em_solver.thermal import solve_transient_conduction
-
 from tests.complex_mode import complex_only
-from tests.validation.test_mat10_sar_to_heat_sphere import _allsum, _say
-from tests.validation.test_mat10_sar_to_heat_sphere import ROBIN_TAG
+from tests.validation.test_mat10_sar_to_heat_sphere import ROBIN_TAG, _allsum, _say
 from tests.validation.test_mat12_transient_sar_heating_sphere import E_BAND, RHO_C
 from tests.validation.test_mat13_transient_perfusion_sphere import INTERIOR_BAND
 from tests.validation.test_mat15_coil_driven_heating_phantom import H_GEL, K_GEL, N_MAIN, T_INF
@@ -39,10 +37,12 @@ from tests.validation.test_mat17_duty_cycle_coil_driven import (
     STEPS_PER_HALF,
 )
 from tests.validation.test_mat17_duty_cycle_fem import _census
-from tests.validation.test_mat21_box_closed_form import B_BOX, C_BOX, Q, T_C
+from tests.validation.test_mat21_box_closed_form import B_BOX, C_BOX, T_C
 from tests.validation.test_mat21_box_closed_form import T_INF as T_INF_0
-from tests.validation.test_mat21_box_duty_closed_form import DT_BOX, HALF_T, N_STEPS
+from tests.validation.test_mat21_box_closed_form import Q
+from tests.validation.test_mat21_box_duty_closed_form import DT_BOX
 from tests.validation.test_mat21_box_duty_closed_form import DUTY as DUTY_PIN
+from tests.validation.test_mat21_box_duty_closed_form import HALF_T, N_STEPS
 from tests.validation.test_mat21_box_duty_closed_form import N_SWITCH as N_SWITCH_PIN
 from tests.validation.test_mat21_box_duty_closed_form import STEPS_PER_HALF as SPH_PIN
 from tests.validation.test_mat21_box_duty_closed_form import T_STAR as T_STAR_2
@@ -82,9 +82,22 @@ class _Clock11:
 def _cn(msh, ft, q_quad, schedule):
     kw = {} if schedule is None else {"source_schedule": schedule}
     return solve_transient_conduction(
-        msh, ft, k=K_GEL, rho_c=RHO_C, q=q_quad, h=H_GEL, t_inf=T_INF, t_init=T_INF,
-        robin_tag=ROBIN_TAG, dt=T_STAR / N_MAIN, n_steps=N_MAIN, theta=0.5,
-        startup_half_steps=2, degree=DEGREE, **kw)
+        msh,
+        ft,
+        k=K_GEL,
+        rho_c=RHO_C,
+        q=q_quad,
+        h=H_GEL,
+        t_inf=T_INF,
+        t_init=T_INF,
+        robin_tag=ROBIN_TAG,
+        dt=T_STAR / N_MAIN,
+        n_steps=N_MAIN,
+        theta=0.5,
+        startup_half_steps=2,
+        degree=DEGREE,
+        **kw,
+    )
 
 
 @pytest.fixture(scope="module")
@@ -93,9 +106,11 @@ def qduty_m4():
     t0 = time.perf_counter()
     clk = _Clock11("qduty")
     out = {"imag": 0.0, "E": {}, "ndof": {}}
-    _say(f"\nMAT21-11 DEGREE = {DEGREE}, comparand P{CMP_DEGREE}, quadrature {QDEG_P}; m = {M4}; "
-         f"weights {WEIGHTS}; QUAD_TERMS {QUAD_TERMS}; ranks {comm.size}; DT_BOX {DT_BOX:.6f} s, "
-         f"HALF_T {HALF_T:.4f} s")
+    _say(
+        f"\nMAT21-11 DEGREE = {DEGREE}, comparand P{CMP_DEGREE}, quadrature {QDEG_P}; m = {M4}; "
+        f"weights {WEIGHTS}; QUAD_TERMS {QUAD_TERMS}; ranks {comm.size}; DT_BOX {DT_BOX:.6f} s, "
+        f"HALF_T {HALF_T:.4f} s"
+    )
 
     # 1. Uniform control (U), step 3's exact code path.
     msh, ft, ns, n, v_h, st = _rung_p(M4, clk, DEGREE)
@@ -107,9 +122,11 @@ def qduty_m4():
     clk.lap(f"uniform series interpolation ({npts} P3 points) + chi")
     out["u_whole"] = _rel_p(msh, th_u, ex_u)
     out["u_int"] = _rel_p(msh, th_u, ex_u, chi)
-    _say(f"MAT21-11 (U) m = {M4} {tuple(ns)}: cells {n}; P2 dofs {out['ndof']['uniform']}; whole "
-         f"{out['u_whole']:.6e} (step 3 {STEP3_M4['whole']}); interior {out['u_int']:.6e} "
-         f"(step 3 {STEP3_M4['interior']})")
+    _say(
+        f"MAT21-11 (U) m = {M4} {tuple(ns)}: cells {n}; P2 dofs {out['ndof']['uniform']}; whole "
+        f"{out['u_whole']:.6e} (step 3 {STEP3_M4['whole']}); interior {out['u_int']:.6e} "
+        f"(step 3 {STEP3_M4['interior']})"
+    )
     del ex_u
     clk.lap("uniform readings")
 
@@ -133,14 +150,18 @@ def qduty_m4():
     clk.lap(f"continuous series interpolation ({QUAD_TERMS})")
     out["r36_int"] = _rel_p(msh, th_def, ex_t, chi)
     out["r36_whole"] = _rel_p(msh, th_def, ex_t)
-    _say(f"MAT21-11 (R36) default CN vs continuous quadratic series: interior {out['r36_int']:.6e} "
-         f"(P36 {R36['interior']}), whole {out['r36_whole']:.6e} (P36 {R36['whole']})")
+    _say(
+        f"MAT21-11 (R36) default CN vs continuous quadratic series: interior {out['r36_int']:.6e} "
+        f"(P36 {R36['interior']}), whole {out['r36_whole']:.6e} (P36 {R36['whole']})"
+    )
 
     # 3. chi = 1 (the 100 % duty run).
     r_one, th_one, m_one, pv_one = _go("chi1", lambda t: 1.0)
     out["dprime"] = _rel_p(msh, th_one, th_def)
-    _say(f"MAT21-11 (D'-quad) chi = 1 vs default at t*: whole rel L2 {out['dprime']:.3e} "
-         f"(bound D_BAND {D_BAND:.0e}, predicted <= 1e-14; P29 4.481e-15)")
+    _say(
+        f"MAT21-11 (D'-quad) chi = 1 vs default at t*: whole rel L2 {out['dprime']:.3e} "
+        f"(bound D_BAND {D_BAND:.0e}, predicted <= 1e-14; P29 4.481e-15)"
+    )
     del r_def, r_one
 
     # 4. The duty run and its census.
@@ -161,25 +182,42 @@ def qduty_m4():
     cf_mean = _quad_duty_mean(T_STAR)
     cf_c = float(_quad_duty(0.0, 0.0, 0.0, T_STAR))
     cf_b = float(_quad_duty(0.0, 0.9 * B_BOX, 0.0, T_STAR))
-    _say(f"MAT21-11 (S0) schedule (2 half-steps, then 39 steps): {out['sched']} (must equal step 2's "
-         f"{SCHEDULE})")
-    _say(f"MAT21-11 (T-qduty) duty CN interior vs duty closed form at t* {out['T']:.6e} (bound "
-         f"{INTERIOR_BAND:.0e}, predicted 2.2e-4, range 8e-5 to 1e-3); whole {out['T_whole']:.6e}")
-    _say(f"MAT21-11 (E-qduty) max balance residual: " + ", ".join(
-        f"{k_} {v:.3e}" for k_, v in out["E"].items()) + f" (bound {E_BAND:.0e}, predicted <= 5e-13)")
-    _say(f"MAT21-11 control (c-step) PREDICTED: duty CN vs continuous series interior "
-         f"{out['c_step']:.4e} (predicted 0.51, range 0.49-0.53; step 4 (c3) 0.50300; asserted only "
-         f"> INTERIOR_BAND; ratio to band {out['c_step'] / INTERIOR_BAND:.1f})")
-    _say(f"MAT21-11 record volume means at t*: <theta_duty> {m_d:.6f} K (closed form {cf_mean:.6f}), "
-         f"<theta_chi1> {m_one:.6f} K, <theta_default> {m_def:.6f} K")
-    _say(f"MAT21-11 record duty drop (FEM): <theta_duty>/<theta_chi1> {m_d / m_one:.5f}; centre "
-         f"{pv_d[0] / pv_one[0]:.5f}; (0, 0.9B, 0) {pv_d[1] / pv_one[1]:.5f} (W1 closed form 0.49465 / "
-         f"0.54466 / 0.49468; P26 uniform 0.49576 mean / 0.49902 centre)")
-    _say(f"MAT21-11 record point values at t*: duty theta_h(0) {pv_d[0]:.6f} K (closed form "
-         f"{cf_c:.6f}), theta_h(0,0.9B,0) {pv_d[1]:.6f} K (closed form {cf_b:.6f}); chi1 "
-         f"{pv_one[0]:.6f} / {pv_one[1]:.6f} K; default {pv_def[0]:.6f} / {pv_def[1]:.6f} K")
-    _say(f"MAT21-11 comparand floor _quad_floor() {_quad_floor():.4e} (drafting 1.2484e-6); "
-         f"max|Im theta| {out['imag']:.3e}; fixture elapsed {time.perf_counter() - t0:.1f} s")
+    _say(
+        f"MAT21-11 (S0) schedule (2 half-steps, then 39 steps): {out['sched']} (must equal step 2's "
+        f"{SCHEDULE})"
+    )
+    _say(
+        f"MAT21-11 (T-qduty) duty CN interior vs duty closed form at t* {out['T']:.6e} (bound "
+        f"{INTERIOR_BAND:.0e}, predicted 2.2e-4, range 8e-5 to 1e-3); whole {out['T_whole']:.6e}"
+    )
+    _say(
+        "MAT21-11 (E-qduty) max balance residual: "
+        + ", ".join(f"{k_} {v:.3e}" for k_, v in out["E"].items())
+        + f" (bound {E_BAND:.0e}, predicted <= 5e-13)"
+    )
+    _say(
+        f"MAT21-11 control (c-step) PREDICTED: duty CN vs continuous series interior "
+        f"{out['c_step']:.4e} (predicted 0.51, range 0.49-0.53; step 4 (c3) 0.50300; asserted only "
+        f"> INTERIOR_BAND; ratio to band {out['c_step'] / INTERIOR_BAND:.1f})"
+    )
+    _say(
+        f"MAT21-11 record volume means at t*: <theta_duty> {m_d:.6f} K (closed form {cf_mean:.6f}), "
+        f"<theta_chi1> {m_one:.6f} K, <theta_default> {m_def:.6f} K"
+    )
+    _say(
+        f"MAT21-11 record duty drop (FEM): <theta_duty>/<theta_chi1> {m_d / m_one:.5f}; centre "
+        f"{pv_d[0] / pv_one[0]:.5f}; (0, 0.9B, 0) {pv_d[1] / pv_one[1]:.5f} (W1 closed form 0.49465 / "
+        f"0.54466 / 0.49468; P26 uniform 0.49576 mean / 0.49902 centre)"
+    )
+    _say(
+        f"MAT21-11 record point values at t*: duty theta_h(0) {pv_d[0]:.6f} K (closed form "
+        f"{cf_c:.6f}), theta_h(0,0.9B,0) {pv_d[1]:.6f} K (closed form {cf_b:.6f}); chi1 "
+        f"{pv_one[0]:.6f} / {pv_one[1]:.6f} K; default {pv_def[0]:.6f} / {pv_def[1]:.6f} K"
+    )
+    _say(
+        f"MAT21-11 comparand floor _quad_floor() {_quad_floor():.4e} (drafting 1.2484e-6); "
+        f"max|Im theta| {out['imag']:.3e}; fixture elapsed {time.perf_counter() - t0:.1f} s"
+    )
     return out
 
 

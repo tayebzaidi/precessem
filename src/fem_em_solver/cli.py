@@ -50,7 +50,9 @@ def _parser() -> argparse.ArgumentParser:
     run.add_argument("--backend", choices=["dolfinx", "palace"], default="dolfinx")
     check = sub.add_parser("check", help="parse a YAML study file only (no mesh, no solve)")
     check.add_argument("file")
-    fig = sub.add_parser("figure", help="draw a figure from a written record (WF-8): sparams | slice | probe")
+    fig = sub.add_parser(
+        "figure", help="draw a figure from a written record (WF-8): sparams | slice | probe"
+    )
     fig.add_argument("kind", choices=["sparams", "slice", "probe"])
     fig.add_argument("source", help="Touchstone file, XDMF bundle, or probe-series CSV")
     fig.add_argument("out", help="output image path")
@@ -123,11 +125,16 @@ def _estimate(path, comm) -> int:
 def main(argv: Optional[Sequence[str]] = None) -> int:
     args = _parser().parse_args(argv)
 
-    if args.command == "run" and args.backend == "palace" and (
-        args.ranks is not None or args.estimate
+    if (
+        args.command == "run"
+        and args.backend == "palace"
+        and (args.ranks is not None or args.estimate)
     ):
-        print("femem: error: --backend palace cannot be combined with --ranks or "
-              "--estimate", file=sys.stderr, flush=True)
+        print(
+            "femem: error: --backend palace cannot be combined with --ranks or " "--estimate",
+            file=sys.stderr,
+            flush=True,
+        )
         return 2
     if args.command == "run" and args.ranks is not None:
         if args.estimate:
@@ -151,7 +158,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         if args.kind == "sparams":
             res = figures.plot_sparameters(args.source, args.out, comm=comm)
         elif args.kind == "slice":
-            res = figures.plot_xdmf_slice(args.source, args.name, args.out, axis=args.axis, comm=comm)
+            res = figures.plot_xdmf_slice(
+                args.source, args.name, args.out, axis=args.axis, comm=comm
+            )
         else:
             res = figures.plot_probe_series(args.source, args.column, args.out, comm=comm)
         if res is not None:
@@ -200,8 +209,10 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                 _run_study_file_palace(args.file, output_dir=args.output_dir, comm=comm)
             except PalaceRunRequired as exc:
                 if comm.rank == 0:
-                    print(f"femem: palace run required: (cd {exc.cwd} && "
-                          f"{' '.join(exc.argv)})", flush=True)
+                    print(
+                        f"femem: palace run required: (cd {exc.cwd} && " f"{' '.join(exc.argv)})",
+                        flush=True,
+                    )
                 return 3
             return 0
         run_study_file(args.file, output_dir=args.output_dir, comm=comm)

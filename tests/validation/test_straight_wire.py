@@ -189,9 +189,7 @@ def _annulus_indicator(mesh):
     mid = dmesh.compute_midpoints(mesh, tdim, owned)
 
     r = np.hypot(mid[:, 0], mid[:, 1])
-    inside = (
-        (r >= E_OMEGA_R_MIN) & (r <= E_OMEGA_R_MAX) & (np.abs(mid[:, 2]) <= E_OMEGA_Z_MAX)
-    )
+    inside = (r >= E_OMEGA_R_MIN) & (r <= E_OMEGA_R_MAX) & (np.abs(mid[:, 2]) <= E_OMEGA_Z_MAX)
 
     V0 = fem.functionspace(mesh, ("DG", 0))
     chi = fem.Function(V0, name="chi_Omega")
@@ -239,9 +237,7 @@ def _wire_potential_interp(x):
     ``straight_wire_domain`` cross r = 0, where the filament ln r diverges.
     """
     points = np.ascontiguousarray(x[:3].T)
-    A = AnalyticalSolutions.straight_wire_vector_potential(
-        points, CURRENT, wire_radius=WIRE_RADIUS
-    )
+    A = AnalyticalSolutions.straight_wire_vector_potential(points, CURRENT, wire_radius=WIRE_RADIUS)
     return A.T
 
 
@@ -313,9 +309,9 @@ class TestStraightWire:
         # Field should be azimuthal: negligible axial component.
         b_z_max = float(np.max(np.abs(values[:, 2])))
         b_ref = float(np.max(b_ana_mag))
-        assert b_z_max < 0.10 * b_ref, (
-            f"B_z should be small compared to |B|; got {b_z_max:.3e} vs {b_ref:.3e}"
-        )
+        assert (
+            b_z_max < 0.10 * b_ref
+        ), f"B_z should be small compared to |B|; got {b_z_max:.3e} vs {b_ref:.3e}"
 
         rel_error = ErrorMetrics.l2_relative_error(b_num_mag, b_ana_mag)
 
@@ -324,12 +320,16 @@ class TestStraightWire:
             print("\nStraight wire validation:")
             print(f"  Cells: {n_cells}")
             print(f"  Current: {CURRENT} A (restricted to wire tag 1)")
-            print(f"  Sampling r: {R_MIN:.4f} -> {R_MAX_BC:.4f} m "
-                  f"(a={WIRE_RADIUS}, R_domain={DOMAIN_RADIUS})")
+            print(
+                f"  Sampling r: {R_MIN:.4f} -> {R_MAX_BC:.4f} m "
+                f"(a={WIRE_RADIUS}, R_domain={DOMAIN_RADIUS})"
+            )
             print(f"  Relative L2 error: {rel_error:.4%}")
             for r, bn, ba in zip(r_test, b_num_mag, b_ana_mag):
-                print(f"    r={r:.4f}  |B|_num={bn:.4e}  |B|_ana={ba:.4e}  "
-                      f"rel={abs(bn - ba) / ba:.2%}")
+                print(
+                    f"    r={r:.4f}  |B|_num={bn:.4e}  |B|_ana={ba:.4e}  "
+                    f"rel={abs(bn - ba) / ba:.2%}"
+                )
 
         # Bound set from measurement (MAG-13, log 20260730T034614Z_MAG-13-probe2),
         # analytic Dirichlet BC, sampling 2a -> 0.8 R_domain, mpiexec -n 2:
@@ -359,8 +359,10 @@ class TestStraightWire:
         # sample counts in test_domain_l2_record, so a real regression in the
         # field is still caught here.
         if comm.rank == 0:
-            print(f"  [reported, not gated] 10-point rel_error {rel_error:.4%} "
-                  f"vs the retired 15% band")
+            print(
+                f"  [reported, not gated] 10-point rel_error {rel_error:.4%} "
+                f"vs the retired 15% band"
+            )
 
     def test_analytic_bc_improves_on_natural_bc(self):
         """The analytic Dirichlet wall beats n x H = 0 on the same mesh.
@@ -378,14 +380,13 @@ class TestStraightWire:
 
         for use_bc in (False, True):
             _, b_field = _solve_straight_wire(res, comm, analytic_bc=use_bc)
-            _, b_num_mag, b_ana_mag, _ = _sample_radial(
-                b_field, n_points, comm, R_MIN, R_MAX_BC
-            )
+            _, b_num_mag, b_ana_mag, _ = _sample_radial(b_field, n_points, comm, R_MIN, R_MAX_BC)
             errors[use_bc] = ErrorMetrics.l2_relative_error(b_num_mag, b_ana_mag)
 
         if comm.rank == 0:
-            print(f"\n  h={res}: natural BC {errors[False]:.4%}, "
-                  f"analytic BC {errors[True]:.4%}")
+            print(
+                f"\n  h={res}: natural BC {errors[False]:.4%}, " f"analytic BC {errors[True]:.4%}"
+            )
 
         # Measured at h=0.004, -n 2 (log 20260730T034541Z_MAG-13-probe):
         # 35.13% natural -> 22.19% analytic, a factor 0.63. The 0.85 bound
@@ -479,8 +480,7 @@ class TestStraightWire:
             errors.append(e_omega)
             if comm.rank == 0:
                 n_cells = mesh.topology.index_map(mesh.topology.dim).size_global
-                print(f"  h={res:.4f}  cells {n_cells}  E_Omega {e_omega:.10e} "
-                      f"({e_omega:.4%})")
+                print(f"  h={res:.4f}  cells {n_cells}  E_Omega {e_omega:.10e} " f"({e_omega:.4%})")
 
         rate = fit_convergence_rate(np.array(E_OMEGA_LADDER), np.array(errors))
         if comm.rank == 0:
@@ -514,23 +514,23 @@ class TestStraightWire:
         image_key, npoints_control = _npoints_control()
         sampled = {}
         for n_points in sorted(npoints_control):
-            _, b_num_mag, b_ana_mag, _ = _sample_radial(
-                b_field, n_points, comm, R_MIN, R_MAX_BC
-            )
+            _, b_num_mag, b_ana_mag, _ = _sample_radial(b_field, n_points, comm, R_MIN, R_MAX_BC)
             sampled[n_points] = ErrorMetrics.l2_relative_error(b_num_mag, b_ana_mag)
 
         if comm.rank == 0:
             n_cells = mesh.topology.index_map(mesh.topology.dim).size_global
-            print(f"\nMAG-18 record rung h={res}, {n_cells} cells, "
-                  f"{comm.size} ranks:")
+            print(f"\nMAG-18 record rung h={res}, {n_cells} cells, " f"{comm.size} ranks:")
             print(f"  E_Omega = {e_omega:.10e}  ({e_omega:.4%})")
-            print(f"  negative control -- the statistic this replaces "
-                  f"(dolfinx {image_key} row):")
+            print(
+                f"  negative control -- the statistic this replaces " f"(dolfinx {image_key} row):"
+            )
             for n_points, err in sampled.items():
                 ref = npoints_control[n_points]
-                print(f"    n_points {n_points:3d}  rel_error {err:.6%} "
-                      f"(recorded {ref:.4%}, "
-                      f"{(err - ref) / ref:+.3e} relative)")
+                print(
+                    f"    n_points {n_points:3d}  rel_error {err:.6%} "
+                    f"(recorded {ref:.4%}, "
+                    f"{(err - ref) / ref:+.3e} relative)"
+                )
 
         # The sampler swing is the finding, so it is asserted, not just
         # printed: on 0.7.2 the same field read three ways spans 15.80% ->
@@ -568,9 +568,11 @@ class TestStraightWire:
             errors[use_bc] = _domain_l2_error(mesh, b_field)
 
         if comm.rank == 0:
-            print(f"\n  MAG-18 h={res}: E_Omega natural BC {errors[False]:.6%}, "
-                  f"analytic BC {errors[True]:.6%}, "
-                  f"ratio {errors[True] / errors[False]:.4f}")
+            print(
+                f"\n  MAG-18 h={res}: E_Omega natural BC {errors[False]:.6%}, "
+                f"analytic BC {errors[True]:.6%}, "
+                f"ratio {errors[True] / errors[False]:.4f}"
+            )
 
         assert errors[True] < errors[False], (
             f"Analytic BC E_Omega {errors[True]:.6%} should be strictly better "

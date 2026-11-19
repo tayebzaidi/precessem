@@ -39,12 +39,11 @@ import numpy as np
 import pytest
 
 from fem_em_solver.ports.touchstone import load_touchstone
-
 from tests.io.test_touchstone_skrf_crosscheck import ANCHOR_TOL, FREQ_ATOL_HZ
 from tests.materials.test_phantom_material_model import MAT4_BAND
+from tests.package.test_wf1_study_yaml import BIRDCAGE_FILE, SPHERE_FILE, WF15_DEG2_RECORD
 from tests.package.test_wf15_study_lossy_sphere import MAT4_DEG1_PRINT, MAT4_DEG1_RECORD, _closed
 from tests.package.test_wf16_study_four_port import _record, _rel
-from tests.package.test_wf1_study_yaml import BIRDCAGE_FILE, SPHERE_FILE, WF15_DEG2_RECORD
 from tests.validation.test_ans4_exact_strip_records import ANS4_EXACT_STRIP_RECORD_RANK_WIDTH
 from tests.validation.test_lossy_sphere_fullwave import FREQUENCY_64_HZ
 from tests.validation.test_lossy_sphere_sar import EPSILON_R_SPHERE, SIGMA_HIGH

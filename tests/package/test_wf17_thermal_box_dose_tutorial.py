@@ -35,18 +35,8 @@ from mpi4py import MPI
 
 import fem_em_solver
 from fem_em_solver import cli, load_study
-
 from tests.complex_mode import IS_COMPLEX
-from tests.package.test_wf17_first_study_tutorial import LINK_PASS_RE, _checker_stdout, extract_tagged_block
-from tests.package.test_wf17_thermal_box_wall_tutorial import (
-    MIN_GUIDE_PAGES,
-    PAGE,
-    PAGE_ID,
-    WF1_DIR,
-    _files_of,
-)
 from tests.package.test_wf1_yaml_thermal_box_dose import (
-    AVG_BAR,
     CELLS,
     DOSE_BAR,
     E_BAND,
@@ -60,6 +50,18 @@ from tests.package.test_wf1_yaml_thermal_box_dose import (
     _dose,
     _dose_gates,
     _field,
+)
+from tests.package.test_wf17_first_study_tutorial import (
+    LINK_PASS_RE,
+    _checker_stdout,
+    extract_tagged_block,
+)
+from tests.package.test_wf17_thermal_box_wall_tutorial import (
+    MIN_GUIDE_PAGES,
+    PAGE,
+    PAGE_ID,
+    WF1_DIR,
+    _files_of,
 )
 from tests.unit.test_doc_reference_exit_codes import run_checker
 
@@ -96,16 +98,22 @@ def test_wf17_s35_block_tags_and_files():
     text = _text()
     block = extract_tagged_block(text, TAG)
     files = _files_of(block)
-    _p0(f"[WF-17 s35] (X) {TAG}: run_study_file( count {block.count('run_study_file(')}; "
-        f"FILES {files}; yaml fences {text.count('```yaml')}")
-    assert block.count("run_study_file(") == 1 and "Study(" not in block.replace("run_study_file(", "")
+    _p0(
+        f"[WF-17 s35] (X) {TAG}: run_study_file( count {block.count('run_study_file(')}; "
+        f"FILES {files}; yaml fences {text.count('```yaml')}"
+    )
+    assert block.count("run_study_file(") == 1 and "Study(" not in block.replace(
+        "run_study_file(", ""
+    )
     assert files == WANT_FILES
     for name in files:
         assert (WF1_DIR / name).is_file(), name
     assert "```yaml" not in text
     # the s7 ban list, page-wide (`test_wf17_thermal_box_tutorial.py:243–244`)
-    bans = {name: name in text.replace("run_study_file(", "")
-            for name in ("Study(", ".json", ".xdmf", ".npz")}
+    bans = {
+        name: name in text.replace("run_study_file(", "")
+        for name in ("Study(", ".json", ".xdmf", ".npz")
+    }
     _p0(f"[WF-17 s35] (X) page-wide bans present {bans}")
     assert not any(bans.values()), bans
     check = extract_tagged_block(text, CHECK_TAG, lang="bash")
@@ -135,9 +143,11 @@ def test_wf17_s35_docrefs_zero_dead():
     rc, counts = run_checker("--docs-root", "docs/guide", "--check-links")
     link = LINK_PASS_RE.search(_checker_stdout("--docs-root", "docs/guide", "--check-links"))
     assert link is not None, "(D) no 'Link pass:' line"
-    print(f"[WF-17 s35] (D) dead={counts['dead']} links={link.group(1)} pages={link.group(2)} "
-          f"link-dead={link.group(3)} guide={counts['guide']} rc={rc} "
-          f"(MIN_GUIDE_PAGES {MIN_GUIDE_PAGES})")
+    print(
+        f"[WF-17 s35] (D) dead={counts['dead']} links={link.group(1)} pages={link.group(2)} "
+        f"link-dead={link.group(3)} guide={counts['guide']} rc={rc} "
+        f"(MIN_GUIDE_PAGES {MIN_GUIDE_PAGES})"
+    )
     assert counts["dead"] == 0
     assert int(link.group(3)) == 0
     assert int(link.group(2)) >= MIN_GUIDE_PAGES
@@ -158,8 +168,10 @@ def test_wf17_s35_block_reproduces_p68_dose(monkeypatch):
 
     h_d, _t_d, direct, cells_d, ok_d, s_solve, s_read = _direct_r1_history(comm)
     d_direct = [_dose(h_d[:, j] - T_INF) for j in range(len(HIST_LABELS))]
-    _p0(f"[WF-17 s35] direct R1: cells {cells_d}; (E) {direct.max_balance_residual:.3e}; "
-        f"D {[f'{x:.9e}' for x in d_direct]} s; solve {s_solve:.1f} s, reads {s_read:.1f} s")
+    _p0(
+        f"[WF-17 s35] direct R1: cells {cells_d}; (E) {direct.max_balance_residual:.3e}; "
+        f"D {[f'{x:.9e}' for x in d_direct]} s; solve {s_solve:.1f} s, reads {s_read:.1f} s"
+    )
 
     # exec the page block from the scratch (item 838's form)
     raw = PAGE.read_bytes()
@@ -186,31 +198,42 @@ def test_wf17_s35_block_reproduces_p68_dose(monkeypatch):
     tb = time.perf_counter()
     with contextlib.redirect_stdout(buf):
         exec(compile(block, f"{PAGE_ID}#{TAG}", "exec"), ns_)
-    _p0(f"[WF-17 s35] block stdout (rank 0): {buf.getvalue()!r}; spy calls {calls['n']}; "
-        f"{time.perf_counter() - tb:.1f} s")
+    _p0(
+        f"[WF-17 s35] block stdout (rank 0): {buf.getvalue()!r}; spy calls {calls['n']}; "
+        f"{time.perf_counter() - tb:.1f} s"
+    )
     runs = ns_["runs"]
     dz = {"R1": runs[R1_DOSE.name].summary["dose"], "R0": runs[R0_DOSE.name].summary["dose"]}
 
     gates = {"valid_points": all(ok_d), "runs": len(runs) == 2 and calls["n"] == 2}
     # (I-d)
-    idd = [abs(dz["R1"]["cem43_s"][j] - d_direct[j]) / abs(d_direct[j])
-           for j in range(len(HIST_LABELS))]
-    _p0(f"[WF-17 s35] (I-d) block R1 cem43_s {[f'{x:.9e}' for x in dz['R1']['cem43_s']]} vs "
+    idd = [
+        abs(dz["R1"]["cem43_s"][j] - d_direct[j]) / abs(d_direct[j])
+        for j in range(len(HIST_LABELS))
+    ]
+    _p0(
+        f"[WF-17 s35] (I-d) block R1 cem43_s {[f'{x:.9e}' for x in dz['R1']['cem43_s']]} vs "
         f"direct, rel per point {dict(zip(HIST_LABELS, [f'{x:.3e}' for x in idd]))} "
-        f"(IDENTITY_BAND {IDENTITY_BAND:.0e})")
+        f"(IDENTITY_BAND {IDENTITY_BAND:.0e})"
+    )
     gates["I_d"] = all(x <= IDENTITY_BAND for x in idd)
     # (Q-wf) / (Win-wf)
     for k in ("R1", "R0"):
-        g, rows = _dose_gates(k, np.asarray(dz[k]["temperature_c"], dtype=float),
-                              np.asarray(dz[k]["times_s"], dtype=float))
+        g, rows = _dose_gates(
+            k,
+            np.asarray(dz[k]["temperature_c"], dtype=float),
+            np.asarray(dz[k]["times_s"], dtype=float),
+        )
         gates.update(g)
         for r in rows:
             _p0(r)
     # (E) / (Cells)
     e = {k: v.summary["temperature"]["max_balance_residual"] for k, v in runs.items()}
-    _p0(f"[WF-17 s35] (E) {e} direct {direct.max_balance_residual:.3e} (E_BAND {E_BAND:.0e}); "
+    _p0(
+        f"[WF-17 s35] (E) {e} direct {direct.max_balance_residual:.3e} (E_BAND {E_BAND:.0e}); "
         f"(Cells) direct {cells_d} runs {[v.summary['cells'] for v in runs.values()]} "
-        f"(CELLS {CELLS})")
+        f"(CELLS {CELLS})"
+    )
     gates["E_direct"] = float(direct.max_balance_residual) <= E_BAND
     gates["E_runs"] = all(v <= E_BAND for v in e.values())
     gates["Cells"] = cells_d == CELLS and all(v.summary["cells"] == CELLS for v in runs.values())
@@ -218,8 +241,10 @@ def test_wf17_s35_block_reproduces_p68_dose(monkeypatch):
     j5 = HIST_LABELS.index("P5")
     d1, d0 = dz["R1"]["cem43_s"][j5], dz["R0"]["cem43_s"][j5]
     miss = abs(d0 / d1 - 1.0)
-    _p0(f"[WF-17 s35] (c-init-d) P5: R0 D {d0:.6e} s vs R1 D {d1:.6e} s, miss {miss:.4e} "
-        f"(asserted > DOSE_BAR {DOSE_BAR:g}); signed R0/R1 - 1 {d0 / d1 - 1.0:+.4e}")
+    _p0(
+        f"[WF-17 s35] (c-init-d) P5: R0 D {d0:.6e} s vs R1 D {d1:.6e} s, miss {miss:.4e} "
+        f"(asserted > DOSE_BAR {DOSE_BAR:g}); signed R0/R1 - 1 {d0 / d1 - 1.0:+.4e}"
+    )
     gates["c_init_d"] = miss > DOSE_BAR
     _p0(f"[WF-17 s35] gates {gates}; elapsed {time.perf_counter() - t0:.1f} s")
     assert all(gates.values()), gates

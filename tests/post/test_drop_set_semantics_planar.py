@@ -109,9 +109,8 @@ from __future__ import annotations
 import numpy as np
 import pytest
 import ufl
-from mpi4py import MPI
-
 from dolfinx import fem
+from mpi4py import MPI
 
 from fem_em_solver.core import (
     HomogeneousMaterial,
@@ -125,7 +124,6 @@ from fem_em_solver.post.phantom_fields import (
     _tagged_cells,
     compute_tagged_vector_magnitude_stats,
 )
-
 from tests.complex_mode import complex_only
 from tests.validation.test_lossy_plane_wave import (
     BOX_L,
@@ -219,9 +217,7 @@ def closed_form_ufl(x):
 
     xx = x[0]
     inc = cplx_exp(k1.imag * xx, -k1.real * xx)
-    refl = r * cplx_exp(
-        k1.imag * (2.0 * INTERFACE_X - xx), -k1.real * (2.0 * INTERFACE_X - xx)
-    )
+    refl = r * cplx_exp(k1.imag * (2.0 * INTERFACE_X - xx), -k1.real * (2.0 * INTERFACE_X - xx))
     trans = (
         t
         * cplx_exp(k1.imag * INTERFACE_X, -k1.real * INTERFACE_X)
@@ -281,9 +277,7 @@ def pointwise_stats(field, cells: np.ndarray, comm) -> dict[str, float]:
 
     if values.shape[0] > 0:
         mags = np.abs(np.linalg.norm(values, axis=1))
-        rel = np.abs(mags - closed_form_magnitude(pts[:, 0])) / closed_form_magnitude(
-            pts[:, 0]
-        )
+        rel = np.abs(mags - closed_form_magnitude(pts[:, 0])) / closed_form_magnitude(pts[:, 0])
         loc = dict(
             count=int(mags.size),
             err_sum=float(np.sum(rel)),
@@ -433,9 +427,9 @@ def test_drop_set_semantics_on_a_planar_interface(fine_two_slab):
         f"degenerate classification (interior {n_interior}, drop {n_drop}); "
         "with an empty class this module compares nothing"
     )
-    assert surviving["count"] == n_interior and full["count"] == n_tagged, (
-        "a set was sampled at a different size than the classification says"
-    )
+    assert (
+        surviving["count"] == n_interior and full["count"] == n_tagged
+    ), "a set was sampled at a different size than the classification says"
 
     # Anchor: what production reports today, per centroid against the closed form.
     lo, hi = SURVIVING_MEAN_ERROR_BAND
@@ -505,9 +499,7 @@ def test_production_default_reproduces_row_b_on_this_fixture(fine_two_slab):
     row_b = pointwise_stats(field, tagged, comm)
     row_a = pointwise_stats(field, interior, comm)
 
-    production = compute_tagged_vector_magnitude_stats(
-        field, cell_tags, TAG_HIGH, comm=comm
-    )
+    production = compute_tagged_vector_magnitude_stats(field, cell_tags, TAG_HIGH, comm=comm)
     guarded = compute_tagged_vector_magnitude_stats(
         field, cell_tags, TAG_HIGH, comm=comm, prefer_interior_samples=True
     )
@@ -552,9 +544,7 @@ def test_production_default_reproduces_row_b_on_this_fixture(fine_two_slab):
         "to False"
     )
     for prod_key, row_key in (("min", "min_mag"), ("max", "max_mag")):
-        assert np.isclose(
-            production[prod_key], row_b[row_key], rtol=1e-12, atol=0.0
-        ), (
+        assert np.isclose(production[prod_key], row_b[row_key], rtol=1e-12, atol=0.0), (
             f"production '{prod_key}' = {production[prod_key]:.15e} vs row (b) "
             f"{row_b[row_key]:.15e}: the default path is not scoring the set "
             "step 4 adjudicated"

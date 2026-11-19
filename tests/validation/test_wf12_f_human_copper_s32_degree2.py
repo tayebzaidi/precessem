@@ -66,10 +66,26 @@ FACES_RECORD = 784_444
 # Step 4's degree-2 S17,17 (entry 32), printed beside only.
 S1717_D2_STEP4_RECORD = 0.402723 + 0.391780j
 PREDICTED_RSS_GIB_BUILD = 1.1
-PER_COLUMN_KEYS = ("t_solve", "t_post", "held", "p_src", "p_sheets", "p_phantom",
-                   "p_rest", "p_surf")
-SCALAR_KEYS = ("degree", "cells", "n_dofs", "n_edges", "n_faces", "freq_hz", "ranks",
-               "kappa_applied")
+PER_COLUMN_KEYS = (
+    "t_solve",
+    "t_post",
+    "held",
+    "p_src",
+    "p_sheets",
+    "p_phantom",
+    "p_rest",
+    "p_surf",
+)
+SCALAR_KEYS = (
+    "degree",
+    "cells",
+    "n_dofs",
+    "n_edges",
+    "n_faces",
+    "freq_hz",
+    "ranks",
+    "kappa_applied",
+)
 
 
 # ---- knobs ---------------------------------------------------------------
@@ -228,32 +244,47 @@ def _run_step5(mode, save_path):
     t_build = time.perf_counter() - t0
     ring_ports = _ring_ports()
     all_ids = [f"P{i}" for i in ring_ports]
-    say(f"(A0) hole cells {built['cells']} vs record {HOLE_CELL_RECORD}, rel {cell_rel:.3e} "
+    say(
+        f"(A0) hole cells {built['cells']} vs record {HOLE_CELL_RECORD}, rel {cell_rel:.3e} "
         f"(band {CELL_COUNT_BAND}, ASSERTED); build {t_build:.1f} s; (iv) failures "
-        f"{census_fails or 'none'}; outer census {oc}")
-    say(f"(Deg) solver.degree {solver.degree}; global unknowns {n_dofs} vs 2E+2F = "
+        f"{census_fails or 'none'}; outer census {oc}"
+    )
+    say(
+        f"(Deg) solver.degree {solver.degree}; global unknowns {n_dofs} vs 2E+2F = "
         f"2*{n_edges}+2*{n_faces} = {2 * n_edges + 2 * n_faces} (ASSERTED exact); records "
         f"{UNKNOWNS_RECORD} = 2*{EDGES_RECORD}+2*{FACES_RECORD} (-n 2 step4a W1, -n 16 entry 32; "
-        f"printed beside)")
-    say(f"(Deg) NEG (ASSERTED, rule (e)): degree-1 count E = {n_edges} != {n_dofs}; "
-        f"n(2)/E = {n_dofs / n_edges:.6f} (record ceiling 5.134216)")
+        f"printed beside)"
+    )
+    say(
+        f"(Deg) NEG (ASSERTED, rule (e)): degree-1 count E = {n_edges} != {n_dofs}; "
+        f"n(2)/E = {n_dofs / n_edges:.6f} (record ceiling 5.134216)"
+    )
     say(f"(Ord) {len(all_ids)} ring ids, first {all_ids[0]} (ASSERTED: 32, {DRIVEN} first)")
     _phase("build", t_build)
     say(f"RSS after degree-2 space: PREDICTED ≈{PREDICTED_RSS_GIB_BUILD} GiB summed (printed)")
     assert abs(cell_rel) <= CELL_COUNT_BAND, cell_rel
     assert not census_fails, census_fails
     assert oc["tag_collision"] == 0 and oc["cavity"] > 0, oc
-    assert oc["cavity_exterior"] == oc["cavity"] and oc["outer"] + oc["cavity"] == oc["exterior"], oc
+    assert (
+        oc["cavity_exterior"] == oc["cavity"] and oc["outer"] + oc["cavity"] == oc["exterior"]
+    ), oc
     assert solver.degree == DEGREE_2, solver.degree
     assert n_dofs == 2 * n_edges + 2 * n_faces, (n_dofs, n_edges, n_faces)
     assert n_dofs != n_edges, (n_dofs, n_edges)
     assert n_dofs * n_edges == n_edges * (2 * n_edges + 2 * n_faces), (n_dofs, n_edges)
     assert len(all_ids) == 32 and all_ids.index(DRIVEN) == 0, all_ids[:3]
-    base = {"cells": built["cells"], "n_dofs": n_dofs, "n_edges": n_edges,
-            "n_faces": n_faces, "t_build": t_build}
+    base = {
+        "cells": built["cells"],
+        "n_dofs": n_dofs,
+        "n_edges": n_edges,
+        "n_faces": n_faces,
+        "t_build": t_build,
+    }
     if mode == "build":
-        say(f"{STEP5_ENV}=build: return after (A0)/(Deg)/(Ord); no form compiled, nothing "
-            f"assembled; window {time.perf_counter() - t_window:.1f} s")
+        say(
+            f"{STEP5_ENV}=build: return after (A0)/(Deg)/(Ord); no form compiled, nothing "
+            f"assembled; window {time.perf_counter() - t_window:.1f} s"
+        )
         return base
 
     # ---- the sweep (step 2 :170–220, wall first, field_hook dropped) ------
@@ -266,20 +297,30 @@ def _run_step5(mode, save_path):
     def _drive(driven_id, *, held):
         sheets = [sp.sheet(driven=(sp.port_id == driven_id)) for sp in ctx["specs"]]
         dsheet = next(s for s in sheets if s.port_id == driven_id)
-        linear = [lambda test, _s=dsheet: lumped_port_linear_term(
-            msh, tags_f, _s, test, omega_rad_per_s=omega)]
+        linear = [
+            lambda test, _s=dsheet: lumped_port_linear_term(
+                msh, tags_f, _s, test, omega_rad_per_s=omega
+            )
+        ]
         comm.Barrier()
         t0 = time.perf_counter()
         if held:
             fields = solver.solve_with_held_factorization(extra_linear_terms=linear)
         else:
             bil = [wall] + [
-                (lambda trial, test, _s=s: lumped_port_bilinear_term(
-                    msh, tags_f, _s, trial, test, omega_rad_per_s=omega))
+                (
+                    lambda trial, test, _s=s: lumped_port_bilinear_term(
+                        msh, tags_f, _s, trial, test, omega_rad_per_s=omega
+                    )
+                )
                 for s in sheets
             ]
-            fields = solver.solve(current_density=None, project_source=False,
-                                  extra_bilinear_terms=bil, extra_linear_terms=linear)
+            fields = solver.solve(
+                current_density=None,
+                project_source=False,
+                extra_bilinear_terms=bil,
+                extra_linear_terms=linear,
+            )
         comm.Barrier()
         t_solve = time.perf_counter() - t0
         _phase(f"{'held' if held else 'factorising'} solve {driven_id}", t_solve)
@@ -305,9 +346,17 @@ def _run_step5(mode, save_path):
         del fields
         t_post = time.perf_counter() - t1
         _phase(f"post {driven_id}", t_post)
-        return {"s": s_col, "held": held, "t_solve": t_solve, "t_post": t_post,
-                "p_src": p_src, "p_sheets": p_sheets, "p_phantom": p_phantom,
-                "p_rest": p_total - p_phantom, "p_surf": p_surf}
+        return {
+            "s": s_col,
+            "held": held,
+            "t_solve": t_solve,
+            "t_post": t_post,
+            "p_src": p_src,
+            "p_sheets": p_sheets,
+            "p_phantom": p_phantom,
+            "p_rest": p_total - p_phantom,
+            "p_surf": p_surf,
+        }
 
     cols = {}
     for k, pid in enumerate(all_ids):
@@ -316,15 +365,25 @@ def _run_step5(mode, save_path):
         d["rel"] = abs(d["p_src"] - d["p_sheets"] - p_vol - d["p_surf"]) / abs(d["p_src"])
         d["blind"] = abs(d["p_src"] - d["p_sheets"] - p_vol) / abs(d["p_src"])
         cols[pid] = d
-        say(f"Cu d2 drive {k + 1:2d}/32 {pid}: {'held' if d['held'] else 'factorising'} "
+        say(
+            f"Cu d2 drive {k + 1:2d}/32 {pid}: {'held' if d['held'] else 'factorising'} "
             f"{d['t_solve']:.2f} s + post {d['t_post']:.2f} s; S_driven {d['s'][pid]:.6f}; "
             f"(P) rel {d['rel']:.3e}; NEG blind {d['blind'] / DISCRETE_IDENTITY_RTOL:.1f}x band "
-            f"t={time.perf_counter() - t_window:.1f} s")
+            f"t={time.perf_counter() - t_window:.1f} s"
+        )
 
     s = np.array([[cols[pj]["s"][pi] for pj in all_ids] for pi in all_ids], dtype=np.complex128)
     per_col = {key: [cols[p][key] for p in all_ids] for key in PER_COLUMN_KEYS}
-    meta = {"degree": DEGREE_2, "cells": built["cells"], "n_dofs": n_dofs, "n_edges": n_edges,
-            "n_faces": n_faces, "freq_hz": FREQ_HZ, "ranks": comm.size, "kappa_applied": False}
+    meta = {
+        "degree": DEGREE_2,
+        "cells": built["cells"],
+        "n_dofs": n_dofs,
+        "n_edges": n_edges,
+        "n_faces": n_faces,
+        "freq_hz": FREQ_HZ,
+        "ranks": comm.size,
+        "kappa_applied": False,
+    }
 
     # ---- save first (H15a): rank 0 writes, every rank raises on failure ---
     err = None
@@ -337,9 +396,11 @@ def _run_step5(mode, save_path):
     if err is not None:
         raise RuntimeError(f"save to {save_path} failed: {err}")
     loaded = comm.bcast(_load_s32(save_path) if comm.rank == 0 else None, root=0)
-    say(f"saved {save_path}; (L1) reload dtype {loaded['s32'].dtype}, bitwise "
+    say(
+        f"saved {save_path}; (L1) reload dtype {loaded['s32'].dtype}, bitwise "
         f"{np.array_equal(loaded['s32'].view(np.uint64), s.view(np.uint64))}, order equal "
-        f"{loaded['order'] == all_ids} (ASSERTED)")
+        f"{loaded['order'] == all_ids} (ASSERTED)"
+    )
     assert loaded["s32"].dtype == np.complex128
     assert np.array_equal(loaded["s32"].view(np.uint64), s.view(np.uint64))
     assert loaded["order"] == all_ids
@@ -351,8 +412,10 @@ def _run_step5(mode, save_path):
     worst_rel = max(cols[p]["rel"] for p in all_ids)
     min_blind = min(cols[p]["blind"] for p in all_ids)
     say(f"(R) degree-1 comparand, PRINTED only: P17 P_src rel {r_src:.3e}, P_surf rel {r_surf:.3e}")
-    say(f"(P) worst rel {worst_rel:.3e} (band {DISCRETE_IDENTITY_RTOL:g}, ASSERTED); NEG min "
-        f"blind {min_blind / DISCRETE_IDENTITY_RTOL:.1f}x band (bar {BLIND_FACTOR:.0f}x, ASSERTED)")
+    say(
+        f"(P) worst rel {worst_rel:.3e} (band {DISCRETE_IDENTITY_RTOL:g}, ASSERTED); NEG min "
+        f"blind {min_blind / DISCRETE_IDENTITY_RTOL:.1f}x band (bar {BLIND_FACTOR:.0f}x, ASSERTED)"
+    )
     assert worst_rel <= DISCRETE_IDENTITY_RTOL, worst_rel
     assert min_blind >= BLIND_FACTOR * DISCRETE_IDENTITY_RTOL, min_blind
 
@@ -383,16 +446,24 @@ def _run_step5(mode, save_path):
         try:
             z1 = _load_s32(H12C_NPZ)
             idx = {p: z1["order"].index(p) for p in all_ids}
-            d1_means = {key: float(np.mean([abs(z1["s32"][idx[all_ids[i]], idx[all_ids[j]]])
-                                            for i, j in ij])) for key, ij in classes.items()}
+            d1_means = {
+                key: float(
+                    np.mean([abs(z1["s32"][idx[all_ids[i]], idx[all_ids[j]]]) for i, j in ij])
+                )
+                for key, ij in classes.items()
+            }
         except Exception as exc:  # noqa: BLE001 — optional read, printed only
             print(f"[WF-12 step5] h12c read failed: {exc!r} (not a failure)", flush=True)
     d1_means = comm.bcast(d1_means, root=0)
     say(f"(ii) reciprocity {ratio:.6e} (band {RECIPROCITY_BAND:.0e}, ASSERTED)")
-    say(f"(iii) sigma_max {sigma_max:.12f}, column sum|S|^2 max {col_norms.max():.6f} (ceiling "
-        f"{MATRIX_PASSIVITY_CEILING}, ASSERTED)")
-    say(f"(iv') classes {len(classes)} (expected {N_SYMMETRY_CLASSES}, ASSERTED); azimuth "
-        f"residual {worst_residual_deg:.3e} deg (< {AZIMUTH_MATCH_DEG:.0e}, ASSERTED)")
+    say(
+        f"(iii) sigma_max {sigma_max:.12f}, column sum|S|^2 max {col_norms.max():.6f} (ceiling "
+        f"{MATRIX_PASSIVITY_CEILING}, ASSERTED)"
+    )
+    say(
+        f"(iv') classes {len(classes)} (expected {N_SYMMETRY_CLASSES}, ASSERTED); azimuth "
+        f"residual {worst_residual_deg:.3e} deg (< {AZIMUTH_MATCH_DEG:.0e}, ASSERTED)"
+    )
     for same_ring in (True, False):
         for steps in range(N_AZIMUTH_CLASSES):
             key = (same_ring, steps)
@@ -400,14 +471,20 @@ def _run_step5(mode, save_path):
                 continue
             sp, cnt, mean = spreads[key]
             d1 = f"  d1 {d1_means[key]:.9e}" if d1_means else ""
-            say(f"     {'same ' if same_ring else 'other'} ring, {steps} steps  n = {cnt:4d}  "
-                f"mean |S| d2 {mean:.9e}{d1}  spread {sp * 100:8.4f}%")
+            say(
+                f"     {'same ' if same_ring else 'other'} ring, {steps} steps  n = {cnt:4d}  "
+                f"mean |S| d2 {mean:.9e}{d1}  spread {sp * 100:8.4f}%"
+            )
     say(f"     worst class spread {spreads[worst][0]:.4e} (band {OPPOSITE_SPREAD_BAND}, ASSERTED)")
-    say(f"S17,17 {cols[DRIVEN]['s'][DRIVEN]:.6f} beside step 4 {S1717_D2_STEP4_RECORD:.6f} (printed)")
+    say(
+        f"S17,17 {cols[DRIVEN]['s'][DRIVEN]:.6f} beside step 4 {S1717_D2_STEP4_RECORD:.6f} (printed)"
+    )
     held_cad = [cols[p]["t_solve"] + cols[p]["t_post"] for p in all_ids[1:]]
-    say(f"PRICE: build {t_build:.1f} s + factorising {first['t_solve'] + first['t_post']:.1f} s + "
+    say(
+        f"PRICE: build {t_build:.1f} s + factorising {first['t_solve'] + first['t_post']:.1f} s + "
         f"31 held, mean {np.mean(held_cad):.2f} s, max {max(held_cad):.2f} s; window "
-        f"{time.perf_counter() - t_window:.1f} s")
+        f"{time.perf_counter() - t_window:.1f} s"
+    )
     assert ratio <= RECIPROCITY_BAND, ratio
     assert sigma_max <= MATRIX_PASSIVITY_CEILING, sigma_max
     assert float(col_norms.max()) <= MATRIX_PASSIVITY_CEILING, col_norms.max()
@@ -434,9 +511,13 @@ def test_wf12_step5a_knob_coding(monkeypatch):
             _mode_knob()
     monkeypatch.setenv(SAVE_ENV, ENTRY36_SAVE)
     assert _save_knob() == ENTRY36_SAVE
-    bad_paths = ["logs/wf12/x-d2.npz", "/workspace/logs/wf7/x-d2.npz",
-                 "/workspace/logs/wf12/../wf12/x-d2.npz", "/workspace/logs/wf12/x.npz",
-                 "/workspace/logs/wf12/x-d2.npy"] + [SAVE_DIR + b for b in sorted(REFUSED)]
+    bad_paths = [
+        "logs/wf12/x-d2.npz",
+        "/workspace/logs/wf7/x-d2.npz",
+        "/workspace/logs/wf12/../wf12/x-d2.npz",
+        "/workspace/logs/wf12/x.npz",
+        "/workspace/logs/wf12/x-d2.npy",
+    ] + [SAVE_DIR + b for b in sorted(REFUSED)]
     for bad in bad_paths:
         monkeypatch.setenv(SAVE_ENV, bad)
         with pytest.raises(ValueError):
@@ -461,10 +542,19 @@ def test_wf12_step5a_save_round_trip(tmp_path):
     s = rng.standard_normal((32, 32)) + 1j * rng.standard_normal((32, 32))
     assert s.dtype == np.complex128
     order = [f"P{i}" for i in [17] + [k for k in range(1, 33) if k != 17]]
-    per_col = {key: (rng.random(32) > 0.5 if key == "held" else rng.random(32))
-               for key in PER_COLUMN_KEYS}
-    meta = {"degree": 2, "cells": 369_387, "n_dofs": UNKNOWNS_RECORD, "n_edges": EDGES_RECORD,
-            "n_faces": FACES_RECORD, "freq_hz": FREQ_HZ, "ranks": 2, "kappa_applied": False}
+    per_col = {
+        key: (rng.random(32) > 0.5 if key == "held" else rng.random(32)) for key in PER_COLUMN_KEYS
+    }
+    meta = {
+        "degree": 2,
+        "cells": 369_387,
+        "n_dofs": UNKNOWNS_RECORD,
+        "n_edges": EDGES_RECORD,
+        "n_faces": FACES_RECORD,
+        "freq_hz": FREQ_HZ,
+        "ranks": 2,
+        "kappa_applied": False,
+    }
     path = tmp_path / "synthetic-d2.npz"
     _save_s32(path, s, order, per_col, meta)
     z = _load_s32(path)
@@ -489,8 +579,11 @@ def test_wf12_step5a_save_round_trip(tmp_path):
     # and the writer refuses a non-complex128 matrix outright.
     with pytest.raises(TypeError):
         _save_s32(tmp_path / "c64-d2.npz", s.astype(np.complex64), order, per_col, meta)
-    print(f"[WF-12 step5] (K0b) synthetic 32x32 bitwise reload True; overwrite refused; "
-          f"complex64 round trip max |d| {np.max(np.abs(back - s)):.3e} (not bitwise)", flush=True)
+    print(
+        f"[WF-12 step5] (K0b) synthetic 32x32 bitwise reload True; overwrite refused; "
+        f"complex64 round trip max |d| {np.max(np.abs(back - s)):.3e} (not bitwise)",
+        flush=True,
+    )
 
 
 @complex_only

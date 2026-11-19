@@ -156,13 +156,22 @@ def test_wf17_s43_step_block_and_refusal(capsys):
     assert float(vals["theta"]) == be10.theta
     assert int(vals["startup_half_steps"]) == be10.startup_half_steps
     digits = re.findall(r"\d+(?:\.\d+)?", _prose(section))
-    assert digits == [vals["dt_s"], vals["n_steps"], vals["theta"], vals["startup_half_steps"]], digits
+    assert digits == [
+        vals["dt_s"],
+        vals["n_steps"],
+        vals["theta"],
+        vals["startup_half_steps"],
+    ], digits
     with capsys.disabled():
-        _p0(f"\n[WF-17 s43] (X) step block one run_study_file, no Study(/probe; yaml fences "
-            f"{yaml_fences}")
-        _p0(f"[WF-17 s43] (In) prose {vals} vs _be(DT_1/10) dt {be10.dt_s!r} (rel {dt_rel:.3e}), "
+        _p0(
+            f"\n[WF-17 s43] (X) step block one run_study_file, no Study(/probe; yaml fences "
+            f"{yaml_fences}"
+        )
+        _p0(
+            f"[WF-17 s43] (In) prose {vals} vs _be(DT_1/10) dt {be10.dt_s!r} (rel {dt_rel:.3e}), "
             f"n {be10.n_steps}, theta {be10.theta!r}, half {be10.startup_half_steps}; prose "
-            f"digits {digits}")
+            f"digits {digits}"
+        )
 
     # (Ref) the malformed file: thermal.duty refused on load and by `femem check` (rc 2).
     with pytest.raises(StudyConfigError) as err:
@@ -173,9 +182,11 @@ def test_wf17_s43_step_block_and_refusal(capsys):
     check_out = capsys.readouterr()
     rc_all = (comm.allreduce(int(rc), op=MPI.MIN), comm.allreduce(int(rc), op=MPI.MAX))
     with capsys.disabled():
-        _p0(f"[WF-17 s43] (Ref) load_study field {err.value.field!r}, reason {err.value.reason!r}; "
+        _p0(
+            f"[WF-17 s43] (Ref) load_study field {err.value.field!r}, reason {err.value.reason!r}; "
             f"femem check rc (min, max) {rc_all}; check stdout {check_out.out!r} stderr "
-            f"{check_out.err!r}")
+            f"{check_out.err!r}"
+        )
     assert field_ok, err.value.field
     assert rc_all == (2, 2), rc_all
 
@@ -188,7 +199,9 @@ def test_wf17_s43_step_block_and_refusal(capsys):
     # (c-page) each new tag removed or doubled raises.
     for tag, lang, body in ((STEP_TAG, "python", block), (CHECK_TAG, "bash", check)):
         with pytest.raises(LookupError):
-            extract_tagged_block(text.replace(f"```{lang} {tag}\n", f"```{lang} other\n"), tag, lang=lang)
+            extract_tagged_block(
+                text.replace(f"```{lang} {tag}\n", f"```{lang} other\n"), tag, lang=lang
+            )
         with pytest.raises(LookupError):
             extract_tagged_block(text + f"\n```{lang} {tag}\n{body}```\n", tag, lang=lang)
     _p0("[WF-17 s43] (c-page) removed / doubled step and check tags raise LookupError")
@@ -200,8 +213,10 @@ def test_wf17_s43_docrefs_zero_dead():
     rc, counts = run_checker("--docs-root", "docs/guide", "--check-links")
     link = LINK_PASS_RE.search(_checker_stdout("--docs-root", "docs/guide", "--check-links"))
     assert link is not None, "(D) no 'Link pass:' line"
-    print(f"[WF-17 s43] (D) dead={counts['dead']} links={link.group(1)} pages={link.group(2)} "
-          f"link-dead={link.group(3)} rc={rc}")
+    print(
+        f"[WF-17 s43] (D) dead={counts['dead']} links={link.group(1)} pages={link.group(2)} "
+        f"link-dead={link.group(3)} rc={rc}"
+    )
     assert counts["dead"] == 0
     assert int(link.group(3)) == 0
     assert int(link.group(2)) >= MIN_GUIDE_PAGES
@@ -217,11 +232,18 @@ def test_wf17_s43_rod_route_refuses_duty_in_python():
 
     study, _kind, _outputs, rod = _load(ROD_YAML)
     with pytest.raises(ValueError, match=re.escape(DUTY_MSG)) as err:
-        study.temperature(rod.cooling, transient=rod.transient, balls=rod.balls, drive=rod.drive,
-                          duty=DutyCycle(period_s=250.8, duty=0.5))
+        study.temperature(
+            rod.cooling,
+            transient=rod.transient,
+            balls=rod.balls,
+            drive=rod.drive,
+            duty=DutyCycle(period_s=250.8, duty=0.5),
+        )
     unset = study.result is None and getattr(study, "fields_result", None) is None
-    _p0(f"\n[WF-17 s43] (Ref-Py) {type(err.value).__name__}: {str(err.value)!r}; result / "
-        f"fields_result unset afterwards: {unset} (ASSERTED)")
+    _p0(
+        f"\n[WF-17 s43] (Ref-Py) {type(err.value).__name__}: {str(err.value)!r}; result / "
+        f"fields_result unset afterwards: {unset} (ASSERTED)"
+    )
     assert unset, (study.result, getattr(study, "fields_result", None))
 
 
@@ -268,8 +290,9 @@ def test_wf17_s43_step_block(monkeypatch):
     comps = _ball_comparands({"res": res, "G": 1.0 / ns["P"], "be10": be10}, None)
     sub, _pid = study_module._tag_submesh(res.mesh, res.cell_tags, PHANTOM_CELL_TAG)
     one = fem.Constant(sub, default_scalar_type(1.0))
-    v_sub = float(np.real(comm.allreduce(fem.assemble_scalar(fem.form(one * ufl.dx(domain=sub))),
-                                         op=MPI.SUM)))
+    v_sub = float(
+        np.real(comm.allreduce(fem.assemble_scalar(fem.form(one * ufl.dx(domain=sub))), op=MPI.SUM))
+    )
     t_cmp = time.perf_counter() - t0
 
     # 4. YAML side: the step file under its own scratch (gitignored), then the step block.
@@ -279,14 +302,20 @@ def test_wf17_s43_step_block(monkeypatch):
     if comm.rank == 0:
         m = _yaml_mapping()
         m["thermal"]["source_scale"] = 1.0 / float(ns["P"])
-        m["thermal"]["transient"] = {"dt_s": DT_1 / 10.0, "n_steps": 1, "rho_c_j_per_m3_k": RHO_C,
-                                     "theta": 1.0, "startup_half_steps": 0}
+        m["thermal"]["transient"] = {
+            "dt_s": DT_1 / 10.0,
+            "n_steps": 1,
+            "rho_c_j_per_m3_k": RHO_C,
+            "theta": 1.0,
+            "startup_half_steps": 0,
+        }
         path.write_text(yaml.safe_dump(m, sort_keys=False))
     comm.Barrier()
     block = extract_tagged_block(text, STEP_TAG)
     assert block.count(f'"{STEP_FILE}"') == 1
-    ns_y, out_y = _exec_block(monkeypatch, block.replace(f'"{STEP_FILE}"', repr(str(path)), 1),
-                              "heating-step")
+    ns_y, out_y = _exec_block(
+        monkeypatch, block.replace(f'"{STEP_FILE}"', repr(str(path)), 1), "heating-step"
+    )
     t_file = time.perf_counter() - t0
     run = ns_y["run"]
     summ = run.summary["temperature"]
@@ -303,8 +332,9 @@ def test_wf17_s43_step_block(monkeypatch):
     comm.Barrier()
     file_block = extract_tagged_block(text, HEAT_FILE_TAG)
     assert file_block.count('"rod_heating.yaml"') == 1
-    ns_cn, out_cn = _exec_block(monkeypatch, file_block.replace('"rod_heating.yaml"',
-                                                                repr(str(cn_path)), 1), "heating-file")
+    ns_cn, out_cn = _exec_block(
+        monkeypatch, file_block.replace('"rod_heating.yaml"', repr(str(cn_path)), 1), "heating-file"
+    )
     t_cn = time.perf_counter() - t0
     run_cn = ns_cn["run"]
     summ_cn = run_cn.summary["temperature"]
@@ -316,7 +346,11 @@ def test_wf17_s43_step_block(monkeypatch):
     th_1 = {n: float(be.balls[i]["theta_k"][1]) for i, n in enumerate(names)}
     rows_s = _tip_slope_rows(th_s, dt10, comps, RHO_C)
     rows_y = _tip_slope_rows(th_y, dt10, comps, RHO_C)
-    r_s, r_y, r_1 = _ratios(th_s, dt10, comps), _ratios(th_y, dt10, comps), _ratios(th_1, DT_1, comps)
+    r_s, r_y, r_1 = (
+        _ratios(th_s, dt10, comps),
+        _ratios(th_y, dt10, comps),
+        _ratios(th_1, DT_1, comps),
+    )
     s_s = RHO_C * be10.volume_mean_k[1] / (dt10 * be10.source_power_w / v_sub)
     s_y = RHO_C * summ["volume_mean_k"][1] / (dt10 * summ["source_power_w"] / v_sub)
 
@@ -325,8 +359,11 @@ def test_wf17_s43_step_block(monkeypatch):
     c_theta = abs(th_cn["top"] / th_heat["bottom"] - 1.0)
     vm_heat, vm_cn = float(heat.volume_mean_k[-1]), float(summ_cn["volume_mean_k"][-1])
 
-    scale_ok = (summ["source_scale"] == cooling.source_scale and summ["n_steps"] == 1
-                and summ["theta"] == 1.0)
+    scale_ok = (
+        summ["source_scale"] == cooling.source_scale
+        and summ["n_steps"] == 1
+        and summ["theta"] == 1.0
+    )
     scale_cn_ok = summ_cn["source_scale"] == cooling.source_scale
     gates = {
         "Scale": scale_ok,
@@ -348,49 +385,81 @@ def test_wf17_s43_step_block(monkeypatch):
         gates[f"c-dt {n}"] = abs(r_y[n] - r_1[n]) > IDENTITY_BAND
         gates[f"R_Pi form {n}"] = abs(abs(r_y[n] - 1.0) - rows_y[n]["R_Pi"]) <= IDENTITY_BAND
 
-    _p0(f"\n[WF-17 s43] -n {comm.size}: heating block {t_py:.1f} s, two BE steps {t_be:.1f} s, "
-        f"comparand {t_cmp:.1f} s, step file block {t_file:.1f} s, CN file block {t_cn:.1f} s")
+    _p0(
+        f"\n[WF-17 s43] -n {comm.size}: heating block {t_py:.1f} s, two BE steps {t_be:.1f} s, "
+        f"comparand {t_cmp:.1f} s, step file block {t_file:.1f} s, CN file block {t_cn:.1f} s"
+    )
     _p0(f"[WF-17 s43] step block stdout (rank 0): {out_y!r}")
     _p0(f"[WF-17 s43] CN file block stdout (rank 0): {out_cn!r}")
-    _p0(f"[WF-17 s43] (Scale) file source_scale {summ['source_scale']!r} vs block "
+    _p0(
+        f"[WF-17 s43] (Scale) file source_scale {summ['source_scale']!r} vs block "
         f"{cooling.source_scale!r}; n_steps {summ['n_steps']}, theta {summ['theta']!r}, dt_s "
-        f"{summ['dt_s']!r}: {'green' if scale_ok else 'RED'} (precondition, ASSERTED)")
-    _p0(f"[WF-17 s43] (Scale CN) CN file source_scale {summ_cn['source_scale']!r} vs block "
-        f"{cooling.source_scale!r}: {'green' if scale_cn_ok else 'RED'} (precondition, ASSERTED)")
-    _p0(f"[WF-17 s43] (Cells) step file {run.summary['cells']}, CN file {run_cn.summary['cells']}, "
-        f"block {heat.cells}, record {ROD_EXACT_CELL_RECORD} (ASSERTED)")
-    _p0(f"[WF-17 s43] (E) CN heat block {heat.max_balance_residual:.3e}, CN file "
-        f"{summ_cn['max_balance_residual']:.3e} (E_BAND {E_BAND:.0e}, ASSERTED)")
+        f"{summ['dt_s']!r}: {'green' if scale_ok else 'RED'} (precondition, ASSERTED)"
+    )
+    _p0(
+        f"[WF-17 s43] (Scale CN) CN file source_scale {summ_cn['source_scale']!r} vs block "
+        f"{cooling.source_scale!r}: {'green' if scale_cn_ok else 'RED'} (precondition, ASSERTED)"
+    )
+    _p0(
+        f"[WF-17 s43] (Cells) step file {run.summary['cells']}, CN file {run_cn.summary['cells']}, "
+        f"block {heat.cells}, record {ROD_EXACT_CELL_RECORD} (ASSERTED)"
+    )
+    _p0(
+        f"[WF-17 s43] (E) CN heat block {heat.max_balance_residual:.3e}, CN file "
+        f"{summ_cn['max_balance_residual']:.3e} (E_BAND {E_BAND:.0e}, ASSERTED)"
+    )
     for n in names:
-        _p0(f"[WF-17 s43] (Y-theta) {n}: Study theta(t*) {th_heat[n]:.15e} K vs CN file "
+        _p0(
+            f"[WF-17 s43] (Y-theta) {n}: Study theta(t*) {th_heat[n]:.15e} K vs CN file "
             f"{th_cn[n]:.15e} K: rel {rel_theta[n]:.3e} vs item 908 {PRIOR_Y_THETA[n]} "
-            f"(IDENTITY_BAND {IDENTITY_BAND:.0e}, ASSERTED)")
-    _p0(f"[WF-17 s43] (c-theta) CN file top {th_cn['top']:.15e} K vs Study bottom "
+            f"(IDENTITY_BAND {IDENTITY_BAND:.0e}, ASSERTED)"
+        )
+    _p0(
+        f"[WF-17 s43] (c-theta) CN file top {th_cn['top']:.15e} K vs Study bottom "
         f"{th_heat['bottom']:.15e} K: rel {c_theta:.3e} > IDENTITY_BAND (miss ASSERTED; "
-        f"predicted ~2.04e-02)")
-    _p0(f"[WF-17 s43] volume-mean theta(t*) Study {vm_heat:.15e} K, CN file {vm_cn:.15e} K: rel "
-        f"{abs(vm_cn / vm_heat - 1.0):.3e} (printed, no gate)")
-    _p0(f"[WF-17 s43] P {float(np.real(ns['P'])):.12e} W vs item 884 {PRIOR_P} W (printed); "
-        f"source_power_w Study {be10.source_power_w:.15e}, file {summ['source_power_w']:.15e}")
-    _p0(f"[WF-17 s43] (E) Study BE dt1/10 {be10.max_balance_residual:.3e}, file "
+        f"predicted ~2.04e-02)"
+    )
+    _p0(
+        f"[WF-17 s43] volume-mean theta(t*) Study {vm_heat:.15e} K, CN file {vm_cn:.15e} K: rel "
+        f"{abs(vm_cn / vm_heat - 1.0):.3e} (printed, no gate)"
+    )
+    _p0(
+        f"[WF-17 s43] P {float(np.real(ns['P'])):.12e} W vs item 884 {PRIOR_P} W (printed); "
+        f"source_power_w Study {be10.source_power_w:.15e}, file {summ['source_power_w']:.15e}"
+    )
+    _p0(
+        f"[WF-17 s43] (E) Study BE dt1/10 {be10.max_balance_residual:.3e}, file "
         f"{summ['max_balance_residual']:.3e}, Study BE dt1 {be.max_balance_residual:.3e} "
-        f"(E_BAND {E_BAND:.0e}, ASSERTED on the first two)")
+        f"(E_BAND {E_BAND:.0e}, ASSERTED on the first two)"
+    )
     for n in names:
-        _p0(f"[WF-17 s43] (Y-Pi) {n}: r_Y {r_y[n]!r} vs r_S {r_s[n]!r}: |dr| "
+        _p0(
+            f"[WF-17 s43] (Y-Pi) {n}: r_Y {r_y[n]!r} vs r_S {r_s[n]!r}: |dr| "
             f"{abs(r_y[n] - r_s[n]):.3e} beside (E) Study {be10.max_balance_residual:.3e} / file "
-            f"{summ['max_balance_residual']:.3e} (reading, no band)")
-        _p0(f"[WF-17 s43] (Band) {n}: R_Pi Study {rows_s[n]['R_Pi']:.4e}, file "
-            f"{rows_y[n]['R_Pi']:.4e} vs item 884 {PRIOR_RPI_10[n]} (S2_BAND {S2_BAND:.0e}, ASSERTED)")
-        _p0(f"[WF-17 s43] (c-dt) {n}: r_Y vs Study dt1 r {r_1[n]!r}: |dr| "
+            f"{summ['max_balance_residual']:.3e} (reading, no band)"
+        )
+        _p0(
+            f"[WF-17 s43] (Band) {n}: R_Pi Study {rows_s[n]['R_Pi']:.4e}, file "
+            f"{rows_y[n]['R_Pi']:.4e} vs item 884 {PRIOR_RPI_10[n]} (S2_BAND {S2_BAND:.0e}, ASSERTED)"
+        )
+        _p0(
+            f"[WF-17 s43] (c-dt) {n}: r_Y vs Study dt1 r {r_1[n]!r}: |dr| "
             f"{abs(r_y[n] - r_1[n]):.3e} > IDENTITY_BAND (miss ASSERTED); R_Pi at dt1 "
-            f"{abs(r_1[n] - 1.0):.4e}")
-        _p0(f"[WF-17 s43] block theta(t*) {n} {float(heat.balls[names.index(n)]['theta_k'][-1]):.12e} K "
-            f"(item 908's reading, not re-gated)")
-    _p0(f"[WF-17 s43] (Y-S2) s_Y {s_y!r} vs s_S {s_s!r}: |ds| {abs(s_y - s_s):.3e} beside (E) "
+            f"{abs(r_1[n] - 1.0):.4e}"
+        )
+        _p0(
+            f"[WF-17 s43] block theta(t*) {n} {float(heat.balls[names.index(n)]['theta_k'][-1]):.12e} K "
+            f"(item 908's reading, not re-gated)"
+        )
+    _p0(
+        f"[WF-17 s43] (Y-S2) s_Y {s_y!r} vs s_S {s_s!r}: |ds| {abs(s_y - s_s):.3e} beside (E) "
         f"Study {be10.max_balance_residual:.3e} / file {summ['max_balance_residual']:.3e} "
-        f"(reading, no band)")
-    _p0(f"[WF-17 s43] (Band) |s-1| Study {abs(s_s - 1.0):.4e}, file {abs(s_y - 1.0):.4e} vs item 884 "
-        f"{PRIOR_S2_10} (S2_BAND {S2_BAND:.0e}, ASSERTED); V_sub {v_sub:.12e}")
+        f"(reading, no band)"
+    )
+    _p0(
+        f"[WF-17 s43] (Band) |s-1| Study {abs(s_s - 1.0):.4e}, file {abs(s_y - 1.0):.4e} vs item 884 "
+        f"{PRIOR_S2_10} (S2_BAND {S2_BAND:.0e}, ASSERTED); V_sub {v_sub:.12e}"
+    )
     red = sorted(set(comm.allreduce([k for k, v in gates.items() if not v], op=MPI.SUM)))
     _p0(f"[WF-17 s43] gates red: {red or 'none'} of {len(gates)}")
     assert not red, red

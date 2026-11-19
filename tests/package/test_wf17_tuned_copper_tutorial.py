@@ -46,7 +46,6 @@ from fem_em_solver import (
     Study,
     TwoPortQuadratureDrive,
 )
-
 from tests.complex_mode import complex_only
 from tests.mesh.test_birdcage_leg_offset import IDENTITY_BAND
 from tests.package.test_wf16_study_tuned_f_human_b1_sar import (
@@ -232,8 +231,9 @@ def test_wf17_s4_planted_page_and_parameter_controls(monkeypatch):
         extract_tagged_block(doubled, TAG)
     # (c2a) ESR 0.2 -> 0.0 is caught before any solve, and only as excitation.
     assert block.count("esr_ohm=0.2") == 1, "(c2) the ESR literal must occur exactly once"
-    recorded, _ = exec_block(block.replace("esr_ohm=0.2", "esr_ohm=0.0"), monkeypatch,
-                             stop_before_solve=True)
+    recorded, _ = exec_block(
+        block.replace("esr_ohm=0.2", "esr_ohm=0.0"), monkeypatch, stop_before_solve=True
+    )
     mismatches = configuration_mismatches(recorded["study"])
     _p0(f"(c2a) mismatches on esr_ohm=0.0: {mismatches}")
     assert mismatches == ["excitation"]
@@ -241,8 +241,9 @@ def test_wf17_s4_planted_page_and_parameter_controls(monkeypatch):
     # (c2b) the feed-bisector mirror azimuth misses the centre check only.
     assert block.count("np.radians(11.25)") == 1, "(c2) the azimuth literal must occur once"
     monkeypatch.undo()
-    recorded, _ = exec_block(block.replace("np.radians(11.25)", "np.radians(56.25)"),
-                             monkeypatch, stop_before_solve=True)
+    recorded, _ = exec_block(
+        block.replace("np.radians(11.25)", "np.radians(56.25)"), monkeypatch, stop_before_solve=True
+    )
     assert configuration_mismatches(recorded["study"]) == []
     call = sar_call_mismatches(recorded, Z_C_NO_MESH)
     _p0(f"(c2b) sar-call mismatches on az 56.25: {call}")
@@ -291,8 +292,9 @@ def test_wf17_s4_block_reproduces_the_h9p_record(monkeypatch):
     # (K) on the live instance.
     assert configuration_mismatches(study) == []
     res = study.result
-    centre, _radius, _hh, _lo, _hi = _phantom_geometry(res.mesh, res.cell_tags,
-                                                       PHANTOM_CELL_TAG, comm)
+    centre, _radius, _hh, _lo, _hi = _phantom_geometry(
+        res.mesh, res.cell_tags, PHANTOM_CELL_TAG, comm
+    )
     z_c = float(centre[2])
     _p0(f"(K) live z_c {z_c:.6e} m; cells {res.mesh.topology.index_map(3).size_global}")
     assert sar_call_mismatches(recorded, z_c) == []
@@ -301,9 +303,11 @@ def test_wf17_s4_block_reproduces_the_h9p_record(monkeypatch):
     assert len(rows) == 1
     sar = float(rows[0]["averaged_sar_w_per_kg"])
     rel = abs(sar - H9P_SAR10G_CSTAR_RECORD_W_PER_KG) / H9P_SAR10G_CSTAR_RECORD_W_PER_KG
-    _p0(f"(R) SAR10g(c*) = {sar!r} ({sar:.9e}) W/kg; record "
+    _p0(
+        f"(R) SAR10g(c*) = {sar!r} ({sar:.9e}) W/kg; record "
         f"{H9P_SAR10G_CSTAR_RECORD_W_PER_KG:.9e}; rel {rel:.3e} (band REUSE_REPRODUCTION_RTOL "
-        f"{REUSE_REPRODUCTION_RTOL:g}); mass {rows[0]['mass_kg'] * 1e3:.6f} g")
+        f"{REUSE_REPRODUCTION_RTOL:g}); mass {rows[0]['mass_kg'] * 1e3:.6f} g"
+    )
     _p0(f"block exec incl. build + node pair + one 10 g ball: {seconds:.1f} s at -n {comm.size}")
     assert rel <= REUSE_REPRODUCTION_RTOL
     if comm.rank == 0:

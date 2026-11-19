@@ -101,15 +101,14 @@ import warnings
 import numpy as np
 import pytest
 import ufl
-from mpi4py import MPI
-
 from dolfinx import default_scalar_type
+from mpi4py import MPI
 
 from fem_em_solver.core import HomogeneousMaterial, TimeHarmonicProblem
 from fem_em_solver.io.mesh import MeshGenerator
+from fem_em_solver.ports.circuit import z_to_s
 from fem_em_solver.ports.definitions import PortDefinition
 from fem_em_solver.ports.gap_voltage import GapVoltagePortSpec
-from fem_em_solver.ports.circuit import z_to_s
 from fem_em_solver.ports.sparameters import (
     _assemble_sparameter_matrix,
     run_n_port_sparameter_sweep,
@@ -586,12 +585,12 @@ def test_package_smatrix_is_symmetric_and_passive(package_sweep):
             f"||S||_2 = {spectral:.6f} (ceiling {S_SPECTRAL_NORM_CEILING:.1f})",
             flush=True,
         )
-    assert symmetry < S_SYMMETRY_BAND, (
-        f"S is not symmetric: ||S - S^T||/||S|| = {symmetry:.4e} >= {S_SYMMETRY_BAND:.1e}"
-    )
-    assert spectral <= S_SPECTRAL_NORM_CEILING, (
-        f"S is not passive: ||S||_2 = {spectral:.6f} > {S_SPECTRAL_NORM_CEILING:.1f}"
-    )
+    assert (
+        symmetry < S_SYMMETRY_BAND
+    ), f"S is not symmetric: ||S - S^T||/||S|| = {symmetry:.4e} >= {S_SYMMETRY_BAND:.1e}"
+    assert (
+        spectral <= S_SPECTRAL_NORM_CEILING
+    ), f"S is not passive: ||S||_2 = {spectral:.6f} > {S_SPECTRAL_NORM_CEILING:.1f}"
 
 
 def test_current_route_s_is_the_open_circuit_conversion(package_sweep):
@@ -732,9 +731,7 @@ def test_sanity_report_reproduces_the_gated_metrics_on_the_field_route(package_s
     assert not result.is_placeholder, "these anchors are the field route's, not the heuristic's"
     assert s.shape == (2, 2), "the 2x2 conversion below assumes a two-port S"
 
-    symmetry_ratio = float(
-        np.sqrt(2.0) * report.reciprocity_max_abs_delta / np.linalg.norm(s)
-    )
+    symmetry_ratio = float(np.sqrt(2.0) * report.reciprocity_max_abs_delta / np.linalg.norm(s))
     if comm.rank == 0:
         print(
             f"[PORT-5 step 1] sweep sanity report on the field route:\n"
@@ -771,8 +768,7 @@ def test_sanity_report_reproduces_the_gated_metrics_on_the_field_route(package_s
     assert abs(report.passivity_max_sigma - float(np.linalg.norm(s, 2))) < 1.0e-12
 
     assert report.warnings == (), (
-        "the field route tripped a sanity warning it must not trip: "
-        f"{report.warnings}"
+        "the field route tripped a sanity warning it must not trip: " f"{report.warnings}"
     )
     # Passivity as an inequality, on the second metric step 4 never read.
     assert report.passivity_max_column_power_sum <= 1.0, (
@@ -802,9 +798,7 @@ def test_sanity_report_reproduces_the_gated_metrics_on_the_field_route(package_s
     sigma_powerwave_miss = abs(
         report.passivity_max_sigma - SUPERSEDED_POWERWAVE_PASSIVITY_MAX_SIGMA
     )
-    symmetry_powerwave_miss = abs(
-        symmetry_ratio - SUPERSEDED_POWERWAVE_S_SYMMETRY_RATIO
-    )
+    symmetry_powerwave_miss = abs(symmetry_ratio - SUPERSEDED_POWERWAVE_S_SYMMETRY_RATIO)
     if comm.rank == 0:
         print(
             f"[PORT-20 step 3] negative control: the superseded power-wave "

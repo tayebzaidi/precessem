@@ -81,7 +81,6 @@ from fem_em_solver.post.sar import (
     mass_averaged_sar,
     point_sar,
 )
-
 from tests.complex_mode import complex_only
 from tests.validation.test_lossy_sphere_sar import (
     BOX_HALF_WIDTH,
@@ -138,9 +137,7 @@ def solved_sphere():
         material=HomogeneousMaterial(sigma=0.0, epsilon_r=1.0),
         cell_tags=cell_tags,
         material_map={
-            SPHERE_TAG: HomogeneousMaterial(
-                sigma=SIGMA_HIGH, epsilon_r=EPSILON_R_SPHERE
-            )
+            SPHERE_TAG: HomogeneousMaterial(sigma=SIGMA_HIGH, epsilon_r=EPSILON_R_SPHERE)
         },
         boundary_condition="pec_zero_tangential_a",
         dirichlet_e_field=_exact_exterior_numpy(SIGMA_HIGH),

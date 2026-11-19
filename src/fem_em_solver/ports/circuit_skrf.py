@@ -55,8 +55,9 @@ def _skrf():
     return skrf, Circuit
 
 
-def network_from_records(s: np.ndarray, z0: float, frequency_hz: float | Sequence[float],
-                         name: str = "fem_nport"):
+def network_from_records(
+    s: np.ndarray, z0: float, frequency_hz: float | Sequence[float], name: str = "fem_nport"
+):
     """An `skrf.Network` from a stored ``N×N`` (or ``F×N×N``) S-matrix.
 
     ``z0`` is the real reference impedance the matrix is expressed at (the field
@@ -140,7 +141,9 @@ def terminate(
         if logical in term:
             z = np.broadcast_to(np.asarray(term[logical], dtype=np.complex128), (len(freq),))
             if not np.all(np.isfinite(z)):
-                raise ValueError(f"termination on port {logical} must be finite, got {term[logical]!r}")
+                raise ValueError(
+                    f"termination on port {logical} must be finite, got {term[logical]!r}"
+                )
             element = Circuit.SeriesImpedance(freq, z, name=f"Z_{logical}", z0=z0)
             ground = Circuit.Ground(freq, name=f"GND_{logical}", z0=z0)
             connections.append([target, (element, 0)])

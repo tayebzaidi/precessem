@@ -32,7 +32,6 @@ from dolfinx import mesh as dmesh
 from mpi4py import MPI
 
 from fem_em_solver.thermal import solve_transient_conduction
-
 from tests.validation.test_imp7_duty_cycle_fem import S0_BAND
 from tests.validation.test_mat10_sar_to_heat_sphere import ROBIN_TAG, _robin_tags, _say
 from tests.validation.test_mat12_transient_sar_heating_sphere import E_BAND, RHO_C
@@ -93,18 +92,36 @@ def runs():
     t0 = time.perf_counter()
     m = RUNGS[-1]
     ns = [b * m for b in BASE]
-    msh = dmesh.create_box(comm, [np.array([-A_BOX, -B_BOX, -C_BOX]),
-                                  np.array([A_BOX, B_BOX, C_BOX])],
-                           ns, cell_type=dmesh.CellType.tetrahedron)
+    msh = dmesh.create_box(
+        comm,
+        [np.array([-A_BOX, -B_BOX, -C_BOX]), np.array([A_BOX, B_BOX, C_BOX])],
+        ns,
+        cell_type=dmesh.CellType.tetrahedron,
+    )
     ft = _robin_tags(msh)
     chi = _interior_chi(msh)
-    _say(f"\nMAT21-33 rung m = {m} {tuple(ns)}: cells {msh.topology.index_map(3).size_global}; "
-         f"D = {DUTY25}; CN N = {N_MAIN} + 2 BE half-steps, {N_MAIN + 1} snapshots per run; "
-         f"batch {HIST_LABELS}; ranks {comm.size}")
+    _say(
+        f"\nMAT21-33 rung m = {m} {tuple(ns)}: cells {msh.topology.index_map(3).size_global}; "
+        f"D = {DUTY25}; CN N = {N_MAIN} + 2 BE half-steps, {N_MAIN + 1} snapshots per run; "
+        f"batch {HIST_LABELS}; ranks {comm.size}"
+    )
 
-    kw = dict(k=K_GEL, rho_c=RHO_C, q=Q, h=H_GEL, t_inf=T_INF, t_init=T_INF, robin_tag=ROBIN_TAG,
-              dt=T_STAR / N_MAIN, n_steps=N_MAIN, theta=0.5, startup_half_steps=2, degree=1,
-              snapshot_steps=tuple(range(N_MAIN + 1)), source_schedule=_chi25)
+    kw = dict(
+        k=K_GEL,
+        rho_c=RHO_C,
+        q=Q,
+        h=H_GEL,
+        t_inf=T_INF,
+        t_init=T_INF,
+        robin_tag=ROBIN_TAG,
+        dt=T_STAR / N_MAIN,
+        n_steps=N_MAIN,
+        theta=0.5,
+        startup_half_steps=2,
+        degree=1,
+        snapshot_steps=tuple(range(N_MAIN + 1)),
+        source_schedule=_chi25,
+    )
     starts = {"ref": None, "tw0": lambda x: T_INF + G_GRAD * x[2]}
     out = {"E": {}, "sched": {}, "hist": {}, "hist_ok": {}}
     res = {}
@@ -124,8 +141,10 @@ def runs():
             ok_all = [a and b for a, b in zip(ok_all, ok)]
         res[key].snapshots.clear()
         out["hist"][key], out["hist_ok"][key] = hist, ok_all
-        _say(f"MAT21-33 run {key}: solve {ts - tq:.1f} s, reads {time.perf_counter() - ts:.1f} s; "
-             f"(E) {out['E'][key]:.3e} (E_BAND {E_BAND:.0e})")
+        _say(
+            f"MAT21-33 run {key}: solve {ts - tq:.1f} s, reads {time.perf_counter() - ts:.1f} s; "
+            f"(E) {out['E'][key]:.3e} (E_BAND {E_BAND:.0e})"
+        )
 
     tq = time.perf_counter()
     ex_c, npts = _exact(msh, _trans_ex(T_STAR))  # m = 0, also the continuous series
@@ -136,16 +155,20 @@ def runs():
             g_m, _ = _exact(msh, _trans_ex(T_STAR - tm))
             ex_d.x.array[:] += (-1.0) ** i * g_m.x.array
     ex_0, _ = _exact(msh, _grad_ex(T_STAR))
-    _say(f"MAT21-33 {len(T_SW25) + 1} series interpolations ({npts} P2 points): "
-         f"{time.perf_counter() - tq:.1f} s")
+    _say(
+        f"MAT21-33 {len(T_SW25) + 1} series interpolations ({npts} P2 points): "
+        f"{time.perf_counter() - tq:.1f} s"
+    )
 
     th = {key: r.temperature - T_INF for key, r in res.items()}
     out["Ir"] = _rel(msh, th["ref"], ex_d, chi)
     out["I0"] = _rel(msh, th["tw0"], ex_d + ex_0, chi)
     out["Ic"] = _rel(msh, th["tw0"], ex_c + ex_0, chi)
-    _say(f"MAT21-33 (I) reference: interior rel L2 {out['Ir']:.6e}; t_w = 0: {out['I0']:.6e}; "
-         f"bound {INTERIOR_BAND:.0e}; control, continuous superposition on t_w = 0: "
-         f"{out['Ic']:.4e} (asserted > {INTERIOR_BAND:.0e})")
+    _say(
+        f"MAT21-33 (I) reference: interior rel L2 {out['Ir']:.6e}; t_w = 0: {out['I0']:.6e}; "
+        f"bound {INTERIOR_BAND:.0e}; control, continuous superposition on t_w = 0: "
+        f"{out['Ic']:.4e} (asserted > {INTERIOR_BAND:.0e})"
+    )
     _say(f"MAT21-33 elapsed {time.perf_counter() - t0:.1f} s")
     return out
 
@@ -161,8 +184,10 @@ def test_w0_schedule_grid_and_item_753():
     for j, lab in enumerate(HIST_LABELS):
         ratio = _dose(_series(j, "tw0")) / _dose(_series(j, "ref")) - 1.0
         diff = abs(ratio - ITEM753_RATIO[lab])
-        _say(f"MAT21-33 W0 {lab}: series D / D_ref - 1 {ratio:+.6e} vs item 753 "
-             f"{ITEM753_RATIO[lab]:+.6e}, |delta| {diff:.3e} (bound {REPRO_BOUND:g})")
+        _say(
+            f"MAT21-33 W0 {lab}: series D / D_ref - 1 {ratio:+.6e} vs item 753 "
+            f"{ITEM753_RATIO[lab]:+.6e}, |delta| {diff:.3e} (bound {REPRO_BOUND:g})"
+        )
         assert diff <= REPRO_BOUND, (lab, ratio)
     _say(f"MAT21-33 W0 schedule {s}; {T_GRID.size} rows, DT {DT_BOX:.4f} s")
 
@@ -194,8 +219,10 @@ def test_q_wf_on_all_four_histories(runs):
     for key, hist in runs["hist"].items():
         for j, lab in enumerate(HIST_LABELS):
             dose, quad, rel, _swap, miss = _q_check_g(T_INF + hist[:, j], T_GRID)
-            _say(f"MAT21-33 (Q-wf) {key} {lab}: D {dose:.6e} s, quad {quad:.6e} s, rel {rel:.3e} "
-                 f"(bar {DOSE_BAR:g}, ASSERTED); R swap miss {miss:.4e} (printed)")
+            _say(
+                f"MAT21-33 (Q-wf) {key} {lab}: D {dose:.6e} s, quad {quad:.6e} s, rel {rel:.3e} "
+                f"(bar {DOSE_BAR:g}, ASSERTED); R swap miss {miss:.4e} (printed)"
+            )
             rows.append((key, lab, rel))
     for key, lab, rel in rows:
         assert rel <= DOSE_BAR, (key, lab, rel)
@@ -206,8 +233,10 @@ def test_control_gradient_dose_misses_the_reference_at_p5(runs):
     d_0 = _dose(runs["hist"]["tw0"][:, j])
     d_r = _dose(runs["hist"]["ref"][:, j])
     miss = abs(d_0 / d_r - 1.0)
-    _say(f"MAT21-33 control P5: t_w = 0 FEM D {d_0:.6e} s vs reference {d_r:.6e} s, miss "
-         f"{miss:.4e} (asserted > {DOSE_BAR:g})")
+    _say(
+        f"MAT21-33 control P5: t_w = 0 FEM D {d_0:.6e} s vs reference {d_r:.6e} s, miss "
+        f"{miss:.4e} (asserted > {DOSE_BAR:g})"
+    )
     assert miss > DOSE_BAR, miss
 
 
@@ -217,13 +246,17 @@ def test_control_continuous_superposition_misses_i(runs):
 
 def test_printed_dose_table(runs):
     """The record (no band); asserts only that it was formed."""
-    _say("MAT21-33 TABLE point | run | D FEM s | D item 753 s | FEM/series-1 | FEM D/D_ref-1 | "
-         "series D/D_ref-1")
+    _say(
+        "MAT21-33 TABLE point | run | D FEM s | D item 753 s | FEM/series-1 | FEM D/D_ref-1 | "
+        "series D/D_ref-1"
+    )
     for j, lab in enumerate(HIST_LABELS):
         d_h = {key: _dose(runs["hist"][key][:, j]) for key in KEYS}
         d_s = {key: _dose(_series(j, key)) for key in KEYS}
         for key in KEYS:
-            _say(f"MAT21-33 TABLE {lab} | {key} | {d_h[key]:.6e} | {d_s[key]:.6e} | "
-                 f"{d_h[key] / d_s[key] - 1.0:+.3e} | {d_h[key] / d_h['ref'] - 1.0:+.6e} | "
-                 f"{d_s[key] / d_s['ref'] - 1.0:+.6e}")
+            _say(
+                f"MAT21-33 TABLE {lab} | {key} | {d_h[key]:.6e} | {d_s[key]:.6e} | "
+                f"{d_h[key] / d_s[key] - 1.0:+.3e} | {d_h[key] / d_h['ref'] - 1.0:+.6e} | "
+                f"{d_s[key] / d_s['ref'] - 1.0:+.6e}"
+            )
             assert np.isfinite(d_h[key] / d_s[key])

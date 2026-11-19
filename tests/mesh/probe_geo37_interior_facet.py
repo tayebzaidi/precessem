@@ -16,11 +16,10 @@ import argparse
 import json
 import time
 
+import dolfinx
 import gmsh
 import numpy as np
 from mpi4py import MPI
-
-import dolfinx
 
 from fem_em_solver.io.mesh import (
     _model_to_mesh,

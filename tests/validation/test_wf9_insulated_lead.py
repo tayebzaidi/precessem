@@ -48,7 +48,6 @@ from fem_em_solver.io.mesh import (
     BIRDCAGE_IMPLANT_COAT_CELL_TAG,
 )
 from fem_em_solver.utils.constants import EPSILON_0, MU_0
-
 from tests.complex_mode import complex_only
 from tests.mesh.test_birdcage_implant_rod import (
     KEPT_ROD_CELL_GUARD,
@@ -132,9 +131,7 @@ def _build_case():
     problem = case["problem"]
     mmap = dict(problem.material_map)
     gel = mmap[PHANTOM_CELL_TAG]
-    rod_mat = HomogeneousMaterial(
-        sigma=SIGMA_WIRE_S_PER_M, epsilon_r=gel.epsilon_r, mu_r=gel.mu_r
-    )
+    rod_mat = HomogeneousMaterial(sigma=SIGMA_WIRE_S_PER_M, epsilon_r=gel.epsilon_r, mu_r=gel.mu_r)
     states = {
         "without": {BIRDCAGE_IMPLANT_CELL_TAG: gel, BIRDCAGE_IMPLANT_COAT_CELL_TAG: gel},
         "bare": {BIRDCAGE_IMPLANT_CELL_TAG: rod_mat, BIRDCAGE_IMPLANT_COAT_CELL_TAG: gel},
@@ -176,19 +173,36 @@ def _build_case():
         return comm.allreduce(int(np.count_nonzero(flags[:n_owned])), op=MPI.SUM)
 
     return {
-        "comm": comm, "mesh": msh, "built": built, "sweep": case,
-        "n_cells": n_cells, "n_owned": n_owned, "cells": cells,
-        "dof_of_cell": dof_of_cell, "q0": q0,
-        "flags": {"rod": rod, "coat": coat, "lead": lead, "ball": ball,
-                  "slabs_lead": slabs_lead, "slabs_rod": slabs_rod},
+        "comm": comm,
+        "mesh": msh,
+        "built": built,
+        "sweep": case,
+        "n_cells": n_cells,
+        "n_owned": n_owned,
+        "cells": cells,
+        "dof_of_cell": dof_of_cell,
+        "q0": q0,
+        "flags": {
+            "rod": rod,
+            "coat": coat,
+            "lead": lead,
+            "ball": ball,
+            "slabs_lead": slabs_lead,
+            "slabs_rod": slabs_rod,
+        },
         "owned_count": owned_count,
-        "chi_rod": mask(rod), "chi_coat": mask(coat), "chi_lead": mask(lead),
+        "chi_rod": mask(rod),
+        "chi_coat": mask(coat),
+        "chi_lead": mask(lead),
         "chi_b": mask(ball),
         "chi_k_lead": [mask(f) for f in slabs_lead],
         "chi_k_rod": [mask(f) for f in slabs_rod],
-        "gel": gel, "problems": problems, "t_mesh": t_mesh,
+        "gel": gel,
+        "problems": problems,
+        "t_mesh": t_mesh,
         # `_arm` / `_symmetry` read these keys.
-        "p_with": problems["coated"], "p_without": problems["without"],
+        "p_with": problems["coated"],
+        "p_without": problems["without"],
     }
 
 
@@ -200,16 +214,23 @@ def _case():
 
 
 def _minmax_on(fx, problem, flag):
-    view = {"comm": fx["comm"], "mesh": fx["mesh"], "n_owned": fx["n_owned"],
-            "flags": {"lead": flag}}
+    view = {
+        "comm": fx["comm"],
+        "mesh": fx["mesh"],
+        "n_owned": fx["n_owned"],
+        "flags": {"lead": flag},
+    }
     return _material_minmax(view, problem)
 
 
 def _eps_c_cells(fx, problem):
     """ε_c = εᵣ − jσ/(ωε₀) per local cell, as ``bilinear_form`` builds it."""
     sigma_f, eps_f = build_material_fields(
-        fx["mesh"], problem.material, cell_tags=problem.cell_tags,
-        material_map=problem.material_map, phantom_material=problem.phantom_material,
+        fx["mesh"],
+        problem.material,
+        cell_tags=problem.cell_tags,
+        material_map=problem.material_map,
+        phantom_material=problem.phantom_material,
         phantom_tag=problem.phantom_tag,
     )
     cells = fx["cells"]
@@ -220,8 +241,9 @@ def _eps_c_cells(fx, problem):
 
 def _contrast(fx, state):
     """DG0 c = k₀² (ε_c,state − ε_c,without), from the solver's own operator."""
-    vals = K0_SQ * (_eps_c_cells(fx, fx["problems"][state])
-                    - _eps_c_cells(fx, fx["problems"]["without"]))
+    vals = K0_SQ * (
+        _eps_c_cells(fx, fx["problems"][state]) - _eps_c_cells(fx, fx["problems"]["without"])
+    )
     c = fem.Function(fx["q0"])
     c.x.array[:] = 0.0
     n_owned = fx["n_owned"]
@@ -247,7 +269,8 @@ def test_wf9_step3_census(_case):
     gel = fx["gel"]
     mm = {
         (s, t): _minmax_on(fx, fx["problems"][s], fl[t])
-        for s in ("without", "bare", "coated") for t in ("rod", "coat")
+        for s in ("without", "bare", "coated")
+        for t in ("rod", "coat")
     }
     expect = {
         ("without", "rod"): (gel.sigma, gel.epsilon_r),
@@ -266,8 +289,10 @@ def test_wf9_step3_census(_case):
     _say(f"  403={n_rod} 404={n_coat} ball={n_ball} lead slabs={slab_counts}")
     _say(f"  slab partition of rod∪coat: {partition_ok}; ball/lead disjoint: {disjoint}")
     for key, v in mm.items():
-        _say(f"  (M0) {key[0]:7s} on {key[1]}: sigma [{v['sigma'][0]:.6g}, {v['sigma'][1]:.6g}] "
-             f"eps_r [{v['eps'][0]:.6g}, {v['eps'][1]:.6g}]; expected {expect[key]}")
+        _say(
+            f"  (M0) {key[0]:7s} on {key[1]}: sigma [{v['sigma'][0]:.6g}, {v['sigma'][1]:.6g}] "
+            f"eps_r [{v['eps'][0]:.6g}, {v['eps'][1]:.6g}]; expected {expect[key]}"
+        )
 
     assert rel_cells <= CELL_COUNT_BAND
     assert n_rod > 0 and n_coat > 0 and n_ball > 0
@@ -318,14 +343,22 @@ def _run_step3_identities(fx):
     ell = lambda v: ufl.inner((chi_b / v_ball) * zhat, v) * ufl.dx  # noqa: E731
 
     # ---- three arms; one factorised solver alive at a time (`_arm` frees) ------
-    e_o, y_o, tf_, th_ = _arm(fx, fx["problems"]["without"], first="P1",
-                              extra_loads={"ell": ell, "order": PORT_IDS + ("ell",)})
+    e_o, y_o, tf_, th_ = _arm(
+        fx,
+        fx["problems"]["without"],
+        first="P1",
+        extra_loads={"ell": ell, "order": PORT_IDS + ("ell",)},
+    )
     w0 = e_o.pop("ell")
     times["without_factor"], times["without_held5"] = tf_, th_
     arms = {}
     for arm in ("bare", "coated"):
-        e_w, y_w, tf_, th_ = _arm(fx, fx["problems"][arm], first="ell",
-                                  extra_loads={"ell": ell, "order": ("ell",) + PORT_IDS})
+        e_w, y_w, tf_, th_ = _arm(
+            fx,
+            fx["problems"][arm],
+            first="ell",
+            extra_loads={"ell": ell, "order": ("ell",) + PORT_IDS},
+        )
         w = e_w.pop("ell")
         arms[arm] = {"e": e_w, "y": y_w, "w": w}
         times[f"{arm}_factor"], times[f"{arm}_held4"] = tf_, th_
@@ -378,12 +411,20 @@ def _run_step3_identities(fx):
                     if np.sum(v_k[sl]) > 0.0:
                         qn += np.sum(tf_k[sl]) * (np.sum(ez_int[sl]) / np.sum(v_k[sl]))
                 folds[n_seg] = qn
-            res[arm][d] = dict(q_with=q_with, q_without=q_without, dq=dq, t3=t3, born=born,
-                               c1=c1, c2=c2, rod_only=rod_only, coat_part=coat_part,
-                               folds=folds)
+            res[arm][d] = dict(
+                q_with=q_with,
+                q_without=q_without,
+                dq=dq,
+                t3=t3,
+                born=born,
+                c1=c1,
+                c2=c2,
+                rod_only=rod_only,
+                coat_part=coat_part,
+                folds=folds,
+            )
 
-    rss_kb = float(__import__("resource").getrusage(
-        __import__("resource").RUSAGE_SELF).ru_maxrss)
+    rss_kb = float(__import__("resource").getrusage(__import__("resource").RUSAGE_SELF).ru_maxrss)
     rss = comm.allreduce(rss_kb, op=MPI.SUM) / 1024.0**2
     elapsed = time.perf_counter() - t_start
 
@@ -398,25 +439,39 @@ def _run_step3_identities(fx):
             path = os.path.join(TF_EXCHANGE_DIR, f"wf9_step3_tf_n{other}.npy")
             if os.path.exists(path):
                 ref_tf = np.load(path)
-                tf_agreement = (other, float(np.max(np.abs(stack - ref_tf)) / np.max(np.abs(ref_tf))))
+                tf_agreement = (
+                    other,
+                    float(np.max(np.abs(stack - ref_tf)) / np.max(np.abs(ref_tf))),
+                )
 
     q_held = res["coated"]["P1"]["q_with"]
     h_dev = float(abs(q_fresh - q_held) / abs(q_held))
-    recip = {a: float(np.linalg.norm(arms[a]["y"] - arms[a]["y"].T) / np.linalg.norm(arms[a]["y"]))
-             for a in arms}
+    recip = {
+        a: float(np.linalg.norm(arms[a]["y"] - arms[a]["y"].T) / np.linalg.norm(arms[a]["y"]))
+        for a in arms
+    }
     recip["without"] = float(np.linalg.norm(y_o - y_o.T) / np.linalg.norm(y_o))
 
-    _say(f"\n[WF-9 step3 identities] ranks={comm.size} dofs={ndofs} V_ball={v_ball:.6e} m^3; "
-         f"space degrees per factor {fx['space_degrees']}")
+    _say(
+        f"\n[WF-9 step3 identities] ranks={comm.size} dofs={ndofs} V_ball={v_ball:.6e} m^3; "
+        f"space degrees per factor {fx['space_degrees']}"
+    )
     for arm in ("bare", "coated"):
-        _say(f"  (R1) {arm}: max|c-LOAD*dsigma|/|LOAD*dsigma| on 403 = {r1[arm][0]:.3e} "
-             f"(rtol {R1_RTOL:g}); max|c| off lead = {r1[arm][1]:.3e}; "
-             f"mean c on 403 = {tag_mean(arm, fl['rod']):.6e}, on 404 = "
-             f"{tag_mean(arm, fl['coat']):.6e}")
-    _say("  (A1) ||A-A^T||_F/||A||_F: " + ", ".join(f"{s} {v:.3e}" for s, v in sym.items())
-         + f" (bound {SYMMETRY_RTOL:g})")
+        _say(
+            f"  (R1) {arm}: max|c-LOAD*dsigma|/|LOAD*dsigma| on 403 = {r1[arm][0]:.3e} "
+            f"(rtol {R1_RTOL:g}); max|c| off lead = {r1[arm][1]:.3e}; "
+            f"mean c on 403 = {tag_mean(arm, fl['rod']):.6e}, on 404 = "
+            f"{tag_mean(arm, fl['coat']):.6e}"
+        )
+    _say(
+        "  (A1) ||A-A^T||_F/||A||_F: "
+        + ", ".join(f"{s} {v:.3e}" for s, v in sym.items())
+        + f" (bound {SYMMETRY_RTOL:g})"
+    )
     _say("  (i') ||Y-Y^T||/||Y|| (printed): " + ", ".join(f"{s} {v:.3e}" for s, v in recip.items()))
-    _say(f"  (H) |q_fresh - q_held|/|q_held| (coated P1) = {h_dev:.3e} (band {DISCRETE_IDENTITY_RTOL:g})")
+    _say(
+        f"  (H) |q_fresh - q_held|/|q_held| (coated P1) = {h_dev:.3e} (band {DISCRETE_IDENTITY_RTOL:g})"
+    )
     for arm in ("bare", "coated"):
         for d in PORT_IDS:
             r = res[arm][d]
@@ -430,31 +485,45 @@ def _run_step3_identities(fx):
             c2v = abs(r["c2"] - dq) / abs(dq)
             _say(f"  --- {arm} {d} ---")
             _say(f"    q_without={r['q_without']:.10e} q_with={r['q_with']:.10e} dq={dq:.10e}")
-            _say(f"    |q_with/q_without| = {ratio:.6f} (step 1 PRED_RATIO "
-                 f"[{PRED_RATIO[d][0]:g}, {PRED_RATIO[d][1]:g}], {_in(ratio, PRED_RATIO[d])})")
+            _say(
+                f"    |q_with/q_without| = {ratio:.6f} (step 1 PRED_RATIO "
+                f"[{PRED_RATIO[d][0]:g}, {PRED_RATIO[d][1]:g}], {_in(ratio, PRED_RATIO[d])})"
+            )
             if arm == "bare":
                 qo1, qw1 = STEP1_Q_RECORD[d]
-                _say(f"    step-1 dq record (other mesh, printed only) = {qw1 - qo1:.10e}; "
-                     f"|dq/dq_step1| = {abs(dq) / abs(qw1 - qo1):.6f}")
-            _say(f"    (T3c) |fold(c w, E_without) - dq|/|dq| = {t3v:.3e} (rtol {DISCRETE_IDENTITY_RTOL:g})")
+                _say(
+                    f"    step-1 dq record (other mesh, printed only) = {qw1 - qo1:.10e}; "
+                    f"|dq/dq_step1| = {abs(dq) / abs(qw1 - qo1):.6f}"
+                )
+            _say(
+                f"    (T3c) |fold(c w, E_without) - dq|/|dq| = {t3v:.3e} (rtol {DISCRETE_IDENTITY_RTOL:g})"
+            )
             _say(f"    (PF) |Q32 - dq|/|dq| = {pf:.6e} (band {PATH_FOLD_BAND:g})")
             _say(f"    (BF) |Born - dq|/|dq| = {bf:.6%} (must exceed {PATH_FOLD_BAND:.0%})")
-            _say(f"    (C3c) rod-only contrast: {c3:.6%} (wired: > {DISCRETE_IDENTITY_RTOL:g}); "
-                 f"coat share |fold_404/fold| = {abs(r['coat_part']) / abs(r['t3']):.6f}")
-            _say(f"    (C1) Hermitian: {c1v:.6%} (predicted [{PRED_C1[0]:.0%}, {PRED_C1[1]:.0%}], "
-                 f"{_in(c1v, PRED_C1)}); (C2) total field: {c2v:.6%} (predicted "
-                 f"[{PRED_C2[0]:.0%}, {PRED_C2[1]:.0%}], {_in(c2v, PRED_C2)})")
+            _say(
+                f"    (C3c) rod-only contrast: {c3:.6%} (wired: > {DISCRETE_IDENTITY_RTOL:g}); "
+                f"coat share |fold_404/fold| = {abs(r['coat_part']) / abs(r['t3']):.6f}"
+            )
+            _say(
+                f"    (C1) Hermitian: {c1v:.6%} (predicted [{PRED_C1[0]:.0%}, {PRED_C1[1]:.0%}], "
+                f"{_in(c1v, PRED_C1)}); (C2) total field: {c2v:.6%} (predicted "
+                f"[{PRED_C2[0]:.0%}, {PRED_C2[1]:.0%}], {_in(c2v, PRED_C2)})"
+            )
             for n_seg, qn in r["folds"].items():
                 _say(f"    N={n_seg:2d} |Q_N-dq|/|dq|={abs(qn - dq) / abs(dq):.6e}")
     tfb, vb = tf_prof["bare"]
     tfc, vc = tf_prof["coated"]
-    _say("  TF profile (k, z_mid mm, V_bare, V_coated, |TF_bare|, |TF_coated|, |TF_c/TF_b|, "
-         "arg_b deg, arg_c deg):")
+    _say(
+        "  TF profile (k, z_mid mm, V_bare, V_coated, |TF_bare|, |TF_coated|, |TF_c/TF_b|, "
+        "arg_b deg, arg_c deg):"
+    )
     for k in range(N_SLABS):
         rat = abs(tfc[k]) / abs(tfb[k]) if abs(tfb[k]) > 0 else float("nan")
-        _say(f"    {k:2d} {(SLAB_Z0 + (k + 0.5) * SLAB_DZ) * 1e3:6.1f} {vb[k]:.4e} {vc[k]:.4e} "
-             f"{abs(tfb[k]):.6e} {abs(tfc[k]):.6e} {rat:.6f} "
-             f"{np.degrees(np.angle(tfb[k])):9.4f} {np.degrees(np.angle(tfc[k])):9.4f}")
+        _say(
+            f"    {k:2d} {(SLAB_Z0 + (k + 0.5) * SLAB_DZ) * 1e3:6.1f} {vb[k]:.4e} {vc[k]:.4e} "
+            f"{abs(tfb[k]):.6e} {abs(tfc[k]):.6e} {rat:.6f} "
+            f"{np.degrees(np.angle(tfb[k])):9.4f} {np.degrees(np.angle(tfc[k])):9.4f}"
+        )
     shaft_tip = {}
     for arm, tfa in (("bare", tfb), ("coated", tfc)):
         shaft = np.mean(np.abs(tfa[4:28]))
@@ -486,9 +555,21 @@ def _run_step3_identities(fx):
             if arm == "coated":
                 assert abs(r["rod_only"] - dq) > DISCRETE_IDENTITY_RTOL * abs(dq), f"C3c {d}"
 
-    return dict(res=res, tf_prof=tf_prof, r1=r1, sym=sym, recip=recip, h_dev=h_dev,
-                ndofs=ndofs, v_ball=v_ball, shaft_tip=shaft_tip, times=times, rss=rss,
-                elapsed=elapsed, tf_agreement=tf_agreement)
+    return dict(
+        res=res,
+        tf_prof=tf_prof,
+        r1=r1,
+        sym=sym,
+        recip=recip,
+        h_dev=h_dev,
+        ndofs=ndofs,
+        v_ball=v_ball,
+        shaft_tip=shaft_tip,
+        times=times,
+        rss=rss,
+        elapsed=elapsed,
+        tf_agreement=tf_agreement,
+    )
 
 
 @complex_only

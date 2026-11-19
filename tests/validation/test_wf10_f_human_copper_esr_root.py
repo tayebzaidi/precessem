@@ -119,9 +119,11 @@ def _build_root_fixture(comm):
     census = _owned_census(msh, cell_tags, comm)
     census_fails = _census_checks(census, built["cells"], _ring_ports())
     cell_rel = built["cells"] / HOLE_CELL_RECORD - 1.0
-    say(f"(A0) hole cells {built['cells']} vs record {HOLE_CELL_RECORD}, rel {cell_rel:.3e} "
+    say(
+        f"(A0) hole cells {built['cells']} vs record {HOLE_CELL_RECORD}, rel {cell_rel:.3e} "
         f"(band {CELL_COUNT_BAND}, ASSERTED); build {t_build:.1f} s; "
-        f"(iv) failures {census_fails or 'none'}")
+        f"(iv) failures {census_fails or 'none'}"
+    )
     assert abs(cell_rel) <= CELL_COUNT_BAND, cell_rel
     assert not census_fails, census_fails
     solver_built = ctx["solver"]
@@ -129,8 +131,15 @@ def _build_root_fixture(comm):
     del _solver
     if degree != 1:
         solver_built = None  # never hold two solvers (`WF-12` step 4's trap)
-    return {"built": built, "ctx": ctx, "cells": built["cells"], "t_build": t_build,
-            "degree": degree, "counts": counts, "solver_built": solver_built}
+    return {
+        "built": built,
+        "ctx": ctx,
+        "cells": built["cells"],
+        "t_build": t_build,
+        "degree": degree,
+        "counts": counts,
+        "solver_built": solver_built,
+    }
 
 
 # ============================================================================
@@ -170,7 +179,9 @@ def _current_route_s(currents_by_drive, feeds_idx, z_th, v_s):
 
 def _parallel_currents(z32, z_load, drive):
     """``(Z + diag Z_load)⁻¹ v`` — circuit-side port currents for Thevenin ``v``."""
-    return np.linalg.solve(np.asarray(z32) + np.diag(z_load), np.asarray(drive, dtype=np.complex128))
+    return np.linalg.solve(
+        np.asarray(z32) + np.diag(z_load), np.asarray(drive, dtype=np.complex128)
+    )
 
 
 def _parallel_loads(n, feeds_idx, z_c, z_feed):
@@ -277,8 +288,10 @@ def test_wf10_step1e_y_in_coding():
     s_rt = _s_route_2x2(s, feeds_idx, z_rc, z_rc, z0)
     s_cm = _circuit_current_route_s(z, feeds_idx, z_rc, z_rc, z0)
     r_s = _rel(s_cm, s_rt)
-    print(f"[WF-10 step1e Y0] Z_RC = {z_rc:.9e} Ohm (r {ESR_OHM}, C {C_MODE_CU_PF} pF); "
-          f"S-route vs current-route-S {r_s:.3e} (band {Y0_CODING_BAND:g}, ASSERTED)")
+    print(
+        f"[WF-10 step1e Y0] Z_RC = {z_rc:.9e} Ohm (r {ESR_OHM}, C {C_MODE_CU_PF} pF); "
+        f"S-route vs current-route-S {r_s:.3e} (band {Y0_CODING_BAND:g}, ASSERTED)"
+    )
     worst = 0.0
     for label, a in SENSES.items():
         y_s = _active_y_in(s_rt, a, z0)
@@ -286,17 +299,21 @@ def test_wf10_step1e_y_in_coding():
         y_m = _active_y_in(s_cm, a, z0)
         r = max(_rel(y_s, y_c), _rel(y_m, y_c))
         worst = max(worst, r)
-        print(f"[WF-10 step1e Y0] a = {label}: Y_in S-route {y_s[0]:.9e} / {y_s[1]:.9e} S; "
-              f"current route {y_c[0]:.9e} / {y_c[1]:.9e} S; rel {r:.3e}")
+        print(
+            f"[WF-10 step1e Y0] a = {label}: Y_in S-route {y_s[0]:.9e} / {y_s[1]:.9e} S; "
+            f"current route {y_c[0]:.9e} / {y_c[1]:.9e} S; rel {r:.3e}"
+        )
     # Ruling (4): predicted, printed only — dropping r on the 30 loads only.
     a = SENSES["(1,+1j)"]
     y_rc = _current_route_y_in(z, feeds_idx, z_rc, z_rc, a, z0)
     y_c0 = _current_route_y_in(z, feeds_idx, z_c, z_rc, a, z0)
     move = abs(y_c0[0] - y_rc[0]) / abs(y_rc[0])
     per_load = abs(1.0 - 1.0 / (1.0 + 1j * 2 * np.pi * f * c_f * ESR_OHM))
-    print(f"[WF-10 step1e Y0] drop-r control (PREDICTED >= {PREDICTED_DROP_R_MOVE_FLOOR:g}, "
-          f"printed, never asserted): measured rel move {move:.3e}; closed-form per-load "
-          f"|1 - 1/(1 + jwCr)| = {per_load:.3e}")
+    print(
+        f"[WF-10 step1e Y0] drop-r control (PREDICTED >= {PREDICTED_DROP_R_MOVE_FLOOR:g}, "
+        f"printed, never asserted): measured rel move {move:.3e}; closed-form per-load "
+        f"|1 - 1/(1 + jwCr)| = {per_load:.3e}"
+    )
     assert r_s <= Y0_CODING_BAND, f"(Y0) S routes differ {r_s:.3e}"
     assert worst <= Y0_CODING_BAND, f"(Y0) Y_in routes differ {worst:.3e}"
 
@@ -353,8 +370,9 @@ def test_wf10_step1e_copper_esr_nodes():
             print(f"[WF-10 step1e] {msg}", flush=True)
 
     # ---- the stored comparand (ruling (2): absent ⇒ stop, never re-solve) ----
-    assert os.path.exists(NPZ_PATH), (
-        f"{NPZ_PATH} absent: item 334 stops (BLOCKED, rule (d)); never re-solve")
+    assert os.path.exists(
+        NPZ_PATH
+    ), f"{NPZ_PATH} absent: item 334 stops (BLOCKED, rule (d)); never re-solve"
     with np.load(NPZ_PATH, allow_pickle=False) as npz:
         s32_npz = np.array(npz["s32"], dtype=np.complex128)
         order_npz = [str(p) for p in npz["order"]]
@@ -362,17 +380,20 @@ def test_wf10_step1e_copper_esr_nodes():
         c_mode_npz = float(npz["c_mode"])
         meas50_npz = np.array(npz["meas50"], dtype=np.complex128)
     nodes_env = os.environ.get(NODES_ENV, "").strip()
-    nodes_f = ([float(x) * 1e-12 for x in nodes_env.split(",") if x.strip()]
-               if nodes_env else [c_mode_npz])
+    nodes_f = (
+        [float(x) * 1e-12 for x in nodes_env.split(",") if x.strip()] if nodes_env else [c_mode_npz]
+    )
     from tests.validation.test_wf10_f_human_tuned_b1_sar import DEGREE_ENV, _degree_knob
 
     knob = _degree_knob()
     d2 = knob is not None
-    say(f"start: -n {comm.size}, f = {FREQUENCY_HZ:.3e} Hz, degree "
+    say(
+        f"start: -n {comm.size}, f = {FREQUENCY_HZ:.3e} Hz, degree "
         f"{DEGREE if knob is None else knob} ({DEGREE_ENV} {knob if d2 else 'unset'}; fixture "
         f"DEGREE {DEGREE}), kappa off, "
         f"r = {ESR_OHM} Ohm on all 32 gaps; npz c_mode {c_mode_npz:.12e} F; nodes "
-        f"{', '.join(f'{c * 1e12:.4f}' for c in nodes_f)} pF")
+        f"{', '.join(f'{c * 1e12:.4f}' for c in nodes_f)} pF"
+    )
 
     # ---- fixture, (A0), (iv), (Deg) (item 459: `_build_root_fixture`) ---------
     fixture = _build_root_fixture(comm)
@@ -381,8 +402,10 @@ def test_wf10_step1e_copper_esr_nodes():
     del fixture
     ctx = built["ctx"]
     msh, tags_f, omega, cell_tags = ctx["msh"], ctx["tags_f"], ctx["omega"], ctx["cell_tags"]
-    say(f"(A0) npz cells {cells_npz} (ASSERTED equal); census {CELL_COUNT_BAND}-banded above; "
-        f"hole record {HOLE_CELL_RECORD}")
+    say(
+        f"(A0) npz cells {cells_npz} (ASSERTED equal); census {CELL_COUNT_BAND}-banded above; "
+        f"hole record {HOLE_CELL_RECORD}"
+    )
     assert built["cells"] == cells_npz, (built["cells"], cells_npz)
 
     z_s = (1.0 + 1.0j) * surface_resistance_ohm(omega, COPPER_SIGMA)
@@ -402,20 +425,30 @@ def test_wf10_step1e_copper_esr_nodes():
     def _drive(specs, driven_id, *, held, partition):
         sheets = [sp.sheet(driven=(sp.port_id == driven_id)) for sp in specs]
         dsheet = next(s for s in sheets if s.port_id == driven_id)
-        linear = [lambda test, _s=dsheet: lumped_port_linear_term(
-            msh, tags_f, _s, test, omega_rad_per_s=omega)]
+        linear = [
+            lambda test, _s=dsheet: lumped_port_linear_term(
+                msh, tags_f, _s, test, omega_rad_per_s=omega
+            )
+        ]
         comm.Barrier()
         t0 = time.perf_counter()
         if held:
             fields = solver.solve_with_held_factorization(extra_linear_terms=linear)
         else:
             bil = [wall] + [
-                (lambda trial, test, _s=s: lumped_port_bilinear_term(
-                    msh, tags_f, _s, trial, test, omega_rad_per_s=omega))
+                (
+                    lambda trial, test, _s=s: lumped_port_bilinear_term(
+                        msh, tags_f, _s, trial, test, omega_rad_per_s=omega
+                    )
+                )
                 for s in sheets
             ]
-            fields = solver.solve(current_density=None, project_source=False,
-                                  extra_bilinear_terms=bil, extra_linear_terms=linear)
+            fields = solver.solve(
+                current_density=None,
+                project_source=False,
+                extra_bilinear_terms=bil,
+                extra_linear_terms=linear,
+            )
         comm.Barrier()
         t_solve = time.perf_counter() - t0
         t1 = time.perf_counter()
@@ -426,17 +459,23 @@ def test_wf10_step1e_copper_esr_nodes():
         for s in sheets:
             v = complex(s.source_voltage_v) - currents[s.port_id] * z_p
             s_col[s.port_id] = (v - z_p * currents[s.port_id]) / v_src
-        out = {"s": s_col, "currents": currents, "kind": "held" if held else "solve",
-               "t_solve": t_solve}
+        out = {
+            "s": s_col,
+            "currents": currents,
+            "kind": "held" if held else "solve",
+            "t_solve": t_solve,
+        }
         if partition:
             sigma_f = fields.sigma_field
 
+            # F821: pyflakes sees the `del` at the end of this function; the closure runs before it.
             def _vol(measure):
-                form = fem.form(0.5 * sigma_f * ufl.inner(e, e) * measure)
+                form = fem.form(0.5 * sigma_f * ufl.inner(e, e) * measure)  # noqa: F821
                 return float(np.real(comm.allreduce(fem.assemble_scalar(form), op=MPI.SUM)))
 
-            by_id = {s.port_id: float(_sheet_field_dissipation_w(acct, s, e, omega))
-                     for s in sheets}
+            by_id = {
+                s.port_id: float(_sheet_field_dissipation_w(acct, s, e, omega)) for s in sheets
+            }
             out["p_sheet_by_id"] = by_id
             out["p_sheets"] = float(sum(by_id.values()))
             out["p_src"] = float(_source_power_w(acct, dsheet, e, omega))
@@ -451,16 +490,20 @@ def test_wf10_step1e_copper_esr_nodes():
     # ---- order (item 285's: [P17, feed2] + rest by number) --------------------
     az_ref, slots = _ring_quadrature_slots(built["sheets"])
     ref_k, ref_sign = slots[DRIVEN]
-    feed2 = next(pid for pid, (k, sg) in slots.items()
-                 if sg == ref_sign and k == (ref_k + QUADRATURE_SLOT_OFFSET) % 16)
-    others = sorted((pid for pid in slots if pid not in (DRIVEN, feed2)),
-                    key=lambda p: int(p[1:]))
+    feed2 = next(
+        pid
+        for pid, (k, sg) in slots.items()
+        if sg == ref_sign and k == (ref_k + QUADRATURE_SLOT_OFFSET) % 16
+    )
+    others = sorted((pid for pid in slots if pid not in (DRIVEN, feed2)), key=lambda p: int(p[1:]))
     order = [DRIVEN, feed2] + others
     feeds = order[:2]
     feeds_idx = [0, 1]
     assert len(order) == 32 and sorted(order) == sorted(sp.port_id for sp in base_specs)
-    say(f"feeds: {DRIVEN} (slot {ref_k}, ring {ref_sign:+.0f}) and {feed2} (slot "
-        f"{slots[feed2][0]}); npz order[:2] {order_npz[:2]}")
+    say(
+        f"feeds: {DRIVEN} (slot {ref_k}, ring {ref_sign:+.0f}) and {feed2} (slot "
+        f"{slots[feed2][0]}); npz order[:2] {order_npz[:2]}"
+    )
     assert order_npz[:2] == [DRIVEN, feed2], order_npz[:2]
     assert order_npz == order, "npz order differs from this run's order"
 
@@ -496,26 +539,33 @@ def test_wf10_step1e_copper_esr_nodes():
     r_src = abs(p50["p_src"] / P17_P_SRC_RECORD_W - 1.0)
     r_surf = abs(p50["p_surf"] / P17_P_SURF_RECORD_W - 1.0)
     say(f"Z50 pair {kinds_50}, {', '.join(f'{t:.2f}' for t in t_50)} s")
-    d1_only = ("degree-1 record comparand, d1 -> d2 move, printed only (H26a)" if d2
-               else "ASSERTED")
-    say(f"(R) P_src {p50['p_src']:.9e} vs {P17_P_SRC_RECORD_W:.9e} rel {r_src:.3e}; P_surf "
+    d1_only = "degree-1 record comparand, d1 -> d2 move, printed only (H26a)" if d2 else "ASSERTED"
+    say(
+        f"(R) P_src {p50['p_src']:.9e} vs {P17_P_SRC_RECORD_W:.9e} rel {r_src:.3e}; P_surf "
         f"{p50['p_surf']:.9e} vs {P17_P_SURF_RECORD_W:.9e} rel {r_surf:.3e} (band "
-        f"{REUSE_REPRODUCTION_RTOL:g}, {d1_only}; measured 2.109e-11 / 1.506e-11)")
-    say(f"(P50) P_src {p50['p_src']:.9e} sumP_sheet {p50['p_sheets']:.9e} P_phantom "
+        f"{REUSE_REPRODUCTION_RTOL:g}, {d1_only}; measured 2.109e-11 / 1.506e-11)"
+    )
+    say(
+        f"(P50) P_src {p50['p_src']:.9e} sumP_sheet {p50['p_sheets']:.9e} P_phantom "
         f"{p50['p_phantom']:.9e} P_rest {p50['p_rest']:.9e} P_surf {p50['p_surf']:.9e} W; rel "
         f"{rel_p50:.3e} (band {DISCRETE_IDENTITY_RTOL:g}, ASSERTED; measured 2.420e-13"
-        + (f"; entry 32 degree 2 {ENTRY32_P_D2:.3e}, beside)" if d2 else ")"))
-    say(f"NEG P_surf-blind miss {blind50:.4e} = {blind50 / DISCRETE_IDENTITY_RTOL:.1f}x the band "
+        + (f"; entry 32 degree 2 {ENTRY32_P_D2:.3e}, beside)" if d2 else ")")
+    )
+    say(
+        f"NEG P_surf-blind miss {blind50:.4e} = {blind50 / DISCRETE_IDENTITY_RTOL:.1f}x the band "
         f"(bar {BLIND_FACTOR:.0f}x, ASSERTED; measured 123.6x / 123.3x"
-        + (f"; entry 32 degree 2 {ENTRY32_NEG_D2:.1f}x, beside)" if d2 else ")"))
+        + (f"; entry 32 degree 2 {ENTRY32_NEG_D2:.1f}x, beside)" if d2 else ")")
+    )
     s32_ff = s32_npz[:2, :2]
     r_z50 = _residual(s_50, s32_ff)
     r_z50_meas = _residual(s_50, meas50_npz)
     _show("S32npz[:2,:2]", s32_ff)
     _show("MEAS50       ", s_50)
-    say(f"(Z50) ||MEAS50 - S32npz[:2,:2]||/||S32npz[:2,:2]|| = {r_z50:.6e} (band "
+    say(
+        f"(Z50) ||MEAS50 - S32npz[:2,:2]||/||S32npz[:2,:2]|| = {r_z50:.6e} (band "
         f"{REUSE_REPRODUCTION_RTOL:g}, {d1_only}; PREDICTED <= {PREDICTED_Z50:g}); vs npz meas50 "
-        f"{r_z50_meas:.6e} (printed); t={time.perf_counter() - t_window:.1f} s")
+        f"{r_z50_meas:.6e} (printed); t={time.perf_counter() - t_window:.1f} s"
+    )
 
     # ---- per node --------------------------------------------------------------
     z32_npz = s_to_z(s32_npz, z0)
@@ -526,8 +576,10 @@ def test_wf10_step1e_copper_esr_nodes():
         z_c = _z_rc(c_f, FREQUENCY_HZ, r_ohm=0.0)
         z_th = _thevenin_feed_impedance(z_rc, z0)
         v_s = _source_voltage(z_rc, z0)
-        say(f"node C = {c_f:.12e} F ({c_f * 1e12:.4f} pF): Z_RC {z_rc:.9e} Ohm, Z_th "
-            f"{z_th:.9e} Ohm, V_s {v_s:.9e} V")
+        say(
+            f"node C = {c_f:.12e} F ({c_f * 1e12:.4f} pF): Z_RC {z_rc:.9e} Ohm, Z_th "
+            f"{z_th:.9e} Ohm, V_s {v_s:.9e} V"
+        )
         imp = {pid: z_rc for pid in others}
         imp.update({pid: z_th for pid in feeds})
         s_node, cur_node, kinds_n, t_n, pn = _pair(imp, z_th, v_s)
@@ -537,43 +589,62 @@ def test_wf10_step1e_copper_esr_nodes():
         p_feeds = sum(v for pid, v in pn["p_sheet_by_id"].items() if pid in feeds)
         p_vol = pn["p_phantom"] + pn["p_rest"]
         dz = abs(pn["p_src"] - (pn["p_sheets"] - p_rc) - p_vol - pn["p_surf"]) / abs(pn["p_src"])
-        say(f"(P_RC) P_src {pn['p_src']:.9e} sumP_sheet {pn['p_sheets']:.9e} (30 RC "
+        say(
+            f"(P_RC) P_src {pn['p_src']:.9e} sumP_sheet {pn['p_sheets']:.9e} (30 RC "
             f"{p_rc:.9e}, 2 feeds {p_feeds:.9e}) P_phantom {pn['p_phantom']:.9e} P_rest "
             f"{pn['p_rest']:.9e} P_surf {pn['p_surf']:.9e} W; rel {rel_prc:.3e} (band "
-            f"{DISCRETE_IDENTITY_RTOL:g}, ASSERTED; PREDICTED <= {PREDICTED_P_RC:g})")
-        say(f"(Dz) partition without the 30 RC sheets misses {dz:.4e} (PREDICTED order "
+            f"{DISCRETE_IDENTITY_RTOL:g}, ASSERTED; PREDICTED <= {PREDICTED_P_RC:g})"
+        )
+        say(
+            f"(Dz) partition without the 30 RC sheets misses {dz:.4e} (PREDICTED order "
             f"{PREDICTED_DZ_ORDER:g}, printed); P_surf-blind miss at the node {blind_n:.4e} "
-            f"(printed)")
+            f"(printed)"
+        )
         q_frac = p_rc / (p_rc + pn["p_surf"] + pn["p_phantom"])
-        say(f"P_RC/(P_RC + P_surf + P_phantom) = {q_frac:.6e} (beside Q_C = 1/(wCr) = "
-            f"{1.0 / (omega * c_f * ESR_OHM):.2f}, predicted ≈ {Q_C_PREDICTED:g}; printed)")
+        say(
+            f"P_RC/(P_RC + P_surf + P_phantom) = {q_frac:.6e} (beside Q_C = 1/(wCr) = "
+            f"{1.0 / (omega * c_f * ESR_OHM):.2f}, predicted ≈ {Q_C_PREDICTED:g}; printed)"
+        )
         y_in = {}
         for label, a in SENSES.items():
             y_in[label] = _active_y_in(s_node, a, z0)
             y17, y21 = y_in[label]
             spread = abs(y17 - y21) / abs(y17)
-            say(f"Y_in a = {label}: {DRIVEN} {y17.real:+.9e} {y17.imag:+.9e}j S (sign Im "
+            say(
+                f"Y_in a = {label}: {DRIVEN} {y17.real:+.9e} {y17.imag:+.9e}j S (sign Im "
                 f"{'+' if y17.imag > 0 else '-' if y17.imag < 0 else '0'}); {feed2} "
                 f"{y21.real:+.9e} {y21.imag:+.9e}j S (sign Im "
                 f"{'+' if y21.imag > 0 else '-' if y21.imag < 0 else '0'}); C4/mirror spread "
-                f"{spread:.4e} (READING, never asserted)")
+                f"{spread:.4e} (READING, never asserted)"
+            )
         for lbl, z_load in (("Z_RC (r=0.2)", z_rc), ("Z_C (r=0)", z_c)):
             yc = _current_route_y_in(z32_npz, feeds_idx, z_load, z_load, SENSES["(1,+1j)"], z0)
-            say(f"circuit-only ({'degree-1 npz' if d2 else 'npz'} s32, local loads {lbl}; not a prediction of the in-model "
+            say(
+                f"circuit-only ({'degree-1 npz' if d2 else 'npz'} s32, local loads {lbl}; not a prediction of the in-model "
                 f"sign — H12c measured the circuit <-> field identity at 1.58 here): Y_in "
-                f"(1,+1j) {DRIVEN} {yc[0]:.9e} S, {feed2} {yc[1]:.9e} S")
+                f"(1,+1j) {DRIVEN} {yc[0]:.9e} S, {feed2} {yc[1]:.9e} S"
+            )
         sh = _k1_shares(cur_node[0], order, slots)
-        say(f"k=+-1 share, P17 column at the node: feed ring {sh[ref_sign]:.6f} (ring+ "
-            f"{sh[1.0]:.6f} ring- {sh[-1.0]:.6f}) beside lossless {LOSSLESS_K1_SHARE}")
-        say(f"node pair {kinds_n}, {', '.join(f'{t:.2f}' for t in t_n)} s; "
-            f"t={time.perf_counter() - t_window:.1f} s")
+        say(
+            f"k=+-1 share, P17 column at the node: feed ring {sh[ref_sign]:.6f} (ring+ "
+            f"{sh[1.0]:.6f} ring- {sh[-1.0]:.6f}) beside lossless {LOSSLESS_K1_SHARE}"
+        )
+        say(
+            f"node pair {kinds_n}, {', '.join(f'{t:.2f}' for t in t_n)} s; "
+            f"t={time.perf_counter() - t_window:.1f} s"
+        )
         rec = {
-            "c_f": c_f, "r_ohm": ESR_OHM, "freq_hz": float(FREQUENCY_HZ), "order": order,
+            "c_f": c_f,
+            "r_ohm": ESR_OHM,
+            "freq_hz": float(FREQUENCY_HZ),
+            "order": order,
             "degree": knob or 1,
             "s_node": [[[complex(v).real, complex(v).imag] for v in row] for row in s_node],
             "y_in": {lbl: [[y.real, y.imag] for y in ys] for lbl, ys in y_in.items()},
             "partition": {k: v for k, v in pn.items()},
-            "rel_p_rc": rel_prc, "dz": dz, "k1_share_feed_ring": sh[ref_sign],
+            "rel_p_rc": rel_prc,
+            "dz": dz,
+            "k1_share_feed_ring": sh[ref_sign],
             "times_s": {"pair": t_n, "z50_pair": t_50, "build": t_build},
         }
         if comm.rank == 0:
@@ -587,10 +658,12 @@ def test_wf10_step1e_copper_esr_nodes():
         node_pair_s.append(sum(t_n))
 
     _m, rss_per, rss_sum = _rss_gib(comm)
-    say(f"price: build {t_build:.1f} s, Z50 pair {sum(t_50):.1f} s, node pairs "
+    say(
+        f"price: build {t_build:.1f} s, Z50 pair {sum(t_50):.1f} s, node pairs "
         f"{', '.join(f'{t:.1f}' for t in node_pair_s)} s ({len(node_results)} node(s)); RSS per rank "
         f"{', '.join(f'{r:.2f}' for r in (rss_per or []))} GiB, summed {rss_sum:.2f} GiB; "
-        f"window elapsed {time.perf_counter() - t_window:.1f} s at -n {comm.size}")
+        f"window elapsed {time.perf_counter() - t_window:.1f} s at -n {comm.size}"
+    )
 
     # ---- asserts: anchors first -----------------------------------------------
     assert kinds_50 == ["solve", "held"], kinds_50
@@ -603,8 +676,9 @@ def test_wf10_step1e_copper_esr_nodes():
         assert r_z50 <= REUSE_REPRODUCTION_RTOL, f"(Z50) closure {r_z50:.6e}"
     for c_f, kinds_n, rel_prc in node_results:
         assert kinds_n == ["solve", "held"], kinds_n
-        assert rel_prc <= DISCRETE_IDENTITY_RTOL, (
-            f"(P_RC) at {c_f * 1e12:.4f} pF: {rel_prc:.3e} — never re-band")
+        assert (
+            rel_prc <= DISCRETE_IDENTITY_RTOL
+        ), f"(P_RC) at {c_f * 1e12:.4f} pF: {rel_prc:.3e} — never re-band"
 
 
 # ============================================================================
@@ -659,8 +733,10 @@ def test_wf10_step1e_bracket_coding():
         c_a, c_b, r = roots[0]
         assert c_a < c_root < c_b, (c_a, c_root, c_b)
         worst = max(worst, abs(r / c_root - 1.0))
-    print(f"[WF-10 step1e2 coding] planted-root secant worst rel {worst:.3e} "
-          f"(band {SECANT_CODING_BAND:g}, ASSERTED)")
+    print(
+        f"[WF-10 step1e2 coding] planted-root secant worst rel {worst:.3e} "
+        f"(band {SECANT_CODING_BAND:g}, ASSERTED)"
+    )
     assert worst <= SECANT_CODING_BAND, worst
     # Negative control (asserted): no sign change ⇒ no root.
     none = _sign_change_roots(grid, slope * (grid - 130.0e-12))
@@ -669,8 +745,10 @@ def test_wf10_step1e_bracket_coding():
     # Two changes: B = (C − a)(C − b), both bracketed and returned.
     a_r, b_r = 118.25e-12, 119.5e-12
     two = _sign_change_roots(grid, (grid - a_r) * (grid - b_r) * 1e24)
-    print(f"[WF-10 step1e2 coding] two-change grid returns "
-          f"{[(x * 1e12, y * 1e12) for x, y, _ in two]} pF brackets (ASSERTED 2)")
+    print(
+        f"[WF-10 step1e2 coding] two-change grid returns "
+        f"{[(x * 1e12, y * 1e12) for x, y, _ in two]} pF brackets (ASSERTED 2)"
+    )
     assert len(two) == 2
     assert two[0][0] < a_r < two[0][1] and two[1][0] < b_r < two[1][1], two
 
@@ -695,17 +773,21 @@ def test_wf10_step1e_root_bracket():
         assert rec["r_ohm"] == ESR_OHM, rec["r_ohm"]
         assert rec.get("degree", 1) == (knob or 1), (rec.get("degree"), knob)
         recs.append(rec)
-    print(f"[WF-10 step1e2 root] degree {knob or 1} (FEM_EM_WF10_DEGREE "
-          f"{knob if knob is not None else 'unset'}); node JSONs "
-          f"{'h17-node-<pF>-d2.json' if knob else 'h17-node-<pF>.json'}")
+    print(
+        f"[WF-10 step1e2 root] degree {knob or 1} (FEM_EM_WF10_DEGREE "
+        f"{knob if knob is not None else 'unset'}); node JSONs "
+        f"{'h17-node-<pF>-d2.json' if knob else 'h17-node-<pF>.json'}"
+    )
     c = np.array([r["c_f"] for r in recs])
     omega = 2.0 * np.pi * float(recs[0]["freq_hz"])
     order = recs[0]["order"]
     feed_names = order[:2]
-    print(f"[WF-10 step1e2 root] nodes {', '.join(f'{x * 1e12:.4f}' for x in c)} pF; feeds "
-          f"{feed_names}; r = {ESR_OHM} Ohm; predicted slope 16w = "
-          f"{PREDICTED_SLOPE_FACTOR * omega * 1e-12:.4e} S/pF; feed gap's own w = "
-          f"{omega * 1e-12:.4e} S/pF")
+    print(
+        f"[WF-10 step1e2 root] nodes {', '.join(f'{x * 1e12:.4f}' for x in c)} pF; feeds "
+        f"{feed_names}; r = {ESR_OHM} Ohm; predicted slope 16w = "
+        f"{PREDICTED_SLOPE_FACTOR * omega * 1e-12:.4e} S/pF; feed gap's own w = "
+        f"{omega * 1e-12:.4e} S/pF"
+    )
     # Part 1 reproduction at 118.1186 (printed, never asserted; degree 1 only —
     # at degree 2 it would compare a degree-2 node to a degree-1 log).
     for rec in (recs if knob is None else []):
@@ -713,44 +795,61 @@ def test_wf10_step1e_root_bracket():
             for lbl, (p17, p21) in PART1_Y_IN.items():
                 y = [complex(*v) for v in rec["y_in"][lbl]]
                 rr = max(abs(y[0] - p17) / abs(p17), abs(y[1] - p21) / abs(p21))
-                print(f"[WF-10 step1e2 root] node 118.1186 a = {lbl}: re-measured {y[0]:.9e} / "
-                      f"{y[1]:.9e} S vs part 1 {p17:.9e} / {p21:.9e} S; rel {rr:.3e} "
-                      f"(PREDICTED <= {PREDICTED_PART1_REPRO:g}, printed)")
+                print(
+                    f"[WF-10 step1e2 root] node 118.1186 a = {lbl}: re-measured {y[0]:.9e} / "
+                    f"{y[1]:.9e} S vs part 1 {p17:.9e} / {p21:.9e} S; rel {rr:.3e} "
+                    f"(PREDICTED <= {PREDICTED_PART1_REPRO:g}, printed)"
+                )
     roots = {}
     for lbl in SENSES:
         for k, name in enumerate(feed_names):
             y = np.array([complex(*r["y_in"][lbl][k]) for r in recs])
             b = y.imag
-            print(f"[WF-10 step1e2 root] {name} a = {lbl}: Im Y_in "
-                  + ", ".join(f"{x * 1e12:.4f}:{v:+.6e}" for x, v in zip(c, b)) + " S; Re Y_in "
-                  + ", ".join(f"{v:.6e}" for v in y.real) + " S")
+            print(
+                f"[WF-10 step1e2 root] {name} a = {lbl}: Im Y_in "
+                + ", ".join(f"{x * 1e12:.4f}:{v:+.6e}" for x, v in zip(c, b))
+                + " S; Re Y_in "
+                + ", ".join(f"{v:.6e}" for v in y.real)
+                + " S"
+            )
             slopes = np.diff(b) / np.diff(c)
-            print(f"[WF-10 step1e2 root] {name} a = {lbl}: interval slopes "
-                  + ", ".join(f"{s * 1e-12:+.4e}" for s in slopes) + " S/pF (= "
-                  + ", ".join(f"{s / (PREDICTED_SLOPE_FACTOR * omega):.3f}" for s in slopes)
-                  + " x 16w)")
+            print(
+                f"[WF-10 step1e2 root] {name} a = {lbl}: interval slopes "
+                + ", ".join(f"{s * 1e-12:+.4e}" for s in slopes)
+                + " S/pF (= "
+                + ", ".join(f"{s / (PREDICTED_SLOPE_FACTOR * omega):.3f}" for s in slopes)
+                + " x 16w)"
+            )
             found = _sign_change_roots(c, b)
             if not found:
                 i_near = int(np.argmin(np.abs(b)))
-                print(f"[WF-10 step1e2 root] {name} a = {lbl}: NO sign change in the grid; "
-                      f"nearest node {c[i_near] * 1e12:.4f} pF (Im {b[i_near]:+.6e} S) — a record")
+                print(
+                    f"[WF-10 step1e2 root] {name} a = {lbl}: NO sign change in the grid; "
+                    f"nearest node {c[i_near] * 1e12:.4f} pF (Im {b[i_near]:+.6e} S) — a record"
+                )
             for c_a, c_b, r in found:
-                print(f"[WF-10 step1e2 root] {name} a = {lbl}: sign change bracket "
-                      f"[{c_a * 1e12:.4f}, {c_b * 1e12:.4f}] pF, secant root {r * 1e12:.6f} pF, "
-                      f"resolution {(c_b - c_a) * 1e12:.4f} pF ({(c_b - c_a) / r:.3e} rel)")
+                print(
+                    f"[WF-10 step1e2 root] {name} a = {lbl}: sign change bracket "
+                    f"[{c_a * 1e12:.4f}, {c_b * 1e12:.4f}] pF, secant root {r * 1e12:.6f} pF, "
+                    f"resolution {(c_b - c_a) * 1e12:.4f} pF ({(c_b - c_a) / r:.3e} rel)"
+                )
             roots[(name, lbl)] = found
     key = (feed_names[0], "(1,+1j)")
     all_first = [v[0][2] for v in roots.values() if v]
     if roots[key]:
         c_in = roots[key][0][2]
         spread = (max(all_first) - min(all_first)) if all_first else float("nan")
-        print(f"[WF-10 step1e2 root] C_in,F-human ({key[0]} (1,+1j), ruling (2)) = "
-              f"{c_in * 1e12:.6f} pF, bracket [{roots[key][0][0] * 1e12:.4f}, "
-              f"{roots[key][0][1] * 1e12:.4f}] pF; four-reading roots "
-              + ", ".join(f"{n} {l}: " + (f"{v[0][2] * 1e12:.6f}" if v else "none")
-                          for (n, l), v in roots.items())
-              + f" pF; spread {spread * 1e12:.6f} pF ({spread / c_in:.3e} rel) — RECORD, "
-              f"never asserted")
+        print(
+            f"[WF-10 step1e2 root] C_in,F-human ({key[0]} (1,+1j), ruling (2)) = "
+            f"{c_in * 1e12:.6f} pF, bracket [{roots[key][0][0] * 1e12:.4f}, "
+            f"{roots[key][0][1] * 1e12:.4f}] pF; four-reading roots "
+            + ", ".join(
+                f"{n} {l}: " + (f"{v[0][2] * 1e12:.6f}" if v else "none")
+                for (n, l), v in roots.items()
+            )
+            + f" pF; spread {spread * 1e12:.6f} pF ({spread / c_in:.3e} rel) — RECORD, "
+            f"never asserted"
+        )
     else:
         print(f"[WF-10 step1e2 root] C_in,F-human: no sign change on {key} in the grid — a record")
 
@@ -809,9 +908,11 @@ def test_wf10_step1e_build_only(monkeypatch):
     ctx = out["ctx"]
     n1, e, f = (out["counts"][k] for k in ("n_dofs", "n_edges", "n_faces"))
     same = ctx["solver"] is out["solver_built"]
-    say(f"(Deg-1) unset: degree {out['degree']}, solver is _build_f_human's: {same}; unknowns "
+    say(
+        f"(Deg-1) unset: degree {out['degree']}, solver is _build_f_human's: {same}; unknowns "
         f"{n1} vs E {e} (record E {E_RECORD}; ASSERTED exact); F {f} (record {F_RECORD}); "
-        f"cells {out['cells']}; build {t_build:.1f} s")
+        f"cells {out['cells']}; build {t_build:.1f} s"
+    )
     assert out["degree"] == 1 and ctx["solver"].degree == 1
     assert same, "(Deg-1) the unset path rebuilt the solver: the knob leaks"
     assert n1 == e, (n1, e)
@@ -824,14 +925,20 @@ def test_wf10_step1e_build_only(monkeypatch):
     n2 = counts2["n_dofs"]
     assert counts2["n_edges"] == e and counts2["n_faces"] == f
     _m, _per, rss_sum = _rss_gib(comm)
-    say(f"(Deg-2) knob 2: degree {deg2} (solver.degree {solver2.degree}); unknowns {n2} vs "
+    say(
+        f"(Deg-2) knob 2: degree {deg2} (solver.degree {solver2.degree}); unknowns {n2} vs "
         f"2E+2F = {2 * e + 2 * f} (record {N_DOFS_D2_RECORD}; ASSERTED exact); degree-2 space "
-        f"{t_d2:.1f} s")
-    say(f"NEG (asserted, rule (e)): n(2) {n2} != n(1) {n1}; n(2)/n(1) = {n2 / n1:.6f} vs "
-        f"(2E+2F)/E = {(2 * e + 2 * f) / e:.6f} (exact integer identity ASSERTED)")
-    say(f"RSS after the degree-2 space, summed {rss_sum:.2f} GiB (PREDICTED <= "
+        f"{t_d2:.1f} s"
+    )
+    say(
+        f"NEG (asserted, rule (e)): n(2) {n2} != n(1) {n1}; n(2)/n(1) = {n2 / n1:.6f} vs "
+        f"(2E+2F)/E = {(2 * e + 2 * f) / e:.6f} (exact integer identity ASSERTED)"
+    )
+    say(
+        f"RSS after the degree-2 space, summed {rss_sum:.2f} GiB (PREDICTED <= "
         f"{PREDICTED_RSS_D2_GIB:g}; H20a 1.10 GiB; WF-12 4a at build {RSS_D2_BUILD_RECORD_GIB} "
-        f"GiB; printed)")
+        f"GiB; printed)"
+    )
     assert deg2 == 2 and solver2.degree == 2 and ctx["solver"] is solver2
     assert n2 == 2 * e + 2 * f, (n2, e, f)
     assert n2 != n1

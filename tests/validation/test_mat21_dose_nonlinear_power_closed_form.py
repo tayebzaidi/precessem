@@ -1,4 +1,4 @@
-"""`MAT-21` step 48 — the dose is not per-watt, closed form (§9 item 962, §10 P88; brief
+r"""`MAT-21` step 48 — the dose is not per-watt, closed form (§9 item 962, §10 P88; brief
 `docs/planning/chunks/MAT-21.md` "§9 item 962").
 
 Numpy (complex build only because P83 imports P79 → P61 / C6 and C33's reader).  Sets no band
@@ -50,8 +50,12 @@ LABELS = {"1.5T": "x-105mm dz-50mm", "3T": "x+105mm dz+50mm"}
 N0_BAND = 1e-12  # the step's number (= B1_BAND)
 
 # Predictions (brief, printed only; a miss outside a range is disclosed, never red)
-PRED_TABLE = {0.1: (2.3813e-04, 9.548e-14, 1.62e-04), 1.0: (2.3848e-03, 9.562e-14, 1.62e-03),
-              10.0: (2.4199e-02, 9.703e-14, 1.64e-02), 100.0: (0.2818, 1.130e-13, 0.184)}
+PRED_TABLE = {
+    0.1: (2.3813e-04, 9.548e-14, 1.62e-04),
+    1.0: (2.3848e-03, 9.562e-14, 1.62e-03),
+    10.0: (2.4199e-02, 9.703e-14, 1.64e-02),
+    100.0: (0.2818, 1.130e-13, 0.184),
+}
 PRED_NLIN = (0.147, 0.135, 0.160)
 PRED_SUCC = (10.015, 10.147, 11.65)
 PRED_PW_RATIO = 1.183
@@ -83,8 +87,13 @@ def _data():
         th = h * P
         cem = cem43(T_GRID, T_INF + th)
         exc = cem - d0
-        rows[P] = {"th": th, "cem": cem, "exc": exc, "lin": P * lin_unit,
-                   "tmax": float(np.max(T_INF + th))}
+        rows[P] = {
+            "th": th,
+            "cem": cem,
+            "exc": exc,
+            "lin": P * lin_unit,
+            "tmax": float(np.max(T_INF + th)),
+        }
     _CACHE.update(d=d, sd=sd, h=h, h3=h3, d0=d0, rows=rows, lin_unit=lin_unit)
     return _CACHE
 
@@ -113,28 +122,38 @@ def test_preconditions_d0_tie():
     gates.append((("R", tmax), tmax < T_REF, tmax))
     lnr_ok = LN_R == math.log(R_BELOW)
     gates.append((("LN_R", LN_R), lnr_ok, 0))
-    _say(f"{PFX} T_GRID[0] {float(T_GRID[0])} (== 0 ASSERTED); |p75.T_STAR - T_GRID[-1]| {dts:.3e} s "
-         f"(<= 1e-9 ASSERTED); {h.size} rows, row 0 of both histories 0 exactly (ASSERTED)")
-    _say(f"{PFX} c* 1.5 T {sd['1.5T']['label']!r}, 3 T {sd['3T']['label']!r} (ASSERTED); h(t*) "
-         f"{tok} K per deposited W == {H_TSTAR} (string ASSERTED)")
+    _say(
+        f"{PFX} T_GRID[0] {float(T_GRID[0])} (== 0 ASSERTED); |p75.T_STAR - T_GRID[-1]| {dts:.3e} s "
+        f"(<= 1e-9 ASSERTED); {h.size} rows, row 0 of both histories 0 exactly (ASSERTED)"
+    )
+    _say(
+        f"{PFX} c* 1.5 T {sd['1.5T']['label']!r}, 3 T {sd['3T']['label']!r} (ASSERTED); h(t*) "
+        f"{tok} K per deposited W == {H_TSTAR} (string ASSERTED)"
+    )
     _say(f"{PFX} (Sym) max|h3 - h| / max h {sym:.3e} (band {B1_BAND:g}, ASSERTED; P83 read 0)")
-    _say(f"{PFX} (R) hottest sample over P_SET T_INF + P h {tmax:.6f} C < T_REF {T_REF:g} C "
-         f"(ASSERTED; predicted {PRED_TMAX}); only the R = {R_BELOW} branch is reached, "
-         f"_quad_dose LN_R == ln {R_BELOW} {lnr_ok} (ASSERTED); the R = 0.5 branch is stated, not "
-         f"exercised")
+    _say(
+        f"{PFX} (R) hottest sample over P_SET T_INF + P h {tmax:.6f} C < T_REF {T_REF:g} C "
+        f"(ASSERTED; predicted {PRED_TMAX}); only the R = {R_BELOW} branch is reached, "
+        f"_quad_dose LN_R == ln {R_BELOW} {lnr_ok} (ASSERTED); the R = 0.5 branch is stated, not "
+        f"exercised"
+    )
     d0 = c["d0"]
     rel = abs(d0 - D0_CITED) / D0_CITED
     gates.append((("D0", rel), rel <= B1_BAND, rel))
-    _say(f"{PFX} (D0) cem43(T_GRID, T_INF) {d0:.7g} s vs cited (step 15 W1 :83): rel {rel:.3e} "
-         f"(band {B1_BAND:g}, ASSERTED; P83 read 1.11e-16)")
+    _say(
+        f"{PFX} (D0) cem43(T_GRID, T_INF) {d0:.7g} s vs cited (step 15 W1 :83): rel {rel:.3e} "
+        f"(band {B1_BAND:g}, ASSERTED; P83 read 1.11e-16)"
+    )
     for s in p83.SIDES:
         P = sd[s]["s"]
         hs = sd[s]["dep"]["n"]
         cem = cem43(T_GRID, T_INF + hs * P)
         got = (f"{cem:.7g}", f"{cem - d0:.6e}")
         gates.append((("P83-tie", s, got, P83_DOSE[s]), got == P83_DOSE[s], 0))
-        _say(f"{PFX} (P83-tie) {s} at P_dep = s {P:.7g} W: cem43 {got[0]} s, excess {got[1]} s vs "
-             f"P83 {P83_DOSE[s]} equal {got == P83_DOSE[s]} (strings ASSERTED)")
+        _say(
+            f"{PFX} (P83-tie) {s} at P_dep = s {P:.7g} W: cem43 {got[0]} s, excess {got[1]} s vs "
+            f"P83 {P83_DOSE[s]} equal {got == P83_DOSE[s]} (strings ASSERTED)"
+        )
     bad = _fail(gates)
     assert not bad, bad
 
@@ -152,11 +171,15 @@ def test_lim_cem():
         gates.append((("Cem", P, lo, cem, hi), lo <= cem <= hi, cem))
         m = min(cem - lo, hi - cem) / cem
         worst_q, least_swap, least_m = max(worst_q, rel), min(least_swap, miss), min(least_m, m)
-        _say(f"{PFX} (Lim) P {P:g} W: cem43 vs _quad_dose rel {rel:.3e} (band {B1_BAND:g}, "
-             f"ASSERTED); R-swap miss {miss:.4e} (> {DOSE_BAR:g} ASSERTED); (Cem) bracket "
-             f"[{lo:.6e}, {hi:.6e}] holds {lo <= cem <= hi} (ASSERTED), margin {m:.3e}")
-    _say(f"{PFX} (Lim) worst rel {worst_q:.3e}; R-swap least miss {least_swap:.4e}; (Cem) least "
-         f"relative margin {least_m:.3e}")
+        _say(
+            f"{PFX} (Lim) P {P:g} W: cem43 vs _quad_dose rel {rel:.3e} (band {B1_BAND:g}, "
+            f"ASSERTED); R-swap miss {miss:.4e} (> {DOSE_BAR:g} ASSERTED); (Cem) bracket "
+            f"[{lo:.6e}, {hi:.6e}] holds {lo <= cem <= hi} (ASSERTED), margin {m:.3e}"
+        )
+    _say(
+        f"{PFX} (Lim) worst rel {worst_q:.3e}; R-swap least miss {least_swap:.4e}; (Cem) least "
+        f"relative margin {least_m:.3e}"
+    )
     bad = _fail(gates)
     assert not bad, bad
 
@@ -168,16 +191,20 @@ def test_controls():
     z = cem43(T_GRID, T_INF + 0.0 * h)
     n0 = abs(z - D0_CITED) / D0_CITED
     gates.append((("N-0", n0), n0 <= N0_BAND, n0))
-    _say(f"{PFX} (N-0) P_dep = 0: |cem43 - D0_cited| / D0_cited {n0:.3e} (band {N0_BAND:g}, "
-         f"ASSERTED; predicted 1.1e-16)")
+    _say(
+        f"{PFX} (N-0) P_dep = 0: |cem43 - D0_cited| / D0_cited {n0:.3e} (band {N0_BAND:g}, "
+        f"ASSERTED; predicted 1.1e-16)"
+    )
     r = c["rows"][10.0]["exc"] / c["rows"][1.0]["exc"]
     dev = abs(r - 10.0)
     gates.append((("N-lin", r, dev), dev > INTERIOR_BAND, dev))
     pv, lo, hi = PRED_NLIN
-    _say(f"{PFX} (N-lin) r = excess(10 W) / excess(1 W) {r:.6f}; |r - 10| {dev:.4f} (ASSERTED > "
-         f"{INTERIOR_BAND:g}; predicted {pv}, range [{lo}, {hi}] inside {lo <= dev <= hi}); "
-         f"separation {dev / INTERIOR_BAND:.1f}x; relative form |r/10 - 1| {abs(r / 10 - 1):.3e} "
-         f"(printed, not asserted)")
+    _say(
+        f"{PFX} (N-lin) r = excess(10 W) / excess(1 W) {r:.6f}; |r - 10| {dev:.4f} (ASSERTED > "
+        f"{INTERIOR_BAND:g}; predicted {pv}, range [{lo}, {hi}] inside {lo <= dev <= hi}); "
+        f"separation {dev / INTERIOR_BAND:.1f}x; relative form |r/10 - 1| {abs(r / 10 - 1):.3e} "
+        f"(printed, not asserted)"
+    )
     bad = _fail(gates)
     assert not bad, bad
 
@@ -186,12 +213,16 @@ def test_record_printed():
     """The record (no band); asserts only that it was formed."""
     c = _data()
     d0, rows = c["d0"], c["rows"]
-    _say(f"{PFX} P81's end-weighted picture at c* (both c* one history), per deposited gel watt; "
-         f"D0 {d0:.7g} s; linear term per W {c['lin_unit']:.6e} s/W (ln 4 R^(T_REF-T_INF) "
-         f"trapezoid(h), exact on the interpolant)")
-    _say(f"{PFX} TABLE P_dep W | max theta K | max T C | cem43 s | D0 s | excess s | excess/D0 | "
-         f"excess per W s/W | excess_lin s | excess/excess_lin - 1 | predicted (exc/D0, per W, "
-         f"nonlin) inside")
+    _say(
+        f"{PFX} P81's end-weighted picture at c* (both c* one history), per deposited gel watt; "
+        f"D0 {d0:.7g} s; linear term per W {c['lin_unit']:.6e} s/W (ln 4 R^(T_REF-T_INF) "
+        f"trapezoid(h), exact on the interpolant)"
+    )
+    _say(
+        f"{PFX} TABLE P_dep W | max theta K | max T C | cem43 s | D0 s | excess s | excess/D0 | "
+        f"excess per W s/W | excess_lin s | excess/excess_lin - 1 | predicted (exc/D0, per W, "
+        f"nonlin) inside"
+    )
     misses = []
     for P in P_SET:
         rw = rows[P]
@@ -202,21 +233,33 @@ def test_record_printed():
         ins = tuple(abs(v / p - 1.0) <= t for v, p, t in zip(vals, pr, tol))
         if not all(ins):
             misses.append((P, vals, pr))
-        _say(f"{PFX} TABLE {P:g} | {float(np.max(rw['th'])):.6e} | {rw['tmax']:.6f} | "
-             f"{rw['cem']:.6e} | {d0:.6e} | {e:.6e} | {vals[0]:.5e} | {vals[1]:.5e} | "
-             f"{rw['lin']:.6e} | {vals[2]:.4e} | {pr} {ins}")
+        _say(
+            f"{PFX} TABLE {P:g} | {float(np.max(rw['th'])):.6e} | {rw['tmax']:.6f} | "
+            f"{rw['cem']:.6e} | {d0:.6e} | {e:.6e} | {vals[0]:.5e} | {vals[1]:.5e} | "
+            f"{rw['lin']:.6e} | {vals[2]:.4e} | {pr} {ins}"
+        )
     succ = [rows[b]["exc"] / rows[a]["exc"] for a, b in zip(P_SET[:-1], P_SET[1:])]
-    _say(f"{PFX} successive ratios excess(P_k+1)/excess(P_k): "
-         f"{' / '.join(f'{v:.5g}' for v in succ)} (predicted approx "
-         f"{' / '.join(str(v) for v in PRED_SUCC)})")
+    _say(
+        f"{PFX} successive ratios excess(P_k+1)/excess(P_k): "
+        f"{' / '.join(f'{v:.5g}' for v in succ)} (predicted approx "
+        f"{' / '.join(str(v) for v in PRED_SUCC)})"
+    )
     pw = (rows[100.0]["exc"] / 100.0) / (rows[0.1]["exc"] / 0.1)
-    _say(f"{PFX} per-watt excess at 100 W / at 0.1 W {pw:.5g} (predicted approx {PRED_PW_RATIO}): "
-         f"one number per watt cannot carry a quantity whose per-watt value moves "
-         f"{100 * (pw - 1):.1f} % over the range")
-    _say(f"{PFX} cem43 at 100 W {rows[100.0]['cem']:.4g} s (predicted approx {PRED_CEM100:g}); "
-         f"max T {rows[100.0]['tmax']:.6f} C, the R = 0.5 branch (T >= {T_REF:g} C) not reached")
-    _say(f"{PFX} NOTE a cem43 per accepted watt (P76, P83, P86, C39) is the 1 W history's dose: "
-         f"approx D0 plus a near-linear excess, never scaled by s or by P")
-    _say(f"{PFX} predictions outside their ranges (disclosed, never red): "
-         f"{misses if misses else 'none'}")
+    _say(
+        f"{PFX} per-watt excess at 100 W / at 0.1 W {pw:.5g} (predicted approx {PRED_PW_RATIO}): "
+        f"one number per watt cannot carry a quantity whose per-watt value moves "
+        f"{100 * (pw - 1):.1f} % over the range"
+    )
+    _say(
+        f"{PFX} cem43 at 100 W {rows[100.0]['cem']:.4g} s (predicted approx {PRED_CEM100:g}); "
+        f"max T {rows[100.0]['tmax']:.6f} C, the R = 0.5 branch (T >= {T_REF:g} C) not reached"
+    )
+    _say(
+        f"{PFX} NOTE a cem43 per accepted watt (P76, P83, P86, C39) is the 1 W history's dose: "
+        f"approx D0 plus a near-linear excess, never scaled by s or by P"
+    )
+    _say(
+        f"{PFX} predictions outside their ranges (disclosed, never red): "
+        f"{misses if misses else 'none'}"
+    )
     assert len(rows) == len(P_SET) and all(np.isfinite(r["exc"]) for r in rows.values())

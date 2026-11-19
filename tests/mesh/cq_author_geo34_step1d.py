@@ -32,12 +32,21 @@ def main(out):
     face = cq.Face.makeFromWires(cq.Wire.makePolygon(corners, close=True))
     area = face.Area()
     bb = face.BoundingBox()
-    print(f"[author] PortSheet area={area!r} bbox=({bb.xmin!r}, {bb.ymin!r}, "
-          f"{bb.zmin!r}, {bb.xmax!r}, {bb.ymax!r}, {bb.zmax!r})", flush=True)
+    print(
+        f"[author] PortSheet area={area!r} bbox=({bb.xmin!r}, {bb.ymin!r}, "
+        f"{bb.zmin!r}, {bb.xmax!r}, {bb.ymax!r}, {bb.zmax!r})",
+        flush=True,
+    )
     assert abs(area - AREA) <= 1e-12, area
     # OCC pads bounding boxes by the shape tolerance (~1e-7): check at 1e-6.
-    for got, want in ((bb.xmin, X), (bb.ymin, Y0), (bb.xmax, X + W),
-                      (bb.ymax, Y0 + HH), (bb.zmin, Z), (bb.zmax, Z)):
+    for got, want in (
+        (bb.xmin, X),
+        (bb.ymin, Y0),
+        (bb.xmax, X + W),
+        (bb.ymax, Y0 + HH),
+        (bb.zmin, Z),
+        (bb.zmax, Z),
+    ):
         assert abs(got - want) <= 1e-6, (got, want)
     vol = box.val().Volume()
     print(f"[author] AirBox volume={vol!r}", flush=True)
@@ -55,8 +64,10 @@ def main(out):
     with open(out, "rb") as handle:
         data = handle.read()
     print(f"[author] route={route}", flush=True)
-    print(f"[author] wrote {out} bytes={len(data)} "
-          f"sha256={hashlib.sha256(data).hexdigest()}", flush=True)
+    print(
+        f"[author] wrote {out} bytes={len(data)} " f"sha256={hashlib.sha256(data).hexdigest()}",
+        flush=True,
+    )
     print(f"[author] size_on_disk={os.path.getsize(out)}", flush=True)
 
 

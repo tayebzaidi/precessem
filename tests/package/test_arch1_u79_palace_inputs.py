@@ -27,10 +27,8 @@ import numpy as np
 import pytest
 from mpi4py import MPI
 
-from fem_em_solver import FourPortBirdcageGeometry, cli
-from fem_em_solver import study_yaml
+from fem_em_solver import FourPortBirdcageGeometry, cli, study_yaml
 from fem_em_solver.study_yaml import _load, _run_study_file_palace
-
 from tests.package.test_arch1_u76_palace_outputs import _all, _field, _stub_builds, _write
 from tests.package.test_wf1_study_yaml import WF1, _fresh_dir, _mapping, _rc_all
 
@@ -39,8 +37,17 @@ SCRATCH = REPO / "logs" / "arch1" / "u79"  # gitignored (logs/)
 HOLE = WF1 / "f_small_hole_pec_control.yaml"
 FOUR_PORT = WF1 / "f_small_four_port.yaml"
 HOLE_MSG = "palace: geometry.as_hole is not supported"
-EM_OUTPUT_KEYS = {"s_matrix", "z_matrix", "touchstone", "sar", "b1_plus", "probes",
-                  "tune", "temperature", "s_matrices"}
+EM_OUTPUT_KEYS = {
+    "s_matrix",
+    "z_matrix",
+    "touchstone",
+    "sar",
+    "b1_plus",
+    "probes",
+    "tune",
+    "temperature",
+    "s_matrices",
+}
 
 
 def _say(capsys, msg):
@@ -71,8 +78,14 @@ def _fake_solve(spy):
         if backend != "palace":
             raise AssertionError(f"spy: backend {backend!r}")
         spy["n"] += 1
-        return SimpleNamespace(s_matrix=np.eye(4), cells=0, order=1,
-                               case_dir=kw.get("case_dir"), sha256={}, palace_total_s=None)
+        return SimpleNamespace(
+            s_matrix=np.eye(4),
+            cells=0,
+            order=1,
+            case_dir=kw.get("case_dir"),
+            sha256={},
+            palace_total_s=None,
+        )
 
     return fake_solve
 
@@ -86,8 +99,11 @@ def test_u79_hole_refused_by_field(monkeypatch, capsys):
     calls = _stub_builds(monkeypatch)
     g, msg, rc_all, err, unwritten = _refusal_row(HOLE, "hole", capsys, comm)
     builds = comm.allreduce(calls["n"], op=MPI.SUM)
-    _say(capsys, f"[U79 H] n={comm.size} {HOLE.name}: field {g!r}; msg {msg!r}; rc {rc_all}; "
-         f"nothing written {unwritten}; builds {builds}")
+    _say(
+        capsys,
+        f"[U79 H] n={comm.size} {HOLE.name}: field {g!r}; msg {msg!r}; rc {rc_all}; "
+        f"nothing written {unwritten}; builds {builds}",
+    )
     assert g == "--backend", (g, msg)
     assert msg is not None and msg.endswith(HOLE_MSG), msg
     assert rc_all == (2, 2), rc_all
@@ -110,8 +126,11 @@ def test_u79_width_refused_by_field(monkeypatch, capsys):
     calls = _stub_builds(monkeypatch)
     want = f"palace: a {comm.size}-rank launch is not supported"
     g, msg, rc_all, err, unwritten = _refusal_row(FOUR_PORT, "width", capsys, comm)
-    _say(capsys, f"[U79 W] n={comm.size} {FOUR_PORT.name}: field {g!r}; msg {msg!r}; "
-         f"rc {rc_all}; nothing written {unwritten}")
+    _say(
+        capsys,
+        f"[U79 W] n={comm.size} {FOUR_PORT.name}: field {g!r}; msg {msg!r}; "
+        f"rc {rc_all}; nothing written {unwritten}",
+    )
     assert g == "--backend", (g, msg)
     assert msg is not None and f": {want}" in msg, msg
     assert rc_all == (2, 2), rc_all
@@ -124,8 +143,11 @@ def test_u79_width_refused_by_field(monkeypatch, capsys):
     f_sar = _write("u79_width_sar.yaml", {**base, "outputs": {"sar": sar}}, comm)
     g2, msg2, rc2, err2, unwritten2 = _refusal_row(f_sar, "width_sar", capsys, comm)
     builds = comm.allreduce(calls["n"], op=MPI.SUM)
-    _say(capsys, f"[U79 W order] n={comm.size} +outputs.sar: field {g2!r}; msg {msg2!r}; "
-         f"rc {rc2}; nothing written {unwritten2}; builds {builds}")
+    _say(
+        capsys,
+        f"[U79 W order] n={comm.size} +outputs.sar: field {g2!r}; msg {msg2!r}; "
+        f"rc {rc2}; nothing written {unwritten2}; builds {builds}",
+    )
     assert g2 == "--backend", (g2, msg2)
     assert msg2 is not None and "palace: outputs.sar is not supported" in msg2, msg2
     assert "rank launch" not in msg2, msg2
@@ -159,8 +181,11 @@ def test_u79_degree_refused_at_parse(monkeypatch, capsys):
     rc_all = _rc_all(rc, comm)
     unwritten = _all(comm, not out.exists())
     runs = comm.allreduce(spy["n"], op=MPI.SUM)
-    _say(capsys, f"[U79 D] degree 3: _load field {g!r}; msg {msg!r}; cli rc {rc_all}; "
-         f"_run_palace calls {runs}; nothing written {unwritten}")
+    _say(
+        capsys,
+        f"[U79 D] degree 3: _load field {g!r}; msg {msg!r}; cli rc {rc_all}; "
+        f"_run_palace calls {runs}; nothing written {unwritten}",
+    )
     assert g == "study.degree", (g, msg)
     assert rc_all == (2, 2), rc_all
     if comm.rank == 0:
@@ -187,8 +212,11 @@ def test_u79_admitted_unchanged(monkeypatch, capsys):
     run = _run_study_file_palace(FOUR_PORT, output_dir=out, comm=comm)
     summary = json.loads((out / "summary.json").read_text())
     keys = set(summary) & EM_OUTPUT_KEYS
-    _say(capsys, f"[U79 A'] {FOUR_PORT.name}: solves {spy['n']}; EM keys {sorted(keys)}; "
-         f"run.summary == file {run.summary == summary}")
+    _say(
+        capsys,
+        f"[U79 A'] {FOUR_PORT.name}: solves {spy['n']}; EM keys {sorted(keys)}; "
+        f"run.summary == file {run.summary == summary}",
+    )
     assert spy["n"] == 1
     assert keys == {"s_matrix"}
 
@@ -219,6 +247,9 @@ def test_u79_admitted_unchanged(monkeypatch, capsys):
         got = "no exception"
     except Exception as exc:  # noqa: BLE001 - printed control
         got = f"{type(exc).__name__}({str(exc)!r})"
-    _say(capsys, f"[U79 c-old] helper no-op'd, real solve, {HOLE.name}: {got}; "
-         f"build calls {old['n']} (predicted ValueError(\"backend='palace': as_hole=True "
-         f"is not supported\"), build calls 0)")
+    _say(
+        capsys,
+        f"[U79 c-old] helper no-op'd, real solve, {HOLE.name}: {got}; "
+        f"build calls {old['n']} (predicted ValueError(\"backend='palace': as_hole=True "
+        f'is not supported"), build calls 0)',
+    )

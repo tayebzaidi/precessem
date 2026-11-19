@@ -40,9 +40,8 @@ from mpi4py import MPI
 from fem_em_solver.post.evaluation import evaluate_vector_field_parallel
 from fem_em_solver.thermal import solve_transient_conduction
 from fem_em_solver.thermal.dose import cem43, running_average
-
 from tests.complex_mode import complex_only
-from tests.validation.test_mat10_sar_to_heat_sphere import ROBIN_TAG, _allsum, _say
+from tests.validation.test_mat10_sar_to_heat_sphere import ROBIN_TAG, _say
 from tests.validation.test_mat12_transient_sar_heating_sphere import E_BAND, RHO_C
 from tests.validation.test_mat13_transient_perfusion_sphere import INTERIOR_BAND
 from tests.validation.test_mat15_coil_driven_heating_phantom import H_GEL, K_GEL, N_MAIN, T_INF
@@ -55,29 +54,20 @@ from tests.validation.test_mat17_duty_cycle_coil_driven import (
     STEPS_PER_HALF,
 )
 from tests.validation.test_mat17_duty_cycle_fem import _census
-from tests.validation.test_mat21_box_closed_form import Q, T_C
+from tests.validation.test_mat21_box_closed_form import T_C
 from tests.validation.test_mat21_box_closed_form import T_INF as T_INF_0
+from tests.validation.test_mat21_box_closed_form import Q
 from tests.validation.test_mat21_box_duty_closed_form import (
     DT_BOX,
-    HALF_T,
-    N_STEPS,
-    QV,
-    T_STAR,
-    W_AVG,
-    _box_mean_duty,
-    _duty_cf,
 )
 from tests.validation.test_mat21_box_duty_closed_form import DUTY as DUTY_PIN
+from tests.validation.test_mat21_box_duty_closed_form import HALF_T, N_STEPS
 from tests.validation.test_mat21_box_duty_closed_form import N_SWITCH as N_SWITCH_PIN
+from tests.validation.test_mat21_box_duty_closed_form import QV
 from tests.validation.test_mat21_box_duty_closed_form import STEPS_PER_HALF as SPH_PIN
-from tests.validation.test_mat21_box_fem import (
-    _Clock,
-    _exact,
-    _interior_chi,
-    _rung,
-    _trans_ex,
-)
+from tests.validation.test_mat21_box_duty_closed_form import T_STAR, W_AVG, _box_mean_duty, _duty_cf
 from tests.validation.test_mat21_box_fem import T_STAR as T_STAR_1
+from tests.validation.test_mat21_box_fem import _Clock, _exact, _interior_chi, _rung, _trans_ex
 
 STEPS = tuple(range(N_MAIN + 1))
 M_RUNG = 6
@@ -96,9 +86,23 @@ def _heav_box(m):
 def _cn(msh, ft, schedule):
     kw = {} if schedule is None else {"source_schedule": schedule}
     return solve_transient_conduction(
-        msh, ft, k=K_GEL, rho_c=RHO_C, q=Q, h=H_GEL, t_inf=T_INF, t_init=T_INF,
-        robin_tag=ROBIN_TAG, dt=DT_BOX, n_steps=N_MAIN, theta=0.5,
-        startup_half_steps=2, degree=1, snapshot_steps=STEPS, **kw)
+        msh,
+        ft,
+        k=K_GEL,
+        rho_c=RHO_C,
+        q=Q,
+        h=H_GEL,
+        t_inf=T_INF,
+        t_init=T_INF,
+        robin_tag=ROBIN_TAG,
+        dt=DT_BOX,
+        n_steps=N_MAIN,
+        theta=0.5,
+        startup_half_steps=2,
+        degree=1,
+        snapshot_steps=STEPS,
+        **kw,
+    )
 
 
 def _series(res, work, f_mean, comm, v_h):
@@ -132,7 +136,7 @@ def _identities(t, duty, hs):
     fem_c_lhs = float(np.max(np.abs(a[ok] - b[ok])))  # (FEM-c), K
     arr = np.column_stack([duty] + hs + [r])
     m2, _, _ = running_average(t, arr, window=W_AVG)
-    b2 = m2[:, 1:1 + N_SWITCH] @ np.asarray(signs)
+    b2 = m2[:, 1 : 1 + N_SWITCH] @ np.asarray(signs)
     rr2 = m2[:, -1]
     scale2 = np.max(np.abs(m2[ok, 0]))
     fem2d = float(np.max(np.abs(m2[ok, 0] - b2[ok])) / scale2)
@@ -141,11 +145,26 @@ def _identities(t, duty, hs):
     idx = np.nonzero(ok)[0]
     idx = idx[idx - STEPS_PER_HALF >= idx[0]]
     wc = float(np.max(np.abs(a[idx] - b[idx - STEPS_PER_HALF])) / scale)
-    return {"h0": h0, "a": a, "a_mx": a_mx, "a_tmx": a_tmx, "ok": ok, "res": res,
-            "fem": fem_v, "fem2d": fem2d, "idx": idx, "wc": wc,
-            "r_max": r_max, "scale": float(scale), "scale2": float(scale2),
-            "res_p": res_p, "fem_p": fem_p, "fem2d_p": fem2d_p,
-            "fem_c_lhs": fem_c_lhs, "fem_c_lhs2": fem_c_lhs2}
+    return {
+        "h0": h0,
+        "a": a,
+        "a_mx": a_mx,
+        "a_tmx": a_tmx,
+        "ok": ok,
+        "res": res,
+        "fem": fem_v,
+        "fem2d": fem2d,
+        "idx": idx,
+        "wc": wc,
+        "r_max": r_max,
+        "scale": float(scale),
+        "scale2": float(scale2),
+        "res_p": res_p,
+        "fem_p": fem_p,
+        "fem2d_p": fem2d_p,
+        "fem_c_lhs": fem_c_lhs,
+        "fem_c_lhs2": fem_c_lhs2,
+    }
 
 
 @pytest.fixture(scope="module")
@@ -157,9 +176,11 @@ def runs():
     V1 = fem.functionspace(msh, ("Lagrange", 1))
     work = fem.Function(V1)
     f_mean = fem.form(work * ufl.dx(domain=msh))
-    _say(f"MAT21-2 [runs] rung m = {M_RUNG} {tuple(ns)}: cells {n}; P1 dofs "
-         f"{V1.dofmap.index_map.size_global}; t* = {T_STAR:.4f} s, DT_BOX = {DT_BOX:.6f} s, "
-         f"HALF_T = {HALF_T:.4f} s, W/DT = {W_AVG / DT_BOX:.4f} samples")
+    _say(
+        f"MAT21-2 [runs] rung m = {M_RUNG} {tuple(ns)}: cells {n}; P1 dofs "
+        f"{V1.dofmap.index_map.size_global}; t* = {T_STAR:.4f} s, DT_BOX = {DT_BOX:.6f} s, "
+        f"HALF_T = {HALF_T:.4f} s, W/DT = {W_AVG / DT_BOX:.4f} samples"
+    )
     out = {"E": {}, "imag": 0.0, "H": [], "H_fields": []}
 
     def _go(label, schedule):
@@ -199,8 +220,10 @@ def runs():
     out["t"] = np.arange(N_MAIN + 1) * DT_BOX
     out["ids"] = _identities(out["t"], out["duty"], out["H"])
     out["msh"] = msh
-    _say(f"MAT21-2 [runs] max|Im theta| = {out['imag']:.3e} (predicted 0); elapsed "
-         f"{time.perf_counter() - t0:.1f} s")
+    _say(
+        f"MAT21-2 [runs] max|Im theta| = {out['imag']:.3e} (predicted 0); elapsed "
+        f"{time.perf_counter() - t0:.1f} s"
+    )
     return out
 
 
@@ -221,15 +244,19 @@ def test_s0_schedule_census(runs):
 
 @complex_only
 def test_delta_duhamel_fields(runs):
-    _say(f"MAT21-2 (Δ) whole-box rel L2 |theta_duty - sum (-1)^m theta_Hm| at t* = "
-         f"{runs['delta']:.3e} (bound L_BAND {L_BAND:.0e}, predicted <= 1e-13)")
+    _say(
+        f"MAT21-2 (Δ) whole-box rel L2 |theta_duty - sum (-1)^m theta_Hm| at t* = "
+        f"{runs['delta']:.3e} (bound L_BAND {L_BAND:.0e}, predicted <= 1e-13)"
+    )
     assert runs["delta"] <= L_BAND
 
 
 @complex_only
 def test_d_prime_duty_one_is_default(runs):
-    _say(f"MAT21-2 (D') chi = 1 vs default at t*: rel L2 = {runs['dprime']:.3e} "
-         f"(bound D_BAND {D_BAND:.0e}, predicted <= 5e-15)")
+    _say(
+        f"MAT21-2 (D') chi = 1 vs default at t*: rel L2 = {runs['dprime']:.3e} "
+        f"(bound D_BAND {D_BAND:.0e}, predicted <= 5e-15)"
+    )
     assert runs["dprime"] <= D_BAND
 
 
@@ -240,12 +267,18 @@ def test_h0_series_duhamel(runs):
     cf = np.array([_box_mean_duty(tn) for tn in t])
     nz = np.abs(cf) > 0
     dev = np.max(np.abs(duty[nz] - cf[nz]) / np.abs(cf[nz]))
-    _say("MAT21-2 record <theta_duty>_n FEM vs closed-form mean: "
-         + "; ".join(f"n{i} {duty[i]:.6f}/{cf[i]:.6f}" for i in range(len(t))))
-    _say(f"MAT21-2 record max_n |FEM mean - closed-form mean|/closed-form = {dev:.3e} "
-         f"(predicted 1e-4 to 3e-3; printed, not asserted)")
-    _say(f"MAT21-2 (H0) max_n |duty - sum (-1)^m H_m| / max|duty| = {h0:.3e} "
-         f"(bound L_BAND {L_BAND:.0e}, predicted <= 1e-13)")
+    _say(
+        "MAT21-2 record <theta_duty>_n FEM vs closed-form mean: "
+        + "; ".join(f"n{i} {duty[i]:.6f}/{cf[i]:.6f}" for i in range(len(t)))
+    )
+    _say(
+        f"MAT21-2 record max_n |FEM mean - closed-form mean|/closed-form = {dev:.3e} "
+        f"(predicted 1e-4 to 3e-3; printed, not asserted)"
+    )
+    _say(
+        f"MAT21-2 (H0) max_n |duty - sum (-1)^m H_m| / max|duty| = {h0:.3e} "
+        f"(bound L_BAND {L_BAND:.0e}, predicted <= 1e-13)"
+    )
     assert h0 <= L_BAND
 
 
@@ -257,23 +290,35 @@ def test_fem_six_minute_operator(runs):
     ceil_ = ids["r_max"] / ids["scale"]
     rhs = ids["r_max"] * (1.0 + 1e-12) + D_BAND * ids["scale"]
     rhs2 = ids["r_max"] * (1.0 + 1e-12) + D_BAND * ids["scale2"]
-    _say(f"MAT21-2 (FEM) as posed, printed only: W = {W_AVG} s, max |a - b| / max|a| over {nw} "
-         f"windows = {ids['fem']:.3e}; 2-D twin {ids['fem2d']:.3e}; ceiling r_max/max|a| = "
-         f"{ceil_:.3e} (predicted ≈ 1.46e-13 against ≈ 3.85e-13)")
-    _say(f"MAT21-2 (FEM-ctl) = (FEM) as posed, r omitted, predicted ≈ 1.46e-13, not asserted: "
-         f"{ids['fem']:.3e}")
+    _say(
+        f"MAT21-2 (FEM) as posed, printed only: W = {W_AVG} s, max |a - b| / max|a| over {nw} "
+        f"windows = {ids['fem']:.3e}; 2-D twin {ids['fem2d']:.3e}; ceiling r_max/max|a| = "
+        f"{ceil_:.3e} (predicted ≈ 1.46e-13 against ≈ 3.85e-13)"
+    )
+    _say(
+        f"MAT21-2 (FEM-ctl) = (FEM) as posed, r omitted, predicted ≈ 1.46e-13, not asserted: "
+        f"{ids['fem']:.3e}"
+    )
     _say("MAT21-2 (FEM) per-window residuals: " + " ".join(f"{x:.2e}" for x in ids["res"]))
     _say("MAT21-2 (FEM') per-window residuals: " + " ".join(f"{x:.2e}" for x in ids["res_p"]))
-    _say(f"MAT21-2 (FEM') max |a - b - rr| / max|a| = {ids['fem_p']:.3e}; (FEM'-2d) "
-         f"{ids['fem2d_p']:.3e} (bound D_BAND {D_BAND:.0e}, predicted <= 1e-14, worst-case ≈ 3e-14)")
-    _say(f"MAT21-2 (FEM-c) max |a - b| = {ids['fem_c_lhs']:.4e} K <= r_max(1 + 1e-12) + D_BAND max|a| "
-         f"= {rhs:.4e} K (r_max {ids['r_max']:.4e} K); 2-D {ids['fem_c_lhs2']:.4e} K <= {rhs2:.4e} K "
-         f"(predicted 9.03e-14 <= 2.99e-13 K)")
-    _say(f"MAT21-2 record FEM six-minute maximum {ids['a_mx']:.5f} K at t_max = {ids['a_tmx']:.4f} s "
-         f"(predicted ≈ 0.6168 K at t* = {T_STAR:.4f} s)")
+    _say(
+        f"MAT21-2 (FEM') max |a - b - rr| / max|a| = {ids['fem_p']:.3e}; (FEM'-2d) "
+        f"{ids['fem2d_p']:.3e} (bound D_BAND {D_BAND:.0e}, predicted <= 1e-14, worst-case ≈ 3e-14)"
+    )
+    _say(
+        f"MAT21-2 (FEM-c) max |a - b| = {ids['fem_c_lhs']:.4e} K <= r_max(1 + 1e-12) + D_BAND max|a| "
+        f"= {rhs:.4e} K (r_max {ids['r_max']:.4e} K); 2-D {ids['fem_c_lhs2']:.4e} K <= {rhs2:.4e} K "
+        f"(predicted 9.03e-14 <= 2.99e-13 K)"
+    )
+    _say(
+        f"MAT21-2 record FEM six-minute maximum {ids['a_mx']:.5f} K at t_max = {ids['a_tmx']:.4f} s "
+        f"(predicted ≈ 0.6168 K at t* = {T_STAR:.4f} s)"
+    )
     d_w = cem43(t, T_INF + np.real(duty) / QV)
-    _say(f"MAT21-2 record FEM cem43 of T_inf + <theta>/(qV) = {d_w:.4e} s per W of qV "
-         f"(W1 closed-form mean 4.0494e-11 s, 20261013T183409Z_MAT-21-step2-W1.log)")
+    _say(
+        f"MAT21-2 record FEM cem43 of T_inf + <theta>/(qV) = {d_w:.4e} s per W of qV "
+        f"(W1 closed-form mean 4.0494e-11 s, 20261013T183409Z_MAT-21-step2-W1.log)"
+    )
     assert ids["fem_p"] <= D_BAND, f"(FEM') {ids['fem_p']:.3e}"
     assert ids["fem2d_p"] <= D_BAND, f"(FEM'-2d) {ids['fem2d_p']:.3e}"
     assert ids["fem_c_lhs"] <= rhs, f"(FEM-c) {ids['fem_c_lhs']:.4e} > {rhs:.4e} K"
@@ -283,24 +328,31 @@ def test_fem_six_minute_operator(runs):
 @complex_only
 def test_e_every_run_balances(runs):
     worst = max(runs["E"], key=runs["E"].get)
-    _say(f"MAT21-2 (E) per run " + ", ".join(f"{k_}: {v:.3e}" for k_, v in runs["E"].items())
-         + f"; worst {runs['E'][worst]:.3e} on {worst} (bound {E_BAND:.0e}, predicted <= 1e-11)")
+    _say(
+        "MAT21-2 (E) per run "
+        + ", ".join(f"{k_}: {v:.3e}" for k_, v in runs["E"].items())
+        + f"; worst {runs['E'][worst]:.3e} on {worst} (bound {E_BAND:.0e}, predicted <= 1e-11)"
+    )
     for name, r in runs["E"].items():
         assert r <= E_BAND, f"(E) {name}: {r:.3e}"
 
 
 @complex_only
 def test_control_delta_m9_dropped_misses(runs):
-    _say(f"MAT21-2 control (Δ-ctl) m = 9 dropped at t*: miss = {runs['delta_ctl']:.4e} "
-         f"(predicted 0.20-0.22, range 0.18-0.26; asserted > L_BAND)")
+    _say(
+        f"MAT21-2 control (Δ-ctl) m = 9 dropped at t*: miss = {runs['delta_ctl']:.4e} "
+        f"(predicted 0.20-0.22, range 0.18-0.26; asserted > L_BAND)"
+    )
     assert runs["delta_ctl"] > L_BAND
 
 
 @complex_only
 def test_control_wc_shifted_window_misses(runs):
     ids = runs["ids"]
-    _say(f"MAT21-2 control (Wc-FEM) shift P/2 = {STEPS_PER_HALF} samples: miss {ids['wc']:.4e} "
-         f"over {ids['idx'].size} windows (predicted 0.141, range 0.10-0.18; asserted > D_BAND)")
+    _say(
+        f"MAT21-2 control (Wc-FEM) shift P/2 = {STEPS_PER_HALF} samples: miss {ids['wc']:.4e} "
+        f"over {ids['idx'].size} windows (predicted 0.141, range 0.10-0.18; asserted > D_BAND)"
+    )
     assert ids["wc"] > D_BAND
 
 
@@ -327,13 +379,17 @@ def duty_cf():
         _say(f"MAT21-2 centre evaluation failed: {exc!r}")
         th_c = float("nan")
     th_c_ex = float(np.real(_duty_cf(np.zeros(1), np.zeros(1), np.zeros(1), T_STAR)[0]))
-    _say(f"MAT21-2 (T-duty) interior rel L2 at t* = {out['T']:.6e} (bound {INTERIOR_BAND:.0e}, "
-         f"predicted 5e-4 to 3e-3; step 1's (T) 9.072e-4); whole {out['whole']:.6e} (printed); "
-         f"theta_h(0) = {th_c:.6f} K vs ten-run series {th_c_ex:.6f} K (predicted ≈ 0.6665); "
-         f"balance {res.max_balance_residual:.3e}; max|Im| {_max_imag(res.temperature):.3e}; "
-         f"elapsed {time.perf_counter() - t0:.1f} s")
-    _say(f"MAT21-2 control (c3) unscheduled step response as comparand: interior miss = "
-         f"{out['c3']:.4e} (predicted 0.50, range 0.45-0.55; asserted > {INTERIOR_BAND:.0e})")
+    _say(
+        f"MAT21-2 (T-duty) interior rel L2 at t* = {out['T']:.6e} (bound {INTERIOR_BAND:.0e}, "
+        f"predicted 5e-4 to 3e-3; step 1's (T) 9.072e-4); whole {out['whole']:.6e} (printed); "
+        f"theta_h(0) = {th_c:.6f} K vs ten-run series {th_c_ex:.6f} K (predicted ≈ 0.6665); "
+        f"balance {res.max_balance_residual:.3e}; max|Im| {_max_imag(res.temperature):.3e}; "
+        f"elapsed {time.perf_counter() - t0:.1f} s"
+    )
+    _say(
+        f"MAT21-2 control (c3) unscheduled step response as comparand: interior miss = "
+        f"{out['c3']:.4e} (predicted 0.50, range 0.45-0.55; asserted > {INTERIOR_BAND:.0e})"
+    )
     return out
 
 

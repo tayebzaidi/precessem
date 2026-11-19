@@ -110,9 +110,7 @@ def _selector_matches(selector, centroid, bbox) -> bool:
             f"(known: {', '.join(_PREDICATES)})"
         )
     lo, hi = bbox[:3], bbox[3:]
-    if "centroid_in_box" in selector and not _in_box(
-        centroid, selector["centroid_in_box"]
-    ):
+    if "centroid_in_box" in selector and not _in_box(centroid, selector["centroid_in_box"]):
         return False
     if "bbox_within" in selector:
         box = selector["bbox_within"]
@@ -158,16 +156,13 @@ def claim_volumes(volumes, groups) -> Dict[str, List[int]]:
         raise ValueError(
             "import_step: volume(s) claimed by more than one config group: "
             + "; ".join(
-                f"volume {tag} centroid=({c[0]:.6e}, {c[1]:.6e}, {c[2]:.6e}) "
-                f"groups {owners}"
+                f"volume {tag} centroid=({c[0]:.6e}, {c[1]:.6e}, {c[2]:.6e}) " f"groups {owners}"
                 for tag, c, owners in doubly
             )
         )
     empty = [name for name, tags in claimed.items() if not tags]
     if empty:
-        raise ValueError(
-            "import_step: config group(s) matched no volume: " + ", ".join(empty)
-        )
+        raise ValueError("import_step: config group(s) matched no volume: " + ", ".join(empty))
     return claimed
 
 
@@ -182,17 +177,13 @@ def _build(path, config) -> Dict[str, object]:
 
     started = time.perf_counter()
     if "highest_dim_only" in config:
-        gmsh.model.occ.importShapes(
-            str(path), highestDimOnly=bool(config["highest_dim_only"])
-        )
+        gmsh.model.occ.importShapes(str(path), highestDimOnly=bool(config["highest_dim_only"]))
     else:
         gmsh.model.occ.importShapes(str(path))
     gmsh.model.occ.removeAllDuplicates()
     gmsh.model.occ.synchronize()
     surface_spec = config.get("surface_groups")
-    named_surfaces = (
-        _embed_named_surfaces(surface_spec, config) if surface_spec else None
-    )
+    named_surfaces = _embed_named_surfaces(surface_spec, config) if surface_spec else None
     import_wall_time = time.perf_counter() - started
 
     volumes = {}
@@ -258,12 +249,9 @@ def _build(path, config) -> Dict[str, object]:
             walls -= {g["surface"] for g in named_surfaces.values()}
         outer_surfaces = sorted(walls)
         outer_bboxes = [
-            tuple(float(v) for v in gmsh.model.getBoundingBox(2, s))
-            for s in outer_surfaces
+            tuple(float(v) for v in gmsh.model.getBoundingBox(2, s)) for s in outer_surfaces
         ]
-        outer_cad_area = float(
-            sum(gmsh.model.occ.getMass(2, s) for s in outer_surfaces)
-        )
+        outer_cad_area = float(sum(gmsh.model.occ.getMass(2, s) for s in outer_surfaces))
         gmsh.model.addPhysicalGroup(2, outer_surfaces, tag=int(outer_tag))
         gmsh.model.setPhysicalName(2, int(outer_tag), "outer_boundary")
         print(
@@ -300,9 +288,7 @@ def _build(path, config) -> Dict[str, object]:
         gmsh.model.mesh.field.setNumber(threshold, "SizeMin", float(grading["size"]))
         gmsh.model.mesh.field.setNumber(threshold, "SizeMax", resolution)
         gmsh.model.mesh.field.setNumber(threshold, "DistMin", 0.0)
-        gmsh.model.mesh.field.setNumber(
-            threshold, "DistMax", float(grading["distance"])
-        )
+        gmsh.model.mesh.field.setNumber(threshold, "DistMax", float(grading["distance"]))
         size_fields.append(threshold)
     if size_fields:
         if len(size_fields) == 1:
@@ -344,8 +330,7 @@ def _build(path, config) -> Dict[str, object]:
 
     diagnostics = {
         "cad_mass_by_group": {
-            g["name"]: float(sum(masses[v] for v in claimed[g["name"]]))
-            for g in groups
+            g["name"]: float(sum(masses[v] for v in claimed[g["name"]])) for g in groups
         },
         "volumes_by_group": {g["name"]: len(claimed[g["name"]]) for g in groups},
         "tag_by_group": {g["name"]: int(g["tag"]) for g in groups},
@@ -381,12 +366,9 @@ def _embed_named_surfaces(spec, config) -> Dict[str, Dict[str, object]]:
     present), a non-unique match, a role other than ``port``, a tag collision,
     or a child that is not one face of unchanged area embedded in a volume.
     """
-    outer =config.get("outer_boundary_tag")
+    outer = config.get("outer_boundary_tag")
     taken = set() if outer is None else {int(outer)}
-    present = sorted(
-        {gmsh.model.getEntityName(d, t) for d, t in gmsh.model.getEntities()}
-        - {""}
-    )
+    present = sorted({gmsh.model.getEntityName(d, t) for d, t in gmsh.model.getEntities()} - {""})
     resolved = []
     for group in spec:
         name, step_name = group["name"], group["step_name"]
@@ -411,7 +393,7 @@ def _embed_named_surfaces(spec, config) -> Dict[str, Dict[str, object]]:
             raise ValueError(
                 f"import_step: surface group {name!r}: no dim-2 entity named "
                 f"{step_name!r} (names present: {present}); a free STEP face "
-                "needs \"highest_dim_only\": false"
+                'needs "highest_dim_only": false'
             )
         if len(matches) != 1:
             raise ValueError(
@@ -425,11 +407,13 @@ def _embed_named_surfaces(spec, config) -> Dict[str, Dict[str, object]]:
     _, out_map = gmsh.model.occ.fragment(volumes, tools)
     gmsh.model.occ.synchronize()
     embedded = {
-        s for _, v in gmsh.model.getEntities(3)
-        for d, s in gmsh.model.mesh.getEmbedded(3, v) if d == 2
+        s
+        for _, v in gmsh.model.getEntities(3)
+        for d, s in gmsh.model.mesh.getEmbedded(3, v)
+        if d == 2
     }
     records: Dict[str, Dict[str, object]] = {}
-    for (group, source, cad_area), children in zip(resolved, out_map[len(volumes):]):
+    for (group, source, cad_area), children in zip(resolved, out_map[len(volumes) :]):
         name = group["name"]
         faces = [c for d, c in children if d == 2]
         if len(faces) != 1:
@@ -550,9 +534,7 @@ def import_step(
                 gmsh.finalize()
 
     failure = comm.bcast(
-        None
-        if build_error is None
-        else (isinstance(build_error, ValueError), str(build_error)),
+        None if build_error is None else (isinstance(build_error, ValueError), str(build_error)),
         root=rank,
     )
     if failure is not None:
@@ -563,9 +545,7 @@ def import_step(
             f"{message} (raised on rank {rank}; this is rank {comm.rank})"
         )
 
-    partitioner = dolfinx.mesh.create_cell_partitioner(
-        dolfinx.mesh.GhostMode.shared_facet, 2
-    )
+    partitioner = dolfinx.mesh.create_cell_partitioner(dolfinx.mesh.GhostMode.shared_facet, 2)
     try:
         mesh, cell_tags, facet_tags = _model_to_mesh(
             gmsh.model, comm, rank, gdim=3, partitioner=partitioner

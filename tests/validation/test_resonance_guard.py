@@ -28,9 +28,8 @@ from __future__ import annotations
 import numpy as np
 import pytest
 import ufl
-from mpi4py import MPI
-
 from dolfinx import mesh as dmesh
+from mpi4py import MPI
 
 from fem_em_solver.core import (
     HomogeneousMaterial,
@@ -40,7 +39,6 @@ from fem_em_solver.core import (
     stored_electric_energy,
 )
 from fem_em_solver.core.cavity import solve_pec_cavity_modes
-
 from tests.complex_mode import complex_only
 
 EDGES = (1.0, 0.8, 0.6)
@@ -141,13 +139,13 @@ def test_energy_continuity_guard_fires_near_a_cavity_mode():
         print(f"  quiet sweep    {[f'{f:.4e}' for f in quiet_freqs]}")
         print(f"    energies {[f'{w:.4e}' for w in quiet_energies]}")
         print(f"    {quiet.describe()}")
-        print(f"  energy amplification over the approach: {amplification:.3f}x "
-              f"vs pole law {predicted_amplification:.1f}x ({amplification_error:.3%})")
+        print(
+            f"  energy amplification over the approach: {amplification:.3f}x "
+            f"vs pole law {predicted_amplification:.1f}x ({amplification_error:.3%})"
+        )
         print(f"  slope separation near/quiet: {separation:.3f}x")
 
-    assert near.triggered, (
-        f"the guard did not fire 1% from a cavity mode: {near.describe()}"
-    )
+    assert near.triggered, f"the guard did not fire 1% from a cavity mode: {near.describe()}"
     assert not quiet.triggered, (
         f"the guard fired in a quiet band, so it cannot distinguish resonance "
         f"from ordinary dispersion: {quiet.describe()}"

@@ -30,7 +30,6 @@ from dolfinx import mesh as dmesh
 from mpi4py import MPI
 
 from fem_em_solver.thermal import solve_transient_conduction
-
 from tests.validation.test_mat10_sar_to_heat_sphere import ROBIN_TAG, _robin_tags, _say
 from tests.validation.test_mat12_transient_sar_heating_sphere import E_BAND, RHO_C
 from tests.validation.test_mat13_transient_perfusion_sphere import INTERIOR_BAND
@@ -69,9 +68,15 @@ PLANE_BOUND = 1e-12  # the brief's W0 bound, relative to C
 
 def _box(comm):
     ns = [b * RUNGS[-1] for b in BASE]
-    return dmesh.create_box(comm, [np.array([-A_BOX, -B_BOX, -C_BOX]),
-                                   np.array([A_BOX, B_BOX, C_BOX])],
-                            ns, cell_type=dmesh.CellType.tetrahedron), ns
+    return (
+        dmesh.create_box(
+            comm,
+            [np.array([-A_BOX, -B_BOX, -C_BOX]), np.array([A_BOX, B_BOX, C_BOX])],
+            ns,
+            cell_type=dmesh.CellType.tetrahedron,
+        ),
+        ns,
+    )
 
 
 def _at_t(p, key, t):
@@ -85,13 +90,27 @@ def runs():
     msh, ns = _box(comm)
     ft = _robin_tags(msh)
     chi = _interior_chi(msh)
-    _say(f"\nMAT21-30 rung m = {RUNGS[-1]} {tuple(ns)}: cells "
-         f"{msh.topology.index_map(3).size_global}; CN N = {N_MAIN} + 2 BE half-steps, "
-         f"{N_MAIN + 1} snapshots per run; batch {HIST_LABELS}; ranks {comm.size}")
+    _say(
+        f"\nMAT21-30 rung m = {RUNGS[-1]} {tuple(ns)}: cells "
+        f"{msh.topology.index_map(3).size_global}; CN N = {N_MAIN} + 2 BE half-steps, "
+        f"{N_MAIN + 1} snapshots per run; batch {HIST_LABELS}; ranks {comm.size}"
+    )
 
-    kw = dict(k=K_GEL, rho_c=RHO_C, q=Q, h=H_GEL, t_inf=T_INF, t_init=T_INF, robin_tag=ROBIN_TAG,
-              dt=T_STAR / N_MAIN, n_steps=N_MAIN, theta=0.5, startup_half_steps=2, degree=1,
-              snapshot_steps=tuple(range(N_MAIN + 1)))
+    kw = dict(
+        k=K_GEL,
+        rho_c=RHO_C,
+        q=Q,
+        h=H_GEL,
+        t_inf=T_INF,
+        t_init=T_INF,
+        robin_tag=ROBIN_TAG,
+        dt=T_STAR / N_MAIN,
+        n_steps=N_MAIN,
+        theta=0.5,
+        startup_half_steps=2,
+        degree=1,
+        snapshot_steps=tuple(range(N_MAIN + 1)),
+    )
     starts = {"ref": None, "tw0": lambda x: T_INF + G_GRAD * x[2]}
     out = {"E": {}, "src": {}, "hist": {}, "hist_ok": {}}
     res = {}
@@ -110,15 +129,19 @@ def runs():
             ok_all = [a and b for a, b in zip(ok_all, ok)]
         res[key].snapshots.clear()
         out["hist"][key], out["hist_ok"][key] = hist, ok_all
-        _say(f"MAT21-30 run {key}: solve {ts - tq:.1f} s, reads {time.perf_counter() - ts:.1f} s; "
-             f"(E) {out['E'][key]:.3e} (E_BAND {E_BAND:.0e}); source_power "
-             f"{out['src'][key]:.6e} W")
+        _say(
+            f"MAT21-30 run {key}: solve {ts - tq:.1f} s, reads {time.perf_counter() - ts:.1f} s; "
+            f"(E) {out['E'][key]:.3e} (E_BAND {E_BAND:.0e}); source_power "
+            f"{out['src'][key]:.6e} W"
+        )
 
     tq = time.perf_counter()
     ex_s, npts = _exact(msh, _trans_ex(T_STAR))
     ex_0, _ = _exact(msh, _grad_ex(T_STAR))
-    _say(f"MAT21-30 two series interpolations ({npts} P2 points): "
-         f"{time.perf_counter() - tq:.1f} s")
+    _say(
+        f"MAT21-30 two series interpolations ({npts} P2 points): "
+        f"{time.perf_counter() - tq:.1f} s"
+    )
     out["I0"] = _rel(msh, res["tw0"].temperature - T_INF, ex_s + ex_0, chi)
     _say(f"MAT21-30 (I) t_w = 0: interior rel L2 {out['I0']:.6e}; bound {INTERIOR_BAND:.0e}")
     _say(f"MAT21-30 elapsed {time.perf_counter() - t0:.1f} s")
@@ -134,8 +157,10 @@ def test_w0_heights_on_and_midway_between_mesh_planes():
     lo, hi = float(z[z <= MID_PT[2]].max()), float(z[z >= MID_PT[2]].min())
     d_mid = abs(MID_PT[2] - 0.5 * (lo + hi)) / C_BOX
     d_dz = abs((hi - lo) / DZ - 1.0)
-    _say(f"MAT21-30 W0 nz {ns[2]}: PLANE_PT off a plane {d_plane:.3e} C; MID_PT off midway "
-         f"{d_mid:.3e} C; dz / (C / 6) - 1 {d_dz:.3e} (bound {PLANE_BOUND:g})")
+    _say(
+        f"MAT21-30 W0 nz {ns[2]}: PLANE_PT off a plane {d_plane:.3e} C; MID_PT off midway "
+        f"{d_mid:.3e} C; dz / (C / 6) - 1 {d_dz:.3e} (bound {PLANE_BOUND:g})"
+    )
     assert d_dz <= PLANE_BOUND, (lo, hi)
     assert d_plane <= PLANE_BOUND, d_plane
     assert d_mid <= PLANE_BOUND, d_mid
@@ -163,8 +188,10 @@ def test_q_wf_on_all_six_histories(runs):
     for key, hist in runs["hist"].items():
         for j, lab in enumerate(HIST_LABELS):
             dose, quad, rel, _swap, miss = _q_check_g(T_INF + hist[:, j], T_FEM)
-            _say(f"MAT21-30 (Q-wf) {key} {lab}: D {dose:.6e} s, quad {quad:.6e} s, rel {rel:.3e} "
-                 f"(bar {DOSE_BAR:g}, ASSERTED); R swap miss {miss:.4e} (printed)")
+            _say(
+                f"MAT21-30 (Q-wf) {key} {lab}: D {dose:.6e} s, quad {quad:.6e} s, rel {rel:.3e} "
+                f"(bar {DOSE_BAR:g}, ASSERTED); R swap miss {miss:.4e} (printed)"
+            )
             rows.append((key, lab, rel))
     for key, lab, rel in rows:
         assert rel <= DOSE_BAR, (key, lab, rel)
@@ -175,8 +202,10 @@ def test_control_adj_pt_reproduces_item_736(runs):
     for key, rec in ITEM736_ADJ_D.items():
         d = _dose(runs["hist"][key][:, j], T_FEM)
         rel = abs(d / rec - 1.0)
-        _say(f"MAT21-30 control ADJ_PT {key}: D {d:.6e} s vs item 736 {rec:.6e} s, rel {rel:.3e} "
-             f"(bound {REPRO_BOUND:g})")
+        _say(
+            f"MAT21-30 control ADJ_PT {key}: D {d:.6e} s vs item 736 {rec:.6e} s, rel {rel:.3e} "
+            f"(bound {REPRO_BOUND:g})"
+        )
         assert rel <= REPRO_BOUND, (key, d)
 
 
@@ -185,17 +214,21 @@ def test_control_gradient_dose_misses_the_reference_at_plane(runs):
     d_0 = _dose(runs["hist"]["tw0"][:, j], T_FEM)
     d_r = _dose(runs["hist"]["ref"][:, j], T_FEM)
     miss = abs(d_0 / d_r - 1.0)
-    _say(f"MAT21-30 control PLANE_PT: t_w = 0 FEM D {d_0:.6e} s vs reference {d_r:.6e} s, miss "
-         f"{miss:.4e} (asserted > {DOSE_BAR:g})")
+    _say(
+        f"MAT21-30 control PLANE_PT: t_w = 0 FEM D {d_0:.6e} s vs reference {d_r:.6e} s, miss "
+        f"{miss:.4e} (asserted > {DOSE_BAR:g})"
+    )
     assert miss > DOSE_BAR, miss
 
 
 def test_printed_gap_table(runs):
     """The record (no band); asserts only that it was formed."""
     h = DZ / 4.0  # the curvature's stencil; stays strictly inside the upper cell's z < C
-    _say("MAT21-30 TABLE height | run | D FEM s | D series161 s | FEM/series161-1 | D series41 s | "
-         "FEM/series41-1 | P1 interpolant/series41-1 | gap41 minus plane gap41 | T gap at t* K | "
-         "1/2 s (dz-s) T'' K")
+    _say(
+        "MAT21-30 TABLE height | run | D FEM s | D series161 s | FEM/series161-1 | D series41 s | "
+        "FEM/series41-1 | P1 interpolant/series41-1 | gap41 minus plane gap41 | T gap at t* K | "
+        "1/2 s (dz-s) T'' K"
+    )
     for key in KEYS:
         lo = _series(PLANE_PT, key, T_FEM)
         hi = _series(TOP_PT, key, T_FEM)
@@ -213,11 +246,13 @@ def test_printed_gap_table(runs):
             else:
                 s = p[2] - PLANE_PT[2]
                 up, dn = (p[0], p[1], p[2] + h), (p[0], p[1], p[2] - h)
-                curv = (_at_t(up, key, T_STAR) - 2.0 * s41[-1] + _at_t(dn, key, T_STAR)) / h ** 2
+                curv = (_at_t(up, key, T_STAR) - 2.0 * s41[-1] + _at_t(dn, key, T_STAR)) / h**2
                 est = 0.5 * s * (DZ - s) * curv
                 a = s / DZ
                 interp = _dose((1.0 - a) * lo + a * hi, T_FEM) / d_41 - 1.0
-            _say(f"MAT21-30 TABLE {lab} | {key} | {d_h:.6e} | {d_161:.6e} | "
-                 f"{d_h / d_161 - 1.0:+.3e} | {d_41:.6e} | {gap41:+.3e} | {interp:+.3e} | "
-                 f"{gap41 - plane_gap:+.3e} | {t_gap:+.3e} | {est:+.3e}")
+            _say(
+                f"MAT21-30 TABLE {lab} | {key} | {d_h:.6e} | {d_161:.6e} | "
+                f"{d_h / d_161 - 1.0:+.3e} | {d_41:.6e} | {gap41:+.3e} | {interp:+.3e} | "
+                f"{gap41 - plane_gap:+.3e} | {t_gap:+.3e} | {est:+.3e}"
+            )
             assert np.isfinite(gap41)

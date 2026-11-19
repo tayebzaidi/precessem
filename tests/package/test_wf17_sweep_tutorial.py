@@ -36,13 +36,16 @@ from mpi4py import MPI
 import fem_em_solver
 from fem_em_solver.ports.touchstone import load_touchstone
 from fem_em_solver.study_yaml import _load
-
 from tests.complex_mode import IS_COMPLEX
 from tests.io.test_touchstone_skrf_crosscheck import ANCHOR_TOL, FREQ_ATOL_HZ
+from tests.package.test_wf1_yaml_sweep import SWEEP, _unpairs
 from tests.package.test_wf16_study_four_port import _rel
 from tests.package.test_wf16_study_sweep import C4_HAND_TABLE, KEYS, _records
-from tests.package.test_wf17_first_study_tutorial import LINK_PASS_RE, _checker_stdout, extract_tagged_block
-from tests.package.test_wf1_yaml_sweep import SWEEP, _unpairs
+from tests.package.test_wf17_first_study_tutorial import (
+    LINK_PASS_RE,
+    _checker_stdout,
+    extract_tagged_block,
+)
 from tests.unit.test_doc_reference_exit_codes import run_checker
 from tests.validation.test_ans4_exact_strip_records import (
     ANS4_EXACT_STRIP_RECORD_RANK_WIDTH,
@@ -133,8 +136,10 @@ def _knob() -> bool:
 
 def _solve_preamble():
     if not _knob():
-        pytest.skip(f"{S9_ENV} unset: the tutorial solve window is environment-selected "
-                    "(complex build, -n 2)")
+        pytest.skip(
+            f"{S9_ENV} unset: the tutorial solve window is environment-selected "
+            "(complex build, -n 2)"
+        )
     comm = MPI.COMM_WORLD
     assert IS_COMPLEX, "the four-port port Study needs the complex build"
     assert comm.size == ANS4_EXACT_STRIP_RECORD_RANK_WIDTH, comm.size
@@ -152,8 +157,10 @@ def exec_sweep_block(tag: str, monkeypatch):
     name = _file_arg(block)
     scratch = SCRATCH_ROOT / tag
     if comm.rank == 0:
-        print(f"[WF-17 s9] page sha256 {_sha(raw)}; block {tag} sha256 {_sha(block.encode())}",
-              flush=True)
+        print(
+            f"[WF-17 s9] page sha256 {_sha(raw)}; block {tag} sha256 {_sha(block.encode())}",
+            flush=True,
+        )
         if scratch.exists():
             shutil.rmtree(scratch)
         scratch.mkdir(parents=True)
@@ -190,8 +197,10 @@ def test_wf17_s9_blocks_and_file():
     n_run = len(_calls_named(block, "run_study_file"))
     n_study = len(_calls_named(block, "Study"))
     name = _file_arg(block)
-    _p0(f"[WF-17 s9] (X) {SWEEP_TAG}: run_study_file calls {n_run}, Study calls {n_study}; "
-        f"file {name!r} (want {SWEEP.name!r})")
+    _p0(
+        f"[WF-17 s9] (X) {SWEEP_TAG}: run_study_file calls {n_run}, Study calls {n_study}; "
+        f"file {name!r} (want {SWEEP.name!r})"
+    )
     assert block.count("run_study_file(") == 1
     assert n_run == 1 and n_study == 0 and "Study(" not in block
     assert name == SWEEP.name
@@ -214,10 +223,16 @@ def test_wf17_s9_blocks_and_file():
     # (c-page), by construction: a removed / doubled tag raises
     for tag, lang in ((SWEEP_TAG, "python"), (CLI_TAG, "bash"), (BANDS_TAG, "text")):
         with pytest.raises(LookupError):
-            extract_tagged_block(text.replace(f"```{lang} {tag}\n", f"```{lang} other\n"), tag,
-                                 lang=lang)
-        doubled = (text + "\n" + f"```{lang} {tag}\n"
-                   + extract_tagged_block(text, tag, lang=lang) + "```\n")
+            extract_tagged_block(
+                text.replace(f"```{lang} {tag}\n", f"```{lang} other\n"), tag, lang=lang
+            )
+        doubled = (
+            text
+            + "\n"
+            + f"```{lang} {tag}\n"
+            + extract_tagged_block(text, tag, lang=lang)
+            + "```\n"
+        )
         with pytest.raises(LookupError):
             extract_tagged_block(doubled, tag, lang=lang)
     _p0("[WF-17 s9] (c-page) removed / doubled tags raise LookupError for all three blocks")
@@ -242,9 +257,11 @@ def test_wf17_s9_docrefs_zero_dead():
     rc, counts = run_checker("--docs-root", "docs/guide", "--check-links")
     link = LINK_PASS_RE.search(_checker_stdout("--docs-root", "docs/guide", "--check-links"))
     assert link is not None, "(D) no 'Link pass:' line"
-    print(f"[WF-17 s9] (D) dead={counts['dead']} links={link.group(1)} pages={link.group(2)} "
-          f"link-dead={link.group(3)} guide={counts['guide']} stale={counts['stale']} "
-          f"exit={counts['exit']} rc={rc}")
+    print(
+        f"[WF-17 s9] (D) dead={counts['dead']} links={link.group(1)} pages={link.group(2)} "
+        f"link-dead={link.group(3)} guide={counts['guide']} stale={counts['stale']} "
+        f"exit={counts['exit']} rc={rc}"
+    )
     assert counts["dead"] == 0
     assert int(link.group(3)) == 0
     assert int(link.group(2)) >= MIN_GUIDE_PAGES
@@ -261,15 +278,19 @@ def test_wf17_s9_sweep_block_reproduces_u71(monkeypatch):
     run = ns["run"]
     s = run.summary
     sw = run.result
-    _p0(f"[WF-17 s9] (R-run) spy calls {calls['n']} {calls['paths']}; family "
-        f"{s['family']!r}; study.result is None {run.study.result is None}")
+    _p0(
+        f"[WF-17 s9] (R-run) spy calls {calls['n']} {calls['paths']}; family "
+        f"{s['family']!r}; study.result is None {run.study.result is None}"
+    )
 
     # (R′) per frequency, one mesh (the gate's computation)
     rec = _records(1)
     s_file = np.array([_unpairs(m) for m in s["s_matrices"]])
     rels = {k: _rel(s_file[i], rec[k]) for i, k in enumerate(KEYS)}
     one_mesh = all(r.mesh is sw.results[0].mesh for r in sw.results)
-    hex_ok = [float(f).hex() for f in s["sweep_hz"]] == [float(f).hex() for f in FREQUENCIES.values()]
+    hex_ok = [float(f).hex() for f in s["sweep_hz"]] == [
+        float(f).hex() for f in FREQUENCIES.values()
+    ]
 
     # (c-swap) asserted: the 10 <-> 128 MHz exchange misses
     i10, i128 = KEYS.index("10"), KEYS.index("128")
@@ -281,23 +302,34 @@ def test_wf17_s9_sweep_block_reproduces_u71(monkeypatch):
     freqs, mats, _ports = load_touchstone(ts)
     loaded = np.asarray(mats, dtype=np.complex128)
     n_pts = len(freqs)
-    d_ts = [float(np.max(np.abs(loaded[i] - sw.s_matrices[i]))) for i in range(min(n_pts, len(KEYS)))]
+    d_ts = [
+        float(np.max(np.abs(loaded[i] - sw.s_matrices[i]))) for i in range(min(n_pts, len(KEYS)))
+    ]
     d_f = [abs(float(freqs[i]) - f) for i, f in enumerate(s["sweep_hz"][:n_pts])]
 
-    _p0(f"[WF-17 s9] (R') ||S_f - P1_f||/||P1_f|| "
+    _p0(
+        "[WF-17 s9] (R') ||S_f - P1_f||/||P1_f|| "
         + " / ".join(f"{k} MHz {v:.3e}" for k, v in rels.items())
         + f" (ASSERTED <= {LEG_D0_REPRODUCTION_BAND:.0e}; digits printed, never asserted; "
         f"W1a {W1A_R}; EX-139 {EX139_R}); cells {s['cells']} (record "
-        f"{ANS4_EXACT_STRIP_CELL_RECORD}); one mesh {one_mesh}; sweep_hz hex equal {hex_ok}")
-    _p0(f"[WF-17 s9] (c-swap) S_10 vs P1_128 {sw_10:.4f} (hand {C4_HAND_TABLE[1][('10', '128')]}); "
+        f"{ANS4_EXACT_STRIP_CELL_RECORD}); one mesh {one_mesh}; sweep_hz hex equal {hex_ok}"
+    )
+    _p0(
+        f"[WF-17 s9] (c-swap) S_10 vs P1_128 {sw_10:.4f} (hand {C4_HAND_TABLE[1][('10', '128')]}); "
         f"S_128 vs P1_10 {sw_128:.4f} (hand {C4_HAND_TABLE[1][('128', '10')]}) "
-        f"(ASSERTED > {LEG_D0_REPRODUCTION_BAND:.0e}; W1a 1.2367 / 1.2763)")
-    _p0(f"[WF-17 s9] (T') {ts.name}: {n_pts} points; |df| {d_f} (ASSERTED <= {FREQ_ATOL_HZ:.0e}); "
-        f"max|dS| " + " / ".join(f"{v:.3e}" for v in d_ts)
-        + f" (ASSERTED <= {ANCHOR_TOL:.0e}; W1a {W1A_T}; EX-139 {EX139_T})")
-    _p0(f"[WF-17 s9] W35 block {t_block:.1f} s (rank-0 summary elapsed {s['elapsed_s']:.1f} s; "
+        f"(ASSERTED > {LEG_D0_REPRODUCTION_BAND:.0e}; W1a 1.2367 / 1.2763)"
+    )
+    _p0(
+        f"[WF-17 s9] (T') {ts.name}: {n_pts} points; |df| {d_f} (ASSERTED <= {FREQ_ATOL_HZ:.0e}); "
+        f"max|dS| "
+        + " / ".join(f"{v:.3e}" for v in d_ts)
+        + f" (ASSERTED <= {ANCHOR_TOL:.0e}; W1a {W1A_T}; EX-139 {EX139_T})"
+    )
+    _p0(
+        f"[WF-17 s9] W35 block {t_block:.1f} s (rank-0 summary elapsed {s['elapsed_s']:.1f} s; "
         f"mesh {s['mesh_time_s']:.2f} s; sweeps {s['sweep_times_s']}); node "
-        f"{time.perf_counter() - t0:.1f} s")
+        f"{time.perf_counter() - t0:.1f} s"
+    )
 
     assert calls["n"] == 1
     assert calls["paths"] == [SWEEP.name]

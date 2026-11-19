@@ -56,7 +56,9 @@ def _validate_sweeps(
             raise ValueError(
                 f"invalid S-matrix shape {sweep.s_matrix.shape}; expected {(n_ports, n_ports)}"
             )
-        if not np.all(np.isfinite(sweep.s_matrix.real)) or not np.all(np.isfinite(sweep.s_matrix.imag)):
+        if not np.all(np.isfinite(sweep.s_matrix.real)) or not np.all(
+            np.isfinite(sweep.s_matrix.imag)
+        ):
             raise ValueError("S-matrix contains non-finite values")
 
     frequencies = np.array([float(s.frequency_hz) for s in sweep_results], dtype=np.float64)
@@ -104,7 +106,9 @@ def _default_touchstone_path(
     start = _format_frequency_for_filename(min(frequencies))
     stop = _format_frequency_for_filename(max(frequencies))
     z0 = float(ports[0].z0_ohm)
-    filename = f"sparams_{n_ports}port_{start}_to_{stop}_Z0_{z0:.2f}" + _touchstone_extension(n_ports)
+    filename = f"sparams_{n_ports}port_{start}_to_{stop}_Z0_{z0:.2f}" + _touchstone_extension(
+        n_ports
+    )
     return output_dir / filename
 
 
@@ -285,11 +289,15 @@ def load_touchstone(path: str | Path) -> tuple[np.ndarray, np.ndarray, tuple[str
         ):
             raise ValueError("frequency_points_hz metadata does not match numeric data rows")
 
-    if header_z0_ohm is not None and option_line_z0_ohm is not None and not np.isclose(
-        header_z0_ohm,
-        option_line_z0_ohm,
-        rtol=0.0,
-        atol=1e-12,
+    if (
+        header_z0_ohm is not None
+        and option_line_z0_ohm is not None
+        and not np.isclose(
+            header_z0_ohm,
+            option_line_z0_ohm,
+            rtol=0.0,
+            atol=1e-12,
+        )
     ):
         raise ValueError("z0_ohm metadata does not match Touchstone option line")
 

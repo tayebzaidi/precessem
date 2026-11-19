@@ -23,14 +23,11 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from fem_em_solver.ports import (
-    C4_SPREAD_BAND as GATE_C4_SPREAD_BAND,
-    PASSIVITY_SIGMA_TOLERANCE as GATE_PASSIVITY_SIGMA_TOLERANCE,
-    POOLED_SEPARATION_FLOOR as GATE_POOLED_SEPARATION_FLOOR,
-    RECIPROCITY_BAND as GATE_RECIPROCITY_BAND,
-    four_port_network_gates,
-    terminated_z_from_s,
-)
+from fem_em_solver.ports import C4_SPREAD_BAND as GATE_C4_SPREAD_BAND
+from fem_em_solver.ports import PASSIVITY_SIGMA_TOLERANCE as GATE_PASSIVITY_SIGMA_TOLERANCE
+from fem_em_solver.ports import POOLED_SEPARATION_FLOOR as GATE_POOLED_SEPARATION_FLOOR
+from fem_em_solver.ports import RECIPROCITY_BAND as GATE_RECIPROCITY_BAND
+from fem_em_solver.ports import four_port_network_gates, terminated_z_from_s
 from tests.validation.test_ans4_resolution_ladder import PORT11_S_64MHZ_RECORD
 from tests.validation.test_port_birdcage_four_port import (
     LEG_D0_Z_COLUMN,
@@ -117,20 +114,19 @@ def _half_ulp(text):
 def _within_half_ulp(label, reading, text):
     gap = abs(reading - float(text))
     tol = _half_ulp(text)
-    print(f"    {label}: reading {reading:.12g} vs record {text}  "
-          f"gap {gap:.3e} <= half-ulp {tol:.0e}  margin {tol - gap:.3e}")
+    print(
+        f"    {label}: reading {reading:.12g} vs record {text}  "
+        f"gap {gap:.3e} <= half-ulp {tol:.0e}  margin {tol - gap:.3e}"
+    )
     return gap <= tol
 
 
 def test_a0_default_bands_equal_their_test_constants():
     pairs = [
         ("RECIPROCITY_BAND", GATE_RECIPROCITY_BAND, RECIPROCITY_BAND),
-        ("PASSIVITY_SIGMA_TOLERANCE", GATE_PASSIVITY_SIGMA_TOLERANCE,
-         PASSIVITY_SIGMA_TOLERANCE),
-        ("C4_SPREAD_BAND / ADJACENT_SPREAD_BAND", GATE_C4_SPREAD_BAND,
-         ADJACENT_SPREAD_BAND),
-        ("POOLED_SEPARATION_FLOOR", GATE_POOLED_SEPARATION_FLOOR,
-         POOLED_SEPARATION_FLOOR),
+        ("PASSIVITY_SIGMA_TOLERANCE", GATE_PASSIVITY_SIGMA_TOLERANCE, PASSIVITY_SIGMA_TOLERANCE),
+        ("C4_SPREAD_BAND / ADJACENT_SPREAD_BAND", GATE_C4_SPREAD_BAND, ADJACENT_SPREAD_BAND),
+        ("POOLED_SEPARATION_FLOOR", GATE_POOLED_SEPARATION_FLOOR, POOLED_SEPARATION_FLOOR),
     ]
     for name, mine, theirs in pairs:
         print(f"[PORT-3 A0] {name}: callable {mine!r} vs test {theirs!r}")
@@ -152,15 +148,9 @@ def test_a1_readings_equal_in_test_expressions_bitwise(key):
     spreads = {name: _class_spread(v) for name, v in classes.items()}
     sigma = np.linalg.svd(s_matrix, compute_uv=False)
     column_power = np.sum(np.abs(s_matrix) ** 2, axis=0)
-    reciprocity = float(
-        np.linalg.norm(s_matrix - s_matrix.T) / np.linalg.norm(s_matrix)
-    )
-    z_reciprocity = float(
-        np.linalg.norm(z_matrix - z_matrix.T) / np.linalg.norm(z_matrix)
-    )
-    pooled = _class_spread(
-        np.concatenate([classes["adjacent"], classes["opposite"]])
-    )
+    reciprocity = float(np.linalg.norm(s_matrix - s_matrix.T) / np.linalg.norm(s_matrix))
+    z_reciprocity = float(np.linalg.norm(z_matrix - z_matrix.T) / np.linalg.norm(z_matrix))
+    pooled = _class_spread(np.concatenate([classes["adjacent"], classes["opposite"]]))
     worst = max(spreads.values())
     separation = pooled / worst if worst > 0.0 else np.inf
 
@@ -175,8 +165,7 @@ def test_a1_readings_equal_in_test_expressions_bitwise(key):
         ("separation", gates.separation, separation),
     ] + [(f"spread[{k}]", gates.spreads[k], spreads[k]) for k in spreads]
     for name, mine, theirs in checks:
-        print(f"    {name}: {mine!r} vs {theirs!r}  "
-              f"{'EQUAL' if mine == theirs else 'DIFFER'}")
+        print(f"    {name}: {mine!r} vs {theirs!r}  " f"{'EQUAL' if mine == theirs else 'DIFFER'}")
     for name, mine, theirs in checks:
         assert mine == theirs, name
     assert np.array_equal(gates.sigma, sigma)
@@ -189,33 +178,39 @@ def test_a2_readings_reproduce_the_records(key):
     gates = four_port_network_gates(STORED_S[key], z0_ohm=Z0_OHM)
     rec = RECORDS[key]
     print(f"\n[PORT-3 A2] {key}:")
-    print(f"    reciprocity ||S - S^T||/||S|| = {gates.reciprocity!r} "
-          "(stored S is symmetric: 0.0 expected)")
+    print(
+        f"    reciprocity ||S - S^T||/||S|| = {gates.reciprocity!r} "
+        "(stored S is symmetric: 0.0 expected)"
+    )
     print(f"    z_reciprocity = {gates.z_reciprocity:.9e} (reported)")
     results = {}
     for name, text in rec["spreads_pct"].items():
         results[f"spread {name} %"] = _within_half_ulp(
-            f"spread {name} %", gates.spreads[name] * 100.0, text)
+            f"spread {name} %", gates.spreads[name] * 100.0, text
+        )
     if "pooled_pct" in rec:
-        results["pooled %"] = _within_half_ulp(
-            "pooled %", gates.pooled * 100.0, rec["pooled_pct"])
+        results["pooled %"] = _within_half_ulp("pooled %", gates.pooled * 100.0, rec["pooled_pct"])
     else:
         print(f"    pooled: {gates.pooled * 100.0:.6f}% (reported)")
-    results["sigma_max"] = _within_half_ulp(
-        "sigma_max", gates.sigma_max, rec["sigma_max"])
+    results["sigma_max"] = _within_half_ulp("sigma_max", gates.sigma_max, rec["sigma_max"])
     if "column_power_max" in rec:
         results["column_power_max"] = _within_half_ulp(
-            "column_power_max", gates.column_power_max, rec["column_power_max"])
+            "column_power_max", gates.column_power_max, rec["column_power_max"]
+        )
     else:
         print(f"    column_power_max: {gates.column_power_max:.12f} (reported)")
     sep_text = rec["separation"]
     sep_gap = abs(gates.separation - float(sep_text))
-    print(f"    separation: {gates.separation:.7f}x vs record {sep_text}x  "
-          f"deviation {sep_gap / _half_ulp(sep_text):.2f} half-ulps, "
-          f"{sep_gap / float(sep_text):.3e} relative  "
-          "-- printed, not asserted (item 178 ruling)")
-    print(f"    verdicts: reciprocal={gates.reciprocal} passive={gates.passive} "
-          f"c4={gates.c4} resolved={gates.resolved} passed={gates.passed}")
+    print(
+        f"    separation: {gates.separation:.7f}x vs record {sep_text}x  "
+        f"deviation {sep_gap / _half_ulp(sep_text):.2f} half-ulps, "
+        f"{sep_gap / float(sep_text):.3e} relative  "
+        "-- printed, not asserted (item 178 ruling)"
+    )
+    print(
+        f"    verdicts: reciprocal={gates.reciprocal} passive={gates.passive} "
+        f"c4={gates.c4} resolved={gates.resolved} passed={gates.passed}"
+    )
     assert gates.reciprocity == 0.0
     for name, ok in results.items():
         assert ok, name
@@ -234,31 +229,37 @@ def test_a3_derived_z_matches_the_logged_z():
     dev64 = _relative(z64, PORT11_Z_64MHZ_RECORD)
     print(f"\n[PORT-3 A3] band {FREQUENCY_CONTROL_BAND:.0e} relative")
     for i in range(4):
-        print(f"    10 MHz Z_{i + 1}1: derived {z10[i, 0]:.9e} vs "
-              f"{LEG_D0_Z_COLUMN[i]:.9e}  rel {dev10[i]:.3e}")
+        print(
+            f"    10 MHz Z_{i + 1}1: derived {z10[i, 0]:.9e} vs "
+            f"{LEG_D0_Z_COLUMN[i]:.9e}  rel {dev10[i]:.3e}"
+        )
     for i in range(4):
         for k in range(4):
-            print(f"    64 MHz Z_{i + 1}{k + 1}: derived {z64[i, k]:.9e} vs "
-                  f"{PORT11_Z_64MHZ_RECORD[i, k]:.9e}  rel {dev64[i, k]:.3e}")
+            print(
+                f"    64 MHz Z_{i + 1}{k + 1}: derived {z64[i, k]:.9e} vs "
+                f"{PORT11_Z_64MHZ_RECORD[i, k]:.9e}  rel {dev64[i, k]:.3e}"
+            )
     print(f"    max rel: 10 MHz {np.max(dev10):.3e}, 64 MHz {np.max(dev64):.3e}")
     assert float(np.max(dev10)) <= FREQUENCY_CONTROL_BAND
     assert float(np.max(dev64)) <= FREQUENCY_CONTROL_BAND
 
 
 def _verdicts(g):
-    return {"reciprocal": g.reciprocal, "passive": g.passive, "c4": g.c4,
-            "resolved": g.resolved}
+    return {"reciprocal": g.reciprocal, "passive": g.passive, "c4": g.c4, "resolved": g.resolved}
 
 
 def _planted(label, s, z, expect_false):
     gates = four_port_network_gates(s, z=z, z0_ohm=Z0_OHM)
     verdicts = _verdicts(gates)
-    print(f"\n[PORT-3 {label}] reciprocity {gates.reciprocity:.6e}  sigma_max "
-          f"{gates.sigma_max:.12f}  column_power_max {gates.column_power_max:.9f}  "
-          f"spreads " + ", ".join(f"{k} {v * 100:.4f}%" for k, v in gates.spreads.items())
-          + f"  pooled {gates.pooled * 100:.4f}%  separation {gates.separation:.4f}x"
-          f"\n    verdicts {verdicts}  passed={gates.passed}  "
-          f"(predicted: only {expect_false} False)")
+    print(
+        f"\n[PORT-3 {label}] reciprocity {gates.reciprocity:.6e}  sigma_max "
+        f"{gates.sigma_max:.12f}  column_power_max {gates.column_power_max:.9f}  "
+        f"spreads "
+        + ", ".join(f"{k} {v * 100:.4f}%" for k, v in gates.spreads.items())
+        + f"  pooled {gates.pooled * 100:.4f}%  separation {gates.separation:.4f}x"
+        f"\n    verdicts {verdicts}  passed={gates.passed}  "
+        f"(predicted: only {expect_false} False)"
+    )
     for name, value in verdicts.items():
         assert value is (name != expect_false), (label, name, value)
     assert gates.passed is False
@@ -296,16 +297,21 @@ def test_n1_planted_nonreciprocal_phase_fails_only_reciprocity():
     base = four_port_network_gates(s0, z=z, z0_ohm=Z0_OHM)
     d_sigma = gates.sigma_max - base.sigma_max
     d_col = float(np.max(np.abs(gates.column_power - base.column_power)))
-    k_factor = (np.sqrt(2.0 * np.sum(np.abs(s0[0, 1:]) ** 2))
-                / np.linalg.norm(s0))
+    k_factor = np.sqrt(2.0 * np.sum(np.abs(s0[0, 1:]) ** 2)) / np.linalg.norm(s0)
     predicted = 2.0 * abs(np.sin(N1_PHASE_RAD)) * k_factor
-    print(f"    N1: reciprocity {gates.reciprocity:.6e} vs predicted "
-          f"2|sin phi|K = {predicted:.6e} (K = {k_factor:.6f}; predicted, "
-          f"not asserted); {gates.reciprocity / GATE_RECIPROCITY_BAND:.2f}x band")
-    print(f"    N1: sigma_max(S') - sigma_max(S) = {d_sigma:.3e}; "
-          f"max |delta column power| = {d_col:.3e}")
-    print(f"    N1: spreads/pooled/separation unchanged: "
-          f"{gates.spreads == base.spreads and gates.pooled == base.pooled and gates.separation == base.separation}")
+    print(
+        f"    N1: reciprocity {gates.reciprocity:.6e} vs predicted "
+        f"2|sin phi|K = {predicted:.6e} (K = {k_factor:.6f}; predicted, "
+        f"not asserted); {gates.reciprocity / GATE_RECIPROCITY_BAND:.2f}x band"
+    )
+    print(
+        f"    N1: sigma_max(S') - sigma_max(S) = {d_sigma:.3e}; "
+        f"max |delta column power| = {d_col:.3e}"
+    )
+    print(
+        f"    N1: spreads/pooled/separation unchanged: "
+        f"{gates.spreads == base.spreads and gates.pooled == base.pooled and gates.separation == base.separation}"
+    )
 
 
 def test_n2_planted_gain_fails_only_passivity():

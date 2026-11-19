@@ -124,8 +124,10 @@ def _table_lines(spreads, n_steps):
     for same_ring in (True, False):
         for steps in range(n_steps):
             sp, cnt, mean = spreads[(same_ring, steps)]
-            out.append(f"     {'same ' if same_ring else 'other'} ring, {steps:2d} steps  n = {cnt:4d}"
-                       f"  mean |S| = {mean:.9e}  spread {sp * 100:8.4f}%")
+            out.append(
+                f"     {'same ' if same_ring else 'other'} ring, {steps:2d} steps  n = {cnt:4d}"
+                f"  mean |S| = {mean:.9e}  spread {sp * 100:8.4f}%"
+            )
     return out
 
 
@@ -142,6 +144,7 @@ def _slot_class(n_slots):
     def classify(k_i, k_j):
         d = abs(int(k_i) - int(k_j)) % n_slots
         return min(d, n_slots - d), 0.0
+
     return classify
 
 
@@ -153,20 +156,26 @@ def _print_table(tag, spreads, abs_sp, n_steps):
     for same_ring in (True, False):
         for steps in range(n_steps):
             sp, cnt, mean = spreads[(same_ring, steps)]
-            _say(f"{tag} {'same ' if same_ring else 'other'} ring, {steps:2d} steps  n = {cnt:4d}  "
-                 f"mean |S| {mean:.9e}  abs spread {abs_sp[(same_ring, steps)]:.6e}  "
-                 f"rel {sp * 100:8.4f}%")
+            _say(
+                f"{tag} {'same ' if same_ring else 'other'} ring, {steps:2d} steps  n = {cnt:4d}  "
+                f"mean |S| {mean:.9e}  abs spread {abs_sp[(same_ring, steps)]:.6e}  "
+                f"rel {sp * 100:8.4f}%"
+            )
 
 
 def _anatomy(tag, s, pairs, label):
     """Members of one class sorted by |S|; sub-means by the signed top − bottom slot offset."""
     rows = sorted(((abs(s[i, j]), i, j) for i, j in pairs))
     for m, i, j in rows:
-        _say(f"{tag} member ({i:2d},{j:2d}) {label(i)} -> {label(j)}  |S| {m:.9e}  "
-             f"arg S {np.degrees(np.angle(s[i, j])):+9.4f} deg")
+        _say(
+            f"{tag} member ({i:2d},{j:2d}) {label(i)} -> {label(j)}  |S| {m:.9e}  "
+            f"arg S {np.degrees(np.angle(s[i, j])):+9.4f} deg"
+        )
     lo, hi = rows[0], rows[-1]
-    _say(f"{tag} MIN ({lo[1]},{lo[2]}) {label(lo[1])} -> {label(lo[2])} |S| {lo[0]:.9e}; "
-         f"MAX ({hi[1]},{hi[2]}) {label(hi[1])} -> {label(hi[2])} |S| {hi[0]:.9e}")
+    _say(
+        f"{tag} MIN ({lo[1]},{lo[2]}) {label(lo[1])} -> {label(lo[2])} |S| {lo[0]:.9e}; "
+        f"MAX ({hi[1]},{hi[2]}) {label(hi[1])} -> {label(hi[2])} |S| {hi[0]:.9e}"
+    )
     return rows
 
 
@@ -208,8 +217,10 @@ def test_geo38_c13_class_anatomy():
     ratio = _reciprocity_ratio(s)
     sigma_max = float(np.linalg.norm(s, 2))
     rr = (f"{ratio:.6e}", f"{sigma_max:.12f}")
-    _say(f"(RR) reciprocity {rr[0]} vs C10 {RECIPROCITY_RECORD_STR}; sigma_max {rr[1]} vs C10 "
-         f"{SIGMA_MAX_RECORD_STR} (string equality, ASSERTED)")
+    _say(
+        f"(RR) reciprocity {rr[0]} vs C10 {RECIPROCITY_RECORD_STR}; sigma_max {rr[1]} vs C10 "
+        f"{SIGMA_MAX_RECORD_STR} (string equality, ASSERTED)"
+    )
 
     # ---- (CT) ----
     classes, res = _class_table(az, zc, classify=_azimuth_class_32)
@@ -217,10 +228,12 @@ def test_geo38_c13_class_anatomy():
     spreads = _class_spreads(s, classes)
     mine = _table_lines(spreads, N_AZIMUTH_CLASSES_32)
     ct_miss = [(a, b) for a, b in zip(mine, C3_TABLE_LINES) if _norm(a) != _norm(b)]
-    _say(f"(CT) classes {len(classes)} (expected {N_SYMMETRY_CLASSES_32}), sizes equal expected "
-         f"{sizes == _expected_class_sizes()}, worst pair residual {res:.3e} deg; lines matching "
-         f"C3.log:14750–14783 {len(mine) - len(ct_miss)}/{len(C3_TABLE_LINES)} (normalisation: payload "
-         f"after the '[GEO-38 C3] ' prefix, '{WORST_MARKER}' dropped, whitespace runs collapsed; ASSERTED)")
+    _say(
+        f"(CT) classes {len(classes)} (expected {N_SYMMETRY_CLASSES_32}), sizes equal expected "
+        f"{sizes == _expected_class_sizes()}, worst pair residual {res:.3e} deg; lines matching "
+        f"C3.log:14750–14783 {len(mine) - len(ct_miss)}/{len(C3_TABLE_LINES)} (normalisation: payload "
+        f"after the '[GEO-38 C3] ' prefix, '{WORST_MARKER}' dropped, whitespace runs collapsed; ASSERTED)"
+    )
     for a, b in ct_miss:
         _say(f"(CT) MISS mine '{_norm(a)}' vs C3 '{_norm(b)}'")
 
@@ -231,17 +244,24 @@ def test_geo38_c13_class_anatomy():
     sp_f = _class_spreads(s, cls_f)
     n_changed = sum(1 for k in classes if len(cls_f.get(k, [])) != len(classes[k]))
     lines_f = _table_lines(sp_f, N_AZIMUTH_CLASSES_32) if len(cls_f) == len(classes) else []
-    cn_diff = (len(lines_f) != len(C3_TABLE_LINES)
-               or sum(_norm(a) != _norm(b) for a, b in zip(lines_f, C3_TABLE_LINES)))
-    _say(f"(CN) {order[0]} z sign flipped: classes {len(cls_f)}, classes with changed n {n_changed} "
-         f"(predicted >= 2), differing lines {cn_diff} (ASSERTED > 0)")
+    cn_diff = len(lines_f) != len(C3_TABLE_LINES) or sum(
+        _norm(a) != _norm(b) for a, b in zip(lines_f, C3_TABLE_LINES)
+    )
+    _say(
+        f"(CN) {order[0]} z sign flipped: classes {len(cls_f)}, classes with changed n {n_changed} "
+        f"(predicted >= 2), differing lines {cn_diff} (ASSERTED > 0)"
+    )
 
     # ---- transpose control (printed only) ----
     sp_t = _class_spreads(s.T, classes)
-    t_match = sum(_norm(a) == _norm(b)
-                  for a, b in zip(_table_lines(sp_t, N_AZIMUTH_CLASSES_32), C3_TABLE_LINES))
-    _say(f"transpose control (printed): s64.T reproduces {t_match}/{len(C3_TABLE_LINES)} class lines "
-         f"(predicted {len(C3_TABLE_LINES)})")
+    t_match = sum(
+        _norm(a) == _norm(b)
+        for a, b in zip(_table_lines(sp_t, N_AZIMUTH_CLASSES_32), C3_TABLE_LINES)
+    )
+    _say(
+        f"transpose control (printed): s64.T reproduces {t_match}/{len(C3_TABLE_LINES)} class lines "
+        f"(predicted {len(C3_TABLE_LINES)})"
+    )
 
     assert rr == (RECIPROCITY_RECORD_STR, SIGMA_MAX_RECORD_STR), rr
     assert len(classes) == N_SYMMETRY_CLASSES_32 and sizes == _expected_class_sizes(), sizes
@@ -257,7 +277,9 @@ def test_geo38_c13_class_anatomy():
     def label64(i):
         return f"{order[i]}(slot {geo[i][0]:2d}, {geo[i][1]:6s})"
 
-    _say(f"F-clinical worst class {worst}: rel {spreads[worst][0] * 100:.4f}%, abs {abs_sp[worst]:.6e}")
+    _say(
+        f"F-clinical worst class {worst}: rel {spreads[worst][0] * 100:.4f}%, abs {abs_sp[worst]:.6e}"
+    )
     rows = _anatomy("F-clinical other1", s, classes[(False, 1)], label64)
     by_off = {}
     for m, i, j in rows:
@@ -267,11 +289,15 @@ def test_geo38_c13_class_anatomy():
         by_off.setdefault(d, []).append(m)
     for d, ms in sorted(by_off.items()):
         ms = np.array(ms)
-        _say(f"F-clinical other1 top slot − bottom slot = {d:+d}: n {len(ms)}, mean |S| {ms.mean():.9e}, "
-             f"min {ms.min():.9e}, max {ms.max():.9e}, abs spread {ms.max() - ms.min():.6e}")
+        _say(
+            f"F-clinical other1 top slot − bottom slot = {d:+d}: n {len(ms)}, mean |S| {ms.mean():.9e}, "
+            f"min {ms.min():.9e}, max {ms.max():.9e}, abs spread {ms.max() - ms.min():.6e}"
+        )
     ratio64 = abs_sp[worst] / abs_sp[(True, 1)]
-    _say(f"F-clinical abs-spread ratio worst {worst} / (same ring, 1 step): {abs_sp[worst]:.6e} / "
-         f"{abs_sp[(True, 1)]:.6e} = {ratio64:.4f}")
+    _say(
+        f"F-clinical abs-spread ratio worst {worst} / (same ring, 1 step): {abs_sp[worst]:.6e} / "
+        f"{abs_sp[(True, 1)]:.6e} = {ratio64:.4f}"
+    )
 
     # ---- F-human degree-1 copper 32×32 (printed only) ----
     if not H12C_A2_NPZ.exists():
@@ -292,28 +318,40 @@ def test_geo38_c13_class_anatomy():
             sp32 = _class_spreads(s32, cls32)
             ab32 = _abs_spreads(s32, cls32)
             n_steps32 = n_slots // 2 + 1
-            _say(f"F-human {H12C_A2_NPZ.name}: s32 {s32.shape}; slots {n_slots}, map unique "
-                 f"{len(set(pm))}/{len(pm)}, classes {len(cls32)}")
+            _say(
+                f"F-human {H12C_A2_NPZ.name}: s32 {s32.shape}; slots {n_slots}, map unique "
+                f"{len(set(pm))}/{len(pm)}, classes {len(cls32)}"
+            )
             _print_table("F-human", sp32, ab32, n_steps32)
             w32 = max(sp32, key=lambda k: sp32[k][0])
-            _say(f"F-human worst class {w32}: rel {sp32[w32][0] * 100:.4f}% beside WF-12 step 2 "
-                 f"{WF12_WORST_SPREAD_RECORD * 100:.4f}% on {WF12_WORST_CLASS_RECORD} (WF-12.md:142; "
-                 f"PREDICTED_SPREAD_F_HUMAN {PREDICTED_SPREAD_F_HUMAN}); printed, not asserted "
-                 f"(classification route differs)")
+            _say(
+                f"F-human worst class {w32}: rel {sp32[w32][0] * 100:.4f}% beside WF-12 step 2 "
+                f"{WF12_WORST_SPREAD_RECORD * 100:.4f}% on {WF12_WORST_CLASS_RECORD} (WF-12.md:142; "
+                f"PREDICTED_SPREAD_F_HUMAN {PREDICTED_SPREAD_F_HUMAN}); printed, not asserted "
+                f"(classification route differs)"
+            )
 
             def label32(i):
                 return f"{names[i]}(slot {pm[i][0]:2d}, {pm[i][1]:6s})"
 
             lo = min(cls32[w32], key=lambda p: abs(s32[p]))
             hi = max(cls32[w32], key=lambda p: abs(s32[p]))
-            _say(f"F-human worst-class MIN {lo} {label32(lo[0])} -> {label32(lo[1])} |S| "
-                 f"{abs(s32[lo]):.9e}; MAX {hi} {label32(hi[0])} -> {label32(hi[1])} |S| {abs(s32[hi]):.9e}")
+            _say(
+                f"F-human worst-class MIN {lo} {label32(lo[0])} -> {label32(lo[1])} |S| "
+                f"{abs(s32[lo]):.9e}; MAX {hi} {label32(hi[0])} -> {label32(hi[1])} |S| {abs(s32[hi]):.9e}"
+            )
             if (False, 1) in sp32:
-                _say(f"F-human (other ring, 1 step): rel {sp32[(False, 1)][0] * 100:.4f}%, abs "
-                     f"{ab32[(False, 1)]:.6e}")
+                _say(
+                    f"F-human (other ring, 1 step): rel {sp32[(False, 1)][0] * 100:.4f}%, abs "
+                    f"{ab32[(False, 1)]:.6e}"
+                )
             ratio32 = ab32[w32] / ab32[(True, 1)]
-            _say(f"F-human abs-spread ratio worst {w32} / (same ring, 1 step): {ab32[w32]:.6e} / "
-                 f"{ab32[(True, 1)]:.6e} = {ratio32:.4f}")
-            _say(f"SUMMARY abs-spread ratio (worst / same ring 1 step): F-clinical {ratio64:.4f} "
-                 f"[{worst}], F-human {ratio32:.4f} [{w32}]")
+            _say(
+                f"F-human abs-spread ratio worst {w32} / (same ring, 1 step): {ab32[w32]:.6e} / "
+                f"{ab32[(True, 1)]:.6e} = {ratio32:.4f}"
+            )
+            _say(
+                f"SUMMARY abs-spread ratio (worst / same ring 1 step): F-clinical {ratio64:.4f} "
+                f"[{worst}], F-human {ratio32:.4f} [{w32}]"
+            )
     _say(f"body {time.perf_counter() - t0:.2f} s")

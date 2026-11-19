@@ -39,13 +39,12 @@ Run (complex build required)::
 
 from __future__ import annotations
 
+import dolfinx
 import numpy as np
 import pytest
+from dolfinx import fem
 from mpi4py import MPI
 from petsc4py import PETSc
-
-import dolfinx
-from dolfinx import fem
 
 from fem_em_solver.core import (
     HomogeneousMaterial,
@@ -54,7 +53,6 @@ from fem_em_solver.core import (
 )
 from fem_em_solver.io.mesh import MeshGenerator
 from fem_em_solver.post.evaluation import evaluate_vector_field_parallel
-
 from tests.complex_mode import complex_only
 from tests.validation.test_dielectric_sphere import (
     BOX_HALF_WIDTH,
@@ -255,9 +253,7 @@ def _solve(pec_facet_tags):
     local_max = float(np.max(np.abs(solution[cavity_dofs]))) if cavity_dofs.size else 0.0
     cavity_dof_max = float(comm.allreduce(local_max, op=MPI.MAX))
 
-    ncells = int(
-        comm.allreduce(msh.topology.index_map(msh.topology.dim).size_local, op=MPI.SUM)
-    )
+    ncells = int(comm.allreduce(msh.topology.index_map(msh.topology.dim).size_local, op=MPI.SUM))
     return (
         beta,
         pointwise,
@@ -310,9 +306,7 @@ def run(resolution_sphere: float, resolution_far: float):
     misses = np.linalg.norm(e - closed, axis=1) / E0
     rel_l2 = float(np.linalg.norm(e - closed) / np.linalg.norm(closed))
     # Rank-safety: `size_local` counts this rank's owned cells only.
-    ncells = int(
-        comm.allreduce(msh.topology.index_map(msh.topology.dim).size_local, op=MPI.SUM)
-    )
+    ncells = int(comm.allreduce(msh.topology.index_map(msh.topology.dim).size_local, op=MPI.SUM))
     return beta, float(np.max(misses)), float(np.sqrt(np.mean(misses**2))), rel_l2, ncells
 
 
@@ -324,9 +318,7 @@ def test_pec_hole_reproduces_the_conducting_sphere_dipole_coefficient():
     comm = MPI.COMM_WORLD
     msh, _, facet_tags = _hole_mesh()
 
-    beta, pointwise, pointwise_rms, imag_ratio, cavity_dof_max, ncells, ndirichlet = _solve(
-        (1, 2)
-    )
+    beta, pointwise, pointwise_rms, imag_ratio, cavity_dof_max, ncells, ndirichlet = _solve((1, 2))
     beta_miss = abs(beta - BETA_PEC)
 
     # The field anchor: the relative-L2 exterior miss over the `TH-8` ladder.

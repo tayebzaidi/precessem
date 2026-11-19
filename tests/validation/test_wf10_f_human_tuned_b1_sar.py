@@ -120,8 +120,18 @@ MEAN_B1P_RECORD_T = 2.884091e-07
 #: not run) and which stay asserted (the review's ruling 2 set).
 DEGREE2_RECORD_GATES = {
     "printed": ("(R)", "(Z50)", "(S_rep)"),
-    "asserted": ("(A0)", "(iv)", "(Deg)", "(P_RC)", "NEG node", "(P_w)", "(Lin)",
-                 "(Sigma_P)", "(Sense)", "(M_B)"),
+    "asserted": (
+        "(A0)",
+        "(iv)",
+        "(Deg)",
+        "(P_RC)",
+        "NEG node",
+        "(P_w)",
+        "(Lin)",
+        "(Sigma_P)",
+        "(Sense)",
+        "(M_B)",
+    ),
 }
 
 
@@ -146,8 +156,10 @@ def _node_pf():
         return C_IN_F_HUMAN_PF
     if raw == "d2root":
         if _degree_knob() != 2:
-            raise ValueError(f"{NODE_ENV}=d2root needs {DEGREE_ENV}=2: the degree-1 path has "
-                             f"one node ({C_IN_F_HUMAN_PF} pF)")
+            raise ValueError(
+                f"{NODE_ENV}=d2root needs {DEGREE_ENV}=2: the degree-1 path has "
+                f"one node ({C_IN_F_HUMAN_PF} pF)"
+            )
         return C_IN_F_HUMAN_D2_PF
     raise ValueError(f"{NODE_ENV}={raw!r}: only unset/empty or 'd2root' are accepted")
 
@@ -195,10 +207,13 @@ def _apply_degree(ctx, comm):
     n_faces = int(msh.topology.index_map(2).size_global)
     expected = n_edges if degree == 1 else 2 * n_edges + 2 * n_faces
     if comm.rank == 0:
-        print(f"[WF-10 step4a] (Deg) knob {knob}; solver.degree {solver.degree}; global unknowns "
-              f"{n_dofs} vs {'E' if degree == 1 else '2E+2F'} = {expected} (E {n_edges}, F "
-              f"{n_faces}; records E {E_RECORD}, F {F_RECORD}, 2E+2F {N_DOFS_D2_RECORD}; "
-              f"ASSERTED exact)", flush=True)
+        print(
+            f"[WF-10 step4a] (Deg) knob {knob}; solver.degree {solver.degree}; global unknowns "
+            f"{n_dofs} vs {'E' if degree == 1 else '2E+2F'} = {expected} (E {n_edges}, F "
+            f"{n_faces}; records E {E_RECORD}, F {F_RECORD}, 2E+2F {N_DOFS_D2_RECORD}; "
+            f"ASSERTED exact)",
+            flush=True,
+        )
     assert solver.degree == degree, (solver.degree, degree)
     assert n_dofs == expected, (n_dofs, expected, n_edges, n_faces)
     return solver, degree, {"n_dofs": n_dofs, "n_edges": n_edges, "n_faces": n_faces}
@@ -220,8 +235,10 @@ def _signed_k_shares(currents, order, slots):
         spec = np.fft.fft(vec)
         total = float(np.sum(np.abs(spec) ** 2))
         if total:
-            out[sign] = {"lead": float(abs(spec[1]) ** 2 / total),
-                         "lag": float(abs(spec[15]) ** 2 / total)}
+            out[sign] = {
+                "lead": float(abs(spec[1]) ** 2 / total),
+                "lag": float(abs(spec[15]) ** 2 / total),
+            }
         else:
             out[sign] = {"lead": float("nan"), "lag": float("nan")}
     return out
@@ -242,8 +259,10 @@ def test_wf10_step2_sense_coding():
     w = _sense_weights()
     d_ccw = max(abs(np.asarray(w["ccw"]) - np.array([1.0, -1.0j])))
     d_ref = max(abs(np.asarray(w["ccw"]) - np.asarray(SENSES["(1,-1j)"])))
-    print(f"[WF-10 step2 S0] w_ccw {w['ccw']}, w_cw {w['cw']}; |w_ccw - (1,-1j)| {d_ccw:.3e}, "
-          f"vs SENSES['(1,-1j)'] {d_ref:.3e} (band 1e-15, ASSERTED)")
+    print(
+        f"[WF-10 step2 S0] w_ccw {w['ccw']}, w_cw {w['cw']}; |w_ccw - (1,-1j)| {d_ccw:.3e}, "
+        f"vs SENSES['(1,-1j)'] {d_ref:.3e} (band 1e-15, ASSERTED)"
+    )
     assert d_ccw <= 1e-15 and d_ref <= 1e-15
     bins = {}
     for sense in ("ccw", "cw"):
@@ -332,8 +351,9 @@ def build_tuned_quadrature(comm, *, with_z50=True, build_only=False):
             print(f"[WF-10 step2] {msg}", flush=True)
 
     # ---- the stored comparand (ruling (5): absent ⇒ stop, never re-solve) -----
-    assert os.path.exists(NPZ_PATH), (
-        f"{NPZ_PATH} absent: item 358 stops (BLOCKED, rule (d)); never re-solve")
+    assert os.path.exists(
+        NPZ_PATH
+    ), f"{NPZ_PATH} absent: item 358 stops (BLOCKED, rule (d)); never re-solve"
     with np.load(NPZ_PATH, allow_pickle=False) as npz:
         s32_npz = np.array(npz["s32"], dtype=np.complex128)
         order_npz = [str(p) for p in npz["order"]]
@@ -344,13 +364,17 @@ def build_tuned_quadrature(comm, *, with_z50=True, build_only=False):
     knob = _degree_knob()
     eff_degree = DEGREE if knob is None else knob
     node_json = _node_json_path(knob, c_pf=c_pf)
-    say(f"start: -n {comm.size}, f = {FREQUENCY_HZ:.3e} Hz, degree {eff_degree} ({DEGREE_ENV} "
+    say(
+        f"start: -n {comm.size}, f = {FREQUENCY_HZ:.3e} Hz, degree {eff_degree} ({DEGREE_ENV} "
         f"{knob if knob is not None else 'unset'}; fixture DEGREE {DEGREE}), kappa off, r = "
         f"{ESR_OHM} Ohm on all 32 gaps; node C_in,F-human {C_IN_F_HUMAN_PF} pF (secant "
-        f"{C_IN_SECANT_PF:.6f} pF, (1,-1j) root {C_IN_CCW_ROOT_PF:.6f} pF; printed)")
-    say(f"step 4c node: {NODE_ENV} {node_knob or 'unset'} -> effective node {c_pf} pF "
+        f"{C_IN_SECANT_PF:.6f} pF, (1,-1j) root {C_IN_CCW_ROOT_PF:.6f} pF; printed)"
+    )
+    say(
+        f"step 4c node: {NODE_ENV} {node_knob or 'unset'} -> effective node {c_pf} pF "
         f"(degree-2 root {C_IN_F_HUMAN_D2_PF} pF, secant {C_IN_SECANT_D2_PF:.6f} pF); node "
-        f"record {os.path.basename(node_json)}")
+        f"record {os.path.basename(node_json)}"
+    )
 
     # ---- fixture, (A0), (iv) ----------------------------------------------
     t0 = time.perf_counter()
@@ -362,9 +386,11 @@ def build_tuned_quadrature(comm, *, with_z50=True, build_only=False):
     census = _owned_census(msh, cell_tags, comm)
     census_fails = _census_checks(census, built["cells"], _ring_ports())
     cell_rel = built["cells"] / HOLE_CELL_RECORD - 1.0
-    say(f"(A0) hole cells {built['cells']} vs record {HOLE_CELL_RECORD}, rel {cell_rel:.3e} "
+    say(
+        f"(A0) hole cells {built['cells']} vs record {HOLE_CELL_RECORD}, rel {cell_rel:.3e} "
         f"(band {CELL_COUNT_BAND}, ASSERTED); npz cells {cells_npz}; build {times['build']:.1f} s; "
-        f"(iv) failures {census_fails or 'none'}")
+        f"(iv) failures {census_fails or 'none'}"
+    )
     assert abs(cell_rel) <= CELL_COUNT_BAND, cell_rel
     assert built["cells"] == cells_npz, (built["cells"], cells_npz)
     assert not census_fails, census_fails
@@ -376,12 +402,23 @@ def build_tuned_quadrature(comm, *, with_z50=True, build_only=False):
     if degree != 1:
         solver_built = None  # never hold two solvers (`WF-12` step 4's trap)
     if build_only:
-        say(f"build_only: return after (A0)/(iv)/(Deg) at degree {degree}; no form compiled, "
-            f"nothing assembled; build {times['build']:.1f} s")
-        return {"built": built, "ctx": ctx, "cells": built["cells"], "degree": degree,
-                "n_dofs": counts["n_dofs"], "n_edges": counts["n_edges"],
-                "n_faces": counts["n_faces"], "times": times, "solver_built": solver_built,
-                "c_in_pf": c_pf, "node_json": node_json}
+        say(
+            f"build_only: return after (A0)/(iv)/(Deg) at degree {degree}; no form compiled, "
+            f"nothing assembled; build {times['build']:.1f} s"
+        )
+        return {
+            "built": built,
+            "ctx": ctx,
+            "cells": built["cells"],
+            "degree": degree,
+            "n_dofs": counts["n_dofs"],
+            "n_edges": counts["n_edges"],
+            "n_faces": counts["n_faces"],
+            "times": times,
+            "solver_built": solver_built,
+            "c_in_pf": c_pf,
+            "node_json": node_json,
+        }
     del solver_built
 
     z_s = (1.0 + 1.0j) * surface_resistance_ohm(omega, COPPER_SIGMA)
@@ -405,20 +442,30 @@ def build_tuned_quadrature(comm, *, with_z50=True, build_only=False):
     def _drive(specs, driven_id, *, held, partition, keep_as=None):
         sheets = [sp.sheet(driven=(sp.port_id == driven_id)) for sp in specs]
         dsheet = next(s for s in sheets if s.port_id == driven_id)
-        linear = [lambda test, _s=dsheet: lumped_port_linear_term(
-            msh, tags_f, _s, test, omega_rad_per_s=omega)]
+        linear = [
+            lambda test, _s=dsheet: lumped_port_linear_term(
+                msh, tags_f, _s, test, omega_rad_per_s=omega
+            )
+        ]
         comm.Barrier()
         t0 = time.perf_counter()
         if held:
             fields = solver.solve_with_held_factorization(extra_linear_terms=linear)
         else:
             bil = [wall] + [
-                (lambda trial, test, _s=s: lumped_port_bilinear_term(
-                    msh, tags_f, _s, trial, test, omega_rad_per_s=omega))
+                (
+                    lambda trial, test, _s=s: lumped_port_bilinear_term(
+                        msh, tags_f, _s, trial, test, omega_rad_per_s=omega
+                    )
+                )
                 for s in sheets
             ]
-            fields = solver.solve(current_density=None, project_source=False,
-                                  extra_bilinear_terms=bil, extra_linear_terms=linear)
+            fields = solver.solve(
+                current_density=None,
+                project_source=False,
+                extra_bilinear_terms=bil,
+                extra_linear_terms=linear,
+            )
         comm.Barrier()
         t_solve = time.perf_counter() - t0
         t1 = time.perf_counter()
@@ -429,14 +476,19 @@ def build_tuned_quadrature(comm, *, with_z50=True, build_only=False):
         for s in sheets:
             v = complex(s.source_voltage_v) - currents[s.port_id] * z_p
             s_col[s.port_id] = (v - z_p * currents[s.port_id]) / v_src
-        out = {"s": s_col, "currents": currents, "kind": "held" if held else "solve",
-               "t_solve": t_solve}
+        out = {
+            "s": s_col,
+            "currents": currents,
+            "kind": "held" if held else "solve",
+            "t_solve": t_solve,
+        }
         if "sigma" not in keep:
             keep["sigma"] = fields.sigma_field
         if partition:
             sigma_f = fields.sigma_field
-            by_id = {s.port_id: float(_sheet_field_dissipation_w(acct, s, e, omega))
-                     for s in sheets}
+            by_id = {
+                s.port_id: float(_sheet_field_dissipation_w(acct, s, e, omega)) for s in sheets
+            }
             out["p_sheet_by_id"] = by_id
             out["p_sheets"] = float(sum(by_id.values()))
             out["p_src"] = float(_source_power_w(acct, dsheet, e, omega))
@@ -456,10 +508,12 @@ def build_tuned_quadrature(comm, *, with_z50=True, build_only=False):
     # ---- order (H17's: [P17, feed2] + rest by number) -------------------------
     az_ref, slots = _ring_quadrature_slots(built["sheets"])
     ref_k, ref_sign = slots[DRIVEN]
-    feed2 = next(pid for pid, (k, sg) in slots.items()
-                 if sg == ref_sign and k == (ref_k + QUADRATURE_SLOT_OFFSET) % 16)
-    others = sorted((pid for pid in slots if pid not in (DRIVEN, feed2)),
-                    key=lambda p: int(p[1:]))
+    feed2 = next(
+        pid
+        for pid, (k, sg) in slots.items()
+        if sg == ref_sign and k == (ref_k + QUADRATURE_SLOT_OFFSET) % 16
+    )
+    others = sorted((pid for pid in slots if pid not in (DRIVEN, feed2)), key=lambda p: int(p[1:]))
     order = [DRIVEN, feed2] + others
     feeds = order[:2]
     feeds_idx = [0, 1]
@@ -469,10 +523,12 @@ def build_tuned_quadrature(comm, *, with_z50=True, build_only=False):
     az_feeds = (az_by[feeds[0]], az_by[feeds[1]])
     d_az = (az_feeds[1] - az_feeds[0]) % 360.0
     az_mirror = az_feeds[0] + 45.0
-    say(f"feeds: {feeds[0]} (slot {ref_k}, ring {ref_sign:+.0f}, az {az_feeds[0]:.9f} deg) and "
+    say(
+        f"feeds: {feeds[0]} (slot {ref_k}, ring {ref_sign:+.0f}, az {az_feeds[0]:.9f} deg) and "
         f"{feeds[1]} (slot {slots[feeds[1]][0]}, az {az_feeds[1]:.9f} deg); az21 - az17 = "
         f"{d_az:.9f} deg (90 within {AZIMUTH_MATCH_DEG:g}, ASSERTED); mirror plane az "
-        f"{az_mirror:.9f} deg; az_ref {az_ref:.9f} deg")
+        f"{az_mirror:.9f} deg; az_ref {az_ref:.9f} deg"
+    )
     assert abs(d_az - 90.0) < AZIMUTH_MATCH_DEG, d_az
     assert slots[feeds[0]][0] == 0 and slots[feeds[1]][0] == 4, (slots[feeds[0]], slots[feeds[1]])
 
@@ -483,8 +539,13 @@ def build_tuned_quadrature(comm, *, with_z50=True, build_only=False):
         assert all(sp.width_correction_kappa is None for sp in specs_x)
         cur, knd, tt, parts = [], [], [], []
         for n_drive, pid in enumerate(feeds):
-            d = _drive(specs_x, pid, held=(n_drive > 0), partition=(n_drive == 0),
-                       keep_as=(f"E_{pid}" if keep_fields else None))
+            d = _drive(
+                specs_x,
+                pid,
+                held=(n_drive > 0),
+                partition=(n_drive == 0),
+                keep_as=(f"E_{pid}" if keep_fields else None),
+            )
             knd.append(d["kind"])
             tt.append(d["t_solve"] + d["t_post"])
             cur.append(np.array([d["currents"][p] for p in order], dtype=np.complex128))
@@ -510,14 +571,22 @@ def build_tuned_quadrature(comm, *, with_z50=True, build_only=False):
         r_z50 = _residual(s_50, s32_npz[:2, :2])
         times["z50_pair"] = float(sum(t_50))
         say(f"Z50 pair {kinds_50}, {', '.join(f'{t:.2f}' for t in t_50)} s")
-        say(f"(R) P_src rel {r_src:.3e}; P_surf rel {r_surf:.3e} (band {REUSE_REPRODUCTION_RTOL:g}, "
-            f"ASSERTED; measured 2.109e-11 / 1.509e-11)")
-        say(f"(P50) rel {rel_p50:.3e} (band {DISCRETE_IDENTITY_RTOL:g}, ASSERTED; measured "
-            f"2.417e-13)")
-        say(f"NEG P_surf-blind miss {blind50:.4e} = {blind50 / DISCRETE_IDENTITY_RTOL:.1f}x the band "
-            f"(bar {BLIND_FACTOR:.0f}x, ASSERTED; measured 123.6x)")
-        say(f"(Z50) residual {r_z50:.6e} (band {REUSE_REPRODUCTION_RTOL:g}, ASSERTED; measured "
-            f"2.981e-14); t={time.perf_counter() - t_window:.1f} s")
+        say(
+            f"(R) P_src rel {r_src:.3e}; P_surf rel {r_surf:.3e} (band {REUSE_REPRODUCTION_RTOL:g}, "
+            f"ASSERTED; measured 2.109e-11 / 1.509e-11)"
+        )
+        say(
+            f"(P50) rel {rel_p50:.3e} (band {DISCRETE_IDENTITY_RTOL:g}, ASSERTED; measured "
+            f"2.417e-13)"
+        )
+        say(
+            f"NEG P_surf-blind miss {blind50:.4e} = {blind50 / DISCRETE_IDENTITY_RTOL:.1f}x the band "
+            f"(bar {BLIND_FACTOR:.0f}x, ASSERTED; measured 123.6x)"
+        )
+        say(
+            f"(Z50) residual {r_z50:.6e} (band {REUSE_REPRODUCTION_RTOL:g}, ASSERTED; measured "
+            f"2.981e-14); t={time.perf_counter() - t_window:.1f} s"
+        )
         assert kinds_50 == ["solve", "held"], kinds_50
         assert r_src <= REUSE_REPRODUCTION_RTOL, r_src
         assert r_surf <= REUSE_REPRODUCTION_RTOL, r_surf
@@ -539,16 +608,24 @@ def build_tuned_quadrature(comm, *, with_z50=True, build_only=False):
     p_rc_node, blind_node = _partition(pn)
     p_rc_sheets = sum(v for pid, v in pn["p_sheet_by_id"].items() if pid not in feeds)
     p_vol_n = pn["p_phantom"] + pn["p_rest"]
-    dz = abs(pn["p_src"] - (pn["p_sheets"] - p_rc_sheets) - p_vol_n - pn["p_surf"]) / abs(pn["p_src"])
+    dz = abs(pn["p_src"] - (pn["p_sheets"] - p_rc_sheets) - p_vol_n - pn["p_surf"]) / abs(
+        pn["p_src"]
+    )
     say(f"node pair {kinds_n}, {', '.join(f'{t:.2f}' for t in t_n)} s")
-    say(f"(P_RC) P17 drive: P_src {pn['p_src']:.9e} sumP_sheet {pn['p_sheets']:.9e} (30 RC "
+    say(
+        f"(P_RC) P17 drive: P_src {pn['p_src']:.9e} sumP_sheet {pn['p_sheets']:.9e} (30 RC "
         f"{p_rc_sheets:.9e}) P_phantom {pn['p_phantom']:.9e} P_rest {pn['p_rest']:.9e} P_surf "
         f"{pn['p_surf']:.9e} W; rel {p_rc_node:.3e} (band {DISCRETE_IDENTITY_RTOL:g}, ASSERTED; "
-        f"flanking 7.878e-13 / 7.726e-13)")
-    say(f"NEG at the node: P_surf-blind miss {blind_node:.4e} = "
-        f"{blind_node / DISCRETE_IDENTITY_RTOL:.1f}x the band (bar {BLIND_FACTOR:.0f}x, ASSERTED)")
-    say(f"(Dz) partition without the 30 RC sheets misses {dz:.4e} (PREDICTED ≈ {PREDICTED_DZ}, "
-        f"printed)")
+        f"flanking 7.878e-13 / 7.726e-13)"
+    )
+    say(
+        f"NEG at the node: P_surf-blind miss {blind_node:.4e} = "
+        f"{blind_node / DISCRETE_IDENTITY_RTOL:.1f}x the band (bar {BLIND_FACTOR:.0f}x, ASSERTED)"
+    )
+    say(
+        f"(Dz) partition without the 30 RC sheets misses {dz:.4e} (PREDICTED ≈ {PREDICTED_DZ}, "
+        f"printed)"
+    )
     assert p_rc_node <= DISCRETE_IDENTITY_RTOL, f"(P_RC) {p_rc_node:.3e} — never re-band"
     assert blind_node >= BLIND_FACTOR * DISCRETE_IDENTITY_RTOL, blind_node
     anchors.update(p_rc_node=p_rc_node, blind_node=blind_node, dz=dz)
@@ -559,8 +636,10 @@ def build_tuned_quadrature(comm, *, with_z50=True, build_only=False):
     assert e17.function_space.mesh is e21.function_space.mesh is msh
     assert e17.x.array.shape == e21.x.array.shape
     assert str(e17.function_space.ufl_element()) == str(e21.function_space.ufl_element())
-    assert (e17.function_space.dofmap.index_map.size_local
-            == e21.function_space.dofmap.index_map.size_local)
+    assert (
+        e17.function_space.dofmap.index_map.size_local
+        == e21.function_space.dofmap.index_map.size_local
+    )
 
     # ---- the two senses: superposition, partition, (Lin), Y_in ---------------
     w = _sense_weights()
@@ -575,22 +654,34 @@ def build_tuned_quadrature(comm, *, with_z50=True, build_only=False):
         e_s[sense] = ef
         wf = {feeds[0]: w17, feeds[1]: w21}
         cur_s[sense] = w17 * cur_node[0] + w21 * cur_node[1]
-        sheets = {pid: (dataclasses.replace(specs_by[pid].sheet(driven=True),
-                                            source_voltage_v=complex(wf[pid]))
-                        if pid in feeds else specs_by[pid].sheet(driven=False))
-                  for pid in order}
-        cur_read = np.array([sheet_terminal_current(msh, tags_f, sheets[pid], ef, comm)
-                             for pid in order], dtype=np.complex128)
+        sheets = {
+            pid: (
+                dataclasses.replace(
+                    specs_by[pid].sheet(driven=True), source_voltage_v=complex(wf[pid])
+                )
+                if pid in feeds
+                else specs_by[pid].sheet(driven=False)
+            )
+            for pid in order
+        }
+        cur_read = np.array(
+            [sheet_terminal_current(msh, tags_f, sheets[pid], ef, comm) for pid in order],
+            dtype=np.complex128,
+        )
         r_lin = float(np.max(np.abs(cur_read - cur_s[sense])) / np.max(np.abs(cur_s[sense])))
-        y_cur = [complex(1.0 / z_rc + cur_read[i] / (wf[pid] - z_th * cur_read[i]))
-                 for i, pid in enumerate(feeds)]
+        y_cur = [
+            complex(1.0 / z_rc + cur_read[i] / (wf[pid] - z_th * cur_read[i]))
+            for i, pid in enumerate(feeds)
+        ]
         y_ref = _active_y_in(s_node, (w17, w21), z0)
         r_y = float(max(abs(a - b) for a, b in zip(y_cur, y_ref)) / max(abs(b) for b in y_ref))
         y_in[sense] = y_ref
         p = {
             "p_src": float(sum(_source_power_w(acct, sheets[pid], ef, omega) for pid in feeds)),
-            "p_sheet_by_id": {pid: float(_sheet_field_dissipation_w(acct, sheets[pid], ef, omega))
-                              for pid in order},
+            "p_sheet_by_id": {
+                pid: float(_sheet_field_dissipation_w(acct, sheets[pid], ef, omega))
+                for pid in order
+            },
         }
         p["p_sheets"] = float(sum(p["p_sheet_by_id"].values()))
         p_total = _vol(sigma, ef, dx)
@@ -601,27 +692,41 @@ def build_tuned_quadrature(comm, *, with_z50=True, build_only=False):
         p["rel"], p["blind"] = rel_w, blind_w
         parts[sense] = p
         lin[sense] = (r_lin, r_y)
-        say(f"[{sense}] w = ({w17:.3f}, {w21:.3f}); (P_w) P_src {p['p_src']:.9e} sumP_sheet "
+        say(
+            f"[{sense}] w = ({w17:.3f}, {w21:.3f}); (P_w) P_src {p['p_src']:.9e} sumP_sheet "
             f"{p['p_sheets']:.9e} P_phantom {p['p_phantom']:.9e} P_rest {p['p_rest']:.9e} P_surf "
             f"{p['p_surf']:.9e} W; rel {rel_w:.3e} (band {DISCRETE_IDENTITY_RTOL:g}, ASSERTED; "
             f"PREDICTED <= {PREDICTED_P_W:g}); P_surf-blind miss {blind_w:.4e} (PREDICTED ≈ "
-            f"{PREDICTED_BLIND_PW:g}, printed)")
-        say(f"[{sense}] (Lin) currents rel {r_lin:.3e} (band 1e-12 UNIT_WEIGHT_CONTROL_RTOL, "
+            f"{PREDICTED_BLIND_PW:g}, printed)"
+        )
+        say(
+            f"[{sense}] (Lin) currents rel {r_lin:.3e} (band 1e-12 UNIT_WEIGHT_CONTROL_RTOL, "
             f"ASSERTED; PREDICTED <= {PREDICTED_LIN:g}); Y_in current route vs _active_y_in "
-            f"{r_y:.3e} (band {Y0_CODING_BAND:g}, ASSERTED)")
+            f"{r_y:.3e} (band {Y0_CODING_BAND:g}, ASSERTED)"
+        )
     times["superposition"] = time.perf_counter() - t0
     anchors["lin"] = lin
     anchors["p_w"] = {s: (parts[s]["rel"], parts[s]["blind"]) for s in parts}
 
     rec = {
-        "c_f": c_f, "c_in_pf": c_pf, "r_ohm": ESR_OHM, "freq_hz": float(FREQUENCY_HZ),
-        "order": order, "feeds": feeds, "az_feeds": list(az_feeds), "az_mirror": az_mirror,
+        "c_f": c_f,
+        "c_in_pf": c_pf,
+        "r_ohm": ESR_OHM,
+        "freq_hz": float(FREQUENCY_HZ),
+        "order": order,
+        "feeds": feeds,
+        "az_feeds": list(az_feeds),
+        "az_mirror": az_mirror,
         "s_node": [[[complex(v).real, complex(v).imag] for v in row] for row in s_node],
         "w": {s: [[complex(x).real, complex(x).imag] for x in w[s]] for s in w},
         "y_in": {s: [[y.real, y.imag] for y in ys] for s, ys in y_in.items()},
         "partitions": {s: parts[s] for s in parts},
-        "partition_p17_node": dict(pn), "p_rc_node": p_rc_node, "blind_node": blind_node,
-        "times_s": dict(times), "degree": degree, "node_knob": node_knob,
+        "partition_p17_node": dict(pn),
+        "p_rc_node": p_rc_node,
+        "blind_node": blind_node,
+        "times_s": dict(times),
+        "degree": degree,
+        "node_knob": node_knob,
     }
     if comm.rank == 0:
         os.makedirs(JSON_DIR, exist_ok=True)
@@ -631,12 +736,33 @@ def build_tuned_quadrature(comm, *, with_z50=True, build_only=False):
     comm.Barrier()
 
     return {
-        "built": built, "ctx": ctx, "order": order, "slots": slots, "feeds": feeds,
-        "az_feeds": az_feeds, "az_mirror": az_mirror, "w": w, "e": e_s, "e17": e17,
-        "e21": e21, "sigma": sigma, "s_node": s_node, "cur": cur_s, "y_in": y_in,
-        "parts": parts, "p_rc_node": p_rc_node, "blind_node": blind_node, "times": times,
-        "cells": built["cells"], "anchors": anchors, "say": say, "omega": omega,
-        "t_window": t_window, "degree": degree, "c_in_pf": c_pf, "node_json": node_json,
+        "built": built,
+        "ctx": ctx,
+        "order": order,
+        "slots": slots,
+        "feeds": feeds,
+        "az_feeds": az_feeds,
+        "az_mirror": az_mirror,
+        "w": w,
+        "e": e_s,
+        "e17": e17,
+        "e21": e21,
+        "sigma": sigma,
+        "s_node": s_node,
+        "cur": cur_s,
+        "y_in": y_in,
+        "parts": parts,
+        "p_rc_node": p_rc_node,
+        "blind_node": blind_node,
+        "times": times,
+        "cells": built["cells"],
+        "anchors": anchors,
+        "say": say,
+        "omega": omega,
+        "t_window": t_window,
+        "degree": degree,
+        "c_in_pf": c_pf,
+        "node_json": node_json,
     }
 
 
@@ -658,12 +784,11 @@ def test_wf10_step2_tuned_b1_quadrature():
     from tests.validation.test_birdcage_power_identity import DISCRETE_IDENTITY_RTOL
     from tests.validation.test_birdcage_sar_mass_averaged import EXACT_IDENTITY_RTOL
     from tests.validation.test_port_birdcage_lumped_column import PHANTOM_CELL_TAG
+    from tests.validation.test_port_birdcage_ring_matrix import REUSE_REPRODUCTION_RTOL
+    from tests.validation.test_port_circuit_layer_field import _residual
     from tests.validation.test_port_drive_superposition import UNIT_WEIGHT_CONTROL_RTOL
     from tests.validation.test_wf10_f_human_tuned_circuit import _k1_shares
     from tests.validation.test_wf12_f_human_hole import _rss_gib
-
-    from tests.validation.test_port_birdcage_ring_matrix import REUSE_REPRODUCTION_RTOL
-    from tests.validation.test_port_circuit_layer_field import _residual
 
     comm = MPI.COMM_WORLD
     knob = _degree_knob()
@@ -678,42 +803,53 @@ def test_wf10_step2_tuned_b1_quadrature():
                 rec = json.load(fh)
         rec = comm.bcast(rec, root=0)
         assert abs(rec["c_in_pf"] - C_IN_F_HUMAN_PF) == 0.0, rec["c_in_pf"]
-        s_rec = np.array([[complex(a, b) for a, b in row] for row in rec["s_node"]],
-                         dtype=np.complex128)
+        s_rec = np.array(
+            [[complex(a, b) for a, b in row] for row in rec["s_node"]], dtype=np.complex128
+        )
     out = build_tuned_quadrature(comm, with_z50=(knob is None))
     say, omega, ctx = out["say"], out["omega"], out["ctx"]
     order, slots, feeds = out["order"], out["slots"], out["feeds"]
     times = out["times"]
     if knob is None:
         r_srep = _residual(np.asarray(out["s_node"], dtype=np.complex128), s_rec)
-        say(f"(S_rep) s_node vs {os.path.basename(NODE_JSON)} read before the builder: residual "
-            f"{r_srep:.3e} (band {REUSE_REPRODUCTION_RTOL:g}, ASSERTED)")
+        say(
+            f"(S_rep) s_node vs {os.path.basename(NODE_JSON)} read before the builder: residual "
+            f"{r_srep:.3e} (band {REUSE_REPRODUCTION_RTOL:g}, ASSERTED)"
+        )
         assert r_srep <= REUSE_REPRODUCTION_RTOL, f"(S_rep) {r_srep:.3e}"
     else:
-        say(f"(R) / (Z50): degree-1 records, not run at degree 2 (effective node "
+        say(
+            f"(R) / (Z50): degree-1 records, not run at degree 2 (effective node "
             f"{out['c_in_pf']} pF, record {os.path.basename(out['node_json'])}); (S_rep) likewise "
             f"(printed: {DEGREE2_RECORD_GATES['printed']}; asserted: "
-            f"{DEGREE2_RECORD_GATES['asserted']})")
+            f"{DEGREE2_RECORD_GATES['asserted']})"
+        )
 
     # ---- Y_in, four readings ---------------------------------------------------
     for sense, label in (("cw", "(1,+1j)"), ("ccw", "(1,-1j)")):
         for i, pid in enumerate(feeds):
             y = out["y_in"][sense][i]
-            say(f"Y_in a = {label} [{sense}] {pid}: {y.real:+.9e} {y.imag:+.9e}j S (PREDICTED "
-                f"{PREDICTED_Y_IN[(pid, label)]}; reading)")
+            say(
+                f"Y_in a = {label} [{sense}] {pid}: {y.real:+.9e} {y.imag:+.9e}j S (PREDICTED "
+                f"{PREDICTED_Y_IN[(pid, label)]}; reading)"
+            )
     yc, yw = out["y_in"]["ccw"], out["y_in"]["cw"]
-    say(f"M-paired Y_in spreads: |Y17(ccw) - Y21(cw)|/|Y17(ccw)| {abs(yc[0] - yw[1]) / abs(yc[0]):.4e}; "
+    say(
+        f"M-paired Y_in spreads: |Y17(ccw) - Y21(cw)|/|Y17(ccw)| {abs(yc[0] - yw[1]) / abs(yc[0]):.4e}; "
         f"|Y21(ccw) - Y17(cw)|/|Y21(ccw)| {abs(yc[1] - yw[0]) / abs(yc[1]):.4e} (PREDICTED "
-        f"2.1-2.3 %, reading)")
+        f"2.1-2.3 %, reading)"
+    )
 
     # ---- signed k-spectrum -----------------------------------------------------
     for sense in ("ccw", "cw"):
         sh = _signed_k_shares(out["cur"][sense], order, slots)
         un = _k1_shares(out["cur"][sense], order, slots)
-        say(f"[{sense}] signed k shares: ring+ lead {sh[1.0]['lead']:.6f} lag {sh[1.0]['lag']:.6f}; "
+        say(
+            f"[{sense}] signed k shares: ring+ lead {sh[1.0]['lead']:.6f} lag {sh[1.0]['lag']:.6f}; "
             f"ring- lead {sh[-1.0]['lead']:.6f} lag {sh[-1.0]['lag']:.6f}; unsigned +-1 ring+ "
             f"{un[1.0]:.6f} ring- {un[-1.0]:.6f} (H17 ≈ {H17_K1_SHARE}; PREDICTED lag share under "
-            f"ccw >= {PREDICTED_LAG_SHARE}; reading)")
+            f"ccw >= {PREDICTED_LAG_SHARE}; reading)"
+        )
 
     # ---- B, CG1 projection, point reads ------------------------------------------
     comm.Barrier()
@@ -735,12 +871,14 @@ def test_wf10_step2_tuned_b1_quadrature():
     cw_x = _read_senses(cg1["cw"], points)
     cw_mx = _read_senses(cg1["cw"], _mirror_xy(points, az_m))
     cw_m17 = _read_senses(cg1["cw"], _mirror_xy(points, az17))
-    rot = {m: _read_senses(cg1["ccw"], _rotate_z(points, np.radians(m * 22.5)))
-           for m in range(1, 16)}
+    rot = {
+        m: _read_senses(cg1["ccw"], _rotate_z(points, np.radians(m * 22.5))) for m in range(1, 16)
+    }
     comm.Barrier()
     t_eval = time.perf_counter() - t0
-    mask = np.logical_and.reduce([ccw_x[2], cw_x[2], cw_mx[2], cw_m17[2]]
-                                 + [r[2] for r in rot.values()])
+    mask = np.logical_and.reduce(
+        [ccw_x[2], cw_x[2], cw_mx[2], cw_m17[2]] + [r[2] for r in rot.values()]
+    )
     n_pts, n_mask = int(points.shape[0]), int(np.count_nonzero(mask))
     plus_x, minus_x = ccw_x[0], ccw_x[1]
     mirror = _relative_l2(cw_mx[1], plus_x, mask)
@@ -757,45 +895,73 @@ def test_wf10_step2_tuned_b1_quadrature():
     mean_b = float(np.mean(plus_x[mask]))
     cv_b = float(np.std(plus_x[mask]) / mean_b)
     p_src_ccw = out["parts"]["ccw"]["p_src"]
-    say(f"B: two CG1 projections {t_proj:.2f} s; {n_pts} sample points, {n_mask} valid on every "
-        f"image; evaluations {t_eval:.2f} s")
-    say(f"(Sense) mean|B1+|_ccw / mean|B1-|_ccw = {sense_ratio:.4f} (> 1 ASSERTED; PREDICTED >= "
-        f"{PREDICTED_SENSE_RATIO:g}); cw: mean|B1-|/mean|B1+| = {cw_ratio:.4f} (printed)")
-    say(f"centre purity at ({points[ic, 0]:.4e}, {points[ic, 1]:.4e}, {points[ic, 2]:.4e}) m: ccw "
+    say(
+        f"B: two CG1 projections {t_proj:.2f} s; {n_pts} sample points, {n_mask} valid on every "
+        f"image; evaluations {t_eval:.2f} s"
+    )
+    say(
+        f"(Sense) mean|B1+|_ccw / mean|B1-|_ccw = {sense_ratio:.4f} (> 1 ASSERTED; PREDICTED >= "
+        f"{PREDICTED_SENSE_RATIO:g}); cw: mean|B1-|/mean|B1+| = {cw_ratio:.4f} (printed)"
+    )
+    say(
+        f"centre purity at ({points[ic, 0]:.4e}, {points[ic, 1]:.4e}, {points[ic, 2]:.4e}) m: ccw "
         f"|B1+|/|B1-| {plus_x[ic] / minus_x[ic]:.4f}; cw |B1-|/|B1+| {cw_x[1][ic] / cw_x[0][ic]:.4f} "
-        f"(reading)")
-    say(f"(M_B) feed-bisector mirror (az {az_m:.6f} deg): |B1-|_cw(Mx) vs |B1+|_ccw(x) rel L2 "
+        f"(reading)"
+    )
+    say(
+        f"(M_B) feed-bisector mirror (az {az_m:.6f} deg): |B1-|_cw(Mx) vs |B1+|_ccw(x) rel L2 "
         f"{mirror:.4e} (band {C4_COVARIANCE_BAND:g}, ASSERTED; PREDICTED {PREDICTED_MIRROR[0]:g}-"
-        f"{PREDICTED_MIRROR[1]:g})")
-    say(f"mis-paired control |B1+|_cw(Mx) vs |B1+|_ccw(x) {mispaired:.4e} beside its prediction "
+        f"{PREDICTED_MIRROR[1]:g})"
+    )
+    say(
+        f"mis-paired control |B1+|_cw(Mx) vs |B1+|_ccw(x) {mispaired:.4e} beside its prediction "
         f"|B1-|_ccw(x) vs |B1+|_ccw(x) {mispaired_pred:.4e} (PREDICTED >= {PREDICTED_MISPAIRED:g}, "
-        f"printed)")
+        f"printed)"
+    )
     say(f"wrong-plane mirror (az17 {az17:.6f} deg): {wrong_plane:.4e} (printed, reading)")
-    say("C16 readings |B1+|_ccw(R_m x) vs |B1+|_ccw(x): "
+    say(
+        "C16 readings |B1+|_ccw(R_m x) vs |B1+|_ccw(x): "
         + ", ".join(f"m={m}: {v:.4e}" for m, v in c16.items())
         + f"; worst m={worst_m} {c16[worst_m]:.4e} (PREDICTED <= {PREDICTED_C16:g}; printed, "
-        f"never asserted — the drive is not C16-symmetric)")
-    say(f"step 4a records (printed beside): (M_B) {mirror:.4e} vs 358's {M_B_RECORD:.4e}; mean"
-        f"|B1+|_ccw {mean_b:.6e} T vs 358's {MEAN_B1P_RECORD_T:.6e} T (degree {out['degree']})")
-    say(f"mean|B1+|_ccw {mean_b:.6e} T, CV {cv_b:.4e} (reading, no homogeneity claim); "
-        f"mean|B1+|_ccw/sqrt(P_src) {mean_b / np.sqrt(p_src_ccw):.6e} T/sqrt(W)")
+        f"never asserted — the drive is not C16-symmetric)"
+    )
+    say(
+        f"step 4a records (printed beside): (M_B) {mirror:.4e} vs 358's {M_B_RECORD:.4e}; mean"
+        f"|B1+|_ccw {mean_b:.6e} T vs 358's {MEAN_B1P_RECORD_T:.6e} T (degree {out['degree']})"
+    )
+    say(
+        f"mean|B1+|_ccw {mean_b:.6e} T, CV {cv_b:.4e} (reading, no homogeneity claim); "
+        f"mean|B1+|_ccw/sqrt(P_src) {mean_b / np.sqrt(p_src_ccw):.6e} T/sqrt(W)"
+    )
 
     # ---- SAR, (Σ_P) ----------------------------------------------------------
-    sar = mean_sar(out["e"]["ccw"], sigma=out["sigma"], rho=PHANTOM_RHO_KG_PER_M3,
-                   cell_tags=ctx["cell_tags"], subdomain_ids=PHANTOM_CELL_TAG, comm=comm)
+    sar = mean_sar(
+        out["e"]["ccw"],
+        sigma=out["sigma"],
+        rho=PHANTOM_RHO_KG_PER_M3,
+        cell_tags=ctx["cell_tags"],
+        subdomain_ids=PHANTOM_CELL_TAG,
+        comm=comm,
+    )
     p_ph = out["parts"]["ccw"]["p_phantom"]
     r_sigma = abs(sar["dissipated_power_w"] - p_ph) / abs(p_ph)
-    say(f"(Sigma_P) P_phantom {p_ph:.12e} W vs mean_sar dissipated {sar['dissipated_power_w']:.12e} "
+    say(
+        f"(Sigma_P) P_phantom {p_ph:.12e} W vs mean_sar dissipated {sar['dissipated_power_w']:.12e} "
         f"W, rel {r_sigma:.3e} (band {EXACT_IDENTITY_RTOL:g}, ASSERTED; PREDICTED <= "
-        f"{PREDICTED_SIGMA_P:g})")
-    say(f"SAR (ccw): whole-phantom mean {sar['mean_sar_w_per_kg']:.6e} W/kg, per W of P_src "
-        f"{sar['mean_sar_w_per_kg'] / p_src_ccw:.6e} W/kg/W; P_phantom/P_src {p_ph / p_src_ccw:.6e}")
+        f"{PREDICTED_SIGMA_P:g})"
+    )
+    say(
+        f"SAR (ccw): whole-phantom mean {sar['mean_sar_w_per_kg']:.6e} W/kg, per W of P_src "
+        f"{sar['mean_sar_w_per_kg'] / p_src_ccw:.6e} W/kg/W; P_phantom/P_src {p_ph / p_src_ccw:.6e}"
+    )
 
     _m, rss_per, rss_sum = _rss_gib(comm)
-    say(f"price: build {times['build']:.1f} s, Z50 pair {times.get('z50_pair', 0.0):.1f} s, node "
+    say(
+        f"price: build {times['build']:.1f} s, Z50 pair {times.get('z50_pair', 0.0):.1f} s, node "
         f"pair {times['node_pair']:.1f} s, superposition + partitions {times['superposition']:.1f} s, "
         f"B projections {t_proj:.1f} s + evaluations {t_eval:.1f} s; RSS summed {rss_sum:.2f} GiB; "
-        f"window elapsed {time.perf_counter() - out['t_window']:.1f} s at -n {comm.size}")
+        f"window elapsed {time.perf_counter() - out['t_window']:.1f} s at -n {comm.size}"
+    )
 
     # ---- asserts ---------------------------------------------------------------
     for sense in ("ccw", "cw"):
@@ -832,8 +998,17 @@ def test_wf10_step4a_degree_knob_coding(monkeypatch):
     print(f"[WF-10 step4a K0] degree-2 gates: printed {printed}; asserted {asserted}")
     assert "(R)" in printed and "(Z50)" in printed
     assert not set(printed) & set(asserted)
-    for gate in ("(A0)", "(iv)", "(Deg)", "(P_RC)", "(P_w)", "(Lin)", "(Sigma_P)", "(Sense)",
-                 "(M_B)"):
+    for gate in (
+        "(A0)",
+        "(iv)",
+        "(Deg)",
+        "(P_RC)",
+        "(P_w)",
+        "(Lin)",
+        "(Sigma_P)",
+        "(Sense)",
+        "(M_B)",
+    ):
         assert gate in asserted, gate
     # The records' own arithmetic (exact integers, `…093243Z…:6221–6222`).
     assert N_DOFS_D2_RECORD == 2 * E_RECORD + 2 * F_RECORD
@@ -860,9 +1035,11 @@ def test_wf10_step4a_build_only(monkeypatch):
     ctx = out["ctx"]
     n1, e, f = out["n_dofs"], out["n_edges"], out["n_faces"]
     same = ctx["solver"] is out["solver_built"]
-    say(f"(Deg-1) unset: degree {out['degree']}, solver is _build_f_human's: {same}; unknowns "
+    say(
+        f"(Deg-1) unset: degree {out['degree']}, solver is _build_f_human's: {same}; unknowns "
         f"{n1} vs E {e} (record E {E_RECORD}; ASSERTED exact); F {f} (record {F_RECORD}); "
-        f"build {t_build:.1f} s")
+        f"build {t_build:.1f} s"
+    )
     assert out["degree"] == 1 and ctx["solver"].degree == 1
     assert same, "(Deg-1) the unset path rebuilt the solver: the knob leaks"
     assert n1 == e, (n1, e)
@@ -875,13 +1052,19 @@ def test_wf10_step4a_build_only(monkeypatch):
     n2 = counts2["n_dofs"]
     assert counts2["n_edges"] == e and counts2["n_faces"] == f
     _m, _per, rss_sum = _rss_gib(comm)
-    say(f"(Deg-2) knob 2: degree {deg2} (solver.degree {solver2.degree}); unknowns {n2} vs "
+    say(
+        f"(Deg-2) knob 2: degree {deg2} (solver.degree {solver2.degree}); unknowns {n2} vs "
         f"2E+2F = {2 * e + 2 * f} (record {N_DOFS_D2_RECORD}; ASSERTED exact); degree-2 space "
-        f"{t_d2:.1f} s")
-    say(f"NEG (asserted, rule (e)): n(2) {n2} != n(1) {n1}; n(2)/n(1) = {n2 / n1:.6f} vs "
-        f"(2E+2F)/E = {(2 * e + 2 * f) / e:.6f} (exact integer identity ASSERTED)")
-    say(f"RSS after the degree-2 space, summed {rss_sum:.2f} GiB (PREDICTED <= "
-        f"{PREDICTED_RSS_D2_GIB:g}; WF-12 4a at build {RSS_D2_BUILD_RECORD_GIB} GiB; printed)")
+        f"{t_d2:.1f} s"
+    )
+    say(
+        f"NEG (asserted, rule (e)): n(2) {n2} != n(1) {n1}; n(2)/n(1) = {n2 / n1:.6f} vs "
+        f"(2E+2F)/E = {(2 * e + 2 * f) / e:.6f} (exact integer identity ASSERTED)"
+    )
+    say(
+        f"RSS after the degree-2 space, summed {rss_sum:.2f} GiB (PREDICTED <= "
+        f"{PREDICTED_RSS_D2_GIB:g}; WF-12 4a at build {RSS_D2_BUILD_RECORD_GIB} GiB; printed)"
+    )
     assert deg2 == 2 and solver2.degree == 2 and ctx["solver"] is solver2
     assert n2 == 2 * e + 2 * f, (n2, e, f)
     assert n2 != n1
@@ -918,9 +1101,11 @@ def test_wf10_step4c_node_knob_coding(monkeypatch):
     assert p2n != p2 and p2n != NODE_JSON
     with pytest.raises(ValueError):
         _node_json_path(None, c_pf=C_IN_F_HUMAN_D2_PF)
-    print(f"[WF-10 step4c N0] knob unset -> {C_IN_F_HUMAN_PF} pF; d2root + degree 2 -> "
-          f"{C_IN_F_HUMAN_D2_PF} pF (secant {C_IN_SECANT_D2_PF:.6f}); paths: {p2} / {p2n} "
-          f"(ASSERTED)")
+    print(
+        f"[WF-10 step4c N0] knob unset -> {C_IN_F_HUMAN_PF} pF; d2root + degree 2 -> "
+        f"{C_IN_F_HUMAN_D2_PF} pF (secant {C_IN_SECANT_D2_PF:.6f}); paths: {p2} / {p2n} "
+        f"(ASSERTED)"
+    )
 
     # (N2) the closed form Z_RC = r - j/(2 pi f C), and the asserted separation.
     im = {}
@@ -930,13 +1115,17 @@ def test_wf10_step4c_node_knob_coding(monkeypatch):
         ref = ESR_OHM - 1j / (2.0 * np.pi * float(FREQUENCY_HZ) * c_f)
         rel = abs(z - ref) / abs(ref)
         im[c_pf] = z.imag
-        print(f"[WF-10 step4c N2] C {c_pf} pF: Z_RC {z:.12e} vs closed form {ref:.12e}, rel "
-              f"{rel:.3e} (band 1e-12, ASSERTED)")
+        print(
+            f"[WF-10 step4c N2] C {c_pf} pF: Z_RC {z:.12e} vs closed form {ref:.12e}, rel "
+            f"{rel:.3e} (band 1e-12, ASSERTED)"
+        )
         assert rel <= 1e-12, (c_pf, rel)
     ratio = im[C_IN_F_HUMAN_D2_PF] / im[C_IN_F_HUMAN_PF]
     want = C_IN_F_HUMAN_PF / C_IN_F_HUMAN_D2_PF
-    print(f"[WF-10 step4c N2] NEG separation Im Z_RC(d2) / Im Z_RC(d1) = {ratio:.6f} vs "
-          f"118.2437/115.5209 = {want:.6f} (ASSERTED to 1e-12 rel; a knob-blind builder gives 1)")
+    print(
+        f"[WF-10 step4c N2] NEG separation Im Z_RC(d2) / Im Z_RC(d1) = {ratio:.6f} vs "
+        f"118.2437/115.5209 = {want:.6f} (ASSERTED to 1e-12 rel; a knob-blind builder gives 1)"
+    )
     assert abs(ratio / want - 1.0) <= 1e-12, (ratio, want)
     assert abs(ratio - 1.0) > 1e-2, ratio
 
@@ -965,14 +1154,20 @@ def test_wf10_step4c_build_only():
     pfs = comm.allgather(_node_pf())
     exists_after = os.path.exists(out["node_json"])
     _m, _per, rss_sum = _rss_gib(comm)
-    say(f"(Deg-2) degree {out['degree']}; unknowns {n2} vs 2E+2F = {2 * e + 2 * f} (record "
-        f"{N_DOFS_D2_RECORD}; ASSERTED exact); cells {out['cells']}")
-    say(f"node: c_in_pf {out['c_in_pf']} (want {C_IN_F_HUMAN_D2_PF}, ASSERTED exact; a knob-blind "
+    say(
+        f"(Deg-2) degree {out['degree']}; unknowns {n2} vs 2E+2F = {2 * e + 2 * f} (record "
+        f"{N_DOFS_D2_RECORD}; ASSERTED exact); cells {out['cells']}"
+    )
+    say(
+        f"node: c_in_pf {out['c_in_pf']} (want {C_IN_F_HUMAN_D2_PF}, ASSERTED exact; a knob-blind "
         f"builder returns {C_IN_F_HUMAN_PF}); node_json {os.path.basename(out['node_json'])} "
         f"(ASSERTED); per-rank _node_pf {pfs}; file existed before {existed_before}, after "
-        f"{exists_after} (absent ASSERTED)")
-    say(f"build {t_build:.1f} s; RSS summed {rss_sum:.2f} GiB (PREDICTED <= "
-        f"{PREDICTED_RSS_D2_GIB:g}; H26a W1 110.0 s / {RSS_D2_BUILD_RECORD_GIB} GiB; printed)")
+        f"{exists_after} (absent ASSERTED)"
+    )
+    say(
+        f"build {t_build:.1f} s; RSS summed {rss_sum:.2f} GiB (PREDICTED <= "
+        f"{PREDICTED_RSS_D2_GIB:g}; H26a W1 110.0 s / {RSS_D2_BUILD_RECORD_GIB} GiB; printed)"
+    )
     assert out["degree"] == 2
     assert n2 == 2 * e + 2 * f == N_DOFS_D2_RECORD, (n2, e, f)
     assert out["c_in_pf"] == C_IN_F_HUMAN_D2_PF, out["c_in_pf"]

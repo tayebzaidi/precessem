@@ -24,18 +24,14 @@ import time
 import pytest
 from mpi4py import MPI
 
-from fem_em_solver import StudyConfigError, cli, load_study, run_study_file
-from fem_em_solver import study_yaml
+from fem_em_solver import StudyConfigError, cli, load_study, run_study_file, study_yaml
 from fem_em_solver.study import (
     FHumanBirdcageGeometry,
     FourPortBirdcageGeometry,
     SphereInBoxGeometry,
 )
 from fem_em_solver.study_yaml import _parse_mapping, _study_from_mapping, _tune_summary
-
 from tests.complex_mode import complex_only
-from tests.package.test_wf16_study_copper import _rel_means
-from tests.package.test_wf16_study_tune import TH17_STEP3_C_MODE_RECORD_F
 from tests.package.test_wf1_study_yaml import (
     LOGS,
     WF1,
@@ -45,6 +41,8 @@ from tests.package.test_wf1_study_yaml import (
     _spec_diff,
 )
 from tests.package.test_wf1_yaml_copper import PEC_CONTROL_FILE, _py_copper
+from tests.package.test_wf16_study_copper import _rel_means
+from tests.package.test_wf16_study_tune import TH17_STEP3_C_MODE_RECORD_F
 from tests.validation.test_ans6_exact_strip import (
     ANS6_EXACT_STRIP_CLASS_MEANS_P1,
     ANS6_EXACT_STRIP_HOLE_CELL_RECORD,
@@ -89,8 +87,10 @@ def test_wf1_s11_tune_parse_and_refusals(monkeypatch):
     d_ctl = _spec_diff(load_study(TUNE_FILE), load_study(PEC_CONTROL_FILE))
     out_tune = study_yaml._load(TUNE_FILE)[2]
     out_ctl = study_yaml._load(PEC_CONTROL_FILE)[2]
-    _p0(f"\n[WF-1 s11] (K) diff vs _py_copper('pec') {d_py}; vs PEC control {d_ctl}; "
-        f"parsed outputs {out_tune!r}; control outputs {out_ctl!r}")
+    _p0(
+        f"\n[WF-1 s11] (K) diff vs _py_copper('pec') {d_py}; vs PEC control {d_ctl}; "
+        f"parsed outputs {out_tune!r}; control outputs {out_ctl!r}"
+    )
     assert d_py == [], d_py
     assert d_ctl == [], d_ctl
     assert out_tune == {"tune": {"k": 1}}
@@ -123,9 +123,13 @@ def test_wf1_s11_tune_parse_and_refusals(monkeypatch):
     # (X) mapping variants
     base = _mapping(TUNE_FILE)
     variants = []
-    for label, tune_value in (("k: 3", {"k": 3}), ("k: 1.0", {"k": 1.0}),
-                              ("k: true", {"k": True}), ("mode: 1", {"mode": 1}),
-                              ("tune: 1", 1)):
+    for label, tune_value in (
+        ("k: 3", {"k": 3}),
+        ("k: 1.0", {"k": 1.0}),
+        ("k: true", {"k": True}),
+        ("mode: 1", {"mode": 1}),
+        ("tune: 1", 1),
+    ):
         m = copy.deepcopy(base)
         m["tune"] = tune_value
         variants.append((label, m))
@@ -155,8 +159,9 @@ def test_wf1_s11_tune_parse_and_refusals(monkeypatch):
 @pytest.fixture(scope="module")
 def runs():
     comm = MPI.COMM_WORLD
-    assert comm.size == ANS6_EXACT_STRIP_RECORD_RANK_WIDTH, (
-        f"asserted at -n {ANS6_EXACT_STRIP_RECORD_RANK_WIDTH}; got -n {comm.size}")
+    assert (
+        comm.size == ANS6_EXACT_STRIP_RECORD_RANK_WIDTH
+    ), f"asserted at -n {ANS6_EXACT_STRIP_RECORD_RANK_WIDTH}; got -n {comm.size}"
     d = LOGS / "f_small_hole_pec_tune"
     _fresh_dir(d, comm)
     t0 = time.perf_counter()
@@ -172,14 +177,25 @@ def runs():
     py_res = py.solve(comm)
     t_py = time.perf_counter() - t0
     pyt = py.tune(k=1, comm=comm)
-    _p0(f"\n[WF-1 s11] YAML build: cells {run.result.cells}, mesh {run.result.mesh_time:.1f} s, "
+    _p0(
+        f"\n[WF-1 s11] YAML build: cells {run.result.cells}, mesh {run.result.mesh_time:.1f} s, "
         f"sweep {run.result.sweep_time:.1f} s; run_study_file {t_run:.1f} s; "
-        f"summary elapsed_s {summary.get('elapsed_s')}")
-    _p0(f"[WF-1 s11] Python build: cells {py_res.cells}, mesh {py_res.mesh_time:.1f} s, "
-        f"sweep {py_res.sweep_time:.1f} s; total {t_py:.1f} s")
+        f"summary elapsed_s {summary.get('elapsed_s')}"
+    )
+    _p0(
+        f"[WF-1 s11] Python build: cells {py_res.cells}, mesh {py_res.mesh_time:.1f} s, "
+        f"sweep {py_res.sweep_time:.1f} s; total {t_py:.1f} s"
+    )
     _p0(f"[WF-1 s11] summary tune {summary['tune']}")
-    return {"run": run, "summary": summary, "res0": res0, "api1": api1,
-            "same_after_api": same_after_api, "py": py, "pyt": pyt}
+    return {
+        "run": run,
+        "summary": summary,
+        "res0": res0,
+        "api1": api1,
+        "same_after_api": same_after_api,
+        "py": py,
+        "pyt": pyt,
+    }
 
 
 @complex_only
@@ -188,9 +204,11 @@ def test_wf1_s11_r0_fixture_tie(runs):
     run, summary = runs["run"], runs["summary"]
     assert summary["cells"] == ANS6_EXACT_STRIP_HOLE_CELL_RECORD
     rel = _rel_means(_class_means(run.result.s_matrix), ANS6_EXACT_STRIP_CLASS_MEANS_P1[KEY]["pec"])
-    _p0(f"\n[WF-1 s11 R0] cells {summary['cells']}; class-mean rel vs 'pec' record: "
+    _p0(
+        f"\n[WF-1 s11 R0] cells {summary['cells']}; class-mean rel vs 'pec' record: "
         + ", ".join(f"{c} {rel[c]:.3e}" for c in CLASSES)
-        + f" (band {LEG_D0_REPRODUCTION_BAND:.0e})")
+        + f" (band {LEG_D0_REPRODUCTION_BAND:.0e})"
+    )
     for c in CLASSES:
         assert rel[c] <= LEG_D0_REPRODUCTION_BAND, (c, rel[c])
 
@@ -225,9 +243,11 @@ def test_wf1_s11_yaml_equals_python_route(runs):
     c_yaml = runs["summary"]["tune"]["c_mode_farad"]
     c_py = runs["pyt"].c_mode_farad
     rel = abs(c_yaml / c_py - 1.0)
-    _p0(f"\n[WF-1 s11 I-Py] YAML C {c_yaml:.12e} vs Python C {c_py:.12e}: rel {rel:.3e} "
+    _p0(
+        f"\n[WF-1 s11 I-Py] YAML C {c_yaml:.12e} vs Python C {c_py:.12e}: rel {rel:.3e} "
         f"(band {LEG_D0_REPRODUCTION_BAND:.0e}; predicted <= 1e-14); hex equal "
-        f"{c_yaml.hex() == c_py.hex()} (printed, never asserted)")
+        f"{c_yaml.hex() == c_py.hex()} (printed, never asserted)"
+    )
     assert rel <= LEG_D0_REPRODUCTION_BAND
 
 
@@ -236,9 +256,11 @@ def test_wf1_s11_c_mode_equals_th17_record(runs):
     """(a): the YAML C_mode within REDUCTION_BAND of `TH-17`'s record."""
     c = runs["summary"]["tune"]["c_mode_farad"]
     gap = c / TH17_STEP3_C_MODE_RECORD_F - 1.0
-    _p0(f"\n[WF-1 s11 a] C_mode = {c:.9e} F; record {TH17_STEP3_C_MODE_RECORD_F:.9e} F; gap "
+    _p0(
+        f"\n[WF-1 s11 a] C_mode = {c:.9e} F; record {TH17_STEP3_C_MODE_RECORD_F:.9e} F; gap "
         f"{gap:+.6e} (predicted -2.977e-4 in [-3.0e-4, -2.95e-4]; item 429 measured "
-        f"{ITEM429_A_PRINT:+.6e}, printed); band {REDUCTION_BAND:.1e}")
+        f"{ITEM429_A_PRINT:+.6e}, printed); band {REDUCTION_BAND:.1e}"
+    )
     assert abs(gap) <= REDUCTION_BAND
 
 
@@ -254,6 +276,8 @@ def test_wf1_s11_c1_mode_index_control(runs):
     assert runs["run"].study.result is runs["res0"]
     assert t2["k"] == 2
     gap = t2["c_mode_farad"] / TH17_STEP3_C_MODE_RECORD_F - 1.0
-    _p0(f"\n[WF-1 s11 c1] k = 2 C = {t2['c_mode_farad']:.9e} F, gap {gap:+.6e} "
-        f"({abs(gap) / REDUCTION_BAND:.1f}x band; item 429 measured +48.95 %)")
+    _p0(
+        f"\n[WF-1 s11 c1] k = 2 C = {t2['c_mode_farad']:.9e} F, gap {gap:+.6e} "
+        f"({abs(gap) / REDUCTION_BAND:.1f}x band; item 429 measured +48.95 %)"
+    )
     assert abs(gap) > REDUCTION_BAND

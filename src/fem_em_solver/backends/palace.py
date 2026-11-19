@@ -31,9 +31,7 @@ class PalaceRunRequired(RuntimeError):
     def __init__(self, argv, cwd):
         self.argv = list(argv)
         self.cwd = Path(cwd)
-        super().__init__(
-            f"palace run required: (cd {self.cwd} && {' '.join(self.argv)})"
-        )
+        super().__init__(f"palace run required: (cd {self.cwd} && {' '.join(self.argv)})")
 
 
 @dataclass
@@ -65,9 +63,7 @@ def write_gmsh22(path, msh, cell_tags, tri_blocks):
     if not np.all(ctag > 0):
         raise ValueError("an untagged tet")
     p = x[cells]
-    vol6 = np.einsum(
-        "ij,ij->i", np.cross(p[:, 1] - p[:, 0], p[:, 2] - p[:, 0]), p[:, 3] - p[:, 0]
-    )
+    vol6 = np.einsum("ij,ij->i", np.cross(p[:, 1] - p[:, 0], p[:, 2] - p[:, 0]), p[:, 3] - p[:, 0])
     neg = vol6 < 0
     cells[neg, 2], cells[neg, 3] = cells[neg, 3].copy(), cells[neg, 2].copy()
     ntri = sum(b.shape[0] for b, _ in tri_blocks)
@@ -90,8 +86,9 @@ def write_gmsh22(path, msh, cell_tags, tri_blocks):
     return ctag
 
 
-def palace_config(*, mesh_name, output, materials, ports, order, freq_ghz, r_ohm,
-                  conductivity=None):
+def palace_config(
+    *, mesh_name, output, materials, ports, order, freq_ghz, r_ohm, conductivity=None
+):
     """The probe's ``config()`` (lines 336-361) with Order / Freq as arguments.
 
     ``conductivity`` (``ARCH-1`` step 1f, §9 item 631): a list of Palace
@@ -121,8 +118,7 @@ def palace_config(*, mesh_name, output, materials, ports, order, freq_ghz, r_ohm
             "Order": order,
             "Device": "CPU",
             "Driven": {"Samples": [{"Type": "Point", "Freq": [freq_ghz]}]},
-            "Linear": {"Type": "MUMPS", "KSPType": "GMRES", "Tol": 1.0e-10,
-                       "MaxIts": 100},
+            "Linear": {"Type": "MUMPS", "KSPType": "GMRES", "Tol": 1.0e-10, "MaxIts": 100},
         },
     }
     if conductivity is not None:
@@ -134,8 +130,18 @@ def _sha256(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
-def write_case(geometry, built, case_dir, *, materials_phantom, order, freq_ghz,
-               r_ohm, comm, hole_wall_sigma=None):
+def write_case(
+    geometry,
+    built,
+    case_dir,
+    *,
+    materials_phantom,
+    order,
+    freq_ghz,
+    r_ohm,
+    comm,
+    hole_wall_sigma=None,
+):
     """Write ``case.json`` / ``mesh.msh`` / ``case.sha256`` (serial only).
 
     Existing files are compared byte for byte; a difference raises
@@ -154,10 +160,14 @@ def write_case(geometry, built, case_dir, *, materials_phantom, order, freq_ghz,
     fdim = tdim - 1
     ports = list(range(1, geometry.leg_count + 1))
     tags_full, _areas = _sheet_areas(
-        msh, cell_tags, ports, comm, geometry.sheet_iface, geometry.port_lower,
+        msh,
+        cell_tags,
+        ports,
+        comm,
+        geometry.sheet_iface,
+        geometry.port_lower,
         geometry.port_upper,
     )
-    x = np.asarray(msh.geometry.x, dtype=float)
 
     def facet_nodes(facets):
         facets = np.asarray(facets, dtype=np.int32)
@@ -185,11 +195,11 @@ def write_case(geometry, built, case_dir, *, materials_phantom, order, freq_ghz,
         if not wall.size or not np.all(np.isin(wall, ext)):
             raise RuntimeError(f"hole wall (tag {wall_attr}): empty or not exterior")
         box = np.setdiff1d(ext, wall).astype(np.int32)
-        tri_blocks = [(facet_nodes(box), PALACE_EXTERIOR_ATTR),
-                      (facet_nodes(wall), wall_attr)]
+        tri_blocks = [(facet_nodes(box), PALACE_EXTERIOR_ATTR), (facet_nodes(wall), wall_attr)]
         # The Conductivity block, as ops61_step1a_palace_ans4.py:1533-1536 writes it.
-        conductivity = [{"Attributes": [wall_attr],
-                         "Conductivity": float(hole_wall_sigma), "Permeability": 1.0}]
+        conductivity = [
+            {"Attributes": [wall_attr], "Conductivity": float(hole_wall_sigma), "Permeability": 1.0}
+        ]
     for i in ports:
         tag = geometry.sheet_iface + i
         full = np.asarray(tags_full.find(tag), dtype=np.int32)
@@ -207,30 +217,44 @@ def write_case(geometry, built, case_dir, *, materials_phantom, order, freq_ghz,
     air = [t for t in tags if t not in (geometry.conductor_tag, geometry.phantom_tag)]
     eps_r, sigma = materials_phantom
     phantom_air = [
-        {"Attributes": [geometry.phantom_tag], "Permeability": 1.0,
-         "Permittivity": eps_r, "Conductivity": sigma},
+        {
+            "Attributes": [geometry.phantom_tag],
+            "Permeability": 1.0,
+            "Permittivity": eps_r,
+            "Conductivity": sigma,
+        },
         {"Attributes": air, "Permeability": 1.0, "Permittivity": 1.0},
     ]
     if hole_wall_sigma is None:
         materials = [
-            {"Attributes": [geometry.conductor_tag], "Permeability": 1.0,
-             "Permittivity": 1.0, "Conductivity": geometry.conductor_sigma_s_per_m},
+            {
+                "Attributes": [geometry.conductor_tag],
+                "Permeability": 1.0,
+                "Permittivity": 1.0,
+                "Conductivity": geometry.conductor_sigma_s_per_m,
+            },
             *phantom_air,
         ]
     else:
         # The hole has no conductor volume: phantom + air, the probe's order
         # (ops61_step1a_palace_ans4.py, export_hole_pec step 5).
         materials = phantom_air
-    cfg = palace_config(mesh_name="mesh.msh", output="postpro", materials=materials,
-                        ports=ports, order=order, freq_ghz=freq_ghz, r_ohm=r_ohm,
-                        conductivity=conductivity)
+    cfg = palace_config(
+        mesh_name="mesh.msh",
+        output="postpro",
+        materials=materials,
+        ports=ports,
+        order=order,
+        freq_ghz=freq_ghz,
+        r_ohm=r_ohm,
+        conductivity=conductivity,
+    )
     staging = {"case.json": json.dumps(cfg, indent=2) + "\n"}
     tmp_mesh = case_dir / "mesh.msh.new"
     write_gmsh22(tmp_mesh, msh, cell_tags, tri_blocks)
     for name in CASE_FILES:
         target = case_dir / name
-        new_bytes = (staging[name].encode() if name in staging
-                     else tmp_mesh.read_bytes())
+        new_bytes = staging[name].encode() if name in staging else tmp_mesh.read_bytes()
         if target.exists():
             if target.read_bytes() != new_bytes:
                 tmp_mesh.unlink()
@@ -253,8 +277,9 @@ def solve_palace(study, comm, *, case_dir, palace_ranks=8):
 
     geo = study.geometry
     if type(geo) is not FourPortBirdcageGeometry:
-        raise TypeError(f"backend='palace' supports FourPortBirdcageGeometry only, "
-                        f"got {type(geo).__name__}")
+        raise TypeError(
+            f"backend='palace' supports FourPortBirdcageGeometry only, " f"got {type(geo).__name__}"
+        )
     if geo.implant_rod is not None:  # `WF-15` step 10: the case carries no rod-wall boundary
         raise ValueError("backend='palace': implant_rod is not supported")
     # ARCH-1 step 1f (§9 item 631): as_hole=True is accepted together with a
@@ -262,18 +287,23 @@ def solve_palace(study, comm, *, case_dir, palace_ranks=8):
     hole_wall_sigma = None
     if geo.as_hole:
         if type(study.conductor) is not LeontovichWall:
-            raise ValueError("backend='palace': as_hole=True is not supported "
-                             "without a LeontovichWall conductor")
+            raise ValueError(
+                "backend='palace': as_hole=True is not supported "
+                "without a LeontovichWall conductor"
+            )
         hole_wall_sigma = float(study.conductor.sigma_s_per_m)
     elif study.conductor is not None:
         raise ValueError("backend='palace': a conductor is not supported")
     if type(study.excitation) is not LumpedPortDrive:
-        raise TypeError(f"backend='palace' needs a LumpedPortDrive, got "
-                        f"{type(study.excitation).__name__}")
+        raise TypeError(
+            f"backend='palace' needs a LumpedPortDrive, got " f"{type(study.excitation).__name__}"
+        )
     drv = study.excitation
     if drv.z0_ohm != drv.port_impedance_ohm:
-        raise ValueError("backend='palace': z0_ohm must equal port_impedance_ohm "
-                         "(Palace's S is referenced to R)")
+        raise ValueError(
+            "backend='palace': z0_ohm must equal port_impedance_ohm "
+            "(Palace's S is referenced to R)"
+        )
     if case_dir is None:
         raise ValueError("backend='palace' needs case_dir")
     if comm.size != 1:
@@ -283,16 +313,20 @@ def solve_palace(study, comm, *, case_dir, palace_ranks=8):
     freq_ghz = study.frequency_hz / 1e9
     built = geo.build(comm)
     sha = write_case(
-        geo, built, case_dir,
+        geo,
+        built,
+        case_dir,
         materials_phantom=(study.material.epsilon_r, study.material.sigma),
-        order=study.degree, freq_ghz=freq_ghz, r_ohm=drv.port_impedance_ohm,
-        comm=comm, hole_wall_sigma=hole_wall_sigma,
+        order=study.degree,
+        freq_ghz=freq_ghz,
+        r_ohm=drv.port_impedance_ohm,
+        comm=comm,
+        hole_wall_sigma=hole_wall_sigma,
     )
     case_dir = Path(case_dir)
     csv_path = case_dir / "postpro" / "port-S.csv"
     if not csv_path.exists():
-        raise PalaceRunRequired(["palace", "-np", str(int(palace_ranks)), "case.json"],
-                                case_dir)
+        raise PalaceRunRequired(["palace", "-np", str(int(palace_ranks)), "case.json"], case_dir)
     s, f = read_port_s(csv_path)
     if f != freq_ghz:
         raise ValueError(f"port-S.csv frequency {f} GHz != case Freq {freq_ghz} GHz")
@@ -304,8 +338,12 @@ def solve_palace(study, comm, *, case_dir, palace_ranks=8):
         except (KeyError, TypeError, ValueError):
             total = None
     return PalaceStudyResult(
-        s_matrix=s, frequency_hz=study.frequency_hz, order=study.degree,
-        cells=int(built["cells"]), case_dir=case_dir, sha256=sha,
+        s_matrix=s,
+        frequency_hz=study.frequency_hz,
+        order=study.degree,
+        cells=int(built["cells"]),
+        case_dir=case_dir,
+        sha256=sha,
         palace_total_s=total,
     )
 

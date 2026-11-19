@@ -57,15 +57,19 @@ def _dz_drift(p, t_w):
 def test_preconditions():
     assert ADJ_PT[2] / C_BOX == 0.9 and abs(P5[2] / C_BOX - 1.0) <= 1e-14
     assert abs(GRID[-1] / T_STAR - 1.0) <= 1e-14
-    _say(f"MAT21-31 ADJ_PT z/C {ADJ_PT[2] / C_BOX:g}, P5 z/C {P5[2] / C_BOX:g}, {GRID.size} rows, "
-         f"{DZ_ROOTS.size} z roots; bars DOSE {DOSE_BAR:g}, SYM0 {SYM0_BAR:g}")
+    _say(
+        f"MAT21-31 ADJ_PT z/C {ADJ_PT[2] / C_BOX:g}, P5 z/C {P5[2] / C_BOX:g}, {GRID.size} rows, "
+        f"{DZ_ROOTS.size} z roots; bars DOSE {DOSE_BAR:g}, SYM0 {SYM0_BAR:g}"
+    )
 
 
 def test_rep_face_control_and_drift_at_p5():
     ref = _ref(P5)
     miss = abs(_dose(ref + _dz_drift(P5, 0.0)) / _dose(_hist(P5, 0.0)) - 1.0)
-    _say(f"MAT21-31 (Rep) P5, t_w = 0: miss {miss:.4e} vs item 727's {FACE_MISS:.4e}, |diff| "
-         f"{abs(miss - FACE_MISS):.3e} (bound {FACE_TOL:g}, ASSERTED)")
+    _say(
+        f"MAT21-31 (Rep) P5, t_w = 0: miss {miss:.4e} vs item 727's {FACE_MISS:.4e}, |diff| "
+        f"{abs(miss - FACE_MISS):.3e} (bound {FACE_TOL:g}, ASSERTED)"
+    )
     assert abs(miss - FACE_MISS) <= FACE_TOL, miss
 
     worst = 0.0
@@ -82,8 +86,10 @@ def test_dz_int_and_q_w_at_adj_pt():
     d_ref = _dose(ref)
     worst_q = 0.0
     first_miss = None
-    _say("MAT21-31 TABLE t_w lambda_1 | D Dirichlet s | D Robin s | miss | Robin D/D_ref-1 | "
-         "Dirichlet D/D_ref-1 | Dirichlet-Robin drift at t* / (g C)")
+    _say(
+        "MAT21-31 TABLE t_w lambda_1 | D Dirichlet s | D Robin s | miss | Robin D/D_ref-1 | "
+        "Dirichlet D/D_ref-1 | Dirichlet-Robin drift at t* / (g C)"
+    )
     for c, w in zip(WAIT_COEF, WAITS):
         dz = _dz_drift(ADJ_PT, w)
         d_dz, _quad, rel, _swap, _rc = _q_check_g(T_INF + ref + dz, GRID)
@@ -94,8 +100,10 @@ def test_dz_int_and_q_w_at_adj_pt():
         miss = abs(d_dz / d_rb - 1.0)
         first_miss = miss if first_miss is None else first_miss
         diff = (dz[-1] - (th[-1] - ref[-1])) / GC
-        _say(f"MAT21-31 TABLE {c} | {d_dz:.6e} | {d_rb:.6e} | {miss:.4e} | "
-             f"{d_rb / d_ref - 1.0:+.6e} | {d_dz / d_ref - 1.0:+.6e} | {diff:+.6e}")
+        _say(
+            f"MAT21-31 TABLE {c} | {d_dz:.6e} | {d_rb:.6e} | {miss:.4e} | "
+            f"{d_rb / d_ref - 1.0:+.6e} | {d_dz / d_ref - 1.0:+.6e} | {diff:+.6e}"
+        )
     _say(f"MAT21-31 (Q-w) Dirichlet histories worst rel {worst_q:.3e} (bar {DOSE_BAR:g}, ASSERTED)")
     _say(f"MAT21-31 (Dz-int) ADJ_PT, t_w = 0: miss {first_miss:.4e} (asserted > {DOSE_BAR:g})")
     assert first_miss > DOSE_BAR, first_miss

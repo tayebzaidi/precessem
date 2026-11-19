@@ -98,8 +98,10 @@ def pml_slab_term(msh, x_start, thickness, s_max, order, omega_rad_s):
     dx = ufl.Measure("dx", domain=msh, metadata={"quadrature_degree": 6})
 
     def form(trial, test):
-        return (ufl.inner((lam_inv - eye) * ufl.curl(trial), ufl.curl(test))
-                - k0 * k0 * ufl.inner((lam - eye) * trial, test)) * dx
+        return (
+            ufl.inner((lam_inv - eye) * ufl.curl(trial), ufl.curl(test))
+            - k0 * k0 * ufl.inner((lam - eye) * trial, test)
+        ) * dx
 
     return form
 

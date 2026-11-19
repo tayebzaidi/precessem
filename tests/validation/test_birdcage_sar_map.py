@@ -166,7 +166,6 @@ from mpi4py import MPI
 
 from fem_em_solver.post import mean_sar, project_to_cg1, project_to_cg1_restricted
 from fem_em_solver.post.sar import point_sar
-
 from tests.complex_mode import complex_only
 from tests.validation.test_birdcage_b1_plus_map import (  # noqa: F401 — fixtures
     C4_COVARIANCE_BAND,
@@ -412,8 +411,7 @@ def sar_map(b1_plus_map):
 
     order = sorted(solves)
     indices = {
-        pid: _port_index(azimuths[pid], azimuths["P1"], QUADRATURE_STEP_DEG)
-        for pid in order
+        pid: _port_index(azimuths[pid], azimuths["P1"], QUADRATURE_STEP_DEG) for pid in order
     }
     ks = [indices[pid] for pid in order]
 
@@ -426,9 +424,7 @@ def sar_map(b1_plus_map):
         "P3@+90deg": ("P3", _rotate_z(points, delta)),
     }
     single = {
-        label: point_sar(
-            solves[pid]["fields"].e_real, solves[pid]["fields"].e_imag, pts, **kwargs
-        )
+        label: point_sar(solves[pid]["fields"].e_real, solves[pid]["fields"].e_imag, pts, **kwargs)
         for label, (pid, pts) in images.items()
     }
 
@@ -459,9 +455,7 @@ def sar_map(b1_plus_map):
         ),
     }
     controls = {
-        "mis-rotated SAR_P3(Rx) vs SAR_P1(x)": _relative_l2(
-            single["P3@+90deg"], reference, full
-        ),
+        "mis-rotated SAR_P3(Rx) vs SAR_P1(x)": _relative_l2(single["P3@+90deg"], reference, full),
         "quadrature SAR_ccw(x) vs single-drive SAR_P1(x)": _relative_l2(
             quad[("ccw", "x")], reference, full
         ),
@@ -586,9 +580,12 @@ def test_the_sample_set_is_a_map_and_not_a_handful_of_cells(sar_map):
         f"only {sar_map['n_points']} sample points — below step 1's floor of "
         f"{MIN_SAMPLE_POINTS}, at which the identities stop being map readings"
     )
-    assert sorted(sar_map["indices"].values()) == [0, 1, 2, 3], (
-        f"the four sheets do not occupy the four quadrature slots: {sar_map['indices']}"
-    )
+    assert sorted(sar_map["indices"].values()) == [
+        0,
+        1,
+        2,
+        3,
+    ], f"the four sheets do not occupy the four quadrature slots: {sar_map['indices']}"
 
 
 @complex_only
@@ -722,9 +719,7 @@ def test_mean_sar_reproduces_step_1s_phantom_power_record(sar_map):
     record regardless of the ρ this module passes.
     """
     measured = sar_map["phantom_power_w"]
-    assert measured == pytest.approx(
-        STEP1_GATE_I_P1_PHANTOM_POWER_W, rel=CG1_RECORD_RTOL
-    ), (
+    assert measured == pytest.approx(STEP1_GATE_I_P1_PHANTOM_POWER_W, rel=CG1_RECORD_RTOL), (
         f"the phantom's dissipated power reads {measured:.9e} W, not step 1's "
         f"{STEP1_GATE_I_P1_PHANTOM_POWER_W:.9e} W — this leg is not on step 1's "
         "fixture, and the point-SAR map above is a map of some other solve"
@@ -757,8 +752,7 @@ def sar_map_cg1(sar_map, b1_plus_map):
     ks = [sar_map["indices"][pid] for pid in order]
 
     projected = {
-        pid: project_to_cg1(solves[pid]["fields"].e_complex, name=f"E_cg1_{pid}")
-        for pid in order
+        pid: project_to_cg1(solves[pid]["fields"].e_complex, name=f"E_cg1_{pid}") for pid in order
     }
     split = {pid: _split_complex(projected[pid], f"E_cg1_{pid}") for pid in order}
 
@@ -770,10 +764,7 @@ def sar_map_cg1(sar_map, b1_plus_map):
         "P3@180deg": ("P3", _rotate_z(points, 2.0 * delta)),
         "P3@+90deg": ("P3", _rotate_z(points, delta)),
     }
-    single = {
-        label: point_sar(*split[pid], pts, **kwargs)
-        for label, (pid, pts) in images.items()
-    }
+    single = {label: point_sar(*split[pid], pts, **kwargs) for label, (pid, pts) in images.items()}
 
     mirrored = _mirror_xy(points, azimuths["P1"])
     rotated = _rotate_z(points, delta)
@@ -808,9 +799,7 @@ def sar_map_cg1(sar_map, b1_plus_map):
         ),
     }
     controls = {
-        "mis-rotated SAR_P3(Rx) vs SAR_P1(x)": _relative_l2(
-            single["P3@+90deg"], reference, full
-        ),
+        "mis-rotated SAR_P3(Rx) vs SAR_P1(x)": _relative_l2(single["P3@+90deg"], reference, full),
         "quadrature SAR_ccw(x) vs single-drive SAR_P1(x)": _relative_l2(
             quad[("ccw", "x")], reference, full
         ),
@@ -998,9 +987,7 @@ def _affine_field(x):
 
 def _quadratic_field(x):
     """``x² ê_x`` — in neither ``N1curl₁`` nor ``CG1³``, the control's control."""
-    return np.array(
-        [x[0] ** 2, np.zeros_like(x[0]), np.zeros_like(x[0])], dtype=np.complex128
-    )
+    return np.array([x[0] ** 2, np.zeros_like(x[0]), np.zeros_like(x[0])], dtype=np.complex128)
 
 
 def _relative_l2_over_measure(projected, reference, dx):
@@ -1079,9 +1066,7 @@ def projector_diagnosis(b1_plus_map, sar_map_cg1):
     n1curl = e_complex.function_space
 
     # (i) the mass solve on the real E, with its solver exposed.
-    e_cg1, e_diag = project_to_cg1(
-        e_complex, name="E_cg1_P1_diag", return_diagnostics=True
-    )
+    e_cg1, e_diag = project_to_cg1(e_complex, name="E_cg1_P1_diag", return_diagnostics=True)
 
     # (ii) the exact-reproduction control and its control, both interpolated
     # into the *solve's own* N1curl space (the helper refuses real inputs, so
@@ -1095,9 +1080,7 @@ def projector_diagnosis(b1_plus_map, sar_map_cg1):
         source = fem.Function(n1curl, name=f"f_{stem}_n1curl")
         source.interpolate(callable_)
         source.x.scatter_forward()
-        projected, diag = project_to_cg1(
-            source, name=f"f_{stem}_cg1", return_diagnostics=True
-        )
+        projected, diag = project_to_cg1(source, name=f"f_{stem}_cg1", return_diagnostics=True)
         controls[label] = {
             "residual": _relative_l2_over_measure(projected, source, ufl.dx(domain=msh)),
             "diagnostics": diag,
@@ -1112,9 +1095,7 @@ def projector_diagnosis(b1_plus_map, sar_map_cg1):
         np.full(core_cells.size, PHANTOM_CELL_TAG, dtype=np.int32),
     )
     dx_whole = ufl.dx(domain=msh)
-    dx_phantom = ufl.Measure("dx", domain=msh, subdomain_data=sweep["cell_tags"])(
-        PHANTOM_CELL_TAG
-    )
+    dx_phantom = ufl.Measure("dx", domain=msh, subdomain_data=sweep["cell_tags"])(PHANTOM_CELL_TAG)
     dx_core = ufl.Measure("dx", domain=msh, subdomain_data=core_tags)(PHANTOM_CELL_TAG)
     residuals = {
         "whole mesh": _relative_l2_over_measure(e_cg1, e_complex, dx_whole),
@@ -1144,8 +1125,8 @@ def projector_diagnosis(b1_plus_map, sar_map_cg1):
                 flush=True,
             )
         print(
-            f"    (iii) ||E_cg1 - E||/||E|| by domain (PRINTED; the phantom figure "
-            f"also asserted against step 3b's record):",
+            "    (iii) ||E_cg1 - E||/||E|| by domain (PRINTED; the phantom figure "
+            "also asserted against step 3b's record):",
             flush=True,
         )
         for label, value in residuals.items():
@@ -1231,9 +1212,7 @@ def test_the_phantom_projection_residual_reproduces_step_3bs_reading(projector_d
     phantom one, so the phantom one is asserted as a record.
     """
     reading = projector_diagnosis["residuals"]["phantom (tag 3)"]
-    assert reading == pytest.approx(
-        STEP3B_PHANTOM_PROJECTION_RESIDUAL, rel=CG1_RECORD_RTOL
-    ), (
+    assert reading == pytest.approx(STEP3B_PHANTOM_PROJECTION_RESIDUAL, rel=CG1_RECORD_RTOL), (
         f"||E_cg1 - E||/||E|| over the phantom reads {reading * 100:.4f}%, not step "
         f"3b's {STEP3B_PHANTOM_PROJECTION_RESIDUAL * 100:.4f}% (rtol "
         f"{CG1_RECORD_RTOL:.0e}) — this diagnosis is not on step 3b's projection"
@@ -1419,9 +1398,7 @@ def sar_map_restricted(b1_plus_map, sar_map, sar_map_cg1, projector_diagnosis):
     order = sorted(solves)
     ks = [sar_map["indices"][pid] for pid in order]
 
-    dx_phantom = ufl.Measure("dx", domain=msh, subdomain_data=cell_tags)(
-        PHANTOM_CELL_TAG
-    )
+    dx_phantom = ufl.Measure("dx", domain=msh, subdomain_data=cell_tags)(PHANTOM_CELL_TAG)
 
     diagnostics = {}
     projected = {}
@@ -1433,9 +1410,7 @@ def sar_map_restricted(b1_plus_map, sar_map, sar_map_cg1, projector_diagnosis):
             tag=PHANTOM_CELL_TAG,
             return_diagnostics=True,
         )
-    split = {
-        pid: _split_complex(projected[pid], f"E_cg1_restricted_{pid}") for pid in order
-    }
+    split = {pid: _split_complex(projected[pid], f"E_cg1_restricted_{pid}") for pid in order}
 
     # Anchor (i): the best-approximation inequality.  ``P_Ω`` minimises
     # ``‖· − E‖_Ω`` over all of ``CG1³``, and the *global* projection restricted
@@ -1479,10 +1454,7 @@ def sar_map_restricted(b1_plus_map, sar_map, sar_map_cg1, projector_diagnosis):
         "P3@180deg": ("P3", _rotate_z(points, 2.0 * delta)),
         "P3@+90deg": ("P3", _rotate_z(points, delta)),
     }
-    single = {
-        label: point_sar(*split[pid], pts, **kwargs)
-        for label, (pid, pts) in images.items()
-    }
+    single = {label: point_sar(*split[pid], pts, **kwargs) for label, (pid, pts) in images.items()}
 
     mirrored = _mirror_xy(points, azimuths["P1"])
     rotated = _rotate_z(points, delta)
@@ -1517,9 +1489,7 @@ def sar_map_restricted(b1_plus_map, sar_map, sar_map_cg1, projector_diagnosis):
         ),
     }
     controls = {
-        "mis-rotated SAR_P3(Rx) vs SAR_P1(x)": _relative_l2(
-            single["P3@+90deg"], reference, full
-        ),
+        "mis-rotated SAR_P3(Rx) vs SAR_P1(x)": _relative_l2(single["P3@+90deg"], reference, full),
         "quadrature SAR_ccw(x) vs single-drive SAR_P1(x)": _relative_l2(
             quad[("ccw", "x")], reference, full
         ),
@@ -1623,9 +1593,7 @@ def sar_map_restricted(b1_plus_map, sar_map, sar_map_cg1, projector_diagnosis):
         # step 3e's negative control: the *measured* global-fit residual over
         # the same phantom, not the constant, so the separation below is a
         # comparison of two readings from the same run.
-        "global_projection_relative_l2": projector_diagnosis["residuals"][
-            "phantom (tag 3)"
-        ],
+        "global_projection_relative_l2": projector_diagnosis["residuals"]["phantom (tag 3)"],
         "verdict": verdict,
         "verdict_text": verdict_text,
     }
@@ -1633,9 +1601,7 @@ def sar_map_restricted(b1_plus_map, sar_map, sar_map_cg1, projector_diagnosis):
 
 @complex_only
 @pytest.mark.parametrize("label", sorted(STEP3C_PROJECTION_RESIDUAL_RECORDS))
-def test_the_projection_domain_table_reproduces_step_3cs_readings(
-    projector_diagnosis, label
-):
+def test_the_projection_domain_table_reproduces_step_3cs_readings(projector_diagnosis, label):
     """Anchor (iv) on step 3c's own two figures — 32.7802% and 838.8978%.
 
     The phantom figure is step 3b's and is asserted above.  These two are what
@@ -1812,9 +1778,7 @@ def test_the_packaged_restriction_separates_from_the_global_fit(sar_map_restrict
 def test_the_restricted_phantom_residual_reproduces_step_3ds_reading(sar_map_restricted):
     """Anchor (i) as a *record*: 18.7238%, through the packaged path."""
     reading = sar_map_restricted["projection_relative_l2"]
-    assert reading == pytest.approx(
-        STEP3D_RESTRICTED_PHANTOM_RESIDUAL, rel=CG1_RECORD_RTOL
-    ), (
+    assert reading == pytest.approx(STEP3D_RESTRICTED_PHANTOM_RESIDUAL, rel=CG1_RECORD_RTOL), (
         f"the packaged restricted projection leaves {reading * 100:.4f}% over the "
         f"phantom, not step 3d's {STEP3D_RESTRICTED_PHANTOM_RESIDUAL * 100:.4f}% "
         f"(rtol {CG1_RECORD_RTOL:.0e}) — the promotion changed the estimator, not "
@@ -1873,9 +1837,7 @@ def test_every_packaged_restricted_solve_reproduces_step_3ds_solver_record(
 
 @complex_only
 @pytest.mark.parametrize("label", sorted(STEP3D_RESTRICTED_IDENTITY_RECORDS))
-def test_the_restricted_identities_reproduce_step_3ds_readings(
-    sar_map_restricted, label
-):
+def test_the_restricted_identities_reproduce_step_3ds_readings(sar_map_restricted, label):
     """Anchor (v): the five restricted identity readings, reproduced.
 
     A *reproduction*, not a gate — these five sit at 6.1–9.5%, outside the 5%
@@ -1913,9 +1875,7 @@ def test_the_restricted_phantom_power_reproduces_step_3ds_reading(sar_map_restri
     +35 198.9%), and a promotion that changed the fit would move it.
     """
     reading = sar_map_restricted["phantom_power_w"]
-    assert reading == pytest.approx(
-        STEP3D_RESTRICTED_PHANTOM_POWER_W, rel=CG1_RECORD_RTOL
-    ), (
+    assert reading == pytest.approx(STEP3D_RESTRICTED_PHANTOM_POWER_W, rel=CG1_RECORD_RTOL), (
         f"the packaged restricted phantom power reads {reading:.9e} W, not step "
         f"3d's {STEP3D_RESTRICTED_PHANTOM_POWER_W:.9e} W (rtol "
         f"{CG1_RECORD_RTOL:.0e})"
@@ -1987,37 +1947,52 @@ def _cg2_degree_verdict(cg2_identities, cg1_records, controls, band):
     """
     controls_survive = all(value > band for value in controls.values())
     deltas_pp = {
-        label: (cg2_identities[label] - cg1_records[label]) * 100.0
-        for label in cg1_records
+        label: (cg2_identities[label] - cg1_records[label]) * 100.0 for label in cg1_records
     }
     if all(cg2_identities[label] <= band for label in cg1_records) and controls_survive:
-        return "(alpha)", (
-            "all five CG2 identities inside the band with both controls "
-            "surviving — the residual was the ESTIMATOR'S DEGREE, not the "
-            "phantom's cells; verdict (c) is wrong about its cause and "
-            "re-opening the SAR gate question is the NEXT REVIEW's ruling, "
-            "never in-slot"
-        ), deltas_pp
+        return (
+            "(alpha)",
+            (
+                "all five CG2 identities inside the band with both controls "
+                "surviving — the residual was the ESTIMATOR'S DEGREE, not the "
+                "phantom's cells; verdict (c) is wrong about its cause and "
+                "re-opening the SAR gate question is the NEXT REVIEW's ruling, "
+                "never in-slot"
+            ),
+            deltas_pp,
+        )
     if all(abs(value) < STEP3E_PRIME_NULL_MOVE_PP for value in deltas_pp.values()):
-        return "(beta)", (
-            f"every CG2 identity moves by less than {STEP3E_PRIME_NULL_MOVE_PP:.1f} pp "
-            "from its CG1 record — DEGREE IS NOT THE MECHANISM, verdict (c) is "
-            "corroborated from the other side, and the finer-MESH rung (step 3f) "
-            "is the remaining candidate; the expected and informative outcome"
-        ), deltas_pp
+        return (
+            "(beta)",
+            (
+                f"every CG2 identity moves by less than {STEP3E_PRIME_NULL_MOVE_PP:.1f} pp "
+                "from its CG1 record — DEGREE IS NOT THE MECHANISM, verdict (c) is "
+                "corroborated from the other side, and the finer-MESH rung (step 3f) "
+                "is the remaining candidate; the expected and informative outcome"
+            ),
+            deltas_pp,
+        )
     if all(value > 0.0 for value in deltas_pp.values()):
-        return "(gamma)", (
-            "all five CG2 identities are WORSE than their CG1 records — a "
-            "richer space cannot fit the same field worse, so this is a "
-            "mis-assembled CG2 restriction (anchors (i)/(ii) should have caught "
-            "it); journal as a defect in the step, not as a reading about physics"
-        ), deltas_pp
-    return "(none)", (
-        "the reading pattern matches none of the three pre-registered clauses ("
-        + ", ".join(f"{label}={deltas_pp[label]:+.4f} pp" for label in deltas_pp)
-        + f"; controls survive: {controls_survive}) — reported as-is for the "
-        "review, not forced into a clause"
-    ), deltas_pp
+        return (
+            "(gamma)",
+            (
+                "all five CG2 identities are WORSE than their CG1 records — a "
+                "richer space cannot fit the same field worse, so this is a "
+                "mis-assembled CG2 restriction (anchors (i)/(ii) should have caught "
+                "it); journal as a defect in the step, not as a reading about physics"
+            ),
+            deltas_pp,
+        )
+    return (
+        "(none)",
+        (
+            "the reading pattern matches none of the three pre-registered clauses ("
+            + ", ".join(f"{label}={deltas_pp[label]:+.4f} pp" for label in deltas_pp)
+            + f"; controls survive: {controls_survive}) — reported as-is for the "
+            "review, not forced into a clause"
+        ),
+        deltas_pp,
+    )
 
 
 @pytest.fixture(scope="module")
@@ -2046,9 +2021,7 @@ def sar_map_restricted_cg2(b1_plus_map, sar_map, sar_map_restricted):
     order = sorted(solves)
     ks = [sar_map["indices"][pid] for pid in order]
 
-    dx_phantom = ufl.Measure("dx", domain=msh, subdomain_data=cell_tags)(
-        PHANTOM_CELL_TAG
-    )
+    dx_phantom = ufl.Measure("dx", domain=msh, subdomain_data=cell_tags)(PHANTOM_CELL_TAG)
 
     diagnostics = {}
     projected = {}
@@ -2069,9 +2042,7 @@ def sar_map_restricted_cg2(b1_plus_map, sar_map, sar_map_restricted):
     # Anchors (ii)/(iii): the two control fields, carried exactly on CG3³ and
     # restricted-projected at degree 2 — and, for ``x² ê_x``, at degree 1 too so
     # the pre-registered flip is a same-source comparison.
-    source_space = fem.functionspace(
-        msh, ("Lagrange", STEP3E_PRIME_CONTROL_SOURCE_DEGREE, (3,))
-    )
+    source_space = fem.functionspace(msh, ("Lagrange", STEP3E_PRIME_CONTROL_SOURCE_DEGREE, (3,)))
     control_fields = {}
     for label, callable_ in (
         ("a + b x x", _affine_field),
@@ -2109,9 +2080,7 @@ def sar_map_restricted_cg2(b1_plus_map, sar_map, sar_map_restricted):
             control_fields[label]["degree_1_diagnostics"] = diag_cg1
 
     kwargs = dict(sigma=SALINE_SIGMA, rho=PHANTOM_RHO_KG_PER_M3, comm=comm)
-    split = {
-        pid: _split_complex(projected[pid], f"E_cg2_restricted_{pid}") for pid in order
-    }
+    split = {pid: _split_complex(projected[pid], f"E_cg2_restricted_{pid}") for pid in order}
     images = {
         "P1@0deg": ("P1", points),
         "P2@+90deg": ("P2", _rotate_z(points, delta)),
@@ -2119,10 +2088,7 @@ def sar_map_restricted_cg2(b1_plus_map, sar_map, sar_map_restricted):
         "P3@180deg": ("P3", _rotate_z(points, 2.0 * delta)),
         "P3@+90deg": ("P3", _rotate_z(points, delta)),
     }
-    single = {
-        label: point_sar(*split[pid], pts, **kwargs)
-        for label, (pid, pts) in images.items()
-    }
+    single = {label: point_sar(*split[pid], pts, **kwargs) for label, (pid, pts) in images.items()}
 
     mirrored = _mirror_xy(points, azimuths["P1"])
     rotated = _rotate_z(points, delta)
@@ -2157,9 +2123,7 @@ def sar_map_restricted_cg2(b1_plus_map, sar_map, sar_map_restricted):
         ),
     }
     controls = {
-        "mis-rotated SAR_P3(Rx) vs SAR_P1(x)": _relative_l2(
-            single["P3@+90deg"], reference, full
-        ),
+        "mis-rotated SAR_P3(Rx) vs SAR_P1(x)": _relative_l2(single["P3@+90deg"], reference, full),
         "quadrature SAR_ccw(x) vs single-drive SAR_P1(x)": _relative_l2(
             quad[("ccw", "x")], reference, full
         ),
@@ -2223,8 +2187,7 @@ def sar_map_restricted_cg2(b1_plus_map, sar_map, sar_map_restricted):
                 f"{row['degree_1_residual']:.6e}, and the N1curl-borne CG1 column "
                 f"read {STEP3D_RESTRICTED_CONTROL_FIELD_RECORDS[label]:.6e}"
                 if "degree_1_residual" in row
-                else f"; CG1 column read "
-                f"{STEP3D_RESTRICTED_CONTROL_FIELD_RECORDS[label]:.6e}"
+                else f"; CG1 column read " f"{STEP3D_RESTRICTED_CONTROL_FIELD_RECORDS[label]:.6e}"
             )
             print(
                 f"    (ii/iii) ||P2_O f - f||_O/||f||_O for f = {label:<9} "
@@ -2263,14 +2226,10 @@ def sar_map_restricted_cg2(b1_plus_map, sar_map, sar_map_restricted):
         # printed caveat, not a re-verdict: the clause label stands as computed.
         anchors_green = (
             restricted_residual <= STEP3D_RESTRICTED_PHANTOM_RESIDUAL
-            and all(
-                row["residual"] <= PROJECTOR_EXACT_RESIDUAL
-                for row in control_fields.values()
-            )
+            and all(row["residual"] <= PROJECTOR_EXACT_RESIDUAL for row in control_fields.values())
             and p1["pinned_max_abs"] <= RESTRICTED_PINNED_DOF_MAX
             and all(
-                diagnostics[label]["converged_reason"]
-                == STEP3D_RESTRICTED_CONVERGED_REASON
+                diagnostics[label]["converged_reason"] == STEP3D_RESTRICTED_CONVERGED_REASON
                 for label in STEP3E_PRIME_SOLVE_LABELS
             )
         )

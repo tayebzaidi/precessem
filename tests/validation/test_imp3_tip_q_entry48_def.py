@@ -56,7 +56,6 @@ from fem_em_solver.core import HomogeneousMaterial
 from fem_em_solver.io.mesh import BIRDCAGE_IMPLANT_CELL_TAG
 from fem_em_solver.post.evaluation import evaluate_vector_field_parallel
 from fem_em_solver.post.sar import averaging_ball_radius, mass_averaged_sar
-
 from tests.complex_mode import complex_only
 from tests.mesh import test_birdcage_implant_rod as _rodmesh
 from tests.mesh.test_birdcage_implant_rod import (
@@ -69,7 +68,6 @@ from tests.validation.test_birdcage_sar_mass_averaged import PHANTOM_RHO_KG_PER_
 from tests.validation.test_geo36_rod_f_clinical_drive import _probe_points
 from tests.validation.test_imp3_rod_birdcage import PEC_WALL_MAX_E, PORT_IDS
 from tests.validation.test_imp3_rod_heating_matched import _arm_with_403, _census
-from tests.validation.test_port_drive_superposition import TWO_TAG_ACK_KEY
 from tests.validation.test_imp3_rod_heating_phantom import SOURCE
 from tests.validation.test_imp3_tip_ladder_1g import ENTRY43_READOUT_INTERVAL
 from tests.validation.test_mass_averaged_sar_standard_masses import (
@@ -78,6 +76,7 @@ from tests.validation.test_mass_averaged_sar_standard_masses import (
 )
 from tests.validation.test_port_birdcage_four_port import PASSIVITY_SIGMA_TOLERANCE
 from tests.validation.test_port_birdcage_lumped_column import PHANTOM_CELL_TAG
+from tests.validation.test_port_drive_superposition import TWO_TAG_ACK_KEY
 from tests.validation.test_port_gap_voltage_impedance import SIGMA_WIRE_S_PER_M
 from tests.validation.test_port_lumped_sheet_sweep import RECIPROCITY_BAND
 
@@ -109,8 +108,9 @@ def _arm_rod(built, label, field_hook):
         mmap = dict(case["problem"].material_map)
         seen["had_403"] = BIRDCAGE_IMPLANT_CELL_TAG in mmap
         gel = mmap[PHANTOM_CELL_TAG]
-        case["problem"] = replace(case["problem"],
-                                  material_map={**mmap, BIRDCAGE_IMPLANT_CELL_TAG: _rod_material(gel)})
+        case["problem"] = replace(
+            case["problem"], material_map={**mmap, BIRDCAGE_IMPLANT_CELL_TAG: _rod_material(gel)}
+        )
         case[TWO_TAG_ACK_KEY] = "(P) gated over all cells by _all_cells_resid"
         seen["mat"] = case["problem"].material_map[BIRDCAGE_IMPLANT_CELL_TAG]
         seen["gel"] = gel
@@ -159,8 +159,14 @@ def _make_hook(store, key, tips, t1):
         a_1g = averaging_ball_radius(mass_kg=ONE_GRAM_KG, rho=PHANTOM_RHO_KG_PER_M3)
         sar, mass = {}, {}
         for name in BALLS:
-            o = mass_averaged_sar(e, sigma=sigma_field, rho=rho_field, center=tips[name],
-                                  radius=a_1g, quadrature_degree=QUADRATURE_DEGREE)
+            o = mass_averaged_sar(
+                e,
+                sigma=sigma_field,
+                rho=rho_field,
+                center=tips[name],
+                radius=a_1g,
+                quadrature_degree=QUADRATURE_DEGREE,
+            )
             sar[name] = float(o["averaged_sar_w_per_kg"])
             mass[name] = float(o["mass_kg"])
         pts = np.ascontiguousarray(np.array([t1], dtype=np.float64))
@@ -169,15 +175,20 @@ def _make_hook(store, key, tips, t1):
         mask = comm.bcast(mask if comm.rank == 0 else None, root=0)
         # §9 item 804: (P)'s P_vol over all cells (entry 48's form), per drive, with the
         # per-tag split so the two-tag helper's omitted 403 term stays visible.
-        losses = {pid: _tag_losses(msh, cell_tags, e_of[pid], sigma_field, None)[0]
-                  for pid in PORT_IDS}
+        losses = {
+            pid: _tag_losses(msh, cell_tags, e_of[pid], sigma_field, None)[0] for pid in PORT_IDS
+        }
         store[key] = {
             "losses": losses,
-            "sar": sar, "mass": mass, "a_1g": a_1g,
-            "e_t1": np.asarray(vals).reshape(1, 3)[0], "t1_valid": bool(np.all(mask)),
+            "sar": sar,
+            "mass": mass,
+            "a_1g": a_1g,
+            "e_t1": np.asarray(vals).reshape(1, 3)[0],
+            "t1_valid": bool(np.all(mask)),
             "census": _owned_tag_counts(msh, cell_tags),
             "cells": int(msh.topology.index_map(msh.topology.dim).size_global),
         }
+
     return hook
 
 
@@ -220,21 +231,28 @@ def _p_resid(arm, pid):
 
 def _print_gates(arm):
     mq = arm["mq"]
-    _say(f"[I57 {arm['label']}] (i) ||S-S^T||/||S|| = {mq['recip']:.3e} (band {RECIPROCITY_BAND:g}, "
-         f"ASSERTED); (ii) sigma_max(S) = {float(mq['sigma'][0]):.9f} (<= 1 + "
-         f"{PASSIVITY_SIGMA_TOLERANCE:g}, ASSERTED), column powers "
-         + ", ".join(f"{x:.6f}" for x in mq["colpow"]) + " (<= 1, ASSERTED)")
+    _say(
+        f"[I57 {arm['label']}] (i) ||S-S^T||/||S|| = {mq['recip']:.3e} (band {RECIPROCITY_BAND:g}, "
+        f"ASSERTED); (ii) sigma_max(S) = {float(mq['sigma'][0]):.9f} (<= 1 + "
+        f"{PASSIVITY_SIGMA_TOLERANCE:g}, ASSERTED), column powers "
+        + ", ".join(f"{x:.6f}" for x in mq["colpow"])
+        + " (<= 1, ASSERTED)"
+    )
     for pid in PORT_IDS:
         ex = arm["shares"][pid]
         resid, form = _p_resid(arm, pid)
-        _say(f"    (P) {pid}: rel {resid:.3e} ({form}, band {DISCRETE_IDENTITY_RTOL:g}, ASSERTED); "
-             f"phantom share {ex['phantom'] / ex['p_src']:.4e} of P_src")
+        _say(
+            f"    (P) {pid}: rel {resid:.3e} ({form}, band {DISCRETE_IDENTITY_RTOL:g}, ASSERTED); "
+            f"phantom share {ex['phantom'] / ex['p_src']:.4e} of P_src"
+        )
         if "losses" in arm:
             lo = arm["losses"][pid]
-            _say(f"        P_src {ex['p_src']:.9e} W, sheets {ex['sheet_field_total']:.9e} W; P_vol by tag: "
-                 f"3 {lo['3']:.9e}, 403 {lo['403']:.9e}, conductor {lo['cond']:.9e}, all {lo['all']:.9e} W; "
-                 f"two-tag (_exact_shares p_vol {ex['p_vol']:.9e}) resid {_two_tag_resid(arm, pid):.3e} "
-                 f"(printed, not asserted) beside all-cells {_all_cells_resid(arm, pid):.3e}")
+            _say(
+                f"        P_src {ex['p_src']:.9e} W, sheets {ex['sheet_field_total']:.9e} W; P_vol by tag: "
+                f"3 {lo['3']:.9e}, 403 {lo['403']:.9e}, conductor {lo['cond']:.9e}, all {lo['all']:.9e} W; "
+                f"two-tag (_exact_shares p_vol {ex['p_vol']:.9e}) resid {_two_tag_resid(arm, pid):.3e} "
+                f"(printed, not asserted) beside all-cells {_all_cells_resid(arm, pid):.3e}"
+            )
     _say(f"    times: arm {arm['t_arm']:.1f} s, sweep {arm['t_sweep']:.2f} s")
 
 
@@ -242,19 +260,25 @@ def _run():
     comm = MPI.COMM_WORLD
     t0 = time.perf_counter()
     tips, t1 = _probe_points(ROD_CENTRE)
-    _say(f"\nI57 start: -n {comm.size}; source {SOURCE}; balls "
-         + ", ".join(f"{n} {tuple(round(x, 6) for x in tips[n])}" for n in BALLS)
-         + f"; T1 {tuple(round(x, 6) for x in t1)}")
-    _say("I57 sheets (the kept build's arguments, `_build_rod` + implant_rod keep_cells=True): "
-         f"emit_port_sheets=True, port_box_size={_rodmesh.PORT_BOX_SIZE!r}, "
-         f"leg_gap_length={_rodmesh.LEG_GAP_LENGTH!r}, leg_width={_rodmesh.LEG_WIDTH!r}, "
-         f"leg_count={_rodmesh.LEG_COUNT!r}, resolution={_rodmesh.RESOLUTION!r}, "
-         f"conductor_resolution={_rodmesh.CONDUCTOR_RESOLUTION!r}")
+    _say(
+        f"\nI57 start: -n {comm.size}; source {SOURCE}; balls "
+        + ", ".join(f"{n} {tuple(round(x, 6) for x in tips[n])}" for n in BALLS)
+        + f"; T1 {tuple(round(x, 6) for x in t1)}"
+    )
+    _say(
+        "I57 sheets (the kept build's arguments, `_build_rod` + implant_rod keep_cells=True): "
+        f"emit_port_sheets=True, port_box_size={_rodmesh.PORT_BOX_SIZE!r}, "
+        f"leg_gap_length={_rodmesh.LEG_GAP_LENGTH!r}, leg_width={_rodmesh.LEG_WIDTH!r}, "
+        f"leg_count={_rodmesh.LEG_COUNT!r}, resolution={_rodmesh.RESOLUTION!r}, "
+        f"conductor_resolution={_rodmesh.CONDUCTOR_RESOLUTION!r}"
+    )
 
     built = _build_kept_rod()
     c_b = _census(built)
-    _say(f"I57 (A0) kept build: {c_b['cells']} cells (record {KEPT_ROD_CELL_RECORD}, ASSERTED "
-         f"exact); tag-3 {c_b['t3']}, tag-403 {c_b['t403']}; build {built[4]:.1f} s")
+    _say(
+        f"I57 (A0) kept build: {c_b['cells']} cells (record {KEPT_ROD_CELL_RECORD}, ASSERTED "
+        f"exact); tag-3 {c_b['t3']}, tag-403 {c_b['t403']}; build {built[4]:.1f} s"
+    )
     assert c_b["cells"] == KEPT_ROD_CELL_RECORD, c_b
 
     store = {}
@@ -268,37 +292,61 @@ def _run():
         arm["losses"] = store[key]["losses"]
 
     m = rod["material_403"]
-    _say(f"I57 tag 403 material: build map had 403 {m['had_403']} (gel twin spy "
-         f"{gel['spy']['build_map_has_403']}; unmapped = vacuum, so map_gel=False is not the rod); "
-         f"rod sigma {m['mat'].sigma!r} S/m (SIGMA_WIRE_S_PER_M {SIGMA_WIRE_S_PER_M!r}), eps_r "
-         f"{m['mat'].epsilon_r!r}, mu_r {m['mat'].mu_r!r}; gel sigma {m['gel'].sigma!r}, eps_r "
-         f"{m['gel'].epsilon_r!r}; gel twin mapped {gel['material_403']['mapped']}")
+    _say(
+        f"I57 tag 403 material: build map had 403 {m['had_403']} (gel twin spy "
+        f"{gel['spy']['build_map_has_403']}; unmapped = vacuum, so map_gel=False is not the rod); "
+        f"rod sigma {m['mat'].sigma!r} S/m (SIGMA_WIRE_S_PER_M {SIGMA_WIRE_S_PER_M!r}), eps_r "
+        f"{m['mat'].epsilon_r!r}, mu_r {m['mat'].mu_r!r}; gel sigma {m['gel'].sigma!r}, eps_r "
+        f"{m['gel'].epsilon_r!r}; gel twin mapped {gel['material_403']['mapped']}"
+    )
     for arm in (rod, gel, rod2):
         _print_gates(arm)
-    _say(f"I57 (E) PEC_WALL_MAX_E {PEC_WALL_MAX_E:g}: n/a — I41 asserts it on no arm and the "
-         "kept build has no PEC wall (tag 402 interior)")
+    _say(
+        f"I57 (E) PEC_WALL_MAX_E {PEC_WALL_MAX_E:g}: n/a — I41 asserts it on no arm and the "
+        "kept build has no PEC wall (tag 402 interior)"
+    )
 
     hr, hg, hr2 = store["rod"], store["gel"], store["rod2"]
-    _say(f"I57 (A0m) owned census rod {hr['census']} / gel twin {hg['census']} / repeat "
-         f"{hr2['census']} (ASSERTED equal); cells {hr['cells']} / {hg['cells']} / {hr2['cells']}")
+    _say(
+        f"I57 (A0m) owned census rod {hr['census']} / gel twin {hg['census']} / repeat "
+        f"{hr2['census']} (ASSERTED equal); cells {hr['cells']} / {hg['cells']} / {hr2['cells']}"
+    )
     q = {n: hr["sar"][n] / hg["sar"][n] for n in BALLS}
     q_ctl = {n: hr2["sar"][n] / hr["sar"][n] for n in BALLS}
     eta = float(np.linalg.norm(hr["e_t1"]) / np.linalg.norm(hg["e_t1"]))
-    _say(f"I57 1 g ball a = {hr['a_1g'] * 1e3:.4f} mm; masses "
-         + ", ".join(f"{n} {hr['mass'][n] * 1e3:.6f} g" for n in BALLS))
+    _say(
+        f"I57 1 g ball a = {hr['a_1g'] * 1e3:.4f} mm; masses "
+        + ", ".join(f"{n} {hr['mass'][n] * 1e3:.6f} g" for n in BALLS)
+    )
     for n in BALLS:
         hole = f"{I41_HOLE_Q[n]:.3f}" if n in I41_HOLE_Q else "-"
-        _say(f"I57 record Q[{n}] = SAR_1g(rod)/SAR_1g(gel twin) = {q[n]:.6f} (rod {hr['sar'][n]:.6e}, "
-             f"gel twin {hg['sar'][n]:.6e} W/kg); entry 48 F-clinical {ENTRY48_Q[n]:.6f}; I41 "
-             f"hole-vs-gel {hole}")
-    _say(f"I57 record eta_rod(T1) = |E_rod|/|E_gel| = {eta:.6f} (valid {hr['t1_valid'] and hg['t1_valid']}); "
-         f"entry 48 {ENTRY48_ETA_T1:.6f}; IMP-3 hole-vs-gel interval {ENTRY43_READOUT_INTERVAL}")
-    _say("I57 control (ASSERTED exact): rod repeat / rod Q = "
-         + ", ".join(f"{n} {q_ctl[n]!r}" for n in BALLS))
-    _say(f"I57 timing: rod {rod['t_arm']:.1f} / gel twin {gel['t_arm']:.1f} / repeat "
-         f"{rod2['t_arm']:.1f} s; total {time.perf_counter() - t0:.1f} s at -n {comm.size}")
-    return {"rod": rod, "gel": gel, "rod2": rod2, "store": store, "q": q, "q_ctl": q_ctl,
-            "eta": eta, "c_b": c_b}
+        _say(
+            f"I57 record Q[{n}] = SAR_1g(rod)/SAR_1g(gel twin) = {q[n]:.6f} (rod {hr['sar'][n]:.6e}, "
+            f"gel twin {hg['sar'][n]:.6e} W/kg); entry 48 F-clinical {ENTRY48_Q[n]:.6f}; I41 "
+            f"hole-vs-gel {hole}"
+        )
+    _say(
+        f"I57 record eta_rod(T1) = |E_rod|/|E_gel| = {eta:.6f} (valid {hr['t1_valid'] and hg['t1_valid']}); "
+        f"entry 48 {ENTRY48_ETA_T1:.6f}; IMP-3 hole-vs-gel interval {ENTRY43_READOUT_INTERVAL}"
+    )
+    _say(
+        "I57 control (ASSERTED exact): rod repeat / rod Q = "
+        + ", ".join(f"{n} {q_ctl[n]!r}" for n in BALLS)
+    )
+    _say(
+        f"I57 timing: rod {rod['t_arm']:.1f} / gel twin {gel['t_arm']:.1f} / repeat "
+        f"{rod2['t_arm']:.1f} s; total {time.perf_counter() - t0:.1f} s at -n {comm.size}"
+    )
+    return {
+        "rod": rod,
+        "gel": gel,
+        "rod2": rod2,
+        "store": store,
+        "q": q,
+        "q_ctl": q_ctl,
+        "eta": eta,
+        "c_b": c_b,
+    }
 
 
 @pytest.fixture(scope="module")
@@ -309,6 +357,7 @@ def i57():
 
 
 # --- coding tests (W0) -------------------------------------------------------
+
 
 def test_knob_refuses_without_value():
     assert os.environ.get(KNOB) in (None, "1"), f"{KNOB} must be unset or 1"
@@ -330,6 +379,7 @@ def test_probe_points_on_f_small():
 
 
 # --- W1 ------------------------------------------------------------------------
+
 
 @complex_only
 def test_a0_and_a0m_census(i57):
@@ -355,7 +405,9 @@ def test_control_two_tag_p1_reproduces_omitted_term(i57):
     2.882e-06 to three digits (`20261103T195044Z_GEO-36-I57-diag-W1.log:1942`), so the term the
     all-cells form adds is the omitted tag-403 loss."""
     r = _two_tag_resid(i57["rod"], "P1")
-    _say(f"I57 control: rod P1 two-tag |resid| {r:.4e} vs {W1_ROD_P1_RESID:.3e} (ASSERTED 3 digits)")
+    _say(
+        f"I57 control: rod P1 two-tag |resid| {r:.4e} vs {W1_ROD_P1_RESID:.3e} (ASSERTED 3 digits)"
+    )
     assert f"{r:.3e}" == f"{W1_ROD_P1_RESID:.3e}", r
 
 
@@ -363,9 +415,11 @@ def test_control_two_tag_p1_reproduces_omitted_term(i57):
 def test_control_rod_twice_q_is_one(i57):
     dev = {n: abs(float(i57["q_ctl"][n]) - 1.0) for n in BALLS}
     worst = max(dev.values())
-    _say(f"    control repeat/rod: max |Q - 1| = {worst:.3e} (band {DISCRETE_IDENTITY_RTOL:g}, "
-         "ASSERTED); item 779 0.0, item 804 2.63e-13 "
-         "(`20261104T013204Z_GEO-36-I57-W1c.log:2004`)")
+    _say(
+        f"    control repeat/rod: max |Q - 1| = {worst:.3e} (band {DISCRETE_IDENTITY_RTOL:g}, "
+        "ASSERTED); item 779 0.0, item 804 2.63e-13 "
+        "(`20261104T013204Z_GEO-36-I57-W1c.log:2004`)"
+    )
     assert worst <= DISCRETE_IDENTITY_RTOL, dev
 
 
@@ -393,10 +447,12 @@ def _tag_losses(msh, cell_tags, e, sigma, degree):
     def _r(form):
         return float(np.real(comm.allreduce(fem.assemble_scalar(fem.form(form)), op=MPI.SUM)))
 
-    out = {"3": _r(integrand * dx(PHANTOM_CELL_TAG)),
-           "403": _r(integrand * dx(BIRDCAGE_IMPLANT_CELL_TAG)),
-           "cond": _r(integrand * dx(CONDUCTOR_CELL_TAG)),
-           "all": _r(integrand * dx)}
+    out = {
+        "3": _r(integrand * dx(PHANTOM_CELL_TAG)),
+        "403": _r(integrand * dx(BIRDCAGE_IMPLANT_CELL_TAG)),
+        "cond": _r(integrand * dx(CONDUCTOR_CELL_TAG)),
+        "all": _r(integrand * dx),
+    }
     out["rest"] = out["all"] - out["3"] - out["403"]
     est = ufl.algorithms.estimate_total_polynomial_degree(integrand)
     return out, int(est)
@@ -438,8 +494,10 @@ def _run_diag(monkeypatch):
     t0 = time.perf_counter()
     built = _build_kept_rod()
     c_b = _census(built)
-    _say(f"\nI57-diag (A0) kept build: {c_b['cells']} cells (record {KEPT_ROD_CELL_RECORD}, ASSERTED "
-         f"exact); tag-403 {c_b['t403']}; build {built[4]:.1f} s; -n {comm.size}; rod arm only")
+    _say(
+        f"\nI57-diag (A0) kept build: {c_b['cells']} cells (record {KEPT_ROD_CELL_RECORD}, ASSERTED "
+        f"exact); tag-403 {c_b['t403']}; build {built[4]:.1f} s; -n {comm.size}; rod arm only"
+    )
     keep = {}
 
     def hook(label, rod, msh, cell_tags, e_of, sigma_field, rho_field):
@@ -451,8 +509,10 @@ def _run_diag(monkeypatch):
         rod = _arm_rod(built, "rod (403 sigma_wire), diag", hook)
     _print_gates(rod)
     mat = rod["material_403"]["mat"]
-    _say(f"I57-diag tag 403 material: sigma {mat.sigma!r} S/m, eps_r {mat.epsilon_r!r}; solves recorded "
-         f"{[r['kind'] for r in rows]}")
+    _say(
+        f"I57-diag tag 403 material: sigma {mat.sigma!r} S/m, eps_r {mat.epsilon_r!r}; solves recorded "
+        f"{[r['kind'] for r in rows]}"
+    )
     msh, ct, sig = keep["msh"], keep["cell_tags"], keep["sigma"]
     diag = {}
     for j, pid in enumerate(PORT_IDS):
@@ -462,21 +522,28 @@ def _run_diag(monkeypatch):
         per = {}
         for d in (None,) + DIAG_DEGREES:
             losses, est = _tag_losses(msh, ct, keep["e_of"][pid], sig, d)
-            per[d] = {"losses": losses, "est": est,
-                      "r_id": (p_src - losses["3"] - losses["cond"] - p_sh) / p_src,
-                      "r_all": (p_src - losses["all"] - p_sh) / p_src}
+            per[d] = {
+                "losses": losses,
+                "est": est,
+                "r_id": (p_src - losses["3"] - losses["cond"] - p_sh) / p_src,
+                "r_all": (p_src - losses["all"] - p_sh) / p_src,
+            }
         r = rows[j] if j < len(rows) else None
         diag[pid] = {"resid_identity": resid_id, "per": per, "r": r}
-        _say(f"I57-diag {pid}: P_src {p_src:.9e} W, sheets {p_sh:.9e} W; identity (_exact_shares) "
-             f"P_vol {ex['p_vol']:.9e} W (phantom {ex['phantom']:.9e} + conductor {ex['conductor']:.9e}); "
-             f"(P) rel {resid_id:+.3e}")
+        _say(
+            f"I57-diag {pid}: P_src {p_src:.9e} W, sheets {p_sh:.9e} W; identity (_exact_shares) "
+            f"P_vol {ex['p_vol']:.9e} W (phantom {ex['phantom']:.9e} + conductor {ex['conductor']:.9e}); "
+            f"(P) rel {resid_id:+.3e}"
+        )
         for d, v in per.items():
             lo = v["losses"]
             tag = "unpinned" if d is None else f"d={d}"
-            _say(f"    (q) {tag} (estimated degree {v['est']}): P_vol tag 3 {lo['3']:.9e}, tag 403 "
-                 f"{lo['403']:.9e}, conductor tag {lo['cond']:.9e}, rest(all-3-403) {lo['rest']:.9e}, all "
-                 f"{lo['all']:.9e} W; resid on identity tags (3 + cond) {v['r_id']:+.3e}; resid on all "
-                 f"cells {v['r_all']:+.3e}")
+            _say(
+                f"    (q) {tag} (estimated degree {v['est']}): P_vol tag 3 {lo['3']:.9e}, tag 403 "
+                f"{lo['403']:.9e}, conductor tag {lo['cond']:.9e}, rest(all-3-403) {lo['rest']:.9e}, all "
+                f"{lo['all']:.9e} W; resid on identity tags (3 + cond) {v['r_id']:+.3e}; resid on all "
+                f"cells {v['r_all']:+.3e}"
+            )
         if r is None:
             _say(f"    (r) n/a: {len(rows)} solves recorded for {len(PORT_IDS)} drives")
         else:

@@ -6,8 +6,8 @@ solution as the mesh is refined (h-refinement) or polynomial degree is
 increased (p-refinement).
 """
 
-import pytest
 import numpy as np
+import pytest
 import ufl
 from mpi4py import MPI
 
@@ -194,7 +194,7 @@ def fit_convergence_rate(resolutions, errors):
 
 class TestConvergence:
     """Convergence study tests for magnetostatic solver."""
-    
+
     def test_h_refinement_straight_wire(self):
         """
         Test h-convergence (mesh refinement) for straight wire problem.
@@ -245,7 +245,7 @@ class TestConvergence:
         rate = fit_convergence_rate(resolutions, errors)
 
         if comm.rank == 0:
-            print(f"\n  Convergence Results (report -- the rate is NOT gated here):")
+            print("\n  Convergence Results (report -- the rate is NOT gated here):")
             print(f"    Resolutions (h): {resolutions}")
             print(f"    Errors: {[f'{e:.4%}' for e in errors]}")
             print(f"    Convergence rate: {rate:.4f}")

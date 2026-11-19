@@ -28,7 +28,6 @@ from mpi4py import MPI
 
 from fem_em_solver.thermal import solve_transient_conduction
 from fem_em_solver.thermal.dose import cem43, running_average
-
 from tests.complex_mode import complex_only
 from tests.validation.test_mat10_sar_to_heat_sphere import ROBIN_TAG, _say
 from tests.validation.test_mat12_transient_sar_heating_sphere import E_BAND, RHO_C
@@ -36,8 +35,9 @@ from tests.validation.test_mat13_transient_perfusion_sphere import INTERIOR_BAND
 from tests.validation.test_mat15_coil_driven_heating_phantom import H_GEL, K_GEL, N_MAIN, T_INF
 from tests.validation.test_mat15_finite_cylinder_fem import _max_imag
 from tests.validation.test_mat17_duty_cycle_fem import _census
-from tests.validation.test_mat21_box_closed_form import B_BOX, C_BOX, Q
+from tests.validation.test_mat21_box_closed_form import B_BOX, C_BOX
 from tests.validation.test_mat21_box_closed_form import T_INF as T_INF_0
+from tests.validation.test_mat21_box_closed_form import Q
 from tests.validation.test_mat21_box_dose_closed_form import (
     AVG_BAR,
     DOSE_BAR,
@@ -50,10 +50,6 @@ from tests.validation.test_mat21_box_dose_closed_form import (
     _series_hist,
 )
 from tests.validation.test_mat21_box_dose_fem import R36, _bd
-from tests.validation.test_mat21_box_duty25_dose_closed_form import T_SW25
-from tests.validation.test_mat21_box_duty_closed_form import DT_BOX
-from tests.validation.test_mat21_box_duty_dose_closed_form import _duty_hist
-from tests.validation.test_mat21_box_duty_dose_fem import LN4, P39P_FEM_DOSE, _cn_snap
 from tests.validation.test_mat21_box_dt_duty125_dose_closed_form import (
     DT80,
     DUTY125,
@@ -68,6 +64,10 @@ from tests.validation.test_mat21_box_dt_duty125_dose_closed_form import (
     _q_check_g,
     _win_check_g,
 )
+from tests.validation.test_mat21_box_duty25_dose_closed_form import T_SW25
+from tests.validation.test_mat21_box_duty_closed_form import DT_BOX
+from tests.validation.test_mat21_box_duty_dose_closed_form import _duty_hist
+from tests.validation.test_mat21_box_duty_dose_fem import LN4, P39P_FEM_DOSE, _cn_snap
 from tests.validation.test_mat21_box_fem_p2 import DEGREE, _dofs_pred, _rung_p
 from tests.validation.test_mat21_box_probe_dose_closed_form import NEW_LABELS, NEW_PTS
 from tests.validation.test_mat21_box_probe_duty_dose_fem import P43_FEM_DOSE
@@ -75,14 +75,20 @@ from tests.validation.test_mat21_box_probe_points_fem import PROBE_PTS, _probe_v
 from tests.validation.test_mat21_box_separable_fem import M4
 
 SIX = tuple(("h", j, HIST_LABELS[j]) for j in range(len(DOSE_PTS))) + tuple(
-    ("n", j, NEW_LABELS[j]) for j in range(len(NEW_PTS)))
+    ("n", j, NEW_LABELS[j]) for j in range(len(NEW_PTS))
+)
 SIX_KIND = (0, 0, 1, 2, 2, 3)  # +-y walls, centre, +-x, P5
 KIND_NAME = ("+-y", "centre", "+-x", "P5")
 # P44's (Bd)(ii) headroom matrix (peak), copied as text from
 # docs/testing/logs/20261021T005339Z_MAT-21-step16-W2-probe-duty-dose-fem.log:183-188.
-P44_HEAD = ("default 24.71x; d50 11.22x; d25 5.40x", "default 24.71x; d50 11.22x; d25 5.40x",
-            "default 26.52x; d50 15.15x; d25 7.88x", "default 6.94x; d50 6.65x; d25 5.86x",
-            "default 6.94x; d50 6.65x; d25 5.86x", "default 5.04x; d50 3.05x; d25 1.72x")
+P44_HEAD = (
+    "default 24.71x; d50 11.22x; d25 5.40x",
+    "default 24.71x; d50 11.22x; d25 5.40x",
+    "default 26.52x; d50 15.15x; d25 7.88x",
+    "default 6.94x; d50 6.65x; d25 5.86x",
+    "default 6.94x; d50 6.65x; d25 5.86x",
+    "default 5.04x; d50 3.05x; d25 1.72x",
+)
 # Predictions written first (brief), printed only.
 PRED_HEAD40 = ((1.5, 4.0), (2.5, 6.0), (3.0, 7.5), (0.7, 1.4))
 PRED_HEAD80_FACTOR = (1.0, 4.0)
@@ -116,9 +122,23 @@ def _cn_snap_n(msh, ft, q_quad, schedule, n):
     """``_cn_snap``'s body with ``dt = T_STAR / n``; used only for N = 80."""
     kw = {} if schedule is None else {"source_schedule": schedule}
     return solve_transient_conduction(
-        msh, ft, k=K_GEL, rho_c=RHO_C, q=q_quad, h=H_GEL, t_inf=T_INF, t_init=T_INF,
-        robin_tag=ROBIN_TAG, dt=T_STAR / n, n_steps=n, theta=0.5,
-        startup_half_steps=2, degree=DEGREE, snapshot_steps=tuple(range(n + 1)), **kw)
+        msh,
+        ft,
+        k=K_GEL,
+        rho_c=RHO_C,
+        q=q_quad,
+        h=H_GEL,
+        t_inf=T_INF,
+        t_init=T_INF,
+        robin_tag=ROBIN_TAG,
+        dt=T_STAR / n,
+        n_steps=n,
+        theta=0.5,
+        startup_half_steps=2,
+        degree=DEGREE,
+        snapshot_steps=tuple(range(n + 1)),
+        **kw,
+    )
 
 
 @pytest.fixture(scope="module")
@@ -126,10 +146,21 @@ def dt125_m4():
     comm = MPI.COMM_WORLD
     t0 = time.perf_counter()
     clk = _Clock17("dt125")
-    out = {"imag": 0.0, "E": {}, "ndof": {}, "th": {}, "ok": {}, "sched": {}, "census": {},
-           "fin": {}, "nsteps": {}}
-    _say(f"\nMAT21-17 DEGREE = {DEGREE}; m = {M4}; N = {N_MAIN} / {N80}; ranks {comm.size}; "
-         f"HIST_PTS {HIST_PTS}; NEW_PTS {NEW_PTS} (two fixed batches)")
+    out = {
+        "imag": 0.0,
+        "E": {},
+        "ndof": {},
+        "th": {},
+        "ok": {},
+        "sched": {},
+        "census": {},
+        "fin": {},
+        "nsteps": {},
+    }
+    _say(
+        f"\nMAT21-17 DEGREE = {DEGREE}; m = {M4}; N = {N_MAIN} / {N80}; ranks {comm.size}; "
+        f"HIST_PTS {HIST_PTS}; NEW_PTS {NEW_PTS} (two fixed batches)"
+    )
 
     msh, ft, ns, n, v_h, st = _rung_p(M4, clk, DEGREE)
     out["ndof"]["uniform"] = int(st.temperature.function_space.dofmap.index_map.size_global)
@@ -179,14 +210,22 @@ def dt125_m4():
 
     out["s"] = {
         "default40": {"h": _series_hist(HIST_PTS), "n": _series_hist(NEW_PTS)},
-        "d125_40": {"h": _duty_hist(HIST_PTS, switch_times=T_SW125),
-                    "n": _duty_hist(NEW_PTS, switch_times=T_SW125)},
-        "d25_40": {"h": _duty_hist(HIST_PTS, switch_times=T_SW25),
-                   "n": _duty_hist(NEW_PTS, switch_times=T_SW25)},
-        "d125_80": {"h": _duty_hist_g(HIST_PTS, T_GRID80, T_SW125),
-                    "n": _duty_hist_g(NEW_PTS, T_GRID80, T_SW125)},
-        "d25_80": {"h": _duty_hist_g(HIST_PTS, T_GRID80, T_SW25),
-                   "n": _duty_hist_g(NEW_PTS, T_GRID80, T_SW25)},
+        "d125_40": {
+            "h": _duty_hist(HIST_PTS, switch_times=T_SW125),
+            "n": _duty_hist(NEW_PTS, switch_times=T_SW125),
+        },
+        "d25_40": {
+            "h": _duty_hist(HIST_PTS, switch_times=T_SW25),
+            "n": _duty_hist(NEW_PTS, switch_times=T_SW25),
+        },
+        "d125_80": {
+            "h": _duty_hist_g(HIST_PTS, T_GRID80, T_SW125),
+            "n": _duty_hist_g(NEW_PTS, T_GRID80, T_SW125),
+        },
+        "d25_80": {
+            "h": _duty_hist_g(HIST_PTS, T_GRID80, T_SW25),
+            "n": _duty_hist_g(NEW_PTS, T_GRID80, T_SW25),
+        },
     }
     clk.lap("series histories (continuous; D = 0.125, 0.25 at t*/40 and t*/80; two batches)")
     _say(f"MAT21-17 fixture elapsed {time.perf_counter() - t0:.1f} s; max|Im T| {out['imag']:.3e}")
@@ -211,15 +250,20 @@ def test_preconditions(dt125_m4):
     for key, v in d["ndof"].items():
         assert v == pred, f"(Pdeg) {key}: {v}"
     assert tuple(NEW_PTS) == tuple(PROBE_PTS[3:6])
-    _say(f"MAT21-17 (S0) schedules {d['sched']} (must equal d125_40 {SCHEDULE_125}, d125_80 "
-         f"{SCHEDULE_125_80})")
+    _say(
+        f"MAT21-17 (S0) schedules {d['sched']} (must equal d125_40 {SCHEDULE_125}, d125_80 "
+        f"{SCHEDULE_125_80})"
+    )
     assert d["census"] == {"d125_40": True, "d125_80": True}
     assert d["sched"]["d125_40"] == SCHEDULE_125 and d["sched"]["d125_80"] == SCHEDULE_125_80
     for key, (ok_h, ok_n) in d["ok"].items():
         _say(f"MAT21-17 validity {key}: HIST_PTS {ok_h.tolist()} NEW_PTS {ok_n.tolist()}")
         assert bool(np.all(ok_h)) and bool(np.all(ok_n)), key
-    _say("MAT21-17 (E) max balance residual: " + ", ".join(
-        f"{k_} {v:.3e}" for k_, v in d["E"].items()) + f" (bound {E_BAND:.0e}; predicted 2.3e-13)")
+    _say(
+        "MAT21-17 (E) max balance residual: "
+        + ", ".join(f"{k_} {v:.3e}" for k_, v in d["E"].items())
+        + f" (bound {E_BAND:.0e}; predicted 2.3e-13)"
+    )
     assert len(d["E"]) == 3
     for key, v in d["E"].items():
         assert v <= E_BAND, (key, v)
@@ -233,8 +277,10 @@ def test_preconditions(dt125_m4):
         fin_h, fin_n = d["fin"][label]
         same_h = bool(np.array_equal(d["th"][label]["h"][nst], fin_h))
         same_n = bool(np.array_equal(d["th"][label]["n"][nst], fin_n))
-        _say(f"MAT21-17 {label} snapshot n={nst} array_equal final: HIST_PTS {same_h}, "
-             f"NEW_PTS {same_n}")
+        _say(
+            f"MAT21-17 {label} snapshot n={nst} array_equal final: HIST_PTS {same_h}, "
+            f"NEW_PTS {same_n}"
+        )
         assert same_h and same_n, label
     for label, D in RUNS:
         for src in (d["th"][label], d["s"][label]):
@@ -265,14 +311,22 @@ def test_q_h_win_h_both_dt(dt125_m4):
                 th = dt125_m4["th"][label][b][:, j] * scale
                 dose, ref, rel, swap, miss = _q_check_g(_T(th), t)
                 mx, t_mx, lo, hi, wref, wrel = _win_check_g(th, t)
-                _say(f"MAT21-17 (Q-h) {label} {lab} {name}: FEM CEM43 {dose:.15e} s vs quad "
-                     f"{ref:.15e} s rel {rel:.3e} (bar {DOSE_BAR:g}, ASSERTED); max T "
-                     f"{np.max(_T(th)):.9f} C")
-                _say(f"MAT21-17 (Win-h) {label} {lab} {name}: max six-minute mean {mx:.15e} K at "
-                     f"{t_mx:.4f} s; (ii) [{lo:.12e}, {hi:.12e}]; (iii) quad {wref:.15e} rel "
-                     f"{wrel:.3e} (bar {AVG_BAR:g}, ASSERTED)")
-                if not (rel <= DOSE_BAR and t[0] + W_B2 <= t_mx <= t[-1] and lo <= mx <= hi
-                        and wrel <= AVG_BAR):
+                _say(
+                    f"MAT21-17 (Q-h) {label} {lab} {name}: FEM CEM43 {dose:.15e} s vs quad "
+                    f"{ref:.15e} s rel {rel:.3e} (bar {DOSE_BAR:g}, ASSERTED); max T "
+                    f"{np.max(_T(th)):.9f} C"
+                )
+                _say(
+                    f"MAT21-17 (Win-h) {label} {lab} {name}: max six-minute mean {mx:.15e} K at "
+                    f"{t_mx:.4f} s; (ii) [{lo:.12e}, {hi:.12e}]; (iii) quad {wref:.15e} rel "
+                    f"{wrel:.3e} (bar {AVG_BAR:g}, ASSERTED)"
+                )
+                if not (
+                    rel <= DOSE_BAR
+                    and t[0] + W_B2 <= t_mx <= t[-1]
+                    and lo <= mx <= hi
+                    and wrel <= AVG_BAR
+                ):
                     bad.append((label, lab, name, rel, t_mx, lo, mx, hi, wrel))
     assert not bad, bad
 
@@ -286,10 +340,15 @@ def test_rc_h_controls(dt125_m4):
             for b, j, name in SIX:
                 th = dt125_m4["th"][label][b][:, j] * scale
                 _d, ref, _r, swap, miss = _q_check_g(_T(th), t)
-                tag = (f"asserted > {DOSE_BAR:g}" if label == "d125_40" else
-                       f"PREDICTED factor {PRED_RC}; printed only, ruling 03:00 (6)")
-                _say(f"MAT21-17 (Rc'-h) {label} {lab} {name}: R swap miss {miss:.4e} ({tag}); "
-                     f"factor {swap / ref:.4e}")
+                tag = (
+                    f"asserted > {DOSE_BAR:g}"
+                    if label == "d125_40"
+                    else f"PREDICTED factor {PRED_RC}; printed only, ruling 03:00 (6)"
+                )
+                _say(
+                    f"MAT21-17 (Rc'-h) {label} {lab} {name}: R swap miss {miss:.4e} ({tag}); "
+                    f"factor {swap / ref:.4e}"
+                )
                 if label == "d125_40" and not miss > DOSE_BAR:
                     bad.append((lab, name, miss))
     assert not bad, bad
@@ -316,12 +375,16 @@ def _bd_print(rows, label, tag):
         if label == "d125_40" and name.startswith("P5"):
             r = M / cap
             inside = "inside" if PRED_RED_RANGE[0] <= r <= PRED_RED_RANGE[1] else "outside"
-            extra = (f"; M_p/(INTERIOR_BAND max theta_s) {r:.4f}, headroom {cap / M:.4f} "
-                     f"[{PRED_RED_LINE}: {inside}]")
-        _say(f"MAT21-17 ({tag}) {lab} {name}: D_h {d_h:.10e} s, D_s {d_s:.15e} s; (i) m_p "
-             f"{m:.4e} <= ln4*M_p {LN4 * M:.4e} (exact e^(ln4 M)-1 {math.expm1(LN4 * M):.4e}, "
-             f"printed only); ratio {m / (LN4 * M):.4f}; (ii) M_p {M:.4e} K <= "
-             f"INTERIOR_BAND*max theta_s {cap:.4e} K, headroom {cap / M:.2f}x{extra}")
+            extra = (
+                f"; M_p/(INTERIOR_BAND max theta_s) {r:.4f}, headroom {cap / M:.4f} "
+                f"[{PRED_RED_LINE}: {inside}]"
+            )
+        _say(
+            f"MAT21-17 ({tag}) {lab} {name}: D_h {d_h:.10e} s, D_s {d_s:.15e} s; (i) m_p "
+            f"{m:.4e} <= ln4*M_p {LN4 * M:.4e} (exact e^(ln4 M)-1 {math.expm1(LN4 * M):.4e}, "
+            f"printed only); ratio {m / (LN4 * M):.4f}; (ii) M_p {M:.4e} K <= "
+            f"INTERIOR_BAND*max theta_s {cap:.4e} K, headroom {cap / M:.2f}x{extra}"
+        )
 
 
 @complex_only
@@ -329,8 +392,11 @@ def test_bd125_40_printed_only(dt125_m4):
     """(Bd125-40): printed only (the weekly's text); carries the PREDICTED RED tag."""
     rows = _bd_rows(dt125_m4, "d125_40")
     _bd_print(rows, "d125_40", "Bd125-40, printed only")
-    bad = [(lab, name) for lab, _b, _j, name, _dh, _ds, m, M, cap in rows
-           if not (m <= LN4 * M and M <= cap)]
+    bad = [
+        (lab, name)
+        for lab, _b, _j, name, _dh, _ds, m, M, cap in rows
+        if not (m <= LN4 * M and M <= cap)
+    ]
     _say(f"MAT21-17 (Bd125-40) cells outside the bound (printed only, not asserted): {bad}")
     assert len(rows) == 12
 
@@ -339,8 +405,11 @@ def test_bd125_40_printed_only(dt125_m4):
 def test_bd125_80_dose_sensitivity_bound_six_points(dt125_m4):
     rows = _bd_rows(dt125_m4, "d125_80")
     _bd_print(rows, "d125_80", "Bd125-80")
-    bad = [(lab, name, m, LN4 * M, M, cap) for lab, _b, _j, name, _dh, _ds, m, M, cap in rows
-           if not (m <= LN4 * M and M <= cap)]
+    bad = [
+        (lab, name, m, LN4 * M, M, cap)
+        for lab, _b, _j, name, _dh, _ds, m, M, cap in rows
+        if not (m <= LN4 * M and M <= cap)
+    ]
     assert not bad, ("(Bd125-80)", bad)
 
 
@@ -352,8 +421,10 @@ def test_c25_on_125_controls(dt125_m4):
         for b, j, name in SIX:
             Mw = float(np.max(np.abs(th[label][b][:, j] - s[s25][b][:, j])))
             r = Mw / float(np.max(s[label][b][:, j]))
-            _say(f"MAT21-17 control (c-25-on-125) PREDICTED {label} {name}: M_w / max theta_s125 "
-                 f"{r:.4f} (asserted > INTERIOR_BAND {INTERIOR_BAND:g}; predicted {PRED_C25})")
+            _say(
+                f"MAT21-17 control (c-25-on-125) PREDICTED {label} {name}: M_w / max theta_s125 "
+                f"{r:.4f} (asserted > INTERIOR_BAND {INTERIOR_BAND:g}; predicted {PRED_C25})"
+            )
             rows.append((label, name, r))
     bad = [x for x in rows if not x[2] > INTERIOR_BAND]
     assert not bad, bad
@@ -372,25 +443,31 @@ def test_printed_records(dt125_m4):
             cells[label] = (M, mx, INTERIOR_BAND * mx / M)
         k = SIX_KIND[i]
         p80 = PRED_HEAD80_P5 if k == 3 else PRED_HEAD80_FACTOR
-        _say(f"MAT21-17 DT HEADROOM TABLE (peak) {name}: P44 t*/40 [{P44_HEAD[i]}]; default40 "
-             f"{cells['default40'][2]:.2f}x; d125 t*/40 M_p {cells['d125_40'][0]:.4e} K, max "
-             f"theta_s {cells['d125_40'][1]:.4e} K, headroom {cells['d125_40'][2]:.4f}x "
-             f"(predicted {PRED_HEAD40[k]}); d125 t*/80 M_p {cells['d125_80'][0]:.4e} K, max "
-             f"theta_s {cells['d125_80'][1]:.4e} K, headroom {cells['d125_80'][2]:.4f}x "
-             f"(predicted {'' if k == 3 else 'factor '}{p80}); headroom80/headroom40 "
-             f"{cells['d125_80'][2] / cells['d125_40'][2]:.4f}; M_p40/M_p80 "
-             f"{cells['d125_40'][0] / cells['d125_80'][0]:.4f}")
+        _say(
+            f"MAT21-17 DT HEADROOM TABLE (peak) {name}: P44 t*/40 [{P44_HEAD[i]}]; default40 "
+            f"{cells['default40'][2]:.2f}x; d125 t*/40 M_p {cells['d125_40'][0]:.4e} K, max "
+            f"theta_s {cells['d125_40'][1]:.4e} K, headroom {cells['d125_40'][2]:.4f}x "
+            f"(predicted {PRED_HEAD40[k]}); d125 t*/80 M_p {cells['d125_80'][0]:.4e} K, max "
+            f"theta_s {cells['d125_80'][1]:.4e} K, headroom {cells['d125_80'][2]:.4f}x "
+            f"(predicted {'' if k == 3 else 'factor '}{p80}); headroom80/headroom40 "
+            f"{cells['d125_80'][2] / cells['d125_40'][2]:.4f}; M_p40/M_p80 "
+            f"{cells['d125_40'][0] / cells['d125_80'][0]:.4f}"
+        )
     for b, j, name in SIX:
         a40 = th["d125_40"][b][:, j]
         a80 = th["d125_80"][b][:, j]
         x = float(np.max(np.abs(a80[::2] - a40)))
-        _say(f"MAT21-17 (FEM-X) {name}: max_n |theta80[2n] - theta40[n]| {x:.4e} K "
-             f"({x / float(np.max(a40)):.4e} of max theta40)")
+        _say(
+            f"MAT21-17 (FEM-X) {name}: max_n |theta80[2n] - theta40[n]| {x:.4e} K "
+            f"({x / float(np.max(a40)):.4e} of max theta40)"
+        )
     for label in ("d125_40", "d125_80"):
         t = _grid(label)
         d = [cem43(t, _T(th[label]["n"][:, j])) for j in range(len(NEW_PTS))]
-        _say(f"MAT21-17 {label} +x / -x FEM dose asymmetry {d[0] / d[1] - 1.0:+.4e} (predicted "
-             f"|.| <= {PRED_ASYM:g})")
+        _say(
+            f"MAT21-17 {label} +x / -x FEM dose asymmetry {d[0] / d[1] - 1.0:+.4e} (predicted "
+            f"|.| <= {PRED_ASYM:g})"
+        )
         for b, j, name in SIX + (("h", 3, "(0,0.9B,0) [printed only]"),):
             dc_h = cem43(T_GRID, _T(th["default40"][b][:, j]))
             dc_s = cem43(T_GRID, _T(s["default40"][b][:, j]))
@@ -401,9 +478,11 @@ def test_printed_records(dt125_m4):
             _a, mx_h, t_h = running_average(t, th[label][b][:, j], window=W)
             _a, mx_s, t_s = running_average(t, s[label][b][:, j], window=W)
             _ae, mxe_h, _te = running_average(t, th[label][b][:, j] / DUTY125, window=W)
-            _say(f"MAT21-17 DUTY DOSE {label} {name}: FEM ratio equal-mean {de_h / dc_h:.6f} / "
-                 f"peak {dd_h / dc_h:.6f} (series {de_s / dc_s:.6f} / {dd_s / dc_s:.6f}; cont at "
-                 f"t*/40); FEM dose peak {dd_h:.10e} s / equal-mean {de_h:.10e} s; six-minute "
-                 f"peak FEM {mx_h:.9f} K at {t_h:.2f} s vs series {mx_s:.9f} K at {t_s:.2f} s; "
-                 f"equal-mean max T {float(np.max(_T(th[label][b][:, j] / DUTY125))):.4f} C")
+            _say(
+                f"MAT21-17 DUTY DOSE {label} {name}: FEM ratio equal-mean {de_h / dc_h:.6f} / "
+                f"peak {dd_h / dc_h:.6f} (series {de_s / dc_s:.6f} / {dd_s / dc_s:.6f}; cont at "
+                f"t*/40); FEM dose peak {dd_h:.10e} s / equal-mean {de_h:.10e} s; six-minute "
+                f"peak FEM {mx_h:.9f} K at {t_h:.2f} s vs series {mx_s:.9f} K at {t_s:.2f} s; "
+                f"equal-mean max T {float(np.max(_T(th[label][b][:, j] / DUTY125))):.4f} C"
+            )
             assert np.isfinite(de_h / dc_h)

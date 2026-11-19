@@ -34,12 +34,11 @@ from __future__ import annotations
 import os
 import sys
 
+import dolfinx
 import numpy as np
 import pytest
 from mpi4py import MPI
 from petsc4py import PETSc
-
-import dolfinx
 
 # The version this pass of `OPS-18` adopted. Bump it in the same commit that
 # bumps docker/Dockerfile's FROM line; the two are one fact in two files.
@@ -90,8 +89,7 @@ def test_adopted_dolfinx_version_is_exact():
             f"ScalarType={np.dtype(PETSc.ScalarType)}"
         )
     assert dolfinx.__version__ == EXPECTED_DOLFINX_VERSION, (
-        f"container reports dolfinx {dolfinx.__version__}, expected "
-        f"{EXPECTED_DOLFINX_VERSION}"
+        f"container reports dolfinx {dolfinx.__version__}, expected " f"{EXPECTED_DOLFINX_VERSION}"
     )
 
 

@@ -34,10 +34,7 @@ from mpi4py import MPI
 from fem_em_solver import cli
 from fem_em_solver.ports.touchstone import load_touchstone
 from fem_em_solver.study_yaml import run_study_file
-
 from tests.complex_mode import complex_only
-from tests.package.test_wf15_study_lossy_sphere import MAT4_DEG1_RECORD
-from tests.package.test_wf16_study_four_port import _record, _rel
 from tests.package.test_wf1_study_yaml import (
     BIRDCAGE_FILE,
     CONTROL_FILE,
@@ -47,6 +44,8 @@ from tests.package.test_wf1_study_yaml import (
     _fresh_dir,
     _rc_all,
 )
+from tests.package.test_wf15_study_lossy_sphere import MAT4_DEG1_RECORD
+from tests.package.test_wf16_study_four_port import _record, _rel
 from tests.validation.test_ans4_exact_strip_records import ANS4_EXACT_STRIP_RECORD_RANK_WIDTH
 from tests.validation.test_mat5_em_coupled_sphere import L0_BAND
 
@@ -141,8 +140,9 @@ def _assert_d_and_f(file, a, b, run_b):
     # memory, broadcast, on every rank; print the non-root reading.
     writer = comm.bcast(run_b.summary if comm.rank == 0 else None, root=0)
     f_eq = _same(b, writer)
-    local_off = sorted(k for k in set(b) | set(run_b.summary)
-                       if not _same(b.get(k), run_b.summary.get(k)))
+    local_off = sorted(
+        k for k in set(b) | set(run_b.summary) if not _same(b.get(k), run_b.summary.get(k))
+    )
     offs = comm.gather(local_off, root=0)
     _p0(f"  (F) printed: per-rank keys where local StudyRun.summary != file {offs}")
     _p0(
@@ -229,7 +229,9 @@ def test_wf2_sphere_bundle_reproduces():
     plant["mean_sar"]["mean_sar_w_per_kg"] = WF15_DEG2_RECORD
     c1_flags = _bitwise_flags(a, plant)
     c1_miss = _sar_rel(a, plant)
-    _p0(f"  (c1) degree plant: flags {sorted(c1_flags)}; SAR miss {c1_miss:.4%} ({c1_miss / L0_BAND:.2e} x)")
+    _p0(
+        f"  (c1) degree plant: flags {sorted(c1_flags)}; SAR miss {c1_miss:.4%} ({c1_miss / L0_BAND:.2e} x)"
+    )
     assert c1_flags == {"degree"}
     assert c1_miss > L0_BAND
 
@@ -237,7 +239,9 @@ def test_wf2_sphere_bundle_reproduces():
     c5 = copy.deepcopy(b)
     c5["mean_sar"]["mean_sar_w_per_kg"] *= 1.0 + 1e-8
     c5_r = _sar_rel(a, c5)
-    _p0(f"  (c5) SAR_b x (1 + 1e-8): rel {c5_r:.3e} ({c5_r / L0_BAND:.2f} x L0_BAND) (predicted ~1e-8)")
+    _p0(
+        f"  (c5) SAR_b x (1 + 1e-8): rel {c5_r:.3e} ({c5_r / L0_BAND:.2f} x L0_BAND) (predicted ~1e-8)"
+    )
 
     # (c4) one-ULP sigma config: the control file through the CLI
     out_c = LOGS / CONTROL_FILE.stem / "run_c"

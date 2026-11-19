@@ -39,13 +39,13 @@ from fem_em_solver.utils.analytical import (
     robin_sphere_steady_temperature,
 )
 from tests.validation.test_mat9_steady_conduction_sphere import (
-    H,
-    K,
     LADDER,
-    Q,
-    R,
     ROBIN_TAG,
     T_INF,
+    H,
+    K,
+    Q,
+    R,
     _allsum,
     _ball,
     _interior_indicator,
@@ -131,8 +131,10 @@ def test_n5_strong_perfusion_limits():
     interior = max(abs(w * float(_theta(r, w)) / Q - 1.0) for r in (0.0, 0.5 * R))
     surface = w * float(_theta(R, w)) / Q
     limit = (40.0 - 1.0) / (40.0 + BI - 1.0)
-    print(f"\nMAT11 N5 interior |w theta/q - 1| = {interior:.3e}; "
-          f"surface w theta(R)/q = {surface:.12f} vs {limit:.12f} (0.959016)")
+    print(
+        f"\nMAT11 N5 interior |w theta/q - 1| = {interior:.3e}; "
+        f"surface w theta(R)/q = {surface:.12f} vs {limit:.12f} (0.959016)"
+    )
     assert interior <= 1e-8
     assert abs(surface - limit) <= 1e-12
     # No overflow far past sinh's range.
@@ -182,7 +184,8 @@ def _centre_surface(msh, T_h):
     r = np.linalg.norm(xyz, axis=1)
     local = (
         (float(r.min()), float(np.real(T_h.x.array[:n_owned][int(np.argmin(r))] - T_INF)))
-        if n_owned else (np.inf, 0.0)
+        if n_owned
+        else (np.inf, 0.0)
     )
     centre = min(comm.allgather(local))[1]
     ds = ufl.Measure("ds", domain=msh)
@@ -206,7 +209,14 @@ def test_p1_ladder_interior_rate_and_balance():
         t0 = time.perf_counter()
         msh, _, ft = _ball(res)
         sol = solve_steady_conduction(
-            msh, ft, k=K, q=Q, h=H, t_inf=T_INF, robin_tag=ROBIN_TAG, degree=1,
+            msh,
+            ft,
+            k=K,
+            q=Q,
+            h=H,
+            t_inf=T_INF,
+            robin_tag=ROBIN_TAG,
+            degree=1,
             perfusion_w_per_m3_k=W,
         )
         e_in, e_all, vol, n = _errors(msh, sol.temperature, W)
@@ -215,8 +225,11 @@ def test_p1_ladder_interior_rate_and_balance():
         centre, surf = _centre_surface(msh, sol.temperature)
         rows.append((res, n, h_eff, e_in, e_all, bal))
         if res == 0.01:
-            _say(comm, f"MAT11 max|Im theta_h| at 0.01 m = {_max_abs_imag(sol.temperature):.3e} "
-                       f"(predicted 0.0; ScalarType={np.dtype(default_scalar_type).name})")
+            _say(
+                comm,
+                f"MAT11 max|Im theta_h| at 0.01 m = {_max_abs_imag(sol.temperature):.3e} "
+                f"(predicted 0.0; ScalarType={np.dtype(default_scalar_type).name})",
+            )
         _say(
             comm,
             f"MAT11 P1 res={res:.3f} cells={n} h_eff={h_eff:.5e} "
@@ -232,13 +245,22 @@ def test_p1_ladder_interior_rate_and_balance():
     h = np.array([r[2] for r in rows])
     e = np.array([r[4] for r in rows])
     for i in range(len(rows) - 1):
-        _say(comm, f"MAT11 pairwise rate {LADDER[i]}->{LADDER[i + 1]}: "
-                   f"{np.log(e[i] / e[i + 1]) / np.log(h[i] / h[i + 1]):.3f}")
+        _say(
+            comm,
+            f"MAT11 pairwise rate {LADDER[i]}->{LADDER[i + 1]}: "
+            f"{np.log(e[i] / e[i + 1]) / np.log(h[i] / h[i + 1]):.3f}",
+        )
     rate = float(np.polyfit(np.log(h), np.log(e), 1)[0])
     interior_001 = rows[LADDER.index(0.01)][3]
-    _say(comm, f"MAT11 least-squares P1 L2 rate (whole ball) = {rate:.3f}  (predicted ≈ 2.0; floor {RATE_FLOOR})")
-    _say(comm, f"MAT11 (i) interior rel L2 at 0.01 m = {interior_001:.4e}  "
-               f"(band {INTERIOR_BAND:.0e}; predicted ≈ 2.1e-3; MAT-9 read 3.21e-3)")
+    _say(
+        comm,
+        f"MAT11 least-squares P1 L2 rate (whole ball) = {rate:.3f}  (predicted ≈ 2.0; floor {RATE_FLOOR})",
+    )
+    _say(
+        comm,
+        f"MAT11 (i) interior rel L2 at 0.01 m = {interior_001:.4e}  "
+        f"(band {INTERIOR_BAND:.0e}; predicted ≈ 2.1e-3; MAT-9 read 3.21e-3)",
+    )
     assert rate >= RATE_FLOOR, f"(ii) P1 rate {rate:.3f}"
     assert interior_001 <= INTERIOR_BAND, f"(i) interior {interior_001:.4e}"
 
@@ -247,16 +269,33 @@ def test_strong_perfusion_printed_only():
     comm = MPI.COMM_WORLD
     msh, _, ft = _ball(0.01)
     sol = solve_steady_conduction(
-        msh, ft, k=K, q=Q, h=H, t_inf=T_INF, robin_tag=ROBIN_TAG, degree=1,
+        msh,
+        ft,
+        k=K,
+        q=Q,
+        h=H,
+        t_inf=T_INF,
+        robin_tag=ROBIN_TAG,
+        degree=1,
         perfusion_w_per_m3_k=W_STRONG,
     )
     e_in, e_all, _vol, _n = _errors(msh, sol.temperature, W_STRONG)
-    _say(comm, f"MAT11 printed-only w={W_STRONG:.0f}: interior_rel_L2={e_in:.4e} whole_rel_L2={e_all:.4e} "
-               f"perfused fraction={sol.perfused_power / sol.source_power:.4f} (predicted 0.905) "
-               f"balance={_balance(sol):.3e}")
+    _say(
+        comm,
+        f"MAT11 printed-only w={W_STRONG:.0f}: interior_rel_L2={e_in:.4e} whole_rel_L2={e_all:.4e} "
+        f"perfused fraction={sol.perfused_power / sol.source_power:.4f} (predicted 0.905) "
+        f"balance={_balance(sol):.3e}",
+    )
     with pytest.raises(ValueError):
         solve_steady_conduction(
-            msh, ft, k=K, q=Q, h=H, t_inf=T_INF, robin_tag=ROBIN_TAG, perfusion_w_per_m3_k=-W,
+            msh,
+            ft,
+            k=K,
+            q=Q,
+            h=H,
+            t_inf=T_INF,
+            robin_tag=ROBIN_TAG,
+            perfusion_w_per_m3_k=-W,
         )
 
 
@@ -269,18 +308,32 @@ def test_negative_controls():
         msh, ft, k=K, q=Q, h=H, t_inf=T_INF, robin_tag=ROBIN_TAG, degree=1
     )
     e_in_a, _, _, _ = _errors(msh, sol_a.temperature, W)
-    _say(comm, f"MAT11 control (a) w = 0: interior_rel_L2={e_in_a:.4e} "
-               f"(asserted > {INTERIOR_BAND:.0e}; predicted ≈ 1.11); perfused_power={sol_a.perfused_power!r}")
+    _say(
+        comm,
+        f"MAT11 control (a) w = 0: interior_rel_L2={e_in_a:.4e} "
+        f"(asserted > {INTERIOR_BAND:.0e}; predicted ≈ 1.11); perfused_power={sol_a.perfused_power!r}",
+    )
     assert e_in_a > INTERIOR_BAND
     assert sol_a.perfused_power == 0.0
 
     # (b) sign flipped: −wθ is MAT-5's growth form at mR = 2 > λ₁ (indefinite).
     sol_b = _solve(
-        msh, ft, k=K, q=Q, h=H, t_inf=T_INF, robin_tag=ROBIN_TAG, degree=1,
-        perfusion_w_per_m3_k=-W, petsc_prefix="mat11_ctrl_b_",
+        msh,
+        ft,
+        k=K,
+        q=Q,
+        h=H,
+        t_inf=T_INF,
+        robin_tag=ROBIN_TAG,
+        degree=1,
+        perfusion_w_per_m3_k=-W,
+        petsc_prefix="mat11_ctrl_b_",
     )
     e_in_b, _, _, _ = _errors(msh, sol_b.temperature, W)
     centre_b, _surf_b = _centre_surface(msh, sol_b.temperature)
-    _say(comm, f"MAT11 control (b) -w: interior_rel_L2={e_in_b:.4e} theta_h centre={centre_b:.2f} K "
-               f"(asserted > {INTERIOR_BAND:.0e}; predicted ≈ 22, theta(0) ≈ -131 K, mesh-sensitive)")
+    _say(
+        comm,
+        f"MAT11 control (b) -w: interior_rel_L2={e_in_b:.4e} theta_h centre={centre_b:.2f} K "
+        f"(asserted > {INTERIOR_BAND:.0e}; predicted ≈ 22, theta(0) ≈ -131 K, mesh-sensitive)",
+    )
     assert e_in_b > INTERIOR_BAND

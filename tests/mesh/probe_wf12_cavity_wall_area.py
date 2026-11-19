@@ -53,7 +53,8 @@ def _owned_facet_split(msh, facet_indices, neighbour_tag, comm):
     import dolfinx
 
     geom_ids = dolfinx.cpp.mesh.entities_to_geometry(
-        msh._cpp_object, fdim, facets.astype(np.int32), False)
+        msh._cpp_object, fdim, facets.astype(np.int32), False
+    )
     x = msh.geometry.x
     p0, p1, p2 = x[geom_ids[:, 0]], x[geom_ids[:, 1]], x[geom_ids[:, 2]]
     area = 0.5 * np.linalg.norm(np.cross(p1 - p0, p2 - p0), axis=1)
@@ -116,7 +117,8 @@ def main():
         kwargs["as_hole"] = True
     t0 = time.perf_counter()
     msh, cells, facets, diag = MeshGenerator.birdcage_port_domain(
-        comm=comm, return_diagnostics=True, **kwargs)
+        comm=comm, return_diagnostics=True, **kwargs
+    )
     t_build = time.perf_counter() - t0
     tdim = msh.topology.dim
     fdim = tdim - 1
@@ -126,11 +128,15 @@ def main():
     n_owned_cells = msh.topology.index_map(tdim).size_local
     census = _census(cells.values, comm, indices=cells.indices, n_owned=n_owned_cells)
     rss_gib = comm.allreduce(
-        resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024.0**2, op=MPI.SUM)
+        resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024.0**2, op=MPI.SUM
+    )
     if comm.rank == 0:
-        print(f"{tag} cells {n_cells}; build {t_build:.1f} s (gmsh mesh_wall_time_s "
-              f"{diag.get('mesh_wall_time_s', float('nan'))}); peak RSS summed "
-              f"{rss_gib:.3f} GiB; -n {comm.size}; census {census}", flush=True)
+        print(
+            f"{tag} cells {n_cells}; build {t_build:.1f} s (gmsh mesh_wall_time_s "
+            f"{diag.get('mesh_wall_time_s', float('nan'))}); peak RSS summed "
+            f"{rss_gib:.3f} GiB; -n {comm.size}; census {census}",
+            flush=True,
+        )
 
     cell_value = _cell_value(msh, cells)
     f2c = msh.topology.connectivity(fdim, tdim)
@@ -138,13 +144,15 @@ def main():
 
     if args.route == "hole":
         A = _exterior_facet_area(msh, facets, BIRDCAGE_CONDUCTOR_SURFACE_TAG, comm)
-        idx = np.asarray(facets.indices)[np.asarray(facets.values)
-                                         == BIRDCAGE_CONDUCTOR_SURFACE_TAG]
+        idx = np.asarray(facets.indices)[
+            np.asarray(facets.values) == BIRDCAGE_CONDUCTOR_SURFACE_TAG
+        ]
         nbr = cell_value[links[offsets[idx]]]
     else:
         others = sorted(t for t in census if t != 1)
         iface = _interface_facet_tags(
-            msh, cells, {SOLID_CONDUCTOR_IFACE: tuple((1, t) for t in others)})
+            msh, cells, {SOLID_CONDUCTOR_IFACE: tuple((1, t) for t in others)}
+        )
         A = _facet_area(msh, iface, SOLID_CONDUCTOR_IFACE, comm)
         idx = np.asarray(iface.indices)[np.asarray(iface.values) == SOLID_CONDUCTOR_IFACE]
         a = cell_value[links[offsets[idx]]]
@@ -156,16 +164,22 @@ def main():
     if comm.rank == 0:
         print(f"{tag} wall area A = {A:.10e} m^2", flush=True)
         for c in sorted(split):
-            print(f"{tag}   class {c}: area {split[c][0]:.10e} m^2, facets {split[c][1]}",
-                  flush=True)
-        print(f"{tag} sum_class {total:.10e}; |sum_class - A| = {abs(total - A):.3e}; "
-              f"facets {sum(v[1] for v in split.values())}", flush=True)
+            print(
+                f"{tag}   class {c}: area {split[c][0]:.10e} m^2, facets {split[c][1]}", flush=True
+            )
+        print(
+            f"{tag} sum_class {total:.10e}; |sum_class - A| = {abs(total - A):.3e}; "
+            f"facets {sum(v[1] for v in split.values())}",
+            flush=True,
+        )
         if args.route == "hole":
             cad = diag.get("conductor_cavity_cad", {})
             a_cad = float(cad.get("area_m2", float("nan")))
-            print(f"{tag} A_CAD {a_cad:.10e} m^2 ({cad.get('surfaces')} surfaces); "
-                  f"A/A_CAD - 1 = {A / a_cad - 1.0:+.6e}; A_CAD - A = {a_cad - A:.6e}",
-                  flush=True)
+            print(
+                f"{tag} A_CAD {a_cad:.10e} m^2 ({cad.get('surfaces')} surfaces); "
+                f"A/A_CAD - 1 = {A / a_cad - 1.0:+.6e}; A_CAD - A = {a_cad - A:.6e}",
+                flush=True,
+            )
 
 
 if __name__ == "__main__":

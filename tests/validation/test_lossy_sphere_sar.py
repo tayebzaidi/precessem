@@ -59,7 +59,6 @@ from fem_em_solver.io.mesh import MeshGenerator
 from fem_em_solver.post.evaluation import evaluate_vector_field_parallel
 from fem_em_solver.post.sar import mean_sar, uniform_sphere_sar_closed_form
 from fem_em_solver.utils.constants import EPSILON_0, MU_0
-
 from tests.complex_mode import complex_only
 
 # Geometry and drive.  R and f both move relative to `TH-8` (R = 0.05 m,
@@ -180,9 +179,7 @@ def _solve_lossy_sphere(
         frequency_hz=FREQUENCY_HZ,
         material=HomogeneousMaterial(sigma=0.0, epsilon_r=1.0),
         cell_tags=cell_tags,
-        material_map={
-            SPHERE_TAG: HomogeneousMaterial(sigma=sigma, epsilon_r=EPSILON_R_SPHERE)
-        },
+        material_map={SPHERE_TAG: HomogeneousMaterial(sigma=sigma, epsilon_r=EPSILON_R_SPHERE)},
         boundary_condition="pec_zero_tangential_a",
         dirichlet_e_field=_exact_exterior_numpy(sigma),
     )
@@ -212,9 +209,7 @@ def _solve_lossy_sphere(
     ez = np.real(real_values[:, 2]) + 1j * np.real(imag_values[:, 2])
     ez_mean = complex(np.mean(ez))
 
-    ncells = comm.allreduce(
-        msh.topology.index_map(msh.topology.dim).size_local, op=MPI.SUM
-    )
+    ncells = comm.allreduce(msh.topology.index_map(msh.topology.dim).size_local, op=MPI.SUM)
     result = {
         "sigma": sigma,
         "mean_sar": sar["mean_sar_w_per_kg"],

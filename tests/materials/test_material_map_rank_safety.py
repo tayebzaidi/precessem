@@ -86,7 +86,9 @@ def _tag_one_global_cell(mesh, tag: int):
     cell_tags = dolfinx.mesh.meshtags(mesh, tdim, indices, values)
 
     tagged_globally = mesh.comm.allreduce(int(indices.size), op=MPI.SUM)
-    assert tagged_globally == 1, f"fixture tagged {tagged_globally} cells globally, expected exactly 1"
+    assert (
+        tagged_globally == 1
+    ), f"fixture tagged {tagged_globally} cells globally, expected exactly 1"
     return cell_tags
 
 
@@ -197,7 +199,9 @@ def test_absent_tag_is_rejected_on_every_rank(unit_cube_with_one_tagged_cell):
     material_map = {ABSENT_TAG: TAGGED_MATERIAL}
 
     with pytest.raises(ValueError) as excinfo:
-        build_material_fields(mesh, DEFAULT_MATERIAL, cell_tags=cell_tags, material_map=material_map)
+        build_material_fields(
+            mesh, DEFAULT_MATERIAL, cell_tags=cell_tags, material_map=material_map
+        )
     assert str(ABSENT_TAG) in str(excinfo.value)
     # The remaining known tag is reported, and it is the *global* one -- a rank
     # owning no tagged cell used to report "Known tags: []".
@@ -293,9 +297,9 @@ def test_single_rank_owned_phantom_tag_is_accepted_on_every_rank(unit_cube_with_
     local_phantom_cells = int(local_indices.size)
     empty_ranks = comm.allreduce(int(local_phantom_cells == 0), op=MPI.SUM)
     if comm.size > 1:
-        assert empty_ranks >= 1, (
-            f"fixture no longer reproduces the defect: all {comm.size} ranks own phantom cells"
-        )
+        assert (
+            empty_ranks >= 1
+        ), f"fixture no longer reproduces the defect: all {comm.size} ranks own phantom cells"
 
     # The call the old code failed on every rank owning no phantom cell.
     sigma_field, epsilon_field = build_material_fields(

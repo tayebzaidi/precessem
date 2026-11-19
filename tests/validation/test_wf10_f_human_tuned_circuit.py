@@ -107,7 +107,9 @@ def _k1_shares(currents, order, slots):
                 vec[k] = currents[idx]
         spec = np.fft.fft(vec)
         total = float(np.sum(np.abs(spec) ** 2))
-        out[sign] = float((abs(spec[1]) ** 2 + abs(spec[15]) ** 2) / total) if total else float("nan")
+        out[sign] = (
+            float((abs(spec[1]) ** 2 + abs(spec[15]) ** 2) / total) if total else float("nan")
+        )
     return out
 
 
@@ -117,7 +119,6 @@ def test_wf10_step1_f_human_tuned_in_the_circuit_layer_matches_in_model():
         pytest.skip(f"{STEP1_ENV} unset: heavy -n 8 F-human window, environment-selected")
 
     from fem_em_solver.ports.shares import terminal_form_deficit
-
     from tests.mesh.test_birdcage_port_sheet_prerequisite import CELL_COUNT_BAND
     from tests.validation.test_birdcage_f_human_rung import F_HUMAN_BRANCH_B_CELL_RECORD
     from tests.validation.test_port_birdcage_ring_column import (
@@ -160,8 +161,10 @@ def test_wf10_step1_f_human_tuned_in_the_circuit_layer_matches_in_model():
     build_s = time.perf_counter() - t0
     n_cells = built["cells"]
     rel_cells = n_cells / F_HUMAN_BRANCH_B_CELL_RECORD - 1.0
-    say(f"(i) cells {n_cells} vs record {F_HUMAN_BRANCH_B_CELL_RECORD}: relative "
-        f"{rel_cells:.3e} (band {CELL_COUNT_BAND}, ASSERTED); build {build_s:.2f} s")
+    say(
+        f"(i) cells {n_cells} vs record {F_HUMAN_BRANCH_B_CELL_RECORD}: relative "
+        f"{rel_cells:.3e} (band {CELL_COUNT_BAND}, ASSERTED); build {build_s:.2f} s"
+    )
     ctx = built["ctx"]
     base_specs = list(ctx["specs"])
 
@@ -169,27 +172,32 @@ def test_wf10_step1_f_human_tuned_in_the_circuit_layer_matches_in_model():
     ref_pid = "P17"
     ref_k, ref_sign = slots[ref_pid]
     feed2 = next(
-        pid for pid, (k, sg) in slots.items()
+        pid
+        for pid, (k, sg) in slots.items()
         if sg == ref_sign and k == (ref_k + QUADRATURE_SLOT_OFFSET) % 16
     )
-    others = sorted((pid for pid in slots if pid not in (ref_pid, feed2)),
-                    key=lambda p: int(p[1:]))
+    others = sorted((pid for pid in slots if pid not in (ref_pid, feed2)), key=lambda p: int(p[1:]))
     order = [ref_pid, feed2] + others
     assert len(order) == 32
-    say(f"feeds: {ref_pid} (slot {ref_k}, ring {ref_sign:+.0f}; az_ref {az_ref:.6f} deg) and "
-        f"{feed2} (slot {slots[feed2][0]}); 30 ports in C")
+    say(
+        f"feeds: {ref_pid} (slot {ref_k}, ring {ref_sign:+.0f}; az_ref {az_ref:.6f} deg) and "
+        f"{feed2} (slot {slots[feed2][0]}); 30 ports in C"
+    )
 
     # ---- κ from the P17 column at the uncorrected width ------------------------
     col = _solve_one_drive(ctx, ref_pid, reuse_factorization=False)
     fields = col.pop("fields")
     t_id = time.perf_counter()
     sheets = [spec.sheet(driven=(spec.port_id == ref_pid)) for spec in base_specs]
-    kappa = float(terminal_form_deficit(ctx["msh"], ctx["tags_f"], sheets,
-                                        fields.e_complex, comm)["pooled"])
+    kappa = float(
+        terminal_form_deficit(ctx["msh"], ctx["tags_f"], sheets, fields.e_complex, comm)["pooled"]
+    )
     del fields
-    say(f"kappa (pooled C/terminal - 1, P17 column, uncorrected width) = {kappa:.6e} beside "
+    say(
+        f"kappa (pooled C/terminal - 1, P17 column, uncorrected width) = {kappa:.6e} beside "
         f"WF-7 step 1's pooled {WF7_STEP1_POOLED_RANGE} (printed); identity eval "
-        f"{time.perf_counter() - t_id:.2f} s; t={time.perf_counter() - t_window:.1f} s")
+        f"{time.perf_counter() - t_id:.2f} s; t={time.perf_counter() - t_window:.1f} s"
+    )
 
     # ---- κ-corrected 32×32 -------------------------------------------------
     ctx32 = dict(ctx)
@@ -200,14 +208,17 @@ def test_wf10_step1_f_human_tuned_in_the_circuit_layer_matches_in_model():
         c.pop("fields")
         columns[pid] = c
     kinds = [columns[p]["solve_kind"] for p in order]
-    s32 = np.array([[columns[pj]["s_column"][pi] for pj in order] for pi in order],
-                   dtype=np.complex128)
+    s32 = np.array(
+        [[columns[pj]["s_column"][pi] for pj in order] for pi in order], dtype=np.complex128
+    )
     ratio32 = _reciprocity_ratio(s32)
     sigma32 = float(np.linalg.norm(s32, 2))
-    say(f"32x32 (kappa-corrected): {kinds.count('solve')} factorising, {kinds.count('held')} "
+    say(
+        f"32x32 (kappa-corrected): {kinds.count('solve')} factorising, {kinds.count('held')} "
         f"held; reciprocity {ratio32:.6e} (band {RECIPROCITY_BAND:.0e}, ASSERTED); sigma_max "
         f"{sigma32:.9f} (ceiling {MATRIX_PASSIVITY_CEILING}, ASSERTED); S_driven(P17) "
-        f"{s32[0, 0]:.6f} (printed, width-tagged); t={time.perf_counter() - t_window:.1f} s")
+        f"{s32[0, 0]:.6f} (printed, width-tagged); t={time.perf_counter() - t_window:.1f} s"
+    )
 
     # ---- the circuit sweep ---------------------------------------------------
     terminated = tuple(range(2, 32))
@@ -217,15 +228,18 @@ def test_wf10_step1_f_human_tuned_in_the_circuit_layer_matches_in_model():
     for r in roots:
         cur = _circuit_currents(s32, FREQUENCY_HZ, r["c_f"], 2, z0)
         sh = _k1_shares(cur, order, slots)
-        say(f"    C = {r['c_f']:.12e} F  Z_in = {r['z'].real:+.6e} {r['z'].imag:+.6e}j Ohm  "
+        say(
+            f"    C = {r['c_f']:.12e} F  Z_in = {r['z'].real:+.6e} {r['z'].imag:+.6e}j Ohm  "
             f"|S11| = {abs(r['s11']):.6f}  |Im Z|/|Z| = {r['im_rel']:.3e}  "
             f"{'ZERO' if r['zero'] else 'pole'}  k=+-1 share: ring+ {sh[1.0]:.6f} "
-            f"ring- {sh[-1.0]:.6f}")
+            f"ring- {sh[-1.0]:.6f}"
+        )
     assert tuned is not None, "no zero of Im Z_in on the grid — the finding; never widen in-slot"
     c_t = float(tuned["c_f"])
     _, pred2 = tuned_input(s32, FREQUENCY_HZ, c_t, terminated=terminated)
-    _, pred_ctl = tuned_input(s32, FREQUENCY_HZ, NEGATIVE_CONTROL_FACTOR * c_t,
-                              terminated=terminated)
+    _, pred_ctl = tuned_input(
+        s32, FREQUENCY_HZ, NEGATIVE_CONTROL_FACTOR * c_t, terminated=terminated
+    )
     z_c = _capacitor_impedance(FREQUENCY_HZ, c_t)
     gamma = (z_c - z0) / (z_c + z0)
     s_tt = s32[2:, 2:]
@@ -236,11 +250,13 @@ def test_wf10_step1_f_human_tuned_in_the_circuit_layer_matches_in_model():
     x_hi = tuned_input(s32, FREQUENCY_HZ, c_t + dc, terminated=terminated)[0].imag
     x_lo = tuned_input(s32, FREQUENCY_HZ, c_t - dc, terminated=terminated)[0].imag
     c_dxdc = c_t * (x_hi - x_lo) / (2.0 * dc)
-    say(f"C_tuned = {c_t:.12e} F (Z_C = {z_c:.6e} Ohm): |Im Z_in|/|Z_in| = "
+    say(
+        f"C_tuned = {c_t:.12e} F (Z_C = {z_c:.6e} Ohm): |Im Z_in|/|Z_in| = "
         f"{tuned['im_rel']:.3e} (ASSERTED <= {TUNING_IM_Z_RTOL:.0e}); R_in = {r_in:.6e} Ohm; "
         f"circuit |S21| = {abs(pred2[1, 0]):.6e}; cond(I - Gamma S_tt) = {cond:.6e}; "
         f"C dX/dC = {c_dxdc:+.6e} Ohm -> Q proxy unloaded {abs(c_dxdc) / r_in:.3f}, loaded "
-        f"{abs(c_dxdc) / (r_in + z0):.3f} (printed)")
+        f"{abs(c_dxdc) / (r_in + z0):.3f} (printed)"
+    )
 
     # ---- in-model 2×2 with PORT-14 C sheets on the 30 gaps -------------------
     ctx_c = dict(ctx)
@@ -251,36 +267,46 @@ def test_wf10_step1_f_human_tuned_in_the_circuit_layer_matches_in_model():
         c = _solve_one_drive(ctx_c, pid, reuse_factorization=(n_drive > 0))
         c.pop("fields")
         meas[pid] = c
-    s2 = np.array([[meas[pj]["s_column"][pi] for pj in order[:2]] for pi in order[:2]],
-                  dtype=np.complex128)
+    s2 = np.array(
+        [[meas[pj]["s_column"][pi] for pj in order[:2]] for pi in order[:2]], dtype=np.complex128
+    )
     r_id = _residual(s2, pred2)
     r_ctl = _residual(s2, pred_ctl)
     rec_pred, rec_meas = _reciprocity_ratio(pred2), _reciprocity_ratio(s2)
     colmax_pred = float(np.max(np.sum(np.abs(pred2) ** 2, axis=0)))
     colmax_meas = float(np.max(np.sum(np.abs(s2) ** 2, axis=0)))
-    say(f"in-model 2x2 ({[meas[p]['solve_kind'] for p in order[:2]]}, "
-        f"{time.perf_counter() - t_im:.2f} s):")
+    say(
+        f"in-model 2x2 ({[meas[p]['solve_kind'] for p in order[:2]]}, "
+        f"{time.perf_counter() - t_im:.2f} s):"
+    )
     for name, m in (("PRED", pred2), ("MEAS", s2)):
-        say(f"    {name} " + "; ".join(
-            ", ".join(f"{complex(v):.10e}" for v in row) for row in m))
-    say(f"(identity) residual ||MEAS - PRED||/||PRED|| = {r_id:.6e} (band {REDUCTION_BAND:.0e}, "
-        f"ASSERTED); in-model |S21| = {abs(s2[1, 0]):.6e}, |S11| = {abs(s2[0, 0]):.6e}")
-    say(f"reciprocity 2x2: circuit {rec_pred:.6e}, in-model {rec_meas:.6e} (band "
+        say(f"    {name} " + "; ".join(", ".join(f"{complex(v):.10e}" for v in row) for row in m))
+    say(
+        f"(identity) residual ||MEAS - PRED||/||PRED|| = {r_id:.6e} (band {REDUCTION_BAND:.0e}, "
+        f"ASSERTED); in-model |S21| = {abs(s2[1, 0]):.6e}, |S11| = {abs(s2[0, 0]):.6e}"
+    )
+    say(
+        f"reciprocity 2x2: circuit {rec_pred:.6e}, in-model {rec_meas:.6e} (band "
         f"{RECIPROCITY_BAND:.0e}, ASSERTED); max column sum|S|^2 circuit {colmax_pred:.9f}, "
-        f"in-model {colmax_meas:.9f} (ceiling {COLUMN_PASSIVITY_CEILING}, ASSERTED)")
-    say(f"negative control (PREDICTED >= {NEGATIVE_CONTROL_PREDICTED_BAND_MULTIPLE:g}x band, "
+        f"in-model {colmax_meas:.9f} (ceiling {COLUMN_PASSIVITY_CEILING}, ASSERTED)"
+    )
+    say(
+        f"negative control (PREDICTED >= {NEGATIVE_CONTROL_PREDICTED_BAND_MULTIPLE:g}x band, "
         f"printed, never asserted — rule (e)): {NEGATIVE_CONTROL_FACTOR} x C_tuned prediction "
         f"vs in-model residual {r_ctl:.6e} = {r_ctl / REDUCTION_BAND:.2f}x band "
-        f"({'held' if r_ctl >= NEGATIVE_CONTROL_PREDICTED_BAND_MULTIPLE * REDUCTION_BAND else 'NOT held'})")
-    say(f"window elapsed {time.perf_counter() - t_window:.1f} s at -n {comm.size}; summed "
-        f"ru_maxrss {_rss_summed_gib(comm):.3f} GiB")
+        f"({'held' if r_ctl >= NEGATIVE_CONTROL_PREDICTED_BAND_MULTIPLE * REDUCTION_BAND else 'NOT held'})"
+    )
+    say(
+        f"window elapsed {time.perf_counter() - t_window:.1f} s at -n {comm.size}; summed "
+        f"ru_maxrss {_rss_summed_gib(comm):.3f} GiB"
+    )
 
     # ---- asserts, in the item's order ----------------------------------------
     assert abs(rel_cells) < CELL_COUNT_BAND, f"cells {n_cells}, relative {rel_cells:.3e}"
     assert tuned["im_rel"] <= TUNING_IM_Z_RTOL
-    assert r_id <= REDUCTION_BAND, (
-        f"identity residual {r_id:.6e} > {REDUCTION_BAND:.0e}: known-issues, never re-band"
-    )
+    assert (
+        r_id <= REDUCTION_BAND
+    ), f"identity residual {r_id:.6e} > {REDUCTION_BAND:.0e}: known-issues, never re-band"
     assert ratio32 <= RECIPROCITY_BAND
     assert rec_pred <= RECIPROCITY_BAND
     assert rec_meas <= RECIPROCITY_BAND
@@ -309,16 +335,22 @@ STEP1C_NPZ = "/workspace/logs/wf10/h8a-held-s32.npz"
 C_TUNED_F = 1.973268440567e-11
 C_MODE_F = 1.131080769863e-10
 # (A1) H8's in-model MEAS at C_tuned, `…WF-10-step1.log:10609`; residual `:10610`.
-A1_MEAS = np.array([
-    [-5.7176667839e-01 + 3.4507454728e-05j, -1.4806852179e-02 + 7.9149605593e-02j],
-    [-1.4806852179e-02 + 7.9149605593e-02j, -5.7179555368e-01 - 3.4742542655e-05j],
-], dtype=np.complex128)
+A1_MEAS = np.array(
+    [
+        [-5.7176667839e-01 + 3.4507454728e-05j, -1.4806852179e-02 + 7.9149605593e-02j],
+        [-1.4806852179e-02 + 7.9149605593e-02j, -5.7179555368e-01 - 3.4742542655e-05j],
+    ],
+    dtype=np.complex128,
+)
 A1_RESIDUAL_RECORD = 6.992446e-04
 # (A2) item 62's in-model MEAS at C_mode, `…WF-10-step1b.log:10647`; residual `:10648`.
-A2_MEAS = np.array([
-    [-2.0700978050e-01 + 3.9255129634e-01j, -7.2474140243e-02 - 1.2747203159e-01j],
-    [-7.2474140243e-02 - 1.2747203159e-01j, -2.0774736260e-01 + 3.9176561124e-01j],
-], dtype=np.complex128)
+A2_MEAS = np.array(
+    [
+        [-2.0700978050e-01 + 3.9255129634e-01j, -7.2474140243e-02 - 1.2747203159e-01j],
+        [-7.2474140243e-02 - 1.2747203159e-01j, -2.0774736260e-01 + 3.9176561124e-01j],
+    ],
+    dtype=np.complex128,
+)
 A2_RESIDUAL_RECORD = 3.486500e-03
 # H8's cond(I - Γ S_tt) at C_tuned, `…step1.log:10606` (printed beside).
 COND_AT_C_TUNED_RECORD = 4.608715
@@ -376,8 +408,8 @@ def _rule_points(grid, conds):
         return maxima, None
     top = sorted(sorted(maxima, key=lambda i: conds[i], reverse=True)[:2])
     lo, hi = top
-    off1 = lo + 1 + int(np.argmin(conds[lo + 1:hi]))
-    off2 = hi + 1 + int(np.argmin(conds[hi + 1:n - 1])) if hi + 1 < n - 1 else None
+    off1 = lo + 1 + int(np.argmin(conds[lo + 1 : hi]))
+    off2 = hi + 1 + int(np.argmin(conds[hi + 1 : n - 1])) if hi + 1 < n - 1 else None
     return maxima, {"on_lo": lo, "on_hi": hi, "off1": off1, "off2": off2}
 
 
@@ -395,8 +427,7 @@ def _in_model_pair(ctx, base_specs, kappa, others, feeds, z_c):
         c.pop("fields")
         meas[pid] = c
         kinds.append(c["solve_kind"])
-    s2 = np.array([[meas[pj]["s_column"][pi] for pj in feeds] for pi in feeds],
-                  dtype=np.complex128)
+    s2 = np.array([[meas[pj]["s_column"][pi] for pj in feeds] for pi in feeds], dtype=np.complex128)
     return s2, kinds
 
 
@@ -406,6 +437,7 @@ def test_wf10_step1c_c_sweep():
     if mode is None:
         pytest.skip(f"{STEP1C_ENV} unset: heavy -n 8 F-human C-sweep, environment-selected")
 
+    from fem_em_solver.ports.shares import terminal_form_deficit
     from tests.mesh.test_birdcage_port_sheet_prerequisite import CELL_COUNT_BAND
     from tests.validation.test_birdcage_f_human_rung import F_HUMAN_BRANCH_B_CELL_RECORD
     from tests.validation.test_port_birdcage_four_port import LEG_D0_REPRODUCTION_BAND
@@ -429,7 +461,6 @@ def test_wf10_step1c_c_sweep():
         FREQUENCY_HZ,
         _build_f_human,
     )
-    from fem_em_solver.ports.shares import terminal_form_deficit
 
     comm = MPI.COMM_WORLD
     z0 = float(REFERENCE_IMPEDANCE_OHM)
@@ -454,18 +485,22 @@ def test_wf10_step1c_c_sweep():
     built = _build_f_human(comm, emit_leg_ports=True)  # GEO-35 step 2b: unpin with the re-record
     n_cells = built["cells"]
     rel_cells = n_cells / F_HUMAN_BRANCH_B_CELL_RECORD - 1.0
-    say(f"cells {n_cells} vs record {F_HUMAN_BRANCH_B_CELL_RECORD}: relative {rel_cells:.3e} "
-        f"(band {CELL_COUNT_BAND}, ASSERTED); build {time.perf_counter() - t0:.2f} s")
+    say(
+        f"cells {n_cells} vs record {F_HUMAN_BRANCH_B_CELL_RECORD}: relative {rel_cells:.3e} "
+        f"(band {CELL_COUNT_BAND}, ASSERTED); build {time.perf_counter() - t0:.2f} s"
+    )
     assert abs(rel_cells) < CELL_COUNT_BAND
     ctx = built["ctx"]
     base_specs = list(ctx["specs"])
     az_ref, slots = _ring_quadrature_slots(built["sheets"])
     ref_pid = "P17"
     ref_k, ref_sign = slots[ref_pid]
-    feed2 = next(pid for pid, (k, sg) in slots.items()
-                 if sg == ref_sign and k == (ref_k + QUADRATURE_SLOT_OFFSET) % 16)
-    others = sorted((pid for pid in slots if pid not in (ref_pid, feed2)),
-                    key=lambda p: int(p[1:]))
+    feed2 = next(
+        pid
+        for pid, (k, sg) in slots.items()
+        if sg == ref_sign and k == (ref_k + QUADRATURE_SLOT_OFFSET) % 16
+    )
+    others = sorted((pid for pid in slots if pid not in (ref_pid, feed2)), key=lambda p: int(p[1:]))
     order = [ref_pid, feed2] + others
     feeds = order[:2]
     say(f"feeds: {ref_pid} and {feed2}; 30 ports in C")
@@ -477,8 +512,11 @@ def test_wf10_step1c_c_sweep():
         col = _solve_one_drive(ctx, ref_pid, reuse_factorization=False)
         fields = col.pop("fields")
         sheets = [spec.sheet(driven=(spec.port_id == ref_pid)) for spec in base_specs]
-        kappa = float(terminal_form_deficit(ctx["msh"], ctx["tags_f"], sheets,
-                                            fields.e_complex, comm)["pooled"])
+        kappa = float(
+            terminal_form_deficit(ctx["msh"], ctx["tags_f"], sheets, fields.e_complex, comm)[
+                "pooled"
+            ]
+        )
         del fields
         say(f"kappa = {kappa:.6e}; t={time.perf_counter() - t_window:.1f} s")
         ctx32 = dict(ctx)
@@ -489,10 +527,13 @@ def test_wf10_step1c_c_sweep():
             c.pop("fields")
             columns[pid] = c
         kinds = [columns[p]["solve_kind"] for p in order]
-        s32 = np.array([[columns[pj]["s_column"][pi] for pj in order] for pi in order],
-                       dtype=np.complex128)
-        say(f"32x32: {kinds.count('solve')} factorising, {kinds.count('held')} held; "
-            f"t={time.perf_counter() - t_window:.1f} s")
+        s32 = np.array(
+            [[columns[pj]["s_column"][pi] for pj in order] for pi in order], dtype=np.complex128
+        )
+        say(
+            f"32x32: {kinds.count('solve')} factorising, {kinds.count('held')} held; "
+            f"t={time.perf_counter() - t_window:.1f} s"
+        )
     else:
         kappa = float(saved["kappa"])
         s32 = np.array(saved["s32"], dtype=np.complex128)
@@ -501,8 +542,10 @@ def test_wf10_step1c_c_sweep():
 
     ratio32 = _reciprocity_ratio(s32)
     sigma32 = float(np.linalg.norm(s32, 2))
-    say(f"32x32 reciprocity {ratio32:.6e} (band {RECIPROCITY_BAND:.0e}, ASSERTED); sigma_max "
-        f"{sigma32:.9f} (ceiling {MATRIX_PASSIVITY_CEILING}, ASSERTED)")
+    say(
+        f"32x32 reciprocity {ratio32:.6e} (band {RECIPROCITY_BAND:.0e}, ASSERTED); sigma_max "
+        f"{sigma32:.9f} (ceiling {MATRIX_PASSIVITY_CEILING}, ASSERTED)"
+    )
     assert ratio32 <= RECIPROCITY_BAND
     assert sigma32 <= MATRIX_PASSIVITY_CEILING
 
@@ -514,11 +557,15 @@ def test_wf10_step1c_c_sweep():
         r = _residual(meas, pred)
         gamma = (z_c - z0) / (z_c + z0)
         cond = float(np.linalg.cond(np.eye(30) - gamma * s32[2:, 2:]))
-        say(f"{label}: C = {c_f:.12e} F, {kinds}, {time.perf_counter() - t_p:.2f} s; "
-            f"t={time.perf_counter() - t_window:.1f} s")
+        say(
+            f"{label}: C = {c_f:.12e} F, {kinds}, {time.perf_counter() - t_p:.2f} s; "
+            f"t={time.perf_counter() - t_window:.1f} s"
+        )
         for name, m in (("PRED", pred), ("MEAS", meas)):
-            say(f"    {name} " + "; ".join(
-                ", ".join(f"{complex(v):.10e}" for v in row) for row in m))
+            say(
+                f"    {name} "
+                + "; ".join(", ".join(f"{complex(v):.10e}" for v in row) for row in m)
+            )
         say(f"    residual {r:.6e}  cond {cond:.6e}  residual/cond {r / cond:.6e}")
         checks.append((label, pred, meas))
         return meas, pred, r, cond
@@ -527,58 +574,87 @@ def test_wf10_step1c_c_sweep():
     grid = np.geomspace(C_TUNED_F, C_MODE_F, SCAN_POINTS)
     conds, s11s, shp, shm = _circuit_scan(s32, FREQUENCY_HZ, grid, order, slots, z0)
     maxima, pts = _rule_points(grid, conds)
-    say(f"scan: {SCAN_POINTS} log-spaced C in [C_tuned, C_mode]; cond at C_tuned "
+    say(
+        f"scan: {SCAN_POINTS} log-spaced C in [C_tuned, C_mode]; cond at C_tuned "
         f"{conds[0]:.6e} beside H8's {COND_AT_C_TUNED_RECORD} (printed); {len(maxima)} interior "
-        f"local maxima of cond")
+        f"local maxima of cond"
+    )
     if mode == "W1":
         say("    i     C [pF]        cond(I-GS_tt)   |S11|      share ring+  share ring-")
         extrema = set(maxima)
-        extrema |= {i for i in range(1, SCAN_POINTS - 1)
-                    if conds[i] < conds[i - 1] and conds[i] <= conds[i + 1]}
+        extrema |= {
+            i
+            for i in range(1, SCAN_POINTS - 1)
+            if conds[i] < conds[i - 1] and conds[i] <= conds[i + 1]
+        }
         for i in range(SCAN_POINTS):
             if i % 10 == 0 or i in extrema or i == SCAN_POINTS - 1:
-                tag = (" MAX" if i in maxima else (" min" if i in extrema else ""))
-                say(f"    {i:4d}  {grid[i] * 1e12:12.6f}  {conds[i]:14.6e}  {s11s[i]:.6f}  "
-                    f"{shp[i]:.6f}     {shm[i]:.6f}{tag}")
-    say("    all-C anti-mode capacitances (printed beside, …step1b.log:10625–10637): "
-        + ", ".join(f"k={k} {v} pF" for k, v in ANTI_MODE_C_PF.items()))
+                tag = " MAX" if i in maxima else (" min" if i in extrema else "")
+                say(
+                    f"    {i:4d}  {grid[i] * 1e12:12.6f}  {conds[i]:14.6e}  {s11s[i]:.6f}  "
+                    f"{shp[i]:.6f}     {shm[i]:.6f}{tag}"
+                )
+    say(
+        "    all-C anti-mode capacitances (printed beside, …step1b.log:10625–10637): "
+        + ", ".join(f"k={k} {v} pF" for k, v in ANTI_MODE_C_PF.items())
+    )
     if pts is not None:
         for key in ("on_lo", "on_hi", "off1", "off2"):
             i = pts[key]
             if i is None:
                 say(f"    rule point {key}: NONE")
             else:
-                say(f"    rule point {key}: i={i} C = {grid[i]:.12e} F ({grid[i] * 1e12:.4f} pF) "
+                say(
+                    f"    rule point {key}: i={i} C = {grid[i]:.12e} F ({grid[i] * 1e12:.4f} pF) "
                     f"cond {conds[i]:.6e} |S11| {s11s[i]:.6f} shares +{shp[i]:.6f} "
-                    f"-{shm[i]:.6f}")
+                    f"-{shm[i]:.6f}"
+                )
     else:
         say(f"    fewer than 2 interior local maxima of cond ({maxima}): no rule points")
 
     if mode == "W1":
         meas_t, pred_t, r_t, cond_t = pair_at(C_TUNED_F, "(A1) C_tuned")
         a1 = _entrywise_rel(meas_t, A1_MEAS)
-        say(f"(A1) MEAS vs …step1.log:10609 entrywise {a1:.3e} (band "
+        say(
+            f"(A1) MEAS vs …step1.log:10609 entrywise {a1:.3e} (band "
             f"{LEG_D0_REPRODUCTION_BAND:.0e}, ASSERTED); residual {r_t:.6e} beside "
-            f"{A1_RESIDUAL_RECORD:.6e}")
-        _, pred_ctl = tuned_input(s32, FREQUENCY_HZ, NEGATIVE_CONTROL_FACTOR * C_TUNED_F,
-                                  terminated=terminated)
+            f"{A1_RESIDUAL_RECORD:.6e}"
+        )
+        _, pred_ctl = tuned_input(
+            s32, FREQUENCY_HZ, NEGATIVE_CONTROL_FACTOR * C_TUNED_F, terminated=terminated
+        )
         r_ctl = _residual(meas_t, pred_ctl)
-        say(f"negative control: {NEGATIVE_CONTROL_FACTOR} x C_tuned prediction vs in-model at "
+        say(
+            f"negative control: {NEGATIVE_CONTROL_FACTOR} x C_tuned prediction vs in-model at "
             f"C_tuned residual {r_ctl:.6e} = {r_ctl / REDUCTION_BAND:.2f}x band (ASSERTED >= "
-            f"{STEP1C_NEGATIVE_CONTROL_MULTIPLE:g}x; H8 measured 1364x)")
+            f"{STEP1C_NEGATIVE_CONTROL_MULTIPLE:g}x; H8 measured 1364x)"
+        )
         meas_m, pred_m, r_m, cond_m = pair_at(C_MODE_F, "(A2) C_mode")
         a2 = _entrywise_rel(meas_m, A2_MEAS)
-        say(f"(A2) MEAS vs …step1b.log:10647 entrywise {a2:.3e} (band "
+        say(
+            f"(A2) MEAS vs …step1b.log:10647 entrywise {a2:.3e} (band "
             f"{LEG_D0_REPRODUCTION_BAND:.0e}, ASSERTED); residual {r_m:.6e} beside "
-            f"{A2_RESIDUAL_RECORD:.6e}")
+            f"{A2_RESIDUAL_RECORD:.6e}"
+        )
         if comm.rank == 0:
             os.makedirs(os.path.dirname(STEP1C_NPZ), exist_ok=True)
-            np.savez(STEP1C_NPZ, s32=s32, kappa=kappa, order=np.array(order),
-                     slot_k=np.array([slots[p][0] for p in order]),
-                     slot_sign=np.array([slots[p][1] for p in order]),
-                     cells=n_cells, meas_tuned=meas_t, r_tuned=r_t, cond_tuned=cond_t,
-                     meas_mode=meas_m, r_mode=r_m, cond_mode=cond_m,
-                     c_tuned=C_TUNED_F, c_mode=C_MODE_F)
+            np.savez(
+                STEP1C_NPZ,
+                s32=s32,
+                kappa=kappa,
+                order=np.array(order),
+                slot_k=np.array([slots[p][0] for p in order]),
+                slot_sign=np.array([slots[p][1] for p in order]),
+                cells=n_cells,
+                meas_tuned=meas_t,
+                r_tuned=r_t,
+                cond_tuned=cond_t,
+                meas_mode=meas_m,
+                r_mode=r_m,
+                cond_mode=cond_m,
+                c_tuned=C_TUNED_F,
+                c_mode=C_MODE_F,
+            )
             say(f"saved {STEP1C_NPZ}")
         comm.Barrier()
     else:
@@ -587,8 +663,10 @@ def test_wf10_step1c_c_sweep():
         assert n_cells == cells_saved, f"(A3) cells {n_cells} != npz {cells_saved}"
         meas_t, pred_t, r_t, cond_t = pair_at(C_TUNED_F, "(A3) guard C_tuned")
         a3 = _entrywise_rel(meas_t, np.array(saved["meas_tuned"]))
-        say(f"(A3) re-solve vs W1 MEAS entrywise {a3:.3e} (band {LEG_D0_REPRODUCTION_BAND:.0e}, "
-            f"ASSERTED)")
+        say(
+            f"(A3) re-solve vs W1 MEAS entrywise {a3:.3e} (band {LEG_D0_REPRODUCTION_BAND:.0e}, "
+            f"ASSERTED)"
+        )
         assert a3 <= LEG_D0_REPRODUCTION_BAND, f"(A3) {a3:.3e}: npz carry-over broken"
         r_m, cond_m = float(saved["r_mode"]), float(saved["cond_mode"])
         assert pts is not None, f"fewer than 2 interior local maxima of cond: {maxima}"
@@ -606,15 +684,18 @@ def test_wf10_step1c_c_sweep():
             say(f"    {key:6s} {c * 1e12:10.4f}  {r:.6e}  {cd:.6e}  {r / cd:.6e}")
         # Bracketing: on_lo between the C_tuned anchor and off1; on_hi between
         # off1 and off2 (C_mode if off2 is absent).
-        brackets = {"on_lo": ("tuned", "off1"),
-                    "on_hi": ("off1", "off2" if "off2" in res else "mode")}
+        brackets = {
+            "on_lo": ("tuned", "off1"),
+            "on_hi": ("off1", "off2" if "off2" in res else "mode"),
+        }
         ratios = {}
         for on, (a, b) in brackets.items():
             ratios[on] = (res[on][1] / res[a][1], res[on][1] / res[b][1])
             say(f"    on/off {on}: /{a} {ratios[on][0]:.3f}, /{b} {ratios[on][1]:.3f}")
         spike = all(min(v) >= SPIKE_RATIO for v in ratios.values())
-        trend_keys = sorted((k for k in ("tuned", "off1", "off2", "mode") if k in res),
-                            key=lambda k: res[k][0])
+        trend_keys = sorted(
+            (k for k in ("tuned", "off1", "off2", "mode") if k in res), key=lambda k: res[k][0]
+        )
         trend_r = [res[k][1] for k in trend_keys]
         d = np.diff(trend_r)
         monotone = bool(np.all(d > 0) or np.all(d < 0))
@@ -623,21 +704,28 @@ def test_wf10_step1c_c_sweep():
         cs = np.array([res[k][0] for k in res])
         rs = np.array([res[k][1] for k in res])
         slope_all = float(np.polyfit(np.log(cs), np.log(rs), 1)[0])
-        slope_trend = float(np.polyfit(np.log([res[k][0] for k in trend_keys]),
-                                       np.log(trend_r), 1)[0])
-        say(f"reading (printed only): monotone over anchors+off {monotone} ({trend_keys}); "
+        slope_trend = float(
+            np.polyfit(np.log([res[k][0] for k in trend_keys]), np.log(trend_r), 1)[0]
+        )
+        say(
+            f"reading (printed only): monotone over anchors+off {monotone} ({trend_keys}); "
             f"classification = {verdict.upper()}; log-log slope residual vs C: all 6 points "
-            f"{slope_all:+.4f}, anchors+off-points {slope_trend:+.4f}")
+            f"{slope_all:+.4f}, anchors+off-points {slope_trend:+.4f}"
+        )
 
     for label, pred, meas in checks:
         rp, rm = _reciprocity_ratio(pred), _reciprocity_ratio(meas)
         cp = float(np.max(np.sum(np.abs(pred) ** 2, axis=0)))
         cm = float(np.max(np.sum(np.abs(meas) ** 2, axis=0)))
-        say(f"{label}: reciprocity circuit {rp:.3e} in-model {rm:.3e} (band "
+        say(
+            f"{label}: reciprocity circuit {rp:.3e} in-model {rm:.3e} (band "
             f"{RECIPROCITY_BAND:.0e}, ASSERTED); col sum|S|^2 circuit {cp:.9f} in-model "
-            f"{cm:.9f} (ceiling {COLUMN_PASSIVITY_CEILING}, ASSERTED)")
-    say(f"window elapsed {time.perf_counter() - t_window:.1f} s at -n {comm.size}; summed "
-        f"ru_maxrss {_rss_summed_gib(comm):.3f} GiB")
+            f"{cm:.9f} (ceiling {COLUMN_PASSIVITY_CEILING}, ASSERTED)"
+        )
+    say(
+        f"window elapsed {time.perf_counter() - t_window:.1f} s at -n {comm.size}; summed "
+        f"ru_maxrss {_rss_summed_gib(comm):.3f} GiB"
+    )
 
     if mode == "W1":
         assert a1 <= LEG_D0_REPRODUCTION_BAND, f"(A1) {a1:.3e}: reproducibility finding — stop"

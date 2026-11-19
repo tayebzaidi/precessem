@@ -43,7 +43,6 @@ from fem_em_solver import (
 from fem_em_solver.post.sar import uniform_sphere_sar_closed_form
 from fem_em_solver.thermal.steady import solve_steady_conduction
 from fem_em_solver.utils.constants import EPSILON_0
-
 from tests.complex_mode import complex_only
 from tests.package.test_wf15_study_lossy_sphere import GEOMETRY
 from tests.package.test_wf15_study_temperature import (
@@ -80,12 +79,12 @@ from tests.validation.test_mat10_sar_to_heat_sphere import (
     A_BAND,
     B_BAND,
     C_BAND,
-    G,
-    H,
-    K,
     P_BAND,
     ROBIN_TAG,
     T_INF,
+    G,
+    H,
+    K,
     _allsum,
     _interior_indicator,
     _interior_rel,
@@ -255,8 +254,10 @@ def test_wf17_step3_expected_outputs_state_the_records():
     temp_out = extract_tagged_block(temp_text, f"{TEMPERATURE_TAG}-output", lang="text")
     temp_expected = f"sphere cells = {MAT10_SUB_CELLS}\n"
     _say(f"[WF-17s3] (E) four-port {four_out!r} vs {four_expected!r}")
-    _say(f"[WF-17s3] (E) temperature {temp_out!r} vs {temp_expected!r}; (A) print "
-         f"{MAT10_A_PRINT} in page prose: {MAT10_A_PRINT in temp_text}")
+    _say(
+        f"[WF-17s3] (E) temperature {temp_out!r} vs {temp_expected!r}; (A) print "
+        f"{MAT10_A_PRINT} in page prose: {MAT10_A_PRINT in temp_text}"
+    )
     assert four_out == four_expected
     assert temp_out == temp_expected
     assert MAT10_A_PRINT in temp_text
@@ -268,8 +269,10 @@ def test_wf17_step3_docrefs_guide_has_zero_dead_links():
     rc, counts = run_checker("--docs-root", "docs/guide", "--check-links")
     link = LINK_PASS_RE.search(_checker_stdout("--docs-root", "docs/guide", "--check-links"))
     assert link is not None, "(D) no 'Link pass:' line"
-    print(f"[WF-17s3] (D) dead={counts['dead']} links={link.group(1)} pages={link.group(2)} "
-          f"exit={counts['exit']} rc={rc}")
+    print(
+        f"[WF-17s3] (D) dead={counts['dead']} links={link.group(1)} pages={link.group(2)} "
+        f"exit={counts['exit']} rc={rc}"
+    )
     assert counts["dead"] == 0
     assert int(link.group(3)) == 0
     assert int(link.group(2)) >= 38
@@ -281,9 +284,9 @@ def test_wf17_step3_docrefs_guide_has_zero_dead_links():
 @complex_only
 def test_wf17_four_port_block_reproduces_p1(monkeypatch):
     comm = MPI.COMM_WORLD
-    assert comm.size == ANS4_EXACT_STRIP_RECORD_RANK_WIDTH, (
-        f"(W) the degree-1 record is asserted at -n {ANS4_EXACT_STRIP_RECORD_RANK_WIDTH}"
-    )
+    assert (
+        comm.size == ANS4_EXACT_STRIP_RECORD_RANK_WIDTH
+    ), f"(W) the degree-1 record is asserted at -n {ANS4_EXACT_STRIP_RECORD_RANK_WIDTH}"
     _, block = _page_and_block(FOUR_PORT_TAG)
     spied: dict = {}
     _spy_solve(monkeypatch, spied)
@@ -295,8 +298,10 @@ def test_wf17_four_port_block_reproduces_p1(monkeypatch):
     assert study.degree == 1 and res.degree == 1
     s = np.asarray(res.s_matrix, dtype=np.complex128)
     rel = _rel(s, _record(1))
-    _say(f"[WF-17s3] (R4) ||S - P1||/||P1|| = {rel:.3e} (band LEG_D0_REPRODUCTION_BAND "
-         f"{LEG_D0_REPRODUCTION_BAND:g}); cells {res.cells}; block exec {seconds:.1f} s")
+    _say(
+        f"[WF-17s3] (R4) ||S - P1||/||P1|| = {rel:.3e} (band LEG_D0_REPRODUCTION_BAND "
+        f"{LEG_D0_REPRODUCTION_BAND:g}); cells {res.cells}; block exec {seconds:.1f} s"
+    )
     assert rel <= LEG_D0_REPRODUCTION_BAND
     if comm.rank == 0:
         assert f"|S11| = {abs(s[0, 0]):.4f}" in captured
@@ -315,8 +320,12 @@ def test_wf17_temperature_block_reproduces_mat10(monkeypatch):
     res = study.result
     # (A) / (P) / (B) / (C), term for term as EX-94 (examples/mri/10_study_temperature.py).
     cf = uniform_sphere_sar_closed_form(
-        e0=E0, epsilon_r=EPSILON_R_SPHERE, sigma=SIGMA_HIGH, omega=OMEGA,
-        rho=RHO_KG_M3, epsilon_0=EPSILON_0,
+        e0=E0,
+        epsilon_r=EPSILON_R_SPHERE,
+        sigma=SIGMA_HIGH,
+        omega=OMEGA,
+        rho=RHO_KG_M3,
+        epsilon_0=EPSILON_0,
     )
     q_cf = G * RHO_KG_M3 * cf["sar_w_per_kg"]
     sub, ft = th.submesh, th.facet_tags
@@ -333,10 +342,12 @@ def test_wf17_temperature_block_reproduces_mat10(monkeypatch):
     err_c = abs(th.convected_power - th.source_power) / abs(th.source_power)
     once = study.result is res
     n_sub = int(sub.topology.index_map(sub.topology.dim).size_global)
-    _say(f"[WF-17s3] (A) {err_a:.4e} vs {MAT10_A_PRINT} ({err_a:.10e}, band {A_BAND}); "
-         f"(P) {err_p:.4e} vs {MAT10_P_PRINT} (band {P_BAND:.0e}); (B) {err_b:.3e} "
-         f"(band {B_BAND:.0e}); (C) {err_c:.3e} (band {C_BAND:.0e}); sub cells {n_sub} "
-         f"(record {MAT10_SUB_CELLS}); once {once}; block exec {seconds:.1f} s")
+    _say(
+        f"[WF-17s3] (A) {err_a:.4e} vs {MAT10_A_PRINT} ({err_a:.10e}, band {A_BAND}); "
+        f"(P) {err_p:.4e} vs {MAT10_P_PRINT} (band {P_BAND:.0e}); (B) {err_b:.3e} "
+        f"(band {B_BAND:.0e}); (C) {err_c:.3e} (band {C_BAND:.0e}); sub cells {n_sub} "
+        f"(record {MAT10_SUB_CELLS}); once {once}; block exec {seconds:.1f} s"
+    )
     assert once
     assert n_sub == MAT10_SUB_CELLS
     assert f"{err_a:.4e}" == MAT10_A_PRINT

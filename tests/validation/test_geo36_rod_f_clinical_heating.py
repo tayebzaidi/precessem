@@ -53,7 +53,6 @@ from mpi4py import MPI
 
 from fem_em_solver.post.evaluation import evaluate_vector_field_parallel
 from fem_em_solver.post.sar import averaging_ball_radius, mean_sar
-
 from tests.complex_mode import complex_only
 from tests.mesh.test_birdcage_implant_rod import ROD_LENGTH
 from tests.validation.test_birdcage_sar_mass_averaged import PHANTOM_RHO_KG_PER_M3
@@ -147,7 +146,7 @@ def _map_box_point(point, off):
     Lx = 2B, Ly = 2C, centred at (0, off, 0)): (a, b, c) → (b, off + c, a)."""
     a, b, c = (float(v) for v in point)
     mapped = (b, off + c, a)
-    inside = (abs(mapped[0]) <= B_BOX and abs(mapped[1] - off) <= C_BOX and abs(mapped[2]) <= A_BOX)
+    inside = abs(mapped[0]) <= B_BOX and abs(mapped[1] - off) <= C_BOX and abs(mapped[2]) <= A_BOX
     assert inside, (point, mapped)
     return mapped
 
@@ -206,13 +205,21 @@ def _heat_columns(env, solver, specs, feeds, order, z_th, v_s):
     e_sup = es[0].copy()
     e_sup.x.array[:] = w[0] * es[0].x.array + w[1] * es[1].x.array
     e_sup.x.scatter_forward()
-    return {"s2": s2, "kinds": kinds, "times": times, "parts": parts, "e_sup": e_sup, "sigma": sigma_f}
+    return {
+        "s2": s2,
+        "kinds": kinds,
+        "times": times,
+        "parts": parts,
+        "e_sup": e_sup,
+        "sigma": sigma_f,
+    }
 
 
 def _heat_source(msh, cell_tags, e_sup, sigma_f, G, sub, parent_ids):
     """q = G · (DG0 cell average of ½σ|E|² on the gel tag), moved to the submesh."""
-    Wp, q_par = _cell_average_dg0_tag(msh, cell_tags, PHANTOM_CELL_TAG,
-                                      G * 0.5 * sigma_f * ufl.inner(e_sup, e_sup))
+    Wp, q_par = _cell_average_dg0_tag(
+        msh, cell_tags, PHANTOM_CELL_TAG, G * 0.5 * sigma_f * ufl.inner(e_sup, e_sup)
+    )
     return _to_sub(Wp, q_par, sub, parent_ids)
 
 
@@ -240,8 +247,10 @@ def _ball_reader(sub, fields):
         centre_c.value[:] = centre
         rad_c.value = radius
         vol = float(np.real(comm.allreduce(fem.assemble_scalar(f_vol), op=MPI.SUM)))
-        return vol, {name: float(np.real(comm.allreduce(fem.assemble_scalar(f), op=MPI.SUM))) / vol
-                     for name, f in forms.items()}
+        return vol, {
+            name: float(np.real(comm.allreduce(fem.assemble_scalar(f), op=MPI.SUM))) / vol
+            for name, f in forms.items()
+        }
 
     return _read
 
@@ -253,8 +262,9 @@ def _probe_theta(T, pts, parent):
     vals, ok = evaluate_vector_field_parallel(T, pts, owner="lowest_original_cell", parent=parent)
     vals = comm.bcast(vals if comm.rank == 0 else None, root=0)
     ok = np.asarray(comm.bcast(ok if comm.rank == 0 else None, root=0), dtype=bool)
-    th = np.array([float(np.real(np.ravel(vals[i])[0])) - T_INF if ok[i] else np.nan
-                   for i in range(len(pts))])
+    th = np.array(
+        [float(np.real(np.ravel(vals[i])[0])) - T_INF if ok[i] else np.nan for i in range(len(pts))]
+    )
     return th, ok
 
 
@@ -283,8 +293,11 @@ def _tip_slope_rows(theta1_means, dt, comparands, rho_c):
     for name, th in theta1_means.items():
         c = comparands[name]
         lhs = rho_c * th / dt
-        rows[name] = {"R_Pi": abs(lhs / c["pq"] - 1.0), "R_DG0": abs(lhs / c["q"] - 1.0),
-                      "pq_q": c["pq"] / c["q"] - 1.0}
+        rows[name] = {
+            "R_Pi": abs(lhs / c["pq"] - 1.0),
+            "R_DG0": abs(lhs / c["q"] - 1.0),
+            "pq_q": c["pq"] / c["q"] - 1.0,
+        }
     return rows
 
 
@@ -293,8 +306,21 @@ F2182_T_S = 900.0  # quoted from memory, unconfirmed (W3)
 F2182_OFFSET_M = 1.0e-3  # quoted from memory, unconfirmed (W3)
 
 
-def _thermal_arm(label, msh, cell_tags, e_sup, sigma_f, G, centre, tips, probes, *, merged,
-                 tip_projection=False, f2182=None):
+def _thermal_arm(
+    label,
+    msh,
+    cell_tags,
+    e_sup,
+    sigma_f,
+    G,
+    centre,
+    tips,
+    probes,
+    *,
+    merged,
+    tip_projection=False,
+    f2182=None,
+):
     """I39's `_heat_arm` on the box's time base; ``G=None`` sets G = 1 / P_gel here.
 
     I32b keywords, both default off (P61 / C31 / K10es reach the unedited path):
@@ -303,9 +329,18 @@ def _thermal_arm(label, msh, cell_tags, e_sup, sigma_f, G, centre, tips, probes,
     adds one CN run to `F2182_T_S`, before the t* CN so that stays the last θ = ½ call."""
     comm = msh.comm
     t0 = time.perf_counter()
-    P = float(np.real(mean_sar(e_sup, sigma=sigma_f, rho=PHANTOM_RHO_KG_PER_M3,
-                               cell_tags=cell_tags, comm=comm,
-                               subdomain_ids=PHANTOM_CELL_TAG)["dissipated_power_w"]))
+    P = float(
+        np.real(
+            mean_sar(
+                e_sup,
+                sigma=sigma_f,
+                rho=PHANTOM_RHO_KG_PER_M3,
+                cell_tags=cell_tags,
+                comm=comm,
+                subdomain_ids=PHANTOM_CELL_TAG,
+            )["dissipated_power_w"]
+        )
+    )
     if G is None:
         G = 1.0 / P
     dep = G * P
@@ -319,30 +354,50 @@ def _thermal_arm(label, msh, cell_tags, e_sup, sigma_f, G, centre, tips, probes,
     int_q = float(np.real(_allsum(comm, q * ufl.dx(domain=sub))))
     err_B = abs(int_q - dep) / abs(dep)
     t_source = time.perf_counter() - t0
-    _say(comm, f"[{label}] sense {SENSE}: P_gel {P:.12e} W; G {G:.12e} 1/W; G*P {dep:.12e} W; V_sub "
-               f"{v_sub:.12e} m^3; Robin area {area:.9e} m^2; facets exterior {counts['exterior']} = "
-               f"outer {counts['outer']} + rod wall {counts['wall']} (adiabatic)")
-    _say(comm, f"[{label}] (B) int_sub q {int_q:.15e} vs G*P {dep:.15e}: rel {err_B:.3e} "
-               f"(band {B_BAND:.0e}, ASSERTED)")
+    _say(
+        comm,
+        f"[{label}] sense {SENSE}: P_gel {P:.12e} W; G {G:.12e} 1/W; G*P {dep:.12e} W; V_sub "
+        f"{v_sub:.12e} m^3; Robin area {area:.9e} m^2; facets exterior {counts['exterior']} = "
+        f"outer {counts['outer']} + rod wall {counts['wall']} (adiabatic)",
+    )
+    _say(
+        comm,
+        f"[{label}] (B) int_sub q {int_q:.15e} vs G*P {dep:.15e}: rel {err_B:.3e} "
+        f"(band {B_BAND:.0e}, ASSERTED)",
+    )
 
     f2182_th = None
     if f2182:
-        res900 = _transient(sub, ft, q, dt=F2182_T_S / N_MAIN, n_steps=N_MAIN, theta=0.5,
-                            startup_half_steps=2)
+        res900 = _transient(
+            sub, ft, q, dt=F2182_T_S / N_MAIN, n_steps=N_MAIN, theta=0.5, startup_half_steps=2
+        )
         f_names = list(f2182)
-        f_th, f_ok = _probe_theta(res900.temperature, [f2182[n] for n in f_names], (msh, parent_ids))
+        f_th, f_ok = _probe_theta(
+            res900.temperature, [f2182[n] for n in f_names], (msh, parent_ids)
+        )
         f2182_th = dict(zip(f_names, f_th))
         for n, v, valid in zip(f_names, f_th, f_ok):
-            _say(comm, f"[{label}] F2182-shaped probe {n} {tuple(round(float(x), 6) for x in f2182[n])} "
-                       f"({F2182_OFFSET_M * 1e3:.1f} mm beyond the apex), sense {SENSE}: theta"
-                       f"({F2182_T_S:.0f} s) {v:+.9e} K (valid {bool(valid)}; placement and time "
-                       f"quoted from memory, unconfirmed; W3; printed)")
+            _say(
+                comm,
+                f"[{label}] F2182-shaped probe {n} {tuple(round(float(x), 6) for x in f2182[n])} "
+                f"({F2182_OFFSET_M * 1e3:.1f} mm beyond the apex), sense {SENSE}: theta"
+                f"({F2182_T_S:.0f} s) {v:+.9e} K (valid {bool(valid)}; placement and time "
+                f"quoted from memory, unconfirmed; W3; printed)",
+            )
         del res900
 
     dt = T_STAR_BOX / N_MAIN
     t1 = time.perf_counter()
-    res = _transient(sub, ft, q, dt=dt, n_steps=N_MAIN, theta=0.5, startup_half_steps=2,
-                     snapshot_steps=(N_MAIN - 1, N_MAIN))
+    res = _transient(
+        sub,
+        ft,
+        q,
+        dt=dt,
+        n_steps=N_MAIN,
+        theta=0.5,
+        startup_half_steps=2,
+        snapshot_steps=(N_MAIN - 1, N_MAIN),
+    )
     t_cn = time.perf_counter() - t1
     ep, stor, conv = _e_prime_box(sub, ds, res, dep, dt)
     res1 = _transient(sub, ft, q, dt=DT_1_BOX, n_steps=1, theta=1.0)
@@ -376,43 +431,75 @@ def _thermal_arm(label, msh, cell_tags, e_sup, sigma_f, G, centre, tips, probes,
         tip_th[name] = m["th"]
         tip_s2[name] = abs(RHO_C * m["th1"] / (DT_1_BOX * m["q"]) - 1.0)
         if tip_projection:
-            _say(comm, f"[{label}] 1 g ball (a {a_1g * 1e3:.4f} mm) at {name}, sense {SENSE}: theta(t*) "
-                       f"{m['th']:.9e} K, ball volume in the thermal domain {vol:.6e} m^3; retired form "
-                       f"(S2-tip, DG0) {tip_s2[name]:.4e} (band {S2_BAND:.0e}, printed)")
+            _say(
+                comm,
+                f"[{label}] 1 g ball (a {a_1g * 1e3:.4f} mm) at {name}, sense {SENSE}: theta(t*) "
+                f"{m['th']:.9e} K, ball volume in the thermal domain {vol:.6e} m^3; retired form "
+                f"(S2-tip, DG0) {tip_s2[name]:.4e} (band {S2_BAND:.0e}, printed)",
+            )
         else:
-            _say(comm, f"[{label}] 1 g ball (a {a_1g * 1e3:.4f} mm) at {name}, sense {SENSE}: theta(t*) "
-                       f"{m['th']:.9e} K, ball volume in the thermal domain {vol:.6e} m^3; (S2-tip) "
-                       f"{tip_s2[name]:.4e} (band {S2_BAND:.0e})")
+            _say(
+                comm,
+                f"[{label}] 1 g ball (a {a_1g * 1e3:.4f} mm) at {name}, sense {SENSE}: theta(t*) "
+                f"{m['th']:.9e} K, ball volume in the thermal domain {vol:.6e} m^3; (S2-tip) "
+                f"{tip_s2[name]:.4e} (band {S2_BAND:.0e})",
+            )
     tip_rows = tip_s2_pi = None
     if tip_projection:
-        comps = _projected_ball_comparands(sub, q, V1, tips, a_1g, "i32b_" + label.replace(" ", "_"))
+        comps = _projected_ball_comparands(
+            sub, q, V1, tips, a_1g, "i32b_" + label.replace(" ", "_")
+        )
         tip_rows = {
             "dt1": _tip_slope_rows({n: tip_m[n]["th1"] for n in tips}, DT_1_BOX, comps, RHO_C),
-            "dt1/10": _tip_slope_rows({n: tip_m[n]["th10"] for n in tips}, DT_1_BOX / 10.0, comps, RHO_C),
+            "dt1/10": _tip_slope_rows(
+                {n: tip_m[n]["th10"] for n in tips}, DT_1_BOX / 10.0, comps, RHO_C
+            ),
         }
         tip_s2_pi = {n: tip_rows["dt1/10"][n]["R_Pi"] for n in tips}
         for n in tips:
             a, b = tip_rows["dt1"][n], tip_rows["dt1/10"][n]
-            _say(comm, f"[{label}] tip ball {n}, sense {SENSE}: <q> {comps[n]['q']:.7e} <Pq> "
-                       f"{comps[n]['pq']:.7e} W/m^3, <Pq>/<q> - 1 {a['pq_q']:+.4e}; R_Pi dt1 "
-                       f"{a['R_Pi']:.4e}, R_Pi dt1/10 {b['R_Pi']:.4e} ((S2-tip) gate, band "
-                       f"{S2_BAND:.0e}); R_DG0 dt1 {a['R_DG0']:.4e} (retired form, printed)")
+            _say(
+                comm,
+                f"[{label}] tip ball {n}, sense {SENSE}: <q> {comps[n]['q']:.7e} <Pq> "
+                f"{comps[n]['pq']:.7e} W/m^3, <Pq>/<q> - 1 {a['pq_q']:+.4e}; R_Pi dt1 "
+                f"{a['R_Pi']:.4e}, R_Pi dt1/10 {b['R_Pi']:.4e} ((S2-tip) gate, band "
+                f"{S2_BAND:.0e}); R_DG0 dt1 {a['R_DG0']:.4e} (retired form, printed)",
+            )
     labels = list(probes)
-    probe_th, probe_ok = _probe_theta(res.temperature, [probes[n] for n in labels], (msh, parent_ids))
+    probe_th, probe_ok = _probe_theta(
+        res.temperature, [probes[n] for n in labels], (msh, parent_ids)
+    )
     for n, v, valid in zip(labels, probe_th, probe_ok):
-        _say(comm, f"[{label}] probe {n} {tuple(round(x, 6) for x in probes[n])}, sense {SENSE}: "
-                   f"theta(t*) {v:+.9e} K (valid {bool(valid)}; printed)")
+        _say(
+            comm,
+            f"[{label}] probe {n} {tuple(round(x, 6) for x in probes[n])}, sense {SENSE}: "
+            f"theta(t*) {v:+.9e} K (valid {bool(valid)}; printed)",
+        )
     t_total = time.perf_counter() - t0
-    _say(comm, f"[{label}] CN N={N_MAIN} to t* {T_STAR_BOX:.3f} s, dt {dt:.6f} s (T_STAR_BOX / N_MAIN; "
-               f"BE dt_1 {DT_1_BOX:.6f} s): (E) balance CN {res.max_balance_residual:.3e} BE "
-               f"{res1.max_balance_residual:.3e} (band {E_BAND:.0e}, ASSERTED); (E') stored {stor:.12e} "
-               f"+ surface {conv:.12e} W: rel {ep:.3e} (band {E_BAND:.0e}, ASSERTED); (S2) {err_S2:.4e} "
-               f"(band {S2_BAND:.0e}, ASSERTED); max|Im theta| {imag:.3e}; source {t_source:.1f} s, CN "
-               f"{t_cn:.1f} s, arm {t_total:.1f} s")
+    _say(
+        comm,
+        f"[{label}] CN N={N_MAIN} to t* {T_STAR_BOX:.3f} s, dt {dt:.6f} s (T_STAR_BOX / N_MAIN; "
+        f"BE dt_1 {DT_1_BOX:.6f} s): (E) balance CN {res.max_balance_residual:.3e} BE "
+        f"{res1.max_balance_residual:.3e} (band {E_BAND:.0e}, ASSERTED); (E') stored {stor:.12e} "
+        f"+ surface {conv:.12e} W: rel {ep:.3e} (band {E_BAND:.0e}, ASSERTED); (S2) {err_S2:.4e} "
+        f"(band {S2_BAND:.0e}, ASSERTED); max|Im theta| {imag:.3e}; source {t_source:.1f} s, CN "
+        f"{t_cn:.1f} s, arm {t_total:.1f} s",
+    )
     out = {
-        "label": label, "G": G, "P": P, "B": err_B, "Ep": ep, "S2": err_S2, "dt": dt,
-        "E": max(res.max_balance_residual, res1.max_balance_residual), "counts": counts,
-        "merged": merged, "tip_th": tip_th, "tip_s2": tip_s2, "probe_ok": probe_ok, "t": t_total,
+        "label": label,
+        "G": G,
+        "P": P,
+        "B": err_B,
+        "Ep": ep,
+        "S2": err_S2,
+        "dt": dt,
+        "E": max(res.max_balance_residual, res1.max_balance_residual),
+        "counts": counts,
+        "merged": merged,
+        "tip_th": tip_th,
+        "tip_s2": tip_s2,
+        "probe_ok": probe_ok,
+        "t": t_total,
         "probe_th": dict(zip(labels, probe_th)),
     }
     if tip_projection:
@@ -462,16 +549,22 @@ def _em_failures(comm, arm, feeds):
     fails = []
     tag = arm["label"]
     recip = _reciprocity_ratio(arm["s2"])
-    _say(comm, f"arm {tag}: kinds {arm['kinds']}, (R1) {recip:.3e} (band {RECIPROCITY_BAND:.0e}, "
-               f"ASSERTED); column times {', '.join(f'{t:.2f}' for t in arm['times'])} s")
+    _say(
+        comm,
+        f"arm {tag}: kinds {arm['kinds']}, (R1) {recip:.3e} (band {RECIPROCITY_BAND:.0e}, "
+        f"ASSERTED); column times {', '.join(f'{t:.2f}' for t in arm['times'])} s",
+    )
     if arm["kinds"] != ["solve", "held"]:
         fails.append(f"{tag} kinds {arm['kinds']}")
     if not recip <= RECIPROCITY_BAND:
         fails.append(f"{tag} (R1) {recip:.3e}")
     for j, p in enumerate(arm["parts"]):
         rel, blind = _partition(p)
-        _say(comm, f"  (P) column {feeds[j]}: rel {rel:.3e} (band {DISCRETE_IDENTITY_RTOL:g}, ASSERTED); "
-                   f"NEG blind {blind:.4e} (>= {BLIND_FACTOR:g}x band, ASSERTED)")
+        _say(
+            comm,
+            f"  (P) column {feeds[j]}: rel {rel:.3e} (band {DISCRETE_IDENTITY_RTOL:g}, ASSERTED); "
+            f"NEG blind {blind:.4e} (>= {BLIND_FACTOR:g}x band, ASSERTED)",
+        )
         if not rel <= DISCRETE_IDENTITY_RTOL:
             fails.append(f"{tag} (P) {feeds[j]} {rel:.3e}")
         if not blind >= BLIND_FACTOR * DISCRETE_IDENTITY_RTOL:
@@ -547,12 +640,13 @@ def _rod_coefficients(sub, parent_ids, cell_tags, arm):
     ind.x.array[dofs[idx]] = 1.0
     for f in (k, rho_c, ind):
         f.x.scatter_forward()
-    n_rod = sub.comm.allreduce(int(np.count_nonzero(rod[:simap.size_local])), op=MPI.SUM)
+    n_rod = sub.comm.allreduce(int(np.count_nonzero(rod[: simap.size_local])), op=MPI.SUM)
     return k, rho_c, ind, n_rod
 
 
-def _thermal_arm_rod_cells(label, msh, cell_tags, e_sup, sigma_f, G, centre, tips, probes, *,
-                           rod_thermal, f2182=None):
+def _thermal_arm_rod_cells(
+    label, msh, cell_tags, e_sup, sigma_f, G, centre, tips, probes, *, rod_thermal, f2182=None
+):
     """`_thermal_arm` (tip_projection on, merged domain) with the rod cells inside the
     thermal domain at I66's DG0 coefficients.  P and q on the original tags (q = 0 on
     rod cells), so G*P is the exclusion arm's.  Never calls `_transient`."""
@@ -560,9 +654,18 @@ def _thermal_arm_rod_cells(label, msh, cell_tags, e_sup, sigma_f, G, centre, tip
 
     comm = msh.comm
     t0 = time.perf_counter()
-    P = float(np.real(mean_sar(e_sup, sigma=sigma_f, rho=PHANTOM_RHO_KG_PER_M3,
-                               cell_tags=cell_tags, comm=comm,
-                               subdomain_ids=PHANTOM_CELL_TAG)["dissipated_power_w"]))
+    P = float(
+        np.real(
+            mean_sar(
+                e_sup,
+                sigma=sigma_f,
+                rho=PHANTOM_RHO_KG_PER_M3,
+                cell_tags=cell_tags,
+                comm=comm,
+                subdomain_ids=PHANTOM_CELL_TAG,
+            )["dissipated_power_w"]
+        )
+    )
     if G is None:
         G = 1.0 / P
     dep = G * P
@@ -582,31 +685,55 @@ def _thermal_arm_rod_cells(label, msh, cell_tags, e_sup, sigma_f, G, centre, tip
     n_src = abs(int_qm - dep) / abs(dep)
     del q_m
     t_source = time.perf_counter() - t0
-    _say(comm, f"[{label}] sense {SENSE}: P_gel {P:.12e} W; G {G:.12e} 1/W; G*P {dep:.12e} W; V_sub "
-               f"{v_sub:.12e} m^3; Robin area {area:.9e} m^2; facets exterior {counts['exterior']} = "
-               f"outer {counts['outer']} + rod wall {counts['wall']} (rod cells in the domain, "
-               f"{rod_thermal}; n_rod {n_rod})")
-    _say(comm, f"[{label}] (B) int_sub q {int_q:.15e} vs G*P {dep:.15e}: rel {err_B:.3e} "
-               f"(band {B_BAND:.0e}, ASSERTED); (N-src) source on the merged tags: int q_m "
-               f"{int_qm:.15e}, rel {n_src:.6e} (> band, ASSERTED; predicted 108/10260 on the stub)")
+    _say(
+        comm,
+        f"[{label}] sense {SENSE}: P_gel {P:.12e} W; G {G:.12e} 1/W; G*P {dep:.12e} W; V_sub "
+        f"{v_sub:.12e} m^3; Robin area {area:.9e} m^2; facets exterior {counts['exterior']} = "
+        f"outer {counts['outer']} + rod wall {counts['wall']} (rod cells in the domain, "
+        f"{rod_thermal}; n_rod {n_rod})",
+    )
+    _say(
+        comm,
+        f"[{label}] (B) int_sub q {int_q:.15e} vs G*P {dep:.15e}: rel {err_B:.3e} "
+        f"(band {B_BAND:.0e}, ASSERTED); (N-src) source on the merged tags: int q_m "
+        f"{int_qm:.15e}, rel {n_src:.6e} (> band, ASSERTED; predicted 108/10260 on the stub)",
+    )
 
     def _solve(dt, n_steps, theta, startup_half_steps=0, snapshot_steps=()):
         return solve_transient_conduction(
-            sub, ft, k=k, rho_c=rho_c, q=q, h=H_GEL, t_inf=T_INF, t_init=T_INF,
-            robin_tag=ROBIN_TAG, dt=dt, n_steps=n_steps, theta=theta,
-            startup_half_steps=startup_half_steps, degree=1, snapshot_steps=snapshot_steps)
+            sub,
+            ft,
+            k=k,
+            rho_c=rho_c,
+            q=q,
+            h=H_GEL,
+            t_inf=T_INF,
+            t_init=T_INF,
+            robin_tag=ROBIN_TAG,
+            dt=dt,
+            n_steps=n_steps,
+            theta=theta,
+            startup_half_steps=startup_half_steps,
+            degree=1,
+            snapshot_steps=snapshot_steps,
+        )
 
     f2182_th = None
     if f2182:
         res900 = _solve(F2182_T_S / N_MAIN, N_MAIN, 0.5, startup_half_steps=2)
         f_names = list(f2182)
-        f_th, f_ok = _probe_theta(res900.temperature, [f2182[n] for n in f_names], (msh, parent_ids))
+        f_th, f_ok = _probe_theta(
+            res900.temperature, [f2182[n] for n in f_names], (msh, parent_ids)
+        )
         f2182_th = dict(zip(f_names, f_th))
         for n, v, valid in zip(f_names, f_th, f_ok):
-            _say(comm, f"[{label}] F2182-shaped probe {n} {tuple(round(float(x), 6) for x in f2182[n])} "
-                       f"({F2182_OFFSET_M * 1e3:.1f} mm beyond the apex), sense {SENSE}: theta"
-                       f"({F2182_T_S:.0f} s) {v:+.9e} K (valid {bool(valid)}; placement and time "
-                       f"quoted from memory, unconfirmed; W3; printed)")
+            _say(
+                comm,
+                f"[{label}] F2182-shaped probe {n} {tuple(round(float(x), 6) for x in f2182[n])} "
+                f"({F2182_OFFSET_M * 1e3:.1f} mm beyond the apex), sense {SENSE}: theta"
+                f"({F2182_T_S:.0f} s) {v:+.9e} K (valid {bool(valid)}; placement and time "
+                f"quoted from memory, unconfirmed; W3; printed)",
+            )
         del res900
 
     dt = T_STAR_BOX / N_MAIN
@@ -620,11 +747,15 @@ def _thermal_arm_rod_cells(label, msh, cell_tags, e_sup, sigma_f, G, centre, tip
     ep_sc, stor_sc, _conv_sc = _e_prime_box(sub, ds, res, dep, dt)
     res1 = _solve(DT_1_BOX, 1, 1.0)
     int_th1 = float(np.real(_allsum(comm, (res1.temperature - T_INF) * ufl.dx(domain=sub))))
-    int_rc_th1 = float(np.real(_allsum(comm, rho_c * (res1.temperature - T_INF) * ufl.dx(domain=sub))))
+    int_rc_th1 = float(
+        np.real(_allsum(comm, rho_c * (res1.temperature - T_INF) * ufl.dx(domain=sub)))
+    )
     s2_rc = abs(int_rc_th1 / (DT_1_BOX * dep) - 1.0)
     s2_sc = abs(RHO_C * int_th1 / (DT_1_BOX * dep) - 1.0)
     res10 = _solve(DT_1_BOX / 10.0, 1, 1.0)
-    imag = max(_max_imag(res.temperature), _max_imag(res1.temperature), _max_imag(res10.temperature))
+    imag = max(
+        _max_imag(res.temperature), _max_imag(res1.temperature), _max_imag(res10.temperature)
+    )
 
     V1 = res.temperature.function_space
     th, th1, th10 = fem.Function(V1), fem.Function(V1), fem.Function(V1)
@@ -633,8 +764,15 @@ def _thermal_arm_rod_cells(label, msh, cell_tags, e_sup, sigma_f, G, centre, tip
     th10.x.array[:] = res10.temperature.x.array - T_INF
     for f in (th, th1, th10):
         f.x.scatter_forward()
-    fields = {"th": th, "th1": th1, "q": q, "th10": th10, "rc_th1": rho_c * th1,
-              "rc_th10": rho_c * th10, "rod": rod_ind}
+    fields = {
+        "th": th,
+        "th1": th1,
+        "q": q,
+        "th10": th10,
+        "rc_th1": rho_c * th1,
+        "rc_th10": rho_c * th10,
+        "rod": rod_ind,
+    }
     read = _ball_reader(sub, fields)
     a_1g = averaging_ball_radius(mass_kg=ONE_GRAM_KG, rho=PHANTOM_RHO_KG_PER_M3)
     tip_th, tip_s2, tip_m, v_rod_ball = {}, {}, {}, {}
@@ -644,43 +782,79 @@ def _thermal_arm_rod_cells(label, msh, cell_tags, e_sup, sigma_f, G, centre, tip
         tip_th[name] = m["th"]
         tip_s2[name] = abs(RHO_C * m["th1"] / (DT_1_BOX * m["q"]) - 1.0)
         v_rod_ball[name] = vol * m["rod"]
-        _say(comm, f"[{label}] 1 g ball (a {a_1g * 1e3:.4f} mm) at {name}, sense {SENSE}: theta(t*) "
-                   f"{m['th']:.9e} K, ball volume in the thermal domain {vol:.6e} m^3; V(B cap rod) "
-                   f"{v_rod_ball[name]:.6e} m^3; retired form (S2-tip, DG0) {tip_s2[name]:.4e} (band "
-                   f"{S2_BAND:.0e}, printed)")
+        _say(
+            comm,
+            f"[{label}] 1 g ball (a {a_1g * 1e3:.4f} mm) at {name}, sense {SENSE}: theta(t*) "
+            f"{m['th']:.9e} K, ball volume in the thermal domain {vol:.6e} m^3; V(B cap rod) "
+            f"{v_rod_ball[name]:.6e} m^3; retired form (S2-tip, DG0) {tip_s2[name]:.4e} (band "
+            f"{S2_BAND:.0e}, printed)",
+        )
     comps = _projected_ball_comparands(sub, q, V1, tips, a_1g, "i32b_" + label.replace(" ", "_"))
     rows_rc = _tip_slope_rows({n: tip_m[n]["rc_th10"] for n in tips}, DT_1_BOX / 10.0, comps, 1.0)
     rows_sc = _tip_slope_rows({n: tip_m[n]["th10"] for n in tips}, DT_1_BOX / 10.0, comps, RHO_C)
     tip_s2_pi = {n: rows_rc[n]["R_Pi"] for n in tips}
     tip_s2_pi_sc = {n: rows_sc[n]["R_Pi"] for n in tips}
     for n in tips:
-        _say(comm, f"[{label}] tip ball {n}, sense {SENSE}: <q> {comps[n]['q']:.7e} <Pq> "
-                   f"{comps[n]['pq']:.7e} W/m^3, <Pq>/<q> - 1 {rows_rc[n]['pq_q']:+.4e}; R_Pi dt1/10 "
-                   f"rho_c form {tip_s2_pi[n]:.4e} ((S2-tip) gate, band {S2_BAND:.0e}); scalar form "
-                   f"{tip_s2_pi_sc[n]:.4e} (printed)")
+        _say(
+            comm,
+            f"[{label}] tip ball {n}, sense {SENSE}: <q> {comps[n]['q']:.7e} <Pq> "
+            f"{comps[n]['pq']:.7e} W/m^3, <Pq>/<q> - 1 {rows_rc[n]['pq_q']:+.4e}; R_Pi dt1/10 "
+            f"rho_c form {tip_s2_pi[n]:.4e} ((S2-tip) gate, band {S2_BAND:.0e}); scalar form "
+            f"{tip_s2_pi_sc[n]:.4e} (printed)",
+        )
     labels = list(probes)
-    probe_th, probe_ok = _probe_theta(res.temperature, [probes[n] for n in labels], (msh, parent_ids))
+    probe_th, probe_ok = _probe_theta(
+        res.temperature, [probes[n] for n in labels], (msh, parent_ids)
+    )
     for n, v, valid in zip(labels, probe_th, probe_ok):
-        _say(comm, f"[{label}] probe {n} {tuple(round(x, 6) for x in probes[n])}, sense {SENSE}: "
-                   f"theta(t*) {v:+.9e} K (valid {bool(valid)}; printed)")
+        _say(
+            comm,
+            f"[{label}] probe {n} {tuple(round(x, 6) for x in probes[n])}, sense {SENSE}: "
+            f"theta(t*) {v:+.9e} K (valid {bool(valid)}; printed)",
+        )
     t_total = time.perf_counter() - t0
     e_all = max(res.max_balance_residual, res1.max_balance_residual, res10.max_balance_residual)
-    _say(comm, f"[{label}] CN N={N_MAIN} to t* {T_STAR_BOX:.3f} s, dt {dt:.6f} s (T_STAR_BOX / N_MAIN; "
-               f"BE dt_1 {DT_1_BOX:.6f} s): (E) balance CN {res.max_balance_residual:.3e} BE "
-               f"{res1.max_balance_residual:.3e} BE/10 {res10.max_balance_residual:.3e} (band "
-               f"{E_BAND:.0e}, ASSERTED); (E') rho_c form stored {stor_rc:.12e} + surface {conv:.12e} W: "
-               f"rel {ep_rc:.3e} (band {E_BAND:.0e}, ASSERTED), scalar form stored {stor_sc:.12e}: rel "
-               f"{ep_sc:.3e} (printed); (S2) rho_c form {s2_rc:.4e} (band {S2_BAND:.0e}, ASSERTED), "
-               f"scalar form {s2_sc:.4e} (printed); max|Im theta| {imag:.3e}; source {t_source:.1f} s, "
-               f"CN {t_cn:.1f} s, arm {t_total:.1f} s")
+    _say(
+        comm,
+        f"[{label}] CN N={N_MAIN} to t* {T_STAR_BOX:.3f} s, dt {dt:.6f} s (T_STAR_BOX / N_MAIN; "
+        f"BE dt_1 {DT_1_BOX:.6f} s): (E) balance CN {res.max_balance_residual:.3e} BE "
+        f"{res1.max_balance_residual:.3e} BE/10 {res10.max_balance_residual:.3e} (band "
+        f"{E_BAND:.0e}, ASSERTED); (E') rho_c form stored {stor_rc:.12e} + surface {conv:.12e} W: "
+        f"rel {ep_rc:.3e} (band {E_BAND:.0e}, ASSERTED), scalar form stored {stor_sc:.12e}: rel "
+        f"{ep_sc:.3e} (printed); (S2) rho_c form {s2_rc:.4e} (band {S2_BAND:.0e}, ASSERTED), "
+        f"scalar form {s2_sc:.4e} (printed); max|Im theta| {imag:.3e}; source {t_source:.1f} s, "
+        f"CN {t_cn:.1f} s, arm {t_total:.1f} s",
+    )
     out = {
-        "label": label, "G": G, "P": P, "B": err_B, "Ep": ep_rc, "S2": s2_rc, "dt": dt,
-        "E": e_all, "counts": counts, "merged": True, "tip_th": tip_th, "tip_s2": tip_s2,
-        "probe_ok": probe_ok, "t": t_total, "probe_th": dict(zip(labels, probe_th)),
-        "E10": res10.max_balance_residual, "tip_rows": {"dt1/10": rows_rc, "dt1/10 scalar": rows_sc},
-        "comparands": comps, "Ep_rc": ep_rc, "Ep_sc": ep_sc, "S2_rc": s2_rc, "S2_sc": s2_sc,
-        "tip_s2_pi": tip_s2_pi, "tip_s2_pi_sc": tip_s2_pi_sc, "v_rod_ball": v_rod_ball,
-        "n_rod": n_rod, "n_src": n_src, "v_sub": v_sub, "rod_thermal": rod_thermal,
+        "label": label,
+        "G": G,
+        "P": P,
+        "B": err_B,
+        "Ep": ep_rc,
+        "S2": s2_rc,
+        "dt": dt,
+        "E": e_all,
+        "counts": counts,
+        "merged": True,
+        "tip_th": tip_th,
+        "tip_s2": tip_s2,
+        "probe_ok": probe_ok,
+        "t": t_total,
+        "probe_th": dict(zip(labels, probe_th)),
+        "E10": res10.max_balance_residual,
+        "tip_rows": {"dt1/10": rows_rc, "dt1/10 scalar": rows_sc},
+        "comparands": comps,
+        "Ep_rc": ep_rc,
+        "Ep_sc": ep_sc,
+        "S2_rc": s2_rc,
+        "S2_sc": s2_sc,
+        "tip_s2_pi": tip_s2_pi,
+        "tip_s2_pi_sc": tip_s2_pi_sc,
+        "v_rod_ball": v_rod_ball,
+        "n_rod": n_rod,
+        "n_src": n_src,
+        "v_sub": v_sub,
+        "rod_thermal": rod_thermal,
     }
     if f2182_th is not None:
         out["f2182_th"] = f2182_th
@@ -724,11 +898,17 @@ def _run_heat(comm, monkeypatch, c_pf):
     _box_preconditions()
     rt = _rod_thermal()
     if rt is not None:
-        _say(comm, f"rod thermal: {rt} (rod cells in the thermal domain, I66's coefficients; printed "
-                   f"after the exclusion arm)")
+        _say(
+            comm,
+            f"rod thermal: {rt} (rod cells in the thermal domain, I66's coefficients; printed "
+            f"after the exclusion arm)",
+        )
     z0 = float(REFERENCE_IMPEDANCE_OHM)
-    _say(comm, f"\nstart: -n {comm.size}, I32 body; node C {c_pf:.4f} pF, degree 1, sense {SENSE}; rod "
-               f"(tag 403 sigma_wire, kept cells) then gel twin (403 -> gel, same mesh)")
+    _say(
+        comm,
+        f"\nstart: -n {comm.size}, I32 body; node C {c_pf:.4f} pF, degree 1, sense {SENSE}; rod "
+        f"(tag 403 sigma_wire, kept cells) then gel twin (403 -> gel, same mesh)",
+    )
     records = _route_drive(monkeypatch)
     monkeypatch.delenv(c4.C4_DEGREE_ENV, raising=False)
     fixture = c4._build_c4_fixture(comm)  # (A0) / census / (U1) / (D-rod) / (F) asserted inside
@@ -749,8 +929,11 @@ def _run_heat(comm, monkeypatch, c_pf):
     z_fails, im_worst, th_worst = c4._z_failures(specs, base_ids, feeds, c_f, frequency_hz, z0)
     fails += list(z_fails)
     v_s = h17._source_voltage(z_rc, z0)
-    _say(comm, f"(M2) / (Z) node {c_pf:.4f} pF: Z_RC {z_rc:.9e} Ohm, Z_th {z_th:.9e} Ohm, V_s {v_s:.9e} "
-               f"V; Im rel {im_worst:.1e}, Z_th rel {th_worst:.1e}; failures {fails or 'none'} (ASSERTED)")
+    _say(
+        comm,
+        f"(M2) / (Z) node {c_pf:.4f} pF: Z_RC {z_rc:.9e} Ohm, Z_th {z_th:.9e} Ohm, V_s {v_s:.9e} "
+        f"V; Im rel {im_worst:.1e}, Z_th rel {th_worst:.1e}; failures {fails or 'none'} (ASSERTED)",
+    )
 
     msh, cell_tags = env["msh"], env["cell_tags"]
     centre = i35._rod_centre()
@@ -768,8 +951,9 @@ def _run_heat(comm, monkeypatch, c_pf):
     del ctx["solver"]
     gc.collect()
 
-    problem_twin = dataclasses.replace(problem_rod,
-                                       material_map=_gel_twin_map(dict(problem_rod.material_map)))
+    problem_twin = dataclasses.replace(
+        problem_rod, material_map=_gel_twin_map(dict(problem_rod.material_map))
+    )
     census_twin = col._owned_tag_counts(msh, problem_twin.cell_tags, comm)
     solver_twin = TimeHarmonicSolver(problem_twin, degree=1)
     arm_twin = _heat_columns(env, solver_twin, specs, feeds, order, z_th, v_s)
@@ -781,16 +965,22 @@ def _run_heat(comm, monkeypatch, c_pf):
     fails += _em_failures(comm, arm_rod, feeds)
     fails += _em_failures(comm, arm_twin, feeds)
     p_tot, p_gel, p_rod = _vol_powers(env, arm_rod["sigma"], arm_rod["e_sup"])
-    _say(comm, f"rod share of P_vol, sense {SENSE}: {p_rod / p_tot:.6e} (P_vol {p_tot:.9e} W, gel "
-               f"{p_gel:.9e}, rod {p_rod:.9e}; printed)")
+    _say(
+        comm,
+        f"rod share of P_vol, sense {SENSE}: {p_rod / p_tot:.6e} (P_vol {p_tot:.9e} W, gel "
+        f"{p_gel:.9e}, rod {p_rod:.9e}; printed)",
+    )
 
     merged = _merge_rod_into_phantom(msh, cell_tags)
     merged_gel = _owned_tag_count(msh, merged, PHANTOM_CELL_TAG)
     merged_rod = _owned_tag_count(msh, merged, BIRDCAGE_IMPLANT_CELL_TAG)
     s0_fails = _s0_failures(census_rod, census_twin, merged_gel, merged_rod)
     fails += s0_fails
-    _say(comm, f"(S0) census rod {census_rod} vs twin {census_twin}; merged tag 3 {merged_gel}, tag 403 "
-               f"{merged_rod}: failures {s0_fails or 'none'} (ASSERTED exact)")
+    _say(
+        comm,
+        f"(S0) census rod {census_rod} vs twin {census_twin}; merged tag 3 {merged_gel}, tag 403 "
+        f"{merged_rod}: failures {s0_fails or 'none'} (ASSERTED exact)",
+    )
 
     f2182 = {}
     for n in tips:
@@ -800,39 +990,88 @@ def _run_heat(comm, monkeypatch, c_pf):
         apex = np.asarray(tips_all[f"{n}_apex"], dtype=float)
         axis = apex - np.asarray(tips_all[n], dtype=float)
         f2182[n] = tuple(apex + F2182_OFFSET_M * axis / np.linalg.norm(axis))
-    _say(comm, f"F2182-shaped read: t {F2182_T_S:.0f} s, offset {F2182_OFFSET_M * 1e3:.1f} mm beyond each "
-               f"apex (placement and time quoted from memory, unconfirmed; W3; printed, never asserted)")
+    _say(
+        comm,
+        f"F2182-shaped read: t {F2182_T_S:.0f} s, offset {F2182_OFFSET_M * 1e3:.1f} mm beyond each "
+        f"apex (placement and time quoted from memory, unconfirmed; W3; printed, never asserted)",
+    )
 
-    heat_twin = _thermal_arm("gel twin", msh, merged, arm_twin.pop("e_sup"), arm_twin.pop("sigma"),
-                             None, centre, tips, probes, merged=True, tip_projection=True,
-                             f2182=f2182)
+    heat_twin = _thermal_arm(
+        "gel twin",
+        msh,
+        merged,
+        arm_twin.pop("e_sup"),
+        arm_twin.pop("sigma"),
+        None,
+        centre,
+        tips,
+        probes,
+        merged=True,
+        tip_projection=True,
+        f2182=f2182,
+    )
     rod_fields = (arm_rod["e_sup"], arm_rod["sigma"]) if rt is not None else None
-    heat_rod = _thermal_arm("rod", msh, cell_tags, arm_rod.pop("e_sup"), arm_rod.pop("sigma"),
-                            heat_twin["G"], centre, tips, probes, merged=False, tip_projection=True,
-                            f2182=f2182)
+    heat_rod = _thermal_arm(
+        "rod",
+        msh,
+        cell_tags,
+        arm_rod.pop("e_sup"),
+        arm_rod.pop("sigma"),
+        heat_twin["G"],
+        centre,
+        tips,
+        probes,
+        merged=False,
+        tip_projection=True,
+        f2182=f2182,
+    )
     fails += _thermal_failures(heat_twin) + _thermal_failures(heat_rod)
     if rt is not None:
-        heat_rod_cells = _thermal_arm_rod_cells(f"rod {rt}", msh, cell_tags, *rod_fields, heat_twin["G"],
-                                                centre, tips, probes, rod_thermal=rt, f2182=f2182)
+        heat_rod_cells = _thermal_arm_rod_cells(
+            f"rod {rt}",
+            msh,
+            cell_tags,
+            *rod_fields,
+            heat_twin["G"],
+            centre,
+            tips,
+            probes,
+            rod_thermal=rt,
+            f2182=f2182,
+        )
         fails += _rod_cells_failures(heat_rod_cells)
-        _say(comm, f"rod thermal {rt} over the exclusion arm - 1, sense {SENSE}: "
-                   + ", ".join(f"{n} theta(t*) {heat_rod_cells['tip_th'][n] / heat_rod['tip_th'][n] - 1.0:+.6e}"
-                               for n in tips)
-                   + "; " + ", ".join(
-                       f"{n} F2182 theta({F2182_T_S:.0f} s) "
-                       f"{heat_rod_cells['f2182_th'][n] / heat_rod['f2182_th'][n] - 1.0:+.6e}"
-                       for n in heat_rod_cells.get("f2182_th", {})) + " (printed)")
+        _say(
+            comm,
+            f"rod thermal {rt} over the exclusion arm - 1, sense {SENSE}: "
+            + ", ".join(
+                f"{n} theta(t*) {heat_rod_cells['tip_th'][n] / heat_rod['tip_th'][n] - 1.0:+.6e}"
+                for n in tips
+            )
+            + "; "
+            + ", ".join(
+                f"{n} F2182 theta({F2182_T_S:.0f} s) "
+                f"{heat_rod_cells['f2182_th'][n] / heat_rod['f2182_th'][n] - 1.0:+.6e}"
+                for n in heat_rod_cells.get("f2182_th", {})
+            )
+            + " (printed)",
+        )
 
     ratios = {n: heat_rod["tip_th"][n] / heat_twin["tip_th"][n] for n in tips}
-    _say(comm, f"tip theta(t*) ratio rod / gel twin, sense {SENSE}: "
-               + ", ".join(f"{n} {v:.6f}" for n, v in ratios.items())
-               + f" beside I41's {I41_TIP_RATIO} (F-small, ccw; printed)")
+    _say(
+        comm,
+        f"tip theta(t*) ratio rod / gel twin, sense {SENSE}: "
+        + ", ".join(f"{n} {v:.6f}" for n, v in ratios.items())
+        + f" beside I41's {I41_TIP_RATIO} (F-small, ccw; printed)",
+    )
     comm.Barrier()
     _m, per, tot = _rss_gib(comm)
-    _say(comm, f"price: build {fixture['t_build']:.1f} s; EM {t_em:.1f} s; thermal twin "
-               f"{heat_twin['t']:.1f} s, rod {heat_rod['t']:.1f} s; RSS per rank "
-               f"{', '.join(f'{r:.2f}' for r in (per or []))} GiB, summed {tot:.3f} GiB; window "
-               f"{time.perf_counter() - t_window:.1f} s")
+    _say(
+        comm,
+        f"price: build {fixture['t_build']:.1f} s; EM {t_em:.1f} s; thermal twin "
+        f"{heat_twin['t']:.1f} s, rod {heat_rod['t']:.1f} s; RSS per rank "
+        f"{', '.join(f'{r:.2f}' for r in (per or []))} GiB, summed {tot:.3f} GiB; window "
+        f"{time.perf_counter() - t_window:.1f} s",
+    )
     _say(comm, f"gates: failures {fails or 'none'} (ASSERTED)")
     assert not fails, fails
     if rt is not None:
@@ -857,8 +1096,10 @@ def test_geo36_i32_rod_heating(monkeypatch):
 # ---------------------------------------------------------------------------
 # Coding tests (no gmsh, stubbed `_drive`); skip whenever HEAT_ENV is set.
 # ---------------------------------------------------------------------------
-_coding = pytest.mark.skipif(os.environ.get(HEAT_ENV, "").strip() != "",
-                             reason=f"{HEAT_ENV} set: coding tests skip in windows")
+_coding = pytest.mark.skipif(
+    os.environ.get(HEAT_ENV, "").strip() != "",
+    reason=f"{HEAT_ENV} set: coding tests skip in windows",
+)
 STUB_E0 = 3.0
 STUB_SIGMA = 0.5
 STUB_WALL_SELECT_M = 0.03  # the stub's jagged 403 block reaches ≈ 24 mm; the box face is at 50 mm
@@ -936,8 +1177,10 @@ def _owned_extrema(q):
     comm = q.function_space.mesh.comm
     n = q.function_space.dofmap.index_map.size_local
     vals = np.real(q.x.array[:n])
-    return (comm.allreduce(float(vals.min()) if n else np.inf, op=MPI.MIN),
-            comm.allreduce(float(vals.max()) if n else -np.inf, op=MPI.MAX))
+    return (
+        comm.allreduce(float(vals.min()) if n else np.inf, op=MPI.MIN),
+        comm.allreduce(float(vals.max()) if n else -np.inf, op=MPI.MAX),
+    )
 
 
 @_coding
@@ -956,9 +1199,14 @@ def test_i32a_k0_knobs_and_box_preconditions(monkeypatch):
     with pytest.raises(ValueError):
         _refuse_degree()
     _box_preconditions()
-    print(f"\n[GEO-36 I32a K0] box time base: T_STAR {T_STAR_BOX:.3f} s, dt "
-          f"{T_STAR_BOX / N_MAIN:.6f} s, dt_1 {DT_1_BOX:.6f} s", flush=True)
-    assert abs(T_STAR_BOX - 2821.5) <= 1.0, T_STAR_BOX  # the brief's 2 821.5 s, MAT-15's would be 1 254 s
+    print(
+        f"\n[GEO-36 I32a K0] box time base: T_STAR {T_STAR_BOX:.3f} s, dt "
+        f"{T_STAR_BOX / N_MAIN:.6f} s, dt_1 {DT_1_BOX:.6f} s",
+        flush=True,
+    )
+    assert (
+        abs(T_STAR_BOX - 2821.5) <= 1.0
+    ), T_STAR_BOX  # the brief's 2 821.5 s, MAT-15's would be 1 254 s
 
 
 @complex_only
@@ -973,15 +1221,21 @@ def test_i32a_k10q_source_closed_form(monkeypatch, tmp_path):
     fx = _k9_fixture(comm)
     msh, cell_tags = fx[0], fx[1]
     root = comm.bcast(str(tmp_path), root=0)
-    q_exact = STUB_SIGMA * STUB_E0 ** 2
+    q_exact = STUB_SIGMA * STUB_E0**2
     with monkeypatch.context() as m:
         e_sup, sigma_f, out = _columns_e_sup(m, fx, root)
         _, _sub, _ids, q = _merged_q(msh, cell_tags, e_sup, sigma_f)
         lo, hi = _owned_extrema(q)
         a_1g = averaging_ball_radius(mass_kg=ONE_GRAM_KG, rho=PHANTOM_RHO_KG_PER_M3)
         rho_field = build_density_field(msh, PHANTOM_RHO_KG_PER_M3)
-        ball = mass_averaged_sar(e_sup, sigma=sigma_f, rho=rho_field, center=fx[4]["a"], radius=a_1g,
-                                 quadrature_degree=QUADRATURE_DEGREE)
+        ball = mass_averaged_sar(
+            e_sup,
+            sigma=sigma_f,
+            rho=rho_field,
+            center=fx[4]["a"],
+            radius=a_1g,
+            quadrature_degree=QUADRATURE_DEGREE,
+        )
     miss = max(abs(lo / q_exact - 1.0), abs(hi / q_exact - 1.0))
     r_sar = abs(float(ball["averaged_sar_w_per_kg"]) * PHANTOM_RHO_KG_PER_M3 / q_exact - 1.0)
     with monkeypatch.context() as m:
@@ -990,10 +1244,13 @@ def test_i32a_k10q_source_closed_form(monkeypatch, tmp_path):
         lo_c, hi_c = _owned_extrema(q_one)
     miss_c = max(abs(lo_c / q_exact - 1.0), abs(hi_c / q_exact - 1.0))
     if comm.rank == 0:
-        print(f"\n[GEO-36 I32a K10-q] q on [{lo:.12e}, {hi:.12e}] vs sigma E0^2 {q_exact:.12e}: miss "
-              f"{miss:.3e}; SAR*rho miss {r_sar:.3e} (band {DISCRETE_IDENTITY_RTOL:g}, ASSERTED); kinds "
-              f"{out['kinds']}; control e2 = 0 miss {miss_c:.12f} (predicted {SINGLE_COLUMN_MISS}, "
-              f"within {SINGLE_COLUMN_CEILING:g}, ASSERTED)", flush=True)
+        print(
+            f"\n[GEO-36 I32a K10-q] q on [{lo:.12e}, {hi:.12e}] vs sigma E0^2 {q_exact:.12e}: miss "
+            f"{miss:.3e}; SAR*rho miss {r_sar:.3e} (band {DISCRETE_IDENTITY_RTOL:g}, ASSERTED); kinds "
+            f"{out['kinds']}; control e2 = 0 miss {miss_c:.12f} (predicted {SINGLE_COLUMN_MISS}, "
+            f"within {SINGLE_COLUMN_CEILING:g}, ASSERTED)",
+            flush=True,
+        )
     assert miss <= DISCRETE_IDENTITY_RTOL, miss
     assert r_sar <= DISCRETE_IDENTITY_RTOL, r_sar
     assert out["kinds"] == ["solve", "held"], out["kinds"]
@@ -1015,8 +1272,9 @@ def test_i32a_k10es_energy_and_slope_on_uniform_source(monkeypatch, tmp_path):
     with monkeypatch.context() as m:
         e_sup, sigma_f, _ = _columns_e_sup(m, fx, root)
         merged = _merge_rod_into_phantom(msh, cell_tags)
-        arm = _thermal_arm("K10", msh, merged, e_sup, sigma_f, None, STUB_CENTRE, tips, STUB_PROBES,
-                           merged=True)
+        arm = _thermal_arm(
+            "K10", msh, merged, e_sup, sigma_f, None, STUB_CENTRE, tips, STUB_PROBES, merged=True
+        )
         real_source = this._heat_source
 
         def _perturbed(*a):
@@ -1025,16 +1283,31 @@ def test_i32a_k10es_energy_and_slope_on_uniform_source(monkeypatch, tmp_path):
             return q
 
         m.setattr(this, "_heat_source", _perturbed)
-        neg = _thermal_arm("K10 NEG", msh, merged, e_sup, sigma_f, None, STUB_CENTRE, tips,
-                           STUB_PROBES, merged=True)
+        neg = _thermal_arm(
+            "K10 NEG",
+            msh,
+            merged,
+            e_sup,
+            sigma_f,
+            None,
+            STUB_CENTRE,
+            tips,
+            STUB_PROBES,
+            merged=True,
+        )
     fails, neg_fails = _thermal_failures(arm), _thermal_failures(neg)
     if comm.rank == 0:
-        print(f"\n[GEO-36 I32a K10-E] (B) {arm['B']:.3e}, (E) {arm['E']:.3e}, (E') {arm['Ep']:.3e}, "
-              f"dt {arm['dt']:.6f} s; (K10-S) slope {arm['S2']:.4e}, tip {arm['tip_s2']['a']:.4e} (band "
-              f"{S2_BAND:.0e}), failures {fails or 'none'} (ASSERTED)")
-        print(f"[GEO-36 I32a K10-E] control q(1 + 1e-3): (B) {neg['B']:.9e} = "
-              f"{neg['B'] / B_BAND:.4e} x B_BAND (named ratio {PERTURBED_B_RATIO:.4e}, ASSERTED); failures "
-              f"{neg_fails}", flush=True)
+        print(
+            f"\n[GEO-36 I32a K10-E] (B) {arm['B']:.3e}, (E) {arm['E']:.3e}, (E') {arm['Ep']:.3e}, "
+            f"dt {arm['dt']:.6f} s; (K10-S) slope {arm['S2']:.4e}, tip {arm['tip_s2']['a']:.4e} (band "
+            f"{S2_BAND:.0e}), failures {fails or 'none'} (ASSERTED)"
+        )
+        print(
+            f"[GEO-36 I32a K10-E] control q(1 + 1e-3): (B) {neg['B']:.9e} = "
+            f"{neg['B'] / B_BAND:.4e} x B_BAND (named ratio {PERTURBED_B_RATIO:.4e}, ASSERTED); failures "
+            f"{neg_fails}",
+            flush=True,
+        )
     assert not fails, fails
     assert arm["dt"] == T_STAR_BOX / N_MAIN, arm["dt"]
     assert arm["counts"]["wall"] == 0 and arm["counts"]["outer"] == arm["counts"]["exterior"]
@@ -1054,16 +1327,20 @@ def test_i32a_k10c_constant_curl_closed_form():
     msh, cell_tags, e_u, sigma_f, _tips, _t1 = _k9_fixture(comm)
     a, length = 0.05, 0.05
     e_sup = fem.Function(e_u.function_space)
-    e_sup.interpolate(lambda x: (1.0 + 1.0j) * STUB_E0 / length
-                      * np.vstack([-x[1], x[0], 0.0 * x[0]]))
+    e_sup.interpolate(
+        lambda x: (1.0 + 1.0j) * STUB_E0 / length * np.vstack([-x[1], x[0], 0.0 * x[0]])
+    )
     e_sup.x.scatter_forward()
     _merged, sub, _ids, q = _merged_q(msh, cell_tags, e_sup, sigma_f)
     int_q = float(np.real(_allsum(comm, q * ufl.dx(domain=sub))))
-    exact = STUB_SIGMA * STUB_E0 ** 2 * (16.0 / 3.0) * a ** 5 / length ** 2
+    exact = STUB_SIGMA * STUB_E0**2 * (16.0 / 3.0) * a**5 / length**2
     rel = abs(int_q / exact - 1.0)
     if comm.rank == 0:
-        print(f"\n[GEO-36 I32a K10-C] int q {int_q:.15e} vs closed form {exact:.15e}: rel {rel:.3e} (band "
-              f"{B_BAND:.0e}, ASSERTED)", flush=True)
+        print(
+            f"\n[GEO-36 I32a K10-C] int q {int_q:.15e} vs closed form {exact:.15e}: rel {rel:.3e} (band "
+            f"{B_BAND:.0e}, ASSERTED)",
+            flush=True,
+        )
     assert rel <= B_BAND, rel
 
 
@@ -1073,9 +1350,12 @@ def test_i32a_k10p_fixture_map():
     off = 0.0123
     pts = _p37_fixture(off)
     expected = {
-        "P0 centre": (0.0, off, 0.0), "P1 +y wall": (B_BOX, off, 0.0),
-        "P2 -y wall": (-B_BOX, off, 0.0), "P3 +x wall": (0.0, off, A_BOX),
-        "P4 -x wall": (0.0, off, -A_BOX), "P5 top face": (0.0, off + C_BOX, 0.0),
+        "P0 centre": (0.0, off, 0.0),
+        "P1 +y wall": (B_BOX, off, 0.0),
+        "P2 -y wall": (-B_BOX, off, 0.0),
+        "P3 +x wall": (0.0, off, A_BOX),
+        "P4 -x wall": (0.0, off, -A_BOX),
+        "P5 top face": (0.0, off + C_BOX, 0.0),
     }
     assert pts == expected, pts
     assert _map_box_point((A_BOX, B_BOX, C_BOX), off) == (B_BOX, off + C_BOX, A_BOX)
@@ -1099,7 +1379,9 @@ def test_i32a_k10m_merged_census():
     merged = _merge_rod_into_phantom(msh, cell_tags)
     gel, rod = _owned_tag_count(msh, merged, PHANTOM_CELL_TAG), _owned_tag_count(msh, merged, 403)
     if comm.rank == 0:
-        print(f"\n[GEO-36 I32a K10-M] census {census}, merged tag 3 {gel}, tag 403 {rod}", flush=True)
+        print(
+            f"\n[GEO-36 I32a K10-M] census {census}, merged tag 3 {gel}, tag 403 {rod}", flush=True
+        )
     assert census[403] > 0
     assert gel == msh.topology.index_map(3).size_global
     assert _s0_failures(census, dict(census), gel, rod) == []
@@ -1133,11 +1415,13 @@ def test_i32a_k10r_run_heat_end_to_end_on_stubs(monkeypatch, tmp_path):
     missing = [h for h in heads if not any(ln.startswith(h) for ln in lines)]
     sense_free = [ln for ln in lines if "theta(t*)" in ln and SENSE not in ln]
     if comm.rank == 0:
-        print(f"\n[GEO-36 I32a K10-R] G rod {rod['G']:.12e} = twin {twin['G']:.12e}; G*P twin "
-              f"{twin['G'] * twin['P']:.12f}, rod {dep_rod:.12f} vs 4 V3/V: rel {r_dep:.3e}; walls rod "
-              f"{rod['counts']['wall']}, twin {twin['counts']['wall']}; ratios {out['ratios']}; probes "
-              f"valid {list(rod['probe_ok'])} / {list(twin['probe_ok'])}; heads missing {missing or 'none'}",
-              flush=True)
+        print(
+            f"\n[GEO-36 I32a K10-R] G rod {rod['G']:.12e} = twin {twin['G']:.12e}; G*P twin "
+            f"{twin['G'] * twin['P']:.12f}, rod {dep_rod:.12f} vs 4 V3/V: rel {r_dep:.3e}; walls rod "
+            f"{rod['counts']['wall']}, twin {twin['counts']['wall']}; ratios {out['ratios']}; probes "
+            f"valid {list(rod['probe_ok'])} / {list(twin['probe_ok'])}; heads missing {missing or 'none'}",
+            flush=True,
+        )
     assert rod["G"] == twin["G"]
     assert abs(twin["G"] * twin["P"] - 1.0) <= B_BAND
     assert r_dep <= B_BAND, r_dep
@@ -1190,16 +1474,38 @@ def test_i32b_k11_projected_tip_gate_on_checkerboard(monkeypatch, tmp_path):
     with monkeypatch.context() as m:
         e_sup, sigma_f, _ = _columns_e_sup(m, fx, root)
         merged = _merge_rod_into_phantom(msh, cell_tags)
-        arm_u = _thermal_arm("K11 u", msh, merged, e_sup, sigma_f, None, STUB_CENTRE, tips, STUB_PROBES,
-                             merged=True, tip_projection=True)
+        arm_u = _thermal_arm(
+            "K11 u",
+            msh,
+            merged,
+            e_sup,
+            sigma_f,
+            None,
+            STUB_CENTRE,
+            tips,
+            STUB_PROBES,
+            merged=True,
+            tip_projection=True,
+        )
         real_source = this._heat_source
 
         def _rough(*a):
             return _checkerboard(real_source(*a))[0]
 
         m.setattr(this, "_heat_source", _rough)
-        arm_r = _thermal_arm("K11 r", msh, merged, e_sup, sigma_f, None, STUB_CENTRE, tips, STUB_PROBES,
-                             merged=True, tip_projection=True)
+        arm_r = _thermal_arm(
+            "K11 r",
+            msh,
+            merged,
+            e_sup,
+            sigma_f,
+            None,
+            STUB_CENTRE,
+            tips,
+            STUB_PROBES,
+            merged=True,
+            tip_projection=True,
+        )
     fails = []
     for arm in (arm_u, arm_r):
         if not arm["E"] <= E_BAND:
@@ -1224,28 +1530,43 @@ def test_i32b_k11_projected_tip_gate_on_checkerboard(monkeypatch, tmp_path):
     neg = arm_r["tip_s2"]["a"]
     if comm.rank == 0:
         for arm in (arm_u, arm_r):
-            print(f"\n[GEO-36 I32b K11] [{arm['label']}] (B) {arm['B']:.3e} (band {B_BAND:.0e}, "
-                  f"{'ASSERTED' if arm is arm_u else 'printed'}); (E) {arm['E']:.3e} (E dt1/10 "
-                  f"{arm['E10']:.3e}; band {E_BAND:.0e}, ASSERTED); global (S2) {arm['S2']:.4e} (band "
-                  f"{S2_BAND:.0e}, ASSERTED)", flush=True)
+            print(
+                f"\n[GEO-36 I32b K11] [{arm['label']}] (B) {arm['B']:.3e} (band {B_BAND:.0e}, "
+                f"{'ASSERTED' if arm is arm_u else 'printed'}); (E) {arm['E']:.3e} (E dt1/10 "
+                f"{arm['E10']:.3e}; band {E_BAND:.0e}, ASSERTED); global (S2) {arm['S2']:.4e} (band "
+                f"{S2_BAND:.0e}, ASSERTED)",
+                flush=True,
+            )
             for n in tips:
                 a, b = arm["tip_rows"]["dt1"][n], arm["tip_rows"]["dt1/10"][n]
-                print(f"[GEO-36 I32b K11] [{arm['label']}] ball {n}: R_Pi dt1 {a['R_Pi']:.6e} dt1/10 "
-                      f"{b['R_Pi']:.6e}; R_DG0 dt1 {a['R_DG0']:.6e} (retired form) dt1/10 "
-                      f"{b['R_DG0']:.6e}; <Pq>/<q> - 1 {b['pq_q']:+.6e}", flush=True)
+                print(
+                    f"[GEO-36 I32b K11] [{arm['label']}] ball {n}: R_Pi dt1 {a['R_Pi']:.6e} dt1/10 "
+                    f"{b['R_Pi']:.6e}; R_DG0 dt1 {a['R_DG0']:.6e} (retired form) dt1/10 "
+                    f"{b['R_DG0']:.6e}; <Pq>/<q> - 1 {b['pq_q']:+.6e}",
+                    flush=True,
+                )
         rep = ", ".join(f"{n} |diff| {abs(rr[n]['R_Pi'] - OPS83_R_PI_R[n]):.3e}" for n in tips)
         rep_pq = ", ".join(f"{n} {abs(abs(rr[n]['pq_q']) - OPS83_PQ_Q_R[n]):.3e}" for n in tips)
-        lit_word = ("ASSERTED" if literal
-                    else "printed at -n %d (record is -n %d)" % (comm.size, OPS83_RECORD_RANKS))
+        lit_word = (
+            "ASSERTED"
+            if literal
+            else "printed at -n %d (record is -n %d)" % (comm.size, OPS83_RECORD_RANKS)
+        )
         ident = ", ".join(f"{n} {abs(ru[n]['R_Pi'] - ru[n]['R_DG0']):.3e}" for n in tips)
-        print(f"[GEO-36 I32b K11] (K11-rep) vs OPS-83 R_Pi(r, dt1/10): {rep} (tol {REP_TOL_4E:.0e}); "
-              f"|pq_q| |diff| {rep_pq} (tol {REP_TOL_3E:.0e}); (K11-u) tip R_Pi |diff| "
-              f"{abs(ru['a']['R_Pi'] - OPS83_R_PI_U_TIP):.3e}, R_Pi - R_DG0 {ident} (tol "
-              f"{PROJECTION_ID_TOL:.0e}); literal R_Pi reproductions {lit_word}, |pq_q| and identity "
-              f"ASSERTED", flush=True)
-        print(f"[GEO-36 I32b K11] (K11-c) control: retired DG0 tip_s2[a] on q_r {neg:.4e} = "
-              f"{neg / S2_BAND:.2f} x S2_BAND (> band, ASSERTED; OPS-83 read 1.5793e-03); failures "
-              f"{fails or 'none'}", flush=True)
+        print(
+            f"[GEO-36 I32b K11] (K11-rep) vs OPS-83 R_Pi(r, dt1/10): {rep} (tol {REP_TOL_4E:.0e}); "
+            f"|pq_q| |diff| {rep_pq} (tol {REP_TOL_3E:.0e}); (K11-u) tip R_Pi |diff| "
+            f"{abs(ru['a']['R_Pi'] - OPS83_R_PI_U_TIP):.3e}, R_Pi - R_DG0 {ident} (tol "
+            f"{PROJECTION_ID_TOL:.0e}); literal R_Pi reproductions {lit_word}, |pq_q| and identity "
+            f"ASSERTED",
+            flush=True,
+        )
+        print(
+            f"[GEO-36 I32b K11] (K11-c) control: retired DG0 tip_s2[a] on q_r {neg:.4e} = "
+            f"{neg / S2_BAND:.2f} x S2_BAND (> band, ASSERTED; OPS-83 read 1.5793e-03); failures "
+            f"{fails or 'none'}",
+            flush=True,
+        )
     assert not fails, fails
     assert neg > S2_BAND, neg
 
@@ -1253,13 +1574,24 @@ def test_i32b_k11_projected_tip_gate_on_checkerboard(monkeypatch, tmp_path):
 @_coding
 def test_i32b_k11f_thermal_failures_gate_projected_tip():
     """(K11-f): on a non-merged arm `_thermal_failures` gates ``tip_s2_pi`` when present."""
-    base = {"label": "rod", "B": 0.0, "E": 0.0, "Ep": 0.0, "S2": 0.0, "merged": False,
-            "counts": {"wall": 4}, "tip_s2": {"a": 1.6e-03}}
+    base = {
+        "label": "rod",
+        "B": 0.0,
+        "E": 0.0,
+        "Ep": 0.0,
+        "S2": 0.0,
+        "merged": False,
+        "counts": {"wall": 4},
+        "tip_s2": {"a": 1.6e-03},
+    }
     green = _thermal_failures(dict(base, tip_s2_pi={"a": 7.0e-07}))
     red = _thermal_failures(dict(base, tip_s2_pi={"a": 2.0e-04}))
     retired = _thermal_failures(dict(base))
-    print(f"\n[GEO-36 I32b K11-f] green {green or 'none'}; red {red}; no tip_s2_pi key (old form) "
-          f"{retired}", flush=True)
+    print(
+        f"\n[GEO-36 I32b K11-f] green {green or 'none'}; red {red}; no tip_s2_pi key (old form) "
+        f"{retired}",
+        flush=True,
+    )
     assert not any("(S2-tip)" in f for f in green), green
     assert len(red) == 1 and "(S2-tip)" in red[0], red
     assert len(retired) == 1 and "(S2-tip)" in retired[0], retired
@@ -1310,8 +1642,11 @@ def test_i87p_k0_knob_parsing(monkeypatch):
         with pytest.raises(ValueError, match=ROD_THERMAL_ENV):
             _rod_thermal()
         refused.append(bad)
-    print(f"\n[GEO-36 I87p K0] unset / '' -> None; arms {ROD_THERMAL_ARMS} accepted; refused {refused} "
-          f"(ValueError naming {ROD_THERMAL_ENV})", flush=True)
+    print(
+        f"\n[GEO-36 I87p K0] unset / '' -> None; arms {ROD_THERMAL_ARMS} accepted; refused {refused} "
+        f"(ValueError naming {ROD_THERMAL_ENV})",
+        flush=True,
+    )
 
 
 @complex_only
@@ -1350,8 +1685,10 @@ def test_i87p_rod_thermal_arms_on_stubs(monkeypatch, tmp_path):
     if "rod_cells" in out0:
         fails.append("(K-def)(b) rod_cells in the unset run's out")
     tips = sorted(out0["rod"]["tip_th"])
-    default = {"t*": {n: out0["rod"]["tip_th"][n] for n in tips},
-               "F2182": {n: out0["rod"]["f2182_th"][n] for n in tips}}
+    default = {
+        "t*": {n: out0["rod"]["tip_th"][n] for n in tips},
+        "F2182": {n: out0["rod"]["f2182_th"][n] for n in tips},
+    }
     for arm in ROD_THERMAL_ARMS:
         exc = runs[arm][1]["rod"]
         for kind, key in (("t*", "tip_th"), ("F2182", "f2182_th")):
@@ -1359,7 +1696,8 @@ def test_i87p_rod_thermal_arms_on_stubs(monkeypatch, tmp_path):
                 s0, s1 = f"{default[kind][n]:.9e}", f"{exc[key][n]:.9e}"
                 if s0 != s1:
                     (fails if literal else notes).append(
-                        f"(K-def)(b) {arm} run's exclusion {kind} {n} {s1} vs unset {s0}")
+                        f"(K-def)(b) {arm} run's exclusion {kind} {n} {s1} vs unset {s0}"
+                    )
 
     # (K-arm), (K-gel=), (N-src), (N-rho_c), per arm.
     per = {}
@@ -1403,22 +1741,34 @@ def test_i87p_rod_thermal_arms_on_stubs(monkeypatch, tmp_path):
             if not rc["Ep_sc"] > E_BAND:
                 fails.append(f"(N-rho_c) {arm} Ep_sc {rc['Ep_sc']:.3e}")
         if comm.rank == 0:
-            print(f"\n[GEO-36 I87p] [{arm}] (K-arm) G*P {gp:.12e} (exclusion {gp_exc:.12e}, float equal "
-                  f"{gp == gp_exc}); V_sub {vsub_rc} (twin {vsub_twin}); wall {rc['counts']['wall']}; n_rod "
-                  f"{rc['n_rod']}; V(B cap rod) "
-                  + ", ".join(f"{n} {rc['v_rod_ball'][n]!r}" for n in tips), flush=True)
-            print(f"[GEO-36 I87p] [{arm}] (B) {rc['B']:.3e}, (E) {rc['E']:.3e}, (E')rho_c {rc['Ep_rc']:.3e}, "
-                  f"(E') scalar {rc['Ep_sc']:.6e}, (S2)rho_c {rc['S2_rc']:.6e}, (S2) scalar "
-                  f"{rc['S2_sc']:.6e}; (S2-tip) rho_c form "
-                  + ", ".join(f"{n} {rc['tip_s2_pi'][n]:.4e}" for n in tips) + "; scalar form "
-                  + ", ".join(f"{n} {rc['tip_s2_pi_sc'][n]:.4e}" for n in tips), flush=True)
-            print(f"[GEO-36 I87p] [{arm}] (N-src) measured {rc['n_src']:.6e} vs predicted {I87P_NSRC_PRED:.6e} "
-                  f"(> B_BAND {B_BAND:.0e}, ASSERTED; predicted, the form is new)"
-                  + (f"; (N-rho_c) |Ep_sc| {rc['Ep_sc']:.6e} vs predicted ~{I87P_NRC_PRED[arm]:.1e} "
-                     f"(> E_BAND {E_BAND:.0e}, ASSERTED)" if arm in I87P_NRC_PRED else
-                     f"; (K-gel=) |Ep_rc - Ep_sc| {abs(rc['Ep_rc'] - rc['Ep_sc']):.3e} (<= E_BAND), "
-                     f"|S2_rc - S2_sc| {abs(rc['S2_rc'] - rc['S2_sc']):.3e} (<= S2_BAND) ASSERTED"),
-                  flush=True)
+            print(
+                f"\n[GEO-36 I87p] [{arm}] (K-arm) G*P {gp:.12e} (exclusion {gp_exc:.12e}, float equal "
+                f"{gp == gp_exc}); V_sub {vsub_rc} (twin {vsub_twin}); wall {rc['counts']['wall']}; n_rod "
+                f"{rc['n_rod']}; V(B cap rod) "
+                + ", ".join(f"{n} {rc['v_rod_ball'][n]!r}" for n in tips),
+                flush=True,
+            )
+            print(
+                f"[GEO-36 I87p] [{arm}] (B) {rc['B']:.3e}, (E) {rc['E']:.3e}, (E')rho_c {rc['Ep_rc']:.3e}, "
+                f"(E') scalar {rc['Ep_sc']:.6e}, (S2)rho_c {rc['S2_rc']:.6e}, (S2) scalar "
+                f"{rc['S2_sc']:.6e}; (S2-tip) rho_c form "
+                + ", ".join(f"{n} {rc['tip_s2_pi'][n]:.4e}" for n in tips)
+                + "; scalar form "
+                + ", ".join(f"{n} {rc['tip_s2_pi_sc'][n]:.4e}" for n in tips),
+                flush=True,
+            )
+            print(
+                f"[GEO-36 I87p] [{arm}] (N-src) measured {rc['n_src']:.6e} vs predicted {I87P_NSRC_PRED:.6e} "
+                f"(> B_BAND {B_BAND:.0e}, ASSERTED; predicted, the form is new)"
+                + (
+                    f"; (N-rho_c) |Ep_sc| {rc['Ep_sc']:.6e} vs predicted ~{I87P_NRC_PRED[arm]:.1e} "
+                    f"(> E_BAND {E_BAND:.0e}, ASSERTED)"
+                    if arm in I87P_NRC_PRED
+                    else f"; (K-gel=) |Ep_rc - Ep_sc| {abs(rc['Ep_rc'] - rc['Ep_sc']):.3e} (<= E_BAND), "
+                    f"|S2_rc - S2_sc| {abs(rc['S2_rc'] - rc['S2_sc']):.3e} (<= S2_BAND) ASSERTED"
+                ),
+                flush=True,
+            )
 
     # (K-c): one θ digit of the `[rod] 1 g ball … at a,` token, in memory.
     head_c = "[rod] 1 g ball (a 6.2035 mm) at a,"
@@ -1430,23 +1780,34 @@ def test_i87p_rod_thermal_arms_on_stubs(monkeypatch, tmp_path):
 
     # The three former gates: printed with the weekly's ranges, never asserted.
     if comm.rank == 0 and set(per) == set(ROD_THERMAL_ARMS):
-        print("[GEO-36 I87p] former gates (printed, never asserted): " + "; ".join(I87P_FORMER), flush=True)
+        print(
+            "[GEO-36 I87p] former gates (printed, never asserted): " + "; ".join(I87P_FORMER),
+            flush=True,
+        )
         for kind, key in (("theta(t*)", "tip_th"), ("F2182 theta(900 s)", "f2182_th")):
             dk = "t*" if key == "tip_th" else "F2182"
             for n in tips:
                 d = default[dk][n]
                 g, ti, ho = (per[a][key][n] for a in ROD_THERMAL_ARMS)
-                print(f"[GEO-36 I87p] former gates at {n}, {kind}: default {d:.9e} gel {g:.9e} ti {ti:.9e} "
-                      f"hole {ho:.9e} K; (K-gel) |gel/default - 1| {abs(g / d - 1.0):.4e}; (K-Ti) ti/gel - 1 "
-                      f"{ti / g - 1.0:+.4e}; (K-hole) hole/gel - 1 {ho / g - 1.0:+.4e}; hole/default - 1 "
-                      f"{ho / d - 1.0:+.4e} (printed)", flush=True)
+                print(
+                    f"[GEO-36 I87p] former gates at {n}, {kind}: default {d:.9e} gel {g:.9e} ti {ti:.9e} "
+                    f"hole {ho:.9e} K; (K-gel) |gel/default - 1| {abs(g / d - 1.0):.4e}; (K-Ti) ti/gel - 1 "
+                    f"{ti / g - 1.0:+.4e}; (K-hole) hole/gel - 1 {ho / g - 1.0:+.4e}; hole/default - 1 "
+                    f"{ho / d - 1.0:+.4e} (printed)",
+                    flush=True,
+                )
                 vals = {"default": d, "gel": g, "ti": ti, "hole": ho}
                 order = sorted(vals, key=lambda a: vals[a])
-                print(f"[GEO-36 I87p] ordering at {n} ({kind}): " + " < ".join(order) + " (printed)",
-                      flush=True)
-        print(f"[GEO-36 I87p] (K-def)(b) unset run: T_REP missing {missing or 'none'} (asserted at -n "
-              f"{OPS83_RECORD_RANKS}, -n {comm.size} here); rod thermal lines {len(rt_lines)}; rod_cells in "
-              f"out {'rod_cells' in out0}; exclusion arms agree by string with the unset [rod]: "
-              f"{not any('exclusion' in f for f in fails + notes)}; (K-c) {bad_tok!r} reported missing "
-              f"{kc == [bad_tok]}; notes {notes or 'none'}; failures {fails or 'none'}", flush=True)
+                print(
+                    f"[GEO-36 I87p] ordering at {n} ({kind}): " + " < ".join(order) + " (printed)",
+                    flush=True,
+                )
+        print(
+            f"[GEO-36 I87p] (K-def)(b) unset run: T_REP missing {missing or 'none'} (asserted at -n "
+            f"{OPS83_RECORD_RANKS}, -n {comm.size} here); rod thermal lines {len(rt_lines)}; rod_cells in "
+            f"out {'rod_cells' in out0}; exclusion arms agree by string with the unset [rod]: "
+            f"{not any('exclusion' in f for f in fails + notes)}; (K-c) {bad_tok!r} reported missing "
+            f"{kc == [bad_tok]}; notes {notes or 'none'}; failures {fails or 'none'}",
+            flush=True,
+        )
     assert not fails, fails

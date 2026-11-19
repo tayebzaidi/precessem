@@ -19,21 +19,20 @@ Boundary conditions:
     - Natural: (∇ × A) × n = 0 (magnetic insulation)
 """
 
-from typing import Optional, Callable, Union, List, Sequence, Mapping, Any
-from enum import Enum
 import warnings
-import numpy as np
-import basix.ufl
 from dataclasses import dataclass
+from enum import Enum
+from typing import Any, Callable, List, Mapping, Optional, Sequence, Union
 
+import basix.ufl
 import dolfinx
+import numpy as np
 import ufl
-from dolfinx import fem, mesh, io
+from dolfinx import fem, io
 from dolfinx.fem.petsc import LinearProblem
-from ufl import curl, inner, dx, TrialFunction, TestFunction
 from mpi4py import MPI
 from petsc4py import PETSc
-import gmsh
+from ufl import TestFunction, TrialFunction, curl, dx, inner
 
 from ..utils.constants import MU_0
 
@@ -150,10 +149,10 @@ class GaugeMethod(str, Enum):
     LAGRANGE = "lagrange"
 
 
-
 @dataclass
 class MagnetostaticProblem:
     """Container for magnetostatic problem parameters."""
+
     mesh: dolfinx.mesh.Mesh
     cell_tags: Optional[dolfinx.mesh.MeshTags] = None
     facet_tags: Optional[dolfinx.mesh.MeshTags] = None
@@ -237,10 +236,10 @@ def classify_residual_trend(residual_history: Sequence[float]) -> str:
 
 class MagnetostaticSolver:
     """Solver for magnetostatic problems using vector potential formulation.
-    
+
     This solver computes the magnetic vector potential A, from which
     B = ∇ × A and H = μ⁻¹B can be derived.
-    
+
     Parameters
     ----------
     problem : MagnetostaticProblem
@@ -248,21 +247,21 @@ class MagnetostaticSolver:
     degree : int, optional
         Polynomial degree of Nedelec elements (default: 1)
     """
-    
+
     def __init__(self, problem: MagnetostaticProblem, degree: int = 1):
         self.problem = problem
         self.degree = degree
         self.mesh = problem.mesh
         self.mu = problem.mu
-        
+
         # Create function space (H(curl) - Nedelec elements)
         self.V = fem.functionspace(self.mesh, ("N1curl", degree))
-        
+
         # Solution field
         self.A = fem.Function(self.V, name="A")
         self._solved = False
         self._last_solve_diagnostics: Optional[LinearSolveDiagnostics] = None
-        
+
     @property
     def last_solve_diagnostics(self) -> Optional[LinearSolveDiagnostics]:
         """Return diagnostics from the most recent linear solve, if requested."""
@@ -295,16 +294,19 @@ class MagnetostaticSolver:
             residual_trend=classify_residual_trend(history),
         )
 
-    def solve(self, current_density: Optional[Callable] = None, 
-              bc_functions: Optional[List] = None,
-              subdomain_id: Optional[int] = None,
-              subdomain_ids: Optional[Sequence[int]] = None,
-              gauge_penalty: float = DEFAULT_GAUGE_PENALTY,
-              gauge: Union[GaugeMethod, str] = GaugeMethod.PENALTY,
-              petsc_options: Optional[Mapping[str, Any]] = None,
-              collect_solver_diagnostics: bool = False) -> fem.Function:
+    def solve(
+        self,
+        current_density: Optional[Callable] = None,
+        bc_functions: Optional[List] = None,
+        subdomain_id: Optional[int] = None,
+        subdomain_ids: Optional[Sequence[int]] = None,
+        gauge_penalty: float = DEFAULT_GAUGE_PENALTY,
+        gauge: Union[GaugeMethod, str] = GaugeMethod.PENALTY,
+        petsc_options: Optional[Mapping[str, Any]] = None,
+        collect_solver_diagnostics: bool = False,
+    ) -> fem.Function:
         """Solve the magnetostatic problem.
-        
+
         Parameters
         ----------
         current_density : callable, optional
@@ -337,20 +339,20 @@ class MagnetostaticSolver:
         # Define trial and test functions
         A_trial = TrialFunction(self.V)
         v = TestFunction(self.V)
-        
+
         # Permeability (could be spatially varying)
         if callable(self.mu):
             mu = self.mu(ufl.SpatialCoordinate(self.mesh))
         else:
             mu = fem.Constant(self.mesh, PETSc.ScalarType(self.mu))
         mu_inv = 1.0 / mu
-        
+
         # Bilinear form: a(A, v) = ∫ μ⁻¹ (∇ × A) · (∇ × v) dx
         # Add tiny gauge regularization to remove nullspace.
         # NB: not named `gauge` -- that is the method-selection parameter.
         gauge_const = fem.Constant(self.mesh, PETSc.ScalarType(gauge_penalty))
         a = inner(mu_inv * curl(A_trial), curl(v)) * dx + gauge_const * inner(A_trial, v) * dx
-        
+
         # Linear form: L(v) = ∫ J · v dx
         if subdomain_id is not None and subdomain_ids is not None:
             raise ValueError("Use either subdomain_id or subdomain_ids, not both")
@@ -423,11 +425,7 @@ class MagnetostaticSolver:
         corner = np.array([comm.allreduce(local_min[i], op=MPI.MIN) for i in range(3)])
 
         coords = W1.tabulate_dof_coordinates()
-        best = (
-            float(np.min(np.linalg.norm(coords - corner, axis=1)))
-            if coords.shape[0]
-            else np.inf
-        )
+        best = float(np.min(np.linalg.norm(coords - corner, axis=1))) if coords.shape[0] else np.inf
         # Deterministic owner election with scalar reductions only. MPI.MINLOC over
         # a pickled Python tuple is not reliably consistent across ranks -- if two
         # ranks disagree on the winner they bcast with different roots and
@@ -506,8 +504,8 @@ class MagnetostaticSolver:
         lag_el = basix.ufl.element("Lagrange", cell, self.degree)
         W = fem.functionspace(self.mesh, basix.ufl.mixed_element([curl_el, lag_el]))
 
-        (A_trial, p_trial) = ufl.TrialFunctions(W)
-        (v, q) = ufl.TestFunctions(W)
+        A_trial, p_trial = ufl.TrialFunctions(W)
+        v, q = ufl.TestFunctions(W)
 
         a = (
             inner(mu_inv * curl(A_trial), curl(v)) * dx
@@ -627,10 +625,10 @@ class MagnetostaticSolver:
             return float("inf")
 
         return float(a_norm / (length * c_norm))
-    
+
     def compute_b_field(self) -> fem.Function:
         """Compute magnetic flux density B = ∇ × A.
-        
+
         Returns
         -------
         fem.Function
@@ -638,34 +636,34 @@ class MagnetostaticSolver:
         """
         if not self._solved:
             raise RuntimeError("Must call solve() before computing B-field")
-        
+
         # B = curl(A) needs to be interpolated to appropriate space
         # Use DG space for B (discontinuous, vector-valued)
         DG = fem.functionspace(self.mesh, ("DG", self.degree, (3,)))
         B = fem.Function(DG, name="B")
-        
+
         # Project curl(A) onto DG space
         # OPS-18: 0.11 turned `interpolation_points` from a method into a
         # property returning the (n, gdim) array; calling it raises
         # "'numpy.ndarray' object is not callable".
         B_expr = fem.Expression(curl(self.A), DG.element.interpolation_points)
         B.interpolate(B_expr)
-        
+
         return B
-    
+
     def compute_h_field(self) -> fem.Function:
         """Compute magnetic field intensity H = B/μ.
-        
+
         Returns
         -------
         fem.Function
             H-field in DG space
         """
         B = self.compute_b_field()
-        
+
         DG = fem.functionspace(self.mesh, ("DG", self.degree, (3,)))
         H = fem.Function(DG, name="H")
-        
+
         if callable(self.mu):
             x = ufl.SpatialCoordinate(self.mesh)
             mu = self.mu(x)
@@ -674,12 +672,12 @@ class MagnetostaticSolver:
 
         H_expr = fem.Expression(B / mu, DG.element.interpolation_points)
         H.interpolate(H_expr)
-        
+
         return H
-    
+
     def compute_magnetic_energy(self) -> float:
         """Compute total magnetic energy in the domain.
-        
+
         W = ½ ∫ B · H dx = ½ ∫ μ⁻¹ |∇ × A|² dx
 
         Collective: every rank must call this together; the result is the
@@ -726,7 +724,7 @@ class MagnetostaticSolver:
             )
 
         return real_energy
-    
+
     def evaluate_at_points(self, points: np.ndarray, field: str = "A") -> np.ndarray:
         """Evaluate field at specific points.
 
@@ -771,10 +769,10 @@ class MagnetostaticSolver:
                 f"first missing indices: {missing[:5].tolist()}"
             )
         return values
-    
+
     def save_to_vtk(self, filename: str, fields: Optional[List[str]] = None):
         """Save solution to VTK file for visualization.
-        
+
         Parameters
         ----------
         filename : str
@@ -784,7 +782,7 @@ class MagnetostaticSolver:
         """
         if fields is None:
             fields = ["A"]
-        
+
         # Write to file
         with io.VTKFile(self.mesh.comm, filename, "w") as vtk:
             if "A" in fields:

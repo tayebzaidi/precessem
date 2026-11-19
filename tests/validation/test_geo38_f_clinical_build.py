@@ -112,7 +112,8 @@ def _facet_coords(msh, facets):
     if len(facets) == 0:
         return np.zeros((0, 3, 3))
     geom = dolfinx.cpp.mesh.entities_to_geometry(
-        msh._cpp_object, fdim, np.asarray(facets, dtype=np.int32), False)
+        msh._cpp_object, fdim, np.asarray(facets, dtype=np.int32), False
+    )
     return msh.geometry.x[geom[:, :3]]
 
 
@@ -151,7 +152,8 @@ def test_geo38_step1a_f_clinical_identities():
 
     t0 = time.perf_counter()
     msh, cells, facets, diag = MeshGenerator.birdcage_port_domain(
-        comm=comm, return_diagnostics=True, **kw)
+        comm=comm, return_diagnostics=True, **kw
+    )
     t_build = time.perf_counter() - t0
     tdim = msh.topology.dim
     fdim = tdim - 1
@@ -172,7 +174,8 @@ def test_geo38_step1a_f_clinical_identities():
 
     # --- sheets: (R), (L), (A)
     sheet_tags = _interface_facet_tags(
-        msh, cells, {SHEET_IFACE + i: (PORT_LOWER + i, PORT_UPPER + i) for i in ring_ports})
+        msh, cells, {SHEET_IFACE + i: (PORT_LOWER + i, PORT_UPPER + i) for i in ring_ports}
+    )
     sv = np.asarray(sheet_tags.values)
     si = np.asarray(sheet_tags.indices)
     local_sheets = {}
@@ -200,7 +203,7 @@ def test_geo38_step1a_f_clinical_identities():
     half_sp = 0.5 * kw["leg_spacing"]
     l_dev = {i: abs(abs(z) / half_sp - 1.0) for i, z in z_mid.items()}
     z_signs = sorted(int(np.sign(z)) for z in z_mid.values())
-    separation = (max(z_mid.values()) - min(z_mid.values()))
+    separation = max(z_mid.values()) - min(z_mid.values())
 
     # --- cavity wall and outer facets: (L) leg span, (S), (N)
     fv = np.asarray(facets.values)
@@ -210,8 +213,7 @@ def test_geo38_step1a_f_clinical_identities():
     ext = _owned(msh, dolfinx.mesh.exterior_facet_indices(msh.topology))
     outer = np.setdiff1d(ext, cav)
     tag1 = _owned(msh, fi[fv == 1])
-    n_outer_mismatch = comm.allreduce(
-        int(len(np.setxor1d(outer, tag1))), op=MPI.SUM)
+    n_outer_mismatch = comm.allreduce(int(len(np.setxor1d(outer, tag1))), op=MPI.SUM)
     n_tag_collision = comm.allreduce(int(len(np.intersect1d(tag1, cav))), op=MPI.SUM)
     n_ext = comm.allreduce(int(len(ext)), op=MPI.SUM)
     n_outer = comm.allreduce(int(len(outer)), op=MPI.SUM)
@@ -220,14 +222,16 @@ def test_geo38_step1a_f_clinical_identities():
     cav_p = cav_xyz.reshape(-1, 3)
     cav_zmax = comm.allreduce(float(cav_p[:, 2].max()) if len(cav_p) else -np.inf, op=MPI.MAX)
     cav_hmax = comm.allreduce(
-        float(np.hypot(cav_p[:, 0], cav_p[:, 1]).max()) if len(cav_p) else 0.0, op=MPI.MAX)
+        float(np.hypot(cav_p[:, 0], cav_p[:, 1]).max()) if len(cav_p) else 0.0, op=MPI.MAX
+    )
     if len(cav_p):
         k = int(np.argmax(np.hypot(cav_p[:, 0], cav_p[:, 1])))
         print(f"[GEO-38 s1a] rank {comm.rank} cavity max-hypot vertex {cav_p[k]}", flush=True)
     lat = out_p[np.abs(out_p[:, 2]) < z_e * (1.0 - 1.0e-9)]
     shield_dev = comm.allreduce(
         float(np.max(np.abs(np.hypot(lat[:, 0], lat[:, 1]) / R_s - 1.0))) if len(lat) else 0.0,
-        op=MPI.MAX)
+        op=MPI.MAX,
+    )
     n_lat = comm.allreduce(int(len(lat)), op=MPI.SUM)
     out_zmax = comm.allreduce(float(np.abs(out_p[:, 2]).max()) if len(out_p) else 0.0, op=MPI.MAX)
     half_cl = 0.5 * kw["coil_length"]
@@ -255,7 +259,8 @@ def test_geo38_step1a_f_clinical_identities():
     box_cells = ci[(cv >= PORT_LOWER + 1) & (cv <= PORT_LOWER + LEG_COUNT)]
     if len(box_cells):
         bgeom = dolfinx.cpp.mesh.entities_to_geometry(
-            msh._cpp_object, tdim, np.asarray(box_cells, dtype=np.int32), False)
+            msh._cpp_object, tdim, np.asarray(box_cells, dtype=np.int32), False
+        )
         bp = msh.geometry.x[bgeom.reshape(-1)]
         box_hmax_local = float(np.hypot(bp[:, 0], bp[:, 1]).max())
     else:
@@ -291,8 +296,7 @@ def test_geo38_step1a_f_clinical_identities():
     area_drop = comm.allreduce(local_a, op=MPI.SUM)
     c1_dev = abs(area_drop / (chord * width) - 1.0)
 
-    rss = comm.allreduce(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024.0**2,
-                         op=MPI.SUM)
+    rss = comm.allreduce(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024.0**2, op=MPI.SUM)
 
     if comm.rank == 0:
         rho = U1 / F_HUMAN_N1

@@ -81,9 +81,7 @@ class QuasiStaticSphereField:
     e0: float = 1.0
 
     def dirichlet_field(self, *, radius: float, epsilon_c: complex):
-        return dielectric_sphere_quasistatic_field(
-            radius=radius, epsilon_c=epsilon_c, e0=self.e0
-        )
+        return dielectric_sphere_quasistatic_field(radius=radius, epsilon_c=epsilon_c, e0=self.e0)
 
 
 @dataclass
@@ -171,9 +169,7 @@ class Study:
                 sigma=sigma_eff, epsilon_r=eps_r, frequency_hz=frequency_hz, mu_r=material.mu_r
             )
         if isinstance(material, str):
-            material = GelledSalinePhantomMaterial.from_preset(
-                material, frequency_hz=frequency_hz
-            )
+            material = GelledSalinePhantomMaterial.from_preset(material, frequency_hz=frequency_hz)
         if not isinstance(material, GelledSalinePhantomMaterial):
             raise TypeError(
                 f"material must be a GelledSalinePhantomMaterial or a preset name, "
@@ -198,9 +194,7 @@ class Study:
     def epsilon_c(self) -> complex:
         """``ε_c = εᵣ − jσ/(ωε₀)``, the expression the solver assembles."""
         _refuse_thermal_only_attr(self, "material", "epsilon_c")
-        return complex(
-            self.material.epsilon_r, -self.material.sigma / (self.omega * EPSILON_0)
-        )
+        return complex(self.material.epsilon_r, -self.material.sigma / (self.omega * EPSILON_0))
 
     def dirichlet_field(self):
         _refuse_thermal_only_attr(self, "excitation", "dirichlet_field")
@@ -208,8 +202,14 @@ class Study:
             radius=self.geometry.sphere_radius, epsilon_c=self.epsilon_c()
         )
 
-    def solve(self, comm: MPI.Intracomm = MPI.COMM_WORLD, *, backend="dolfinx",
-              case_dir=None, palace_ranks=8) -> StudyResult:
+    def solve(
+        self,
+        comm: MPI.Intracomm = MPI.COMM_WORLD,
+        *,
+        backend="dolfinx",
+        case_dir=None,
+        palace_ranks=8,
+    ) -> StudyResult:
         _refuse_f_clinical(self, "solve")  # `WF-13` step 12 (§9 item 663), before any mesh
         _refuse_rod_route(self, "solve")  # `WF-15` step 12 (§9 item 729), before any mesh
         if backend != "dolfinx":
@@ -314,9 +314,7 @@ class FourPortBirdcageGeometry:
     implant_rod: Optional[dict] = _dc_field(default=None, hash=False)
 
     def __post_init__(self):
-        if self.strip_fraction is None or not isinstance(
-            self.strip_fraction, (float, int)
-        ):
+        if self.strip_fraction is None or not isinstance(self.strip_fraction, (float, int)):
             raise ValueError(
                 "strip_fraction must be a number: ports are exact CAD rectangles "
                 "(no ragged sheet, operator ruling 2026-10-02)"
@@ -391,9 +389,7 @@ class FourPortBirdcageGeometry:
             tag = self.sheet_iface + i
             azimuth = _sheet_azimuth_deg(msh, tags_f, tag, comm)
             radial, azimuthal, axial = _port_frame(azimuth)
-            spans, centres = _projected_extents(
-                msh, tags_f, tag, comm, [radial, azimuthal, axial]
-            )
+            spans, centres = _projected_extents(msh, tags_f, tag, comm, [radial, azimuthal, axial])
             geometry[i] = {
                 "tag": tag,
                 "azimuth_deg": float(azimuth),
@@ -550,7 +546,12 @@ class FHumanBirdcageGeometry:
         ncells = int(msh.topology.index_map(tdim).size_global)
         ords = self.ring_ordinals()
         tags_f, areas = _sheet_areas(
-            msh, cell_tags, ords, comm, self.sheet_iface, self.port_lower,
+            msh,
+            cell_tags,
+            ords,
+            comm,
+            self.sheet_iface,
+            self.port_lower,
             self.port_upper,
         )
         msh.topology.create_connectivity(tdim - 1, tdim)
@@ -587,9 +588,11 @@ def _refuse_f_human(study, method: str) -> None:
     """`WF-16` step 8: the F-human Study is the S route only (before any mesh);
     estimate() is priced, `WF-13` steps 10-11."""
     if isinstance(study.geometry, FHumanBirdcageGeometry):
-        raise TypeError(f"{method} is not defined on an FHumanBirdcageGeometry Study "
-                        "(WF-16 step 8: S-parameters only; estimate() is priced, "
-                        "WF-13 steps 10-11)")
+        raise TypeError(
+            f"{method} is not defined on an FHumanBirdcageGeometry Study "
+            "(WF-16 step 8: S-parameters only; estimate() is priced, "
+            "WF-13 steps 10-11)"
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -616,8 +619,12 @@ F_CLINICAL_3T_R1_UNKNOWNS_RECORD = (1_425_765, 7_335_988)
 #: moved to ``_rod_centre()`` (``tests/validation/test_geo36_rod_f_clinical.py:88``:
 #: x = 0.25 Lx, Lx = 2 B_BOX = 0.42 m; y = the table offset, 0).  Records copied
 #: from ``test_geo36_rod_f_clinical.py:410`` / ``:412``; the new test asserts equality.
-F_CLINICAL_ROD_ENTRY48 = {"radius": 1.0e-3, "length": 0.030,
-                          "centre": (0.25 * (2.0 * 0.21), 0.0, 0.0), "axis": (0.0, 0.0, 1.0)}
+F_CLINICAL_ROD_ENTRY48 = {
+    "radius": 1.0e-3,
+    "length": 0.030,
+    "centre": (0.25 * (2.0 * 0.21), 0.0, 0.0),
+    "axis": (0.0, 0.0, 1.0),
+}
 F_CLINICAL_ROD_CELL_RECORD = 1_217_025
 F_CLINICAL_ROD_UNKNOWNS_RECORD = (1_606_744, 8_327_394)
 
@@ -652,7 +659,8 @@ class FClinicalBirdcageGeometry:
             raise ValueError(
                 "FClinicalBirdcageGeometry.implant_rod accepts only entry 48's rod "
                 f"{F_CLINICAL_ROD_ENTRY48!r} at field_strength_t=1.5 (WF-13 step 16), "
-                f"got {rod!r} at {self.field_strength_t}")
+                f"got {rod!r} at {self.field_strength_t}"
+            )
 
 
 def _f_clinical_tier(degree: int) -> str:
@@ -662,17 +670,18 @@ def _f_clinical_tier(degree: int) -> str:
     column set needs ``xxl``.  Every text carries "xl tier only".
     """
     if int(degree) == 2:
-        return ("xl tier only at <= 3 root-grid nodes at degree 2, "
-                "and xxl tier for a column set")
+        return "xl tier only at <= 3 root-grid nodes at degree 2, " "and xxl tier for a column set"
     return "xl tier only"
 
 
 def _refuse_f_clinical(study, method: str) -> None:
     """`WF-13` step 12: an F-clinical Study is priced only (before any mesh)."""
     if isinstance(study.geometry, FClinicalBirdcageGeometry):
-        raise ValueError(f"{method} on an f_clinical_birdcage (FClinicalBirdcageGeometry) "
-                         f"Study is {_f_clinical_tier(study.degree)} "
-                         "(WF-13 step 12: estimate() is priced)")
+        raise ValueError(
+            f"{method} on an f_clinical_birdcage (FClinicalBirdcageGeometry) "
+            f"Study is {_f_clinical_tier(study.degree)} "
+            "(WF-13 step 12: estimate() is priced)"
+        )
 
 
 def _refuse_rod_route(study, method: str) -> None:
@@ -688,24 +697,32 @@ def _refuse_rod_route(study, method: str) -> None:
     # ``solve`` on the PEC four-port (no ``as_hole``, no conductor) at degree 1.  Every
     # other entry point and the copper hole route keep this TypeError.
     if isinstance(study.excitation, CapacitorSheets) and (
-            method != "solve" or geometry.as_hole
-            or getattr(study, "conductor", None) is not None):
-        raise TypeError(f"{method}: implant_rod with CapacitorSheets is not gated (WF-15 step 12); "
-                        "only Study.solve on the PEC four-port at degree 1 is (WF-15 step 13)")
+        method != "solve" or geometry.as_hole or getattr(study, "conductor", None) is not None
+    ):
+        raise TypeError(
+            f"{method}: implant_rod with CapacitorSheets is not gated (WF-15 step 12); "
+            "only Study.solve on the PEC four-port at degree 1 is (WF-15 step 13)"
+        )
     # The degree refusal below still applies to that path at degree != 1.
     if study.degree != 1:
-        raise ValueError(f"{method}: implant_rod at degree {study.degree} is not gated; "
-                         "it needs degree 1 (WF-15 step 12)")
+        raise ValueError(
+            f"{method}: implant_rod at degree {study.degree} is not gated; "
+            "it needs degree 1 (WF-15 step 12)"
+        )
 
 
 def _refuse_thermal_only(study, method: str) -> None:
     """`WF-13` step 9: a thermal-only Study has no EM solve to price (before any mesh)."""
     if isinstance(study.geometry, ThermalBoxGeometry):
-        raise TypeError(f"{method} is not defined on a thermal-only Study "
-                        "(ThermalBoxGeometry has no EM solve; use temperature())")
+        raise TypeError(
+            f"{method} is not defined on a thermal-only Study "
+            "(ThermalBoxGeometry has no EM solve; use temperature())"
+        )
     if isinstance(study.geometry, ThermalBallGeometry):
-        raise TypeError(f"{method} is not defined on a thermal-only Study "
-                        "(ThermalBallGeometry has no EM solve; use temperature())")
+        raise TypeError(
+            f"{method} is not defined on a thermal-only Study "
+            "(ThermalBallGeometry has no EM solve; use temperature())"
+        )
 
 
 def _refuse_thermal_only_attr(study, field: str, method: str) -> None:
@@ -716,7 +733,8 @@ def _refuse_thermal_only_attr(study, field: str, method: str) -> None:
         from .study_yaml import StudyConfigError
 
         raise StudyConfigError(
-            "<Study>", field,
+            "<Study>",
+            field,
             f"{method} is not defined on a thermal-only Study "
             "(no EM material / frequency / imposed field)",
         )
@@ -808,10 +826,15 @@ def _study_solve_ports(self, comm: MPI.Intracomm = MPI.COMM_WORLD) -> PortStudyR
         if hook is not None:
             return hook(self, comm)
         raise TypeError("a FourPortBirdcageGeometry Study needs a LumpedPortDrive")
-    if (isinstance(self.geometry, FHumanBirdcageGeometry) and self.conductor is not None
-            and not self.geometry.as_hole):
-        raise TypeError("the solid FHumanBirdcageGeometry is the sigma = 800 route only; "
-                        "a conductor needs as_hole=True (WF-16 step 8 / 12)")
+    if (
+        isinstance(self.geometry, FHumanBirdcageGeometry)
+        and self.conductor is not None
+        and not self.geometry.as_hole
+    ):
+        raise TypeError(
+            "the solid FHumanBirdcageGeometry is the sigma = 800 route only; "
+            "a conductor needs as_hole=True (WF-16 step 8 / 12)"
+        )
     geom = self.geometry
     built = geom.build(comm)
     msh = built["mesh"]
@@ -822,11 +845,15 @@ def _study_solve_ports(self, comm: MPI.Intracomm = MPI.COMM_WORLD) -> PortStudyR
         material=HomogeneousMaterial(sigma=0.0, epsilon_r=1.0, mu_r=1.0),
         cell_tags=built["cell_tags"],
         # `WF-16` step 7: the hole route has no conductor cells to map.
-        material_map=({} if geom.as_hole else {
-            geom.conductor_tag: HomogeneousMaterial(
-                sigma=geom.conductor_sigma_s_per_m, epsilon_r=1.0, mu_r=1.0
-            ),
-        }),
+        material_map=(
+            {}
+            if geom.as_hole
+            else {
+                geom.conductor_tag: HomogeneousMaterial(
+                    sigma=geom.conductor_sigma_s_per_m, epsilon_r=1.0, mu_r=1.0
+                ),
+            }
+        ),
         phantom_material=self.material,
         phantom_tag=geom.phantom_tag,
         boundary_condition="pec_zero_tangential_a",
@@ -945,8 +972,9 @@ def _study_solve_capacitor_sheets(self, comm: MPI.Intracomm = MPI.COMM_WORLD):
 
     exc = self.excitation
     if isinstance(self.geometry, FHumanBirdcageGeometry):
-        raise TypeError("CapacitorSheets is defined on the F-small four-port Study only "
-                        "(WF-16 step 10)")
+        raise TypeError(
+            "CapacitorSheets is defined on the F-small four-port Study only " "(WF-16 step 10)"
+        )
     if not isinstance(self.geometry, FourPortBirdcageGeometry):
         raise TypeError("CapacitorSheets needs a FourPortBirdcageGeometry")
     geom = self.geometry
@@ -965,11 +993,15 @@ def _study_solve_capacitor_sheets(self, comm: MPI.Intracomm = MPI.COMM_WORLD):
         frequency_hz=self.frequency_hz,
         material=HomogeneousMaterial(sigma=0.0, epsilon_r=1.0, mu_r=1.0),
         cell_tags=built["cell_tags"],
-        material_map=({} if geom.as_hole else {
-            geom.conductor_tag: HomogeneousMaterial(
-                sigma=geom.conductor_sigma_s_per_m, epsilon_r=1.0, mu_r=1.0
-            ),
-        }),
+        material_map=(
+            {}
+            if geom.as_hole
+            else {
+                geom.conductor_tag: HomogeneousMaterial(
+                    sigma=geom.conductor_sigma_s_per_m, epsilon_r=1.0, mu_r=1.0
+                ),
+            }
+        ),
         phantom_material=self.material,
         phantom_tag=geom.phantom_tag,
         boundary_condition="pec_zero_tangential_a",
@@ -977,10 +1009,13 @@ def _study_solve_capacitor_sheets(self, comm: MPI.Intracomm = MPI.COMM_WORLD):
     )
     specs, port_defs = exc.drive.specs_and_definitions(geom, built["sheets"])
     z_cap = exc.impedance_ohm(self.frequency_hz)
-    specs_t = [dataclasses.replace(s, port_impedance_ohm=z_cap) if s.port_id in exc.on else s
-               for s in specs]
-    kept = sorted((p for p in port_defs if p.port_id not in exc.on),
-                  key=lambda p: int(p.port_id[1:]))
+    specs_t = [
+        dataclasses.replace(s, port_impedance_ohm=z_cap) if s.port_id in exc.on else s
+        for s in specs
+    ]
+    kept = sorted(
+        (p for p in port_defs if p.port_id not in exc.on), key=lambda p: int(p.port_id[1:])
+    )
     z0s = {float(p.z0_ohm) for p in kept}
     if len(z0s) != 1:
         raise ValueError("the kept ports need one common z0")
@@ -996,9 +1031,15 @@ def _study_solve_capacitor_sheets(self, comm: MPI.Intracomm = MPI.COMM_WORLD):
     for col, drv in enumerate(kept):
         t1 = time.perf_counter()
         res = run_lumped_sheet_port_case(
-            problem, port_defs, specs_t, facet_tags=built["facet_tags"],
-            driven_port_id=drv.port_id, verbose=False, degree=self.degree,
-            solver=shared, extra_bilinear_terms=(cond_terms if cond_terms else None),
+            problem,
+            port_defs,
+            specs_t,
+            facet_tags=built["facet_tags"],
+            driven_port_id=drv.port_id,
+            verbose=False,
+            degree=self.degree,
+            solver=shared,
+            extra_bilinear_terms=(cond_terms if cond_terms else None),
         )
         d = res.responses[drv.port_id]
         a_d, _ = _power_waves(d.voltage_v, d.current_a, z0)
@@ -1240,8 +1281,9 @@ def _four_port_dft(n: int = 4) -> np.ndarray:
     return np.exp(-2j * np.pi * np.outer(idx, idx) / n) / np.sqrt(n)
 
 
-def _study_tune(self, k: int = 1, *, comm: MPI.Intracomm = MPI.COMM_WORLD,
-                n_slots=None, at_hz=None) -> TuneResult:
+def _study_tune(
+    self, k: int = 1, *, comm: MPI.Intracomm = MPI.COMM_WORLD, n_slots=None, at_hz=None
+) -> TuneResult:
     """Mode-``k`` capacitance ``C = 1/(omega Im z_k)`` from the Study's 4x4 S.
 
     ``Z = s_to_z(S, z0)``; ``z_k = diag(F Z F^H)`` with ``F`` the unitary 4-point
@@ -1267,8 +1309,9 @@ def _study_tune(self, k: int = 1, *, comm: MPI.Intracomm = MPI.COMM_WORLD,
     """
     from .ports.circuit import s_to_z
 
-    if (isinstance(self.geometry, (FHumanBirdcageGeometry, FClinicalBirdcageGeometry))
-            and isinstance(self.excitation, LumpedPortDrive)):
+    if isinstance(
+        self.geometry, (FHumanBirdcageGeometry, FClinicalBirdcageGeometry)
+    ) and isinstance(self.excitation, LumpedPortDrive):
         if at_hz is not None:  # WF-16 step 17 (§9 item 722)
             raise TypeError("at_hz: defined on a multi-frequency four-port result only")
         return _study_tune_ring(self, k, comm=comm, n_slots=n_slots)
@@ -1284,13 +1327,17 @@ def _study_tune(self, k: int = 1, *, comm: MPI.Intracomm = MPI.COMM_WORLD,
     k = int(k)
     if k not in (0, 1, 2, 3):
         raise ValueError(f"k must be a mode index of the four-port, got {k}")
-    loaded_multi = (isinstance(self.result, LoadedPortResult)  # WF-16 step 17 (§9 item 722)
-                    and len(self.result.frequencies_hz) > 1)
+    loaded_multi = (
+        isinstance(self.result, LoadedPortResult)  # WF-16 step 17 (§9 item 722)
+        and len(self.result.frequencies_hz) > 1
+    )
     if at_hz is not None and not loaded_multi:
         raise TypeError("at_hz: defined on a multi-frequency loaded result only")
     if loaded_multi and at_hz is None:
-        raise ValueError(f"tune on {self.result.source}: a multi-frequency result needs at_hz; "
-                         f"it holds {len(self.result.frequencies_hz)} frequencies")
+        raise ValueError(
+            f"tune on {self.result.source}: a multi-frequency result needs at_hz; "
+            f"it holds {len(self.result.frequencies_hz)} frequencies"
+        )
     if self.result is None:
         if k not in (1, 2):
             raise ValueError(f"tune is defined for k = 1 or 2, got k = {k}")
@@ -1300,8 +1347,10 @@ def _study_tune(self, k: int = 1, *, comm: MPI.Intracomm = MPI.COMM_WORLD,
         freqs = np.asarray(self.result.frequencies_hz, dtype=np.float64)
         at = float(at_hz)
         if not freqs.min() <= at <= freqs.max():
-            raise ValueError(f"at_hz {at!r} Hz is outside the file's span "
-                             f"[{freqs.min()!r}, {freqs.max()!r}] Hz")
+            raise ValueError(
+                f"at_hz {at!r} Hz is outside the file's span "
+                f"[{freqs.min()!r}, {freqs.max()!r}] Hz"
+            )
         col = int(np.argmin(np.abs(freqs - at)))
         s = np.asarray(self.result.s_matrices[col], dtype=np.complex128)
         frequency_hz = float(freqs[col])
@@ -1320,12 +1369,14 @@ def _study_tune(self, k: int = 1, *, comm: MPI.Intracomm = MPI.COMM_WORLD,
     if not zk[k].imag > 0.0:
         raise ValueError(f"Im z_{k} = {zk[k].imag!r} <= 0: no capacitive tuning")
     c = 1.0 / (omega * float(zk[k].imag))
-    return TuneResult(k=k, frequency_hz=frequency_hz, z_k=zk,
-                      c_mode_farad=float(c), off_diagonal_residual=resid)
+    return TuneResult(
+        k=k, frequency_hz=frequency_hz, z_k=zk, c_mode_farad=float(c), off_diagonal_residual=resid
+    )
 
 
-def _study_tune_ring(self, k: int = 1, *, comm: MPI.Intracomm = MPI.COMM_WORLD,
-                     n_slots=None) -> TuneResult:
+def _study_tune_ring(
+    self, k: int = 1, *, comm: MPI.Intracomm = MPI.COMM_WORLD, n_slots=None
+) -> TuneResult:
     """`WF-16` step 12 (§9 item 472): the 32-port F-human ring read.
 
     ``Z = s_to_z(S, z0)`` in canonical (bottom 0…15, top 0…15) order from the
@@ -1339,9 +1390,13 @@ def _study_tune_ring(self, k: int = 1, *, comm: MPI.Intracomm = MPI.COMM_WORLD,
     P(N+1)…P(3N); ``z_k`` holds k = 0…N/2.
     """
     from .ports.circuit import s_to_z
-    from .ports.ring_modes import (_canonical_permutation, _check_n_slots,
-                                   antisymmetric_eigenpair, k_blocks,
-                                   ring_port_map_from_names)
+    from .ports.ring_modes import (
+        _canonical_permutation,
+        _check_n_slots,
+        antisymmetric_eigenpair,
+        k_blocks,
+        ring_port_map_from_names,
+    )
 
     if isinstance(k, bool) or not isinstance(k, (int, np.integer)):
         raise TypeError(f"k must be an int, got {type(k).__name__}")
@@ -1365,9 +1420,13 @@ def _study_tune_ring(self, k: int = 1, *, comm: MPI.Intracomm = MPI.COMM_WORLD,
     lam = np.array([antisymmetric_eigenpair(blocks[m])[0] for m in range(n // 2 + 1)])
     if not lam[k].imag > 0.0:
         raise ValueError(f"Im z_{k} = {lam[k].imag!r} <= 0: no capacitive tuning")
-    return TuneResult(k=k, frequency_hz=float(self.frequency_hz), z_k=lam,
-                      c_mode_farad=float(1.0 / (self.omega * lam[k].imag)),
-                      off_diagonal_residual=float(off))
+    return TuneResult(
+        k=k,
+        frequency_hz=float(self.frequency_hz),
+        z_k=lam,
+        c_mode_farad=float(1.0 / (self.omega * lam[k].imag)),
+        off_diagonal_residual=float(off),
+    )
 
 
 Study.tune = _study_tune
@@ -1405,8 +1464,10 @@ class LoadedPortResult:
 def _refuse_loaded(study, method: str) -> None:
     """`WF-16` step 14: a field method on a loaded result raises (before any mesh)."""
     if isinstance(getattr(study, "result", None), LoadedPortResult):
-        raise TypeError(f"{method} needs solved fields; this Study's result came from "
-                        "load_result (an S matrix only) -- call solve() first")
+        raise TypeError(
+            f"{method} needs solved fields; this Study's result came from "
+            "load_result (an S matrix only) -- call solve() first"
+        )
 
 
 #: Relative match of the file's single frequency to ``Study.frequency_hz``.
@@ -1434,11 +1495,14 @@ def _study_load_result(self, path) -> LoadedPortResult:
 
     from .ports.touchstone import load_touchstone
 
-    if not isinstance(self.geometry, (FourPortBirdcageGeometry, FHumanBirdcageGeometry,
-                                      FClinicalBirdcageGeometry)):
-        raise TypeError("load_result is defined on a FourPortBirdcageGeometry, "
-                        "FHumanBirdcageGeometry or FClinicalBirdcageGeometry Study only "
-                        "(WF-16 steps 14-16)")
+    if not isinstance(
+        self.geometry, (FourPortBirdcageGeometry, FHumanBirdcageGeometry, FClinicalBirdcageGeometry)
+    ):
+        raise TypeError(
+            "load_result is defined on a FourPortBirdcageGeometry, "
+            "FHumanBirdcageGeometry or FClinicalBirdcageGeometry Study only "
+            "(WF-16 steps 14-16)"
+        )
     if not isinstance(self.excitation, LumpedPortDrive):
         raise TypeError("load_result needs a LumpedPortDrive Study (WF-16 step 14)")
     path = Path(path)
@@ -1446,26 +1510,35 @@ def _study_load_result(self, path) -> LoadedPortResult:
     freqs = np.asarray(freqs, dtype=np.float64)
     multi = freqs.size > 1 and isinstance(self.geometry, FourPortBirdcageGeometry)
     if freqs.shape != (1,) and not multi:
-        raise ValueError(f"load_result reads exactly one frequency; {path.name} holds "
-                         f"{freqs.size}")
+        raise ValueError(
+            f"load_result reads exactly one frequency; {path.name} holds " f"{freqs.size}"
+        )
     if multi:  # WF-16 step 17 (§9 item 722)
         if not freqs.min() <= self.frequency_hz <= freqs.max():
-            raise ValueError(f"load_result: the Study's frequency_hz {self.frequency_hz!r} is "
-                             f"outside {path.name}'s span [{freqs.min()!r}, {freqs.max()!r}] Hz")
+            raise ValueError(
+                f"load_result: the Study's frequency_hz {self.frequency_hz!r} is "
+                f"outside {path.name}'s span [{freqs.min()!r}, {freqs.max()!r}] Hz"
+            )
         col = int(np.argmin(np.abs(freqs - self.frequency_hz)))
     else:
         col = 0
     f = float(freqs[col])
-    if not multi and (abs(f - self.frequency_hz)
-                      > LOAD_RESULT_FREQUENCY_RTOL * abs(self.frequency_hz)):
-        raise ValueError(f"load_result: file frequency {f!r} Hz != the Study's "
-                         f"frequency_hz {self.frequency_hz!r}")
+    if not multi and (
+        abs(f - self.frequency_hz) > LOAD_RESULT_FREQUENCY_RTOL * abs(self.frequency_hz)
+    ):
+        raise ValueError(
+            f"load_result: file frequency {f!r} Hz != the Study's "
+            f"frequency_hz {self.frequency_hz!r}"
+        )
     n = int(self.geometry.leg_count)
-    if isinstance(self.geometry, (FHumanBirdcageGeometry, FClinicalBirdcageGeometry)):  # WF-16 steps 15-16
+    if isinstance(
+        self.geometry, (FHumanBirdcageGeometry, FClinicalBirdcageGeometry)
+    ):  # WF-16 steps 15-16
         n = 2 * n
     if len(port_ids) != n or s_matrices.shape[1:] != (n, n):
-        raise ValueError(f"load_result: {len(port_ids)} ports in {path.name}, the Study "
-                         f"defines {n}")
+        raise ValueError(
+            f"load_result: {len(port_ids)} ports in {path.name}, the Study " f"defines {n}"
+        )
     self.result = LoadedPortResult(
         s_matrix=np.asarray(s_matrices[col], dtype=np.complex128).copy(),
         frequency_hz=f,
@@ -1598,10 +1671,19 @@ def _dg0_to_submesh(W_parent, avg_parent, sub, parent_ids):
     return q
 
 
-def _study_temperature(self, cooling: RobinCooling, *, transient=None, duty=None,
-                       balls=None, window_s=None, sense=None, dose=None,
-                       drive: Optional[str] = None,
-                       comm: MPI.Intracomm = MPI.COMM_WORLD):
+def _study_temperature(
+    self,
+    cooling: RobinCooling,
+    *,
+    transient=None,
+    duty=None,
+    balls=None,
+    window_s=None,
+    sense=None,
+    dose=None,
+    drive: Optional[str] = None,
+    comm: MPI.Intracomm = MPI.COMM_WORLD,
+):
     """Steady temperature of the sphere heated by ``source_scale``·½σ|E|².
 
     Reuses ``self.result`` (solves once if absent, as ``mean_sar`` does).
@@ -1637,11 +1719,11 @@ def _study_temperature(self, cooling: RobinCooling, *, transient=None, duty=None
     rod wall adiabatic), with 1 g ball means; refused elsewhere.
     """
     hook = getattr(self.excitation, "_temperature_port_study", None)
-    if dose is not None and (hook is not None
-                             or not isinstance(self.geometry, ThermalBoxGeometry)):
+    if dose is not None and (hook is not None or not isinstance(self.geometry, ThermalBoxGeometry)):
         raise ValueError("dose is defined on a transient ThermalBoxGeometry only (WF-1 step 30)")
-    rod_route = (isinstance(self.geometry, FourPortBirdcageGeometry)
-                 and bool(self.geometry.implant_rod))
+    rod_route = isinstance(self.geometry, FourPortBirdcageGeometry) and bool(
+        self.geometry.implant_rod
+    )
     if drive is not None and (hook is not None or not rod_route):
         raise ValueError("drive is defined on the implant-rod four-port Study only (WF-15 step 14)")
     if hook is None and rod_route:
@@ -1649,14 +1731,16 @@ def _study_temperature(self, cooling: RobinCooling, *, transient=None, duty=None
         _refuse_rod_route(self, "temperature")
         if duty is not None or window_s is not None or sense is not None:
             raise ValueError("duty / window_s / sense are not defined on the rod four-port Study")
-        return _rod_port_temperature(self, cooling, transient=transient, balls=balls,
-                                     drive=drive, comm=comm)
+        return _rod_port_temperature(
+            self, cooling, transient=transient, balls=balls, drive=drive, comm=comm
+        )
     if hook is not None:
         if duty is not None:
             raise TypeError("duty is not defined on a tuned two-port Study (WF-15 step 19)")
         kw = {} if sense is None else {"sense": sense}
-        return hook(self, cooling, transient=transient, balls=balls, window_s=window_s,
-                    comm=comm, **kw)
+        return hook(
+            self, cooling, transient=transient, balls=balls, window_s=window_s, comm=comm, **kw
+        )
     if balls is not None or window_s is not None or sense is not None:
         raise ValueError("balls / window_s / sense are defined on a tuned two-port Study only")
     import ufl
@@ -1671,7 +1755,8 @@ def _study_temperature(self, cooling: RobinCooling, *, transient=None, duty=None
         return _study_transient_temperature(self, cooling, transient, duty)
     _refuse_f_human(self, "temperature")
     if (transient is not None or duty is not None) and not isinstance(
-            self.geometry, (SphereInBoxGeometry, FourPortBirdcageGeometry)):
+        self.geometry, (SphereInBoxGeometry, FourPortBirdcageGeometry)
+    ):
         raise ValueError("transient / duty are defined on a thermal-only Study in v0")
     if isinstance(self.geometry, FourPortBirdcageGeometry):
         raise TypeError("temperature is not defined on a port Study (WF-16)")
@@ -1873,8 +1958,12 @@ class ThermalBoxGeometry:
         a, b, c = self.half_widths_m
         if self.wall is not None:
             return self._build_walled(comm)
-        msh = dmesh.create_box(comm, [np.array([-a, -b, -c]), np.array([a, b, c])],
-                               list(self.divisions), cell_type=dmesh.CellType.tetrahedron)
+        msh = dmesh.create_box(
+            comm,
+            [np.array([-a, -b, -c]), np.array([a, b, c])],
+            list(self.divisions),
+            cell_type=dmesh.CellType.tetrahedron,
+        )
         imap = msh.topology.index_map(3)
         cells = np.arange(imap.size_local + imap.num_ghosts, dtype=np.int32)
         cell_tags = dmesh.meshtags(msh, 3, cells, np.ones(cells.size, dtype=np.int32))
@@ -1891,8 +1980,12 @@ class ThermalBoxGeometry:
         nw = int(self.wall_divisions)
         nx, ny, nz = self.divisions
         outer = (a, b, c + d)
-        msh = dmesh.create_box(comm, [np.array([-o for o in outer]), np.array(outer)],
-                               [nx, ny, nz + 2 * nw], cell_type=dmesh.CellType.tetrahedron)
+        msh = dmesh.create_box(
+            comm,
+            [np.array([-o for o in outer]), np.array(outer)],
+            [nx, ny, nz + 2 * nw],
+            cell_type=dmesh.CellType.tetrahedron,
+        )
         x = msh.geometry.x  # owned + ghost nodes on this rank
         x[:, 2] = _box_wall_remap(x[:, 2].copy(), c, d, nz, nw)
         tdim = msh.topology.dim
@@ -1923,9 +2016,12 @@ def _box_wall_remap(s, L, d, n_gel, n_w):
     tot = n_gel + 2 * n_w
     u = (s + (L + d)) / (2.0 * (L + d)) * tot  # grid-index coordinate
     out = np.where(
-        u <= n_w, -(L + d) + u * (d / n_w),
-        np.where(u <= n_w + n_gel, -L + (u - n_w) * (2.0 * L / n_gel),
-                 L + (u - n_w - n_gel) * (d / n_w)))
+        u <= n_w,
+        -(L + d) + u * (d / n_w),
+        np.where(
+            u <= n_w + n_gel, -L + (u - n_w) * (2.0 * L / n_gel), L + (u - n_w - n_gel) * (d / n_w)
+        ),
+    )
     return out
 
 
@@ -1965,8 +2061,14 @@ def _study_box_temperature(self, cooling, transient, duty, dose=None):
     msh, _cell_tags, ft = self.geometry.build(MPI.COMM_WORLD)
     q = float(self.excitation.q_w_per_m3)
     th = solve_steady_conduction(
-        msh, ft, k=cooling.k_w_per_m_k, q=q, h=cooling.h_w_per_m2_k, t_inf=cooling.t_inf_c,
-        robin_tag=_ROBIN_TAG, degree=cooling.degree,
+        msh,
+        ft,
+        k=cooling.k_w_per_m_k,
+        q=q,
+        h=cooling.h_w_per_m2_k,
+        t_inf=cooling.t_inf_c,
+        robin_tag=_ROBIN_TAG,
+        degree=cooling.degree,
     )
     return ThermalStudyResult(
         temperature=th.temperature,
@@ -2031,8 +2133,14 @@ def _study_box_quadratic_temperature(self, cooling, transient, duty):
     q = q0 * 3.0 * (xs[1] * xs[1] + xs[2] * xs[2]) / (B**2 + C**2)
     if transient is None:
         th = solve_steady_conduction(
-            msh, facet_tags, k=cooling.k_w_per_m_k, q=q, h=cooling.h_w_per_m2_k,
-            t_inf=cooling.t_inf_c, robin_tag=_ROBIN_TAG, degree=cooling.degree,
+            msh,
+            facet_tags,
+            k=cooling.k_w_per_m_k,
+            q=q,
+            h=cooling.h_w_per_m2_k,
+            t_inf=cooling.t_inf_c,
+            robin_tag=_ROBIN_TAG,
+            degree=cooling.degree,
         )
         return ThermalStudyResult(
             temperature=th.temperature,
@@ -2105,8 +2213,9 @@ class TransientSpec:
     def __post_init__(self):
         _positive(self, "dt_s", "rho_c_j_per_m3_k")
         g = self.initial_gradient_k_per_m
-        if g is not None and not (isinstance(g, (int, float)) and not isinstance(g, bool)
-                                  and np.isfinite(float(g))):
+        if g is not None and not (
+            isinstance(g, (int, float)) and not isinstance(g, bool) and np.isfinite(float(g))
+        ):
             raise ValueError(f"initial_gradient_k_per_m must be a finite number, got {g!r}")
         if int(self.n_steps) < 1:
             raise ValueError(f"n_steps must be >= 1, got {self.n_steps!r}")
@@ -2140,13 +2249,24 @@ class DoseReadout:
         if not isinstance(pts, tuple) or len(pts) == 0:
             raise ValueError(f"points_m must be a non-empty tuple of (x, y, z), got {pts!r}")
         for p in pts:
-            if (not isinstance(p, tuple) or len(p) != 3
-                    or not all(isinstance(c, (int, float)) and not isinstance(c, bool)
-                               and np.isfinite(float(c)) for c in p)):
+            if (
+                not isinstance(p, tuple)
+                or len(p) != 3
+                or not all(
+                    isinstance(c, (int, float))
+                    and not isinstance(c, bool)
+                    and np.isfinite(float(c))
+                    for c in p
+                )
+            ):
                 raise ValueError(f"each dose point must be a finite (x, y, z) tuple, got {p!r}")
         w = self.window_s
-        if not (isinstance(w, (int, float)) and not isinstance(w, bool)
-                and np.isfinite(float(w)) and float(w) > 0.0):
+        if not (
+            isinstance(w, (int, float))
+            and not isinstance(w, bool)
+            and np.isfinite(float(w))
+            and float(w) > 0.0
+        ):
             raise ValueError(f"window_s must be finite and > 0, got {w!r}")
         # Plain floats (an ``np.float64`` coordinate is stored as its float value,
         # same bits), so the repr does not depend on the caller's array type.
@@ -2212,18 +2332,21 @@ def _dg0_two_region(msh, cell_tags, v_core, v_shell):
     return f
 
 
-def _study_transient_temperature(self, cooling, transient, duty,
-                                 dose=None) -> TransientStudyResult:
+def _study_transient_temperature(self, cooling, transient, duty, dose=None) -> TransientStudyResult:
     from .thermal.transient import solve_transient_conduction
 
     if dose is not None:  # `WF-1` step 30 (§9 item 878): before any mesh
         if not isinstance(self.geometry, ThermalBoxGeometry):
-            raise ValueError("dose is defined on a transient ThermalBoxGeometry only (WF-1 step 30)")
+            raise ValueError(
+                "dose is defined on a transient ThermalBoxGeometry only (WF-1 step 30)"
+            )
         half = [float(v) for v in self.geometry.half_widths_m]
         for i, p in enumerate(dose.points_m):
             if any(abs(float(c)) > h for c, h in zip(p, half)):
-                raise ValueError(f"dose point {i} {p!r} lies outside the gel box "
-                                 f"[-A, A] x [-B, B] x [-C, C] = {tuple(half)!r}")
+                raise ValueError(
+                    f"dose point {i} {p!r} lies outside the gel box "
+                    f"[-A, A] x [-B, B] x [-C, C] = {tuple(half)!r}"
+                )
 
     if not isinstance(cooling, RobinCooling):
         raise TypeError(f"cooling must be a RobinCooling, got {type(cooling).__name__}")
@@ -2368,8 +2491,9 @@ class ProbeStudyResult:
     thermal: ThermalStudyResult
 
 
-def _study_probe(self, probes, cooling: RobinCooling, *, levels: int = 3, transient=None,
-                 duty=None) -> ProbeStudyResult:
+def _study_probe(
+    self, probes, cooling: RobinCooling, *, levels: int = 3, transient=None, duty=None
+) -> ProbeStudyResult:
     """Ball-averaged θ = T − ``t_inf_c`` over each ``ProbeBall`` (collective).
 
     Reuses ``self.temperature(cooling)`` (which solves once if ``self.result``
@@ -2389,9 +2513,12 @@ def _study_probe(self, probes, cooling: RobinCooling, *, levels: int = 3, transi
         if not isinstance(p, ProbeBall):
             raise TypeError(f"probes must be ProbeBall instances, got {type(p).__name__}")
     if (transient is not None or duty is not None) and isinstance(
-            self.geometry, SphereInBoxGeometry):
-        raise ValueError("transient probes are not defined on the EM sphere "
-                         "(WF-15 step 15 gates temperature only)")
+        self.geometry, SphereInBoxGeometry
+    ):
+        raise ValueError(
+            "transient probes are not defined on the EM sphere "
+            "(WF-15 step 15 gates temperature only)"
+        )
     if transient is None and duty is None:
         th = self.temperature(cooling)
     else:
@@ -2415,7 +2542,7 @@ def _study_probe(self, probes, cooling: RobinCooling, *, levels: int = 3, transi
         probes=probes,
         values=np.asarray(values, dtype=np.float64),
         volumes=np.asarray(volumes, dtype=np.float64),
-        nominal_volumes=np.asarray([4.0 * np.pi * p.radius ** 3 / 3.0 for p in probes]),
+        nominal_volumes=np.asarray([4.0 * np.pi * p.radius**3 / 3.0 for p in probes]),
         max_imag_ratio=im / re if re > 0.0 else 0.0,
         theta=theta,
         thermal=th,
@@ -2492,19 +2619,47 @@ Study.probe = _study_probe
 #: fitted (printed by the test as a rank-sensitivity reading).
 PRICE_TABLE = (
     dict(row="P1", degree=1, ranks=2, cells=74020, unknowns=90209, seconds=13.7, peak_gib=2.39),
-    dict(row="P3", degree=1, ranks=2, cells=117206, unknowns=140460, seconds=29.77, peak_gib=1.8185),
-    dict(row="T49", degree=1, ranks=2, cells=80798, unknowns=111946, seconds=29.668, peak_gib=1.5296),
-    dict(row="FH1", degree=1, ranks=8, cells=369387, unknowns=500568, seconds=93.4, peak_gib=9.7652),
+    dict(
+        row="P3", degree=1, ranks=2, cells=117206, unknowns=140460, seconds=29.77, peak_gib=1.8185
+    ),
+    dict(
+        row="T49", degree=1, ranks=2, cells=80798, unknowns=111946, seconds=29.668, peak_gib=1.5296
+    ),
+    dict(
+        row="FH1", degree=1, ranks=8, cells=369387, unknowns=500568, seconds=93.4, peak_gib=9.7652
+    ),
     dict(row="P2", degree=2, ranks=2, cells=74020, unknowns=482158, seconds=282.4, peak_gib=20.41),
-    dict(row="F16", degree=2, ranks=8, cells=117206, unknowns=753062, seconds=70.11, peak_gib=19.37),
+    dict(
+        row="F16", degree=2, ranks=8, cells=117206, unknowns=753062, seconds=70.11, peak_gib=19.37
+    ),
     dict(row="Cu7", degree=2, ranks=8, cells=80798, unknowns=570332, seconds=57.83, peak_gib=14.72),
-    dict(row="Cu7h", degree=2, ranks=12, cells=140270, unknowns=968016, seconds=210.1, peak_gib=32.83),
-    dict(row="A6", degree=2, ranks=16, cells=226642, unknowns=1536270, seconds=283.2, peak_gib=82.34),
-    dict(row="S4c", degree=2, ranks=16, cells=259543, unknowns=1658680, seconds=102.0, peak_gib=42.73),
-    dict(row="P4", degree=2, ranks=8, cells=259524, unknowns=1658512, seconds=138.01, peak_gib=36.28),
-    dict(row="P5", degree=2, ranks=16, cells=282198, unknowns=1822094, seconds=283.86, peak_gib=86.30),
-    dict(row="P6", degree=2, ranks=16, cells=507266, unknowns=3256418, seconds=322.95, peak_gib=104.781),
-    dict(row="FH2", degree=2, ranks=16, cells=369387, unknowns=2570024, seconds=298.9, peak_gib=88.58),
+    dict(
+        row="Cu7h", degree=2, ranks=12, cells=140270, unknowns=968016, seconds=210.1, peak_gib=32.83
+    ),
+    dict(
+        row="A6", degree=2, ranks=16, cells=226642, unknowns=1536270, seconds=283.2, peak_gib=82.34
+    ),
+    dict(
+        row="S4c", degree=2, ranks=16, cells=259543, unknowns=1658680, seconds=102.0, peak_gib=42.73
+    ),
+    dict(
+        row="P4", degree=2, ranks=8, cells=259524, unknowns=1658512, seconds=138.01, peak_gib=36.28
+    ),
+    dict(
+        row="P5", degree=2, ranks=16, cells=282198, unknowns=1822094, seconds=283.86, peak_gib=86.30
+    ),
+    dict(
+        row="P6",
+        degree=2,
+        ranks=16,
+        cells=507266,
+        unknowns=3256418,
+        seconds=322.95,
+        peak_gib=104.781,
+    ),
+    dict(
+        row="FH2", degree=2, ranks=16, cells=369387, unknowns=2570024, seconds=298.9, peak_gib=88.58
+    ),
 )
 
 #: `WF-13` step 12 (§9 item 663): the F-clinical-1.5T r1 price, **outside**
@@ -2525,10 +2680,26 @@ PRICE_TABLE = (
 #: is a single window, not a band.  Tier: `xl` at ≤ 3 root-grid nodes, `xxl`
 #: for a column set.  No 64 x 64 price, thermal price or 3 T price is implied.
 PRICE_TABLE_CLINICAL = (
-    dict(row="FC1", degree=1, ranks=16, cells=1147366, unknowns=1525193, seconds=203.3,
-         build_seconds=357.7, peak_gib=49.07),
-    dict(row="FC2", degree=2, ranks=16, cells=1147366, unknowns=7885674, seconds=2892.1,
-         build_seconds=341.8, peak_gib=472.42),
+    dict(
+        row="FC1",
+        degree=1,
+        ranks=16,
+        cells=1147366,
+        unknowns=1525193,
+        seconds=203.3,
+        build_seconds=357.7,
+        peak_gib=49.07,
+    ),
+    dict(
+        row="FC2",
+        degree=2,
+        ranks=16,
+        cells=1147366,
+        unknowns=7885674,
+        seconds=2892.1,
+        build_seconds=341.8,
+        peak_gib=472.42,
+    ),
 )
 
 #: `WF-13` step 15 (§9 item 782, §10 U118): the F-clinical-3T r1 twin's price,
@@ -2544,8 +2715,16 @@ PRICE_TABLE_CLINICAL = (
 #: row: ``not_priced``, with U_2 = 7 335 988 from the record.  Read directly,
 #: never fitted.
 PRICE_TABLE_CLINICAL_3T = (
-    dict(row="FC3", degree=1, ranks=16, cells=1057895, unknowns=1425765, seconds=135.1,
-         build_seconds=327.6, peak_gib=39.39),
+    dict(
+        row="FC3",
+        degree=1,
+        ranks=16,
+        cells=1057895,
+        unknowns=1425765,
+        seconds=135.1,
+        build_seconds=327.6,
+        peak_gib=39.39,
+    ),
 )
 
 #: `WF-13` step 16 (§9 item 783, §10 U119): the rod-in-clinical-box price, in
@@ -2557,8 +2736,16 @@ PRICE_TABLE_CLINICAL_3T = (
 #: ``:12626`` / ``:12627`` (cgroup memory.peak 45 519 204 352 B = 42.39 GiB; the
 #: summed RSS 46.048 GiB is not the price).  Cells / unknowns are I33's records.
 PRICE_TABLE_CLINICAL_ROD = (
-    dict(row="FC-ROD1", degree=1, ranks=8, cells=1217025, unknowns=1606744, seconds=263.5,
-         build_seconds=461.7, peak_gib=42.39),
+    dict(
+        row="FC-ROD1",
+        degree=1,
+        ranks=8,
+        cells=1217025,
+        unknowns=1606744,
+        seconds=263.5,
+        build_seconds=461.7,
+        peak_gib=42.39,
+    ),
 )
 
 
@@ -2602,23 +2789,33 @@ def _estimate_f_clinical(study):
         unknowns = _f_clinical_unknowns(study.degree)
         table = PRICE_TABLE_CLINICAL
     else:
-        raise ValueError("only the F-clinical-1.5T r1 fixture is priced "
-                         "(FClinicalBirdcageGeometry() defaults; WF-13 step 12), "
-                         "and its 3 T twin (field_strength_t=3.0; WF-13 step 15)")
+        raise ValueError(
+            "only the F-clinical-1.5T r1 fixture is priced "
+            "(FClinicalBirdcageGeometry() defaults; WF-13 step 12), "
+            "and its 3 T twin (field_strength_t=3.0; WF-13 step 15)"
+        )
     rows = [r for r in table if r["degree"] == int(study.degree)]
     if not rows:
         return ResourceEstimate(
-            cells=cells, unknowns=unknowns, degree=study.degree, ranks=16,
-            predicted_peak_gib=float("nan"), predicted_seconds=float("nan"),
+            cells=cells,
+            unknowns=unknowns,
+            degree=study.degree,
+            ranks=16,
+            predicted_peak_gib=float("nan"),
+            predicted_seconds=float("nan"),
             rows_used=(),
-            not_priced=(f"degree {study.degree} (no measured F-clinical row)",
-                        "thermal transient"),
+            not_priced=(f"degree {study.degree} (no measured F-clinical row)", "thermal transient"),
         )
     row = rows[-1]
     return ResourceEstimate(
-        cells=cells, unknowns=unknowns, degree=study.degree, ranks=int(row["ranks"]),
-        predicted_peak_gib=float(row["peak_gib"]), predicted_seconds=float(row["seconds"]),
-        rows_used=(row["row"],), not_priced=("thermal transient",),
+        cells=cells,
+        unknowns=unknowns,
+        degree=study.degree,
+        ranks=int(row["ranks"]),
+        predicted_peak_gib=float(row["peak_gib"]),
+        predicted_seconds=float(row["seconds"]),
+        rows_used=(row["row"],),
+        not_priced=("thermal transient",),
     )
 
 
@@ -2734,9 +2931,7 @@ Study.estimate = _study_estimate
 SAR_QUADRATURE_DEGREE = 16
 
 
-def _study_solve_port_fields(
-    self, comm: MPI.Intracomm = MPI.COMM_WORLD
-) -> PortStudyResult:
+def _study_solve_port_fields(self, comm: MPI.Intracomm = MPI.COMM_WORLD) -> PortStudyResult:
     """``_study_solve_ports`` with ``keep_fields=True``; cached on ``self.fields_result``.
 
     ``fields`` of the returned ``PortStudyResult`` is the sweep's
@@ -2769,11 +2964,15 @@ def _study_solve_port_fields(
         material=HomogeneousMaterial(sigma=0.0, epsilon_r=1.0, mu_r=1.0),
         cell_tags=built["cell_tags"],
         # `WF-16` step 7: the hole route has no conductor cells to map.
-        material_map=({} if geom.as_hole else {
-            geom.conductor_tag: HomogeneousMaterial(
-                sigma=geom.conductor_sigma_s_per_m, epsilon_r=1.0, mu_r=1.0
-            ),
-        }),
+        material_map=(
+            {}
+            if geom.as_hole
+            else {
+                geom.conductor_tag: HomogeneousMaterial(
+                    sigma=geom.conductor_sigma_s_per_m, epsilon_r=1.0, mu_r=1.0
+                ),
+            }
+        ),
         phantom_material=self.material,
         phantom_tag=geom.phantom_tag,
         boundary_condition="pec_zero_tangential_a",
@@ -2880,8 +3079,15 @@ def _study_sar(
     if not isinstance(self.geometry, FourPortBirdcageGeometry):
         hook = getattr(self.excitation, "_sar_port_study", None)
         if hook is not None:
-            return hook(self, mass_g, centres=centres, drives=drives, radius_m=radius_m,
-                        quadrature_degree=quadrature_degree, comm=comm)
+            return hook(
+                self,
+                mass_g,
+                centres=centres,
+                drives=drives,
+                radius_m=radius_m,
+                quadrature_degree=quadrature_degree,
+                comm=comm,
+            )
         raise TypeError("sar is defined on a port Study only (WF-16); use mean_sar")
     if mass_g is _MASS_DEFAULT:
         mass_g = 10.0 if radius_m is None else None
@@ -2890,9 +3096,7 @@ def _study_sar(
     if radius_m is None:
         if not np.isfinite(float(mass_g)) or float(mass_g) <= 0.0:
             raise ValueError(f"mass_g must be finite and positive, got {mass_g!r}")
-        radius = averaging_ball_radius(
-            mass_kg=float(mass_g) / 1000.0, rho=self.density_kg_m3
-        )
+        radius = averaging_ball_radius(mass_kg=float(mass_g) / 1000.0, rho=self.density_kg_m3)
     else:
         radius = float(radius_m)
         if not np.isfinite(radius) or radius <= 0.0:
@@ -2924,9 +3128,7 @@ def _study_sar(
 Study.sar = _study_sar
 
 
-def _study_b1_plus(
-    self, *, drives=None, comm: MPI.Intracomm = MPI.COMM_WORLD
-) -> dict:
+def _study_b1_plus(self, *, drives=None, comm: MPI.Intracomm = MPI.COMM_WORLD) -> dict:
     """The gated CG1 ``B`` estimator per drive (`WF-6` step 1d), on the kept field.
 
     Port Study only.  Reuses ``self.fields_result`` (``_solve_port_fields``) and
@@ -2962,9 +3164,7 @@ def _study_b1_plus(
 Study.b1_plus = _study_b1_plus
 
 
-def _study_b1_plus_at(
-    self, points, *, drives=None, comm: MPI.Intracomm = MPI.COMM_WORLD
-) -> dict:
+def _study_b1_plus_at(self, points, *, drives=None, comm: MPI.Intracomm = MPI.COMM_WORLD) -> dict:
     """``|B₁⁺|`` at ``points`` per drive: ``{port_id: (values, valid)}``.
 
     Evaluates :meth:`Study.b1_plus`'s CG1 vector through
@@ -3039,13 +3239,9 @@ def _conductor_setup(self, built, comm):
     if cond is None:
         return {}, None
     if not isinstance(cond, LeontovichWall):
-        raise TypeError(
-            f"conductor must be None or a LeontovichWall, got {type(cond).__name__}"
-        )
+        raise TypeError(f"conductor must be None or a LeontovichWall, got {type(cond).__name__}")
     if not getattr(self.geometry, "as_hole", False):
-        raise ValueError(
-            "a LeontovichWall conductor needs FourPortBirdcageGeometry(as_hole=True)"
-        )
+        raise ValueError("a LeontovichWall conductor needs FourPortBirdcageGeometry(as_hole=True)")
     from .core.boundary_terms import impedance_boundary_term
     from .io.mesh import BIRDCAGE_CONDUCTOR_SURFACE_TAG
 
@@ -3166,8 +3362,7 @@ class TwoPortQuadratureDrive:
     def gap_impedance_ohm(self, frequency_hz: float) -> complex:
         from .ports.lumped import series_rlc_impedance
 
-        return series_rlc_impedance(frequency_hz, r_ohm=self.esr_ohm, l_h=0.0,
-                                    c_f=self.c_in_f)
+        return series_rlc_impedance(frequency_hz, r_ohm=self.esr_ohm, l_h=0.0, c_f=self.c_in_f)
 
     def feed_impedance_ohm(self, frequency_hz: float) -> complex:
         return _thevenin_feed_impedance(self.gap_impedance_ohm(frequency_hz), self.z0_ohm)
@@ -3184,11 +3379,17 @@ class TwoPortQuadratureDrive:
     def _b1_plus_port_study(self, study, **kwargs):
         return _tuned_quadrature_b1_plus(study, **kwargs)
 
-    def _temperature_port_study(self, study, cooling, *, transient, balls, window_s,
-                                sense="ccw", comm=MPI.COMM_WORLD):
+    def _temperature_port_study(
+        self, study, cooling, *, transient, balls, window_s, sense="ccw", comm=MPI.COMM_WORLD
+    ):
         return _tuned_quadrature_temperature(
-            study, cooling, transient=transient, balls=balls, window_s=window_s,
-            sense=sense, comm=comm,
+            study,
+            cooling,
+            transient=transient,
+            balls=balls,
+            window_s=window_s,
+            sense=sense,
+            comm=comm,
         )
 
 
@@ -3287,19 +3488,25 @@ def _study_solve_tuned_quadrature(self, comm: MPI.Intracomm = MPI.COMM_WORLD):
     z_th = _thevenin_feed_impedance(z_rc, z0)
     v_s = _source_voltage(z_rc, z0)
     feeds = tuple(exc.feeds)
-    specs_x = [dataclasses.replace(sp, port_impedance_ohm=(z_th if sp.port_id in feeds else z_rc))
-               for sp in specs]
-    order = list(feeds) + sorted((sp.port_id for sp in specs_x if sp.port_id not in feeds),
-                                 key=lambda p: int(p[1:]))
+    specs_x = [
+        dataclasses.replace(sp, port_impedance_ohm=(z_th if sp.port_id in feeds else z_rc))
+        for sp in specs
+    ]
+    order = list(feeds) + sorted(
+        (sp.port_id for sp in specs_x if sp.port_id not in feeds), key=lambda p: int(p[1:])
+    )
     feeds_idx = [0, 1]
 
-    az_feeds = tuple(_sheet_azimuth_deg(msh, tags_f, geom.sheet_iface + int(p[1:]), comm)
-                     for p in feeds)
+    az_feeds = tuple(
+        _sheet_azimuth_deg(msh, tags_f, geom.sheet_iface + int(p[1:]), comm) for p in feeds
+    )
     d_az = (az_feeds[1] - az_feeds[0]) % 360.0
     az_mirror = az_feeds[0] + 0.5 * d_az
     d_rad = np.radians(d_az)
-    weights = {"ccw": (1.0 + 0j, complex(np.exp(-1j * d_rad))),
-               "cw": (1.0 + 0j, complex(np.exp(+1j * d_rad)))}
+    weights = {
+        "ccw": (1.0 + 0j, complex(np.exp(-1j * d_rad))),
+        "cw": (1.0 + 0j, complex(np.exp(+1j * d_rad))),
+    }
 
     solver = TimeHarmonicSolver(problem, degree=self.degree)
     wall = list(cond_terms)
@@ -3309,20 +3516,30 @@ def _study_solve_tuned_quadrature(self, comm: MPI.Intracomm = MPI.COMM_WORLD):
     for n_drive, pid in enumerate(feeds):
         sheets = [sp.sheet(driven=(sp.port_id == pid)) for sp in specs_x]
         dsheet = next(s for s in sheets if s.port_id == pid)
-        linear = [lambda test, _s=dsheet: lumped_port_linear_term(
-            msh, tags_f, _s, test, omega_rad_per_s=omega)]
+        linear = [
+            lambda test, _s=dsheet: lumped_port_linear_term(
+                msh, tags_f, _s, test, omega_rad_per_s=omega
+            )
+        ]
         comm.Barrier()
         t1 = time.perf_counter()
         if n_drive > 0:
             fields = solver.solve_with_held_factorization(extra_linear_terms=linear)
         else:
             bil = wall + [
-                (lambda trial, test, _s=s: lumped_port_bilinear_term(
-                    msh, tags_f, _s, trial, test, omega_rad_per_s=omega))
+                (
+                    lambda trial, test, _s=s: lumped_port_bilinear_term(
+                        msh, tags_f, _s, trial, test, omega_rad_per_s=omega
+                    )
+                )
                 for s in sheets
             ]
-            fields = solver.solve(current_density=None, project_source=False,
-                                  extra_bilinear_terms=bil, extra_linear_terms=linear)
+            fields = solver.solve(
+                current_density=None,
+                project_source=False,
+                extra_bilinear_terms=bil,
+                extra_linear_terms=linear,
+            )
         comm.Barrier()
         t_pair.append(time.perf_counter() - t1)
         e = fields.e_complex
@@ -3340,9 +3557,11 @@ def _study_solve_tuned_quadrature(self, comm: MPI.Intracomm = MPI.COMM_WORLD):
 
     e_a, e_b = keep.pop(feeds[0]), keep.pop(feeds[1])
     # Shape, mesh and element checks -- never object identity (`POST-6` step 1).
-    if not (e_a.function_space.mesh is e_b.function_space.mesh is msh
-            and e_a.x.array.shape == e_b.x.array.shape
-            and str(e_a.function_space.ufl_element()) == str(e_b.function_space.ufl_element())):
+    if not (
+        e_a.function_space.mesh is e_b.function_space.mesh is msh
+        and e_a.x.array.shape == e_b.x.array.shape
+        and str(e_a.function_space.ufl_element()) == str(e_b.function_space.ufl_element())
+    ):
         raise RuntimeError("the two feed fields do not share one space")
     t1 = time.perf_counter()
     sense_fields, y_in, by_sense = {}, {}, {}
@@ -3437,9 +3656,7 @@ def _tuned_quadrature_sar(
     if radius_m is None:
         if not np.isfinite(float(mass_g)) or float(mass_g) <= 0.0:
             raise ValueError(f"mass_g must be finite and positive, got {mass_g!r}")
-        radius = averaging_ball_radius(
-            mass_kg=float(mass_g) / 1000.0, rho=study.density_kg_m3
-        )
+        radius = averaging_ball_radius(mass_kg=float(mass_g) / 1000.0, rho=study.density_kg_m3)
     else:
         radius = float(radius_m)
         if not np.isfinite(radius) or radius <= 0.0:
@@ -3468,9 +3685,7 @@ def _tuned_quadrature_sar(
     return out
 
 
-def _tuned_quadrature_b1_plus(
-    study, *, drives=None, comm: MPI.Intracomm = MPI.COMM_WORLD
-) -> dict:
+def _tuned_quadrature_b1_plus(study, *, drives=None, comm: MPI.Intracomm = MPI.COMM_WORLD) -> dict:
     """``Study.b1_plus`` on a ``TwoPortQuadratureDrive`` Study: ``{sense: CG1 B}``.
 
     ``project_to_cg1(magnetic_flux_density_from_e(e_s, ω))`` per sense field,
@@ -3532,8 +3747,16 @@ class TunedTemperatureResult:
     transient: Any
 
 
-def _tuned_quadrature_temperature(study, cooling, *, transient, balls, window_s=None,
-                                  sense="ccw", comm: MPI.Intracomm = MPI.COMM_WORLD):
+def _tuned_quadrature_temperature(
+    study,
+    cooling,
+    *,
+    transient,
+    balls,
+    window_s=None,
+    sense="ccw",
+    comm: MPI.Intracomm = MPI.COMM_WORLD,
+):
     """Transient Robin-cooled temperature of the tuned Study's phantom.
 
     Every argument is checked before any mesh; every assembly and reduction
@@ -3561,12 +3784,37 @@ def _tuned_quadrature_temperature(study, cooling, *, transient, balls, window_s=
 
     res = _tuned_result(study, comm)  # the kept field: no second solve
     return _phantom_transient_core(
-        study, res.mesh, res.cell_tags, res.comm, res.fields[sense], cooling, transient,
-        mass_g, centres, window, _exterior_robin_tags, int(res.cells), str(sense))
+        study,
+        res.mesh,
+        res.cell_tags,
+        res.comm,
+        res.fields[sense],
+        cooling,
+        transient,
+        mass_g,
+        centres,
+        window,
+        _exterior_robin_tags,
+        int(res.cells),
+        str(sense),
+    )
 
 
-def _phantom_transient_core(study, msh, cell_tags, rcomm, f, cooling, transient, mass_g,
-                            centres, window, robin_fn, cells, sense):
+def _phantom_transient_core(
+    study,
+    msh,
+    cell_tags,
+    rcomm,
+    f,
+    cooling,
+    transient,
+    mass_g,
+    centres,
+    window,
+    robin_fn,
+    cells,
+    sense,
+):
     """The tuned route's source / conduction / ball-mean core on one field ``f``.
 
     ``robin_fn(sub)`` returns the Robin facet tags (``_ROBIN_TAG``); the tuned
@@ -3603,10 +3851,20 @@ def _phantom_transient_core(study, msh, cell_tags, rcomm, f, cooling, transient,
     t_init = t_inf if transient.t_init_c is None else float(transient.t_init_c)
     steps = tuple(range(n_steps + 1))
     run = solve_transient_conduction(
-        sub, ft, k=cooling.k_w_per_m_k, rho_c=transient.rho_c_j_per_m3_k, q=q,
-        h=cooling.h_w_per_m2_k, t_inf=t_inf, t_init=t_init, robin_tag=_ROBIN_TAG,
-        dt=dt, n_steps=n_steps, theta=float(transient.theta),
-        startup_half_steps=int(transient.startup_half_steps), degree=int(cooling.degree),
+        sub,
+        ft,
+        k=cooling.k_w_per_m_k,
+        rho_c=transient.rho_c_j_per_m3_k,
+        q=q,
+        h=cooling.h_w_per_m2_k,
+        t_inf=t_inf,
+        t_init=t_init,
+        robin_tag=_ROBIN_TAG,
+        dt=dt,
+        n_steps=n_steps,
+        theta=float(transient.theta),
+        startup_half_steps=int(transient.startup_half_steps),
+        degree=int(cooling.degree),
         snapshot_steps=steps,
     )
     snaps = run.snapshots
@@ -3645,16 +3903,19 @@ def _phantom_transient_core(study, msh, cell_tags, rcomm, f, cooling, transient,
         times_s=times,
         volume_mean_k=mean_series,
         balls=[
-            {"centre": list(c), "radius_m": radius, "volume_m3": vols[i],
-             "theta_k": ball_series[i]}
+            {"centre": list(c), "radius_m": radius, "volume_m3": vols[i], "theta_k": ball_series[i]}
             for i, c in enumerate(centres)
         ],
         # ``window`` None (the rod four-port, `WF-15` step 14): no running maximum.
-        six_minute={"window_s": None} if window is None else {
-            "window_s": window,
-            "volume_mean": _six(mean_series),
-            "balls": [_six(s) for s in ball_series],
-        },
+        six_minute=(
+            {"window_s": None}
+            if window is None
+            else {
+                "window_s": window,
+                "volume_mean": _six(mean_series),
+                "balls": [_six(s) for s in ball_series],
+            }
+        ),
         source_power_w=source_power,
         max_balance_residual=float(run.max_balance_residual),
         cells=int(cells),
@@ -3713,12 +3974,14 @@ def _rod_outer_robin_tags(sub, rod):
     from dolfinx import mesh as dmesh
 
     outer, _counts = _rod_outer_robin_counts(sub, rod)
-    return dmesh.meshtags(sub, sub.topology.dim - 1, outer,
-                          np.full(outer.size, _ROBIN_TAG, dtype=np.int32))
+    return dmesh.meshtags(
+        sub, sub.topology.dim - 1, outer, np.full(outer.size, _ROBIN_TAG, dtype=np.int32)
+    )
 
 
-def _rod_port_temperature(study, cooling, *, transient, balls, drive,
-                          comm: MPI.Intracomm = MPI.COMM_WORLD):
+def _rod_port_temperature(
+    study, cooling, *, transient, balls, drive, comm: MPI.Intracomm = MPI.COMM_WORLD
+):
     """Transient Robin-cooled temperature of the rod four-port's phantom, one port drive.
 
     The field is ``study._solve_port_fields(comm).fields[drive]`` (one port at
@@ -3746,6 +4009,17 @@ def _rod_port_temperature(study, cooling, *, transient, balls, drive,
         raise ValueError(f"drive must be one of {sorted(res.fields)}, got {drive!r}")
     rod = dict(study.geometry.implant_rod)
     return _phantom_transient_core(
-        study, res.mesh, res.cell_tags, res.comm, res.fields[drive], cooling, transient,
-        mass_g, centres, None, lambda sub: _rod_outer_robin_tags(sub, rod),
-        int(res.cells), drive)
+        study,
+        res.mesh,
+        res.cell_tags,
+        res.comm,
+        res.fields[drive],
+        cooling,
+        transient,
+        mass_g,
+        centres,
+        None,
+        lambda sub: _rod_outer_robin_tags(sub, rod),
+        int(res.cells),
+        drive,
+    )

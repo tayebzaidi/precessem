@@ -45,10 +45,10 @@ from __future__ import annotations
 import numpy as np
 import pytest
 import ufl
+from dolfinx import fem
+from dolfinx import mesh as dmesh
 from mpi4py import MPI
 from petsc4py import PETSc
-
-from dolfinx import fem, mesh as dmesh
 
 from fem_em_solver.core import (
     HomogeneousMaterial,
@@ -57,7 +57,6 @@ from fem_em_solver.core import (
 )
 from fem_em_solver.post.evaluation import evaluate_vector_field_parallel
 from fem_em_solver.utils.constants import EPSILON_0, MU_0
-
 from tests.complex_mode import complex_only
 
 # Box side and drive frequency.  At 127.74 MHz in εᵣ = 78 the wavelength in the
@@ -168,9 +167,7 @@ def _solve_plane_wave(
         cell_type=dmesh.CellType.tetrahedron,
     )
 
-    exact_numpy, exact_ufl = _exact_factory(
-        sigma, frequency_hz=frequency_hz, epsilon_r=epsilon_r
-    )
+    exact_numpy, exact_ufl = _exact_factory(sigma, frequency_hz=frequency_hz, epsilon_r=epsilon_r)
     problem = TimeHarmonicProblem(
         mesh=msh,
         frequency_hz=frequency_hz,
@@ -242,18 +239,24 @@ def test_lossy_plane_wave_matches_closed_form():
 
     if comm.rank == 0:
         print("\n[TH-6] lossy plane wave, sigma = %.3f S/m, eps_r = %.1f:" % (SIGMA, EPSILON_R))
-        print(f"  closed form: k = {k:.6g}, alpha = {alpha_exact:.6f} Np/m, "
-              f"beta = {beta_exact:.6f} rad/m, delta = {skin_depth:.6f} m")
-        print(f"  coarse 12^3 ({cells_coarse:6d} cells): rel L2 = {rel_coarse:.6e}, "
-              f"alpha = {alpha_coarse:.6f}, beta = {beta_coarse:.6f}")
-        print(f"  fine   24^3 ({cells_fine:6d} cells): rel L2 = {rel_fine:.6e}, "
-              f"alpha = {alpha_fine:.6f}, beta = {beta_fine:.6f}")
+        print(
+            f"  closed form: k = {k:.6g}, alpha = {alpha_exact:.6f} Np/m, "
+            f"beta = {beta_exact:.6f} rad/m, delta = {skin_depth:.6f} m"
+        )
+        print(
+            f"  coarse 12^3 ({cells_coarse:6d} cells): rel L2 = {rel_coarse:.6e}, "
+            f"alpha = {alpha_coarse:.6f}, beta = {beta_coarse:.6f}"
+        )
+        print(
+            f"  fine   24^3 ({cells_fine:6d} cells): rel L2 = {rel_fine:.6e}, "
+            f"alpha = {alpha_fine:.6f}, beta = {beta_fine:.6f}"
+        )
         print(f"  measured L2 rate in h: {rate:.4f} (expected ~1 for N1curl deg 1)")
         print(f"  fine-mesh error vs closed form: alpha {alpha_err:.3%}, beta {beta_err:.3%}")
 
-    assert rel_fine < rel_coarse, (
-        f"refinement did not reduce the field error: {rel_coarse:.4e} -> {rel_fine:.4e}"
-    )
+    assert (
+        rel_fine < rel_coarse
+    ), f"refinement did not reduce the field error: {rel_coarse:.4e} -> {rel_fine:.4e}"
     assert rate > 0.9, (
         f"measured L2 convergence rate {rate:.3f} is below the O(h) expectation "
         "for N1curl degree 1 — the solve is not converging to the plane wave"
@@ -305,10 +308,14 @@ def test_conductivity_measurably_changes_the_field():
 
     if comm.rank == 0:
         print("\n[MAT-2] sigma sensitivity of the solved field (16^3):")
-        print(f"  sigma = {sigma_low} S/m: alpha = {alpha_low:.6f} vs "
-              f"{alpha_low_exact:.6f} Np/m ({err_low:.3%})")
-        print(f"  sigma = {sigma_high} S/m: alpha = {alpha_high:.6f} vs "
-              f"{alpha_high_exact:.6f} Np/m ({err_high:.3%})")
+        print(
+            f"  sigma = {sigma_low} S/m: alpha = {alpha_low:.6f} vs "
+            f"{alpha_low_exact:.6f} Np/m ({err_low:.3%})"
+        )
+        print(
+            f"  sigma = {sigma_high} S/m: alpha = {alpha_high:.6f} vs "
+            f"{alpha_high_exact:.6f} Np/m ({err_high:.3%})"
+        )
         print(f"  ratio {ratio:.4f} vs closed form {ratio_exact:.4f} ({ratio_err:.3%})")
 
     assert err_low < 0.05, f"low-sigma decay constant off by {err_low:.2%}"

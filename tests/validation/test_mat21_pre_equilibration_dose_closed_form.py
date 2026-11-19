@@ -72,14 +72,18 @@ def test_preconditions():
     assert GRID.size == N_ROWS and abs(GRID[-1] / T_STAR - 1.0) <= 1e-14
     assert W_B2 <= T_STAR, (W_B2, T_STAR)
     assert P0[2] == 0.0 and P5[2] > 0.0 and ADJ_PT[2] > 0.0
-    _say(f"MAT21-28 grid: {N_ROWS} rows to t* {T_STAR:.2f} s, window {W_B2:g} s; waits "
-         f"{[round(w, 2) for w in WAITS]} s, limit wait {LIM_WAIT:.1f} s; g {G_GRAD} K/m (fixture)")
+    _say(
+        f"MAT21-28 grid: {N_ROWS} rows to t* {T_STAR:.2f} s, window {W_B2:g} s; waits "
+        f"{[round(w, 2) for w in WAITS]} s, limit wait {LIM_WAIT:.1f} s; g {G_GRAD} K/m (fixture)"
+    )
 
 
 def test_q_w_win_w_rc_table_and_sym_d():
     worst = {"q": 0.0, "w": 0.0, "rc": np.inf, "sym": 0.0}
-    _say("MAT21-28 TABLE point | t_w lambda_1 | b(t_w) | D s | D_ref s | D/D_ref-1 | "
-         "4^dtheta-1 | D halved rel")
+    _say(
+        "MAT21-28 TABLE point | t_w lambda_1 | b(t_w) | D s | D_ref s | D/D_ref-1 | "
+        "4^dtheta-1 | D halved rel"
+    )
     for lab, p in READ_PTS:
         ref = _ref(p)
         d_ref = _dose(ref)
@@ -100,17 +104,21 @@ def test_q_w_win_w_rc_table_and_sym_d():
             b = _drift(p, T_STAR + w) / s_t
             dth = _trap_g(w4 * (th - ref), GRID) / _trap_g(w4, GRID)
             halved = _dose(th[::2], GRID[::2])
-            _say(f"MAT21-28 TABLE {lab} | {c} | {b:+.6e} | {dose:.6e} | {d_ref:.6e} | "
-                 f"{dose / d_ref - 1.0:+.6e} | {4.0 ** dth - 1.0:+.6e} | "
-                 f"{abs(halved / dose - 1.0):.3e}")
+            _say(
+                f"MAT21-28 TABLE {lab} | {c} | {b:+.6e} | {dose:.6e} | {d_ref:.6e} | "
+                f"{dose / d_ref - 1.0:+.6e} | {4.0 ** dth - 1.0:+.6e} | "
+                f"{abs(halved / dose - 1.0):.3e}"
+            )
             if lab == PROBE_LABELS[0]:
                 sym = abs(dose / d_ref - 1.0)
                 worst["sym"] = max(worst["sym"], sym)
                 assert sym <= DOSE_BAR, (c, sym)
-    _say(f"MAT21-28 (Q-w) worst rel {worst['q']:.3e} (bar {DOSE_BAR:g}, ASSERTED); (Win-w) worst "
-         f"rel {worst['w']:.3e} (bar {AVG_BAR:g}, ASSERTED); R swap least miss {worst['rc']:.4e} "
-         f"(asserted > {DOSE_BAR:g}); (Sym-D) P0 worst rel {worst['sym']:.3e} (bar {DOSE_BAR:g}, "
-         "ASSERTED)")
+    _say(
+        f"MAT21-28 (Q-w) worst rel {worst['q']:.3e} (bar {DOSE_BAR:g}, ASSERTED); (Win-w) worst "
+        f"rel {worst['w']:.3e} (bar {AVG_BAR:g}, ASSERTED); R swap least miss {worst['rc']:.4e} "
+        f"(asserted > {DOSE_BAR:g}); (Sym-D) P0 worst rel {worst['sym']:.3e} (bar {DOSE_BAR:g}, "
+        "ASSERTED)"
+    )
 
 
 def test_lim_d_jensen_and_dirichlet_z():
@@ -124,13 +132,17 @@ def test_lim_d_jensen_and_dirichlet_z():
     d_minus = _dose(_hist(P5, 0.0, g=-G_GRAD))
     d_zero = _dose(_hist(P5, 0.0, g=0.0))
     margin = (d_plus + d_minus) / (2.0 * d_zero) - 1.0
-    _say(f"MAT21-28 (Jen) P5, t_w = 0: D(+g) {d_plus:.6e} s, D(-g) {d_minus:.6e} s, D(0) "
-         f"{d_zero:.6e} s; (D+ + D-)/(2 D0) - 1 = {margin:+.4e} (asserted > 0)")
+    _say(
+        f"MAT21-28 (Jen) P5, t_w = 0: D(+g) {d_plus:.6e} s, D(-g) {d_minus:.6e} s, D(0) "
+        f"{d_zero:.6e} s; (D+ + D-)/(2 D0) - 1 = {margin:+.4e} (asserted > 0)"
+    )
     assert d_plus + d_minus > 2.0 * d_zero, margin
 
     th_dz = ref + np.array([_drift(P5, t, roots_z=DZ_ROOTS) for t in GRID])
     d_dz = _dose(th_dz)
     miss = abs(d_dz / d_plus - 1.0)
-    _say(f"MAT21-28 control (Dz) P5, t_w = 0: D Dirichlet {d_dz:.6e} s vs Robin {d_plus:.6e} s, "
-         f"miss {miss:.4e} (asserted > {DOSE_BAR:g})")
+    _say(
+        f"MAT21-28 control (Dz) P5, t_w = 0: D Dirichlet {d_dz:.6e} s vs Robin {d_plus:.6e} s, "
+        f"miss {miss:.4e} (asserted > {DOSE_BAR:g})"
+    )
     assert miss > DOSE_BAR, miss

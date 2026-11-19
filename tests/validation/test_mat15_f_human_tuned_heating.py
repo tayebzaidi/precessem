@@ -169,8 +169,24 @@ STEP6A_KNOB = "FEM_EM_MAT15_STEP6A"
 #: logged value (ruling 361-3) -- degree-independent, so it stays asserted.
 STEP5_DEGREE2_GATES = {
     "printed": ("(S_rep)",),
-    "asserted": ("(A0)", "(P_RC)", "NEG node", "(P_w)", "(Lin)", "(Sigma_P)", "(V)", "(B)",
-                 "(E)", "(E')", "(S2)", "(M_theta-a)", "(M_theta-b)", "(iv)", "(d)", "(f')"),
+    "asserted": (
+        "(A0)",
+        "(P_RC)",
+        "NEG node",
+        "(P_w)",
+        "(Lin)",
+        "(Sigma_P)",
+        "(V)",
+        "(B)",
+        "(E)",
+        "(E')",
+        "(S2)",
+        "(M_theta-a)",
+        "(M_theta-b)",
+        "(iv)",
+        "(d)",
+        "(f')",
+    ),
 }
 
 
@@ -188,8 +204,10 @@ def _step5_degree():
         raise ValueError(f"{DEGREE_KNOB}={raw!r}: only unset/empty (degree 1) or '2' are accepted")
     theirs = _degree_knob()
     if mine != theirs:
-        raise ValueError(f"{DEGREE_KNOB}={mine!r} disagrees with {DEGREE_ENV}={theirs!r}: set "
-                         f"both to '2' or leave both unset")
+        raise ValueError(
+            f"{DEGREE_KNOB}={mine!r} disagrees with {DEGREE_ENV}={theirs!r}: set "
+            f"both to '2' or leave both unset"
+        )
     return mine
 
 
@@ -231,6 +249,7 @@ def _node_impedances(c_pf, z0):
     z_rc = _z_rc(c_pf * 1e-12, FREQUENCY_HZ)
     return z_rc, _thevenin_feed_impedance(z_rc, z0)
 
+
 #: Record comparand (printed and asserted at step 1's V_BAND, ruling 361-3, not a
 #: band): the meshed tag-3 volume item 359's coverage line printed as mass / ρ,
 #: ρ = 1000 (`20261010T171705Z_WF-10-step2s-W1.log:6377`, 13 digits).
@@ -239,8 +258,9 @@ V_PHANTOM_H9P_RECORD_M3 = 2.210693836095e-03
 NOMINAL_R_M = 0.0642857
 NOMINAL_HALF_H_M = 0.0857143
 V_CAD_M3 = np.pi * NOMINAL_R_M**2 * 2.0 * NOMINAL_HALF_H_M  # 2.225676e-3, printed only
-AREA_CAD_M2 = (2.0 * np.pi * NOMINAL_R_M * 2.0 * NOMINAL_HALF_H_M
-               + 2.0 * np.pi * NOMINAL_R_M**2)  # 9.521e-2, printed only
+AREA_CAD_M2 = (
+    2.0 * np.pi * NOMINAL_R_M * 2.0 * NOMINAL_HALF_H_M + 2.0 * np.pi * NOMINAL_R_M**2
+)  # 9.521e-2, printed only
 T_R_H = NOMINAL_R_M**2 * RHO_C / K_GEL  # ≈ 28 791 s, printed only
 BI_H = H_GEL * NOMINAL_R_M / K_GEL  # ≈ 1.07, printed only
 
@@ -324,10 +344,12 @@ def test_mat15_s5_coding(monkeypatch):
     invol = float(np.max(np.abs(_mirror_xy(img, az_m) - pts)))
     dist = _plane_distance(pts, az_m)
     bar = min(LATTICE_R_M) * np.sin(np.radians(45.0))
-    print(f"[MAT-15 s5 coding] involution {invol:.3e} m (<= 1e-12 ASSERTED); min plane distance "
-          f"{dist.min() * 1e3:.4f} mm (>= {bar * 1e3:.4f} mm ASSERTED); T_STAR = {T_STAR!r} = "
-          f"0.2*T_R {0.2 * T_R!r}; DT_1 = {DT_1!r} = 2.5e-6*T_R {2.5e-6 * T_R!r}; "
-          f"t*/t_R,H = {T_STAR / T_R_H:.4f} (t_R,H {T_R_H:.1f} s); Bi_H = {BI_H:.4f}")
+    print(
+        f"[MAT-15 s5 coding] involution {invol:.3e} m (<= 1e-12 ASSERTED); min plane distance "
+        f"{dist.min() * 1e3:.4f} mm (>= {bar * 1e3:.4f} mm ASSERTED); T_STAR = {T_STAR!r} = "
+        f"0.2*T_R {0.2 * T_R!r}; DT_1 = {DT_1!r} = 2.5e-6*T_R {2.5e-6 * T_R!r}; "
+        f"t*/t_R,H = {T_STAR / T_R_H:.4f} (t_R,H {T_R_H:.1f} s); Bi_H = {BI_H:.4f}"
+    )
     assert invol <= 1e-12, invol
     assert dist.min() >= bar - 1e-12, dist.min()
     assert T_STAR == 0.2 * T_R
@@ -338,12 +360,16 @@ def _run():
     comm = MPI.COMM_WORLD
     t0 = time.perf_counter()
     step5_degree, c_pf = _step6b_node()  # step 6a guard first, then the step-6b node
-    _say(f"MAT15s5 start: effective EM degree {1 if step5_degree is None else step5_degree} "
-         f"({DEGREE_KNOB} {step5_degree if step5_degree is not None else 'unset'}, {DEGREE_ENV} "
-         f"{_degree_knob() if _degree_knob() is not None else 'unset'}; fixture DEGREE {DEGREE})")
-    _say(f"MAT15s5 start: effective node C_in = {c_pf} pF ({NODE_ENV} "
-         f"{os.environ.get(NODE_ENV, '').strip() or 'unset'!r}; degree-1 node {C_IN_F_HUMAN_PF} pF, "
-         f"degree-2 secant root {C_IN_F_HUMAN_D2_PF} pF)")
+    _say(
+        f"MAT15s5 start: effective EM degree {1 if step5_degree is None else step5_degree} "
+        f"({DEGREE_KNOB} {step5_degree if step5_degree is not None else 'unset'}, {DEGREE_ENV} "
+        f"{_degree_knob() if _degree_knob() is not None else 'unset'}; fixture DEGREE {DEGREE})"
+    )
+    _say(
+        f"MAT15s5 start: effective node C_in = {c_pf} pF ({NODE_ENV} "
+        f"{os.environ.get(NODE_ENV, '').strip() or 'unset'!r}; degree-1 node {C_IN_F_HUMAN_PF} pF, "
+        f"degree-2 secant root {C_IN_F_HUMAN_D2_PF} pF)"
+    )
     assert int(DEGREE) == 1, DEGREE
 
     # ---- 1. 358's record, read BEFORE the builder (which rewrites it) -------------
@@ -356,8 +382,9 @@ def _run():
                 rec = json.load(fh)
         rec = comm.bcast(rec, root=0)
         assert abs(rec["c_in_pf"] - C_IN_F_HUMAN_PF) == 0.0, rec["c_in_pf"]
-        s_rec = np.array([[complex(a, b) for a, b in row] for row in rec["s_node"]],
-                         dtype=np.complex128)
+        s_rec = np.array(
+            [[complex(a, b) for a, b in row] for row in rec["s_node"]], dtype=np.complex128
+        )
     else:
         node_json_d2 = _s_rep_path(step5_degree, c_pf)  # step 6b: this node's record only
         rec = None
@@ -366,11 +393,14 @@ def _run():
                 rec = json.load(fh)
         rec = comm.bcast(rec, root=0)
         if rec is not None:
-            s_rec = np.array([[complex(a, b) for a, b in row] for row in rec["s_node"]],
-                             dtype=np.complex128)
+            s_rec = np.array(
+                [[complex(a, b) for a, b in row] for row in rec["s_node"]], dtype=np.complex128
+            )
         else:
-            _say(f"MAT15s5 (S_rep) degree {step5_degree}: no degree-2 node record "
-                 f"({node_json_d2} absent); printed only (STEP5_DEGREE2_GATES)")
+            _say(
+                f"MAT15s5 (S_rep) degree {step5_degree}: no degree-2 node record "
+                f"({node_json_d2} absent); printed only (STEP5_DEGREE2_GATES)"
+            )
 
     # ---- 2. builder ----------------------------------------------------------------
     out = build_tuned_quadrature(comm, with_z50=False)
@@ -381,25 +411,33 @@ def _run():
     ctx, times = out["ctx"], out["times"]
     msh, cell_tags, sigma = ctx["msh"], ctx["cell_tags"], out["sigma"]
     feeds = list(out["feeds"])
-    res = {"cells": int(out["cells"]), "anchors": out["anchors"],
-           "p_rc_node": out["p_rc_node"], "blind_node": out["blind_node"]}
+    res = {
+        "cells": int(out["cells"]),
+        "anchors": out["anchors"],
+        "p_rc_node": out["p_rc_node"],
+        "blind_node": out["blind_node"],
+    }
     s_node = np.asarray(out["s_node"], dtype=np.complex128)
     res["degree"] = step5_degree
     if step5_degree is None:
         res["S_rep"] = _residual(s_node, s_rec)
-        _say(f"MAT15s5 (S_rep) s_node vs 358's JSON: residual {res['S_rep']:.6e} (band "
-             f"{REUSE_REPRODUCTION_RTOL:g}, ASSERTED; predicted <= {PRED_IDENTITY:g}); (A0) cells "
-             f"{res['cells']} vs {HOLE_CELL_RECORD}; (P_RC) {res['p_rc_node']:.3e}; node NEG "
-             f"{res['blind_node']:.4e} = {res['blind_node'] / DISCRETE_IDENTITY_RTOL:.1f}x band "
-             f"(bar {BLIND_FACTOR:.0f}x); builder {t_build:.1f} s")
+        _say(
+            f"MAT15s5 (S_rep) s_node vs 358's JSON: residual {res['S_rep']:.6e} (band "
+            f"{REUSE_REPRODUCTION_RTOL:g}, ASSERTED; predicted <= {PRED_IDENTITY:g}); (A0) cells "
+            f"{res['cells']} vs {HOLE_CELL_RECORD}; (P_RC) {res['p_rc_node']:.3e}; node NEG "
+            f"{res['blind_node']:.4e} = {res['blind_node'] / DISCRETE_IDENTITY_RTOL:.1f}x band "
+            f"(bar {BLIND_FACTOR:.0f}x); builder {t_build:.1f} s"
+        )
     else:
         res["S_rep"] = None if s_rec is None else _residual(s_node, s_rec)
         s_rep_txt = "n/a (no degree-2 record)" if s_rec is None else f"{res['S_rep']:.6e}"
-        _say(f"MAT15s5 (S_rep) degree {step5_degree}: s_node vs the -d2 node record read before "
-             f"the builder: residual {s_rep_txt} (PRINTED only, STEP5_DEGREE2_GATES); (A0) cells "
-             f"{res['cells']} vs {HOLE_CELL_RECORD}; (P_RC) {res['p_rc_node']:.3e}; node NEG "
-             f"{res['blind_node']:.4e} = {res['blind_node'] / DISCRETE_IDENTITY_RTOL:.1f}x band "
-             f"(bar {BLIND_FACTOR:.0f}x); builder {t_build:.1f} s")
+        _say(
+            f"MAT15s5 (S_rep) degree {step5_degree}: s_node vs the -d2 node record read before "
+            f"the builder: residual {s_rep_txt} (PRINTED only, STEP5_DEGREE2_GATES); (A0) cells "
+            f"{res['cells']} vs {HOLE_CELL_RECORD}; (P_RC) {res['p_rc_node']:.3e}; node NEG "
+            f"{res['blind_node']:.4e} = {res['blind_node'] / DISCRETE_IDENTITY_RTOL:.1f}x band "
+            f"(bar {BLIND_FACTOR:.0f}x); builder {t_build:.1f} s"
+        )
 
     # ---- 3. power per sense ------------------------------------------------------------
     z0 = float(REFERENCE_IMPEDANCE_OHM)
@@ -419,46 +457,61 @@ def _run():
     for s in ("ccw", "cw"):
         p = out["parts"][s]
         rel_w, blind_w = out["anchors"]["p_w"][s]
-        _say(f"MAT15s5 [{s}] P_src {p['p_src']:.12e} W; P_sheet(P17) "
-             f"{p['p_sheet_by_id'][feeds[0]]:.6e} P_sheet(P21) {p['p_sheet_by_id'][feeds[1]]:.6e}; "
-             f"P_acc {p_acc[s]:.12e} W (1/2 Re sum V_port I* {pvi[s]:.12e}, rel "
-             f"{abs(pvi[s] / p_acc[s] - 1.0):.3e}, printed); feed-gap ESR term {esr[s]:.6e} W, P_acc "
-             f"+ ESR {p_acc[s] + esr[s]:.12e} W; P_phantom {p['p_phantom']:.12e} P_rest "
-             f"{p['p_rest']:.6e} P_surf {p['p_surf']:.6e} W; eta {eta[s]:.6f} (predicted "
-             f"{PRED_ETA}); P_phantom/P_src {p['p_phantom'] / p['p_src']:.6f}; (P_w) {rel_w:.3e} "
-             f"(band {DISCRETE_IDENTITY_RTOL:g}, ASSERTED), blind {blind_w:.4e} (predicted "
-             f"{PRED_BLIND:g}, printed); (Lin) {out['anchors']['lin'][s][0]:.3e} / Y "
-             f"{out['anchors']['lin'][s][1]:.3e}")
-    _say(f"MAT15s5 G = 1/P_acc,ccw = {G:.12e} 1/W (one G, every run); P_acc,cw/P_acc,ccw - 1 = "
-         f"{p_acc['cw'] / p_acc['ccw'] - 1.0:+.4e} (predicted |.| <= {PRED_PACC_SENSE:g})")
+        _say(
+            f"MAT15s5 [{s}] P_src {p['p_src']:.12e} W; P_sheet(P17) "
+            f"{p['p_sheet_by_id'][feeds[0]]:.6e} P_sheet(P21) {p['p_sheet_by_id'][feeds[1]]:.6e}; "
+            f"P_acc {p_acc[s]:.12e} W (1/2 Re sum V_port I* {pvi[s]:.12e}, rel "
+            f"{abs(pvi[s] / p_acc[s] - 1.0):.3e}, printed); feed-gap ESR term {esr[s]:.6e} W, P_acc "
+            f"+ ESR {p_acc[s] + esr[s]:.12e} W; P_phantom {p['p_phantom']:.12e} P_rest "
+            f"{p['p_rest']:.6e} P_surf {p['p_surf']:.6e} W; eta {eta[s]:.6f} (predicted "
+            f"{PRED_ETA}); P_phantom/P_src {p['p_phantom'] / p['p_src']:.6f}; (P_w) {rel_w:.3e} "
+            f"(band {DISCRETE_IDENTITY_RTOL:g}, ASSERTED), blind {blind_w:.4e} (predicted "
+            f"{PRED_BLIND:g}, printed); (Lin) {out['anchors']['lin'][s][0]:.3e} / Y "
+            f"{out['anchors']['lin'][s][1]:.3e}"
+        )
+    _say(
+        f"MAT15s5 G = 1/P_acc,ccw = {G:.12e} 1/W (one G, every run); P_acc,cw/P_acc,ccw - 1 = "
+        f"{p_acc['cw'] / p_acc['ccw'] - 1.0:+.4e} (predicted |.| <= {PRED_PACC_SENSE:g})"
+    )
     # step 6b (Y): Y_in at the node, printed only, never asserted.
     for s, label in (("cw", "(1,+1j)"), ("ccw", "(1,-1j)")):
         for i, pid in enumerate(feeds):
             y = complex(out["y_in"][s][i])
             root = "  <- the P17 (1,+1j) root reading" if (s == "cw" and i == 0) else ""
-            _say(f"MAT15s5 (Y) Y_in a = {label} [{s}] {pid} at C_in {c_pf} pF: {y.real:+.9e} "
-                 f"{y.imag:+.9e}j S (printed; |Im| > 1e-3 S => not at the root){root}")
+            _say(
+                f"MAT15s5 (Y) Y_in a = {label} [{s}] {pid} at C_in {c_pf} pF: {y.real:+.9e} "
+                f"{y.imag:+.9e}j S (printed; |Im| > 1e-3 S => not at the root){root}"
+            )
 
-    tagged = mean_sar(out["e"]["ccw"], sigma=sigma, rho=PHANTOM_RHO_KG_PER_M3,
-                      cell_tags=cell_tags, subdomain_ids=PHANTOM_CELL_TAG, comm=comm)
+    tagged = mean_sar(
+        out["e"]["ccw"],
+        sigma=sigma,
+        rho=PHANTOM_RHO_KG_PER_M3,
+        cell_tags=cell_tags,
+        subdomain_ids=PHANTOM_CELL_TAG,
+        comm=comm,
+    )
     p_ph_ccw = out["parts"]["ccw"]["p_phantom"]
     res["Sigma_P"] = abs(float(np.real(tagged["dissipated_power_w"])) - p_ph_ccw) / abs(p_ph_ccw)
-    _say(f"MAT15s5 (Sigma_P) P_phantom,ccw {p_ph_ccw:.15e} vs mean_sar "
-         f"{float(np.real(tagged['dissipated_power_w'])):.15e} W, rel {res['Sigma_P']:.3e} (band "
-         f"{EXACT_IDENTITY_RTOL:g}, ASSERTED; predicted <= {PRED_SIGMA_P:g})")
+    _say(
+        f"MAT15s5 (Sigma_P) P_phantom,ccw {p_ph_ccw:.15e} vs mean_sar "
+        f"{float(np.real(tagged['dissipated_power_w'])):.15e} W, rel {res['Sigma_P']:.3e} (band "
+        f"{EXACT_IDENTITY_RTOL:g}, ASSERTED; predicted <= {PRED_SIGMA_P:g})"
+    )
 
     # ---- 4. thermal ---------------------------------------------------------------------
     t_th = time.perf_counter()
-    fields = {"ccw": out["e"]["ccw"], "cw": out["e"]["cw"], "P17": out["e17"],
-              "P21": out["e21"]}
+    fields = {"ccw": out["e"]["ccw"], "cw": out["e"]["cw"], "P17": out["e17"], "P21": out["e21"]}
     dxp = ufl.Measure("dx", domain=msh, subdomain_data=cell_tags)(PHANTOM_CELL_TAG)
     p_ph = {}
     for f, e in fields.items():
         p_ph[f] = float(np.real(_allsum(comm, 0.5 * sigma * ufl.inner(e, e) * dxp)))
     for s in ("ccw", "cw"):
-        _say(f"MAT15s5 P_phantom,{s} _vol {p_ph[s]:.15e} vs partition "
-             f"{out['parts'][s]['p_phantom']:.15e} rel "
-             f"{abs(p_ph[s] / out['parts'][s]['p_phantom'] - 1.0):.3e} (printed)")
+        _say(
+            f"MAT15s5 P_phantom,{s} _vol {p_ph[s]:.15e} vs partition "
+            f"{out['parts'][s]['p_phantom']:.15e} rel "
+            f"{abs(p_ph[s] / out['parts'][s]['p_phantom'] - 1.0):.3e} (printed)"
+        )
     _say(f"MAT15s5 P_phantom P17 {p_ph['P17']:.12e} P21 {p_ph['P21']:.12e} W (_vol)")
 
     sub, parent_ids = _tag_submesh(msh, cell_tags, PHANTOM_CELL_TAG)
@@ -472,20 +525,27 @@ def _run():
     area = float(np.real(_allsum(comm, one * ds)))
     res["V"] = abs(v_sub / V_PHANTOM_H9P_RECORD_M3 - 1.0)
     res["n_sub"] = n_sub
-    _say(f"MAT15s5 sub cells {n_sub} (predicted {PRED_SUB_CELLS}); per-rank (owned, ghost) "
-         f"{counts}")
-    _say(f"MAT15s5 (V) V_sub {v_sub:.15e} m^3 vs record {V_PHANTOM_H9P_RECORD_M3:.12e}: rel "
-         f"{res['V']:.3e} (band {V_BAND:g}, ASSERTED; predicted <= 1e-13); vs CAD {V_CAD_M3:.6e} "
-         f"{v_sub / V_CAD_M3 - 1.0:+.4e} (predicted {PRED_V_SUB_VS_CAD:+.2e}); oint ds {area:.9e} "
-         f"m^2 vs CAD {AREA_CAD_M2:.6e} {area / AREA_CAD_M2 - 1.0:+.4e} (predicted "
-         f"{PRED_AREA_DEFICIT})")
-    _say(f"MAT15s5 grid: t* = {T_STAR:.3f} s, N = {N_MAIN}, dt_1 = {DT_1:.6e} s (step 1's, "
-         f"seconds); t_R,H = {T_R_H:.1f} s, t*/t_R,H = {T_STAR / T_R_H:.4f}; Bi_H = {BI_H:.4f}")
+    _say(
+        f"MAT15s5 sub cells {n_sub} (predicted {PRED_SUB_CELLS}); per-rank (owned, ghost) "
+        f"{counts}"
+    )
+    _say(
+        f"MAT15s5 (V) V_sub {v_sub:.15e} m^3 vs record {V_PHANTOM_H9P_RECORD_M3:.12e}: rel "
+        f"{res['V']:.3e} (band {V_BAND:g}, ASSERTED; predicted <= 1e-13); vs CAD {V_CAD_M3:.6e} "
+        f"{v_sub / V_CAD_M3 - 1.0:+.4e} (predicted {PRED_V_SUB_VS_CAD:+.2e}); oint ds {area:.9e} "
+        f"m^2 vs CAD {AREA_CAD_M2:.6e} {area / AREA_CAD_M2 - 1.0:+.4e} (predicted "
+        f"{PRED_AREA_DEFICIT})"
+    )
+    _say(
+        f"MAT15s5 grid: t* = {T_STAR:.3f} s, N = {N_MAIN}, dt_1 = {DT_1:.6e} s (step 1's, "
+        f"seconds); t_R,H = {T_R_H:.1f} s, t*/t_R,H = {T_STAR / T_R_H:.4f}; Bi_H = {BI_H:.4f}"
+    )
 
     q, B, kappa = {}, {}, {}
     for f, e in fields.items():
-        W, avg = _cell_average_dg0_tag(msh, cell_tags, PHANTOM_CELL_TAG,
-                                       0.5 * sigma * ufl.inner(e, e))
+        W, avg = _cell_average_dg0_tag(
+            msh, cell_tags, PHANTOM_CELL_TAG, 0.5 * sigma * ufl.inner(e, e)
+        )
         avg *= G  # G applied after the form (ruling 361-4): one compiled form for all four
         q[f] = _to_sub(W, avg, sub, parent_ids)
         del W, avg
@@ -494,9 +554,11 @@ def _run():
         q_s = float(np.real(_allsum(comm, q[f] * ds)))
         B[f] = abs(int_q - dep) / abs(dep)
         kappa[f] = (q_s / area) / (int_q / v_sub)
-        _say(f"MAT15s5 (B) [{f}] int q = {int_q:.15e} vs G*P_phantom {dep:.15e}: rel "
-             f"{B[f]:.3e} (band {B_BAND:g}, ASSERTED; predicted <= {PRED_B:g}); kappa_s "
-             f"{kappa[f]:.4f} (predicted {PRED_KAPPA})")
+        _say(
+            f"MAT15s5 (B) [{f}] int q = {int_q:.15e} vs G*P_phantom {dep:.15e}: rel "
+            f"{B[f]:.3e} (band {B_BAND:g}, ASSERTED; predicted <= {PRED_B:g}); kappa_s "
+            f"{kappa[f]:.4f} (predicted {PRED_KAPPA})"
+        )
     res["B"] = B
     res["kappa"] = kappa
 
@@ -516,10 +578,12 @@ def _run():
         theta[f] = th
         mean_th[f] = float(np.real(_allsum(comm, th * ufl.dx(domain=sub)))) / v_sub
         imag = max(imag, _max_imag(r.temperature))
-        _say(f"MAT15s5 CN [{f}] N={N_MAIN}: mean theta(t*) {mean_th[f]:.9e} K per accepted W "
-             f"(G of ccw); (E) {r.max_balance_residual:.3e}; (E') stored {stor:.12e} + surface "
-             f"{conv:.12e} vs G*P_phantom {dep:.12e}: rel {ep:.3e} (band {E_BAND:g}; asserted on "
-             f"ccw/cw); solve {t_cn:.2f} s")
+        _say(
+            f"MAT15s5 CN [{f}] N={N_MAIN}: mean theta(t*) {mean_th[f]:.9e} K per accepted W "
+            f"(G of ccw); (E) {r.max_balance_residual:.3e}; (E') stored {stor:.12e} + surface "
+            f"{conv:.12e} vs G*P_phantom {dep:.12e}: rel {ep:.3e} (band {E_BAND:g}; asserted on "
+            f"ccw/cw); solve {t_cn:.2f} s"
+        )
     res["Ep"] = Ep
 
     S2 = {}
@@ -528,14 +592,18 @@ def _run():
         r1 = _be_one(sub, ft, q[s])
         E[f"be_{s}"] = r1.max_balance_residual
         imag = max(imag, _max_imag(r1.temperature))
-        thbar1 = float(np.real(_allsum(comm, (r1.temperature - T_INF) * ufl.dx(domain=sub)))) / v_sub
+        thbar1 = (
+            float(np.real(_allsum(comm, (r1.temperature - T_INF) * ufl.dx(domain=sub)))) / v_sub
+        )
         ratio = RHO_C * thbar1 / (DT_1 * dep / v_sub)
         leak = float(np.real(_allsum(comm, H_GEL * (r1.temperature - T_INF) * ds))) / dep
         est = H_GEL * DT_1 * area / (RHO_C * v_sub)
         S2[s] = abs(ratio - 1.0)
-        _say(f"MAT15s5 (S2) [{s}] ratio {ratio:.12f} |ratio-1| {S2[s]:.4e} (band {S2_BAND:g}, "
-             f"ASSERTED; predicted {PRED_S2}); deficit {leak:.4e}, estimate {est:.3e}*kappa_s = "
-             f"{est * kappa[s]:.4e}; (E) {r1.max_balance_residual:.3e}")
+        _say(
+            f"MAT15s5 (S2) [{s}] ratio {ratio:.12f} |ratio-1| {S2[s]:.4e} (band {S2_BAND:g}, "
+            f"ASSERTED; predicted {PRED_S2}); deficit {leak:.4e}, estimate {est:.3e}*kappa_s = "
+            f"{est * kappa[s]:.4e}; (E) {r1.max_balance_residual:.3e}"
+        )
     res["S2"] = S2
 
     q_two = fem.Function(q["ccw"].function_space)
@@ -548,11 +616,15 @@ def _run():
     res["ctl_d"] = ep_d
     res["E"] = E
     res["imag"] = imag
-    _say(f"MAT15s5 control (d) doubled source: (E') vs G*P_phantom,ccw = {ep_d:.6f} (predicted "
-         f"1.000, asserted > {D_CONTROL_FLOOR:g}); its (E) {r_d.max_balance_residual:.3e}")
+    _say(
+        f"MAT15s5 control (d) doubled source: (E') vs G*P_phantom,ccw = {ep_d:.6f} (predicted "
+        f"1.000, asserted > {D_CONTROL_FLOOR:g}); its (E) {r_d.max_balance_residual:.3e}"
+    )
     worst = max(E, key=E.get)
-    _say(f"MAT15s5 (E) worst over {len(E)} runs {E[worst]:.3e} on {worst} (band {E_BAND:g}, "
-         f"ASSERTED); max|Im theta| = {imag:.3e} (predicted 0)")
+    _say(
+        f"MAT15s5 (E) worst over {len(E)} runs {E[worst]:.3e} on {worst} (band {E_BAND:g}, "
+        f"ASSERTED); max|Im theta| = {imag:.3e} (predicted 0)"
+    )
     t_thermal = time.perf_counter() - t_th
 
     # ---- 5. ball means (step 3's forms, copied) ----------------------------------------
@@ -593,22 +665,27 @@ def _run():
         q_ball.x.scatter_forward()
         tb = _red(f_th) / vol
         qb = _red(f_q) / vol
-        _say(f"MAT15s5   ball {field:<3s} {label:<32s} at ({c[0] * 1e3:8.3f}, {c[1] * 1e3:8.3f}, "
-             f"{c[2] * 1e3:8.3f}) mm: theta {tb:.9e} K  q {qb:.9e} W/m^3  vol {vol:.6e} "
-             f"(4/3 pi a^3 {v_ball:.6e}, {vol / v_ball - 1.0:+.3e})")
+        _say(
+            f"MAT15s5   ball {field:<3s} {label:<32s} at ({c[0] * 1e3:8.3f}, {c[1] * 1e3:8.3f}, "
+            f"{c[2] * 1e3:8.3f}) mm: theta {tb:.9e} K  q {qb:.9e} W/m^3  vol {vol:.6e} "
+            f"(4/3 pi a^3 {v_ball:.6e}, {vol / v_ball - 1.0:+.3e})"
+        )
         return tb, qb
 
     az17 = float(out["az_feeds"][0])
     az_m = float(out["az_mirror"])
-    _say(f"MAT15s5 phantom bbox centre ({centre[0]:.6e}, {centre[1]:.6e}, {centre[2]:.6e}) m, R "
-         f"{radius * 1e3:.4f} mm, H/2 {half_height * 1e3:.4f} mm; a10 {a10 * 1e3:.4f} mm; az17 "
-         f"{az17:.9f} deg, mirror plane {az_m:.9f} deg")
+    _say(
+        f"MAT15s5 phantom bbox centre ({centre[0]:.6e}, {centre[1]:.6e}, {centre[2]:.6e}) m, R "
+        f"{radius * 1e3:.4f} mm, H/2 {half_height * 1e3:.4f} mm; a10 {a10 * 1e3:.4f} mm; az17 "
+        f"{az17:.9f} deg, mirror plane {az_m:.9f} deg"
+    )
     lattice = _lattice(az17, z_c)
     labels = [lab for lab, *_x in lattice]
     coords = {lab: np.array(c) for lab, *_x, c in lattice}
     ccw = {lab: _ball("ccw", coords[lab], lab) for lab in labels}
-    cw = {lab: _ball("cw", _mirror_xy(coords[lab][None, :], az_m)[0], f"M({lab})")
-          for lab in labels}
+    cw = {
+        lab: _ball("cw", _mirror_xy(coords[lab][None, :], az_m)[0], f"M({lab})") for lab in labels
+    }
     key_star = max(labels, key=lambda k: ccw[k][0])
     c_star = coords[key_star]
     mc_star = _mirror_xy(c_star[None, :], az_m)[0]
@@ -634,57 +711,87 @@ def _run():
     t_balls = time.perf_counter() - t_b
 
     for k in labels:
-        _say(f"MAT15s5   {k:<26s} theta ccw {ccw[k][0]:.9e} cw(M) {cw[k][0]:.9e} K rel "
-             f"{abs(cw[k][0] / ccw[k][0] - 1.0) * 100:.4f}%; q ccw {ccw[k][1]:.6e} cw(M) "
-             f"{cw[k][1]:.6e} rel {abs(cw[k][1] / ccw[k][1] - 1.0) * 100:.4f}%"
-             f"{'   <- c*_theta' if k == key_star else ''}")
-    _say(f"MAT15s5 c*_theta = {key_star} ({c_star[0] * 1e3:.3f}, {c_star[1] * 1e3:.3f}, "
-         f"{c_star[2] * 1e3:.3f}) mm; peak 10 g theta-bar per accepted W {th_star:.9e} K "
-         f"(predicted at r = 45 mm, z_c, az17); peak-to-mean {th_star / mean_th['ccw']:.4f} "
-         f"(predicted {PRED_PEAK_TO_MEAN})")
-    _say(f"MAT15s5 (M_theta-a) mirror at c*_theta {res['M_a'] * 100:.4f}% (band "
-         f"{C4_COVARIANCE_BAND * 100:.1f}%, ASSERTED; predicted {PRED_MIRROR}); q-ball pair "
-         f"{q_ma * 100:.4f}% (printed, predicted {PRED_Q_MIRROR})")
-    _say(f"MAT15s5 (M_theta-b) lattice rel L2 over {len(labels)} points {res['M_b'] * 100:.4f}% "
-         f"(band {C4_COVARIANCE_BAND * 100:.1f}%, ASSERTED; predicted {PRED_MIRROR}); q-ball rel "
-         f"L2 {q_mb * 100:.4f}% (printed)")
-    _say(f"MAT15s5 control (f') P17 theta(c*) {th17_c:.6e} vs P17 theta(Mc*) {th17_m:.6e} K: "
-         f"miss {res['fprime'] * 100:.4f}% (asserted > {F_CONTROL_FLOOR * 100:.1f}%, predicted >= "
-         f"{PRED_FPRIME_MIN * 100:.0f}%)")
-    _say(f"MAT15s5 M-partner P21(Mc*) {th21_m:.6e} vs P17(c*): {partner * 100:.4f}% (printed, "
-         f"predicted <= {PRED_PARTNER * 100:.0f}%); mis-paired ccw(Mc*) vs ccw(c*): "
-         f"{mispaired * 100:.4f}% (printed, predicted {PRED_MISPAIRED})")
-    _say(f"MAT15s5 (iv) worst containment {res['cont'] * 1e3:.4f} mm over {len(containment)} "
-         f"balls (<= 0 ASSERTED, measured bbox)")
+        _say(
+            f"MAT15s5   {k:<26s} theta ccw {ccw[k][0]:.9e} cw(M) {cw[k][0]:.9e} K rel "
+            f"{abs(cw[k][0] / ccw[k][0] - 1.0) * 100:.4f}%; q ccw {ccw[k][1]:.6e} cw(M) "
+            f"{cw[k][1]:.6e} rel {abs(cw[k][1] / ccw[k][1] - 1.0) * 100:.4f}%"
+            f"{'   <- c*_theta' if k == key_star else ''}"
+        )
+    _say(
+        f"MAT15s5 c*_theta = {key_star} ({c_star[0] * 1e3:.3f}, {c_star[1] * 1e3:.3f}, "
+        f"{c_star[2] * 1e3:.3f}) mm; peak 10 g theta-bar per accepted W {th_star:.9e} K "
+        f"(predicted at r = 45 mm, z_c, az17); peak-to-mean {th_star / mean_th['ccw']:.4f} "
+        f"(predicted {PRED_PEAK_TO_MEAN})"
+    )
+    _say(
+        f"MAT15s5 (M_theta-a) mirror at c*_theta {res['M_a'] * 100:.4f}% (band "
+        f"{C4_COVARIANCE_BAND * 100:.1f}%, ASSERTED; predicted {PRED_MIRROR}); q-ball pair "
+        f"{q_ma * 100:.4f}% (printed, predicted {PRED_Q_MIRROR})"
+    )
+    _say(
+        f"MAT15s5 (M_theta-b) lattice rel L2 over {len(labels)} points {res['M_b'] * 100:.4f}% "
+        f"(band {C4_COVARIANCE_BAND * 100:.1f}%, ASSERTED; predicted {PRED_MIRROR}); q-ball rel "
+        f"L2 {q_mb * 100:.4f}% (printed)"
+    )
+    _say(
+        f"MAT15s5 control (f') P17 theta(c*) {th17_c:.6e} vs P17 theta(Mc*) {th17_m:.6e} K: "
+        f"miss {res['fprime'] * 100:.4f}% (asserted > {F_CONTROL_FLOOR * 100:.1f}%, predicted >= "
+        f"{PRED_FPRIME_MIN * 100:.0f}%)"
+    )
+    _say(
+        f"MAT15s5 M-partner P21(Mc*) {th21_m:.6e} vs P17(c*): {partner * 100:.4f}% (printed, "
+        f"predicted <= {PRED_PARTNER * 100:.0f}%); mis-paired ccw(Mc*) vs ccw(c*): "
+        f"{mispaired * 100:.4f}% (printed, predicted {PRED_MISPAIRED})"
+    )
+    _say(
+        f"MAT15s5 (iv) worst containment {res['cont'] * 1e3:.4f} mm over {len(containment)} "
+        f"balls (<= 0 ASSERTED, measured bbox)"
+    )
 
     # ---- readings per watt ----------------------------------------------------------------
     p_src = out["parts"]["ccw"]["p_src"]
     to_src = p_acc["ccw"] / p_src
     m = mean_th["ccw"]
-    _say(f"MAT15s5 READING mean theta(t*) [ccw]: {m:.6e} K per accepted W (predicted "
-         f"{PRED_MEAN_THETA_PER_ACC_W}); {m * to_src:.6e} K per W of P_src; "
-         f"{m / eta['ccw']:.6e} K per deposited W; eta x t*/(rho c V_sub) = "
-         f"{eta['ccw'] * T_STAR / (RHO_C * v_sub):.6e} K (no-loss bound); cw mean "
-         f"{mean_th['cw']:.6e} K")
-    _say(f"MAT15s5 READING peak 10 g theta-bar [ccw]: {th_star:.6e} K per accepted W; "
-         f"{th_star * to_src:.6e} K per W of P_src; {th_star / eta['ccw']:.6e} K per deposited W")
+    _say(
+        f"MAT15s5 READING mean theta(t*) [ccw]: {m:.6e} K per accepted W (predicted "
+        f"{PRED_MEAN_THETA_PER_ACC_W}); {m * to_src:.6e} K per W of P_src; "
+        f"{m / eta['ccw']:.6e} K per deposited W; eta x t*/(rho c V_sub) = "
+        f"{eta['ccw'] * T_STAR / (RHO_C * v_sub):.6e} K (no-loss bound); cw mean "
+        f"{mean_th['cw']:.6e} K"
+    )
+    _say(
+        f"MAT15s5 READING peak 10 g theta-bar [ccw]: {th_star:.6e} K per accepted W; "
+        f"{th_star * to_src:.6e} K per W of P_src; {th_star / eta['ccw']:.6e} K per deposited W"
+    )
     sar10 = ccw[key_star][1] / PHANTOM_RHO_KG_PER_M3
-    _say(f"MAT15s5 READING SAR10g(c*_theta) [ccw] at C_in {c_pf} pF: {sar10:.6e} W/kg per accepted "
-         f"W; {sar10 * to_src:.6e} W/kg per W of P_src; {sar10 / eta['ccw']:.6e} W/kg per deposited "
-         f"W (q-ball mean / rho, printed)")
+    _say(
+        f"MAT15s5 READING SAR10g(c*_theta) [ccw] at C_in {c_pf} pF: {sar10:.6e} W/kg per accepted "
+        f"W; {sar10 * to_src:.6e} W/kg per W of P_src; {sar10 / eta['ccw']:.6e} W/kg per deposited "
+        f"W (q-ball mean / rho, printed)"
+    )
     _m, _per, rss = _rss_gib(comm)
-    _say(f"MAT15s5 PRICE: build {times['build']:.1f} s, node pair {times['node_pair']:.1f} s, "
-         f"superposition {times['superposition']:.1f} s; builder total {t_build:.1f} s; thermal "
-         f"{t_thermal:.1f} s; balls {t_balls:.1f} s ({len(containment)}); RSS summed {rss:.2f} "
-         f"GiB; total {time.perf_counter() - t0:.1f} s at -n {comm.size}")
+    _say(
+        f"MAT15s5 PRICE: build {times['build']:.1f} s, node pair {times['node_pair']:.1f} s, "
+        f"superposition {times['superposition']:.1f} s; builder total {t_build:.1f} s; thermal "
+        f"{t_thermal:.1f} s; balls {t_balls:.1f} s ({len(containment)}); RSS summed {rss:.2f} "
+        f"GiB; total {time.perf_counter() - t0:.1f} s at -n {comm.size}"
+    )
 
     # ---- 6. MAT-20 step 3 (§9 item 380): θ(t) series, additive knob ----------------------
     if _series_enabled():
         t_s = time.perf_counter()
         dt = T_STAR / N_MAIN
         steps = tuple(range(N_MAIN + 1))
-        r_s = _transient(sub, ft, q["ccw"], dt=dt, n_steps=N_MAIN, theta=0.5,
-                         startup_half_steps=2, snapshot_steps=steps)
+        r_s = _transient(
+            sub,
+            ft,
+            q["ccw"],
+            dt=dt,
+            n_steps=N_MAIN,
+            theta=0.5,
+            startup_half_steps=2,
+            snapshot_steps=steps,
+        )
         snaps = r_s.snapshots
         assert sorted(snaps) == list(steps), sorted(snaps)
         th_s = fem.Function(snaps[0].function_space)
@@ -702,31 +809,46 @@ def _run():
         pser = probe_series(snaps, dt, [ProbeBall(tuple(c_star), A_PROBE)])
         s_probe = [float(v) - T_INF for v in pser.values[:, 0]]
         times_s = [n * dt for n in steps]
-        _say(f"MAT15s5 SERIES ccw CN N={N_MAIN}, every step kept ({len(steps)} snapshots, "
-             f"dt {dt:.6e} s); n=N: mean theta {s_mean[-1]:.9e} vs module {mean_th['ccw']:.9e} "
-             f"(rel {abs(s_mean[-1] / mean_th['ccw'] - 1.0):.3e}); ball theta-bar(c*) "
-             f"{s_ball[-1]:.9e} vs module {th_star:.9e} (rel "
-             f"{abs(s_ball[-1] / th_star - 1.0):.3e}); probe a={A_PROBE:g} m {s_probe[-1]:.9e} "
-             f"(vol {pser.volumes[0]:.6e} vs nominal {pser.nominal_volumes[0]:.6e}; max Im/Re "
-             f"{pser.max_imag_ratio:.3e}); printed, predicted equal to rounding")
+        _say(
+            f"MAT15s5 SERIES ccw CN N={N_MAIN}, every step kept ({len(steps)} snapshots, "
+            f"dt {dt:.6e} s); n=N: mean theta {s_mean[-1]:.9e} vs module {mean_th['ccw']:.9e} "
+            f"(rel {abs(s_mean[-1] / mean_th['ccw'] - 1.0):.3e}); ball theta-bar(c*) "
+            f"{s_ball[-1]:.9e} vs module {th_star:.9e} (rel "
+            f"{abs(s_ball[-1] / th_star - 1.0):.3e}); probe a={A_PROBE:g} m {s_probe[-1]:.9e} "
+            f"(vol {pser.volumes[0]:.6e} vs nominal {pser.nominal_volumes[0]:.6e}; max Im/Re "
+            f"{pser.max_imag_ratio:.3e}); printed, predicted equal to rounding"
+        )
         for n in steps:
-            _say(f"MAT15s5 SERIES n={n:2d} t={times_s[n]:9.3f} s: mean {s_mean[n]:.12e} ball "
-                 f"{s_ball[n]:.12e} probe {s_probe[n]:.12e} K")
+            _say(
+                f"MAT15s5 SERIES n={n:2d} t={times_s[n]:9.3f} s: mean {s_mean[n]:.12e} ball "
+                f"{s_ball[n]:.12e} probe {s_probe[n]:.12e} K"
+            )
         payload = {
             "source": "MAT-15 step 5 fixture, ccw CN every step kept (MAT-20 step 3, item 380)",
-            "times_s": times_s, "dt_s": dt, "t_inf_c": T_INF, "n_main": N_MAIN,
-            "G_per_w": G, "p_acc_w": {s: float(p_acc[s]) for s in p_acc},
+            "times_s": times_s,
+            "dt_s": dt,
+            "t_inf_c": T_INF,
+            "n_main": N_MAIN,
+            "G_per_w": G,
+            "p_acc_w": {s: float(p_acc[s]) for s in p_acc},
             "p_vi_w": {s: float(pvi[s]) for s in pvi},
             "p_src_w": float(out["parts"]["ccw"]["p_src"]),
             "esr_w": {s: float(esr[s]) for s in esr},
             "p_phantom_ccw_w": float(out["parts"]["ccw"]["p_phantom"]),
-            "c_star_label": key_star, "c_star_m": [float(np.real(v)) for v in c_star],
-            "a10_m": float(a10), "a_probe_m": float(A_PROBE),
-            "ball_volume_m3": vol_star, "probe_volume_m3": float(pser.volumes[0]),
-            "theta_mean_k": s_mean, "theta_ball10g_k": s_ball, "theta_probe_k": s_probe,
+            "c_star_label": key_star,
+            "c_star_m": [float(np.real(v)) for v in c_star],
+            "a10_m": float(a10),
+            "a_probe_m": float(A_PROBE),
+            "ball_volume_m3": vol_star,
+            "probe_volume_m3": float(pser.volumes[0]),
+            "theta_mean_k": s_mean,
+            "theta_ball10g_k": s_ball,
+            "theta_probe_k": s_probe,
             "theta_mean_tstar_module_k": float(mean_th["ccw"]),
             "theta_ball10g_tstar_module_k": float(th_star),
-            "cells": int(out["cells"]), "n_sub": int(n_sub), "ranks": int(comm.size),
+            "cells": int(out["cells"]),
+            "n_sub": int(n_sub),
+            "ranks": int(comm.size),
             "normalisation": "per accepted W, ruling 361-1: G = 1 / P_acc,ccw",
             "c_in_pf": float(c_pf),
             "node_knob": os.environ.get(NODE_ENV, "").strip(),
@@ -738,8 +860,10 @@ def _run():
             with open(series_json, "w") as fh:
                 json.dump(payload, fh, indent=1)
         comm.Barrier()
-        _say(f"MAT15s5 SERIES wrote {series_json} (rank 0); series block "
-             f"{time.perf_counter() - t_s:.1f} s")
+        _say(
+            f"MAT15s5 SERIES wrote {series_json} (rank 0); series block "
+            f"{time.perf_counter() - t_s:.1f} s"
+        )
     return res
 
 
@@ -752,8 +876,9 @@ def heated():
 @complex_only
 def test_s_rep_source_wiring(heated):
     if heated.get("degree") == 2:
-        pytest.skip("(S_rep): degree-1 record comparand, printed only at degree 2 "
-                    "(STEP5_DEGREE2_GATES)")
+        pytest.skip(
+            "(S_rep): degree-1 record comparand, printed only at degree 2 " "(STEP5_DEGREE2_GATES)"
+        )
     assert heated["S_rep"] <= REUSE_REPRODUCTION_RTOL, f"(S_rep) {heated['S_rep']:.6e}"
 
 
@@ -865,16 +990,30 @@ def test_mat15_step6a_degree_knob_coding(monkeypatch):
     p1, p2 = _series_json_path(None), _series_json_path(2)
     print(f"[MAT-15 step6a K0] series JSON: unset -> {p1}; degree 2 -> {p2}")
     assert p1 == SERIES_JSON
-    assert (p2.endswith("-d2.json") and os.path.dirname(p2) == os.path.dirname(SERIES_JSON)
-            and p2 != SERIES_JSON)
+    assert (
+        p2.endswith("-d2.json")
+        and os.path.dirname(p2) == os.path.dirname(SERIES_JSON)
+        and p2 != SERIES_JSON
+    )
     with pytest.raises(ValueError):
         _series_json_path(1)
     printed, asserted = STEP5_DEGREE2_GATES["printed"], STEP5_DEGREE2_GATES["asserted"]
     print(f"[MAT-15 step6a K0] degree-2 gates: printed {printed}; asserted {asserted}")
     assert "(S_rep)" in printed
     assert not set(printed) & set(asserted)
-    for gate in ("(V)", "(B)", "(E)", "(E')", "(S2)", "(M_theta-a)", "(M_theta-b)", "(iv)",
-                 "(d)", "(f')", "(Sigma_P)"):
+    for gate in (
+        "(V)",
+        "(B)",
+        "(E)",
+        "(E')",
+        "(S2)",
+        "(M_theta-a)",
+        "(M_theta-b)",
+        "(iv)",
+        "(d)",
+        "(f')",
+        "(Sigma_P)",
+    ):
         assert gate in asserted, gate
     # The records' own arithmetic (exact integers, H20a's records).
     assert N_DOFS_D2_RECORD == 2 * E_RECORD + 2 * F_RECORD == 2_570_024
@@ -901,11 +1040,15 @@ def test_mat15_step6a_build_only(monkeypatch):
     ctx = out["ctx"]
     n1, e, f = out["n_dofs"], out["n_edges"], out["n_faces"]
     same = ctx["solver"] is out["solver_built"]
-    say(f"(A0) hole cells {out['cells']} vs record {HOLE_CELL_RECORD} (band {CELL_COUNT_BAND}, "
-        f"ASSERTED in the builder and here)")
-    say(f"(Deg-1) both knobs unset: degree {out['degree']}, solver is _build_f_human's: {same}; "
+    say(
+        f"(A0) hole cells {out['cells']} vs record {HOLE_CELL_RECORD} (band {CELL_COUNT_BAND}, "
+        f"ASSERTED in the builder and here)"
+    )
+    say(
+        f"(Deg-1) both knobs unset: degree {out['degree']}, solver is _build_f_human's: {same}; "
         f"unknowns {n1} vs E {e} (record E {E_RECORD}; ASSERTED exact); F {f} (record "
-        f"{F_RECORD}); build {t_build:.1f} s")
+        f"{F_RECORD}); build {t_build:.1f} s"
+    )
     assert abs(out["cells"] / HOLE_CELL_RECORD - 1.0) <= CELL_COUNT_BAND, out["cells"]
     assert out["degree"] == 1 and ctx["solver"].degree == 1
     assert same, "(Deg-1) the unset path rebuilt the solver: the knob leaks"
@@ -921,13 +1064,19 @@ def test_mat15_step6a_build_only(monkeypatch):
     n2 = counts2["n_dofs"]
     assert counts2["n_edges"] == e and counts2["n_faces"] == f
     _m, _per, rss_sum = _rss_gib(comm)
-    say(f"(Deg-2) both knobs 2: degree {deg2} (solver.degree {solver2.degree}); unknowns {n2} "
+    say(
+        f"(Deg-2) both knobs 2: degree {deg2} (solver.degree {solver2.degree}); unknowns {n2} "
         f"vs 2E+2F = {2 * e + 2 * f} (record {N_DOFS_D2_RECORD}; ASSERTED exact); degree-2 "
-        f"space {t_d2:.1f} s")
-    say(f"NEG (asserted, rule (e)): n(2) {n2} != n(1) {n1}; n(2)/n(1) = {n2 / n1:.6f} vs "
-        f"(2E+2F)/E = {(2 * e + 2 * f) / e:.6f} (exact integer identity ASSERTED)")
-    say(f"RSS after the degree-2 space, summed {rss_sum:.2f} GiB (PREDICTED <= "
-        f"{PREDICTED_RSS_D2_GIB:g}; H20a 1.10 GiB; printed)")
+        f"space {t_d2:.1f} s"
+    )
+    say(
+        f"NEG (asserted, rule (e)): n(2) {n2} != n(1) {n1}; n(2)/n(1) = {n2 / n1:.6f} vs "
+        f"(2E+2F)/E = {(2 * e + 2 * f) / e:.6f} (exact integer identity ASSERTED)"
+    )
+    say(
+        f"RSS after the degree-2 space, summed {rss_sum:.2f} GiB (PREDICTED <= "
+        f"{PREDICTED_RSS_D2_GIB:g}; H20a 1.10 GiB; printed)"
+    )
     assert deg2 == 2 and solver2.degree == 2 and ctx["solver"] is solver2
     assert n2 == 2 * e + 2 * f, (n2, e, f)
     assert n2 != n1
@@ -968,8 +1117,10 @@ def test_mat15_step6b_node_coding(monkeypatch):
     p_none = _s_rep_path(None, C_IN_F_HUMAN_PF)
     p_d2_old = _s_rep_path(2, C_IN_F_HUMAN_PF)
     p_d2_root = _s_rep_path(2, C_IN_F_HUMAN_D2_PF)
-    print(f"[MAT-15 step6b K0b] (S_rep) paths: unset {p_none}; degree 2 at {C_IN_F_HUMAN_PF} "
-          f"{p_d2_old}; degree 2 at {C_IN_F_HUMAN_D2_PF} {p_d2_root}")
+    print(
+        f"[MAT-15 step6b K0b] (S_rep) paths: unset {p_none}; degree 2 at {C_IN_F_HUMAN_PF} "
+        f"{p_d2_old}; degree 2 at {C_IN_F_HUMAN_D2_PF} {p_d2_root}"
+    )
     assert p_none == NODE_JSON
     assert p_d2_old == _node_json_path(2)
     assert p_d2_root.endswith("h9p-node-115.5209-d2.json")
@@ -984,14 +1135,20 @@ def test_mat15_step6b_node_coding(monkeypatch):
         zc = _closed_form_z_rc(cc)
         r1 = abs(z_rc - zc) / abs(zc)
         r2 = abs(z_th - z0 * zc / (z0 + zc)) / abs(z0 * zc / (z0 + zc))
-        print(f"[MAT-15 step6b K0b] (N2) C {cc} pF: Z_RC {z_rc:.9e} rel {r1:.2e}; Z_th rel "
-              f"{r2:.2e} (<= 1e-12 ASSERTED)")
+        print(
+            f"[MAT-15 step6b K0b] (N2) C {cc} pF: Z_RC {z_rc:.9e} rel {r1:.2e}; Z_th rel "
+            f"{r2:.2e} (<= 1e-12 ASSERTED)"
+        )
         assert r1 <= 1e-12 and r2 <= 1e-12, (cc, r1, r2)
     # NEG (asserted, closed form): a knob-blind :360 reads Z_RC at 118.2437 pF.
-    ratio = (_node_impedances(C_IN_F_HUMAN_D2_PF, z0)[0].imag
-             / _node_impedances(C_IN_F_HUMAN_PF, z0)[0].imag)
-    print(f"[MAT-15 step6b K0b] NEG Im Z_RC(root)/Im Z_RC(118.2437) = {ratio:.6f} "
-          f"(= {C_IN_F_HUMAN_PF / C_IN_F_HUMAN_D2_PF:.6f}; a blind module gives 1)")
+    ratio = (
+        _node_impedances(C_IN_F_HUMAN_D2_PF, z0)[0].imag
+        / _node_impedances(C_IN_F_HUMAN_PF, z0)[0].imag
+    )
+    print(
+        f"[MAT-15 step6b K0b] NEG Im Z_RC(root)/Im Z_RC(118.2437) = {ratio:.6f} "
+        f"(= {C_IN_F_HUMAN_PF / C_IN_F_HUMAN_D2_PF:.6f}; a blind module gives 1)"
+    )
     assert abs(ratio - C_IN_F_HUMAN_PF / C_IN_F_HUMAN_D2_PF) <= 1e-12
     assert abs(ratio - 1.0) >= 0.02, ratio
 
@@ -1010,8 +1167,10 @@ def test_mat15_step6b_build_only():
 
     assert _step6b_node() == (2, C_IN_F_HUMAN_D2_PF), "window environment wrong (wiring red)"
     json_dir = os.path.dirname(_node_json_path(2))
-    files = [os.path.join(json_dir, f"h9p-node-{c:.4f}-d2.json")
-             for c in (C_IN_F_HUMAN_D2_PF, C_IN_F_HUMAN_PF)]
+    files = [
+        os.path.join(json_dir, f"h9p-node-{c:.4f}-d2.json")
+        for c in (C_IN_F_HUMAN_D2_PF, C_IN_F_HUMAN_PF)
+    ]
 
     def _stat(p):
         return (os.path.exists(p), os.path.getmtime(p) if os.path.exists(p) else None)
@@ -1029,16 +1188,24 @@ def test_mat15_step6b_build_only():
     r_n2 = abs(z_rc - zc) / abs(zc)
     ratio = z_rc.imag / _node_impedances(C_IN_F_HUMAN_PF, z0)[0].imag
     _m, _per, rss_sum = _rss_gib(comm)
-    say(f"(A0) cells {out['cells']} vs {HOLE_CELL_RECORD}; (Deg-2) degree {out['degree']}; "
-        f"unknowns {n2} vs 2E+2F = {2 * e + 2 * f} (record {N_DOFS_D2_RECORD}; ASSERTED exact)")
-    say(f"node: c_in_pf {out['c_in_pf']} (want {C_IN_F_HUMAN_D2_PF}, ASSERTED exact); node_json "
+    say(
+        f"(A0) cells {out['cells']} vs {HOLE_CELL_RECORD}; (Deg-2) degree {out['degree']}; "
+        f"unknowns {n2} vs 2E+2F = {2 * e + 2 * f} (record {N_DOFS_D2_RECORD}; ASSERTED exact)"
+    )
+    say(
+        f"node: c_in_pf {out['c_in_pf']} (want {C_IN_F_HUMAN_D2_PF}, ASSERTED exact); node_json "
         f"{os.path.basename(out['node_json'])}; _s_rep_path {_s_rep_path(2, _node_pf())} "
-        f"(== builder's ASSERTED); per-rank _node_pf {pfs}")
-    say(f"(N2) Z_RC at node {z_rc:.9e} vs closed form rel {r_n2:.2e}; NEG Im ratio vs 118.2437 "
-        f"{ratio:.6f} (blind module 1)")
+        f"(== builder's ASSERTED); per-rank _node_pf {pfs}"
+    )
+    say(
+        f"(N2) Z_RC at node {z_rc:.9e} vs closed form rel {r_n2:.2e}; NEG Im ratio vs 118.2437 "
+        f"{ratio:.6f} (blind module 1)"
+    )
     say(f"-d2 records before {before} after {after} (unchanged ASSERTED)")
-    say(f"build {t_build:.1f} s; RSS summed {rss_sum:.2f} GiB (PREDICTED <= "
-        f"{PREDICTED_RSS_D2_GIB:g}; H28 W1 113.1 s / 1.10 GiB; printed)")
+    say(
+        f"build {t_build:.1f} s; RSS summed {rss_sum:.2f} GiB (PREDICTED <= "
+        f"{PREDICTED_RSS_D2_GIB:g}; H28 W1 113.1 s / 1.10 GiB; printed)"
+    )
     assert abs(out["cells"] / HOLE_CELL_RECORD - 1.0) <= CELL_COUNT_BAND, out["cells"]
     assert out["degree"] == 2
     assert n2 == 2 * e + 2 * f == N_DOFS_D2_RECORD, (n2, e, f)

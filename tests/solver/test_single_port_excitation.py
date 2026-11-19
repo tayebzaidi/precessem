@@ -45,9 +45,9 @@ import time
 
 import numpy as np
 import pytest
-from mpi4py import MPI
 from dolfinx import fem
 from dolfinx.mesh import create_unit_cube, meshtags
+from mpi4py import MPI
 
 from fem_em_solver.core import HomogeneousMaterial, TimeHarmonicFields, TimeHarmonicProblem
 from fem_em_solver.ports import (
@@ -56,7 +56,6 @@ from fem_em_solver.ports import (
     run_single_port_excitation_case,
 )
 from fem_em_solver.ports.circuit import s_to_z
-
 from tests.complex_mode import complex_only
 from tests.validation.test_port_birdcage_four_port import build_four_port_sweep
 from tests.validation.test_port_circuit_layer_field import (
@@ -103,9 +102,9 @@ def _build_test_problem():
 @complex_only
 def test_unequal_terminations_keep_y_symmetric():
     comm = MPI.COMM_WORLD
-    assert comm.size == RECORD_RANK_WIDTH, (
-        f"records are -n {RECORD_RANK_WIDTH} records; run at that width"
-    )
+    assert (
+        comm.size == RECORD_RANK_WIDTH
+    ), f"records are -n {RECORD_RANK_WIDTH} records; run at that width"
 
     b = build_four_port_sweep(build_only=True)
     ncells = int(b["cells"])
@@ -116,9 +115,11 @@ def test_unequal_terminations_keep_y_symmetric():
     for s in specs:
         assert complex(s.port_impedance_ohm) == z0
     unequal_specs = [
-        dataclasses.replace(s, port_impedance_ohm=UNEQUAL_TERMINATIONS_OHM[s.port_id])
-        if s.port_id in UNEQUAL_TERMINATIONS_OHM
-        else s
+        (
+            dataclasses.replace(s, port_impedance_ohm=UNEQUAL_TERMINATIONS_OHM[s.port_id])
+            if s.port_id in UNEQUAL_TERMINATIONS_OHM
+            else s
+        )
         for s in specs
     ]
     zp = np.array([complex(s.port_impedance_ohm) for s in unequal_specs])

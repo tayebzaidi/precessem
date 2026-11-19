@@ -92,9 +92,8 @@ import time
 import numpy as np
 import pytest
 import ufl
-from mpi4py import MPI
-
 from dolfinx import fem
+from mpi4py import MPI
 
 from fem_em_solver.core.resonance import stored_electric_energy
 from fem_em_solver.io.mesh import MeshGenerator
@@ -186,9 +185,7 @@ def _mode() -> str:
     # inside any window a scheduled slot can offer (see the module docstring).
     mode = os.environ.get("TH12_STEP2_MODE", "probe").strip().lower()
     if mode not in {"probe", "full", "calibrate"}:
-        raise ValueError(
-            f"TH12_STEP2_MODE must be 'probe', 'calibrate' or 'full'; got {mode!r}"
-        )
+        raise ValueError(f"TH12_STEP2_MODE must be 'probe', 'calibrate' or 'full'; got {mode!r}")
     return mode
 
 
@@ -227,11 +224,7 @@ def _build_baseline_mesh(comm):
     )
     comm.Barrier()
     t_mesh = time.perf_counter() - t_mesh
-    ncells = int(
-        comm.allreduce(
-            msh.topology.index_map(msh.topology.dim).size_local, op=MPI.SUM
-        )
-    )
+    ncells = int(comm.allreduce(msh.topology.index_map(msh.topology.dim).size_local, op=MPI.SUM))
     return msh, cell_tags, ncells, t_mesh
 
 
@@ -279,9 +272,7 @@ def _solve_pair(msh, cell_tags, degree: int, comm) -> dict:
 
     x = ufl.SpatialCoordinate(msh)
     phi_hat = _azimuthal_current_density(1.0)(x)
-    dx_wire = ufl.Measure(
-        "dx", domain=msh, subdomain_data=cell_tags, subdomain_id=(WIRE_TAG,)
-    )
+    dx_wire = ufl.Measure("dx", domain=msh, subdomain_data=cell_tags, subdomain_id=(WIRE_TAG,))
     current = _reduced_real(ufl.inner(j_prime, phi_hat) * dx_wire, comm) / (
         2.0 * np.pi * FEM_LOOP_RADIUS
     )
@@ -299,9 +290,7 @@ def _solve_pair(msh, cell_tags, degree: int, comm) -> dict:
 
     z_loaded, z_free = _reaction_z(e_loaded), _reaction_z(e_free)
     dz = z_loaded - z_free
-    dz_ref = coil_impedance_change(
-        FREQUENCY_HZ, FEM_LOOP_RADIUS, FEM_LIFTOFF, FEM_SIGMA_SLAB
-    )
+    dz_ref = coil_impedance_change(FREQUENCY_HZ, FEM_LOOP_RADIUS, FEM_LIFTOFF, FEM_SIGMA_SLAB)
 
     omega = 2.0 * np.pi * FREQUENCY_HZ
     identities = {}
@@ -366,9 +355,7 @@ def degree_rows():
     rows = {1: _solve_pair(msh, cell_tags, 1, comm)}
 
     # ---- the mandatory cost probe, before any degree-2 assembly -----------
-    projection = _cost_probe(
-        msh, comm, rows[1]["n_dofs"], rows[1]["rss_peak"], rss_baseline
-    )
+    projection = _cost_probe(msh, comm, rows[1]["n_dofs"], rows[1]["rss_peak"], rss_baseline)
     n_dofs_2, dof_ratio = projection["n_dofs_2"], projection["dof_ratio"]
 
     if comm.rank == 0:
@@ -508,9 +495,7 @@ def test_the_memory_exponent_measured_on_the_fine_rung():
     )
     comm.Barrier()
     t_mesh = time.perf_counter() - t_mesh
-    ncells = comm.allreduce(
-        msh.topology.index_map(msh.topology.dim).size_local, op=MPI.SUM
-    )
+    ncells = comm.allreduce(msh.topology.index_map(msh.topology.dim).size_local, op=MPI.SUM)
 
     rss_presolve = _rss_peak_bytes(comm)
     n_dofs = _dof_count(msh, 1)
@@ -707,12 +692,10 @@ def test_the_free_solve_dissipates_exactly_nothing(degree_rows, degree):
         f"free (σ = 0) {row['p_free']:+.7e} W"
     )
     assert row["p_free"] == 0.0, (
-        f"a σ = 0 slab must dissipate exactly nothing at degree {degree}, got "
-        f"{row['p_free']!r}"
+        f"a σ = 0 slab must dissipate exactly nothing at degree {degree}, got " f"{row['p_free']!r}"
     )
     assert row["p_loaded"] > 0.0, (
-        f"the loaded slab must dissipate at degree {degree}, got "
-        f"{row['p_loaded']!r}"
+        f"the loaded slab must dissipate at degree {degree}, got " f"{row['p_loaded']!r}"
     )
 
 
@@ -729,11 +712,12 @@ def test_both_solves_are_driven_by_the_same_projected_current(degree_rows, degre
     part that has never been exercised.
     """
     row = _row_or_skip(degree_rows, degree)
-    print(f"\n  degree {degree}: ||J'_loaded - J'_free||^2 / ||J'||^2 = "
-          f"{row['drive_mismatch']:.3e}")
+    print(
+        f"\n  degree {degree}: ||J'_loaded - J'_free||^2 / ||J'||^2 = "
+        f"{row['drive_mismatch']:.3e}"
+    )
     assert row["drive_mismatch"] < 1.0e-24, (
-        f"the two degree-{degree} solves used different drives: "
-        f"{row['drive_mismatch']}"
+        f"the two degree-{degree} solves used different drives: " f"{row['drive_mismatch']}"
     )
 
 

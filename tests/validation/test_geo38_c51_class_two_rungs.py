@@ -69,8 +69,10 @@ PRED_MEDIAN = 1.501
 PRED_COUNT_GE_2X = 3
 
 _P = r"\[GEO-38 C3\] "
-_RE_CLASS = re.compile(_P + r"(?P<payload>\s+(?P<ring>same |other) ring,\s*(?P<steps>\d+) steps\s+n =\s*"
-                       r"(?P<n>\d+)\s+mean \|S\| = (?P<mean>\S+)\s+spread\s+(?P<spread>\S+)%[^\n]*)")
+_RE_CLASS = re.compile(
+    _P + r"(?P<payload>\s+(?P<ring>same |other) ring,\s*(?P<steps>\d+) steps\s+n =\s*"
+    r"(?P<n>\d+)\s+mean \|S\| = (?P<mean>\S+)\s+spread\s+(?P<spread>\S+)%[^\n]*)"
+)
 _RE_RECIP = re.compile(_P + r"\(ii\) reciprocity (\S+) ")
 _RE_SIGMA = re.compile(_P + r"\(iii\) sigma_max (\S+) ")
 _RE_A0 = re.compile(_P + r"fixture: [^\n]*?\(A0\) cells (\d+) vs record (\d+)")
@@ -91,8 +93,10 @@ def _one(name, values, tag):
     distinct = sorted(set(values))
     _say(f"{tag} parse key {name}: {len(values)} match(es), {len(distinct)} distinct")
     if len(distinct) != 1:
-        raise ValueError(f"{tag} key {name}: {len(distinct)} distinct matches (count {len(distinct)}), "
-                         f"expected exactly 1")
+        raise ValueError(
+            f"{tag} key {name}: {len(distinct)} distinct matches (count {len(distinct)}), "
+            f"expected exactly 1"
+        )
     return distinct[0]
 
 
@@ -112,7 +116,9 @@ def parse_c3_log(text, tag="log"):
     found = {}
     for m in _RE_CLASS.finditer(text):
         key = (m["ring"] == "same ", int(m["steps"]))
-        found.setdefault(key, []).append((m["payload"].rstrip(), int(m["n"]), m["mean"], m["spread"]))
+        found.setdefault(key, []).append(
+            (m["payload"].rstrip(), int(m["n"]), m["mean"], m["spread"])
+        )
     expected = [(same, k) for same in (True, False) for k in range(N_AZIMUTH_CLASSES_32)]
     extra = sorted(set(found) - set(expected))
     if extra:
@@ -124,11 +130,15 @@ def parse_c3_log(text, tag="log"):
         distinct = sorted(set(vals))
         counts.append((len(vals), len(distinct)))
         if len(distinct) != 1:
-            raise ValueError(f"{tag} class {key}: {len(distinct)} distinct matches (count {len(distinct)}), "
-                             f"expected exactly 1")
+            raise ValueError(
+                f"{tag} class {key}: {len(distinct)} distinct matches (count {len(distinct)}), "
+                f"expected exactly 1"
+            )
         table[key] = distinct[0]
-    _say(f"{tag} parse key class lines: {len(table)} classes, matches per class "
-         f"{sorted(set(c[0] for c in counts))}, distinct per class {sorted(set(c[1] for c in counts))}")
+    _say(
+        f"{tag} parse key class lines: {len(table)} classes, matches per class "
+        f"{sorted(set(c[0] for c in counts))}, distinct per class {sorted(set(c[1] for c in counts))}"
+    )
     out["table"] = table
     return out
 
@@ -143,10 +153,14 @@ def _p1(text44):
     mine = [p["table"][k][0] for k in _ordered_keys()]
     hits = sum(_norm(a) == _norm(b) for a, b in zip(mine, C3_TABLE_LINES))
     rr = (p["recip"], p["sigma"])
-    _say(f"(P1) entry 44 parse vs C13 C3_TABLE_LINES under _norm: {hits}/{len(C3_TABLE_LINES)}; (ii)/(iii) "
-         f"{rr} vs C13 records {(RECIPROCITY_RECORD_STR, SIGMA_MAX_RECORD_STR)} (string equality, ASSERTED)")
+    _say(
+        f"(P1) entry 44 parse vs C13 C3_TABLE_LINES under _norm: {hits}/{len(C3_TABLE_LINES)}; (ii)/(iii) "
+        f"{rr} vs C13 records {(RECIPROCITY_RECORD_STR, SIGMA_MAX_RECORD_STR)} (string equality, ASSERTED)"
+    )
     assert len(mine) == len(C3_TABLE_LINES) == N_SYMMETRY_CLASSES_32
-    assert hits == len(C3_TABLE_LINES), [(a, b) for a, b in zip(mine, C3_TABLE_LINES) if _norm(a) != _norm(b)][:3]
+    assert hits == len(C3_TABLE_LINES), [
+        (a, b) for a, b in zip(mine, C3_TABLE_LINES) if _norm(a) != _norm(b)
+    ][:3]
     assert rr == (RECIPROCITY_RECORD_STR, SIGMA_MAX_RECORD_STR), rr
     return p
 
@@ -178,23 +192,32 @@ def _ct(d, parsed, tag):
     """(CT): classes from the npz, sizes, and each line against the log (n exact,
     mean .9e and spread .4f by value).  Returns (classes, spreads, n_match, misses)."""
     classes, res = _class_table(d["az"], d["zc"], classify=_azimuth_class_32)
-    sizes_ok = len(classes) == N_SYMMETRY_CLASSES_32 and {k: len(v) for k, v in classes.items()} == \
-        _expected_class_sizes()
+    sizes_ok = (
+        len(classes) == N_SYMMETRY_CLASSES_32
+        and {k: len(v) for k, v in classes.items()} == _expected_class_sizes()
+    )
     spreads = _class_spreads(d["s"], classes)
     misses = []
     for key in _ordered_keys():
         sp, cnt, mean = spreads[key]
         _payload, n_log, mean_log, spread_log = parsed["table"][key]
-        ok = (cnt == n_log and float(f"{mean:.9e}") == float(mean_log)
-              and float(f"{sp * 100:.4f}") == float(spread_log))
+        ok = (
+            cnt == n_log
+            and float(f"{mean:.9e}") == float(mean_log)
+            and float(f"{sp * 100:.4f}") == float(spread_log)
+        )
         if not ok:
-            misses.append((key, (cnt, f"{mean:.9e}", f"{sp * 100:.4f}"), (n_log, mean_log, spread_log)))
+            misses.append(
+                (key, (cnt, f"{mean:.9e}", f"{sp * 100:.4f}"), (n_log, mean_log, spread_log))
+            )
     n_match = N_SYMMETRY_CLASSES_32 - len(misses)
     strings = _table_lines(spreads, N_AZIMUTH_CLASSES_32)
     n_str = sum(_norm(a) == _norm(parsed["table"][k][0]) for a, k in zip(strings, _ordered_keys()))
-    _say(f"(CT) {tag}: classes {len(classes)}, sizes equal expected {sizes_ok}, worst pair residual "
-         f"{res:.3e} deg; lines matching log by value {n_match}/{N_SYMMETRY_CLASSES_32} (string "
-         f"identity under _norm {n_str}/{N_SYMMETRY_CLASSES_32}, printed)")
+    _say(
+        f"(CT) {tag}: classes {len(classes)}, sizes equal expected {sizes_ok}, worst pair residual "
+        f"{res:.3e} deg; lines matching log by value {n_match}/{N_SYMMETRY_CLASSES_32} (string "
+        f"identity under _norm {n_str}/{N_SYMMETRY_CLASSES_32}, printed)"
+    )
     return classes, spreads, sizes_ok, misses
 
 
@@ -225,8 +248,10 @@ def test_c51_knob_and_parser(monkeypatch):
     table44 = "\n".join(ln for ln in text44.splitlines() if _RE_CLASS.search(ln))
     with pytest.raises(ValueError, match=r"class .*count 2") as exc:
         parse_c3_log(text65 + "\n" + table44, tag="doubled-table")
-    _say(f"(CN-W0) doubled table (entry 65 + entry 44's {len(table44.splitlines())} class lines) raises: "
-         f"{exc.value}")
+    _say(
+        f"(CN-W0) doubled table (entry 65 + entry 44's {len(table44.splitlines())} class lines) raises: "
+        f"{exc.value}"
+    )
 
 
 # --------------------------------------------------------------------------- W1
@@ -248,7 +273,9 @@ def test_geo38_c51_class_two_rungs():
     d2 = _load(path2)
     for tag, path in (("r1", path1), ("r2", path2)):
         st = path.stat()
-        _say(f"{tag} {path}: {st.st_size} B, mtime {time.strftime('%Y-%m-%dT%H:%M:%S%z', time.localtime(st.st_mtime))}")
+        _say(
+            f"{tag} {path}: {st.st_size} B, mtime {time.strftime('%Y-%m-%dT%H:%M:%S%z', time.localtime(st.st_mtime))}"
+        )
 
     # ---- (RR) ----
     rr1, rr1_ok = _rr(d1, p44, "r1 npz vs entry 44")
@@ -263,17 +290,23 @@ def test_geo38_c51_class_two_rungs():
     # ---- (Cus) ----
     order_ok = d2["order"] == EXPECTED_ORDER
     saved_ok = p65["saved"] == str(SAVE_PATH_R2)
-    _say(f"(Cus) r2 npz cells {d2['cells']} vs F_CLINICAL_R2_CELL_RECORD {F_CLINICAL_R2_CELL_RECORD} vs log (A0) "
-         f"{p65['cells']} (record {p65['cells_record']}); n_ranks {d2['n_ranks']} (expected {EXPECTED_N_RANKS}); "
-         f"order {d2['order'][0]}…{d2['order'][-1]} equal P33…P96 {order_ok}; saved line '{p65['saved']}' "
-         f"== SAVE_PATH_R2 {saved_ok} (ASSERTED)")
-    _say(f"(Cus, printed) r1 npz cells {d1['cells']} vs entry 44 (A0) {p44['cells']}; n_ranks {d1['n_ranks']}; "
-         f"saved line '{p44['saved']}'")
+    _say(
+        f"(Cus) r2 npz cells {d2['cells']} vs F_CLINICAL_R2_CELL_RECORD {F_CLINICAL_R2_CELL_RECORD} vs log (A0) "
+        f"{p65['cells']} (record {p65['cells_record']}); n_ranks {d2['n_ranks']} (expected {EXPECTED_N_RANKS}); "
+        f"order {d2['order'][0]}…{d2['order'][-1]} equal P33…P96 {order_ok}; saved line '{p65['saved']}' "
+        f"== SAVE_PATH_R2 {saved_ok} (ASSERTED)"
+    )
+    _say(
+        f"(Cus, printed) r1 npz cells {d1['cells']} vs entry 44 (A0) {p44['cells']}; n_ranks {d1['n_ranks']}; "
+        f"saved line '{p44['saved']}'"
+    )
 
     assert rr1_ok and rr2_ok, (rr1, rr2)
     assert sz1 and sz2, (sz1, sz2)
     assert not miss1 and not miss2, (miss1[:3], miss2[:3])
-    assert d2["cells"] == F_CLINICAL_R2_CELL_RECORD == p65["cells"] == p65["cells_record"], d2["cells"]
+    assert d2["cells"] == F_CLINICAL_R2_CELL_RECORD == p65["cells"] == p65["cells_record"], d2[
+        "cells"
+    ]
     assert d2["n_ranks"] == EXPECTED_N_RANKS, d2["n_ranks"]
     assert order_ok, d2["order"][:3]
     assert saved_ok, p65["saved"]
@@ -286,16 +319,20 @@ def test_geo38_c51_class_two_rungs():
     stat1 = f"{abs1[w1] / abs1[(True, 1)]:.4f}"
     stat2 = f"{abs2[w2] / abs2[(True, 1)]:.4f}"
     c13_log = _one("C13 F-clinical abs-spread ratio", _RE_C13.findall(text13), "C13-W1")
-    _say(f"(C13r) r1 worst {w1} abs {abs1[w1]:.6e} / (same ring, 1 step) {abs1[(True, 1)]:.6e} = {stat1} vs "
-         f"record {C13_STAT_R1_RECORD_STR} (C13-W1.log:237 parse '{c13_log}') (string equality, ASSERTED)")
+    _say(
+        f"(C13r) r1 worst {w1} abs {abs1[w1]:.6e} / (same ring, 1 step) {abs1[(True, 1)]:.6e} = {stat1} vs "
+        f"record {C13_STAT_R1_RECORD_STR} (C13-W1.log:237 parse '{c13_log}') (string equality, ASSERTED)"
+    )
     assert stat1 == C13_STAT_R1_RECORD_STR == c13_log, (stat1, c13_log)
 
     # ---- (CN) the r1 npz read as r2 against entry 65 ----
     rr_cn, rr_cn_same = _rr(d1, p65, "CN: r1 npz vs entry 65")
     _c, _s, _sz, miss_cn = _ct(d1, p65, "CN: r1 npz vs entry 65")
     rr_differ = all(float(a) != float(b) for a, b in zip(rr_cn, (p65["recip"], p65["sigma"])))
-    _say(f"(CN) r1 npz read as r2: (CT) differing lines {len(miss_cn)}/{N_SYMMETRY_CLASSES_32} (PREDICTED 34; "
-         f"ASSERTED >= 1); (RR) both differ {rr_differ} (ASSERTED)")
+    _say(
+        f"(CN) r1 npz read as r2: (CT) differing lines {len(miss_cn)}/{N_SYMMETRY_CLASSES_32} (PREDICTED 34; "
+        f"ASSERTED >= 1); (RR) both differ {rr_differ} (ASSERTED)"
+    )
     assert len(miss_cn) >= 1, "r1 npz reproduces entry 65's table: (CT) blind to the rung"
     assert rr_differ, rr_cn
 
@@ -306,22 +343,34 @@ def test_geo38_c51_class_two_rungs():
         r1s, r2s = p44["table"][key][3], p65["table"][key][3]
         ratios[key] = float(r2s) / float(r1s)
         same, k = key
-        _say(f"  {'same ' if same else 'other'} ring, {k:2d} steps | {r1s} | {r2s} | {ratios[key]:.4f}")
+        _say(
+            f"  {'same ' if same else 'other'} ring, {k:2d} steps | {r1s} | {r2s} | {ratios[key]:.4f}"
+        )
     asym = (False, 1)
-    _say(f"asymmetric class (other ring, 1 step): r2 {p65['table'][asym][3]}% / r1 {p44['table'][asym][3]}% "
-         f"= {ratios[asym]:.4f} (drafter's arithmetic {PRED_ASYM_RATIO}, printed)")
+    _say(
+        f"asymmetric class (other ring, 1 step): r2 {p65['table'][asym][3]}% / r1 {p44['table'][asym][3]}% "
+        f"= {ratios[asym]:.4f} (drafter's arithmetic {PRED_ASYM_RATIO}, printed)"
+    )
     vals = np.array([ratios[k] for k in _ordered_keys()])
     kmin = min(ratios, key=ratios.get)
     kmax = max(ratios, key=ratios.get)
     ge2 = [k for k in _ordered_keys() if ratios[k] >= 2.0]
-    _say(f"r2/r1 median {np.median(vals):.4f} (drafter {PRED_MEDIAN}); min {ratios[kmin]:.4f} at {kmin}; max "
-         f"{ratios[kmax]:.4f} at {kmax}; count >= 2x {len(ge2)} {ge2} (drafter {PRED_COUNT_GE_2X})")
-    _say("RECORD (printed, from the npz after custody): class | abs spread r1 | abs spread r2 | r2/r1")
+    _say(
+        f"r2/r1 median {np.median(vals):.4f} (drafter {PRED_MEDIAN}); min {ratios[kmin]:.4f} at {kmin}; max "
+        f"{ratios[kmax]:.4f} at {kmax}; count >= 2x {len(ge2)} {ge2} (drafter {PRED_COUNT_GE_2X})"
+    )
+    _say(
+        "RECORD (printed, from the npz after custody): class | abs spread r1 | abs spread r2 | r2/r1"
+    )
     for key in _ordered_keys():
         same, k = key
-        _say(f"  {'same ' if same else 'other'} ring, {k:2d} steps | {abs1[key]:.6e} | {abs2[key]:.6e} | "
-             f"{abs2[key] / abs1[key]:.4f}")
-    _say(f"C13 statistic (abs spread worst / same ring 1 step): r1 {stat1} [{w1}], r2 {stat2} [{w2}]; "
-         f"(other ring, 1 step) / (same ring, 1 step): r1 {abs1[asym] / abs1[(True, 1)]:.4f}, "
-         f"r2 {abs2[asym] / abs2[(True, 1)]:.4f}")
+        _say(
+            f"  {'same ' if same else 'other'} ring, {k:2d} steps | {abs1[key]:.6e} | {abs2[key]:.6e} | "
+            f"{abs2[key] / abs1[key]:.4f}"
+        )
+    _say(
+        f"C13 statistic (abs spread worst / same ring 1 step): r1 {stat1} [{w1}], r2 {stat2} [{w2}]; "
+        f"(other ring, 1 step) / (same ring, 1 step): r1 {abs1[asym] / abs1[(True, 1)]:.4f}, "
+        f"r2 {abs2[asym] / abs2[(True, 1)]:.4f}"
+    )
     _say(f"body {time.perf_counter() - t0:.2f} s")

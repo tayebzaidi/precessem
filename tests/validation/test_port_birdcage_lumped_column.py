@@ -1,4 +1,4 @@
-"""`PORT-9` step 3 leg (c) — the first port solve on the gapped birdcage.
+r"""`PORT-9` step 3 leg (c) — the first port solve on the gapped birdcage.
 
 Legs (a) and (b) both stopped before any solve: the birdcage's port boxes were
 isolated air blocks outside an uncut coil (conductor facet area exactly
@@ -51,10 +51,10 @@ this fixture has never compiled.
 
 Run (complex build required)::
 
-    scripts/testing/run_and_log.sh PORT-9-step3c "docker compose exec -T fem-em-solver \\
-      bash -lc 'cd /workspace && source /usr/local/bin/dolfinx-complex-mode && \\
-       PYTHONPATH=/workspace/src FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 1200 \\
-       mpiexec -n 2 python3 -m pytest tests/environment \\
+    scripts/testing/run_and_log.sh PORT-9-step3c "docker compose exec -T fem-em-solver \
+      bash -lc 'cd /workspace && source /usr/local/bin/dolfinx-complex-mode && \
+       PYTHONPATH=/workspace/src FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 1200 \
+       mpiexec -n 2 python3 -m pytest tests/environment \
        tests/validation/test_port_birdcage_lumped_column.py -v -s'"
 """
 
@@ -71,9 +71,7 @@ from fem_em_solver.core import HomogeneousMaterial, TimeHarmonicProblem
 from fem_em_solver.io.mesh import _interface_facet_tags
 from fem_em_solver.ports.definitions import PortDefinition
 from fem_em_solver.ports.lumped import LumpedSheetPortSpec, run_lumped_sheet_port_case
-
 from tests.complex_mode import complex_only
-from tests.mesh.test_birdcage_leg_gaps import LEG_GAP_LENGTH
 from tests.mesh.test_birdcage_port_sheets import (
     PORT_LOWER,
     PORT_UPPER,
@@ -168,9 +166,7 @@ def _sheet_bbox_centre(msh, facet_tags, tag, comm):
     fdim = msh.topology.dim - 1
     facets = np.asarray(facet_tags.find(tag), dtype=np.int32)
     if facets.size:
-        nodes = dolfinx.cpp.mesh.entities_to_geometry(
-            msh._cpp_object, fdim, facets, False
-        )
+        nodes = dolfinx.cpp.mesh.entities_to_geometry(msh._cpp_object, fdim, facets, False)
         pts = msh.geometry.x[nodes.reshape(-1)]
         lo, hi = pts.min(axis=0), pts.max(axis=0)
     else:
@@ -230,9 +226,7 @@ def birdcage_column():
     # are the only ones the lumped route needs, so they are the facet tags the
     # solve is handed.
     halves = {i: (PORT_LOWER + i, PORT_UPPER + i) for i in ports_idx}
-    tags_f = _interface_facet_tags(
-        msh, cell_tags, {SHEET_IFACE + i: halves[i] for i in ports_idx}
-    )
+    tags_f = _interface_facet_tags(msh, cell_tags, {SHEET_IFACE + i: halves[i] for i in ports_idx})
 
     # Measure each full sheet, name its transverse axis and azimuth, then narrow.
     geometry = {}
@@ -249,9 +243,7 @@ def birdcage_column():
             "w_full": float(w_bbox),
             "h_full": float(h_bbox),
             "spread_full": float(spread),
-            "azimuth_deg": float(
-                np.degrees(np.arctan2(centroid[1], centroid[0])) % 360.0
-            ),
+            "azimuth_deg": float(np.degrees(np.arctan2(centroid[1], centroid[0])) % 360.0),
             "radius": float(np.hypot(centroid[0], centroid[1])),
         }
 
@@ -458,7 +450,7 @@ def test_the_birdcage_column_came_off_the_solved_field(birdcage_column):
 def test_adjacent_ports_of_the_driven_leg_agree_and_the_opposite_one_does_not(
     birdcage_column,
 ):
-    """**Leg (c)'s gate.**  ``|Z₂₁ − Z₄₁|/|Z₂₁| ≤ 0.5%``, with ``Z₃₁`` apart.
+    r"""**Leg (c)'s gate.**  ``|Z₂₁ − Z₄₁|/|Z₂₁| ≤ 0.5%``, with ``Z₃₁`` apart.
 
     The layout is C4-invariant by construction, and the mirror plane through the
     driven leg swaps P2 and P4 while fixing P1 and P3.  The solved field must

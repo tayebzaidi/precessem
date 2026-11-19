@@ -30,8 +30,8 @@ from typing import Sequence
 
 import numpy as np
 import ufl
-from mpi4py import MPI
 from dolfinx import fem
+from mpi4py import MPI
 
 from ..utils.constants import EPSILON_0
 

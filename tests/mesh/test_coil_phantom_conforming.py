@@ -24,9 +24,8 @@ from __future__ import annotations
 
 import numpy as np
 import ufl
-from mpi4py import MPI
-
 from dolfinx import default_scalar_type, fem
+from mpi4py import MPI
 
 from fem_em_solver.io.mesh import MeshGenerator
 from tests.mesh.helpers import global_cell_tag_set
@@ -168,9 +167,7 @@ def test_coil_phantom_off_center_preset_partitions_and_conserves_phantom_volume(
 
     v_box = _analytic_box_volume(phantom_offset_xy=(0.35 * PHANTOM_RADIUS, 0.0))
     v_total = _total_volume(msh, comm)
-    v_tagged = sum(
-        _tag_volume(msh, cell_tags, t, comm) for t in (*COIL_TAGS, PHANTOM_TAG, AIR_TAG)
-    )
+    v_tagged = sum(_tag_volume(msh, cell_tags, t, comm) for t in (*COIL_TAGS, PHANTOM_TAG, AIR_TAG))
     v_phantom = _tag_volume(msh, cell_tags, PHANTOM_TAG, comm)
     v_cylinder = np.pi * PHANTOM_RADIUS**2 * PHANTOM_HEIGHT
 

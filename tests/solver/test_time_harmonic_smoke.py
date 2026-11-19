@@ -6,8 +6,8 @@ import dolfinx
 import numpy as np
 import pytest
 import ufl
-from mpi4py import MPI
 from dolfinx import fem
+from mpi4py import MPI
 
 from fem_em_solver.core import (
     HomogeneousMaterial,
@@ -17,7 +17,6 @@ from fem_em_solver.core import (
 from fem_em_solver.io.mesh import MeshGenerator
 from fem_em_solver.post import evaluate_vector_field_parallel
 from fem_em_solver.post.power_balance import poynting_power_balance
-
 from tests.complex_mode import complex_only
 
 # The fixture's material, in one place — the same lossy saline the `TH-6`
@@ -262,14 +261,15 @@ def test_time_harmonic_smoke_solve_conserves_real_power():
     if comm.rank == 0:
         print("\n[OPS-17] time-harmonic smoke diagnostics:")
         print(f"  frequency [Hz]: {problem.frequency_hz:.6e}")
-        print(f"  |E_imag| min/max/mean at {len(sample_points)} points: "
-              f"{np.min(e_mag):.5e} / {max_mag:.5e} / {mean_mag:.5e}")
+        print(
+            f"  |E_imag| min/max/mean at {len(sample_points)} points: "
+            f"{np.min(e_mag):.5e} / {max_mag:.5e} / {mean_mag:.5e}"
+        )
         # `POST-8` step 3b-ii-t1: the five owner-rule samples (<= 6 significant
         # digits) and (P-smoke), printed only: -n 2 writes the full-precision
         # values to the gitignored logs/post8/, -n 1 prints the relative
         # difference against them.
-        print("  |E_imag| (owner rule) at the 5 points: "
-              + ", ".join(f"{v:.5e}" for v in e_mag))
+        print("  |E_imag| (owner rule) at the 5 points: " + ", ".join(f"{v:.5e}" for v in e_mag))
         from pathlib import Path
 
         smoke_npz = Path("/workspace/logs/post8/step3b-ii-t1-smoke-n2.npz")
@@ -279,16 +279,23 @@ def test_time_harmonic_smoke_solve_conserves_real_power():
         elif comm.size == 1 and smoke_npz.exists():
             ref_mag = np.load(smoke_npz)["e_mag"]
             rel_p = float(np.max(np.abs(e_mag - ref_mag) / np.abs(ref_mag)))
-            print(f"  (P-smoke) max rel |E_imag| difference -n 1 vs -n 2: "
-                  f"{rel_p:.3e} (predicted <= 1e-6, printed only)")
+            print(
+                f"  (P-smoke) max rel |E_imag| difference -n 1 vs -n 2: "
+                f"{rel_p:.3e} (predicted <= 1e-6, printed only)"
+            )
         print(f"  dissipated  = {honest['dissipated_power_w']:.6e} W")
         print(f"  net inward  = {honest['net_inward_power_w']:.6e} W")
         print(f"  source      = {honest['source_power_w']:.6e} W")
         print(f"  reactive    = {honest['reactive_inward_power_var']:.6e} var")
-        print(f"  three-term residual: honest {honest['relative_imbalance']:.4%}, "
-              f"sigma-blind {blind['relative_imbalance']:.4%}")
-        print(f"  two-term imbalance (POST-5 step-1 record 116.7465%): "
-              f"{honest['two_term_relative_imbalance']:.4%}", flush=True)
+        print(
+            f"  three-term residual: honest {honest['relative_imbalance']:.4%}, "
+            f"sigma-blind {blind['relative_imbalance']:.4%}"
+        )
+        print(
+            f"  two-term imbalance (POST-5 step-1 record 116.7465%): "
+            f"{honest['two_term_relative_imbalance']:.4%}",
+            flush=True,
+        )
 
     assert honest["relative_imbalance"] < POYNTING_IMBALANCE_MAX, (
         f"real power in through the boundary "
@@ -301,9 +308,7 @@ def test_time_harmonic_smoke_solve_conserves_real_power():
     # The two-term reading must stay computable and unmoved, or the `POST-5`
     # step-1 h-ladder journal (116.7465 / 115.4059 / 114.4227%) stops
     # reconciling against this file — see the step-4 trap in PROJECT_PLAN §7.
-    assert np.isclose(
-        honest["two_term_relative_imbalance"], AXIAL_RECORD_IMBALANCE, rtol=1e-6
-    ), (
+    assert np.isclose(honest["two_term_relative_imbalance"], AXIAL_RECORD_IMBALANCE, rtol=1e-6), (
         "the source-free reading moved: "
         f"{honest['two_term_relative_imbalance']:.6%} against the `POST-5` "
         f"step-1 record {AXIAL_RECORD_IMBALANCE:.6%}"
@@ -390,8 +395,10 @@ def _solve_smoke_and_balance(resolution: float, comm, drive: str = "axial"):
     solver = TimeHarmonicSolver(problem, degree=1)
 
     if drive == "axial":
+
         def current_density(x):
             return ufl.as_vector([0.0, 0.0, 1.0])
+
     elif drive == "azimuthal":
         j_azimuthal = _azimuthal_current(mesh)
 
@@ -399,22 +406,17 @@ def _solve_smoke_and_balance(resolution: float, comm, drive: str = "axial"):
             # The coefficient is already the field; x is the solver's
             # SpatialCoordinate and is deliberately unused.
             return j_azimuthal
+
     else:
         raise ValueError(f"unknown drive {drive!r}; use 'axial' or 'azimuthal'")
 
-    fields = solver.solve(
-        current_density=current_density, subdomain_id=1, gauge_penalty=1e-3
-    )
-    balance = poynting_power_balance(
-        fields.e_complex, omega=fields.omega, sigma=SIGMA, comm=comm
-    )
+    fields = solver.solve(current_density=current_density, subdomain_id=1, gauge_penalty=1e-3)
+    balance = poynting_power_balance(fields.e_complex, omega=fields.omega, sigma=SIGMA, comm=comm)
     blind = poynting_power_balance(
         fields.e_complex, omega=fields.omega, sigma=SIGMA_BLIND, comm=comm
     )
     tdim = mesh.topology.dim
-    balance["ncells"] = int(
-        comm.allreduce(mesh.topology.index_map(tdim).size_local, op=MPI.SUM)
-    )
+    balance["ncells"] = int(comm.allreduce(mesh.topology.index_map(tdim).size_local, op=MPI.SUM))
     balance["h"] = float(resolution)
     balance["drive"] = drive
     balance["blind_dissipated_w"] = blind["dissipated_power_w"]
@@ -454,17 +456,13 @@ def test_smoke_fixture_boundary_measure_is_outward_oriented():
     # exactly linear in x, so degree 2 integrates them without error.
     meta = {"quadrature_degree": 2}
     surface = comm.allreduce(
-        fem.assemble_scalar(
-            fem.form(ufl.dot(position, normal) * ufl.ds(metadata=meta))
-        ),
+        fem.assemble_scalar(fem.form(ufl.dot(position, normal) * ufl.ds(metadata=meta))),
         op=MPI.SUM,
     )
     # div(x) = 3 identically, so this volume leg *is* 3|Omega| and carries the
     # mesh without needing a scalar-type-matched Constant.
     volume3 = comm.allreduce(
-        fem.assemble_scalar(
-            fem.form(ufl.div(position) * ufl.dx(metadata=meta))
-        ),
+        fem.assemble_scalar(fem.form(ufl.div(position) * ufl.dx(metadata=meta))),
         op=MPI.SUM,
     )
     ratio = float(np.real(surface)) / float(np.real(volume3))
@@ -473,8 +471,7 @@ def test_smoke_fixture_boundary_measure_is_outward_oriented():
         print("\n[POST-5 step 1] ds orientation check on the smoke fixture:")
         print(f"  oint x.n dS = {float(np.real(surface)):.9e} m^3")
         print(f"  3 |Omega|   = {float(np.real(volume3)):.9e} m^3")
-        print(f"  ratio       = {ratio:.12f}  (+1 outward, -1 inward)",
-              flush=True)
+        print(f"  ratio       = {ratio:.12f}  (+1 outward, -1 inward)", flush=True)
 
     assert abs(ratio - 1.0) < 1.0e-10, (
         f"oint x.n dS / (3|Omega|) = {ratio:.12f} on the smoke fixture; the "
@@ -521,8 +518,10 @@ def test_poynting_imbalance_h_ladder_discriminates_resolution_from_source():
 
     if comm.rank == 0:
         print("\n[POST-5 step 1] Poynting h-ladder on the smoke fixture:")
-        print("      h      cells    dissipated [W]   net inward [W]  sign   "
-              "imbalance   blind diss [W]")
+        print(
+            "      h      cells    dissipated [W]   net inward [W]  sign   "
+            "imbalance   blind diss [W]"
+        )
         for r in rungs:
             print(
                 f"  {r['h']:.3f}  {r['ncells']:7d}   "
@@ -532,8 +531,10 @@ def test_poynting_imbalance_h_ladder_discriminates_resolution_from_source():
                 f"{r['relative_imbalance']:9.4%}   "
                 f"{r['blind_dissipated_w']:.6e}"
             )
-        print(f"  fitted rate in h: {rate:.4f} "
-              f"(>= {LADDER_RATE_FOR_RESOLUTION} required for RESOLUTION)")
+        print(
+            f"  fitted rate in h: {rate:.4f} "
+            f"(>= {LADDER_RATE_FOR_RESOLUTION} required for RESOLUTION)"
+        )
         print(f"  finest-rung flux sign corrected: {sign_corrected}")
         print(f"  VERDICT: {verdict}", flush=True)
 
@@ -594,10 +595,13 @@ def test_closed_azimuthal_drive_discriminates_source_from_assembly():
         verdict = "IN-BETWEEN"
 
     if comm.rank == 0:
-        print("\n[POST-5 step 2] closed-drive discriminator, "
-              f"smoke fixture at h = {h:.3f} ({axial['ncells']} cells):")
-        print("   drive        dissipated [W]   net inward [W]  sign   "
-              "imbalance   blind diss [W]")
+        print(
+            "\n[POST-5 step 2] closed-drive discriminator, "
+            f"smoke fixture at h = {h:.3f} ({axial['ncells']} cells):"
+        )
+        print(
+            "   drive        dissipated [W]   net inward [W]  sign   " "imbalance   blind diss [W]"
+        )
         for r in (axial, closed):
             print(
                 f"  {r['drive']:<11s}  {r['dissipated_power_w']:.6e}   "
@@ -606,9 +610,11 @@ def test_closed_azimuthal_drive_discriminates_source_from_assembly():
                 f"{r['relative_imbalance']:9.4%}   "
                 f"{r['blind_dissipated_w']:.6e}"
             )
-        print(f"  closed-drive imbalance under "
-              f"{CLOSED_DRIVE_IMBALANCE_FOR_SOURCE:.0%}: {collapsed}; "
-              f"flux sign positive: {sign_positive}")
+        print(
+            f"  closed-drive imbalance under "
+            f"{CLOSED_DRIVE_IMBALANCE_FOR_SOURCE:.0%}: {collapsed}; "
+            f"flux sign positive: {sign_positive}"
+        )
         print(f"  VERDICT: {verdict}", flush=True)
 
     # The `POST-5` step-1 anchor, re-asserted on the new drive.
@@ -620,21 +626,15 @@ def test_closed_azimuthal_drive_discriminates_source_from_assembly():
     # Negative control: the axial drive, same run, same mesh, reproduces the
     # step-1 coarse rung.  Without this the two columns could differ for any
     # reason; with it, the only thing that changed is J.
-    assert np.isclose(
-        axial["dissipated_power_w"], AXIAL_RECORD_DISSIPATED_W, rtol=1e-6
-    ), (
+    assert np.isclose(axial["dissipated_power_w"], AXIAL_RECORD_DISSIPATED_W, rtol=1e-6), (
         f"axial dissipated {axial['dissipated_power_w']:.6e} W against the "
         f"`POST-5` step-1 record {AXIAL_RECORD_DISSIPATED_W:.6e} W"
     )
-    assert np.isclose(
-        axial["net_inward_power_w"], AXIAL_RECORD_NET_INWARD_W, rtol=1e-6
-    ), (
+    assert np.isclose(axial["net_inward_power_w"], AXIAL_RECORD_NET_INWARD_W, rtol=1e-6), (
         f"axial net inward {axial['net_inward_power_w']:.6e} W against the "
         f"`POST-5` step-1 record {AXIAL_RECORD_NET_INWARD_W:.6e} W"
     )
-    assert np.isclose(
-        axial["relative_imbalance"], AXIAL_RECORD_IMBALANCE, rtol=1e-6
-    ), (
+    assert np.isclose(axial["relative_imbalance"], AXIAL_RECORD_IMBALANCE, rtol=1e-6), (
         f"axial imbalance {axial['relative_imbalance']:.4%} against the "
         f"`POST-5` step-1 record {AXIAL_RECORD_IMBALANCE:.4%}"
     )
@@ -777,18 +777,18 @@ def _solve_smoke_with_source_power(resolution: float, comm, drive: str = "axial"
 
         def current_density(x):
             return j_expr
+
     elif drive == "azimuthal":
         j_azimuthal = _azimuthal_current(mesh)
         j_expr = j_azimuthal
 
         def current_density(x):
             return j_azimuthal
+
     else:
         raise ValueError(f"unknown drive {drive!r}; use 'axial' or 'azimuthal'")
 
-    fields = solver.solve(
-        current_density=current_density, subdomain_id=1, gauge_penalty=1e-3
-    )
+    fields = solver.solve(current_density=current_density, subdomain_id=1, gauge_penalty=1e-3)
     # 1/2 Re int_{tag 1} E . conj(J) dV, over exactly the measure the solver
     # assembled the source on.  ufl.inner conjugates its second argument, which
     # is the conjugation this term needs.
@@ -811,9 +811,7 @@ def _solve_smoke_with_source_power(resolution: float, comm, drive: str = "axial"
     balance["source_power_w_local_form"] = float(np.real(source_c))
     balance["drive"] = drive
     tdim = mesh.topology.dim
-    balance["ncells"] = int(
-        comm.allreduce(mesh.topology.index_map(tdim).size_local, op=MPI.SUM)
-    )
+    balance["ncells"] = int(comm.allreduce(mesh.topology.index_map(tdim).size_local, op=MPI.SUM))
     return balance
 
 
@@ -910,10 +908,8 @@ def test_the_missing_impressed_source_term_accounts_for_the_smoke_imbalance():
             ("dissipated", row["dissipated_power_w"], rec_diss, dict(rtol=1e-6)),
             ("net inward", row["net_inward_power_w"], rec_flux, dict(rtol=1e-6)),
             ("source", row["source_power_w"], rec_src, dict(rtol=1e-6)),
-            ("two-term", row["two_term_relative_imbalance"], rec_two,
-             dict(rtol=0.0, atol=1e-6)),
-            ("three-term", row["relative_imbalance"], rec_three,
-             dict(rtol=0.0, atol=1e-6)),
+            ("two-term", row["two_term_relative_imbalance"], rec_two, dict(rtol=0.0, atol=1e-6)),
+            ("three-term", row["relative_imbalance"], rec_three, dict(rtol=0.0, atol=1e-6)),
         ):
             assert np.isclose(got, want, **tol), (
                 f"the {row['drive']} drive's {label} reading moved: {got:.6e} "

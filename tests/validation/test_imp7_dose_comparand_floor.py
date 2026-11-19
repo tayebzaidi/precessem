@@ -29,7 +29,6 @@ import numpy as np
 import pytest
 
 from fem_em_solver.thermal.dose import cem43
-
 from tests.validation.test_imp4_pec_cylinder_closed_form import B1_BAND
 from tests.validation.test_imp7_duty_dose_closed_form import (
     AVG_BAR,
@@ -77,9 +76,11 @@ def test_root_ladder_at_800(modes):
         idx = np.arange(lam.size)
         dev = float(np.max(np.abs(x[10:] - idx[10:])))
         gap = float(np.min(np.diff(x)))
-        _p(f"IMP7-14 (Root) l={l}: {lam.size} roots, x0 {x[0]:.6f}, x_last {x[-1]:.6f}; max "
-           f"|x_n - n| (n>=10) {dev:.3e} (asserted < 0.5); min gap {gap:.6f} spacings "
-           f"(asserted > 0.125)")
+        _p(
+            f"IMP7-14 (Root) l={l}: {lam.size} roots, x0 {x[0]:.6f}, x_last {x[-1]:.6f}; max "
+            f"|x_n - n| (n>=10) {dev:.3e} (asserted < 0.5); min gap {gap:.6f} spacings "
+            f"(asserted > 0.125)"
+        )
         assert lam.size == n_max
         assert lam[0] > 0.0
         assert dev < 0.5, (l, dev)
@@ -95,11 +96,15 @@ def test_q_hd_win_hd_and_rc_hd(hists):
                 dose, _ref, rel, _swap, miss = _q_check(T_GRID, T)
                 mx, t_mx, lo, hi, _wref, wrel = _win_check(T_GRID, th)
                 cell = f"n={n} {lab} {name}"
-                _p(f"IMP7-14 (Q-hd) {cell}: CEM43 {dose:.6e} s rel quad {rel:.3e} (bar "
-                   f"{DOSE_BAR:g}, ASSERTED); max T {np.max(T):.6f} C; (Rc-hd) miss {miss:.4e} "
-                   f"(asserted > {DOSE_BAR:g})")
-                _p(f"IMP7-14 (Win-hd) {cell}: max six-minute mean {mx:.6e} K at {t_mx:.2f} s; "
-                   f"rel quad {wrel:.3e} (bar {AVG_BAR:g}, ASSERTED)")
+                _p(
+                    f"IMP7-14 (Q-hd) {cell}: CEM43 {dose:.6e} s rel quad {rel:.3e} (bar "
+                    f"{DOSE_BAR:g}, ASSERTED); max T {np.max(T):.6f} C; (Rc-hd) miss {miss:.4e} "
+                    f"(asserted > {DOSE_BAR:g})"
+                )
+                _p(
+                    f"IMP7-14 (Win-hd) {cell}: max six-minute mean {mx:.6e} K at {t_mx:.2f} s; "
+                    f"rel quad {wrel:.3e} (bar {AVG_BAR:g}, ASSERTED)"
+                )
                 assert float(np.max(T)) < T_REF, (cell, float(np.max(T)))
                 assert rel <= DOSE_BAR, (cell, rel)
                 assert miss > DOSE_BAR, (cell, miss)
@@ -112,8 +117,10 @@ def test_self_800_against_200_at_the_pole(hists):
     d_200 = cem43(T_GRID, T_INF + hists[N_DEFAULT][:, POLE])
     d_800 = cem43(T_GRID, T_INF + hists[N_LADDER[-1]][:, POLE])
     rel = _rel(d_800, d_200)
-    _p(f"IMP7-14 (Self) pole: rel dose 800 vs 200 modes {rel:.3e} (band {B1_BAND:g}, ASSERTED); "
-       f"item 725's gap {ITEM_725_GAP[POLE]:.3e}")
+    _p(
+        f"IMP7-14 (Self) pole: rel dose 800 vs 200 modes {rel:.3e} (band {B1_BAND:g}, ASSERTED); "
+        f"item 725's gap {ITEM_725_GAP[POLE]:.3e}"
+    )
     assert rel <= B1_BAND, rel
 
 
@@ -121,8 +128,10 @@ def test_tr8_truncation_control(hists):
     d_8 = cem43(T_GRID, T_INF + hists[N_CONTROL][:, POLE])
     d_200 = cem43(T_GRID, T_INF + hists[N_DEFAULT][:, POLE])
     miss = _rel(d_8, d_200)
-    _p(f"IMP7-14 (Tr8) pole: n = {N_CONTROL} against n = {N_DEFAULT} miss {miss:.4e} (asserted "
-       f"> {DOSE_BAR:g})")
+    _p(
+        f"IMP7-14 (Tr8) pole: n = {N_CONTROL} against n = {N_DEFAULT} miss {miss:.4e} (asserted "
+        f"> {DOSE_BAR:g})"
+    )
     assert miss > DOSE_BAR, miss
 
 
@@ -132,13 +141,19 @@ def test_printed_changes(hists):
     for j, name in enumerate(LABELS):
         d = [cem43(T_GRID, T_INF + th[n][:, j]) for n in N_LADDER]
         a, b = _rel(d[1], d[0]), _rel(d[2], d[1])
-        _p(f"IMP7-14 CHANGE {name}: peak-scale rel dose 200->400 {a:.3e}, 400->800 {b:.3e}, "
-           f"200->800 {_rel(d[2], d[0]):.3e}; item 725's gap {ITEM_725_GAP[j]:.3e}")
+        _p(
+            f"IMP7-14 CHANGE {name}: peak-scale rel dose 200->400 {a:.3e}, 400->800 {b:.3e}, "
+            f"200->800 {_rel(d[2], d[0]):.3e}; item 725's gap {ITEM_725_GAP[j]:.3e}"
+        )
         assert np.isfinite(a) and np.isfinite(b)
     diff = np.abs(th[N_LADDER[-1]] - th[N_DEFAULT])
     row, col = np.unravel_index(int(np.argmax(diff)), diff.shape)
-    _p(f"IMP7-14 ROW largest |dtheta| 200 vs 800: {diff[row, col]:.3e} K at row {row}, t "
-       f"{T_GRID[row]:.2f} s, {LABELS[col]}; per point max "
-       + ", ".join(f"{name} {np.max(diff[:, j]):.3e} K (row {int(np.argmax(diff[:, j]))})"
-                   for j, name in enumerate(LABELS)))
+    _p(
+        f"IMP7-14 ROW largest |dtheta| 200 vs 800: {diff[row, col]:.3e} K at row {row}, t "
+        f"{T_GRID[row]:.2f} s, {LABELS[col]}; per point max "
+        + ", ".join(
+            f"{name} {np.max(diff[:, j]):.3e} K (row {int(np.argmax(diff[:, j]))})"
+            for j, name in enumerate(LABELS)
+        )
+    )
     assert np.isfinite(diff[row, col])

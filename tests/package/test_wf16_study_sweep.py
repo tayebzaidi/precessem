@@ -35,7 +35,6 @@ from fem_em_solver.materials import GelledSalinePhantomMaterial
 from fem_em_solver.ports.touchstone import load_touchstone
 from fem_em_solver.study import PortStudySweepResult
 from fem_em_solver.utils.instrumentation import report_peak_rss
-
 from tests.complex_mode import complex_only
 from tests.io.test_touchstone_skrf_crosscheck import ANCHOR_TOL, FREQ_ATOL_HZ
 from tests.materials.test_phantom_material_model import _dg0_owned_diff
@@ -87,14 +86,20 @@ KEYS = tuple(FREQUENCIES)
 # digits, otherwise the comparator is mis-wired.  Not a band.
 C4_HAND_TABLE = {
     1: {
-        ("10", "64"): 0.8103, ("10", "128"): 1.2367,
-        ("64", "10"): 0.8120, ("64", "128"): 0.5524,
-        ("128", "10"): 1.2763, ("128", "64"): 0.5689,
+        ("10", "64"): 0.8103,
+        ("10", "128"): 1.2367,
+        ("64", "10"): 0.8120,
+        ("64", "128"): 0.5524,
+        ("128", "10"): 1.2763,
+        ("128", "64"): 0.5689,
     },
     2: {
-        ("10", "64"): 0.8395, ("10", "128"): 1.2592,
-        ("64", "10"): 0.8515, ("64", "128"): 0.5594,
-        ("128", "10"): 1.3138, ("128", "64"): 0.5755,
+        ("10", "64"): 0.8395,
+        ("10", "128"): 1.2592,
+        ("64", "10"): 0.8515,
+        ("64", "128"): 0.5594,
+        ("128", "10"): 1.3138,
+        ("128", "64"): 0.5755,
     },
 }
 C4_TWO_DIGITS = 0.005
@@ -126,9 +131,9 @@ def sweep_leg():
     comm = MPI.COMM_WORLD
     width = ANS4_EXACT_STRIP_RECORD_RANK_WIDTH if degree == 1 else DEGREE2_RECORD_WIDTH
     # Width guard, asserted (a record holds at its own width, `OPS-41`).
-    assert comm.size == width, (
-        f"degree {degree} record is asserted at -n {width}; got -n {comm.size}"
-    )
+    assert (
+        comm.size == width
+    ), f"degree {degree} record is asserted at -n {width}; got -n {comm.size}"
     study, phantom = _port_study(degree)
     t0 = time.perf_counter()
     sw = study.solve_sweep(tuple(FREQUENCIES.values()), comm)
@@ -333,7 +338,10 @@ def test_wf16_sweep_touchstone_equals_records(sweep_leg):
     i10, i128 = KEYS.index("10"), KEYS.index("128")
     swapped[[i10, i128]] = swapped[[i128, i10]]
     c5 = {k: _rel(swapped[i], rec[k]) for i, k in enumerate(KEYS)}
-    _p0("[WF-16 s2] (c5) swapped blocks vs records: " + ", ".join(f"{k} {v:.4e}" for k, v in c5.items()))
+    _p0(
+        "[WF-16 s2] (c5) swapped blocks vs records: "
+        + ", ".join(f"{k} {v:.4e}" for k, v in c5.items())
+    )
     assert c5["10"] > LEG_D0_REPRODUCTION_BAND
     assert c5["128"] > LEG_D0_REPRODUCTION_BAND
     assert c5["64"] <= LEG_D0_REPRODUCTION_BAND

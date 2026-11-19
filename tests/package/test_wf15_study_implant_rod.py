@@ -32,7 +32,6 @@ import fem_em_solver.study as study_module
 from fem_em_solver import FourPortBirdcageGeometry, LumpedPortDrive, Study
 from fem_em_solver.materials import GelledSalinePhantomMaterial
 from fem_em_solver.study_yaml import StudyConfigError, load_study
-
 from tests.complex_mode import complex_only
 from tests.mesh.test_birdcage_implant_rod import ROD, _build_rod
 from tests.mesh.test_birdcage_leg_offset import IDENTITY_BAND
@@ -83,7 +82,9 @@ def _phantom():
 
 
 def _study(geometry):
-    return Study(geometry, _phantom(), LumpedPortDrive(), frequency_hz=STEP2D_FREQUENCY_HZ, degree=1)
+    return Study(
+        geometry, _phantom(), LumpedPortDrive(), frequency_hz=STEP2D_FREQUENCY_HZ, degree=1
+    )
 
 
 class _Stop(Exception):
@@ -155,8 +156,14 @@ def _mapping(**extra):
 
 
 def _rod_yaml():
-    return {"rod": {"radius_m": ROD["radius"], "length_m": ROD["length"],
-                    "centre_m": list(ROD["centre"]), "axis": list(ROD["axis"])}}
+    return {
+        "rod": {
+            "radius_m": ROD["radius"],
+            "length_m": ROD["length"],
+            "centre_m": list(ROD["centre"]),
+            "axis": list(ROD["axis"]),
+        }
+    }
 
 
 def _load(tmp_path, name, mapping):
@@ -180,8 +187,13 @@ def test_s10_yaml_section_and_refusals(tmp_path):
         assert st.geometry.implant_rod[key] == tuple(float(v) for v in ROD[key]), key
     assert _load(tmp_path, "none", _mapping()).geometry.implant_rod is None
 
-    sphere = {"kind": "sphere_in_box", "sphere_radius": 0.05, "box_half_width": 0.1,
-              "resolution_sphere": 0.02, "resolution_far": 0.04}
+    sphere = {
+        "kind": "sphere_in_box",
+        "sphere_radius": 0.05,
+        "box_half_width": 0.1,
+        "resolution_sphere": 0.02,
+        "resolution_far": 0.04,
+    }
     ball = {"kind": "thermal_ball", "radius": 0.05, "resolution": 0.01}
     missing = _rod_yaml()
     del missing["rod"]["axis"]
@@ -191,11 +203,18 @@ def test_s10_yaml_section_and_refusals(tmp_path):
     unknown["rod"]["keep_cells"] = True
     cases = {
         "sphere": (_mapping(geometry=sphere, implant=_rod_yaml()), "implant"),
-        "human": (_mapping(geometry={"kind": "f_human_birdcage", "as_hole": True},
-                           implant=_rod_yaml()), "implant"),
-        "clinical": (_mapping(geometry={"kind": "f_clinical_birdcage"}, implant=_rod_yaml()), "implant"),
-        "ball": ({"femem": 1, "geometry": ball, "excitation": {}, "thermal": {},
-                  "implant": _rod_yaml()}, "implant"),
+        "human": (
+            _mapping(geometry={"kind": "f_human_birdcage", "as_hole": True}, implant=_rod_yaml()),
+            "implant",
+        ),
+        "clinical": (
+            _mapping(geometry={"kind": "f_clinical_birdcage"}, implant=_rod_yaml()),
+            "implant",
+        ),
+        "ball": (
+            {"femem": 1, "geometry": ball, "excitation": {}, "thermal": {}, "implant": _rod_yaml()},
+            "implant",
+        ),
         "loaded": (_mapping(implant=_rod_yaml(), load_result="x.npz", tune={}), "implant"),
         "not_a_mapping": (_mapping(implant="rod"), "implant"),
         "no_rod": (_mapping(implant={}), "implant.rod"),
@@ -203,8 +222,10 @@ def test_s10_yaml_section_and_refusals(tmp_path):
         "missing": (_mapping(implant=missing), "implant.rod.axis"),
         "triple": (_mapping(implant=bad_triple), "implant.rod.centre_m"),
         "unknown": (_mapping(implant=unknown), "implant.rod.keep_cells"),
-        "geometry_key": (_mapping(geometry={"kind": "four_port_birdcage", "implant_rod": {}}),
-                         "geometry.implant_rod"),
+        "geometry_key": (
+            _mapping(geometry={"kind": "four_port_birdcage", "implant_rod": {}}),
+            "geometry.implant_rod",
+        ),
     }
     for name, (mapping, field) in cases.items():
         with pytest.raises(StudyConfigError) as err:
@@ -219,8 +240,9 @@ def test_s10_palace_refuses_a_rod(tmp_path):
     from fem_em_solver.backends.palace import solve_palace
 
     with pytest.raises(ValueError, match="implant_rod"):
-        solve_palace(_study(FourPortBirdcageGeometry(implant_rod=ROD)), MPI.COMM_WORLD,
-                     case_dir=tmp_path)
+        solve_palace(
+            _study(FourPortBirdcageGeometry(implant_rod=ROD)), MPI.COMM_WORLD, case_dir=tmp_path
+        )
 
 
 @pytest.fixture(scope="module")
@@ -253,19 +275,32 @@ def s10():
         direct = _sweep(case, keep=True)
         t_direct = time.perf_counter() - t0
         omega = 2.0 * np.pi * float(STEP2D_FREQUENCY_HZ)
-        shares = {pid: _exact_shares(case, {"driven": pid, "omega": omega, "fields": direct.fields[pid]})
-                  for pid in PORT_IDS}
+        shares = {
+            pid: _exact_shares(case, {"driven": pid, "omega": omega, "fields": direct.fields[pid]})
+            for pid in PORT_IDS
+        }
 
         t0 = time.perf_counter()
         off_study = _study(FourPortBirdcageGeometry())
         off = off_study._solve_port_fields(comm)
         off_sar = off_study.sar(1.0, centres=centres, comm=comm)
         t_off = time.perf_counter() - t0
-    _p0(f"\n[WF-15 s10] -n {comm.size}: rod Study {t_rod:.1f} s (mesh {rod.mesh_time:.1f}, sweep "
+    _p0(
+        f"\n[WF-15 s10] -n {comm.size}: rod Study {t_rod:.1f} s (mesh {rod.mesh_time:.1f}, sweep "
         f"{rod.sweep_time:.1f}), its 1 g reads {t_sar:.1f} s; direct {t_direct:.1f} s; off Study "
-        f"{t_off:.1f} s")
-    return {"rod": rod, "case": case, "direct": direct, "shares": shares, "off": off,
-            "rod_sar": rod_sar, "off_sar": off_sar, "captured": captured, "built": built}
+        f"{t_off:.1f} s"
+    )
+    return {
+        "rod": rod,
+        "case": case,
+        "direct": direct,
+        "shares": shares,
+        "off": off,
+        "rod_sar": rod_sar,
+        "off_sar": off_sar,
+        "captured": captured,
+        "built": built,
+    }
 
 
 @complex_only
@@ -286,17 +321,24 @@ def test_s10_all_gates(s10):
         "ii_colpow": bool(np.all(mq["colpow"] <= 1.0)),
         "M": max(mq["mirror"]) <= ADJACENT_SPREAD_BAND,
     }
-    _p0(f"[WF-15 s10] cells Study {rod.cells}, direct {case['cells']}, record {ROD_EXACT_CELL_RECORD}; "
-        f"||S_study - S_direct||/||S_direct|| {rel_s:.3e} (IDENTITY_BAND {IDENTITY_BAND:.0e}, ASSERTED)")
-    _p0(f"[WF-15 s10] (i) {mq['recip']:.3e} (band {RECIPROCITY_BAND:.0e}); (ii) sigma_max "
+    _p0(
+        f"[WF-15 s10] cells Study {rod.cells}, direct {case['cells']}, record {ROD_EXACT_CELL_RECORD}; "
+        f"||S_study - S_direct||/||S_direct|| {rel_s:.3e} (IDENTITY_BAND {IDENTITY_BAND:.0e}, ASSERTED)"
+    )
+    _p0(
+        f"[WF-15 s10] (i) {mq['recip']:.3e} (band {RECIPROCITY_BAND:.0e}); (ii) sigma_max "
         f"{float(mq['sigma'][0]):.12f}, colpow {np.array2string(mq['colpow'], precision=12)}; (M) "
-        + ", ".join(f"{v:.3e}" for v in mq["mirror"]) + f" (band {ADJACENT_SPREAD_BAND})")
+        + ", ".join(f"{v:.3e}" for v in mq["mirror"])
+        + f" (band {ADJACENT_SPREAD_BAND})"
+    )
     assert len(rod.sheets) == len(case["sheets"]) == 4
     for a, b in zip(rod.sheets, case["sheets"]):
         gates[f"sheet {a['tag']} facets"] = a["tag"] == b["tag"] and a["facets"] == b["facets"]
         for key in ("h", "w", "area"):
             gates[f"sheet {a['tag']} {key}"] = abs(a[key] / b[key] - 1.0) <= IDENTITY_BAND
-        gates[f"sheet {a['tag']} az"] = abs(a["azimuth_deg"] - b["azimuth_deg"]) <= IDENTITY_BAND * 360.0
+        gates[f"sheet {a['tag']} az"] = (
+            abs(a["azimuth_deg"] - b["azimuth_deg"]) <= IDENTITY_BAND * 360.0
+        )
 
     built_rod = s10["captured"]["rod"]
     v_space = rod.fields["P1"].e_complex.function_space
@@ -312,14 +354,18 @@ def test_s10_all_gates(s10):
     gates["off_cells"] = abs(off.cells / ANS4_EXACT_STRIP_CELL_RECORD - 1.0) <= CELL_COUNT_BAND
     gates["wall_rod"] = wall_rod > 0
     gates["wall_off"] = wall_off == 0
-    _p0(f"[WF-15 s10] off Study cells {off.cells} (record {ANS4_EXACT_STRIP_CELL_RECORD}, band "
-        f"{CELL_COUNT_BAND}); tag-402 owned facets rod {wall_rod}, off {wall_off}")
+    _p0(
+        f"[WF-15 s10] off Study cells {off.cells} (record {ANS4_EXACT_STRIP_CELL_RECORD}, band "
+        f"{CELL_COUNT_BAND}); tag-402 owned facets rod {wall_rod}, off {wall_off}"
+    )
 
     for pid in PORT_IDS:  # (PP) printed, never asserted: its first reading on this mesh.
         ex = s10["shares"][pid]
         r = abs(ex["p_src"] - ex["p_vol"] - ex["sheet_field_total"]) / abs(ex["p_src"])
-        _p0(f"[WF-15 s10] (PP) {pid} direct: {r:.3e} (DISCRETE_IDENTITY_RTOL {DISCRETE_IDENTITY_RTOL:g}, "
-            f"printed, not asserted)")
+        _p0(
+            f"[WF-15 s10] (PP) {pid} direct: {r:.3e} (DISCRETE_IDENTITY_RTOL {DISCRETE_IDENTITY_RTOL:g}, "
+            f"printed, not asserted)"
+        )
     tips = list(TIPS)
     for pid in PORT_IDS:
         row = []

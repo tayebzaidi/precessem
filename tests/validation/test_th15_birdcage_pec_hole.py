@@ -64,14 +64,14 @@ from fem_em_solver.ports.definitions import PortDefinition
 from fem_em_solver.ports.lumped import LumpedSheetPortSpec, run_lumped_sheet_port_case
 from fem_em_solver.ports.shares import terminal_form_deficit
 from fem_em_solver.ports.sparameters import run_n_port_sparameter_sweep
-
 from tests.complex_mode import complex_only
 from tests.mesh.test_birdcage_leg_offset import (
     _projected_extents,
     _sheet_areas,
     _sheet_azimuth_deg,
 )
-from tests.mesh.test_birdcage_port_sheets import SHEET_IFACE, _build as _sheets_build
+from tests.mesh.test_birdcage_port_sheets import SHEET_IFACE
+from tests.mesh.test_birdcage_port_sheets import _build as _sheets_build
 from tests.mesh.test_birdcage_port_tags import LEG_COUNT
 from tests.mesh.test_two_torus_port_facets import _facet_group_area
 from tests.mesh.test_two_torus_port_sheet import _sheet_facet_count
@@ -254,7 +254,8 @@ def _hole_rung(frequency_hz, degree: int = 1, resolution=None):
     comm = MPI.COMM_WORLD
     ports_idx = list(range(1, LEG_COUNT + 1))
     msh, cell_tags, facet_tags, diag, t_mesh = _sheets_build(
-        True, as_hole=True, resolution=resolution)
+        True, as_hole=True, resolution=resolution
+    )
     tdim = msh.topology.dim
     ncells = int(msh.topology.index_map(tdim).size_global)
     msh.topology.create_connectivity(tdim - 1, tdim)
@@ -278,8 +279,13 @@ def _hole_rung(frequency_hz, degree: int = 1, resolution=None):
     for i in ports_idx:
         g = geometry[i]
         tags_f = _narrowed_radial(
-            msh, tags_f, g["tag"], GATED_WIDTH_FRACTION, g["centre_radial"],
-            g["radial"], 0.5 * g["w_full"],
+            msh,
+            tags_f,
+            g["tag"],
+            GATED_WIDTH_FRACTION,
+            g["centre_radial"],
+            g["radial"],
+            0.5 * g["w_full"],
         )
     sheets = []
     for i in ports_idx:
@@ -289,8 +295,15 @@ def _hole_rung(frequency_hz, degree: int = 1, resolution=None):
         area = _facet_group_area(msh, tags_f, g["tag"], comm)
         radial, azimuthal, axial = _port_frame(g["azimuth_deg"])
         spans, _c = _projected_extents(msh, tags_f, g["tag"], comm, [radial, azimuthal, axial])
-        sheets.append({**g, "facets": int(n_facets), "area": float(area),
-                       "h": float(spans[2]), "w": float(area / spans[2])})
+        sheets.append(
+            {
+                **g,
+                "facets": int(n_facets),
+                "area": float(area),
+                "h": float(spans[2]),
+                "w": float(area / spans[2]),
+            }
+        )
 
     problem = TimeHarmonicProblem(
         mesh=msh,
@@ -309,21 +322,35 @@ def _hole_rung(frequency_hz, degree: int = 1, resolution=None):
     port_defs, specs = [], []
     for s in sheets:
         pid = f"P{s['tag'] - SHEET_IFACE}"
-        port_defs.append(PortDefinition(
-            port_id=pid, positive_tag=int(s["tag"]), negative_tag=CONDUCTOR_CELL_TAG,
-            orientation="leg_gap_axial_plus_z", z0_ohm=REFERENCE_IMPEDANCE_OHM,
-        ))
-        specs.append(LumpedSheetPortSpec(
-            port_id=pid, facet_tag=int(s["tag"]),
-            port_impedance_ohm=TERMINATED_PORT_IMPEDANCE_OHM, gap_height_m=s["h"],
-            sheet_width_m=s["w"], drive_direction=(0.0, 0.0, 1.0),
-            drive_voltage_v=1.0 + 0.0j, interior=True,
-        ))
+        port_defs.append(
+            PortDefinition(
+                port_id=pid,
+                positive_tag=int(s["tag"]),
+                negative_tag=CONDUCTOR_CELL_TAG,
+                orientation="leg_gap_axial_plus_z",
+                z0_ohm=REFERENCE_IMPEDANCE_OHM,
+            )
+        )
+        specs.append(
+            LumpedSheetPortSpec(
+                port_id=pid,
+                facet_tag=int(s["tag"]),
+                port_impedance_ohm=TERMINATED_PORT_IMPEDANCE_OHM,
+                gap_height_m=s["h"],
+                sheet_width_m=s["w"],
+                drive_direction=(0.0, 0.0, 1.0),
+                drive_voltage_v=1.0 + 0.0j,
+                interior=True,
+            )
+        )
 
     comm.Barrier()
     t0 = time.perf_counter()
     result = run_n_port_sparameter_sweep(
-        problem, port_defs, lumped_sheet_ports=specs, lumped_sheet_facet_tags=tags_f,
+        problem,
+        port_defs,
+        lumped_sheet_ports=specs,
+        lumped_sheet_facet_tags=tags_f,
         degree=degree,
     )
     comm.Barrier()
@@ -332,8 +359,14 @@ def _hole_rung(frequency_hz, degree: int = 1, resolution=None):
     # The power identity needs the field; one extra P1 solve (own factorisation).
     t0 = time.perf_counter()
     p1, fields = run_lumped_sheet_port_case(
-        problem, port_defs, specs, facet_tags=tags_f, driven_port_id=DRIVEN,
-        verbose=False, return_fields=True, degree=degree,
+        problem,
+        port_defs,
+        specs,
+        facet_tags=tags_f,
+        driven_port_id=DRIVEN,
+        verbose=False,
+        return_fields=True,
+        degree=degree,
     )
     comm.Barrier()
     t_p1 = time.perf_counter() - t0
@@ -422,16 +455,26 @@ def hole():
             flush=True,
         )
         for sh in rung["sheets"]:
-            print(f"    sheet {sh['tag']}: az {sh['azimuth_deg']:8.4f} deg, "
-                  f"{sh['facets']} facets, h {sh['h']:.6e} m, w {sh['w']:.6e} m", flush=True)
+            print(
+                f"    sheet {sh['tag']}: az {sh['azimuth_deg']:8.4f} deg, "
+                f"{sh['facets']} facets, h {sh['h']:.6e} m, w {sh['w']:.6e} m",
+                flush=True,
+            )
         for row in range(LEG_COUNT):
-            print("    Z_%dk = " % (row + 1) + "  ".join(f"{v:+.9e}" for v in rung["z"][row]), flush=True)
+            print(
+                "    Z_%dk = " % (row + 1) + "  ".join(f"{v:+.9e}" for v in rung["z"][row]),
+                flush=True,
+            )
         for row in range(LEG_COUNT):
-            print("    S_%dk = " % (row + 1) + "  ".join(f"{v:+.9e}" for v in rung["s"][row]), flush=True)
+            print(
+                "    S_%dk = " % (row + 1) + "  ".join(f"{v:+.9e}" for v in rung["s"][row]),
+                flush=True,
+            )
         sp = rung["spreads"]
         print(
             f"    ||S-S^T||/||S|| = {rung['reciprocity']:.9e} (band {RECIPROCITY_BAND:.0e})\n"
-            f"    sigma(S) = " + ", ".join(f"{v:.9f}" for v in rung["sigma"])
+            f"    sigma(S) = "
+            + ", ".join(f"{v:.9f}" for v in rung["sigma"])
             + f" (band 1 + {PASSIVITY_SIGMA_TOLERANCE:.0e})\n"
             f"    class spreads: self {sp['self'] * 100:.4f}%  adjacent "
             f"{sp['adjacent'] * 100:.4f}%  opposite {sp['opposite'] * 100:.4f}% "
@@ -447,8 +490,11 @@ def hole():
         for pid, v in rung["p_in_terms"].items():
             print(f"      {pid}: 1/2 V I* = {v:+.9e} VA", flush=True)
         # Consistency of the extra P1 solve with the sweep's P1 column.
-        print("    P1 currents (field solve): " + ", ".join(
-            f"{pid} {c:+.9e}" for pid, c in rung["p1_currents"].items()), flush=True)
+        print(
+            "    P1 currents (field solve): "
+            + ", ".join(f"{pid} {c:+.9e}" for pid, c in rung["p1_currents"].items()),
+            flush=True,
+        )
     _print_attribution(f"hole f = {f_hz:.3e} Hz", rung["attr"])
     return rung
 
@@ -460,11 +506,21 @@ def solid():
         pytest.skip(f"{CONTROL_ENV} != 1: solid control not requested in this window")
     rung = _four_port_rung("TH-15 solid control 10 MHz", np.zeros(LEG_COUNT), FREQUENCY_HZ)
     p1, fields = run_lumped_sheet_port_case(
-        rung["problem"], rung["port_defs"], rung["specs"], facet_tags=rung["facet_tags"],
-        driven_port_id=DRIVEN, verbose=False, return_fields=True,
+        rung["problem"],
+        rung["port_defs"],
+        rung["specs"],
+        facet_tags=rung["facet_tags"],
+        driven_port_id=DRIVEN,
+        verbose=False,
+        return_fields=True,
     )
     rung["attr"] = _power_attribution(
-        rung["mesh"], rung["cell_tags"], rung["facet_tags"], rung["specs"], p1, fields,
+        rung["mesh"],
+        rung["cell_tags"],
+        rung["facet_tags"],
+        rung["specs"],
+        p1,
+        fields,
         FREQUENCY_HZ,
     )
     _print_attribution("solid control f = 1.000e+07 Hz", rung["attr"])
@@ -492,9 +548,9 @@ def test_the_hole_birdcage_is_reciprocal(hole):
 @complex_only
 def test_the_hole_birdcage_is_passive(hole):
     sigma_max = float(np.max(hole["sigma"]))
-    assert sigma_max <= 1.0 + PASSIVITY_SIGMA_TOLERANCE, (
-        f"hole sigma_max(S) = {sigma_max:.12f} at {hole['f_hz']:.3e} Hz"
-    )
+    assert (
+        sigma_max <= 1.0 + PASSIVITY_SIGMA_TOLERANCE
+    ), f"hole sigma_max(S) = {sigma_max:.12f} at {hole['f_hz']:.3e} Hz"
 
 
 @complex_only
@@ -534,9 +590,9 @@ def test_step3c_hole_discrete_identity_with_non_phantom_term(hole):
 def test_step3c_solid_discrete_identity_with_non_phantom_term(solid):
     """(a) on the solid: the non-phantom term is the conductor loss."""
     a = solid["attr"]
-    assert _attribution_residual(a) <= DISCRETE_IDENTITY_RTOL, (
-        f"solid: rel {_attribution_residual(a):.3e} > {DISCRETE_IDENTITY_RTOL:g}"
-    )
+    assert (
+        _attribution_residual(a) <= DISCRETE_IDENTITY_RTOL
+    ), f"solid: rel {_attribution_residual(a):.3e} > {DISCRETE_IDENTITY_RTOL:g}"
 
 
 @complex_only
@@ -545,9 +601,12 @@ def test_step3c_solid_c_over_terminal_reproduces_the_2d_record(solid):
     pooled = solid["attr"]["deficit"]["pooled"]
     rel = abs(pooled / SOLID_P1_C_OVER_TERMINAL_10MHZ - 1.0)
     if MPI.COMM_WORLD.rank == 0:
-        print(f"[TH-15 step3c] solid P1 C/terminal - 1 = {pooled:.9e} vs record "
-              f"{SOLID_P1_C_OVER_TERMINAL_10MHZ:.9e}: rel {rel:.3e} "
-              f"(ASSERTED rtol {SOLID_C_OVER_TERMINAL_RTOL:g})", flush=True)
+        print(
+            f"[TH-15 step3c] solid P1 C/terminal - 1 = {pooled:.9e} vs record "
+            f"{SOLID_P1_C_OVER_TERMINAL_10MHZ:.9e}: rel {rel:.3e} "
+            f"(ASSERTED rtol {SOLID_C_OVER_TERMINAL_RTOL:g})",
+            flush=True,
+        )
     assert rel <= SOLID_C_OVER_TERMINAL_RTOL
 
 
@@ -574,7 +633,10 @@ def test_the_solid_route_reproduces_port11_10mhz_record(solid):
     s = np.asarray(rung["s"], dtype=np.complex128)
     dev = np.abs(s - LEG_D_S_MATRIX_10MHZ) / np.abs(LEG_D_S_MATRIX_10MHZ)
     if comm.rank == 0:
-        print(f"[TH-15 step3] solid control 10 MHz: {rung['cells']} cells, sweep "
-              f"{rung['sweep_time']:.1f} s, max rel |dS| vs record {float(np.max(dev)):.3e} "
-              f"(band {FREQUENCY_CONTROL_BAND:.0e})", flush=True)
+        print(
+            f"[TH-15 step3] solid control 10 MHz: {rung['cells']} cells, sweep "
+            f"{rung['sweep_time']:.1f} s, max rel |dS| vs record {float(np.max(dev)):.3e} "
+            f"(band {FREQUENCY_CONTROL_BAND:.0e})",
+            flush=True,
+        )
     assert float(np.max(dev)) < FREQUENCY_CONTROL_BAND

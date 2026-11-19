@@ -76,8 +76,14 @@ OURS_C_MODE = 1.13e-10
 def _ours_metrics(ans8):
     s = z_to_s(_z(OURS_C_MODE, 31.0), 50.0)
     pm = [(j, r) for r in ("bottom", "top") for j in range(N_SLOTS)]
-    rows = ring_mode_rows(s, port_map=pm, freq_hz=F, c_f=ans8.SPEC_C_F,
-                          feeds=[(0, "bottom"), (4, "bottom")], drives=ans8.SPEC_DRIVES)
+    rows = ring_mode_rows(
+        s,
+        port_map=pm,
+        freq_hz=F,
+        c_f=ans8.SPEC_C_F,
+        feeds=[(0, "bottom"), (4, "bottom")],
+        drives=ans8.SPEC_DRIVES,
+    )
     v2 = ans8.rows_v2(s, pm, NAMES, F)
     return {"cells": 1, "kappa": 0.0, "freq_hz": F, "rows": rows, "rows_v2": v2, "aed": None}
 
@@ -86,17 +92,25 @@ def _aed_json():
     s = z_to_s(_z(1.0987654e-10, 47.0), 50.0)
     perm = np.random.default_rng(11).permutation(32)
     s = s[np.ix_(perm, perm)]
-    return {"_provenance": "synthetic",
-            "design_zero_order": {"freq_hz": F, "port_names": [NAMES[p] for p in perm],
-                                  "S": {"re": s.real.tolist(), "im": s.imag.tolist()}}}
+    return {
+        "_provenance": "synthetic",
+        "design_zero_order": {
+            "freq_hz": F,
+            "port_names": [NAMES[p] for p in perm],
+            "S": {"re": s.real.tolist(), "im": s.imag.tolist()},
+        },
+    }
 
 
 def _sentinels(ans8):
     blk = _aed_json()["design_zero_order"]
     r = ans8.aed_rows(blk, F)["fixed_c"]
-    return (f"{r['c_mode_f'] * 1e12:.6f}", f"{r['c_k2_f'] * 1e12:.6f}",
-            f"{r['drives']['ccw']['rings']['bottom']['share_k1']:.6f}",
-            f"{r['drives']['ccw']['rings']['bottom']['leak_k0']:.6f}")
+    return (
+        f"{r['c_mode_f'] * 1e12:.6f}",
+        f"{r['c_k2_f'] * 1e12:.6f}",
+        f"{r['drives']['ccw']['rings']['bottom']['share_k1']:.6f}",
+        f"{r['drives']['ccw']['rings']['bottom']['leak_k0']:.6f}",
+    )
 
 
 def _v2_sentinels(ans8):
@@ -105,8 +119,12 @@ def _v2_sentinels(ans8):
     v2 = ans8.aed_rows(_aed_json()["design_zero_order"], F)
     own = v2["own_c_mode"]["drives"]["ccw"]["rings"]["bottom"]
     opp = v2["controls"]["fixed_c"]["opposite"]["drives"]["opposite"]["rings"]["bottom"]
-    return (f"{own['share_k1']:.6f}", f"{own['leak_k0']:.6f}", f"{opp['share_k1']:.6f}",
-            f"{v2['f0_one_point_hz'] / 1e6:.6f}")
+    return (
+        f"{own['share_k1']:.6f}",
+        f"{own['leak_k0']:.6f}",
+        f"{opp['share_k1']:.6f}",
+        f"{v2['f0_one_point_hz'] / 1e6:.6f}",
+    )
 
 
 @pytest.fixture
@@ -136,7 +154,9 @@ def test_private_writer_sentinels_and_tracked_bytes(ans8, scratch):
     note = ans8._write_private_if_available(json.loads((scratch / "metrics.json").read_text()))
     private = scratch / "COMPARISON_private.md"
     assert private.exists(), note
-    aed_rows = [ln for ln in private.read_text().splitlines() if ln.startswith("| AED design_zero_order")]
+    aed_rows = [
+        ln for ln in private.read_text().splitlines() if ln.startswith("| AED design_zero_order")
+    ]
     assert len(aed_rows) == 1
     for s in sent:
         assert s in aed_rows[0], f"sentinel {s} not in the AED row: {aed_rows[0]}"
@@ -149,7 +169,8 @@ def test_leaking_variant_is_caught(ans8, scratch):
     sent = _sentinels(ans8)
     metrics = json.loads((scratch / "metrics.json").read_text())
     leaked = (scratch / "COMPARISON.md").read_text() + ans8._private_comparison_text(
-        metrics, ans8._load_aed_results())
+        metrics, ans8._load_aed_results()
+    )
     (scratch / "COMPARISON.md").write_text(leaked)
     assert {s for _n, s in _leaks(scratch, sent)} == set(sent)
 
@@ -182,7 +203,9 @@ def test_p5_v2_sentinels_at_aed_own_c_mode(ans8, scratch):
     note = ans8._write_private_if_available(json.loads((scratch / "metrics.json").read_text()))
     private = scratch / "COMPARISON_private.md"
     assert private.exists(), note
-    row = [ln for ln in private.read_text().splitlines() if ln.startswith("| AED design_zero_order")]
+    row = [
+        ln for ln in private.read_text().splitlines() if ln.startswith("| AED design_zero_order")
+    ]
     assert len(row) == 1
     for s in sent:
         assert s in row[0], f"v2 sentinel {s} not in the AED row"
@@ -197,11 +220,14 @@ def test_p6_cross_wiring_control(ans8):
     s = ans8._parse_complex_matrix(blk["S"])
     pm = ans8._ring_modes().ring_port_map_from_names(blk["port_names"])
     feeds = [pm[blk["port_names"].index(n)] for n in ans8.SPEC_FEED_NAMES]
-    crossed = ring_mode_rows(s, port_map=pm, freq_hz=F, c_f=OURS_C_MODE, feeds=feeds,
-                             drives=ans8.SPEC_DRIVES)
+    crossed = ring_mode_rows(
+        s, port_map=pm, freq_hz=F, c_f=OURS_C_MODE, feeds=feeds, drives=ans8.SPEC_DRIVES
+    )
     a = v2["own_c_mode"]["drives"]["ccw"]["rings"]["bottom"]["share_k1"]
     b = crossed["drives"]["ccw"]["rings"]["bottom"]["share_k1"]
-    print(f"P6 AED 2b ccw share at its own C {a:.9f} vs at our C_mode {b:.9f}: |d| {abs(a - b):.3e}")
+    print(
+        f"P6 AED 2b ccw share at its own C {a:.9f} vs at our C_mode {b:.9f}: |d| {abs(a - b):.3e}"
+    )
     assert abs(a - b) > 1e-6
 
 

@@ -40,16 +40,15 @@ from mpi4py import MPI
 
 from fem_em_solver import RobinCooling, StudyConfigError, cli, load_study, run_study_file
 from fem_em_solver.thermal.probe import ball_average
-
 from tests.complex_mode import complex_only
+from tests.package.test_wf1_study_yaml import LOGS, WF1, _fresh_dir, _rc_all, _spec_diff
+from tests.package.test_wf1_yaml_thermal import _hex_diff
 from tests.package.test_wf15_study_lossy_sphere import _study
 from tests.package.test_wf15_study_probe import C2_OUT, PROBES, WHOLE
 from tests.package.test_wf15_study_temperature import _theta_owned_rel
-from tests.package.test_wf1_study_yaml import LOGS, WF1, _fresh_dir, _rc_all, _spec_diff
-from tests.package.test_wf1_yaml_thermal import _hex_diff
-from tests.validation.test_mat10_sar_to_heat_sphere import B_BAND, G, H, K, T_INF, _allsum
-from tests.validation.test_mat19_virtual_temperature_probe import N_SUB, WIDTH_BAND
 from tests.validation.test_mat5_em_coupled_sphere import L0_BAND
+from tests.validation.test_mat10_sar_to_heat_sphere import B_BAND, T_INF, G, H, K, _allsum
+from tests.validation.test_mat19_virtual_temperature_probe import N_SUB, WIDTH_BAND
 
 PROBES_FILE = WF1 / "sphere_mat10_probes.yaml"
 MALFORMED_PROBES = {
@@ -78,8 +77,10 @@ def test_wf1_probes_yaml_parse_and_refusals():
     hex_equal = [_probe_hex(a) == _probe_hex(b) for a, b in zip(parsed, ref)]
     d_cool = _hex_diff(cooling, RobinCooling(K, H, T_INF, source_scale=G))
     d_spec = _spec_diff(study, _study(degree=1))
-    _p0(f"\n[WF-1 s6] (K) {len(parsed)} probes parsed; hex equal per probe {hex_equal}; "
-        f"cooling diff {d_cool}; spec diff vs _study(degree=1) {d_spec}")
+    _p0(
+        f"\n[WF-1 s6] (K) {len(parsed)} probes parsed; hex equal per probe {hex_equal}; "
+        f"cooling diff {d_cool}; spec diff vs _study(degree=1) {d_spec}"
+    )
     for p in parsed:
         _p0(f"  (K) {_probe_hex(p)}")
     assert kind == "sphere_in_box"
@@ -122,12 +123,16 @@ def case():
     t_run = time.perf_counter() - t0
     with open(d / "summary.json") as fh:
         summary = json.load(fh)
-    _p0(f"\n[WF-1 s6] run_study_file {t_run:.1f} s (summary elapsed {summary['elapsed_s']:.1f} s); "
-        f"summary['probes'] {summary['probes']}")
+    _p0(
+        f"\n[WF-1 s6] run_study_file {t_run:.1f} s (summary elapsed {summary['elapsed_s']:.1f} s); "
+        f"summary['probes'] {summary['probes']}"
+    )
     # Disclosure: the temperature block's θ vs the probe's θ (two thermal solves).
     two_theta, _ = _theta_owned_rel(run.thermal.temperature, run.probes.thermal.temperature, comm)
-    _p0(f"  temperature-block θ vs probe θ owned max rel {two_theta:.3e} (printed; one EM solve: "
-        f"{run.study.result is run.result})")
+    _p0(
+        f"  temperature-block θ vs probe θ owned max rel {two_theta:.3e} (printed; one EM solve: "
+        f"{run.study.result is run.result})"
+    )
     return {"run": run, "summary": summary, "t_run": t_run}
 
 
@@ -141,14 +146,17 @@ def test_wf1_probes_yaml_whole_ball_identity(case):
     assert run.study.result is run.result, "(Once) a second EM solve happened"
     sub, theta = pr.thermal.submesh, pr.theta
     cells = int(sub.topology.index_map(3).size_global)
-    v_sub = float(np.real(_allsum(comm, fem.Constant(sub, default_scalar_type(1.0))
-                                  * ufl.dx(domain=sub))))
+    v_sub = float(
+        np.real(_allsum(comm, fem.Constant(sub, default_scalar_type(1.0)) * ufl.dx(domain=sub)))
+    )
     mean = float(np.real(_allsum(comm, theta * ufl.dx(domain=sub)))) / v_sub
     a_val = abs(summary["probes"]["values_k"][0] - mean) / abs(mean)
     a_vol = abs(summary["probes"]["volumes_m3"][0] / v_sub - 1.0)
-    _p0(f"\n[WF-1 s6] (A0) sub cells {cells} (N_SUB {N_SUB}); (A) |P - int/V|/|int/V| = "
+    _p0(
+        f"\n[WF-1 s6] (A0) sub cells {cells} (N_SUB {N_SUB}); (A) |P - int/V|/|int/V| = "
         f"{a_val:.3e}, |V_h/V_sub - 1| = {a_vol:.3e} (band {B_BAND:.0e}); V_sub {v_sub:.10e}; "
-        f"whole-ball mean {mean:.10e} K")
+        f"whole-ball mean {mean:.10e} K"
+    )
     assert cells == N_SUB, f"(A0) {cells}"
     assert a_val <= B_BAND, f"(A) value {a_val:.3e}"
     assert a_vol <= B_BAND, f"(A) volume {a_vol:.3e}"
@@ -163,8 +171,10 @@ def test_wf1_probes_yaml_equals_api(case):
     mem = run.summary["probes"]
     equal = summary["probes"]["values_k"] == direct
     json_equal = summary["probes"] == mem
-    _p0(f"\n[WF-1 s6] (U′) summary values {summary['probes']['values_k']!r}; direct "
-        f"{direct!r}; equal {equal}; JSON == memory {json_equal}")
+    _p0(
+        f"\n[WF-1 s6] (U′) summary values {summary['probes']['values_k']!r}; direct "
+        f"{direct!r}; equal {equal}; JSON == memory {json_equal}"
+    )
     assert equal, (summary["probes"]["values_k"], direct)
     assert json_equal
     assert mem["values_k"] == [float(v) for v in pr.values]
@@ -182,8 +192,10 @@ def test_wf1_probes_yaml_vs_python_study(case):
     t_py = time.perf_counter() - t0
     yv = np.asarray(summary["probes"]["values_k"])
     rel = np.abs(np.asarray(pr_py.values) - yv) / np.abs(yv)
-    _p0(f"\n[WF-1 s6] (IT) per probe rel {rel.tolist()!r}; max {float(np.max(rel)):.3e} "
-        f"(band {L0_BAND:.0e}); Python Study + probe {t_py:.1f} s")
+    _p0(
+        f"\n[WF-1 s6] (IT) per probe rel {rel.tolist()!r}; max {float(np.max(rel)):.3e} "
+        f"(band {L0_BAND:.0e}); Python Study + probe {t_py:.1f} s"
+    )
     assert float(np.max(rel)) <= L0_BAND, f"(IT) {float(np.max(rel)):.3e}"
 
 
@@ -194,6 +206,8 @@ def test_wf1_probes_yaml_negative_control(case):
     v_out = float(ball_average(run.probes.theta, C2_OUT)[0])
     c2 = summary["probes"]["values_k"][3]
     c1 = abs(v_out - c2) / abs(c2)
-    _p0(f"\n[WF-1 s6] (c1) c2 +0.1 mm: |d|/theta = {c1:.4e} (item 326 read 7.5333e-03; "
-        f"band {WIDTH_BAND:.0e})")
+    _p0(
+        f"\n[WF-1 s6] (c1) c2 +0.1 mm: |d|/theta = {c1:.4e} (item 326 read 7.5333e-03; "
+        f"band {WIDTH_BAND:.0e})"
+    )
     assert c1 > WIDTH_BAND, f"(c1) {c1:.3e} did not miss {WIDTH_BAND:.0e}"

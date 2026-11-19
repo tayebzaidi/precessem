@@ -28,8 +28,7 @@ from mpi4py import MPI
 
 from fem_em_solver.thermal.dose import cem43, running_average
 from fem_em_solver.utils.analytical import pec_sphere_implant_duty_cycle_from_modes
-
-from tests.validation.test_imp7_duty_cycle_fem import A, B, PERIOD, S0_BAND, _chi
+from tests.validation.test_imp7_duty_cycle_fem import PERIOD, S0_BAND, A, B, _chi
 from tests.validation.test_imp7_duty_dose_closed_form import (
     AVG_BAR,
     DOSE_BAR,
@@ -77,8 +76,9 @@ def _say(msg):
 
 def _mids():
     """The schedule's evaluation times (`transient.py:352–357`)."""
-    return ([(i + 0.5) * (0.5 * DT) for i in range(STARTUP)]
-            + [(STARTUP // 2 + i + 0.5) * DT for i in range(N_RUN - STARTUP // 2)])
+    return [(i + 0.5) * (0.5 * DT) for i in range(STARTUP)] + [
+        (STARTUP // 2 + i + 0.5) * DT for i in range(N_RUN - STARTUP // 2)
+    ]
 
 
 def _census_25(mult):
@@ -95,10 +95,20 @@ def _duty_fn_at(t, duty):
         n = x.shape[1]
         out = np.empty(n)
         for s in range(0, n, INTERP_CHUNK):
-            out[s:s + INTERP_CHUNK] = pec_sphere_implant_duty_cycle_from_modes(
-                x[:, s:s + INTERP_CHUNK].T, t, modes, rho_c=RHO_C, t_inf=T_INF,
-                period=PERIOD, duty=duty) - T_INF
+            out[s : s + INTERP_CHUNK] = (
+                pec_sphere_implant_duty_cycle_from_modes(
+                    x[:, s : s + INTERP_CHUNK].T,
+                    t,
+                    modes,
+                    rho_c=RHO_C,
+                    t_inf=T_INF,
+                    period=PERIOD,
+                    duty=duty,
+                )
+                - T_INF
+            )
         return out
+
     return ev
 
 
@@ -108,17 +118,29 @@ def fem_dose():
     out = {}
     res = LADDER[0]
     sub, sft, q_f, t_build, parent = _shell_fixture(res)
-    _say(f"\nIMP7-11 res={res} sub_cells={sub.topology.index_map(3).size_global} "
-         f"build={t_build:.1f}s; ranks {sub.comm.size}; dt {DT:.4f} s, {N_RUN} steps to "
-         f"{T_END:.4f} s, period {PERIOD:.4f} s, duty {D25}")
-    cn, ts = _transient(sub, sft, q_f, dt=DT, n_steps=N_RUN, theta=0.5,
-                        startup_half_steps=STARTUP, source_schedule=_chi(PERIOD, D25),
-                        snapshot_steps=tuple(range(N_RUN + 1)))
+    _say(
+        f"\nIMP7-11 res={res} sub_cells={sub.topology.index_map(3).size_global} "
+        f"build={t_build:.1f}s; ranks {sub.comm.size}; dt {DT:.4f} s, {N_RUN} steps to "
+        f"{T_END:.4f} s, period {PERIOD:.4f} s, duty {D25}"
+    )
+    cn, ts = _transient(
+        sub,
+        sft,
+        q_f,
+        dt=DT,
+        n_steps=N_RUN,
+        theta=0.5,
+        startup_half_steps=STARTUP,
+        source_schedule=_chi(PERIOD, D25),
+        snapshot_steps=tuple(range(N_RUN + 1)),
+    )
     out["E"] = float(cn.max_balance_residual)
     out["S0"], tot = _census_25(cn.source_multipliers)
-    _say(f"IMP7-11 CN solve {ts:.1f}s; (E) {out['E']:.3e} (E_BAND {E_BAND:.0e}); (S0) sum chi*dt "
-         f"{tot:.9f} s vs {ON_END_25:.9f} s rel {out['S0']:.3e} (bar {S0_BAND:.0e}); "
-         f"{len(cn.source_multipliers)} (half-)steps; first two {list(cn.source_multipliers[:2])}")
+    _say(
+        f"IMP7-11 CN solve {ts:.1f}s; (E) {out['E']:.3e} (E_BAND {E_BAND:.0e}); (S0) sum chi*dt "
+        f"{tot:.9f} s vs {ON_END_25:.9f} s rel {out['S0']:.3e} (bar {S0_BAND:.0e}); "
+        f"{len(cn.source_multipliers)} (half-)steps; first two {list(cn.source_multipliers[:2])}"
+    )
 
     tq = time.perf_counter()
     th_h = np.empty((N_RUN + 1, M_PTS.shape[0]))
@@ -128,25 +150,33 @@ def fem_dose():
         th_h[k] = th
         ok_all &= ok
     out["th"], out["ok"] = th_h, ok_all
-    _say(f"IMP7-11 reads: {N_RUN + 1} batches of {M_PTS.shape[0]} in "
-         f"{time.perf_counter() - tq:.1f}s; valid {ok_all.tolist()}")
+    _say(
+        f"IMP7-11 reads: {N_RUN + 1} batches of {M_PTS.shape[0]} in "
+        f"{time.perf_counter() - tq:.1f}s; valid {ok_all.tolist()}"
+    )
 
     tq = time.perf_counter()
     e_all, out["T"] = _err(sub, cn.snapshots[N_RUN], _duty_fn_at(T_END, D25))
-    _say(f"IMP7-11 (T) at 4 t*: interior rel L2 {out['T']:.4e} (INTERIOR_BAND "
-         f"{INTERIOR_BAND:.0e}); whole {e_all:.4e} (printed); {time.perf_counter() - tq:.1f}s")
+    _say(
+        f"IMP7-11 (T) at 4 t*: interior rel L2 {out['T']:.4e} (INTERIOR_BAND "
+        f"{INTERIOR_BAND:.0e}); whole {e_all:.4e} (printed); {time.perf_counter() - tq:.1f}s"
+    )
     tq = time.perf_counter()
     out["cC"] = _err(sub, cn.snapshots[N_RUN], _series_fn(T_END, "neumann"))[1]
     out["c50"] = _err(sub, cn.snapshots[N_RUN], _duty_fn_at(T_END, 0.5))[1]
-    _say(f"IMP7-11 controls at T_END: continuous series miss {out['cC']:.4e}, D = 0.5 series miss "
-         f"{out['c50']:.4e} (each asserted > {INTERIOR_BAND:.0e}); "
-         f"{time.perf_counter() - tq:.1f}s")
+    _say(
+        f"IMP7-11 controls at T_END: continuous series miss {out['cC']:.4e}, D = 0.5 series miss "
+        f"{out['c50']:.4e} (each asserted > {INTERIOR_BAND:.0e}); "
+        f"{time.perf_counter() - tq:.1f}s"
+    )
     cn.snapshots.clear()
 
     tq = time.perf_counter()
     out["th_s"] = _duty_hist_at(_modes(), M_PTS, D25)
-    _say(f"IMP7-11 series history {out['th_s'].shape} in {time.perf_counter() - tq:.1f}s; "
-         f"fixture elapsed {time.perf_counter() - t0:.1f}s")
+    _say(
+        f"IMP7-11 series history {out['th_s'].shape} in {time.perf_counter() - tq:.1f}s; "
+        f"fixture elapsed {time.perf_counter() - t0:.1f}s"
+    )
     return out
 
 
@@ -159,8 +189,10 @@ def test_imp7_11_w0_grid_and_census():
     chi = _chi(PERIOD, D25)
     mult = [chi(t) for t in _mids()]
     rel, tot = _census_25(mult)
-    _say(f"IMP7-11 W0: {len(mult)} (half-)steps, on {int(sum(mult))}; first two {mult[:2]}; sum "
-         f"chi*dt {tot:.9f} s vs {ON_END_25:.9f} s rel {rel:.3e} (bar {S0_BAND:.0e})")
+    _say(
+        f"IMP7-11 W0: {len(mult)} (half-)steps, on {int(sum(mult))}; first two {mult[:2]}; sum "
+        f"chi*dt {tot:.9f} s vs {ON_END_25:.9f} s rel {rel:.3e} (bar {S0_BAND:.0e})"
+    )
     assert mult[:2] == [1.0, 1.0]
     assert rel <= S0_BAND, rel
 
@@ -178,9 +210,11 @@ def test_preconditions(fem_dose):
 
 def test_t_at_end_and_series_controls(fem_dose):
     e, c, c50 = fem_dose["T"], fem_dose["cC"], fem_dose["c50"]
-    _say(f"IMP7-11 gates: (T) {e:.4e} <= {INTERIOR_BAND:.0e} "
-         f"{'PASS' if e <= INTERIOR_BAND else 'FAIL'}; (c-cont) {c:.4e}, (c-50) {c50:.4e}, each > "
-         f"{INTERIOR_BAND:.0e} {'PASS' if min(c, c50) > INTERIOR_BAND else 'FAIL'}")
+    _say(
+        f"IMP7-11 gates: (T) {e:.4e} <= {INTERIOR_BAND:.0e} "
+        f"{'PASS' if e <= INTERIOR_BAND else 'FAIL'}; (c-cont) {c:.4e}, (c-50) {c50:.4e}, each > "
+        f"{INTERIOR_BAND:.0e} {'PASS' if min(c, c50) > INTERIOR_BAND else 'FAIL'}"
+    )
     assert e <= INTERIOR_BAND, e
     assert c > INTERIOR_BAND, c
     assert c50 > INTERIOR_BAND, c50
@@ -193,11 +227,15 @@ def test_q_hd_win_hd_and_rc_hd(fem_dose):
             th = th_d[:, j] * scale
             dose, ref, rel, swap, miss = _q_check(T_GRID, T_INF + th)
             mx, t_mx, lo, hi, wref, wrel = _win_check(T_GRID, th)
-            _say(f"IMP7-11 (Q-hd) {lab} {name}: FEM CEM43 {dose:.6e} s vs quad {ref:.6e} s rel "
-                 f"{rel:.3e} (bar {DOSE_BAR:g}, ASSERTED); (Rc-hd) swap miss {miss:.4e} (asserted "
-                 f"> {DOSE_BAR:g}), factor {swap / ref:.3e}")
-            _say(f"IMP7-11 (Win-hd) {lab} {name}: max six-minute mean {mx:.6e} K at {t_mx:.2f} s; "
-                 f"[{lo:.6e}, {hi:.6e}]; quad {wref:.6e} rel {wrel:.3e} (bar {AVG_BAR:g}, ASSERTED)")
+            _say(
+                f"IMP7-11 (Q-hd) {lab} {name}: FEM CEM43 {dose:.6e} s vs quad {ref:.6e} s rel "
+                f"{rel:.3e} (bar {DOSE_BAR:g}, ASSERTED); (Rc-hd) swap miss {miss:.4e} (asserted "
+                f"> {DOSE_BAR:g}), factor {swap / ref:.3e}"
+            )
+            _say(
+                f"IMP7-11 (Win-hd) {lab} {name}: max six-minute mean {mx:.6e} K at {t_mx:.2f} s; "
+                f"[{lo:.6e}, {hi:.6e}]; quad {wref:.6e} rel {wrel:.3e} (bar {AVG_BAR:g}, ASSERTED)"
+            )
             assert rel <= DOSE_BAR, (lab, name, rel)
             assert miss > DOSE_BAR, (lab, name, miss)
             assert T_GRID[0] + W_B2 <= t_mx <= T_GRID[-1], (lab, name, t_mx)
@@ -211,9 +249,11 @@ def test_printed_gap_and_headroom_records(fem_dose):
     th_h, th_s = fem_dose["th"], fem_dose["th_s"]
     W = float(W_B2)
     p = ITEM_700_POLE
-    _say(f"IMP7-11 GAP item 700 D=0.5 pole: peak-scale dose rel {p[0]:.3e}; equal-mean rel "
-         f"{p[1]:.3e}; six-minute peak {p[2]:.6f} K vs {p[3]:.6f} K; max_n|dtheta| {p[4]:.3e} K; "
-         f"cap {CAP_50_POLE:.4e} K; headroom cap/M_p {CAP_50_POLE / p[4]:.3f}")
+    _say(
+        f"IMP7-11 GAP item 700 D=0.5 pole: peak-scale dose rel {p[0]:.3e}; equal-mean rel "
+        f"{p[1]:.3e}; six-minute peak {p[2]:.6f} K vs {p[3]:.6f} K; max_n|dtheta| {p[4]:.3e} K; "
+        f"cap {CAP_50_POLE:.4e} K; headroom cap/M_p {CAP_50_POLE / p[4]:.3f}"
+    )
     for j, name in enumerate(M_LABELS):
         d_h = cem43(T_GRID, T_INF + th_h[:, j])
         d_s = cem43(T_GRID, T_INF + th_s[:, j])
@@ -223,11 +263,15 @@ def test_printed_gap_and_headroom_records(fem_dose):
         _a, mx_s, t_s = running_average(T_GRID, th_s[:, j], window=W)
         M = float(np.max(np.abs(th_h[:, j] - th_s[:, j])))
         cap = INTERIOR_BAND * float(np.max(th_s[:, j]))
-        _say(f"IMP7-11 GAP D=0.25 {name}: peak-scale dose {d_h:.6e} s vs {d_s:.6e} s, rel "
-             f"{abs(d_h / d_s - 1.0):.3e}; equal-mean {de_h:.6e} s vs {de_s:.6e} s, rel "
-             f"{abs(de_h / de_s - 1.0):.3e}; six-minute peak {mx_h:.6f} K at {t_h:.2f} s vs "
-             f"{mx_s:.6f} K at {t_s:.2f} s, delta {mx_h - mx_s:+.3e} K; max_n|dtheta| {M:.3e} K")
-        _say(f"IMP7-11 (Bd-ii) D=0.25 {name}: M_p {M:.4e} K vs cap {cap:.4e} K, headroom cap/M_p "
-             f"{cap / M:.3f} (a reading, no gate); t(M_p) "
-             f"{T_GRID[int(np.argmax(np.abs(th_h[:, j] - th_s[:, j])))]:.2f} s")
+        _say(
+            f"IMP7-11 GAP D=0.25 {name}: peak-scale dose {d_h:.6e} s vs {d_s:.6e} s, rel "
+            f"{abs(d_h / d_s - 1.0):.3e}; equal-mean {de_h:.6e} s vs {de_s:.6e} s, rel "
+            f"{abs(de_h / de_s - 1.0):.3e}; six-minute peak {mx_h:.6f} K at {t_h:.2f} s vs "
+            f"{mx_s:.6f} K at {t_s:.2f} s, delta {mx_h - mx_s:+.3e} K; max_n|dtheta| {M:.3e} K"
+        )
+        _say(
+            f"IMP7-11 (Bd-ii) D=0.25 {name}: M_p {M:.4e} K vs cap {cap:.4e} K, headroom cap/M_p "
+            f"{cap / M:.3f} (a reading, no gate); t(M_p) "
+            f"{T_GRID[int(np.argmax(np.abs(th_h[:, j] - th_s[:, j])))]:.2f} s"
+        )
         assert np.isfinite(d_h / d_s)

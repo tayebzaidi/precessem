@@ -47,7 +47,7 @@ def _count(data: bytes) -> int:
 def _tail(data: bytes) -> bytes:
     i = data.find(b"\n" + MARK)
     assert i >= 0
-    return data[i + 1:]
+    return data[i + 1 :]
 
 
 def test_k1_d1_column_matches_committed(ans9):
@@ -60,7 +60,9 @@ def test_k1_d1_column_matches_committed(ans9):
     else:
         src = m
         shared = [k for k in d1 if k in src]
-        print(f"(K1) source top-level (pre-1d), {len(shared)} shared keys; em_element {src['em_element']}")
+        print(
+            f"(K1) source top-level (pre-1d), {len(shared)} shared keys; em_element {src['em_element']}"
+        )
         assert src["em_element"] == "N1curl degree 1"
         assert len(shared) >= 20
         for k in shared:
@@ -75,8 +77,10 @@ def test_r_keep_verdict_tail_byte_identical(ans9, tmp_path):
     ans9._write_comparison(tmp_path, m)
     out = (tmp_path / "COMPARISON.md").read_bytes()
     t_in, t_out = _tail(committed), _tail(out)
-    print(f"(R-keep) tail {len(t_in)} B in, {len(t_out)} B out; '## Verdict' count in {_count(committed)}, "
-          f"out {_count(out)}")
+    print(
+        f"(R-keep) tail {len(t_in)} B in, {len(t_out)} B out; '## Verdict' count in {_count(committed)}, "
+        f"out {_count(out)}"
+    )
     assert _count(committed) == 1
     assert _count(out) == 1
     assert t_out == t_in

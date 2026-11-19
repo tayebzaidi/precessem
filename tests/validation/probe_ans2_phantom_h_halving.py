@@ -25,9 +25,8 @@ import time
 from pathlib import Path
 
 import numpy as np
-from mpi4py import MPI
-
 from dolfinx import default_scalar_type
+from mpi4py import MPI
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(_REPO_ROOT) not in sys.path:
@@ -52,9 +51,7 @@ def _global_phantom_cells(msh, cell_tags, comm) -> int:
     """Tag-3 cell count, owned cells only, reduced — ``.values`` is rank-local."""
     n_local = msh.topology.index_map(msh.topology.dim).size_local
     local = int(
-        np.count_nonzero(
-            (cell_tags.values == PHANTOM_CELL_TAG) & (cell_tags.indices < n_local)
-        )
+        np.count_nonzero((cell_tags.values == PHANTOM_CELL_TAG) & (cell_tags.indices < n_local))
     )
     return int(comm.allreduce(local, op=MPI.SUM))
 
@@ -62,9 +59,7 @@ def _global_phantom_cells(msh, cell_tags, comm) -> int:
 def main() -> None:
     comm = MPI.COMM_WORLD
     if not np.issubdtype(np.dtype(default_scalar_type), np.complexfloating):
-        raise RuntimeError(
-            "complex build required: source /usr/local/bin/dolfinx-complex-mode"
-        )
+        raise RuntimeError("complex build required: source /usr/local/bin/dolfinx-complex-mode")
 
     res = HALVED_RUNG_PHANTOM_RESOLUTION_M
     if comm.rank == 0:
@@ -119,7 +114,11 @@ def main() -> None:
             f"({four_drives / 60.0:.1f} min) plus post-processing\n"
             f"[probe] STOP RULE (§9 item 1): stop if > 900 s or > 40 GiB summed "
             f"-> reads {four_drives:.0f} s / {sum(per_rank):.2f} GiB -> "
-            + ("STOP (re-price to XL)" if (four_drives > 900.0 or sum(per_rank) > 40.0) else "PROCEED"),
+            + (
+                "STOP (re-price to XL)"
+                if (four_drives > 900.0 or sum(per_rank) > 40.0)
+                else "PROCEED"
+            ),
             flush=True,
         )
 

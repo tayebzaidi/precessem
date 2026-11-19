@@ -161,13 +161,19 @@ def _feeds_32(ids, geo, offset_slots=QUADRATURE_SLOT_OFFSET_32):
 
     _n, az0, z0 = geo[DRIVEN]
     target = az0 + offset_slots * AZIMUTH_STEP_DEG
-    cands = [pid for pid in ids if pid != DRIVEN and np.sign(geo[pid][2]) == np.sign(z0)
-             and abs(_ang(geo[pid][1] - target)) < AZIMUTH_MATCH_DEG]
+    cands = [
+        pid
+        for pid in ids
+        if pid != DRIVEN
+        and np.sign(geo[pid][2]) == np.sign(z0)
+        and abs(_ang(geo[pid][1] - target)) < AZIMUTH_MATCH_DEG
+    ]
     if len(cands) != 1:
         raise AssertionError(
             f"(F) {len(cands)} candidates for feed2 at az {target % 360.0:.9f} deg on {DRIVEN}'s "
             f"ring: {cands}; measured azimuths "
-            + ", ".join(f"{p} {geo[p][1]:.6f}" for p in ids if np.sign(geo[p][2]) == np.sign(z0)))
+            + ", ".join(f"{p} {geo[p][1]:.6f}" for p in ids if np.sign(geo[p][2]) == np.sign(z0))
+        )
     feed2 = cands[0]
     d_az = (geo[feed2][1] - az0) % 360.0
     return [DRIVEN, feed2], (az0, geo[feed2][1]), (az0 + 45.0) % 360.0, d_az
@@ -184,8 +190,11 @@ def _k1_shares_32(currents, order, slots):
                 vec[k] = currents[idx]
         spec = np.fft.fft(vec)
         total = float(np.sum(np.abs(spec) ** 2))
-        out[sign] = (float((abs(spec[1]) ** 2 + abs(spec[LEG_COUNT - 1]) ** 2) / total)
-                     if total else float("nan"))
+        out[sign] = (
+            float((abs(spec[1]) ** 2 + abs(spec[LEG_COUNT - 1]) ** 2) / total)
+            if total
+            else float("nan")
+        )
     return out
 
 
@@ -258,10 +267,13 @@ def _apply_degree_c4(ctx, comm):
     n_edges = int(msh.topology.index_map(1).size_global)
     n_faces = int(msh.topology.index_map(2).size_global)
     expected = n_edges if degree == 1 else 2 * n_edges + 2 * n_faces
-    _say(comm, f"(Deg) knob {knob}; solver.degree {solver.degree}; global unknowns {n_dofs} vs "
-               f"{'E' if degree == 1 else '2E+2F'} = {expected} (E {n_edges}, F {n_faces}; records "
-               f"U1 {F_CLINICAL_R1_UNKNOWNS_RECORD[0]}, U2 {F_CLINICAL_R1_UNKNOWNS_RECORD[1]}; "
-               f"ASSERTED exact)")
+    _say(
+        comm,
+        f"(Deg) knob {knob}; solver.degree {solver.degree}; global unknowns {n_dofs} vs "
+        f"{'E' if degree == 1 else '2E+2F'} = {expected} (E {n_edges}, F {n_faces}; records "
+        f"U1 {F_CLINICAL_R1_UNKNOWNS_RECORD[0]}, U2 {F_CLINICAL_R1_UNKNOWNS_RECORD[1]}; "
+        f"ASSERTED exact)",
+    )
     assert solver.degree == degree, (solver.degree, degree)
     assert n_dofs == expected, (n_dofs, expected, n_edges, n_faces)
     return solver, degree, {"n_dofs": n_dofs, "n_edges": n_edges, "n_faces": n_faces}
@@ -303,18 +315,24 @@ def _build_c4_fixture(comm):
     fi = np.asarray(facets.indices)
     cav_p = _facet_coords(msh, _owned(msh, fi[fv == BIRDCAGE_CONDUCTOR_SURFACE_TAG])).reshape(-1, 3)
     cav_hmax = comm.allreduce(
-        float(np.hypot(cav_p[:, 0], cav_p[:, 1]).max()) if len(cav_p) else 0.0, op=MPI.MAX)
-    _say(comm, f"fixture: t_build {t_build:.1f} s at -n {comm.size} (PREDICTED "
-               f"{PREDICTED_T_BUILD_S[0]:.0f}-{PREDICTED_T_BUILD_S[1]:.0f} s, printed); (A0) cells "
-               f"{n_cells} vs record {F_CLINICAL_R1_CELL_RECORD}, rel {cell_rel:.3e} (band "
-               f"{CELL_COUNT_BAND}, ASSERTED; PREDICTED rel 0); (iv) failures "
-               f"{census_fails or 'none'}; outer census {oc}; (S) cavity max hypot {cav_hmax:.9f} m "
-               f"< R_s {R_s} (ASSERTED); f = omega/2pi rel to 64 MHz {f_rel:.1e} (ASSERTED <= 1e-12)")
+        float(np.hypot(cav_p[:, 0], cav_p[:, 1]).max()) if len(cav_p) else 0.0, op=MPI.MAX
+    )
+    _say(
+        comm,
+        f"fixture: t_build {t_build:.1f} s at -n {comm.size} (PREDICTED "
+        f"{PREDICTED_T_BUILD_S[0]:.0f}-{PREDICTED_T_BUILD_S[1]:.0f} s, printed); (A0) cells "
+        f"{n_cells} vs record {F_CLINICAL_R1_CELL_RECORD}, rel {cell_rel:.3e} (band "
+        f"{CELL_COUNT_BAND}, ASSERTED; PREDICTED rel 0); (iv) failures "
+        f"{census_fails or 'none'}; outer census {oc}; (S) cavity max hypot {cav_hmax:.9f} m "
+        f"< R_s {R_s} (ASSERTED); f = omega/2pi rel to 64 MHz {f_rel:.1e} (ASSERTED <= 1e-12)",
+    )
     assert abs(f_rel) <= 1e-12, f_rel
     assert abs(cell_rel) <= CELL_COUNT_BAND, cell_rel
     assert not census_fails, census_fails
     assert oc["tag_collision"] == 0 and oc["cavity"] > 0, oc
-    assert oc["cavity_exterior"] == oc["cavity"] and oc["outer"] + oc["cavity"] == oc["exterior"], oc
+    assert (
+        oc["cavity_exterior"] == oc["cavity"] and oc["outer"] + oc["cavity"] == oc["exterior"]
+    ), oc
     assert cav_hmax < R_s, (cav_hmax, R_s)
 
     # ---- (C) census, (W) widths, (Az) layout, (U1) — C3a's helpers ------
@@ -330,15 +348,27 @@ def _build_c4_fixture(comm):
     az_fails, az_worst = c3._layout_failures(ids, geo)
     v_space = ctx["solver"].function_space()
     u1 = int(v_space.dofmap.index_map.size_global * v_space.dofmap.index_map_bs)
-    _say(comm, f"(C) {len(ids)} specs (= 2*LEG_COUNT {2 * LEG_COUNT}), owned facets per sheet min "
-               f"{min(owned_counts.values())} max {max(owned_counts.values())}; failures "
-               f"{c_fails or 'none'} (ASSERTED)")
-    _say(comm, f"(W) sheet widths vs 2r+2c = {w_expected:.6f} m: worst rel {w_worst:.3e} "
-               f"(band STRIP_BAND {STRIP_BAND:g}, ASSERTED)")
-    _say(comm, f"(Az) worst slot residual {az_worst:.3e} deg (< {AZIMUTH_MATCH_DEG:.0e}, ASSERTED); "
-               f"layout failures {az_fails or 'none'}")
-    _say(comm, f"(U1) N1curl global size x bs = {u1} vs record {F_CLINICAL_R1_UNKNOWNS_RECORD[0]} "
-               f"(EXACT, ASSERTED)")
+    _say(
+        comm,
+        f"(C) {len(ids)} specs (= 2*LEG_COUNT {2 * LEG_COUNT}), owned facets per sheet min "
+        f"{min(owned_counts.values())} max {max(owned_counts.values())}; failures "
+        f"{c_fails or 'none'} (ASSERTED)",
+    )
+    _say(
+        comm,
+        f"(W) sheet widths vs 2r+2c = {w_expected:.6f} m: worst rel {w_worst:.3e} "
+        f"(band STRIP_BAND {STRIP_BAND:g}, ASSERTED)",
+    )
+    _say(
+        comm,
+        f"(Az) worst slot residual {az_worst:.3e} deg (< {AZIMUTH_MATCH_DEG:.0e}, ASSERTED); "
+        f"layout failures {az_fails or 'none'}",
+    )
+    _say(
+        comm,
+        f"(U1) N1curl global size x bs = {u1} vs record {F_CLINICAL_R1_UNKNOWNS_RECORD[0]} "
+        f"(EXACT, ASSERTED)",
+    )
     assert not c_fails, c_fails
     assert w_worst <= STRIP_BAND, sorted(w_rel.items(), key=lambda kv: -kv[1])[:4]
     assert not az_fails, az_fails
@@ -348,20 +378,33 @@ def _build_c4_fixture(comm):
     # ---- (F) the two-port feed -------------------------------------------
     feeds, az_feeds, az_bis, d_az = _feeds_32(ids, geo)
     f_res = abs(_ang(d_az - 90.0))
-    _say(comm, f"(F) feeds {feeds}: az {az_feeds[0]:.9f} / {az_feeds[1]:.9f} deg, z sign "
-               f"{np.sign(geo[feeds[0]][2]):+.0f} / {np.sign(geo[feeds[1]][2]):+.0f}; delta az "
-               f"{d_az:.9f} deg (90 within {AZIMUTH_MATCH_DEG:.0e}, ASSERTED; one candidate "
-               f"ASSERTED); bisector az(P33) + 45 = {az_bis:.9f} deg (PREDICTED feed2 "
-               f"{PREDICTED_FEED2}, az(P33) {PREDICTED_AZ_P33_DEG}, bisector "
-               f"{PREDICTED_BISECTOR_DEG}; printed)")
+    _say(
+        comm,
+        f"(F) feeds {feeds}: az {az_feeds[0]:.9f} / {az_feeds[1]:.9f} deg, z sign "
+        f"{np.sign(geo[feeds[0]][2]):+.0f} / {np.sign(geo[feeds[1]][2]):+.0f}; delta az "
+        f"{d_az:.9f} deg (90 within {AZIMUTH_MATCH_DEG:.0e}, ASSERTED; one candidate "
+        f"ASSERTED); bisector az(P33) + 45 = {az_bis:.9f} deg (PREDICTED feed2 "
+        f"{PREDICTED_FEED2}, az(P33) {PREDICTED_AZ_P33_DEG}, bisector "
+        f"{PREDICTED_BISECTOR_DEG}; printed)",
+    )
     assert f_res < AZIMUTH_MATCH_DEG, (d_az, f_res)
     assert np.sign(geo[feeds[0]][2]) == np.sign(geo[feeds[1]][2])
 
     solver, degree, counts = _apply_degree_c4(ctx, comm)
     del solver
-    return {"built": built, "ctx": ctx, "cells": n_cells, "t_build": t_build, "ids": ids,
-            "geo": geo, "feeds": feeds, "az_bisector": az_bis, "degree": degree,
-            "counts": counts, "u1": u1}
+    return {
+        "built": built,
+        "ctx": ctx,
+        "cells": n_cells,
+        "t_build": t_build,
+        "ids": ids,
+        "geo": geo,
+        "feeds": feeds,
+        "az_bisector": az_bis,
+        "degree": degree,
+        "counts": counts,
+        "u1": u1,
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -391,11 +434,14 @@ def _run_build(comm, monkeypatch):
     c_f = SPEC_WIRING_C_PF * 1e-12
     specs, z_rc, z_th = _esr_specs(base_specs, out["feeds"], c_f, frequency_hz, z0)
     z_fails, im_worst, th_worst = _z_failures(specs, base_ids, out["feeds"], c_f, frequency_hz, z0)
-    _say(comm, f"(Z) at C = {SPEC_WIRING_C_PF} pF (wiring value, not a node, not a prediction): "
-               f"Z_RC {z_rc:.9e} Ohm on {len(specs) - 2} sheets (Re = {ESR_OHM} exact, Im rel "
-               f"{im_worst:.1e} <= 1e-12), Z_th {z_th:.9e} Ohm on {out['feeds']} (rel {th_worst:.1e} "
-               f"<= 1e-15); kappa None on all {len(specs)}; ids unchanged; failures "
-               f"{z_fails or 'none'} (ASSERTED)")
+    _say(
+        comm,
+        f"(Z) at C = {SPEC_WIRING_C_PF} pF (wiring value, not a node, not a prediction): "
+        f"Z_RC {z_rc:.9e} Ohm on {len(specs) - 2} sheets (Re = {ESR_OHM} exact, Im rel "
+        f"{im_worst:.1e} <= 1e-12), Z_th {z_th:.9e} Ohm on {out['feeds']} (rel {th_worst:.1e} "
+        f"<= 1e-15); kappa None on all {len(specs)}; ids unchanged; failures "
+        f"{z_fails or 'none'} (ASSERTED)",
+    )
     assert not z_fails, z_fails
     assert len(specs) == 64
 
@@ -407,20 +453,29 @@ def _run_build(comm, monkeypatch):
     n2 = counts2["n_dofs"]
     assert counts2["n_edges"] == e and counts2["n_faces"] == f
     _m, rss_per, rss_sum = _rss_gib(comm)
-    _say(comm, f"(Deg-2) knob 2: degree {deg2} (solver.degree {solver2.degree}); unknowns {n2} vs "
-               f"2E+2F = {2 * e + 2 * f} vs record {F_CLINICAL_R1_UNKNOWNS_RECORD[1]} (ASSERTED "
-               f"exact); measured F {f} beside predicted (U2 - 2 U1)/2 = "
-               f"{(F_CLINICAL_R1_UNKNOWNS_RECORD[1] - 2 * F_CLINICAL_R1_UNKNOWNS_RECORD[0]) // 2}; "
-               f"degree-2 space {t_d2:.1f} s (PREDICTED {PREDICTED_T_D2_S[0]:.0f}-"
-               f"{PREDICTED_T_D2_S[1]:.0f} s, printed)")
-    _say(comm, f"NEG (asserted, rule (e)): n(2) {n2} != n(1) {n1}; n(2)/n(1) = {n2 / n1:.6f} vs "
-               f"(2E+2F)/E = {(2 * e + 2 * f) / e:.6f} (exact integer identity ASSERTED)")
-    _say(comm, f"BUILD-ONLY return: t_build {out['t_build']:.1f} s, t_d2 {t_d2:.1f} s; RSS summed "
-               f"after build {rss_build:.2f} GiB (PREDICTED ≈{PREDICTED_RSS_BUILD_GIB:g}), after the "
-               f"degree-2 space per rank {', '.join(f'{r:.2f}' for r in (rss_per or []))} GiB, summed "
-               f"{rss_sum:.2f} GiB (PREDICTED {PREDICTED_RSS_D2_GIB[0]:g}-{PREDICTED_RSS_D2_GIB[1]:g}; "
-               f"printed); window {time.perf_counter() - t_window:.1f} s (no wall term, no assembly, "
-               f"no factorisation)")
+    _say(
+        comm,
+        f"(Deg-2) knob 2: degree {deg2} (solver.degree {solver2.degree}); unknowns {n2} vs "
+        f"2E+2F = {2 * e + 2 * f} vs record {F_CLINICAL_R1_UNKNOWNS_RECORD[1]} (ASSERTED "
+        f"exact); measured F {f} beside predicted (U2 - 2 U1)/2 = "
+        f"{(F_CLINICAL_R1_UNKNOWNS_RECORD[1] - 2 * F_CLINICAL_R1_UNKNOWNS_RECORD[0]) // 2}; "
+        f"degree-2 space {t_d2:.1f} s (PREDICTED {PREDICTED_T_D2_S[0]:.0f}-"
+        f"{PREDICTED_T_D2_S[1]:.0f} s, printed)",
+    )
+    _say(
+        comm,
+        f"NEG (asserted, rule (e)): n(2) {n2} != n(1) {n1}; n(2)/n(1) = {n2 / n1:.6f} vs "
+        f"(2E+2F)/E = {(2 * e + 2 * f) / e:.6f} (exact integer identity ASSERTED)",
+    )
+    _say(
+        comm,
+        f"BUILD-ONLY return: t_build {out['t_build']:.1f} s, t_d2 {t_d2:.1f} s; RSS summed "
+        f"after build {rss_build:.2f} GiB (PREDICTED ≈{PREDICTED_RSS_BUILD_GIB:g}), after the "
+        f"degree-2 space per rank {', '.join(f'{r:.2f}' for r in (rss_per or []))} GiB, summed "
+        f"{rss_sum:.2f} GiB (PREDICTED {PREDICTED_RSS_D2_GIB[0]:g}-{PREDICTED_RSS_D2_GIB[1]:g}; "
+        f"printed); window {time.perf_counter() - t_window:.1f} s (no wall term, no assembly, "
+        f"no factorisation)",
+    )
     assert deg2 == 2 and solver2.degree == 2 and ctx["solver"] is solver2
     assert n2 == 2 * e + 2 * f, (n2, e, f)
     assert n2 == F_CLINICAL_R1_UNKNOWNS_RECORD[1], n2
@@ -464,15 +519,19 @@ def _run_nodes(comm):
 
     # ---- the stored comparand (absent ⇒ stop, never re-solve) -------------
     npz_path = str(c3.SAVE_PATH)
-    assert os.path.exists(npz_path), (
-        f"{npz_path} absent: C4 stops (item 334's ruling (2)); never re-solve")
+    assert os.path.exists(
+        npz_path
+    ), f"{npz_path} absent: C4 stops (item 334's ruling (2)); never re-solve"
     with np.load(npz_path, allow_pickle=False) as npz:
         s64_npz = np.array(npz["s64"], dtype=np.complex128)
         order_npz = [str(p) for p in npz["order"]]
         cells_npz = int(npz["cells"])
-    _say(comm, f"start: -n {comm.size}, nodes {', '.join(f'{c:.4f}' for c in nodes_pf)} pF, degree "
-               f"{knob or 1} ({C4_DEGREE_ENV} {knob if d2 else 'unset'}), kappa off, r = {ESR_OHM} "
-               f"Ohm on all 64 gaps; npz {npz_path}")
+    _say(
+        comm,
+        f"start: -n {comm.size}, nodes {', '.join(f'{c:.4f}' for c in nodes_pf)} pF, degree "
+        f"{knob or 1} ({C4_DEGREE_ENV} {knob if d2 else 'unset'}), kappa off, r = {ESR_OHM} "
+        f"Ohm on all 64 gaps; npz {npz_path}",
+    )
 
     fixture = _build_c4_fixture(comm)
     assert fixture["degree"] == (knob or 1), (fixture["degree"], knob)
@@ -497,20 +556,30 @@ def _run_nodes(comm):
     def _drive(specs, driven_id, *, held, partition):
         sheets = [sp.sheet(driven=(sp.port_id == driven_id)) for sp in specs]
         dsheet = next(s for s in sheets if s.port_id == driven_id)
-        linear = [lambda test, _s=dsheet: lumped_port_linear_term(
-            msh, tags_f, _s, test, omega_rad_per_s=omega)]
+        linear = [
+            lambda test, _s=dsheet: lumped_port_linear_term(
+                msh, tags_f, _s, test, omega_rad_per_s=omega
+            )
+        ]
         comm.Barrier()
         t0 = time.perf_counter()
         if held:
             fields = solver.solve_with_held_factorization(extra_linear_terms=linear)
         else:
             bil = [wall] + [
-                (lambda trial, test, _s=s: lumped_port_bilinear_term(
-                    msh, tags_f, _s, trial, test, omega_rad_per_s=omega))
+                (
+                    lambda trial, test, _s=s: lumped_port_bilinear_term(
+                        msh, tags_f, _s, trial, test, omega_rad_per_s=omega
+                    )
+                )
                 for s in sheets
             ]
-            fields = solver.solve(current_density=None, project_source=False,
-                                  extra_bilinear_terms=bil, extra_linear_terms=linear)
+            fields = solver.solve(
+                current_density=None,
+                project_source=False,
+                extra_bilinear_terms=bil,
+                extra_linear_terms=linear,
+            )
         comm.Barrier()
         t_solve = time.perf_counter() - t0
         t1 = time.perf_counter()
@@ -520,12 +589,14 @@ def _run_nodes(comm):
         if partition:
             sigma_f = fields.sigma_field
 
+            # F821: pyflakes sees the `del` at the end of this function; the closure runs before it.
             def _vol(measure):
-                form = fem.form(0.5 * sigma_f * ufl.inner(e, e) * measure)
+                form = fem.form(0.5 * sigma_f * ufl.inner(e, e) * measure)  # noqa: F821
                 return float(np.real(comm.allreduce(fem.assemble_scalar(form), op=MPI.SUM)))
 
-            by_id = {s.port_id: float(_sheet_field_dissipation_w(acct, s, e, omega))
-                     for s in sheets}
+            by_id = {
+                s.port_id: float(_sheet_field_dissipation_w(acct, s, e, omega)) for s in sheets
+            }
             out["p_sheet_by_id"] = by_id
             out["p_sheets"] = float(sum(by_id.values()))
             out["p_src"] = float(_source_power_w(acct, dsheet, e, omega))
@@ -545,8 +616,11 @@ def _run_nodes(comm):
     assert len(order) == 64 and sorted(order) == sorted(order_npz), "npz order differs in ids"
     npz_ix = [order_npz.index(p) for p in order]
     s64_ord = s64_npz[np.ix_(npz_ix, npz_ix)]
-    _say(comm, f"feeds {feeds} (slots {slots[feeds[0]][0]}, {slots[feeds[1]][0]}; ring "
-               f"{slots[feeds[0]][1]:+.0f}); bisector {fixture['az_bisector']:.6f} deg")
+    _say(
+        comm,
+        f"feeds {feeds} (slots {slots[feeds[0]][0]}, {slots[feeds[1]][0]}; ring "
+        f"{slots[feeds[0]][1]:+.0f}); bisector {fixture['az_bisector']:.6f} deg",
+    )
 
     def _pair(imp_x, z_feed, v_feed):
         specs_x = _respec(base_specs, None, imp_x)
@@ -563,7 +637,10 @@ def _run_nodes(comm):
         return h17._current_route_s(cur, feeds_idx, z_feed, v_feed), cur, knd, tt, parts[0]
 
     def _show(name, m):
-        _say(comm, f"    {name} " + "; ".join(", ".join(f"{complex(v):.10e}" for v in row) for row in m))
+        _say(
+            comm,
+            f"    {name} " + "; ".join(", ".join(f"{complex(v):.10e}" for v in row) for row in m),
+        )
 
     def _partition(p):
         p_vol = p["p_phantom"] + p["p_rest"]
@@ -577,18 +654,27 @@ def _run_nodes(comm):
     rel_p50, blind50 = _partition(p50)
     d1_only = "degree-1 npz comparand, printed only at degree 2 (H26a)" if d2 else "ASSERTED"
     _say(comm, f"Z50 pair {kinds_50}, {', '.join(f'{t:.2f}' for t in t_50)} s; z_p {z_p}")
-    _say(comm, f"(P50) P_src {p50['p_src']:.9e} sumP_sheet {p50['p_sheets']:.9e} P_phantom "
-               f"{p50['p_phantom']:.9e} P_rest {p50['p_rest']:.9e} P_surf {p50['p_surf']:.9e} W; rel "
-               f"{rel_p50:.3e} (band {DISCRETE_IDENTITY_RTOL:g}, ASSERTED)")
-    _say(comm, f"NEG P_surf-blind miss {blind50:.4e} = {blind50 / DISCRETE_IDENTITY_RTOL:.1f}x the "
-               f"band (bar {c3.BLIND_FACTOR:.0f}x, ASSERTED)")
+    _say(
+        comm,
+        f"(P50) P_src {p50['p_src']:.9e} sumP_sheet {p50['p_sheets']:.9e} P_phantom "
+        f"{p50['p_phantom']:.9e} P_rest {p50['p_rest']:.9e} P_surf {p50['p_surf']:.9e} W; rel "
+        f"{rel_p50:.3e} (band {DISCRETE_IDENTITY_RTOL:g}, ASSERTED)",
+    )
+    _say(
+        comm,
+        f"NEG P_surf-blind miss {blind50:.4e} = {blind50 / DISCRETE_IDENTITY_RTOL:.1f}x the "
+        f"band (bar {c3.BLIND_FACTOR:.0f}x, ASSERTED)",
+    )
     s_ff = s64_ord[:2, :2]
     r_z50 = _residual(s_50, s_ff)
     _show("S64npz[feeds] ", s_ff)
     _show("MEAS50        ", s_50)
-    _say(comm, f"(Z50) ||MEAS50 - S64npz[feeds]||/||S64npz[feeds]|| = {r_z50:.6e} (band "
-               f"{REUSE_REPRODUCTION_RTOL:g}, {d1_only}; PREDICTED <= {PREDICTED_Z50:g}); "
-               f"t={time.perf_counter() - t_window:.1f} s")
+    _say(
+        comm,
+        f"(Z50) ||MEAS50 - S64npz[feeds]||/||S64npz[feeds]|| = {r_z50:.6e} (band "
+        f"{REUSE_REPRODUCTION_RTOL:g}, {d1_only}; PREDICTED <= {PREDICTED_Z50:g}); "
+        f"t={time.perf_counter() - t_window:.1f} s",
+    )
 
     # ---- per node --------------------------------------------------------
     z64_npz = s_to_z(s64_ord, z0)
@@ -599,8 +685,11 @@ def _run_nodes(comm):
         z_c = h17._z_rc(c_f, frequency_hz, r_ohm=0.0)
         z_th = h17._thevenin_feed_impedance(z_rc, z0)
         v_s = h17._source_voltage(z_rc, z0)
-        _say(comm, f"node C = {c_f:.12e} F ({c_pf:.4f} pF): Z_RC {z_rc:.9e} Ohm, Z_th {z_th:.9e} "
-                   f"Ohm, V_s {v_s:.9e} V")
+        _say(
+            comm,
+            f"node C = {c_f:.12e} F ({c_pf:.4f} pF): Z_RC {z_rc:.9e} Ohm, Z_th {z_th:.9e} "
+            f"Ohm, V_s {v_s:.9e} V",
+        )
         imp = {pid: z_rc for pid in others}
         imp.update({pid: z_th for pid in feeds})
         s_node, cur_node, kinds_n, t_n, pn = _pair(imp, z_th, v_s)
@@ -610,34 +699,53 @@ def _run_nodes(comm):
         p_feeds = sum(v for pid, v in pn["p_sheet_by_id"].items() if pid in feeds)
         p_vol = pn["p_phantom"] + pn["p_rest"]
         dz = abs(pn["p_src"] - (pn["p_sheets"] - p_rc) - p_vol - pn["p_surf"]) / abs(pn["p_src"])
-        _say(comm, f"(P_RC) P_src {pn['p_src']:.9e} sumP_sheet {pn['p_sheets']:.9e} (62 RC "
-                   f"{p_rc:.9e}, 2 feeds {p_feeds:.9e}) P_phantom {pn['p_phantom']:.9e} P_rest "
-                   f"{pn['p_rest']:.9e} P_surf {pn['p_surf']:.9e} W; rel {rel_prc:.3e} (band "
-                   f"{DISCRETE_IDENTITY_RTOL:g}, ASSERTED; PREDICTED <= {PREDICTED_P_RC:g}); (Dz) "
-                   f"without the 62 RC sheets {dz:.4e}; P_surf-blind {blind_n:.4e} (printed)")
+        _say(
+            comm,
+            f"(P_RC) P_src {pn['p_src']:.9e} sumP_sheet {pn['p_sheets']:.9e} (62 RC "
+            f"{p_rc:.9e}, 2 feeds {p_feeds:.9e}) P_phantom {pn['p_phantom']:.9e} P_rest "
+            f"{pn['p_rest']:.9e} P_surf {pn['p_surf']:.9e} W; rel {rel_prc:.3e} (band "
+            f"{DISCRETE_IDENTITY_RTOL:g}, ASSERTED; PREDICTED <= {PREDICTED_P_RC:g}); (Dz) "
+            f"without the 62 RC sheets {dz:.4e}; P_surf-blind {blind_n:.4e} (printed)",
+        )
         y_in = {}
         for label, a in h17.SENSES.items():
             y_in[label] = h17._active_y_in(s_node, a, z0)
             ya, yb = y_in[label]
             spread = abs(ya - yb) / abs(ya)
-            _say(comm, f"Y_in a = {label}: {feeds[0]} {ya.real:+.9e} {ya.imag:+.9e}j S; {feeds[1]} "
-                       f"{yb.real:+.9e} {yb.imag:+.9e}j S; C4/mirror spread {spread:.4e} "
-                       f"(READING, never asserted)")
+            _say(
+                comm,
+                f"Y_in a = {label}: {feeds[0]} {ya.real:+.9e} {ya.imag:+.9e}j S; {feeds[1]} "
+                f"{yb.real:+.9e} {yb.imag:+.9e}j S; C4/mirror spread {spread:.4e} "
+                f"(READING, never asserted)",
+            )
         for lbl, z_load in (("Z_RC (r=0.2)", z_rc), ("Z_C (r=0)", z_c)):
-            yc = h17._current_route_y_in(z64_npz, feeds_idx, z_load, z_load, h17.SENSES["(1,+1j)"], z0)
-            _say(comm, f"circuit-only (degree-1 npz s64, local loads {lbl}; not a prediction): "
-                       f"Y_in (1,+1j) {feeds[0]} {yc[0]:.9e} S, {feeds[1]} {yc[1]:.9e} S")
+            yc = h17._current_route_y_in(
+                z64_npz, feeds_idx, z_load, z_load, h17.SENSES["(1,+1j)"], z0
+            )
+            _say(
+                comm,
+                f"circuit-only (degree-1 npz s64, local loads {lbl}; not a prediction): "
+                f"Y_in (1,+1j) {feeds[0]} {yc[0]:.9e} S, {feeds[1]} {yc[1]:.9e} S",
+            )
         sh = _k1_shares_32(cur_node[0], order, slots)
         ring = slots[feeds[0]][1]
-        _say(comm, f"k=+-1 share (32-point), {feeds[0]} column: feed ring {sh[ring]:.6f} (ring+ "
-                   f"{sh[1.0]:.6f} ring- {sh[-1.0]:.6f}); node pair {kinds_n}, "
-                   f"{', '.join(f'{t:.2f}' for t in t_n)} s; t={time.perf_counter() - t_window:.1f} s")
+        _say(
+            comm,
+            f"k=+-1 share (32-point), {feeds[0]} column: feed ring {sh[ring]:.6f} (ring+ "
+            f"{sh[1.0]:.6f} ring- {sh[-1.0]:.6f}); node pair {kinds_n}, "
+            f"{', '.join(f'{t:.2f}' for t in t_n)} s; t={time.perf_counter() - t_window:.1f} s",
+        )
         rec = {
-            "c_f": c_f, "r_ohm": ESR_OHM, "freq_hz": float(frequency_hz), "order": order,
+            "c_f": c_f,
+            "r_ohm": ESR_OHM,
+            "freq_hz": float(frequency_hz),
+            "order": order,
             "degree": knob or 1,
             "s_node": [[[complex(v).real, complex(v).imag] for v in row] for row in s_node],
             "y_in": {lbl: [[y.real, y.imag] for y in ys] for lbl, ys in y_in.items()},
-            "partition": dict(pn), "rel_p_rc": rel_prc, "dz": dz,
+            "partition": dict(pn),
+            "rel_p_rc": rel_prc,
+            "dz": dz,
             "k1_share_feed_ring": sh[ring],
             "times_s": {"pair": t_n, "z50_pair": t_50, "build": t_build},
         }
@@ -658,19 +766,33 @@ def _run_nodes(comm):
         for k, name in enumerate(feeds):
             b = np.array([y[lbl][k].imag for y in y_by_node])
             found = h17._sign_change_roots(c_arr, b) if len(c_arr) > 1 else []
-            _say(comm, f"{name} a = {lbl}: Im Y_in "
-                       + ", ".join(f"{x * 1e12:.4f}:{v:+.6e}" for x, v in zip(c_arr, b))
-                       + " S; sign-change roots "
-                       + (", ".join(f"[{a * 1e12:.4f}, {bb * 1e12:.4f}] -> {r * 1e12:.6f} pF"
-                                    for a, bb, r in found) or "none")
-                       + (" (C_in,F-clinical: RECORD, never asserted)"
-                          if (name == DRIVEN and lbl == "(1,+1j)") else ""))
+            _say(
+                comm,
+                f"{name} a = {lbl}: Im Y_in "
+                + ", ".join(f"{x * 1e12:.4f}:{v:+.6e}" for x, v in zip(c_arr, b))
+                + " S; sign-change roots "
+                + (
+                    ", ".join(
+                        f"[{a * 1e12:.4f}, {bb * 1e12:.4f}] -> {r * 1e12:.6f} pF"
+                        for a, bb, r in found
+                    )
+                    or "none"
+                )
+                + (
+                    " (C_in,F-clinical: RECORD, never asserted)"
+                    if (name == DRIVEN and lbl == "(1,+1j)")
+                    else ""
+                ),
+            )
 
     _m, rss_per, rss_sum = _rss_gib(comm)
-    _say(comm, f"price: build {t_build:.1f} s, Z50 pair {sum(t_50):.1f} s, node pairs "
-               f"{', '.join(f'{t:.1f}' for t in node_pair_s)} s; RSS per rank "
-               f"{', '.join(f'{r:.2f}' for r in (rss_per or []))} GiB, summed {rss_sum:.2f} GiB; "
-               f"window {time.perf_counter() - t_window:.1f} s at -n {comm.size}")
+    _say(
+        comm,
+        f"price: build {t_build:.1f} s, Z50 pair {sum(t_50):.1f} s, node pairs "
+        f"{', '.join(f'{t:.1f}' for t in node_pair_s)} s; RSS per rank "
+        f"{', '.join(f'{r:.2f}' for r in (rss_per or []))} GiB, summed {rss_sum:.2f} GiB; "
+        f"window {time.perf_counter() - t_window:.1f} s at -n {comm.size}",
+    )
 
     assert kinds_50 == ["solve", "held"], kinds_50
     assert rel_p50 <= DISCRETE_IDENTITY_RTOL, rel_p50
@@ -679,15 +801,18 @@ def _run_nodes(comm):
         assert r_z50 <= REUSE_REPRODUCTION_RTOL, f"(Z50) closure {r_z50:.6e}"
     for c_pf, kinds_n, rel_prc in node_results:
         assert kinds_n == ["solve", "held"], kinds_n
-        assert rel_prc <= DISCRETE_IDENTITY_RTOL, (
-            f"(P_RC) at {c_pf:.4f} pF: {rel_prc:.3e} — never re-band")
+        assert (
+            rel_prc <= DISCRETE_IDENTITY_RTOL
+        ), f"(P_RC) at {c_pf:.4f} pF: {rel_prc:.3e} — never re-band"
 
 
 # ---------------------------------------------------------------------------
 # Coding tests (numpy only); skip when FEM_EM_GEO38_C4 is set.
 # ---------------------------------------------------------------------------
-_coding = pytest.mark.skipif(os.environ.get(C4_ENV, "").strip() != "",
-                             reason=f"{C4_ENV} set: coding tests skip in build/solve windows")
+_coding = pytest.mark.skipif(
+    os.environ.get(C4_ENV, "").strip() != "",
+    reason=f"{C4_ENV} set: coding tests skip in build/solve windows",
+)
 
 
 def _ideal_geo():
@@ -712,8 +837,16 @@ def test_c4_k0_knob_parsing(monkeypatch):
         _nodes_pf()
     monkeypatch.setenv(C4_NODES_ENV, "60.25,58.5, 59.1234")
     assert _nodes_pf() == [58.5, 59.1234, 60.25]
-    for bad in ("", " , ", "-1.0,58.5", "0,58.5", "58.50001,58.50002", "58.5,58.5",
-                "58.12345", "x"):
+    for bad in (
+        "",
+        " , ",
+        "-1.0,58.5",
+        "0,58.5",
+        "58.50001,58.50002",
+        "58.5,58.5",
+        "58.12345",
+        "x",
+    ):
         monkeypatch.setenv(C4_NODES_ENV, bad)
         with pytest.raises(ValueError):
             _nodes_pf()
@@ -725,8 +858,10 @@ def test_c4_k0_knob_parsing(monkeypatch):
         monkeypatch.setenv(C4_DEGREE_ENV, bad)
         with pytest.raises(ValueError):
             _degree_knob_c4()
-    print("[GEO-38 C4 K0] knobs: C4 unset/build/1 accepted, 2/x refused; nodes required, "
-          "sorted, >0, distinct at 4 decimals; degree unset/2 accepted, 1/x refused")
+    print(
+        "[GEO-38 C4 K0] knobs: C4 unset/build/1 accepted, 2/x refused; nodes required, "
+        "sorted, >0, distinct at 4 decimals; degree unset/2 accepted, 1/x refused"
+    )
 
 
 @_coding
@@ -798,8 +933,10 @@ def test_c4_y0_64_routes_agree():
         y_s = h17._active_y_in(s_rt, a, z0)
         y_c = h17._current_route_y_in(z, [0, 1], z_rc, z_rc, a, z0)
         worst = max(worst, h17._rel(y_s, y_c))
-    print(f"[GEO-38 C4 Y0-64] S routes {r_s:.3e}, Y_in routes {worst:.3e} "
-          f"(band {h17.Y0_CODING_BAND:g}, ASSERTED)")
+    print(
+        f"[GEO-38 C4 Y0-64] S routes {r_s:.3e}, Y_in routes {worst:.3e} "
+        f"(band {h17.Y0_CODING_BAND:g}, ASSERTED)"
+    )
     assert r_s <= h17.Y0_CODING_BAND, r_s
     assert worst <= h17.Y0_CODING_BAND, worst
 
@@ -809,18 +946,27 @@ def test_c4_z_specs_and_planted_r0():
     """(Z) on synthetic specs, and the planted control: r = 0 gives Re Z_RC = 0 ≠ 0.2."""
     from fem_em_solver.ports.lumped import LumpedSheetPortSpec
 
-    base = [LumpedSheetPortSpec(port_id=f"P{i}", facet_tag=1000 + i, port_impedance_ohm=50.0,
-                                gap_height_m=0.01, sheet_width_m=0.01,
-                                drive_direction=(0.0, 0.0, 1.0))
-            for i in range(33, 97)]
+    base = [
+        LumpedSheetPortSpec(
+            port_id=f"P{i}",
+            facet_tag=1000 + i,
+            port_impedance_ohm=50.0,
+            gap_height_m=0.01,
+            sheet_width_m=0.01,
+            drive_direction=(0.0, 0.0, 1.0),
+        )
+        for i in range(33, 97)
+    ]
     ids = [sp.port_id for sp in base]
     c_f = SPEC_WIRING_C_PF * 1e-12
     specs, z_rc, z_th = _esr_specs(base, ["P33", "P41"], c_f, FREQUENCY_HZ_C4, 50.0)
     fails, im_w, th_w = _z_failures(specs, ids, ["P33", "P41"], c_f, FREQUENCY_HZ_C4, 50.0)
     specs0, z_rc0, _z = _esr_specs(base, ["P33", "P41"], c_f, FREQUENCY_HZ_C4, 50.0, r_ohm=0.0)
     fails0, _a, _b = _z_failures(specs0, ids, ["P33", "P41"], c_f, FREQUENCY_HZ_C4, 50.0)
-    print(f"[GEO-38 C4 Z] Z_RC {z_rc:.9e}, Z_th {z_th:.9e}, fails {fails}; planted r=0: Re Z_RC "
-          f"{z_rc0.real} (ASSERTED != {ESR_OHM}), {len(fails0)} failures")
+    print(
+        f"[GEO-38 C4 Z] Z_RC {z_rc:.9e}, Z_th {z_th:.9e}, fails {fails}; planted r=0: Re Z_RC "
+        f"{z_rc0.real} (ASSERTED != {ESR_OHM}), {len(fails0)} failures"
+    )
     assert not fails, fails
     assert z_rc.real == ESR_OHM
     assert z_rc0.real == 0.0 and z_rc0.real != ESR_OHM
@@ -838,8 +984,10 @@ def test_c4_n1_f_human_offset_misses_quadrature():
     geo = _ideal_geo()
     feeds, _az, _bis, d_az = _feeds_32(list(geo), geo, offset_slots=QUADRATURE_SLOT_OFFSET)
     miss = abs(_ang(d_az - 90.0))
-    print(f"[GEO-38 C4 N1] F-human offset {QUADRATURE_SLOT_OFFSET}: feed2 {feeds[1]}, delta az "
-          f"{d_az:.12f} deg, miss {miss:.12f} deg (ASSERTED 45, > {AZIMUTH_MATCH_DEG:.0e})")
+    print(
+        f"[GEO-38 C4 N1] F-human offset {QUADRATURE_SLOT_OFFSET}: feed2 {feeds[1]}, delta az "
+        f"{d_az:.12f} deg, miss {miss:.12f} deg (ASSERTED 45, > {AZIMUTH_MATCH_DEG:.0e})"
+    )
     assert QUADRATURE_SLOT_OFFSET == 4
     assert abs(miss - 45.0) <= 1e-12, miss
     assert miss > AZIMUTH_MATCH_DEG

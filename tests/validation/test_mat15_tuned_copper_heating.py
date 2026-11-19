@@ -38,6 +38,8 @@ import ufl
 from dolfinx import default_scalar_type, fem
 from mpi4py import MPI
 
+from fem_em_solver.core.cavity import surface_resistance_ohm
+from fem_em_solver.post.sar import averaging_ball_radius, mean_sar
 from tests.complex_mode import complex_only
 from tests.mesh.test_birdcage_leg_offset import _sheet_azimuth_deg
 from tests.mesh.test_birdcage_port_sheets import SHEET_IFACE
@@ -79,7 +81,6 @@ from tests.validation.test_mat12_transient_sar_heating_sphere import (
     S2_BAND,
 )
 from tests.validation.test_mat15_coil_driven_heating_phantom import (
-    A,
     CAD_AREA_M2,
     D_CONTROL_FLOOR,
     DT_1,
@@ -90,6 +91,7 @@ from tests.validation.test_mat15_coil_driven_heating_phantom import (
     T_INF,
     T_R,
     T_STAR,
+    A,
     _be_one,
     _cell_average_dg0_tag,
     _cn,
@@ -97,8 +99,6 @@ from tests.validation.test_mat15_coil_driven_heating_phantom import (
     _max_imag,
     _tag_submesh,
 )
-from fem_em_solver.core.cavity import surface_resistance_ohm
-from fem_em_solver.post.sar import averaging_ball_radius, mean_sar
 
 KNOB = "FEM_EM_MAT15_STEP3"
 DRIVE_HZ = 64.0e6
@@ -143,33 +143,46 @@ def _run():
     comm = MPI.COMM_WORLD
     t0 = time.perf_counter()
     c_mode, s11_ref, inm = _read_t21()
-    _say(f"\nMAT15s3 C_mode,Cu = {c_mode:.15e} F (read from tune_p2.json, not recomputed); "
-         f"S11_ref(64.0 MHz) = {s11_ref.real:+.15e}{s11_ref.imag:+.15e}j; in-model zero "
-         f"{inm['rows_a']['f0_hz']:.3f} Hz (NOT a tuning claim; drive at {DRIVE_HZ:.1f} Hz)")
+    _say(
+        f"\nMAT15s3 C_mode,Cu = {c_mode:.15e} F (read from tune_p2.json, not recomputed); "
+        f"S11_ref(64.0 MHz) = {s11_ref.real:+.15e}{s11_ref.imag:+.15e}j; in-model zero "
+        f"{inm['rows_a']['f0_hz']:.3f} Hz (NOT a tuning claim; drive at {DRIVE_HZ:.1f} Hz)"
+    )
     tie = _fixture_tie()
     geo, specs, cells = _exact_geo(th14, comm, GATED_WIDTH_FRACTION)
     msh, cell_tags, facet_tags, _outer, tags_f, _pdefs = geo
     t_mesh = time.perf_counter() - t0
     phi1 = _sheet_azimuth_deg(msh, tags_f, SHEET_IFACE + 1, comm)
     sin_phi = abs(np.sin(np.radians(phi1)))
-    _say(f"MAT15s3 (F) cells {cells}; (Phi) phi_1 = {phi1:.12f} deg, |sin phi_1| = {sin_phi:.3e} "
-         f"(bound {PHI_BAND:.0e}); mesh+tie {t_mesh:.1f} s")
+    _say(
+        f"MAT15s3 (F) cells {cells}; (Phi) phi_1 = {phi1:.12f} deg, |sin phi_1| = {sin_phi:.3e} "
+        f"(bound {PHI_BAND:.0e}); mesh+tie {t_mesh:.1f} s"
+    )
     out = {"cells": cells, "tie": tie, "phi1": phi1, "sin_phi": sin_phi}
 
     t1 = time.perf_counter()
-    s11, fields = _route_a_solve(th14, geo, specs, DRIVE_HZ, "cu", c_f=c_mode,
-                                 return_fields=True, degree=2)
+    s11, fields = _route_a_solve(
+        th14, geo, specs, DRIVE_HZ, "cu", c_f=c_mode, return_fields=True, degree=2
+    )
     comm.Barrier()
     t_em = time.perf_counter() - t1
     out["W"] = abs(s11 - s11_ref) / abs(s11_ref)
-    _say(f"MAT15s3 (W) S11 = {s11.real:+.15e}{s11.imag:+.15e}j  rel to T21 {out['W']:.3e} "
-         f"(bound {NODE_S_RTOL:.0e}, predicted <= 1e-12); degree-2 drive {t_em:.1f} s")
+    _say(
+        f"MAT15s3 (W) S11 = {s11.real:+.15e}{s11.imag:+.15e}j  rel to T21 {out['W']:.3e} "
+        f"(bound {NODE_S_RTOL:.0e}, predicted <= 1e-12); degree-2 drive {t_em:.1f} s"
+    )
 
     # (P) -- TH-14's (b) block on the Z_C-replaced specs.
     omega = 2.0 * np.pi * DRIVE_HZ
     z_c = _ANS7.z_cap(omega, c_mode)
-    sp_list = [dataclasses.replace(s, port_impedance_ohm=z_c)
-               if i in _ANS7.TUNING_TERMINATED_INDICES else s for i, s in enumerate(specs)]
+    sp_list = [
+        (
+            dataclasses.replace(s, port_impedance_ohm=z_c)
+            if i in _ANS7.TUNING_TERMINATED_INDICES
+            else s
+        )
+        for i, s in enumerate(specs)
+    ]
     e = fields.e_complex
     sigma_f = fields.sigma_field
     dx = ufl.Measure("dx", domain=msh, subdomain_data=cell_tags)
@@ -181,15 +194,25 @@ def _run():
     t2 = time.perf_counter()
     acct = {"mesh": msh, "facet_tags": tags_f}
     sheet_objs = {sp.port_id: sp.sheet(driven=(sp.port_id == th14.DRIVEN)) for sp in sp_list}
-    p_sheet = {k: float(_sheet_field_dissipation_w(acct, sh, e, omega))
-               for k, sh in sheet_objs.items()}
+    p_sheet = {
+        k: float(_sheet_field_dissipation_w(acct, sh, e, omega)) for k, sh in sheet_objs.items()
+    }
     p_sheets = sum(p_sheet.values())
     p_src = float(_source_power_w(acct, sheet_objs[th14.DRIVEN], e, omega))
     p_total = _vol(dx)
     p_phantom = _vol(dx(th14.PHANTOM_CELL_TAG))
-    p_ph_sar = float(np.real(mean_sar(e, sigma=sigma_f, rho=PHANTOM_RHO_KG_PER_M3,
-                                      cell_tags=cell_tags, comm=comm,
-                                      subdomain_ids=th14.PHANTOM_CELL_TAG)["dissipated_power_w"]))
+    p_ph_sar = float(
+        np.real(
+            mean_sar(
+                e,
+                sigma=sigma_f,
+                rho=PHANTOM_RHO_KG_PER_M3,
+                cell_tags=cell_tags,
+                comm=comm,
+                subdomain_ids=th14.PHANTOM_CELL_TAG,
+            )["dissipated_power_w"]
+        )
+    )
     z_s = (1.0 + 1.0j) * surface_resistance_ohm(omega, th14.COPPER_SIGMA)
     p_surf = th14._surface_loss_w(msh, facet_tags, z_s, e, comm)
     p_non = p_total - p_phantom
@@ -201,21 +224,33 @@ def _run():
     l_s = 1.0 - abs(s11) ** 2
     l_f = p_acc / _p_inc_w()
     out.update(G=G, eta=eta, p_acc=p_acc)
-    _say(f"MAT15s3 (P) P_src = {p_src:.15e} W; sheets " + "  ".join(
-        f"{k}:{v:.6e}" for k, v in p_sheet.items())
+    _say(
+        f"MAT15s3 (P) P_src = {p_src:.15e} W; sheets "
+        + "  ".join(f"{k}:{v:.6e}" for k, v in p_sheet.items())
         + f" (sum {p_sheets:.15e}); P_total {p_total:.15e}; P_phantom {p_phantom:.15e}; "
-          f"P_non-phantom {p_non:.15e}; P_surf {p_surf:.15e}")
-    _say(f"MAT15s3 (P) identity rel {out['P']:.3e} (bound {DISCRETE_IDENTITY_RTOL:.0e}, predicted "
-         f"<= 1e-10); (P-ctl) sheets dropped {p_ctl:.6f} (predicted 0.998, printed)")
-    _say(f"MAT15s3 P_phantom mean_sar vs _vol rel {abs(p_ph_sar / p_phantom - 1.0):.3e} "
-         f"(predicted <= 1e-12); P_acc = {p_acc:.15e} W, G = 1/P_acc = {G:.12e} 1/W")
-    _say(f"MAT15s3 eta = P_phantom/P_acc = {eta:.9f} (predicted [0.52, 0.62], estimate 0.582); "
-         f"P_surf/P_acc = {p_surf / p_acc:.9f} (1 - eta = {1.0 - eta:.9f}); P_non/P_acc = "
-         f"{p_non / p_acc:.3e}")
-    _say(f"MAT15s3 L_S = 1-|S11|^2 = {l_s:.9e}  L_F = P_acc/P_inc = {l_f:.9e}  |diff| = "
-         f"{abs(l_s - l_f):.3e} (predicted <= 1e-4, printed)")
-    _say(f"MAT15s3 detuning estimate: (308.55 Hz / 32.9 kHz)^2 = {(308.55 / 32.9e3) ** 2:.2e} "
-         f"(printed)")
+        f"P_non-phantom {p_non:.15e}; P_surf {p_surf:.15e}"
+    )
+    _say(
+        f"MAT15s3 (P) identity rel {out['P']:.3e} (bound {DISCRETE_IDENTITY_RTOL:.0e}, predicted "
+        f"<= 1e-10); (P-ctl) sheets dropped {p_ctl:.6f} (predicted 0.998, printed)"
+    )
+    _say(
+        f"MAT15s3 P_phantom mean_sar vs _vol rel {abs(p_ph_sar / p_phantom - 1.0):.3e} "
+        f"(predicted <= 1e-12); P_acc = {p_acc:.15e} W, G = 1/P_acc = {G:.12e} 1/W"
+    )
+    _say(
+        f"MAT15s3 eta = P_phantom/P_acc = {eta:.9f} (predicted [0.52, 0.62], estimate 0.582); "
+        f"P_surf/P_acc = {p_surf / p_acc:.9f} (1 - eta = {1.0 - eta:.9f}); P_non/P_acc = "
+        f"{p_non / p_acc:.3e}"
+    )
+    _say(
+        f"MAT15s3 L_S = 1-|S11|^2 = {l_s:.9e}  L_F = P_acc/P_inc = {l_f:.9e}  |diff| = "
+        f"{abs(l_s - l_f):.3e} (predicted <= 1e-4, printed)"
+    )
+    _say(
+        f"MAT15s3 detuning estimate: (308.55 Hz / 32.9 kHz)^2 = {(308.55 / 32.9e3) ** 2:.2e} "
+        f"(printed)"
+    )
 
     # Thermal -- step 1's per-drive loop body, one drive.
     sub, parent_ids = _tag_submesh(msh, cell_tags, th14.PHANTOM_CELL_TAG)
@@ -225,16 +260,21 @@ def _run():
     ds = ufl.Measure("ds", domain=sub, subdomain_data=ft)(ROBIN_TAG)
     v_sub = float(np.real(_allsum(comm, one * ufl.dx(domain=sub))))
     area = float(np.real(_allsum(comm, one * ds)))
-    _say(f"MAT15s3 sub cells = {n_sub} (predicted [300, 3000]); V_sub = {v_sub:.12e} m^3 vs "
-         f"pi a^2 2L {V_CYL_M3:.5e} ({v_sub / V_CYL_M3 - 1.0:+.4e}, predicted [-3e-2, 0]); step 1 "
-         f"record {V_SUB_STEP1_RECORD_M3:.12e} (printed); oint ds = {area:.9e} m^2 vs CAD "
-         f"{CAD_AREA_M2} ({area / CAD_AREA_M2 - 1.0:+.4e}, printed)")
-    _say(f"MAT15s3 t_R = {T_R:.3f} s  t* = {T_STAR:.3f} s  dt = {T_STAR / N_MAIN:.4f} s  "
-         f"dt_1 = {DT_1:.6e} s  Bi = {H_GEL * A / K_GEL:.3f}")
+    _say(
+        f"MAT15s3 sub cells = {n_sub} (predicted [300, 3000]); V_sub = {v_sub:.12e} m^3 vs "
+        f"pi a^2 2L {V_CYL_M3:.5e} ({v_sub / V_CYL_M3 - 1.0:+.4e}, predicted [-3e-2, 0]); step 1 "
+        f"record {V_SUB_STEP1_RECORD_M3:.12e} (printed); oint ds = {area:.9e} m^2 vs CAD "
+        f"{CAD_AREA_M2} ({area / CAD_AREA_M2 - 1.0:+.4e}, printed)"
+    )
+    _say(
+        f"MAT15s3 t_R = {T_R:.3f} s  t* = {T_STAR:.3f} s  dt = {T_STAR / N_MAIN:.4f} s  "
+        f"dt_1 = {DT_1:.6e} s  Bi = {H_GEL * A / K_GEL:.3f}"
+    )
     out["n_sub"] = n_sub
 
-    Wp, q_par = _cell_average_dg0_tag(msh, cell_tags, th14.PHANTOM_CELL_TAG,
-                                      G * 0.5 * sigma_f * ufl.inner(e, e))
+    Wp, q_par = _cell_average_dg0_tag(
+        msh, cell_tags, th14.PHANTOM_CELL_TAG, G * 0.5 * sigma_f * ufl.inner(e, e)
+    )
     q_h = _to_sub(Wp, q_par, sub, parent_ids)
     dep = G * p_phantom
     int_q = float(np.real(_allsum(comm, q_h * ufl.dx(domain=sub))))
@@ -274,8 +314,10 @@ def _run():
     for m in range(8):
         centre_c.value[:] = centres[m]
         ball_vol[m] = _red(f_vol)
-    _say("MAT15s3 ball volumes [m^3] (4/3 pi a10^3 = %.9e): " % v_ball
-         + "  ".join(f"m{m}:{ball_vol[m]:.9e}" for m in range(8)))
+    _say(
+        "MAT15s3 ball volumes [m^3] (4/3 pi a10^3 = %.9e): " % v_ball
+        + "  ".join(f"m{m}:{ball_vol[m]:.9e}" for m in range(8))
+    )
 
     def _ball_mean(form, m):
         centre_c.value[:] = centres[m]
@@ -298,23 +340,35 @@ def _run():
     out["E"] = {"cn": res.max_balance_residual, "be": res1.max_balance_residual}
     tmax_imag = max(_max_imag(res.temperature), _max_imag(res1.temperature))
 
-    _say(f"MAT15s3 (B) int_sub q_h = {int_q:.15e}  G*P_phantom = {dep:.15e}  rel {out['B']:.3e} "
-         f"(bound {B_BAND:.0e}, predicted <= 1e-13);  kappa_s = {kappa:.4f} (predicted [1.5, 6]; "
-         f"step 1 {KAPPA_S_STEP1}, printed)")
-    _say(f"MAT15s3 CN N={N_MAIN}: mean theta(t*) per accepted watt = {mean_th:.6f} K (predicted "
-         f"[0.55, 0.75]; eta x step 1's {P1_THETA_PER_DEP_W} = {eta * P1_THETA_PER_DEP_W:.4f}, "
-         f"printed)  (E) max_balance = {res.max_balance_residual:.3e}  solve {t_cn:.1f} s")
-    _say(f"MAT15s3 (E') stored {stor:.12e} W + surface {conv:.12e} W vs deposited G*P_phantom "
-         f"{dep:.12e} W: rel {ep:.3e} (bound {E_BAND:.0e}, predicted <= 1e-12)")
-    _say(f"MAT15s3 (S2) one BE step: ratio = {ratio:.12f}  |ratio-1| = {out['S2']:.4e} (bound "
-         f"{S2_BAND:.0e}, predicted [5e-6, 2.1e-5]); deficit {leak:.4e}  estimate "
-         f"{estimate:.3e}*kappa_s = {estimate * kappa:.4e}  balance {res1.max_balance_residual:.3e}")
+    _say(
+        f"MAT15s3 (B) int_sub q_h = {int_q:.15e}  G*P_phantom = {dep:.15e}  rel {out['B']:.3e} "
+        f"(bound {B_BAND:.0e}, predicted <= 1e-13);  kappa_s = {kappa:.4f} (predicted [1.5, 6]; "
+        f"step 1 {KAPPA_S_STEP1}, printed)"
+    )
+    _say(
+        f"MAT15s3 CN N={N_MAIN}: mean theta(t*) per accepted watt = {mean_th:.6f} K (predicted "
+        f"[0.55, 0.75]; eta x step 1's {P1_THETA_PER_DEP_W} = {eta * P1_THETA_PER_DEP_W:.4f}, "
+        f"printed)  (E) max_balance = {res.max_balance_residual:.3e}  solve {t_cn:.1f} s"
+    )
+    _say(
+        f"MAT15s3 (E') stored {stor:.12e} W + surface {conv:.12e} W vs deposited G*P_phantom "
+        f"{dep:.12e} W: rel {ep:.3e} (bound {E_BAND:.0e}, predicted <= 1e-12)"
+    )
+    _say(
+        f"MAT15s3 (S2) one BE step: ratio = {ratio:.12f}  |ratio-1| = {out['S2']:.4e} (bound "
+        f"{S2_BAND:.0e}, predicted [5e-6, 2.1e-5]); deficit {leak:.4e}  estimate "
+        f"{estimate:.3e}*kappa_s = {estimate * kappa:.4e}  balance {res1.max_balance_residual:.3e}"
+    )
     for m in range(8):
-        _say(f"MAT15s3   10 g ball m={m} (phi_1{45 * m:+d} deg): theta = {th[m]:.9e} K  "
-             f"q_h = {qb[m]:.9e} W/m^3")
+        _say(
+            f"MAT15s3   10 g ball m={m} (phi_1{45 * m:+d} deg): theta = {th[m]:.9e} K  "
+            f"q_h = {qb[m]:.9e} W/m^3"
+        )
     peak = max(th, key=th.get)
-    _say(f"MAT15s3 peak 10 g theta per accepted watt = {th[peak]:.9e} K at azimuth "
-         f"{(phi1 + 45.0 * peak) % 360.0:.3f} deg (m={peak}, printed)")
+    _say(
+        f"MAT15s3 peak 10 g theta per accepted watt = {th[peak]:.9e} K at azimuth "
+        f"{(phi1 + 45.0 * peak) % 360.0:.3f} deg (m={peak}, printed)"
+    )
 
     out["M1"] = abs(th[2] - th[6]) / abs(th[2])
     out["M2"] = abs(th[1] - th[7]) / abs(th[1])
@@ -322,16 +376,24 @@ def _run():
     q_m2 = abs(qb[1] - qb[7]) / abs(qb[1])
     c2 = abs(th[0] - th[4]) / abs(th[0])
     out["fprime"] = abs(th[2] - th[0]) / abs(th[0])
-    _say(f"MAT15s3 (M1) theta(phi_1+90) vs theta(phi_1-90): {out['M1'] * 100:.4f}% (bound "
-         f"{C4_COVARIANCE_BAND * 100:.1f}%, predicted <= 1%); q_h pair {q_m1 * 100:.4f}% "
-         f"(printed, predicted <= 3%)")
-    _say(f"MAT15s3 (M2) theta(phi_1+45) vs theta(phi_1-45): {out['M2'] * 100:.4f}% (bound "
-         f"{C4_COVARIANCE_BAND * 100:.1f}%, predicted <= 1%); q_h pair {q_m2 * 100:.4f}% "
-         f"(printed, predicted <= 3%)")
-    _say(f"MAT15s3 C2 pair theta(phi_1) vs theta(phi_1+180): {c2 * 100:.4f}% (not a symmetry; "
-         f"printed, predicted <= 2%)")
-    _say(f"MAT15s3 control (f') theta(phi_1+90) vs theta(phi_1): {out['fprime'] * 100:.4f}% "
-         f"(asserted > {F_CONTROL_FLOOR * 100:.1f}%, predicted 40-80%)")
+    _say(
+        f"MAT15s3 (M1) theta(phi_1+90) vs theta(phi_1-90): {out['M1'] * 100:.4f}% (bound "
+        f"{C4_COVARIANCE_BAND * 100:.1f}%, predicted <= 1%); q_h pair {q_m1 * 100:.4f}% "
+        f"(printed, predicted <= 3%)"
+    )
+    _say(
+        f"MAT15s3 (M2) theta(phi_1+45) vs theta(phi_1-45): {out['M2'] * 100:.4f}% (bound "
+        f"{C4_COVARIANCE_BAND * 100:.1f}%, predicted <= 1%); q_h pair {q_m2 * 100:.4f}% "
+        f"(printed, predicted <= 3%)"
+    )
+    _say(
+        f"MAT15s3 C2 pair theta(phi_1) vs theta(phi_1+180): {c2 * 100:.4f}% (not a symmetry; "
+        f"printed, predicted <= 2%)"
+    )
+    _say(
+        f"MAT15s3 control (f') theta(phi_1+90) vs theta(phi_1): {out['fprime'] * 100:.4f}% "
+        f"(asserted > {F_CONTROL_FLOOR * 100:.1f}%, predicted 40-80%)"
+    )
 
     q_two = fem.Function(q_h.function_space)
     q_two.x.array[:] = 2.0 * q_h.x.array
@@ -341,13 +403,19 @@ def _run():
     out["ctl_d"] = ep_d
     out["E"]["ctl_d"] = res_d.max_balance_residual
     out["imag"] = tmax_imag
-    _say(f"MAT15s3 control (d) doubled source: (E') vs G*P_phantom = {ep_d:.6f} (predicted "
-         f"1.000, asserted > {D_CONTROL_FLOOR:.0e}); its (E) = {res_d.max_balance_residual:.3e}")
+    _say(
+        f"MAT15s3 control (d) doubled source: (E') vs G*P_phantom = {ep_d:.6f} (predicted "
+        f"1.000, asserted > {D_CONTROL_FLOOR:.0e}); its (E) = {res_d.max_balance_residual:.3e}"
+    )
     worst = max(out["E"], key=out["E"].get)
-    _say(f"MAT15s3 (E) worst balance over {len(out['E'])} runs = {out['E'][worst]:.3e} on "
-         f"{worst} (bound {E_BAND:.0e}); max|Im theta| = {tmax_imag:.3e} (predicted 0)")
-    _say(f"MAT15s3 elapsed: mesh+tie {t_mesh:.1f} s, EM {t_em:.1f} s, post+thermal "
-         f"{time.perf_counter() - t2:.1f} s, total {time.perf_counter() - t0:.1f} s")
+    _say(
+        f"MAT15s3 (E) worst balance over {len(out['E'])} runs = {out['E'][worst]:.3e} on "
+        f"{worst} (bound {E_BAND:.0e}); max|Im theta| = {tmax_imag:.3e} (predicted 0)"
+    )
+    _say(
+        f"MAT15s3 elapsed: mesh+tie {t_mesh:.1f} s, EM {t_em:.1f} s, post+thermal "
+        f"{time.perf_counter() - t2:.1f} s, total {time.perf_counter() - t0:.1f} s"
+    )
     return out
 
 

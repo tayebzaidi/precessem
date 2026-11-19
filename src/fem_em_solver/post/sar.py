@@ -31,12 +31,11 @@ from __future__ import annotations
 
 from typing import Mapping, Optional, Sequence, Union
 
+import dolfinx
 import numpy as np
 import ufl
-from mpi4py import MPI
-
-import dolfinx
 from dolfinx import fem
+from mpi4py import MPI
 
 
 def _sigma_as_ufl(sigma: Union[float, fem.Function], msh) -> object:
@@ -111,9 +110,7 @@ def mean_sar(
     else:
         dx = ufl.Measure("dx", domain=msh, subdomain_data=cell_tags)
         ids = (
-            [int(subdomain_ids)]
-            if np.isscalar(subdomain_ids)
-            else [int(i) for i in subdomain_ids]
+            [int(subdomain_ids)] if np.isscalar(subdomain_ids) else [int(i) for i in subdomain_ids]
         )
 
     def _integrate(integrand) -> complex:
@@ -293,24 +290,16 @@ def mass_averaged_sar(
     # comparison checker as complex and ufl.lt raises ComplexComparisonError.  A
     # zero centre simplifies away and hides it — which is exactly how the step-2
     # probe passed the identity test and failed the surface control.
-    inside = ufl.conditional(
-        ufl.lt(ufl.real(ufl.dot(offset, offset)), radius_value**2), 1.0, 0.0
-    )
-    dx = ufl.Measure(
-        "dx", domain=msh, metadata={"quadrature_degree": int(quadrature_degree)}
-    )
+    inside = ufl.conditional(ufl.lt(ufl.real(ufl.dot(offset, offset)), radius_value**2), 1.0, 0.0)
+    dx = ufl.Measure("dx", domain=msh, metadata={"quadrature_degree": int(quadrature_degree)})
 
     def _integrate(integrand) -> complex:
-        return comm.allreduce(
-            fem.assemble_scalar(fem.form(inside * integrand * dx)), op=MPI.SUM
-        )
+        return comm.allreduce(fem.assemble_scalar(fem.form(inside * integrand * dx)), op=MPI.SUM)
 
     # Numerator and denominator are reduced separately and divided only after:
     # an averaging ball straddles rank boundaries by construction, so a local
     # ratio would be wrong on every rank that holds part of it.
-    dissipated = float(
-        np.real(_integrate(0.5 * sigma_ufl * ufl.inner(e_complex, e_complex)))
-    )
+    dissipated = float(np.real(_integrate(0.5 * sigma_ufl * ufl.inner(e_complex, e_complex))))
     mass = float(np.real(_integrate(rho_ufl)))
     one = fem.Constant(msh, dolfinx.default_scalar_type(1.0))
     volume = float(np.real(_integrate(one)))
@@ -360,12 +349,8 @@ def point_sar(
         comm = e_real.function_space.mesh.comm
 
     points = np.atleast_2d(np.asarray(points, dtype=np.float64))
-    real_values, valid_real = evaluate_vector_field_parallel(
-        e_real, points, comm, owner=owner
-    )
-    imag_values, valid_imag = evaluate_vector_field_parallel(
-        e_imag, points, comm, owner=owner
-    )
+    real_values, valid_real = evaluate_vector_field_parallel(e_real, points, comm, owner=owner)
+    imag_values, valid_imag = evaluate_vector_field_parallel(e_imag, points, comm, owner=owner)
     valid = valid_real & valid_imag
     if not np.all(valid):
         raise RuntimeError(

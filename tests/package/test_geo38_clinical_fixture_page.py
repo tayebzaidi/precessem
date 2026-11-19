@@ -54,8 +54,14 @@ def _grouped(n: int) -> str:
 
 def can_length_m(kw: dict) -> float:
     """The generator's rule (`io/mesh.py:5636`): the can spans ±z_extent."""
-    z_e = max(0.5 * kw["coil_length"], 0.5 * kw["leg_spacing"] + kw["ring_minor_radius"],
-              0.5 * kw["phantom_height"]) + kw["air_padding"]
+    z_e = (
+        max(
+            0.5 * kw["coil_length"],
+            0.5 * kw["leg_spacing"] + kw["ring_minor_radius"],
+            0.5 * kw["phantom_height"],
+        )
+        + kw["air_padding"]
+    )
     return 2.0 * z_e
 
 
@@ -119,8 +125,10 @@ def mismatches(rows: dict[str, tuple[str, str]]) -> list[tuple[str, str, str, st
 def test_geo38_c9_p1_page_table_is_the_code():
     rows = parse_geometry_table(PAGE.read_text(encoding="utf-8"))
     for label in EXPECTED["1.5"]:
-        print(f"[GEO-38 C9 P1] {label}: page {rows.get(label)} | code "
-              f"({EXPECTED['1.5'][label]!r}, {EXPECTED['3'][label]!r})")
+        print(
+            f"[GEO-38 C9 P1] {label}: page {rows.get(label)} | code "
+            f"({EXPECTED['1.5'][label]!r}, {EXPECTED['3'][label]!r})"
+        )
     bad = mismatches(rows)
     print(f"[GEO-38 C9 P1] compared {2 * len(EXPECTED['1.5'])} cells, mismatches {len(bad)}")
     assert not bad, bad
@@ -159,8 +167,10 @@ def test_geo38_c9_p3_mesh15_can_sentence_is_the_rule():
     have = f"{v:.3f} m"
     rows = {"shield (can) length": (have, EXPECTED["3"]["shield (can) length"])}
     bad = [b for b in mismatches(rows) if b[0] == "shield (can) length"]
-    print(f"[GEO-38 C9 P3] mesh:15 can length {v!r} vs rule {rule!r}: rel {rel:.3e} "
-          f"(band {s1a.IDENTITY_BAND:.0e}); formatted {have!r}; mismatches {bad}")
+    print(
+        f"[GEO-38 C9 P3] mesh:15 can length {v!r} vs rule {rule!r}: rel {rel:.3e} "
+        f"(band {s1a.IDENTITY_BAND:.0e}); formatted {have!r}; mismatches {bad}"
+    )
     assert rel <= s1a.IDENTITY_BAND, rel
     assert have == EXPECTED["1.5"]["shield (can) length"]
     assert bad == []

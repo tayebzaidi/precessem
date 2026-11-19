@@ -24,7 +24,8 @@ import time
 
 import numpy as np
 import ufl
-from dolfinx import default_scalar_type, fem, mesh as dmesh
+from dolfinx import default_scalar_type, fem
+from dolfinx import mesh as dmesh
 from mpi4py import MPI
 
 from fem_em_solver.io.mesh import MeshGenerator
@@ -39,11 +40,11 @@ from fem_em_solver.utils.analytical import (
 from tests.validation.test_imp1_pec_sphere_lossy_host import SPHERE_RADIUS
 from tests.validation.test_imp4_pec_cylinder_closed_form import B1_BAND
 from tests.validation.test_imp7_implant_heating_closed_form import (
-    H,
     K_CORE,
     K_GEL,
     Q_FAR,
     T_INF,
+    H,
 )
 from tests.validation.test_mat18_two_layer_sphere_fem import (
     CELL_GUARD,
@@ -91,9 +92,7 @@ def _say(msg):
 def _ball(res):
     if res not in _MESHES:
         t0 = time.perf_counter()
-        out = MeshGenerator.two_layer_ball_domain(
-            inner_radius=A, outer_radius=B, resolution=res
-        )
+        out = MeshGenerator.two_layer_ball_domain(inner_radius=A, outer_radius=B, resolution=res)
         _MESHES[res] = (*out, time.perf_counter() - t0)
     return _MESHES[res]
 
@@ -118,14 +117,11 @@ def _theta_shell(x, coeffs):
     r = np.sqrt(np.sum(x * x, axis=0))
     mu = x[2] / r
     p2 = 0.5 * (3.0 * mu * mu - 1.0)
-    return (pec_sphere_implant_radial(r, coeffs, 0)
-            + pec_sphere_implant_radial(r, coeffs, 2) * p2)
+    return pec_sphere_implant_radial(r, coeffs, 0) + pec_sphere_implant_radial(r, coeffs, 2) * p2
 
 
 def _theta_metal(x):
-    return pec_sphere_implant_steady_temperature(
-        x.T, k_core=K_CORE, t_inf=T_INF, **FIX
-    ) - T_INF
+    return pec_sphere_implant_steady_temperature(x.T, k_core=K_CORE, t_inf=T_INF, **FIX) - T_INF
 
 
 # ---- helpers (MAT-18's forms, parametrised by a and b) -----------------------
@@ -162,8 +158,7 @@ def _errors(msh, chi_sh, T_h, theta, b, qmeta=QDEG):
         if w is None:
             out.append(float("nan"))
         else:
-            out.append(np.sqrt(_allsum(comm, w * d**2 * dx)
-                               / _allsum(comm, w * theta**2 * dx)))
+            out.append(np.sqrt(_allsum(comm, w * d**2 * dx) / _allsum(comm, w * theta**2 * dx)))
     return tuple(float(v) for v in out)
 
 
@@ -269,10 +264,13 @@ def _l2_readout(T_h, label, pred):
     phi = 2.0 * np.pi * np.arange(8) / 8.0
     M, P = np.meshgrid(mu, phi, indexing="ij")
     s = np.sqrt(1.0 - M**2)
-    pts = np.column_stack([
-        (R0_READ * s * np.cos(P)).ravel(), (R0_READ * s * np.sin(P)).ravel(),
-        (R0_READ * M).ravel(),
-    ])
+    pts = np.column_stack(
+        [
+            (R0_READ * s * np.cos(P)).ravel(),
+            (R0_READ * s * np.sin(P)).ravel(),
+            (R0_READ * M).ravel(),
+        ]
+    )
     pts = np.vstack([pts, [[0.0, 0.0, R0_READ], [R0_READ, 0.0, 0.0]]])
     vals, ok = evaluate_vector_field_parallel(T_h, pts)
     if comm.rank == 0:
@@ -300,10 +298,14 @@ def _rate_gates(rows, label):
             f"{np.log(e[i] / e[i + 1]) / np.log(h[i] / h[i + 1]):.3f}"
         )
     rate = float(np.polyfit(np.log(h), np.log(e), 1)[0])
-    _say(f"IMP7-1 [{label}] (S1) LSQ P1 whole L2 rate = {rate:.3f} "
-         f"(predicted 1.8–2.1, band ≥ {S1_RATE})")
-    _say(f"IMP7-1 [{label}] (S2) finest interior rel L2 = {rows[-1][4]:.4e} "
-         f"(predicted 5e-4..5e-3, band ≤ {S2_BAND})")
+    _say(
+        f"IMP7-1 [{label}] (S1) LSQ P1 whole L2 rate = {rate:.3f} "
+        f"(predicted 1.8–2.1, band ≥ {S1_RATE})"
+    )
+    _say(
+        f"IMP7-1 [{label}] (S2) finest interior rel L2 = {rows[-1][4]:.4e} "
+        f"(predicted 5e-4..5e-3, band ≤ {S2_BAND})"
+    )
     assert rate >= S1_RATE, f"(S1) [{label}] P1 rate {rate:.3f} < {S1_RATE}"
     assert rows[-1][4] <= S2_BAND, f"(S2) [{label}] interior {rows[-1][4]:.4e} > {S2_BAND}"
 
@@ -341,8 +343,7 @@ def _metal_rung(res, q_fn=_q_shell, label="metal", degree=1):
     sol, t_solve = _solve(msh, ft, k_f, q_f, degree=degree)
     theta = _p2(msh, _theta_metal, p=rt["comparand"])
     chi_sh = _dg0(msh, ct, 0.0, 1.0)
-    e_all, e_in, e_sh = _errors(msh, chi_sh, sol.temperature, theta, B,
-                                qmeta=rt["qmeta"])
+    e_all, e_in, e_sh = _errors(msh, chi_sh, sol.temperature, theta, B, qmeta=rt["qmeta"])
     nglob = msh.topology.index_map(3).size_global
     vol = _volume(msh)
     vcore = _allsum(comm, _dg0(msh, ct, 1.0, 0.0) * ufl.dx(domain=msh))
@@ -405,8 +406,9 @@ def _hole_rung(res, q_fn=_q_shell, check=False, degree=1):
     area_a = _allsum(comm, one * ds(2))
     if check:
         srmin, srmax = _rmin_rmax(
-            comm, _vertex_radii(sub, np.arange(sub.topology.index_map(3).size_local,
-                                               dtype=np.int32)))
+            comm,
+            _vertex_radii(sub, np.arange(sub.topology.index_map(3).size_local, dtype=np.int32)),
+        )
         _say(
             f"IMP7-1 G-hole res={res} sub_cells={nsub} parent_tag2={n2} "
             f"shell_rmin/a-1={srmin / A - 1:.3e} shell_rmax/b-1={srmax / B - 1:.3e} "
@@ -416,8 +418,9 @@ def _hole_rung(res, q_fn=_q_shell, check=False, degree=1):
         assert nsub == n2, f"(G) hole cells {nsub} != parent tag-2 {n2}"
         assert srmin >= A * (1 - 1e-9), f"(G) hole vertex at r={srmin!r} < a"
         assert srmax <= B * (1 + 1e-9), f"(G) hole vertex at r={srmax!r} > b"
-        assert abs(area_b / AREA_B - 1) <= G_AREA_BAND, (
-            f"(G-hole) Robin area {area_b / AREA_B - 1:.3e}")
+        assert (
+            abs(area_b / AREA_B - 1) <= G_AREA_BAND
+        ), f"(G-hole) Robin area {area_b / AREA_B - 1:.3e}"
     q_f = _source_dg2(sub, None, q_fn, dg=rt["q_dg"])
     sol, t_solve = _solve(sub, sft, K_GEL, q_f, degree=degree)
     c0 = _coeffs(0.0)
@@ -478,10 +481,14 @@ def test_imp7_1_hole_controls():
 # rate (MAT-18 has no degree-2 rate gate) and the l = 2 readout at 1.1a beside
 # step 1's P1 values and the series.
 
-P1_READ = {"metal": (1.0174e-2, 0.359626, 0.344320),
-           "hole": (4.3742e-2, 0.393152, 0.327785)}  # IMP-7.md:429 (step-1 W1:71 / W2:68)
-SERIES_READ = {"metal": (1.1966e-2, 0.361610, 0.343661),
-               "hole": (4.4793e-2, 0.394437, 0.327248)}  # IMP-7.md:367-368
+P1_READ = {
+    "metal": (1.0174e-2, 0.359626, 0.344320),
+    "hole": (4.3742e-2, 0.393152, 0.327785),
+}  # IMP-7.md:429 (step-1 W1:71 / W2:68)
+SERIES_READ = {
+    "metal": (1.1966e-2, 0.361610, 0.343661),
+    "hole": (4.4793e-2, 0.394437, 0.327248),
+}  # IMP-7.md:367-368
 P1_BETA0 = {"metal": 5.965e-2, "hole": 6.243e-2}  # IMP-7.md:429
 
 
@@ -489,8 +496,10 @@ def _p2_rate_print(rows, label):
     h = np.array([r[2] for r in rows])
     e = np.array([r[3] for r in rows])
     for i in range(len(rows) - 1):
-        _say(f"IMP7-2 [{label}] P2 pairwise rate {LADDER[i]}->{LADDER[i + 1]}: "
-             f"{np.log(e[i] / e[i + 1]) / np.log(h[i] / h[i + 1]):.3f}")
+        _say(
+            f"IMP7-2 [{label}] P2 pairwise rate {LADDER[i]}->{LADDER[i + 1]}: "
+            f"{np.log(e[i] / e[i + 1]) / np.log(h[i] / h[i + 1]):.3f}"
+        )
     rate = float(np.polyfit(np.log(h), np.log(e), 1)[0])
     _say(f"IMP7-2 [{label}] P2 LSQ whole L2 rate = {rate:.3f} (printed, no band)")
 
@@ -500,23 +509,31 @@ def _p2_case(label, rung):
     for res in LADDER:
         sol, t_b, t_s, row, bal = rung(res)
         rows.append(row)
-        _say(f"IMP7-2 [{label}] P2 res={res} cells={row[1]} h_eff={row[2]:.5e} "
-             f"build={t_b:.1f}s solve={t_s:.1f}s whole_rel_L2={row[3]:.4e} "
-             f"interior_rel_L2={row[4]:.4e} balance={bal:.3e}")
+        _say(
+            f"IMP7-2 [{label}] P2 res={res} cells={row[1]} h_eff={row[2]:.5e} "
+            f"build={t_b:.1f}s solve={t_s:.1f}s whole_rel_L2={row[3]:.4e} "
+            f"interior_rel_L2={row[4]:.4e} balance={bal:.3e}"
+        )
         assert bal <= S3_BAND, f"(S3) [{label}] P2 balance {bal:.3e} > {S3_BAND} at res={res}"
         if res == LADDER[-1]:
             p1 = P1_READ[label]
-            _say(f"IMP7-2 [{label}] P1 readout (step 1): R2_h={p1[0]:.4e} "
-                 f"pole={p1[1]:.6f} equator={p1[2]:.6f} K")
+            _say(
+                f"IMP7-2 [{label}] P1 readout (step 1): R2_h={p1[0]:.4e} "
+                f"pole={p1[1]:.6f} equator={p1[2]:.6f} K"
+            )
             _l2_readout(sol.temperature, f"{label} P2", SERIES_READ[label])
     _p2_rate_print(rows, label)
-    _say(f"IMP7-2 [{label}] P2 finest interior rel L2 = {rows[-1][4]:.4e} "
-         f"(band <= S2_BAND {S2_BAND})")
+    _say(
+        f"IMP7-2 [{label}] P2 finest interior rel L2 = {rows[-1][4]:.4e} "
+        f"(band <= S2_BAND {S2_BAND})"
+    )
     assert rows[-1][4] <= S2_BAND, f"[{label}] P2 interior {rows[-1][4]:.4e} > {S2_BAND}"
     _, _, t_s, row, bal = rung(CONTROL_RES, q_fn=lambda x: _q_shell(x, beta=0.0))
-    _say(f"IMP7-2 [{label}] P2 (c-beta0) res={CONTROL_RES}: interior miss {row[4]:.4e} "
-         f"(P1 read {P1_BETA0[label]:.3e}; asserted > {S2_BAND}); "
-         f"whole {row[3]:.4e}; solve={t_s:.1f}s")
+    _say(
+        f"IMP7-2 [{label}] P2 (c-beta0) res={CONTROL_RES}: interior miss {row[4]:.4e} "
+        f"(P1 read {P1_BETA0[label]:.3e}; asserted > {S2_BAND}); "
+        f"whole {row[3]:.4e}; solve={t_s:.1f}s"
+    )
     assert row[4] > S2_BAND, f"[{label}] P2 (c-beta0) control did not fire: {row[4]:.4e}"
 
 
@@ -524,6 +541,7 @@ def test_imp7_2_metal_core_p2():
     def rung(res, q_fn=_q_shell):
         _, sol, t_b, t_s, row, bal, _ = _metal_rung(res, q_fn=q_fn, degree=2)
         return sol, t_b, t_s, row, bal
+
     _p2_case("metal", rung)
 
 
@@ -531,4 +549,5 @@ def test_imp7_2_hole_p2():
     def rung(res, q_fn=_q_shell):
         sol, t_b, t_s, row, bal, _ = _hole_rung(res, q_fn=q_fn, degree=2)
         return sol, t_b, t_s, row, bal
+
     _p2_case("hole", rung)

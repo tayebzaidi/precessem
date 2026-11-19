@@ -58,7 +58,6 @@ from fem_em_solver import (
     TwoPortQuadratureDrive,
 )
 from fem_em_solver.materials import GelledSalinePhantomMaterial
-
 from tests.complex_mode import complex_only
 from tests.mesh.test_birdcage_leg_offset import IDENTITY_BAND
 from tests.mesh.test_birdcage_port_sheet_prerequisite import CELL_COUNT_BAND
@@ -100,8 +99,10 @@ S9_ENV = "FEM_EM_WF16_S9"
 RECORD_RANK_WIDTH = 8  # the width H9′'s node JSON was recorded at
 H17_NODE_JSON = os.path.join(JSON_DIR, "h17-node-118.2000.json")
 #: 358's node line (`20261010T170356Z_WF-10-step2-W1.log`), printed beside.
-NODE_LINE_RECORD = ("Z_RC 2.000000000e-01-2.103110767e+01j, Z_th 7.634949838e+00"
-                    "-1.774868389e+01j, V_s 1.022606662e+00+2.377215668e+00j")
+NODE_LINE_RECORD = (
+    "Z_RC 2.000000000e-01-2.103110767e+01j, Z_th 7.634949838e+00"
+    "-1.774868389e+01j, V_s 1.022606662e+00+2.377215668e+00j"
+)
 #: (S_rep)'s same-comparison prior (`20261010T171705Z_WF-10-step2s-W1.log:6312`).
 S_REP_PRIOR = 6.027027e-13
 #: (P_w) priors (`20261010T170356Z_WF-10-step2-W1.log`, [ccw] / [cw] lines).
@@ -144,14 +145,15 @@ def _cx(pair):
 def test_wf16_s9a_api_and_refusals():
     """(K0): no mesh anywhere in this node."""
     _knob()  # a bad knob value raises here too
-    assert FHumanBirdcageGeometry(as_hole=True).generator_kwargs() == \
-        _f_human_kwargs(as_hole=True)
-    assert FHumanBirdcageGeometry(as_hole=True, emit_leg_ports=True).generator_kwargs() == \
-        _f_human_kwargs(as_hole=True)
+    assert FHumanBirdcageGeometry(as_hole=True).generator_kwargs() == _f_human_kwargs(as_hole=True)
+    assert FHumanBirdcageGeometry(
+        as_hole=True, emit_leg_ports=True
+    ).generator_kwargs() == _f_human_kwargs(as_hole=True)
     assert FHumanBirdcageGeometry().generator_kwargs() == _f_human_kwargs()
     assert "as_hole" not in FHumanBirdcageGeometry().generator_kwargs()
-    assert FHumanBirdcageGeometry(emit_leg_ports=True).generator_kwargs() == \
-        _f_human_kwargs(emit_leg_ports=True)
+    assert FHumanBirdcageGeometry(emit_leg_ports=True).generator_kwargs() == _f_human_kwargs(
+        emit_leg_ports=True
+    )
     assert FHumanBirdcageGeometry().as_hole is False
 
     drv = TwoPortQuadratureDrive(_c_f(), esr_ohm=ESR_OHM)
@@ -160,13 +162,22 @@ def test_wf16_s9a_api_and_refusals():
     assert drv.gap_impedance_ohm(FREQUENCY_HZ) == z_rc
     assert drv.feed_impedance_ohm(FREQUENCY_HZ) == _thevenin_feed_impedance(z_rc, 50.0)
     assert drv.source_voltage_v(FREQUENCY_HZ) == _source_voltage(z_rc, 50.0)
-    print(f"[WF-16 s9a K0] Z_RC {drv.gap_impedance_ohm(FREQUENCY_HZ):.9e} Z_th "
-          f"{drv.feed_impedance_ohm(FREQUENCY_HZ):.9e} V_s "
-          f"{drv.source_voltage_v(FREQUENCY_HZ):.9e}; record {NODE_LINE_RECORD}")
-    for bad in (dict(c_in_f=0.0), dict(c_in_f=float("nan")), dict(c_in_f=-1e-12),
-                dict(c_in_f=1e-10, esr_ohm=-0.1), dict(c_in_f=1e-10, esr_ohm=float("inf")),
-                dict(c_in_f=1e-10, feeds="P17"), dict(c_in_f=1e-10, feeds=("P17",)),
-                dict(c_in_f=1e-10, feeds=("P17", "P17")), dict(c_in_f=1e-10, z0_ohm=0.0)):
+    print(
+        f"[WF-16 s9a K0] Z_RC {drv.gap_impedance_ohm(FREQUENCY_HZ):.9e} Z_th "
+        f"{drv.feed_impedance_ohm(FREQUENCY_HZ):.9e} V_s "
+        f"{drv.source_voltage_v(FREQUENCY_HZ):.9e}; record {NODE_LINE_RECORD}"
+    )
+    for bad in (
+        dict(c_in_f=0.0),
+        dict(c_in_f=float("nan")),
+        dict(c_in_f=-1e-12),
+        dict(c_in_f=1e-10, esr_ohm=-0.1),
+        dict(c_in_f=1e-10, esr_ohm=float("inf")),
+        dict(c_in_f=1e-10, feeds="P17"),
+        dict(c_in_f=1e-10, feeds=("P17",)),
+        dict(c_in_f=1e-10, feeds=("P17", "P17")),
+        dict(c_in_f=1e-10, z0_ohm=0.0),
+    ):
         with pytest.raises(ValueError):
             TwoPortQuadratureDrive(**bad)
     with pytest.raises(dataclasses.FrozenInstanceError):
@@ -185,8 +196,10 @@ def test_wf16_s9a_api_and_refusals():
 @pytest.fixture(scope="module")
 def tuned():
     if not _knob():
-        pytest.skip(f"{S9_ENV} unset: the tuned F-human node is a heavy -n 8 window, "
-                    "environment-selected")
+        pytest.skip(
+            f"{S9_ENV} unset: the tuned F-human node is a heavy -n 8 window, "
+            "environment-selected"
+        )
     comm = MPI.COMM_WORLD
     assert comm.size == RECORD_RANK_WIDTH, (comm.size, RECORD_RANK_WIDTH)
     rec, npz_cells, h17 = None, None, None
@@ -201,9 +214,12 @@ def tuned():
             with open(H17_NODE_JSON) as fh:
                 h17 = json.load(fh)
         st = os.stat(NODE_JSON)
-        print(f"[WF-16 s9a] node JSON {NODE_JSON}: {st.st_size} bytes, mtime "
-              f"{time.strftime('%Y-%m-%d %H:%M:%S %Z', time.localtime(st.st_mtime))}; "
-              f"c_f {rec['c_f']!r}", flush=True)
+        print(
+            f"[WF-16 s9a] node JSON {NODE_JSON}: {st.st_size} bytes, mtime "
+            f"{time.strftime('%Y-%m-%d %H:%M:%S %Z', time.localtime(st.st_mtime))}; "
+            f"c_f {rec['c_f']!r}",
+            flush=True,
+        )
     rec, npz_cells, h17 = comm.bcast((rec, npz_cells, h17), root=0)
     assert rec["c_f"] == _c_f(), (rec["c_f"], _c_f())
     assert rec["r_ohm"] == ESR_OHM and rec["degree"] == 1
@@ -213,9 +229,12 @@ def tuned():
     elapsed = time.perf_counter() - t0
     assert st.result is res
     if comm.rank == 0:
-        print(f"[WF-16 s9a] solve: build {res.times['build']:.1f} s, node pair "
-              f"{res.times['node_pair']:.2f} s, superposition {res.times['superposition']:.2f} s; "
-              f"total {elapsed:.1f} s (H9′ JSON times {rec['times_s']})", flush=True)
+        print(
+            f"[WF-16 s9a] solve: build {res.times['build']:.1f} s, node pair "
+            f"{res.times['node_pair']:.2f} s, superposition {res.times['superposition']:.2f} s; "
+            f"total {elapsed:.1f} s (H9′ JSON times {rec['times_s']})",
+            flush=True,
+        )
     return {"st": st, "res": res, "rec": rec, "npz_cells": npz_cells, "h17": h17, "comm": comm}
 
 
@@ -235,12 +254,15 @@ def test_wf16_s9a_fixture_and_specs(tuned):
     d_mirror = abs(res.az_mirror - rec["az_mirror"])
     d_feeds = max(abs(a - b) for a, b in zip(res.az_feeds, rec["az_feeds"]))
     if comm.rank == 0:
-        print(f"[WF-16 s9a A0] cells {res.cells} vs record {HOLE_CELL_RECORD} (rel {cell_rel:.3e}, "
-              f"band {CELL_COUNT_BAND}, ASSERTED), npz cells {tuned['npz_cells']} (== ASSERTED); "
-              f"feeds {res.feeds} at az {res.az_feeds[0]:.12f} / {res.az_feeds[1]:.12f} deg, "
-              f"d_az {d_az:.12f} (90 within {AZIMUTH_MATCH_DEG:g}, ASSERTED); az_mirror "
-              f"{res.az_mirror:.12f} vs JSON {rec['az_mirror']:.12f} (|d| {d_mirror:.3e}, band "
-              f"AZIMUTH_MATCH_DEG ASSERTED); feed azimuths vs JSON |d| {d_feeds:.3e}", flush=True)
+        print(
+            f"[WF-16 s9a A0] cells {res.cells} vs record {HOLE_CELL_RECORD} (rel {cell_rel:.3e}, "
+            f"band {CELL_COUNT_BAND}, ASSERTED), npz cells {tuned['npz_cells']} (== ASSERTED); "
+            f"feeds {res.feeds} at az {res.az_feeds[0]:.12f} / {res.az_feeds[1]:.12f} deg, "
+            f"d_az {d_az:.12f} (90 within {AZIMUTH_MATCH_DEG:g}, ASSERTED); az_mirror "
+            f"{res.az_mirror:.12f} vs JSON {rec['az_mirror']:.12f} (|d| {d_mirror:.3e}, band "
+            f"AZIMUTH_MATCH_DEG ASSERTED); feed azimuths vs JSON |d| {d_feeds:.3e}",
+            flush=True,
+        )
     assert abs(cell_rel) <= CELL_COUNT_BAND, cell_rel
     assert res.cells == tuned["npz_cells"], (res.cells, tuned["npz_cells"])
     assert abs(d_az - 90.0) < AZIMUTH_MATCH_DEG, d_az
@@ -256,17 +278,25 @@ def test_wf16_s9a_fixture_and_specs(tuned):
     msh, cell_tags = res.mesh, res.cell_tags
     ring = _ring_ports()
     tags_f = _interface_facet_tags(
-        msh, cell_tags, {SHEET_IFACE + i: (PORT_LOWER + i, PORT_UPPER + i) for i in ring})
+        msh, cell_tags, {SHEET_IFACE + i: (PORT_LOWER + i, PORT_UPPER + i) for i in ring}
+    )
     chord = float(res.specs[0].gap_height_m)
     base = []
     for i in ring:
         area = _interface_area_or_zero(msh, tags_f, SHEET_IFACE + i, comm)
         phi_hat, _c = _ring_gap_frame(i, LEG_COUNT)
-        base.append(LumpedSheetPortSpec(
-            port_id=f"P{i}", facet_tag=int(SHEET_IFACE + i), port_impedance_ohm=50.0,
-            gap_height_m=chord, sheet_width_m=area / chord,
-            drive_direction=tuple(float(c) for c in phi_hat), drive_voltage_v=1.0 + 0.0j,
-            interior=True))
+        base.append(
+            LumpedSheetPortSpec(
+                port_id=f"P{i}",
+                facet_tag=int(SHEET_IFACE + i),
+                port_impedance_ohm=50.0,
+                gap_height_m=chord,
+                sheet_width_m=area / chord,
+                drive_direction=tuple(float(c) for c in phi_hat),
+                drive_voltage_v=1.0 + 0.0j,
+                interior=True,
+            )
+        )
     z_rc = _z_rc(_c_f(), FREQUENCY_HZ)
     z_th = _thevenin_feed_impedance(z_rc, 50.0)
     imp = {sp.port_id: (z_th if sp.port_id in res.feeds else z_rc) for sp in base}
@@ -284,9 +314,12 @@ def test_wf16_s9a_fixture_and_specs(tuned):
             if getattr(g, f.name) != getattr(r, f.name):
                 other.append((pid, f.name, getattr(g, f.name), getattr(r, f.name)))
     if comm.rank == 0:
-        print(f"[WF-16 s9a U] 32 specs: worst w rel {worst_w:.3e}, h rel {worst_h:.3e} (band "
-              f"IDENTITY_BAND {IDENTITY_BAND:g}, ASSERTED); other-field mismatches "
-              f"{other or 'none'} (== ASSERTED)", flush=True)
+        print(
+            f"[WF-16 s9a U] 32 specs: worst w rel {worst_w:.3e}, h rel {worst_h:.3e} (band "
+            f"IDENTITY_BAND {IDENTITY_BAND:g}, ASSERTED); other-field mismatches "
+            f"{other or 'none'} (== ASSERTED)",
+            flush=True,
+        )
     assert worst_w <= IDENTITY_BAND and worst_h <= IDENTITY_BAND, (worst_w, worst_h)
     assert not other, other
 
@@ -296,45 +329,62 @@ def test_wf16_s9a_node_reproduces_h9p(tuned):
     """(W), (S_rep), (Y); the H17-node control printed."""
     res, rec, comm = tuned["res"], tuned["rec"], tuned["comm"]
     say = (lambda m: print(f"[WF-16 s9a] {m}", flush=True)) if comm.rank == 0 else (lambda m: None)
-    say(f"node line: Z_RC {res.gap_impedance_ohm:.9e} Z_th {res.feed_impedance_ohm:.9e} V_s "
-        f"{res.source_voltage_v:.9e}; record {NODE_LINE_RECORD}")
+    say(
+        f"node line: Z_RC {res.gap_impedance_ohm:.9e} Z_th {res.feed_impedance_ohm:.9e} V_s "
+        f"{res.source_voltage_v:.9e}; record {NODE_LINE_RECORD}"
+    )
     d_w = {}
     for sense in ("ccw", "cw"):
         w_json = np.array([_cx(p) for p in rec["w"][sense]])
         d_w[sense] = float(np.max(np.abs(np.asarray(res.weights[sense]) - w_json)))
-    d_ccw_senses = float(np.max(np.abs(np.asarray(res.weights["ccw"])
-                                       - np.asarray(SENSES["(1,-1j)"]))))
-    say(f"(W) weights {res.weights}; vs JSON ccw {d_w['ccw']:.3e} cw {d_w['cw']:.3e}; ccw vs "
-        f"SENSES['(1,-1j)'] {d_ccw_senses:.3e} (band Y0_CODING_BAND {Y0_CODING_BAND:g}, ASSERTED)")
+    d_ccw_senses = float(
+        np.max(np.abs(np.asarray(res.weights["ccw"]) - np.asarray(SENSES["(1,-1j)"])))
+    )
+    say(
+        f"(W) weights {res.weights}; vs JSON ccw {d_w['ccw']:.3e} cw {d_w['cw']:.3e}; ccw vs "
+        f"SENSES['(1,-1j)'] {d_ccw_senses:.3e} (band Y0_CODING_BAND {Y0_CODING_BAND:g}, ASSERTED)"
+    )
     s_json = np.array([[_cx(v) for v in row] for row in rec["s_node"]], dtype=np.complex128)
     r_s = _residual(res.s_node, s_json)
-    say(f"(S_rep) s_node {np.array2string(res.s_node, precision=12)}; residual vs node JSON "
-        f"{r_s:.6e} (band {REUSE_REPRODUCTION_RTOL:g}, ASSERTED; prior {S_REP_PRIOR:.6e})")
+    say(
+        f"(S_rep) s_node {np.array2string(res.s_node, precision=12)}; residual vs node JSON "
+        f"{r_s:.6e} (band {REUSE_REPRODUCTION_RTOL:g}, ASSERTED; prior {S_REP_PRIOR:.6e})"
+    )
     for i in range(2):
         for j in range(2):
-            say(f"(S_rep) S[{i},{j}] study {res.s_node[i, j]:.12e} json {s_json[i, j]:.12e} "
-                f"|d| {abs(res.s_node[i, j] - s_json[i, j]):.3e}")
+            say(
+                f"(S_rep) S[{i},{j}] study {res.s_node[i, j]:.12e} json {s_json[i, j]:.12e} "
+                f"|d| {abs(res.s_node[i, j] - s_json[i, j]):.3e}"
+            )
     r_y = {}
     for sense in ("ccw", "cw"):
         y_json = np.array([_cx(p) for p in rec["y_in"][sense]])
         y = np.asarray(res.y_in[sense])
         r_y[sense] = float(np.linalg.norm(y - y_json) / np.linalg.norm(y_json))
         y_ref = _active_y_in(res.s_node, res.weights[sense], 50.0)
-        assert max(abs(a - b) for a, b in zip(y, y_ref)) <= Y0_CODING_BAND * max(abs(b) for b in y_ref)
-        say(f"(Y) [{sense}] Y_in P17 {y[0]:.10e} P21 {y[1]:.10e} S; JSON {y_json[0]:.10e} / "
-            f"{y_json[1]:.10e}; rel {r_y[sense]:.3e} (band {REUSE_REPRODUCTION_RTOL:g}, ASSERTED)")
+        assert max(abs(a - b) for a, b in zip(y, y_ref)) <= Y0_CODING_BAND * max(
+            abs(b) for b in y_ref
+        )
+        say(
+            f"(Y) [{sense}] Y_in P17 {y[0]:.10e} P21 {y[1]:.10e} S; JSON {y_json[0]:.10e} / "
+            f"{y_json[1]:.10e}; rel {r_y[sense]:.3e} (band {REUSE_REPRODUCTION_RTOL:g}, ASSERTED)"
+        )
     h17 = tuned["h17"]
     if h17 is not None and "s_node" in h17:
         try:
             s17 = np.array([[_cx(v) for v in row] for row in h17["s_node"]], dtype=np.complex128)
-            say(f"control (PREDICTED miss > {REUSE_REPRODUCTION_RTOL:g}, printed only): s_node vs "
-                f"H17 node JSON at {h17.get('c_f')!r} F residual {_residual(res.s_node, s17):.6e}")
+            say(
+                f"control (PREDICTED miss > {REUSE_REPRODUCTION_RTOL:g}, printed only): s_node vs "
+                f"H17 node JSON at {h17.get('c_f')!r} F residual {_residual(res.s_node, s17):.6e}"
+            )
         except Exception as exc:  # printed only, never asserted
             say(f"control: H17 node JSON s_node not comparable ({exc!r})")
     else:
         say("control: H17 node JSON absent or without s_node (printed only)")
-    assert max(d_w.values()) <= Y0_CODING_BAND and d_ccw_senses <= Y0_CODING_BAND, (d_w,
-                                                                                  d_ccw_senses)
+    assert max(d_w.values()) <= Y0_CODING_BAND and d_ccw_senses <= Y0_CODING_BAND, (
+        d_w,
+        d_ccw_senses,
+    )
     assert r_s <= REUSE_REPRODUCTION_RTOL, f"(S_rep) {r_s:.6e}"
     for sense, r in r_y.items():
         assert r <= REUSE_REPRODUCTION_RTOL, (sense, r)
@@ -364,13 +414,20 @@ def test_wf16_s9a_power_partition(tuned):
         f = res.fields[sense]
         ef, sigma = f.e_complex, f.sigma_field
         wf = dict(zip(res.feeds, res.weights[sense]))
-        sheets = {pid: (dataclasses.replace(specs_by[pid].sheet(driven=True),
-                                            source_voltage_v=complex(wf[pid]))
-                        if pid in res.feeds else specs_by[pid].sheet(driven=False))
-                  for pid in order}
+        sheets = {
+            pid: (
+                dataclasses.replace(
+                    specs_by[pid].sheet(driven=True), source_voltage_v=complex(wf[pid])
+                )
+                if pid in res.feeds
+                else specs_by[pid].sheet(driven=False)
+            )
+            for pid in order
+        }
         p_src = float(sum(_source_power_w(acct, sheets[pid], ef, omega) for pid in res.feeds))
-        p_sheets = float(sum(_sheet_field_dissipation_w(acct, sheets[pid], ef, omega)
-                             for pid in order))
+        p_sheets = float(
+            sum(_sheet_field_dissipation_w(acct, sheets[pid], ef, omega) for pid in order)
+        )
         p_total = _vol(sigma, ef, dx)
         p_ph = _vol(sigma, ef, dx(PHANTOM_CELL_TAG))
         p_rest = p_total - p_ph
@@ -382,14 +439,17 @@ def test_wf16_s9a_power_partition(tuned):
         r_ph = abs(p_ph / jp["p_phantom"] - 1.0)
         out[sense] = (rel, blind, r_src, r_ph)
         if comm.rank == 0:
-            print(f"[WF-16 s9a P_w] [{sense}] P_src {p_src:.9e} sumP_sheet {p_sheets:.9e} "
-                  f"P_phantom {p_ph:.9e} P_rest {p_rest:.9e} P_surf {p_surf:.9e} W; rel "
-                  f"{rel:.3e} (band {DISCRETE_IDENTITY_RTOL:g}, ASSERTED; prior "
-                  f"{P_W_PRIOR[sense]:.3e}); P_surf-blind miss {blind:.4e} = "
-                  f"{blind / DISCRETE_IDENTITY_RTOL:.1f}x (JSON {jp['blind']:.4e}; bar "
-                  f"{BLIND_FACTOR:.0f}x, {'ASSERTED' if sense == 'ccw' else 'printed'}); vs JSON "
-                  f"P_src rel {r_src:.3e}, P_phantom rel {r_ph:.3e} (band "
-                  f"{REUSE_REPRODUCTION_RTOL:g}, ASSERTED)", flush=True)
+            print(
+                f"[WF-16 s9a P_w] [{sense}] P_src {p_src:.9e} sumP_sheet {p_sheets:.9e} "
+                f"P_phantom {p_ph:.9e} P_rest {p_rest:.9e} P_surf {p_surf:.9e} W; rel "
+                f"{rel:.3e} (band {DISCRETE_IDENTITY_RTOL:g}, ASSERTED; prior "
+                f"{P_W_PRIOR[sense]:.3e}); P_surf-blind miss {blind:.4e} = "
+                f"{blind / DISCRETE_IDENTITY_RTOL:.1f}x (JSON {jp['blind']:.4e}; bar "
+                f"{BLIND_FACTOR:.0f}x, {'ASSERTED' if sense == 'ccw' else 'printed'}); vs JSON "
+                f"P_src rel {r_src:.3e}, P_phantom rel {r_ph:.3e} (band "
+                f"{REUSE_REPRODUCTION_RTOL:g}, ASSERTED)",
+                flush=True,
+            )
     for sense, (rel, _blind, r_src, r_ph) in out.items():
         assert rel <= DISCRETE_IDENTITY_RTOL, (sense, rel)
         assert r_src <= REUSE_REPRODUCTION_RTOL, (sense, r_src)

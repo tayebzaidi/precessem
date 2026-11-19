@@ -82,7 +82,6 @@ from fem_em_solver.utils.analytical import (
     pec_oblate_spheroid_field,
 )
 from fem_em_solver.utils.constants import EPSILON_0, MU_0
-
 from tests.complex_mode import complex_only
 from tests.mesh.helpers import global_cell_tag_set
 from tests.mesh.test_birdcage_conductor_hole import SOLID_CELL_RECORD
@@ -119,7 +118,6 @@ from tests.validation.test_imp3_rod_birdcage import (
     CF_CHUNK,
     DRIVES,
     IMP3_FLAG_OFF_Z_64MHZ,
-    MIRROR_PAIRS,
     PEC_WALL_MAX_E,
     PORT_IDS,
     QDEG_CF,
@@ -229,15 +227,16 @@ def _disc_ball_means(msh, cell_tags, centre, radius):
     vol = 0.0
     n_inside = 0
     n_bad = 0
-    kw = dict(semi_major=SPHEROID_SEMI_MAJOR, semi_minor=SPHEROID_SEMI_MINOR, e0=1.0,
-              interior="continue")
+    kw = dict(
+        semi_major=SPHEROID_SEMI_MAJOR, semi_minor=SPHEROID_SEMI_MINOR, e0=1.0, interior="continue"
+    )
     for start in range(0, cells.size, CF_CHUNK):
-        chunk = cells[start:start + CF_CHUNK]
+        chunk = cells[start : start + CF_CHUNK]
         v = xg[dmap[chunk]]
         jac = np.stack([v[:, 1] - v[:, 0], v[:, 2] - v[:, 0], v[:, 3] - v[:, 0]], axis=2)
         det = np.abs(np.linalg.det(jac))
         phys = v[:, 0][:, None, :] + np.einsum("cij,qj->cqi", jac, pts_ref)
-        chi = (np.sum((phys - c) ** 2, axis=2) < radius**2)
+        chi = np.sum((phys - c) ** 2, axis=2) < radius**2
         if not np.any(chi):
             continue
         flat = phys.reshape(-1, 3)
@@ -263,17 +262,14 @@ def _disc_ball_means(msh, cell_tags, centre, radius):
         vol += float(np.sum(w))
     vol = comm.allreduce(vol, op=MPI.SUM)
     means = {k: comm.allreduce(v, op=MPI.SUM) / vol for k, v in num.items()}
-    return (means, vol, comm.allreduce(n_inside, op=MPI.SUM),
-            comm.allreduce(n_bad, op=MPI.SUM))
+    return (means, vol, comm.allreduce(n_inside, op=MPI.SUM), comm.allreduce(n_bad, op=MPI.SUM))
 
 
 def _arm_disc(built, label, disc):
     """Sweep one arm; return scalars and, for the disc arm, the mesh handles."""
     comm = MPI.COMM_WORLD
     t_arm = time.perf_counter()
-    case = build_four_port_sweep(
-        frequency_hz=STEP2D_FREQUENCY_HZ, built=built, build_only=True
-    )
+    case = build_four_port_sweep(frequency_hz=STEP2D_FREQUENCY_HZ, built=built, build_only=True)
     msh = case["mesh"]
     ncells = int(case["cells"])
     _say(
@@ -331,8 +327,12 @@ def _arm_disc(built, label, disc):
     for rim, centre in RIM_POINTS.items():
         for d in DRIVES:
             out = mass_averaged_sar(
-                e_of[d], sigma=sigma_field, rho=rho_field, center=centre,
-                radius=a_1g, quadrature_degree=QUADRATURE_DEGREE,
+                e_of[d],
+                sigma=sigma_field,
+                rho=rho_field,
+                center=centre,
+                radius=a_1g,
+                quadrature_degree=QUADRATURE_DEGREE,
             )
             sar[(rim, d)] = float(out["averaged_sar_w_per_kg"])
             mass[rim] = float(out["mass_kg"])
@@ -477,7 +477,6 @@ def _c3(a):
 
 def _case_disc(phantom_resolution):
     """Without-disc arm first, freed, then the disc arm (GEO-23 order)."""
-    comm = MPI.COMM_WORLD
     t_case = time.perf_counter()
     window = "W1" if phantom_resolution is None else "W2"
     kw = {} if phantom_resolution is None else {"phantom_resolution": phantom_resolution}
@@ -500,8 +499,16 @@ def _case_disc(phantom_resolution):
     t_cf = time.perf_counter() - t0
     e = math.sqrt(1.0 - (SPHEROID_SEMI_MINOR / SPHEROID_SEMI_MAJOR) ** 2)
     lx, lz = oblate_spheroid_depolarisation(e)
-    case = {"window": window, "off": off, "disc": disc, "disc_cells": disc_cells,
-            "m": m, "lx": lx, "lz": lz, "t_cf": t_cf}
+    case = {
+        "window": window,
+        "off": off,
+        "disc": disc,
+        "disc_cells": disc_cells,
+        "m": m,
+        "lx": lx,
+        "lz": lz,
+        "t_cf": t_cf,
+    }
     case["t_case"] = time.perf_counter() - t_case
     return case
 
@@ -528,8 +535,12 @@ def _report(case):
     for pid in PORT_IDS:
         p0 = off["shares"][pid]["phantom"]
         p1 = disc["shares"][pid]["phantom"]
-        tag = (f"predicted [{PRED_DP_PHANTOM[0]:.1%}, {PRED_DP_PHANTOM[1]:.0%}], "
-               f"{_in((p1 - p0) / p0, PRED_DP_PHANTOM)}" if pid == "P1" else "printed")
+        tag = (
+            f"predicted [{PRED_DP_PHANTOM[0]:.1%}, {PRED_DP_PHANTOM[1]:.0%}], "
+            f"{_in((p1 - p0) / p0, PRED_DP_PHANTOM)}"
+            if pid == "P1"
+            else "printed"
+        )
         _say(
             f"        {pid}: P_phantom {p0:.9e} -> {p1:.9e} W, dP/P {(p1 - p0) / p0:+.4%} "
             f"({tag})"
@@ -541,9 +552,15 @@ def _report(case):
     _c3(off)
     _c3(disc)
     f_hz = float(STEP2D_FREQUENCY_HZ)
-    k_mag = 2.0 * np.pi * f_hz * math.sqrt(
-        MU_0 * EPSILON_0 * abs(SALINE_EPSILON_R - 1j * SALINE_SIGMA
-                               / (2.0 * np.pi * f_hz * EPSILON_0))
+    k_mag = (
+        2.0
+        * np.pi
+        * f_hz
+        * math.sqrt(
+            MU_0
+            * EPSILON_0
+            * abs(SALINE_EPSILON_R - 1j * SALINE_SIGMA / (2.0 * np.pi * f_hz * EPSILON_0))
+        )
     )
     _say(
         f"[IMP-3 {w}] rim 1 g ratio Q = SAR_1g,rim(disc)/SAR_1g,rim(without); "
@@ -573,8 +590,10 @@ def _report(case):
             eta_tag = f"pred ~{PRED_ETA_PAR_P1}"
             q_band = PRED_Q_P1
         elif d in ("P2", "P4"):
-            eta_tag = f"pred [{PRED_ETA_PAR_P24[0]}, {PRED_ETA_PAR_P24[1]}], " \
-                      f"{_in(eta['par'], PRED_ETA_PAR_P24)}"
+            eta_tag = (
+                f"pred [{PRED_ETA_PAR_P24[0]}, {PRED_ETA_PAR_P24[1]}], "
+                f"{_in(eta['par'], PRED_ETA_PAR_P24)}"
+            )
             q_band = PRED_Q_P24
         else:
             eta_tag = "no prediction"
@@ -583,8 +602,9 @@ def _report(case):
             means = case["m"][rim][0]
             q = disc["sar"][(rim, d)] / off["sar"][(rim, d)]
             est = eta["par"] * means["par"] + eta["t"] * means["t"] + eta["n"] * means["n"]
-            qtag = (f"pred [{q_band[0]}, {q_band[1]}], {_in(q, q_band)}" if q_band
-                    else "no prediction")
+            qtag = (
+                f"pred [{q_band[0]}, {q_band[1]}], {_in(q, q_band)}" if q_band else "no prediction"
+            )
             _say(
                 f"    {d:>3s} {rim:>6s}: Q = {q:.6f} ({qtag}); eta_par {eta['par']:.6f} "
                 f"({eta_tag}), eta_t {eta['t']:.6f}, eta_n {eta['n']:.6f}; estimate "
@@ -621,8 +641,10 @@ def _assert_identities_disc(case):
     assert off["mq"]["separation"] >= POOLED_SEPARATION_FLOOR, off["mq"]["separation"]
     a = off["a_1g"]
     assert SPHEROID_CENTRE[0] + a < PHANTOM_RADIUS, (SPHEROID_CENTRE[0] + a, PHANTOM_RADIUS)
-    assert SPHEROID_SEMI_MAJOR + a < 0.5 * PHANTOM_HEIGHT, (SPHEROID_SEMI_MAJOR + a,
-                                                            0.5 * PHANTOM_HEIGHT)
+    assert SPHEROID_SEMI_MAJOR + a < 0.5 * PHANTOM_HEIGHT, (
+        SPHEROID_SEMI_MAJOR + a,
+        0.5 * PHANTOM_HEIGHT,
+    )
 
 
 def _control_c1_disc(case):
@@ -651,8 +673,11 @@ def _control_c1_disc(case):
     sar_nat = {}
     for rim, centre in RIM_POINTS.items():
         out = mass_averaged_sar(
-            solved["fields"].e_complex, sigma=solved["fields"].sigma_field,
-            rho=disc["rho_field"], center=centre, radius=a_1g,
+            solved["fields"].e_complex,
+            sigma=solved["fields"].sigma_field,
+            rho=disc["rho_field"],
+            center=centre,
+            radius=a_1g,
             quadrature_degree=QUADRATURE_DEGREE,
         )
         sar_nat[rim] = float(out["averaged_sar_w_per_kg"])

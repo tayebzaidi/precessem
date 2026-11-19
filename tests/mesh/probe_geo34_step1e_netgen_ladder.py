@@ -59,17 +59,27 @@ def census(tag):
     n = len(tets)
     if n == 0:
         p(f"{tag} census: tets=0 other_types={other}")
-        return {"tets": 0, "sicn_min": float("nan"), "sicn_p1": float("nan"),
-                "n_le0": 0, "gamma_min": float("nan")}
+        return {
+            "tets": 0,
+            "sicn_min": float("nan"),
+            "sicn_p1": float("nan"),
+            "n_le0": 0,
+            "gamma_min": float("nan"),
+        }
     sicn = np.asarray(gmsh.model.mesh.getElementQualities(tets, "minSICN"))
     gamma = np.asarray(gmsh.model.mesh.getElementQualities(tets, "gamma"))
-    res = {"tets": n, "sicn_min": float(sicn.min()),
-           "sicn_p1": float(np.percentile(sicn, 1)),
-           "n_le0": int(np.count_nonzero(sicn <= 0.0)),
-           "gamma_min": float(gamma.min())}
-    p(f"{tag} census: tets={n} minSICN min={res['sicn_min']:.6e} "
-      f"p1={res['sicn_p1']:.6e} n(minSICN<=0)={res['n_le0']} "
-      f"gamma min={res['gamma_min']:.6e} other_elem_types={other}")
+    res = {
+        "tets": n,
+        "sicn_min": float(sicn.min()),
+        "sicn_p1": float(np.percentile(sicn, 1)),
+        "n_le0": int(np.count_nonzero(sicn <= 0.0)),
+        "gamma_min": float(gamma.min()),
+    }
+    p(
+        f"{tag} census: tets={n} minSICN min={res['sicn_min']:.6e} "
+        f"p1={res['sicn_p1']:.6e} n(minSICN<=0)={res['n_le0']} "
+        f"gamma min={res['gamma_min']:.6e} other_elem_types={other}"
+    )
     for _, v in gmsh.model.getEntities(3):
         p(f"{tag} getEmbedded(3,{v})={gmsh.model.mesh.getEmbedded(3, v)}")
     return res
@@ -109,16 +119,22 @@ def main():
         else:
             gmsh.model.occ.remove([(2, s) for s in faces], recursive=True)
             gmsh.model.occ.synchronize()
-            p(f"{a.arm}: removed named faces {faces}; remaining faces="
-              f"{len(gmsh.model.getEntities(2))} vols={gmsh.model.getEntities(3)}")
+            p(
+                f"{a.arm}: removed named faces {faces}; remaining faces="
+                f"{len(gmsh.model.getEntities(2))} vols={gmsh.model.getEntities(3)}"
+            )
             if a.arm == "S":
                 r = gmsh.model.occ.addRectangle(0.0, 0.0, 0.47, 1.0, 1.0)
                 out, out_map = gmsh.model.occ.fragment(gmsh.model.getEntities(3), [(2, r)])
                 gmsh.model.occ.synchronize()
-                p(f"S fragment out={out} out_map={out_map} "
-                  f"vol masses={[gmsh.model.occ.getMass(3, v) for _, v in gmsh.model.getEntities(3)]}")
-        p(f"pre-mesh entities: vols={len(gmsh.model.getEntities(3))} "
-          f"faces={len(gmsh.model.getEntities(2))}")
+                p(
+                    f"S fragment out={out} out_map={out_map} "
+                    f"vol masses={[gmsh.model.occ.getMass(3, v) for _, v in gmsh.model.getEntities(3)]}"
+                )
+        p(
+            f"pre-mesh entities: vols={len(gmsh.model.getEntities(3))} "
+            f"faces={len(gmsh.model.getEntities(2))}"
+        )
 
         gmsh.option.setNumber("Mesh.MeshSizeMin", a.h)
         gmsh.option.setNumber("Mesh.MeshSizeMax", a.h)
@@ -137,11 +153,15 @@ def main():
         illegal = [m for m in gmsh.logger.get() if "illegal" in m.lower()]
         p(f"logger lines mentioning 'illegal': {illegal}")
         emb = any(gmsh.model.mesh.getEmbedded(3, v) for _, v in gmsh.model.getEntities(3))
-        p("ROW arm | h | tets pre | minSICN min pre | n<=0 pre | embedded | "
-          "illegal lines | crashed | tets post | minSICN min post | elapsed s")
-        p(f"ROW {a.arm} | {a.h} | {pre['tets']} | {pre['sicn_min']:.6e} | "
-          f"{pre['n_le0']} | {'Y' if emb else 'N'} | {illegal or '-'} | N | "
-          f"{post['tets']} | {post['sicn_min']:.6e} | {time.perf_counter() - t0:.3f}")
+        p(
+            "ROW arm | h | tets pre | minSICN min pre | n<=0 pre | embedded | "
+            "illegal lines | crashed | tets post | minSICN min post | elapsed s"
+        )
+        p(
+            f"ROW {a.arm} | {a.h} | {pre['tets']} | {pre['sicn_min']:.6e} | "
+            f"{pre['n_le0']} | {'Y' if emb else 'N'} | {illegal or '-'} | N | "
+            f"{post['tets']} | {post['sicn_min']:.6e} | {time.perf_counter() - t0:.3f}"
+        )
     finally:
         gmsh.logger.stop()
         gmsh.finalize()

@@ -1,5 +1,11 @@
 """Core FEM formulations and solvers."""
 
+from .resonance import (
+    DEFAULT_SLOPE_THRESHOLD,
+    ResonanceGuardReport,
+    check_energy_continuity,
+    stored_electric_energy,
+)
 from .solvers import (
     DEFAULT_GAUGE_PENALTY,
     GaugeContaminationWarning,
@@ -8,12 +14,6 @@ from .solvers import (
     MagnetostaticProblem,
     MagnetostaticSolver,
     classify_residual_trend,
-)
-from .resonance import (
-    DEFAULT_SLOPE_THRESHOLD,
-    ResonanceGuardReport,
-    check_energy_continuity,
-    stored_electric_energy,
 )
 from .time_harmonic import (
     HomogeneousMaterial,

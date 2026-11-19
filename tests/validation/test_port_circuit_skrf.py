@@ -55,7 +55,6 @@ from fem_em_solver.ports.circuit_skrf import (  # noqa: E402
     terminate,
 )
 from fem_em_solver.ports.lumped import series_rlc_impedance  # noqa: E402
-
 from tests.validation.test_port_circuit_layer_field import (  # noqa: E402
     S_10MHZ_EPS0_RECORD,
     S_64MHZ_EPS0_RECORD,
@@ -129,31 +128,41 @@ def net10():
 
 
 def test_skrf_version_is_printed():
-    _say(f"\n[PORT-23] skrf.__version__ = {skrf.__version__} (PRINTED); "
-         f"-n {MPI.COMM_WORLD.size}, every rank computes the same serial circuit")
+    _say(
+        f"\n[PORT-23] skrf.__version__ = {skrf.__version__} (PRINTED); "
+        f"-n {MPI.COMM_WORLD.size}, every rank computes the same serial circuit"
+    )
 
 
 def test_a_terminate_matches_c2_at_c_tuned_64mhz(net64, c_tuned):
     """(a) 1×1 and 2×2 kept at C_tuned, max|Δ| ≤ 1e-12."""
     z_c = _capacitor_impedance(F64, c_tuned)
     rows = []
-    for label, indices in (("1x1 (P2..P4 in C)", TUNING_TERMINATED_INDICES),
-                           ("2x2 (P3, P4 in C)", TUNING_2X2_TERMINATED_INDICES)):
+    for label, indices in (
+        ("1x1 (P2..P4 in C)", TUNING_TERMINATED_INDICES),
+        ("2x2 (P3, P4 in C)", TUNING_2X2_TERMINATED_INDICES),
+    ):
         terms = {k: z_c for k in indices}
         raw = reduce_terminated_ports(S_64MHZ_EPS0_RECORD, Z0, terms)
         lib = terminate(net64, terms)[0]
         assert lib.shape == raw.shape, (label, lib.shape, raw.shape)
         rows.append((label, _maxabs(lib, raw), raw, lib))
-    _say(f"\n[PORT-23] (a) 64 MHz, C_tuned = {c_tuned:.15e} F (Z_C = {z_c:.9e} Ohm), "
-         f"skrf Circuit vs (C2) (ASSERTED max|d| <= {IDENTITY_BAND:.0e}):")
+    _say(
+        f"\n[PORT-23] (a) 64 MHz, C_tuned = {c_tuned:.15e} F (Z_C = {z_c:.9e} Ohm), "
+        f"skrf Circuit vs (C2) (ASSERTED max|d| <= {IDENTITY_BAND:.0e}):"
+    )
     for label, d, raw, lib in rows:
         _say(f"    {label:<18s} max|d| = {d:.3e}")
         _say(f"      S11 (C2) {complex(raw[0, 0]):.15e}  skrf {complex(lib[0, 0]):.15e}")
-        _say(f"      Z_in (C2) {input_impedance(raw[0, 0], Z0):.12e} Ohm  skrf "
-             f"{input_impedance(lib[0, 0], Z0):.12e} Ohm (PRINTED, drive port with the others "
-             f"as in the kept network)")
+        _say(
+            f"      Z_in (C2) {input_impedance(raw[0, 0], Z0):.12e} Ohm  skrf "
+            f"{input_impedance(lib[0, 0], Z0):.12e} Ohm (PRINTED, drive port with the others "
+            f"as in the kept network)"
+        )
     for label, d, _, _ in rows:
-        assert d <= IDENTITY_BAND, f"(a) {label}: max|d| {d:.3e} > {IDENTITY_BAND:.0e} — convention finding"
+        assert (
+            d <= IDENTITY_BAND
+        ), f"(a) {label}: max|d| {d:.3e} > {IDENTITY_BAND:.0e} — convention finding"
 
 
 def test_b_terminate_matches_c2_at_10mhz_step2_terminations(net10):
@@ -166,12 +175,16 @@ def test_b_terminate_matches_c2_at_10mhz_step2_terminations(net10):
         lib = terminate(net10, terms)[0]
         assert lib.shape == raw.shape
         rows.append((label, z, _maxabs(lib, raw)))
-    _say(f"\n[PORT-23] (b) 10 MHz, P{TERMINATED_PORT_INDEX + 1} terminated, 3x3 kept "
-         f"(ASSERTED max|d| <= {IDENTITY_BAND:.0e}):")
+    _say(
+        f"\n[PORT-23] (b) 10 MHz, P{TERMINATED_PORT_INDEX + 1} terminated, 3x3 kept "
+        f"(ASSERTED max|d| <= {IDENTITY_BAND:.0e}):"
+    )
     for label, z, d in rows:
         _say(f"    {label:<12s} Z = {z:.9e} Ohm  max|d| = {d:.3e}")
     for label, _, d in rows:
-        assert d <= IDENTITY_BAND, f"(b) {label}: max|d| {d:.3e} > {IDENTITY_BAND:.0e} — convention finding"
+        assert (
+            d <= IDENTITY_BAND
+        ), f"(b) {label}: max|d| {d:.3e} > {IDENTITY_BAND:.0e} — convention finding"
 
 
 def _skrf_tuned(net, c_f):
@@ -206,8 +219,15 @@ def _skrf_tuning_sweep(net, grid=TUNING_C_GRID_F, max_iter=200):
         c = float(np.exp(0.5 * (lo + hi)))
         z, s11 = _skrf_tuned(net, c)
         rel = abs(z.imag) / abs(z) if np.isfinite(abs(z)) else np.inf
-        roots.append({"c_f": c, "z": z, "s11": s11, "im_rel": float(rel),
-                      "zero": bool(rel <= TUNING_IM_Z_RTOL)})
+        roots.append(
+            {
+                "c_f": c,
+                "z": z,
+                "s11": s11,
+                "im_rel": float(rel),
+                "zero": bool(rel <= TUNING_IM_Z_RTOL),
+            }
+        )
     return roots
 
 
@@ -217,29 +237,43 @@ def test_c_tuning_zero_through_skrf_reproduces_c_tuned(net64, c_tuned):
     roots = _skrf_tuning_sweep(net64)
     elapsed = time.perf_counter() - t0
     tuned = select_c_tuned(roots)
-    _say(f"\n[PORT-23] (c) Im Z_in(C) swept through skrf on {TUNING_C_GRID_F.size} grid points "
-         f"({elapsed:.1f} s): {len(roots)} sign change(s)")
+    _say(
+        f"\n[PORT-23] (c) Im Z_in(C) swept through skrf on {TUNING_C_GRID_F.size} grid points "
+        f"({elapsed:.1f} s): {len(roots)} sign change(s)"
+    )
     for r in roots:
-        _say(f"    C = {r['c_f']:.15e} F  Z_in = {r['z']:.9e} Ohm  |S11| = {abs(r['s11']):.9f}  "
-             f"|Im Z|/|Z| = {r['im_rel']:.3e}  {'ZERO' if r['zero'] else 'pole (rejected)'}")
+        _say(
+            f"    C = {r['c_f']:.15e} F  Z_in = {r['z']:.9e} Ohm  |S11| = {abs(r['s11']):.9f}  "
+            f"|Im Z|/|Z| = {r['im_rel']:.3e}  {'ZERO' if r['zero'] else 'pole (rejected)'}"
+        )
     assert tuned is not None, "(c) no zero of Im Z_in through skrf — report, never widen the grid"
     c_rel = abs(tuned["c_f"] / c_tuned - 1.0)
     s11 = tuned["s11"]
     r_in_model = _residual(np.array([PORT15_IN_MODEL_TUNED_S11_RECORD]), np.array([s11]))
     z_raw = input_impedance(
-        reduce_terminated_ports(S_64MHZ_EPS0_RECORD, Z0,
-                                {k: _capacitor_impedance(F64, c_tuned) for k in TUNING_TERMINATED_INDICES}
-                                )[0, 0], Z0)
-    _say(f"    skrf C = {tuned['c_f']:.15e} F vs PORT-15 C_tuned {c_tuned:.15e} F: "
-         f"|ratio - 1| = {c_rel:.3e} (ASSERTED <= {TUNING_IM_Z_RTOL:.0e}); |Im Z|/|Z| = "
-         f"{tuned['im_rel']:.3e} (ASSERTED <= {TUNING_IM_Z_RTOL:.0e})")
+        reduce_terminated_ports(
+            S_64MHZ_EPS0_RECORD,
+            Z0,
+            {k: _capacitor_impedance(F64, c_tuned) for k in TUNING_TERMINATED_INDICES},
+        )[0, 0],
+        Z0,
+    )
+    _say(
+        f"    skrf C = {tuned['c_f']:.15e} F vs PORT-15 C_tuned {c_tuned:.15e} F: "
+        f"|ratio - 1| = {c_rel:.3e} (ASSERTED <= {TUNING_IM_Z_RTOL:.0e}); |Im Z|/|Z| = "
+        f"{tuned['im_rel']:.3e} (ASSERTED <= {TUNING_IM_Z_RTOL:.0e})"
+    )
     _say(f"    Z_in at C_tuned (PRINTED): skrf {tuned['z']:.12e} Ohm, (C2) {z_raw:.12e} Ohm")
-    _say(f"    tuned S11 skrf {s11:.12e} vs PORT-15 in-model record "
-         f"{PORT15_IN_MODEL_TUNED_S11_RECORD:.12e}: residual {r_in_model:.6e} "
-         f"(ASSERTED <= REDUCTION_BAND {REDUCTION_BAND:.0e})")
+    _say(
+        f"    tuned S11 skrf {s11:.12e} vs PORT-15 in-model record "
+        f"{PORT15_IN_MODEL_TUNED_S11_RECORD:.12e}: residual {r_in_model:.6e} "
+        f"(ASSERTED <= REDUCTION_BAND {REDUCTION_BAND:.0e})"
+    )
     assert tuned["im_rel"] <= TUNING_IM_Z_RTOL
     assert c_rel <= TUNING_IM_Z_RTOL, f"(c) C through skrf off C_tuned by {c_rel:.3e}"
-    assert r_in_model <= REDUCTION_BAND, f"(c) tuned S11 residual {r_in_model:.6e} > {REDUCTION_BAND:.0e}"
+    assert (
+        r_in_model <= REDUCTION_BAND
+    ), f"(c) tuned S11 residual {r_in_model:.6e} > {REDUCTION_BAND:.0e}"
 
 
 def test_d_wave_convention_control(net64):
@@ -263,8 +297,10 @@ def test_d_wave_convention_control(net64):
     _say(f"    50 -> {RENORM_Z0_OHM:g} -> 50 Ohm round trip  max|d| = {d_rt:.3e}")
     _say(f"    75 Ohm: power vs traveling       max|d| = {d_pt:.3e}")
     _say(f"    75 Ohm: power vs raw z_to_s(s_to_z) max|d| = {d_raw:.3e}")
-    _say(f"    75 Ohm: power vs pseudo (PRINTED) max|d| = {d_pp:.3e}; the 75 Ohm matrix moved "
-         f"{d_moved:.3e} from the 50 Ohm one (PRINTED: the renormalisation is not a no-op)")
+    _say(
+        f"    75 Ohm: power vs pseudo (PRINTED) max|d| = {d_pp:.3e}; the 75 Ohm matrix moved "
+        f"{d_moved:.3e} from the 50 Ohm one (PRINTED: the renormalisation is not a no-op)"
+    )
     assert d_rt <= IDENTITY_BAND
     assert d_pt <= IDENTITY_BAND
     assert d_raw <= IDENTITY_BAND
@@ -279,14 +315,22 @@ def test_negative_control_swapped_ports_2x2_breaks_gate_a(net64, c_tuned):
     miss = _maxabs(swapped, raw)
     s = S_64MHZ_EPS0_RECORD
     gap = abs(complex(s[0, 1]) - complex(s[0, 2]))
-    _say(f"\n[PORT-23] negative control (ASSERTED >= {NEGATIVE_CONTROL_FLOOR:.0e}): 2x2 kept "
-         f"(P1, P2), P3/P4 in C_tuned, netlist port map {SWAPPED_PORT_MAP} (P2 <-> P3)")
-    _say(f"    class gap |S12 - S13| of the imported 4x4 = {gap:.6e} (stop below {CLASS_GAP_STOP:.0e})")
-    _say(f"    miss vs (C2) max|d| = {miss:.6e} = {miss / NEGATIVE_CONTROL_FLOOR:.1f}x the floor; "
-         f"miss / gap = {miss / gap:.4f}")
-    if gap < CLASS_GAP_STOP:
-        pytest.fail(f"class gap {gap:.3e} < {CLASS_GAP_STOP:.0e}: stop and report before asserting "
-                    "the negative-control floor (§9 item 34)")
-    assert miss >= NEGATIVE_CONTROL_FLOOR, (
-        f"swapped port map missed (C2) by only {miss:.3e} — the gate does not see port order"
+    _say(
+        f"\n[PORT-23] negative control (ASSERTED >= {NEGATIVE_CONTROL_FLOOR:.0e}): 2x2 kept "
+        f"(P1, P2), P3/P4 in C_tuned, netlist port map {SWAPPED_PORT_MAP} (P2 <-> P3)"
     )
+    _say(
+        f"    class gap |S12 - S13| of the imported 4x4 = {gap:.6e} (stop below {CLASS_GAP_STOP:.0e})"
+    )
+    _say(
+        f"    miss vs (C2) max|d| = {miss:.6e} = {miss / NEGATIVE_CONTROL_FLOOR:.1f}x the floor; "
+        f"miss / gap = {miss / gap:.4f}"
+    )
+    if gap < CLASS_GAP_STOP:
+        pytest.fail(
+            f"class gap {gap:.3e} < {CLASS_GAP_STOP:.0e}: stop and report before asserting "
+            "the negative-control floor (§9 item 34)"
+        )
+    assert (
+        miss >= NEGATIVE_CONTROL_FLOOR
+    ), f"swapped port map missed (C2) by only {miss:.3e} — the gate does not see port order"

@@ -36,9 +36,9 @@ from mpi4py import MPI
 
 from fem_em_solver.io.mesh import BIRDCAGE_CUT_X0_TAG, BIRDCAGE_CUT_Y0_TAG
 from tests.mesh.helpers import global_cell_tag_set
+from tests.mesh.test_birdcage_leg_gaps import LEG_GAP_LENGTH
 from tests.mesh.test_birdcage_port_sheets import _build
 from tests.mesh.test_coil_phantom_conforming import _tag_volume, _total_volume
-from tests.mesh.test_birdcage_leg_gaps import LEG_GAP_LENGTH
 
 CONTROL = os.environ.get("FEM_EM_TH16_STEP3A_CONTROL") == "1"
 
@@ -55,11 +55,11 @@ PLANE_TOL = 1.0e-12
 R_E = 0.120
 Z_E = 0.100
 PORT_DX = 0.014
-V_QUARTER = R_E * R_E * 2.0 * Z_E            # 2.880e-3 m^3
+V_QUARTER = R_E * R_E * 2.0 * Z_E  # 2.880e-3 m^3
 V_HALF_PORT = 0.5 * PORT_DX * PORT_DX * LEG_GAP_LENGTH  # 7.840e-7 m^3
-A_CUT = R_E * 2.0 * Z_E                      # 2.400e-2 m^2
+A_CUT = R_E * 2.0 * Z_E  # 2.400e-2 m^2
 A_OUTER = 2.0 * R_E * 2.0 * Z_E + 2.0 * R_E * R_E  # 7.680e-2 m^2
-A_SHEET = PORT_DX * LEG_GAP_LENGTH           # 1.120e-4 m^2
+A_SHEET = PORT_DX * LEG_GAP_LENGTH  # 1.120e-4 m^2
 
 KEPT_HALVES = {1: 201, 2: 102}  # predicted: P1 upper (+y), P2 lower (+x)
 
@@ -101,12 +101,12 @@ def _plane_readings(mesh, cells, facet_tags):
     ext = ext[ext < n_owned]
     pts = _facet_nodes(mesh, ext)
     f2c = mesh.topology.connectivity(fdim, tdim)
-    n_cells_local = mesh.topology.index_map(tdim).size_local + mesh.topology.index_map(tdim).num_ghosts
+    n_cells_local = (
+        mesh.topology.index_map(tdim).size_local + mesh.topology.index_map(tdim).num_ghosts
+    )
     tag_of_cell = np.full(n_cells_local, -1, dtype=np.int64)
     tag_of_cell[np.asarray(cells.indices)] = np.asarray(cells.values)
-    ext_cell_tag = np.array(
-        [tag_of_cell[f2c.links(int(f))[0]] for f in ext], dtype=np.int64
-    )
+    ext_cell_tag = np.array([tag_of_cell[f2c.links(int(f))[0]] for f in ext], dtype=np.int64)
 
     tag_idx = np.asarray(facet_tags.indices)
     tag_val = np.asarray(facet_tags.values)
@@ -114,7 +114,8 @@ def _plane_readings(mesh, cells, facet_tags):
     for axis, cut_tag in ((0, BIRDCAGE_CUT_X0_TAG), (1, BIRDCAGE_CUT_Y0_TAG)):
         on_plane = (
             np.all(np.abs(pts[:, :, axis]) < PLANE_TOL, axis=1)
-            if len(ext) else np.zeros(0, dtype=bool)
+            if len(ext)
+            else np.zeros(0, dtype=bool)
         )
         geo_set = set(ext[on_plane].tolist())
         tagged = tag_idx[(tag_val == cut_tag) & (tag_idx < n_owned)]
@@ -131,8 +132,7 @@ def _plane_readings(mesh, cells, facet_tags):
         }
     outer = tag_idx[(tag_val == 1) & (tag_idx < n_owned)]
     cut_all = tag_idx[
-        ((tag_val == BIRDCAGE_CUT_X0_TAG) | (tag_val == BIRDCAGE_CUT_Y0_TAG))
-        & (tag_idx < n_owned)
+        ((tag_val == BIRDCAGE_CUT_X0_TAG) | (tag_val == BIRDCAGE_CUT_Y0_TAG)) & (tag_idx < n_owned)
     ]
     out["outer_area"] = comm.allreduce(_tri_area(_facet_nodes(mesh, outer)), op=MPI.SUM)
     out["outer_cut_overlap"] = comm.allreduce(
@@ -229,8 +229,7 @@ def test_quadrant_cutter_planar_identities():
         print(
             "[TH-16 step 3a] CAD masses x4 / flag-off: "
             + " ".join(
-                f"{k}={4.0 * cad_q[k] / cad_f[k]:.9f}"
-                for k in ("conductor", "air", "phantom")
+                f"{k}={4.0 * cad_q[k] / cad_f[k]:.9f}" for k in ("conductor", "air", "phantom")
             )
             + f"; generator port sheets (CAD) {q_diag['port_sheet_cad']}",
             flush=True,

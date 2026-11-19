@@ -183,23 +183,25 @@ def test_n1_dipole_satisfies_vector_helmholtz():
             / np.linalg.norm(K0**2 * _dipole_e(pts), axis=1)
         )
     )
-    _say(f"\n[TH-5 1b-0] (n1) max |curl curl E - k0^2 E|/|k0^2 E| over 20 points, "
-         f"0.2 <= r <= 0.5: delta {DELTA_N1:g}: {residuals[DELTA_N1]:.3e}; delta "
-         f"{2 * DELTA_N1:g}: {residuals[2 * DELTA_N1]:.3e} (ratio {ratio:.3f}, "
-         f"delta^2 predicts 4); delta {DELTA_N1_FINE:g}: {fine:.3e}")
+    _say(
+        f"\n[TH-5 1b-0] (n1) max |curl curl E - k0^2 E|/|k0^2 E| over 20 points, "
+        f"0.2 <= r <= 0.5: delta {DELTA_N1:g}: {residuals[DELTA_N1]:.3e}; delta "
+        f"{2 * DELTA_N1:g}: {residuals[2 * DELTA_N1]:.3e} (ratio {ratio:.3f}, "
+        f"delta^2 predicts 4); delta {DELTA_N1_FINE:g}: {fine:.3e}"
+    )
     # Pure truncation: the residual scales as δ² (a wrong formula would leave a
     # δ-independent floor), and at a step under it the bound holds.
     assert 3.8 <= ratio <= 4.2, f"(n1) residual does not scale as delta^2: ratio {ratio:.3f}"
-    assert fine <= 1e-4, (
-        f"(n1) curl-curl residual {fine:.3e} > 1e-4 at delta {DELTA_N1_FINE:g}"
-    )
+    assert fine <= 1e-4, f"(n1) curl-curl residual {fine:.3e} > 1e-4 at delta {DELTA_N1_FINE:g}"
 
     # (H) η₀H is the curl of E: ∇×E = −jk₀ η₀H — the H that (n2) integrates.
     fd = _fd_curl(_dipole_e, pts, DELTA_H)
     ref = -1j * K0 * _dipole_eta_h(pts)
     h_res = float(np.max(np.linalg.norm(fd - ref, axis=1) / np.linalg.norm(ref, axis=1)))
-    _say(f"[TH-5 1b-0] (H) max |curl E + j k0 eta0 H|/|k0 eta0 H| at delta "
-         f"{DELTA_H:g}: {h_res:.3e}")
+    _say(
+        f"[TH-5 1b-0] (H) max |curl E + j k0 eta0 H|/|k0 eta0 H| at delta "
+        f"{DELTA_H:g}: {h_res:.3e}"
+    )
     assert h_res <= 1e-5, f"(H) analytic eta0 H is not (j/k0) curl E: {h_res:.3e}"
 
 
@@ -215,8 +217,10 @@ def test_n2_radiated_power():
     power = 2.0 * np.pi * radius**2 * float(np.sum(w * s_r))
     closed = 4.0 * np.pi / (3.0 * ETA_0 * K0**2)
     rel = abs(power / closed - 1.0)
-    _say(f"[TH-5 1b-0] (n2) radiated power at r = {radius}: {power:.12e} vs "
-         f"4 pi C^2/(3 eta0 k0^2) = {closed:.12e}: {rel:.2e} relative")
+    _say(
+        f"[TH-5 1b-0] (n2) radiated power at r = {radius}: {power:.12e} vs "
+        f"4 pi C^2/(3 eta0 k0^2) = {closed:.12e}: {rel:.2e} relative"
+    )
     assert rel <= 1e-10, f"(n2) power {power:.12e} vs {closed:.12e}: {rel:.2e}"
 
 
@@ -225,17 +229,21 @@ def test_n3_first_order_condition_on_standing_wave():
         gamma = _gamma_sphere(x)
         res = _abc_residual(gamma, x, DELTA_H)
         res_coarse = _abc_residual(gamma, x, 10.0 * DELTA_H)
-        _say(f"[TH-5 1b-0] (n3) x = {x:.6f}: Gamma_sph = {gamma.real:+.10f} "
-             f"{gamma.imag:+.10f}j, max |E_t - eta0 H_p|/|E_t| = {res:.3e} at delta "
-             f"{DELTA_H:g} ({res_coarse:.3e} at {10 * DELTA_H:g})")
+        _say(
+            f"[TH-5 1b-0] (n3) x = {x:.6f}: Gamma_sph = {gamma.real:+.10f} "
+            f"{gamma.imag:+.10f}j, max |E_t - eta0 H_p|/|E_t| = {res:.3e} at delta "
+            f"{DELTA_H:g} ({res_coarse:.3e} at {10 * DELTA_H:g})"
+        )
         assert res <= 1e-5, f"(n3) x = {x}: first-order condition residual {res:.3e}"
 
     # Negative control: Γ = 0 misses by |f − g|/|f| (the ceiling, 0.106 at x = π).
     x = np.pi
     res0 = _abc_residual(0.0, x, DELTA_H)
     closed0 = abs(_f(x) - _g(x)) / abs(_f(x))
-    _say(f"[TH-5 1b-0] (n3) control Gamma = 0, x = pi: residual {res0:.6f} vs "
-         f"|f - g|/|f| = {closed0:.6f} (predicted 0.106)")
+    _say(
+        f"[TH-5 1b-0] (n3) control Gamma = 0, x = pi: residual {res0:.6f} vs "
+        f"|f - g|/|f| = {closed0:.6f} (predicted 0.106)"
+    )
     assert res0 > 0.05, f"(n3) control: Gamma = 0 satisfies the ABC to {res0:.3e}"
 
 
@@ -249,13 +257,17 @@ def test_n4_reflection_numbers():
     pec = _gamma_impedance(x, 0.0)
     pec_cf = _f(x) / np.conj(_f(x)) * np.exp(-2j * x)
     flipped = abs(_gamma_impedance(x, -1.0))
-    _say(f"[TH-5 1b-0] (n4) |Gamma_sph(pi)| = {m_pi:.10f} (1/sqrt(1+4x^4) "
-         f"{1 / np.sqrt(1 + 4 * np.pi**4):.10f}), |Gamma_sph(2 pi)| = {m_2pi:.10f}, "
-         f"ratio {m_pi / m_2pi:.4f}")
-    _say(f"  |Gamma_sph(1e-3) - 1| = {abs(small - 1):.3e}; Gamma(z = f/g) = {abs(zero):.2e}; "
-         f"|Gamma(z = 1) - Gamma_sph| = {same:.2e}; |Gamma_PEC| = {abs(pec):.15f}, "
-         f"vs (f/fbar)e^(-2jx) {abs(pec - pec_cf):.2e}; |Gamma(gamma -> -gamma)| = "
-         f"{flipped:.4f}")
+    _say(
+        f"[TH-5 1b-0] (n4) |Gamma_sph(pi)| = {m_pi:.10f} (1/sqrt(1+4x^4) "
+        f"{1 / np.sqrt(1 + 4 * np.pi**4):.10f}), |Gamma_sph(2 pi)| = {m_2pi:.10f}, "
+        f"ratio {m_pi / m_2pi:.4f}"
+    )
+    _say(
+        f"  |Gamma_sph(1e-3) - 1| = {abs(small - 1):.3e}; Gamma(z = f/g) = {abs(zero):.2e}; "
+        f"|Gamma(z = 1) - Gamma_sph| = {same:.2e}; |Gamma_PEC| = {abs(pec):.15f}, "
+        f"vs (f/fbar)e^(-2jx) {abs(pec - pec_cf):.2e}; |Gamma(gamma -> -gamma)| = "
+        f"{flipped:.4f}"
+    )
     assert abs(m_pi - 0.0505957066) <= 1e-9, f"(n4) |Gamma_sph(pi)| = {m_pi:.10f}"
     assert abs(m_2pi - 0.0126641323) <= 1e-9, f"(n4) |Gamma_sph(2pi)| = {m_2pi:.10f}"
     assert abs(m_pi / m_2pi - 3.9952) <= 5e-5, f"(n4) ratio {m_pi / m_2pi:.6f}"
@@ -280,9 +292,11 @@ def test_n5_planar_reflection_over_a_cube():
     rho = float(np.sqrt(np.sum(refl**2 * weight) / np.sum(weight)))
     corner = float(abs(abc_first_order_reflection_te(1.0 / np.sqrt(3.0))))
     grid_max = float(np.max(np.abs(refl)))
-    _say(f"[TH-5 1b-0] (n5) dipole-weighted rms planar R over a cube: rho = {rho:.5f} "
-         f"(predicted 0.113); max |R| = {corner:.5f} at the corner direction "
-         f"(grid max {grid_max:.5f})")
+    _say(
+        f"[TH-5 1b-0] (n5) dipole-weighted rms planar R over a cube: rho = {rho:.5f} "
+        f"(predicted 0.113); max |R| = {corner:.5f} at the corner direction "
+        f"(grid max {grid_max:.5f})"
+    )
     assert abs(rho - 0.113) <= 1e-3, f"(n5) rho = {rho:.5f}"
     assert abs(corner - 0.2679) <= 1e-4, f"(n5) corner |R| = {corner:.5f}"
     assert grid_max <= corner + 1e-12
@@ -322,7 +336,6 @@ from fem_em_solver.core.boundary_terms import (  # noqa: E402
 )
 from fem_em_solver.io.mesh import MeshGenerator  # noqa: E402
 from fem_em_solver.utils.constants import C_0  # noqa: E402
-
 from tests.validation.test_th5_abc_reflection import (  # noqa: E402
     _assemble_complex,
     complex_only,
@@ -343,6 +356,7 @@ def _e_out_np(k):
 
     Uses sinθ θ̂ = cosθ r̂ − ẑ, so nothing divides by ρ.
     """
+
     def ev(x):
         p = np.asarray(x[:3], dtype=np.float64).T.copy()
         r = np.linalg.norm(p, axis=1)
@@ -358,9 +372,11 @@ def _e_out_np(k):
         xx = k * r
         ph = np.exp(-1j * xx)
         f = 1.0 - 1j / xx - 1.0 / xx**2
-        e = ((2.0 * cos_t * (1.0 / xx**2 - 1j / xx**3) * ph)[:, None] * r_hat
-             + (1j * f / xx * ph)[:, None] * s_theta_hat)
+        e = (2.0 * cos_t * (1.0 / xx**2 - 1j / xx**3) * ph)[:, None] * r_hat + (
+            1j * f / xx * ph
+        )[:, None] * s_theta_hat
         return e.T.astype(PETSc.ScalarType)
+
     return ev
 
 
@@ -375,8 +391,9 @@ def _e_out_ufl(msh, k):
     cos_t = x[2] / r
     ez = ufl.as_vector((0.0, 0.0, 1.0))
     f = 1.0 - j / xx - 1.0 / xx**2
-    return ph * (2.0 * cos_t * (1.0 / xx**2 - j / xx**3) * r_hat
-                 + (j * f / xx) * (cos_t * r_hat - ez))
+    return ph * (
+        2.0 * cos_t * (1.0 / xx**2 - j / xx**3) * r_hat + (j * f / xx) * (cos_t * r_hat - ez)
+    )
 
 
 class _DipoleProjection:
@@ -399,13 +416,15 @@ class _DipoleProjection:
         phi0 = _e_out_ufl(msh, k)
         phi = (phi0, ufl.conj(phi0))
         dx = ufl.Measure("dx", domain=msh, metadata=QDEG_1B)
-        self._m = [[fem.form(chi * ufl.inner(phi[q], phi[p]) * dx) for q in range(2)]
-                   for p in range(2)]
+        self._m = [
+            [fem.form(chi * ufl.inner(phi[q], phi[p]) * dx) for q in range(2)] for p in range(2)
+        ]
         self._b = [fem.form(chi * ufl.inner(e, phi[p]) * dx) for p in range(2)]
 
     def gamma(self):
-        M = np.array([[_assemble_complex(self._m[p][q], self.comm) for q in range(2)]
-                      for p in range(2)])
+        M = np.array(
+            [[_assemble_complex(self._m[p][q], self.comm) for q in range(2)] for p in range(2)]
+        )
         b = np.array([_assemble_complex(self._b[p], self.comm) for p in range(2)])
         a_, b_ = np.linalg.solve(M, b)
         return complex(b_ / a_)
@@ -437,7 +456,7 @@ def _solve_ball(msh, ft, k, termination, degree=1):
     tdim = msh.topology.dim
     msh.topology.create_connectivity(tdim, tdim)
     drive_cells = dmesh.locate_entities(
-        msh, tdim, lambda x: x[0]**2 + x[1]**2 + x[2]**2 <= R_DRIVE**2
+        msh, tdim, lambda x: x[0] ** 2 + x[1] ** 2 + x[2] ** 2 <= R_DRIVE**2
     )
     g = fem.Function(V)
     g.interpolate(_e_out_np(k))
@@ -447,9 +466,14 @@ def _solve_ball(msh, ft, k, termination, degree=1):
         zero.x.array[:] = 0.0
         bcs.append(fem.dirichletbc(zero, fem.locate_dofs_topological(V, tdim - 1, ft.find(1))))
     problem = LinearProblem(
-        a, L, bcs=bcs,
-        petsc_options={"ksp_type": "preonly", "pc_type": "lu",
-                       "pc_factor_mat_solver_type": "mumps"},
+        a,
+        L,
+        bcs=bcs,
+        petsc_options={
+            "ksp_type": "preonly",
+            "pc_type": "lu",
+            "pc_factor_mat_solver_type": "mumps",
+        },
         petsc_options_prefix=f"fem_em_th5_1b_{termination}_{degree}_",
     )
     e_h = problem.solve()
@@ -471,8 +495,10 @@ def test_1b_projection_premise_planted():
     phi0 = _e_out_ufl(msh, K0)
     planted = phi0 + fem.Constant(msh, PETSc.ScalarType(PLANTED_1B)) * ufl.conj(phi0)
     g = _DipoleProjection(planted, msh, K0).gamma()
-    _say(f"\n[TH-5 1b (P)] res 0.05 ({n} cells): planted {PLANTED_1B}, recovered "
-         f"{g:.12e}, |diff| = {abs(g - PLANTED_1B):.3e}")
+    _say(
+        f"\n[TH-5 1b (P)] res 0.05 ({n} cells): planted {PLANTED_1B}, recovered "
+        f"{g:.12e}, |diff| = {abs(g - PLANTED_1B):.3e}"
+    )
     assert abs(g - PLANTED_1B) <= 1e-10, g
 
 
@@ -493,41 +519,57 @@ def test_1b_dipole_sphere_gate():
             t = time.perf_counter()
             e_h = _solve_ball(msh, ft, K0, term)
             out[(res, term)] = _DipoleProjection(e_h, msh, K0).gamma()
-            _say(f"\n[TH-5 1b] res {res} (lambda0/{round(1 / res)}, {n} cells, mesh {t_mesh:.1f} s) "
-                 f"{term}: Gamma = {out[(res, term)]:.6e} ({time.perf_counter() - t:.1f} s)")
+            _say(
+                f"\n[TH-5 1b] res {res} (lambda0/{round(1 / res)}, {n} cells, mesh {t_mesh:.1f} s) "
+                f"{term}: Gamma = {out[(res, term)]:.6e} ({time.perf_counter() - t:.1f} s)"
+            )
     for res in (0.05, 0.025):
         e_ = abs(out[(res, "exact")])
         a_ = abs(out[(res, "abc")] - g_sph)
-        _say(f"[TH-5 1b] res {res}: |Gamma_E| = {e_:.4e}, |Gamma_A - Gamma_sph| = {a_:.4e} "
-             f"(predicted 3.8e-3 / 9.5e-4 at lambda0/20 / /40, x/ 3; faceting adds 4.6e-4 / 1.2e-4)")
+        _say(
+            f"[TH-5 1b] res {res}: |Gamma_E| = {e_:.4e}, |Gamma_A - Gamma_sph| = {a_:.4e} "
+            f"(predicted 3.8e-3 / 9.5e-4 at lambda0/20 / /40, x/ 3; faceting adds 4.6e-4 / 1.2e-4)"
+        )
     cand = _round_up_one_figure(3.0 * abs(out[(0.025, "exact")]))
-    _say(f"[TH-5 1b] band candidate B = 3|Gamma_E(lambda0/40)| rounded up = {cand:.0e} "
-         f"(ceiling |Gamma_sph|/3 = {BAND_CEILING:.4e}; predicted 3e-3); "
-         f"{'FREEZABLE' if cand <= BAND_CEILING else 'ABOVE THE CEILING'}; BAND = {BAND}")
+    _say(
+        f"[TH-5 1b] band candidate B = 3|Gamma_E(lambda0/40)| rounded up = {cand:.0e} "
+        f"(ceiling |Gamma_sph|/3 = {BAND_CEILING:.4e}; predicted 3e-3); "
+        f"{'FREEZABLE' if cand <= BAND_CEILING else 'ABOVE THE CEILING'}; BAND = {BAND}"
+    )
 
     pec, conj, abc05 = out[(0.05, "pec")], out[(0.05, "conj")], out[(0.05, "abc")]
-    _say(f"[TH-5 1b control] PEC @ res 0.05: Gamma = {pec:.6f} (predicted 0.777 - 0.629j), "
-         f"|Gamma_PEC|/|Gamma_A| = {abs(pec) / abs(abc05):.2f} (predicted 19.8, 18-22, ceiling 19.76), "
-         f"miss ratio |Gamma_PEC - Gamma_sph|/|Gamma_A - Gamma_sph| = "
-         f"{abs(pec - g_sph) / abs(abc05 - g_sph):.1f} (predicted 275, 90-830)")
-    _say(f"[TH-5 1b control] conjugated gamma @ res 0.05: |Gamma| = {abs(conj):.4f} "
-         f"(predicted 19.76; a source, never asserted)")
+    _say(
+        f"[TH-5 1b control] PEC @ res 0.05: Gamma = {pec:.6f} (predicted 0.777 - 0.629j), "
+        f"|Gamma_PEC|/|Gamma_A| = {abs(pec) / abs(abc05):.2f} (predicted 19.8, 18-22, ceiling 19.76), "
+        f"miss ratio |Gamma_PEC - Gamma_sph|/|Gamma_A - Gamma_sph| = "
+        f"{abs(pec - g_sph) / abs(abc05 - g_sph):.1f} (predicted 275, 90-830)"
+    )
+    _say(
+        f"[TH-5 1b control] conjugated gamma @ res 0.05: |Gamma| = {abs(conj):.4f} "
+        f"(predicted 19.76; a source, never asserted)"
+    )
 
     # Printed only: k₀R = 2π on res 0.025 at λ₀ = 0.5 m; degree 2 at res 0.1.
     msh, ft, n = _ball(comm, 0.025)
     k2 = 2.0 * K0
     g2 = _DipoleProjection(_solve_ball(msh, ft, k2, "abc"), msh, k2).gamma()
-    _say(f"[TH-5 1b printed] k0R = 2 pi (lambda0 = 0.5 m, res 0.025 = lambda/20, {n} cells): "
-         f"|Gamma_A| = {abs(g2):.6f} vs |Gamma_sph(2 pi)| = {abs(_gamma_sphere(2 * np.pi)):.6f}; "
-         f"|Gamma_A - Gamma_sph| = {abs(g2 - _gamma_sphere(2 * np.pi)):.4e}")
+    _say(
+        f"[TH-5 1b printed] k0R = 2 pi (lambda0 = 0.5 m, res 0.025 = lambda/20, {n} cells): "
+        f"|Gamma_A| = {abs(g2):.6f} vs |Gamma_sph(2 pi)| = {abs(_gamma_sphere(2 * np.pi)):.6f}; "
+        f"|Gamma_A - Gamma_sph| = {abs(g2 - _gamma_sphere(2 * np.pi)):.4e}"
+    )
     msh, ft, n = _ball(comm, 0.1)
     for term in ("exact", "abc"):
         gd2 = _DipoleProjection(_solve_ball(msh, ft, K0, term, degree=2), msh, K0).gamma()
         ref = 0.0 if term == "exact" else g_sph
-        _say(f"[TH-5 1b printed] degree 2, res 0.1 ({n} cells) {term}: |Gamma - ref| = "
-             f"{abs(gd2 - ref):.4e}")
-    _say(f"[TH-5 1b] box leg not run (printed-only; unpriced in-slot); elapsed "
-         f"{time.perf_counter() - t0:.1f} s")
+        _say(
+            f"[TH-5 1b printed] degree 2, res 0.1 ({n} cells) {term}: |Gamma - ref| = "
+            f"{abs(gd2 - ref):.4e}"
+        )
+    _say(
+        f"[TH-5 1b] box leg not run (printed-only; unpriced in-slot); elapsed "
+        f"{time.perf_counter() - t0:.1f} s"
+    )
 
     if BAND is not None:
         assert BAND <= BAND_CEILING, BAND

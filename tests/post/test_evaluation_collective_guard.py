@@ -11,9 +11,9 @@ gather is a hang, not a failure.
 
 import numpy as np
 import pytest
+from dolfinx import fem
+from dolfinx import mesh as dmesh
 from mpi4py import MPI
-
-from dolfinx import fem, mesh as dmesh
 
 from fem_em_solver.post.evaluation import evaluate_vector_field_parallel
 
@@ -160,8 +160,10 @@ def test_prechange_control_was_silent():
     expected = np.column_stack((ref[:, 0], 2.0 * ref[:, 1], 3.0 * ref[:, 2]))
     dev = np.max(np.abs(np.asarray(values).real - expected), axis=1)
     if comm.rank == 0:
-        print(f"OPS55 prechange n={comm.size} valid_all={bool(np.all(valid))} "
-              f"row_dev={np.array2string(dev, precision=6)}")
+        print(
+            f"OPS55 prechange n={comm.size} valid_all={bool(np.all(valid))} "
+            f"row_dev={np.array2string(dev, precision=6)}"
+        )
 
     assert bool(np.all(valid)), "pre-change mask not all-valid"
     allowed = [0.03 * r for r in range(comm.size)]

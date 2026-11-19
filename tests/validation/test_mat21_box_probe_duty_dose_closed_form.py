@@ -18,7 +18,6 @@ from __future__ import annotations
 import numpy as np
 
 from fem_em_solver.thermal.dose import cem43, running_average
-
 from tests.validation.test_mat21_box_closed_form import T_INF as T_INF_0
 from tests.validation.test_mat21_box_dose_closed_form import (
     AVG_BAR,
@@ -74,8 +73,10 @@ def _hists():
 def test_c100_sp_full_schedule_bitwise_new_points():
     c = _hists()
     eq = bool(np.array_equal(c["s1_n"], c["s_n"]))
-    _p(f"MAT21-16s (C100-sP) NEW_PTS switch_times=(0.0,) array_equal _series_hist over "
-       f"{c['s_n'].shape}: {eq}")
+    _p(
+        f"MAT21-16s (C100-sP) NEW_PTS switch_times=(0.0,) array_equal _series_hist over "
+        f"{c['s_n'].shape}: {eq}"
+    )
     assert eq
     got = tuple(f"{cem43(T_GRID, T_INF_0 + c['s1_n'][:, j]):.15e}" for j in range(len(NEW_PTS)))
     _p(f"MAT21-16s (C100-sP) doses(100 %) {got} (P43 {P43_SERIES_DOSE})")
@@ -112,16 +113,22 @@ def test_q_sp_win_sp_new_points_both_schedules():
                 assert float(np.max(T)) < T_REF, (key, lab, pt, float(np.max(T)))
                 dose, ref, rel, swap, miss = _q_check(T)
                 mx, t_mx, lo, hi, wref, wrel = _win_check(th)
-                _p(f"MAT21-16s (Q-sP) {key} {lab} {NEW_LABELS[j]}: CEM43 {dose:.15e} s vs quad "
-                   f"{ref:.15e} s rel {rel:.3e} (bar {DOSE_BAR:g}, ASSERTED; predicted <= 1e-14); "
-                   f"max T {np.max(T):.9f} C < 43 ASSERTED")
-                _p(f"MAT21-16s (Win-sP) {key} {lab} {NEW_LABELS[j]}: max six-minute mean "
-                   f"{mx:.15e} K at t_max {t_mx:.4f} s ({t_mx / DT_BOX:.2f} DT_BOX); (ii) "
-                   f"[{lo:.12e}, {hi:.12e}]; (iii) quad {wref:.15e} rel {wrel:.3e} (bar "
-                   f"{AVG_BAR:g}, ASSERTED; predicted <= 1e-15)")
-                _p(f"MAT21-16s control (Rc'-sP) PREDICTED {key} {lab} {NEW_LABELS[j]}: R swap "
-                   f"miss {miss:.4e}; factor {swap / ref:.4e} (predicted range "
-                   f"[{PRED_RC[0]:.0e}, {PRED_RC[1]:.0e}]; printed only, ruling 18:00 (3))")
+                _p(
+                    f"MAT21-16s (Q-sP) {key} {lab} {NEW_LABELS[j]}: CEM43 {dose:.15e} s vs quad "
+                    f"{ref:.15e} s rel {rel:.3e} (bar {DOSE_BAR:g}, ASSERTED; predicted <= 1e-14); "
+                    f"max T {np.max(T):.9f} C < 43 ASSERTED"
+                )
+                _p(
+                    f"MAT21-16s (Win-sP) {key} {lab} {NEW_LABELS[j]}: max six-minute mean "
+                    f"{mx:.15e} K at t_max {t_mx:.4f} s ({t_mx / DT_BOX:.2f} DT_BOX); (ii) "
+                    f"[{lo:.12e}, {hi:.12e}]; (iii) quad {wref:.15e} rel {wrel:.3e} (bar "
+                    f"{AVG_BAR:g}, ASSERTED; predicted <= 1e-15)"
+                )
+                _p(
+                    f"MAT21-16s control (Rc'-sP) PREDICTED {key} {lab} {NEW_LABELS[j]}: R swap "
+                    f"miss {miss:.4e}; factor {swap / ref:.4e} (predicted range "
+                    f"[{PRED_RC[0]:.0e}, {PRED_RC[1]:.0e}]; printed only, ruling 18:00 (3))"
+                )
                 assert rel <= DOSE_BAR, (key, lab, pt, rel)
                 assert T_GRID[0] + W_B2 <= t_mx <= T_GRID[-1], (key, lab, t_mx)
                 assert lo <= mx <= hi, (key, lab, lo, mx, hi)
@@ -137,8 +144,10 @@ def test_rc_sp_hist_points_both_schedules():
                 T = T_INF_0 + th_d[:, j] * scale
                 assert float(np.max(T)) < T_REF, (key, lab, pt)
                 _dose, ref, _rel, swap, miss = _q_check(T)
-                _p(f"MAT21-16s (Rc'-sP) {key} {lab} {HIST_LABELS[j]}: R swap miss {miss:.4e} "
-                   f"(asserted > {DOSE_BAR:g}); factor {swap / ref:.4e}")
+                _p(
+                    f"MAT21-16s (Rc'-sP) {key} {lab} {HIST_LABELS[j]}: R swap miss {miss:.4e} "
+                    f"(asserted > {DOSE_BAR:g}); factor {swap / ref:.4e}"
+                )
                 assert miss > DOSE_BAR, (key, lab, pt, miss)
 
 
@@ -160,27 +169,38 @@ def test_printed_tables():
             r_mean = _trap(th_d[:, j]) / _trap(th_s[:, j])
             _a, mx_c, t_c = running_average(T_GRID, th_s[:, j], window=W)
             _a, mx_d, t_d = running_average(T_GRID, th_d[:, j], window=W)
-            _p(f"MAT21-16s DUTY DOSE {key} {NEW_LABELS[j]}: D_cont {d_c:.15e} s; D(peak) "
-               f"{d_pk:.15e} s; D(equal mean) {d_eq:.15e} s; ratio equal-mean {d_eq / d_c:.6f} "
-               f"(predicted {PRED_EQ[key][kind]}); ratio peak {d_pk / d_c:.6f} (predicted "
-               f"{PRED_PEAK[key][kind]}); P0-P2 recorded eq wall/centre {REC_P02[key]}; theta "
-               f"ratio at t* {r_t:.5f} (x1/D {r_t / D:.5f}); time-mean theta ratio {r_mean:.5f} "
-               f"(x1/D {r_mean / D:.5f}); six-minute peak cont {mx_c:.6f} K at {t_c:.2f} s, duty "
-               f"{mx_d:.6f} K at {t_d:.2f} s ({t_d / DT_BOX:.2f} DT_BOX)")
+            _p(
+                f"MAT21-16s DUTY DOSE {key} {NEW_LABELS[j]}: D_cont {d_c:.15e} s; D(peak) "
+                f"{d_pk:.15e} s; D(equal mean) {d_eq:.15e} s; ratio equal-mean {d_eq / d_c:.6f} "
+                f"(predicted {PRED_EQ[key][kind]}); ratio peak {d_pk / d_c:.6f} (predicted "
+                f"{PRED_PEAK[key][kind]}); P0-P2 recorded eq wall/centre {REC_P02[key]}; theta "
+                f"ratio at t* {r_t:.5f} (x1/D {r_t / D:.5f}); time-mean theta ratio {r_mean:.5f} "
+                f"(x1/D {r_mean / D:.5f}); six-minute peak cont {mx_c:.6f} K at {t_c:.2f} s, duty "
+                f"{mx_d:.6f} K at {t_d:.2f} s ({t_d / DT_BOX:.2f} DT_BOX)"
+            )
             assert np.isfinite(d_eq / d_c)
     for j in range(len(NEW_PTS)):
-        _p(f"MAT21-16s convexity D25,eq/D50,eq {NEW_LABELS[j]}: "
-           f"{eqs[('d25', j)] / eqs[('d50', j)]:.6f} (predicted {PRED_CONVEX})")
+        _p(
+            f"MAT21-16s convexity D25,eq/D50,eq {NEW_LABELS[j]}: "
+            f"{eqs[('d25', j)] / eqs[('d50', j)]:.6f} (predicted {PRED_CONVEX})"
+        )
     for key, _d, _sw in SCHEDS:
-        _p(f"MAT21-16s P3 / P4 {key} series histories np.array_equal: "
-           f"{bool(np.array_equal(c[f'{key}_n'][:, 0], c[f'{key}_n'][:, 1]))} (predicted True)")
+        _p(
+            f"MAT21-16s P3 / P4 {key} series histories np.array_equal: "
+            f"{bool(np.array_equal(c[f'{key}_n'][:, 0], c[f'{key}_n'][:, 1]))} (predicted True)"
+        )
     for norm in ("peak", "equal-mean"):
         for i, lab in enumerate(SIX_LABELS):
             arr_key, jj = ("h", i) if i < 3 else ("n", i - 3)
             row = [f"cont {cem43(T_GRID, T_INF_0 + c[f's_{arr_key}'][:, jj]):.15e}"]
             for key, D, _sw in SCHEDS:
                 sc = 1.0 if norm == "peak" else 1.0 / D
-                row.append(f"{key} {cem43(T_GRID, T_INF_0 + c[f'{key}_{arr_key}'][:, jj] * sc):.15e}")
-            _p(f"MAT21-16s SIX-POINT x THREE-SCHEDULE SERIES DOSE TABLE ({norm}) {lab}: "
-               + "; ".join(row) + " s")
+                row.append(
+                    f"{key} {cem43(T_GRID, T_INF_0 + c[f'{key}_{arr_key}'][:, jj] * sc):.15e}"
+                )
+            _p(
+                f"MAT21-16s SIX-POINT x THREE-SCHEDULE SERIES DOSE TABLE ({norm}) {lab}: "
+                + "; ".join(row)
+                + " s"
+            )
     _p(f"MAT21-16s (R41-s) reference P41_EQ_RATIO {P41_EQ_RATIO} (asserted by P42's module)")

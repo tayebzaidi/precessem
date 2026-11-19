@@ -8,7 +8,6 @@ from fem_em_solver.core.solvers import MagnetostaticProblem, MagnetostaticSolver
 from fem_em_solver.io.mesh import MeshGenerator
 from fem_em_solver.post.evaluation import evaluate_vector_field_parallel
 from fem_em_solver.utils.constants import MU_0
-
 from tests.tolerances import (
     B_FIELD_MAX_NONTRIVIAL_ABS_MIN,
     CENTERLINE_CV_MAX,
@@ -89,9 +88,9 @@ def test_two_cylinder_solver_centerline_field_is_roughly_constant():
     b_probe, probe_valid = evaluate_vector_field_parallel(b_field, probe)
     assert probe_valid.all(), "non-triviality probe point fell outside the mesh"
     b_probe_mag = float(np.linalg.norm(b_probe[0]))
-    assert b_probe_mag > B_FIELD_MAX_NONTRIVIAL_ABS_MIN, (
-        f"B-field should be non-zero outboard of the conductor, got {b_probe_mag:.3e} T"
-    )
+    assert (
+        b_probe_mag > B_FIELD_MAX_NONTRIVIAL_ABS_MIN
+    ), f"B-field should be non-zero outboard of the conductor, got {b_probe_mag:.3e} T"
 
     mean_mag = float(np.mean(b_mag))
     std_mag = float(np.std(b_mag))

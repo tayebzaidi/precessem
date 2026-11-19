@@ -44,15 +44,13 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from mpi4py import MPI
-
 from dolfinx import geometry
+from mpi4py import MPI
 
 from fem_em_solver.post.evaluation import (
     evaluate_vector_field_parallel,
     point_owner_cells,
 )
-
 from tests.complex_mode import complex_only
 from tests.mesh.test_birdcage_port_sheets import SHEET_IFACE
 from tests.validation.test_birdcage_b1_plus_map import _solve_driven
@@ -119,13 +117,10 @@ def case():
     assert not ans2.RESOLUTION_OVERRIDDEN
 
     sweep = build_four_port_sweep(phantom_resolution=PHANTOM_RESOLUTION_1G_RUNG)
-    azimuths = {
-        f"P{s['tag'] - SHEET_IFACE}": float(s["azimuth_deg"]) for s in sweep["sheets"]
-    }
+    azimuths = {f"P{s['tag'] - SHEET_IFACE}": float(s["azimuth_deg"]) for s in sweep["sheets"]}
     order = sorted(azimuths)
     indices = {
-        pid: _port_index(azimuths[pid], azimuths["P1"], QUADRATURE_STEP_DEG)
-        for pid in order
+        pid: _port_index(azimuths[pid], azimuths["P1"], QUADRATURE_STEP_DEG) for pid in order
     }
     solves = {pid: _solve_driven(sweep, pid) for pid in order}
     built = {
@@ -149,8 +144,10 @@ def case():
 
 
 def _sar(ans2, e):
-    return float(ans2.SALINE_SIGMA) * float(np.sum(np.abs(e) ** 2)) / (
-        2.0 * float(ans2.PHANTOM_RHO_KG_PER_M3)
+    return (
+        float(ans2.SALINE_SIGMA)
+        * float(np.sum(np.abs(e) ** 2))
+        / (2.0 * float(ans2.PHANTOM_RHO_KG_PER_M3))
     )
 
 
@@ -205,9 +202,7 @@ def test_a2_a3_rule_gate_and_cg1_negative_control(case):
     a3_local_ok = True
     for k in range(4):
         e = built["solves"][f"P{k + 1}"]["fields"].e_complex
-        vals, valid = evaluate_vector_field_parallel(
-            e, points, comm, owner="lowest_original_cell"
-        )
+        vals, valid = evaluate_vector_field_parallel(e, points, comm, owner="lowest_original_cell")
         assert bool(np.all(valid))
         vals = np.asarray(vals)
         e_all.append(vals)

@@ -44,8 +44,11 @@ REPO = Path(__file__).resolve().parents[2]
 W1B_LOG = REPO / "docs" / "testing" / "logs" / "20261116T030255Z_MAT-21-P91-W1b.log"
 RE_W1B = {
     "uniform": (re.compile(r"MAT21-51 RECORD <theta>_uniform\(t\*\) (\S+) K/W"), 78, "0.02521149"),
-    "lattice": (re.compile(r"MAT21-51 RECORD <theta>_lattice 1\.5 T deg 1\(t\*\) (\S+) K/W"), 79,
-                "0.02713084"),
+    "lattice": (
+        re.compile(r"MAT21-51 RECORD <theta>_lattice 1\.5 T deg 1\(t\*\) (\S+) K/W"),
+        79,
+        "0.02713084",
+    ),
 }
 N_L = p91.N_L
 N2 = tuple(2 * v for v in N_L)
@@ -107,8 +110,10 @@ def test_preconditions_and_k():
     gates.append((("sum w3", s), abs(s - 1.0) <= 4 * p91.EPS, s - 1.0))
     mir = d["mirror"]
     gates.append((("mirror complete", mir), all(m is not None for m in mir), 0))
-    _say(f"{PFX} lattice {len(w3)} balls (3T, entry 58 weights), |sum w - 1| {abs(s - 1.0):.3e} "
-         f"(<= 4 eps ASSERTED); mirror map complete {all(m is not None for m in mir)} (ASSERTED)")
+    _say(
+        f"{PFX} lattice {len(w3)} balls (3T, entry 58 weights), |sum w - 1| {abs(s - 1.0):.3e} "
+        f"(<= 4 eps ASSERTED); mirror map complete {all(m is not None for m in mir)} (ASSERTED)"
+    )
     # (K) entry 60 parsed here vs entry 58 (p89's parse), by string, looked up by label
     hit = c46.find_log(c46.ENTRY60_GLOB)
     gates.append((("entry 60 found", hit), hit is not None, 0))
@@ -117,14 +122,20 @@ def test_preconditions_and_k():
     e58 = d["parsed"]["3T"]
     by60 = {r["label"]: r["sar10g"] for r in e60["lattice"]}
     by58 = {r["label"]: r["sar10g"] for r in e58["lattice"]}
-    lab_ok = (len(e60["lattice"]) == 18 and len(e58["lattice"]) == 18 and len(by60) == 18
-              and set(by60) == set(by58))
+    lab_ok = (
+        len(e60["lattice"]) == 18
+        and len(e58["lattice"]) == 18
+        and len(by60) == 18
+        and set(by60) == set(by58)
+    )
     diff = sorted(lab for lab in by58 if by60.get(lab) != by58[lab])
     gates.append((("K labels", sorted(by60)), lab_ok, 0))
     gates.append((("K sar10g", diff), not diff, diff))
-    _say(f"{PFX} (K) parse_c6_log({Path(str(hit[0])).name} [{hit[1]}]) vs entry 58 "
-         f"{Path(str(d['hit'][0])).name}: {len(by60)} / {len(by58)} labels, label sets equal "
-         f"{set(by60) == set(by58)}; sar10g strings differing {diff or 'none'} (strings, ASSERTED)")
+    _say(
+        f"{PFX} (K) parse_c6_log({Path(str(hit[0])).name} [{hit[1]}]) vs entry 58 "
+        f"{Path(str(d['hit'][0])).name}: {len(by60)} / {len(by58)} labels, label sets equal "
+        f"{set(by60) == set(by58)}; sar10g strings differing {diff or 'none'} (strings, ASSERTED)"
+    )
     bad = _fail(gates)
     assert not bad, bad
 
@@ -141,12 +152,15 @@ def test_k91_custody():
         hits = [(i + 1, m.group(1)) for i, ln in enumerate(lines) for m in [rx.search(ln)] if m]
         distinct = sorted({v for _i, v in hits})
         tok = f"{mine:.7g}"
-        ok = (len(distinct) == 1 and distinct[0] == tok == want
-              and want_line in [i for i, _v in hits])
+        ok = (
+            len(distinct) == 1 and distinct[0] == tok == want and want_line in [i for i, _v in hits]
+        )
         gates.append((("K-91", key, tok, distinct, hits), ok, 0))
-        _say(f"{PFX} (K-91) {key}: re-computed {tok} vs W1b {W1B_LOG.name} matches "
-             f"{len(hits)} (lines {[i for i, _v in hits]}), distinct {distinct} (brief "
-             f"{want} at :{want_line}) (ASSERTED)")
+        _say(
+            f"{PFX} (K-91) {key}: re-computed {tok} vs W1b {W1B_LOG.name} matches "
+            f"{len(hits)} (lines {[i for i, _v in hits]}), distinct {distinct} (brief "
+            f"{want} at :{want_line}) (ASSERTED)"
+        )
     bad = _fail(gates)
     assert not bad, bad
 
@@ -162,22 +176,28 @@ def test_identities():
     b, _ = p91.mean_lattice(w3, pts, None, steady=True)
     rel = abs(a - b) / abs(b)
     gates.append((("Lim-inf", a, b), rel <= B1_BAND, rel))
-    _say(f"{PFX} (Lim-inf) 3T <theta>(1000 T_C) {a:.7g} vs steady {b:.7g}: rel {rel:.3e} "
-         f"(band {B1_BAND:g}, ASSERTED)")
+    _say(
+        f"{PFX} (Lim-inf) 3T <theta>(1000 T_C) {a:.7g} vs steady {b:.7g}: rel {rel:.3e} "
+        f"(band {B1_BAND:g}, ASSERTED)"
+    )
     # (Bq-N) split N0 -> 2N0
     l0, free, lmod = p91.lattice_split(w3, pts, ts)
     l1, _, _ = p91.lattice_split(w3, pts, ts, n=N2)
     rel = abs(l1 - l0) / abs(l0)
     gates.append((("Bq-N", l0, l1), rel <= B1_BAND, rel))
-    _say(f"{PFX} (Bq-N) 3T split N {N_L} -> 2N {N2}: {l0:.7g} -> {l1:.7g} K/W, rel {rel:.3e} "
-         f"(band {B1_BAND:g}, ASSERTED; predicted <= 1e-15)")
+    _say(
+        f"{PFX} (Bq-N) 3T split N {N_L} -> 2N {N2}: {l0:.7g} -> {l1:.7g} K/W, rel {rel:.3e} "
+        f"(band {B1_BAND:g}, ASSERTED; predicted <= 1e-15)"
+    )
     # (Bq-split) split(N0) vs direct(2N0) — never direct(N0)
     ld, _ = p91.mean_lattice(w3, pts, ts, n=N2)
     rel = abs(l0 - ld) / abs(ld)
     gates.append((("Bq-split", l0, ld), rel <= B1_BAND, rel))
-    _say(f"{PFX} (Bq-split) s0 {p89.S0:g} s: free {free:.7g} + modal [s0, t*] {lmod:.7g} = "
-         f"{l0:.7g} (N0) vs direct {ld:.7g} (2N0 {N2}): rel {rel:.3e} (band {B1_BAND:g}, "
-         f"ASSERTED; predicted approx {PRED_BQS:g})")
+    _say(
+        f"{PFX} (Bq-split) s0 {p89.S0:g} s: free {free:.7g} + modal [s0, t*] {lmod:.7g} = "
+        f"{l0:.7g} (N0) vs direct {ld:.7g} (2N0 {N2}): rel {rel:.3e} (band {B1_BAND:g}, "
+        f"ASSERTED; predicted approx {PRED_BQS:g})"
+    )
     # (Sym) per-ball means under a -> -a and b -> -b separately
     per = _per_ball(w3, pts, ts)
     for ax, tag in ((0, "a"), (1, "b")):
@@ -186,16 +206,20 @@ def test_identities():
         perf = _per_ball(w3, fl, ts)
         res = float(np.max(np.abs(perf - per) / np.abs(per)))
         gates.append((("Sym", tag, res), res <= B1_BAND, res))
-        _say(f"{PFX} (Sym) {tag} -> -{tag}: max_i |<theta_i>' - <theta_i>| / <theta_i> {res:.3e} "
-             f"(band {B1_BAND:g}, ASSERTED; predicted 0)")
+        _say(
+            f"{PFX} (Sym) {tag} -> -{tag}: max_i |<theta_i>' - <theta_i>| / <theta_i> {res:.3e} "
+            f"(band {B1_BAND:g}, ASSERTED; predicted 0)"
+        )
     # (N-eq-m) 1.5 T weights at mirrored labels reproduce the 1.5 T value
     mir = np.asarray(d["mirror"], dtype=int)
     l15, _, _ = p91.lattice_split(w15, pts, ts)
     l15m, _, _ = p91.lattice_split(w15[mir], pts, ts)
     rel = abs(l15m - l15) / abs(l15)
     gates.append((("N-eq-m", l15, l15m), rel <= B1_BAND, rel))
-    _say(f"{PFX} (N-eq-m) 1.5T weights at mirrored labels {l15m:.7g} vs 1.5T {l15:.7g}: rel "
-         f"{rel:.3e} (band {B1_BAND:g}, ASSERTED)")
+    _say(
+        f"{PFX} (N-eq-m) 1.5T weights at mirrored labels {l15m:.7g} vs 1.5T {l15:.7g}: rel "
+        f"{rel:.3e} (band {B1_BAND:g}, ASSERTED)"
+    )
     bad = _fail(gates)
     assert not bad, bad
 
@@ -209,24 +233,30 @@ def test_negative_controls():
     lt, _ = p91.mean_lattice(w3, pts, ts, n=N_H, h=H_SMALL)
     rel = abs(lt / stored - 1.0)
     gates.append((("N-h", lt, stored), rel <= N_HCTRL, rel))
-    _say(f"{PFX} (N-h) 3T h {H_SMALL:g}, N_h {N_H}: <theta>(t*) {lt:.7g} vs P_dep t*/(rho c V) "
-         f"{stored:.7g}: |ratio - 1| {rel:.3e} (ceiling {N_HCTRL:g}, ASSERTED; predicted in "
-         f"[{PRED_NH[0]:g}, {PRED_NH[1]:g}] inside {_in(rel, *PRED_NH)})")
+    _say(
+        f"{PFX} (N-h) 3T h {H_SMALL:g}, N_h {N_H}: <theta>(t*) {lt:.7g} vs P_dep t*/(rho c V) "
+        f"{stored:.7g}: |ratio - 1| {rel:.3e} (ceiling {N_HCTRL:g}, ASSERTED; predicted in "
+        f"[{PRED_NH[0]:g}, {PRED_NH[1]:g}] inside {_in(rel, *PRED_NH)})"
+    )
     # (N-lat) 1.5 T lattice in place of 3 T
     l3, _, _ = p91.lattice_split(w3, pts, ts)
     l15, _, _ = p91.lattice_split(w15, pts, ts)
     dev = abs(l3 / l15 - 1.0)
     gates.append((("N-lat", dev), dev > B1_BAND, dev))
-    _say(f"{PFX} (N-lat) |<theta>_3T / <theta>_1.5T - 1| {dev:.3e} (> {B1_BAND:g} ASSERTED; "
-         f"predicted approx {PRED_NLAT:g}, {dev / B1_BAND:.3g} x the band)")
+    _say(
+        f"{PFX} (N-lat) |<theta>_3T / <theta>_1.5T - 1| {dev:.3e} (> {B1_BAND:g} ASSERTED; "
+        f"predicted approx {PRED_NLAT:g}, {dev / B1_BAND:.3g} x the band)"
+    )
     # (Env) min_i <theta_i> <= <theta>_3 <= max_i <theta_i>
     per = _per_ball(w3, pts, ts)
     lo, hi = float(per.min()), float(per.max())
     ok = lo <= l3 <= hi
     gates.append((("Env", lo, l3, hi), ok, 0))
-    _say(f"{PFX} (Env) min <theta_i> {lo:.7g} <= <theta>_3T {l3:.7g} <= max <theta_i> {hi:.7g}: "
-         f"{ok} (ASSERTED); envelope (max - min) / <theta>_3T {(hi - lo) / l3:.4e} (brief "
-         f"{ENV_PRED:g}); dot(w, per) vs split rel {abs(float(np.dot(w3, per)) - l3) / l3:.3e}")
+    _say(
+        f"{PFX} (Env) min <theta_i> {lo:.7g} <= <theta>_3T {l3:.7g} <= max <theta_i> {hi:.7g}: "
+        f"{ok} (ASSERTED); envelope (max - min) / <theta>_3T {(hi - lo) / l3:.4e} (brief "
+        f"{ENV_PRED:g}); dot(w, per) vs split rel {abs(float(np.dot(w3, per)) - l3) / l3:.3e}"
+    )
     bad = _fail(gates)
     assert not bad, bad
 
@@ -245,18 +275,26 @@ def test_record_printed():
     lever = float(p89.P83_S[2]) * q
     _say(f"{PFX} records from the s0-split routes (N0 {N_L}, s0 {p89.S0:g} s), per deposited watt")
     pv, lo, hi = PRED_L3
-    _say(f"{PFX} RECORD <theta>_lat,3T deg 1(t*) {l3:.7g} K/W (predicted approx {pv}, range "
-         f"[{lo}, {hi}] inside {_in(l3, lo, hi)})")
+    _say(
+        f"{PFX} RECORD <theta>_lat,3T deg 1(t*) {l3:.7g} K/W (predicted approx {pv}, range "
+        f"[{lo}, {hi}] inside {_in(l3, lo, hi)})"
+    )
     pv, lo, hi = PRED_Q
-    _say(f"{PFX} RECORD 3T / 1.5T {q:.7g} (predicted approx {pv}, range [{lo}, {hi}] inside "
-         f"{_in(q, lo, hi)}); 1.5T {l15:.7g} K/W")
+    _say(
+        f"{PFX} RECORD 3T / 1.5T {q:.7g} (predicted approx {pv}, range [{lo}, {hi}] inside "
+        f"{_in(q, lo, hi)}); 1.5T {l15:.7g} K/W"
+    )
     _say(f"{PFX} RECORD lattice / uniform {lu:.7g} (predicted approx {PRED_LU})")
-    _say(f"{PFX} RECORD surface fraction {surf:.6f} (predicted approx {PRED_SURF}); stored "
-         f"fraction {l3 / stored:.6f}; P_dep t*/(rho c V) {stored:.6f} K/W")
+    _say(
+        f"{PFX} RECORD surface fraction {surf:.6f} (predicted approx {PRED_SURF}); stored "
+        f"fraction {l3 / stored:.6f}; P_dep t*/(rho c V) {stored:.6f} K/W"
+    )
     _say(f"{PFX} RECORD uniform {u:.7g} K/W (re-print, frequency-independent per deposited watt)")
-    _say(f"{PFX} context: per-accepted-watt lever P83_S share {p89.P83_S[2]} x ratio = "
-         f"{lever:.6g} (predicted approx {PRED_LEVER}), beside C39's {C39_LEVER} and P89's "
-         f"{P89_LEVER} (context only, not asserted)")
+    _say(
+        f"{PFX} context: per-accepted-watt lever P83_S share {p89.P83_S[2]} x ratio = "
+        f"{lever:.6g} (predicted approx {PRED_LEVER}), beside C39's {C39_LEVER} and P89's "
+        f"{P89_LEVER} (context only, not asserted)"
+    )
     per = _per_ball(w3, pts, ts)
     labels = d["labels"]
     _say(f"{PFX} per-ball table (3T): label | w | <theta_i>(t*) K/W per ball watt")

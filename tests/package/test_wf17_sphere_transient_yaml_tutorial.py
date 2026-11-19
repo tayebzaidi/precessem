@@ -36,15 +36,7 @@ from mpi4py import MPI
 
 import fem_em_solver
 from fem_em_solver import StudyConfigError, cli, load_study
-
 from tests.complex_mode import complex_only
-from tests.package.test_wf17_first_study_tutorial import (
-    LINK_PASS_RE,
-    _checker_stdout,
-    extract_tagged_block,
-)
-from tests.package.test_wf17_sphere_transient_tutorial import MIN_GUIDE_PAGES, PAGE
-from tests.package.test_wf17_thermal_box_wall_tutorial import _files_of
 from tests.package.test_wf1_yaml_sphere_transient import (
     A_BAND,
     A_FILE,
@@ -58,6 +50,13 @@ from tests.package.test_wf1_yaml_sphere_transient import (
     _a_t,
     _s2,
 )
+from tests.package.test_wf17_first_study_tutorial import (
+    LINK_PASS_RE,
+    _checker_stdout,
+    extract_tagged_block,
+)
+from tests.package.test_wf17_sphere_transient_tutorial import MIN_GUIDE_PAGES, PAGE
+from tests.package.test_wf17_thermal_box_wall_tutorial import _files_of
 from tests.unit.test_doc_reference_exit_codes import run_checker
 
 REPO = PAGE.parents[2]
@@ -100,9 +99,11 @@ def test_wf17_s34_block_tags_and_files():
     text = _text()
     block = extract_tagged_block(text, TAG)
     files = _files_of(block)
-    _p0(f"[WF-17 s34] (X) {TAG}: run_study_file( count {block.count('run_study_file(')}; "
+    _p0(
+        f"[WF-17 s34] (X) {TAG}: run_study_file( count {block.count('run_study_file(')}; "
         f"Study( {'Study(' in block.replace('run_study_file(', '')}; probe {'probe' in block}; "
-        f"FILES {files}; yaml fences {text.count('```yaml')}")
+        f"FILES {files}; yaml fences {text.count('```yaml')}"
+    )
     assert block.count("run_study_file(") == 1
     assert "Study(" not in block.replace("run_study_file(", "")
     assert "probe" not in block
@@ -114,8 +115,10 @@ def test_wf17_s34_block_tags_and_files():
     planted = block.replace(f', "{S_FILE.name}"', "")
     assert planted != block
     planted_files = _files_of(planted)
-    _p0(f"[WF-17 s34] (c-F) planted FILES {planted_files}: file-set ok "
-        f"{_file_set_ok(planted_files)}")
+    _p0(
+        f"[WF-17 s34] (c-F) planted FILES {planted_files}: file-set ok "
+        f"{_file_set_ok(planted_files)}"
+    )
     assert not _file_set_ok(planted_files)
     # (c-page), asserted: a removed / doubled tag raises
     with pytest.raises(LookupError):
@@ -146,9 +149,11 @@ def test_wf17_s34_docrefs_zero_dead():
     rc, counts = run_checker("--docs-root", "docs/guide", "--check-links")
     link = LINK_PASS_RE.search(_checker_stdout("--docs-root", "docs/guide", "--check-links"))
     assert link is not None, "(D) no 'Link pass:' line"
-    print(f"[WF-17 s34] (D) dead={counts['dead']} links={link.group(1)} pages={link.group(2)} "
-          f"link-dead={link.group(3)} guide={counts['guide']} rc={rc} "
-          f"(MIN_GUIDE_PAGES {MIN_GUIDE_PAGES})")
+    print(
+        f"[WF-17 s34] (D) dead={counts['dead']} links={link.group(1)} pages={link.group(2)} "
+        f"link-dead={link.group(3)} guide={counts['guide']} rc={rc} "
+        f"(MIN_GUIDE_PAGES {MIN_GUIDE_PAGES})"
+    )
     assert counts["dead"] == 0
     assert int(link.group(3)) == 0
     assert int(link.group(2)) >= MIN_GUIDE_PAGES
@@ -190,8 +195,10 @@ def test_wf17_s34_block_reproduces_u131(monkeypatch):
     with contextlib.redirect_stdout(buf):
         exec(compile(block, f"{PAGE_ID}#{TAG}", "exec"), ns_)
     t_block = time.perf_counter() - tb
-    _p0(f"[WF-17 s34] block stdout (rank 0): {buf.getvalue()!r}; spy calls {calls['n']}; "
-        f"{t_block:.1f} s")
+    _p0(
+        f"[WF-17 s34] block stdout (rank 0): {buf.getvalue()!r}; spy calls {calls['n']}; "
+        f"{t_block:.1f} s"
+    )
     runs = ns_["runs"]
     runA, runS = runs[A_FILE.name], runs[S_FILE.name]
 
@@ -201,12 +208,18 @@ def test_wf17_s34_block_reproduces_u131(monkeypatch):
     err_A, q_cf = _a_t(runA.thermal)
     s2, ratio = _s2(runS.thermal, comm)
     e = {k: r.summary["temperature"]["max_balance_residual"] for k, r in runs.items()}
-    _p0(f"[WF-17 s34] (Once) {once}; spy {calls['n']}; sub cells {n_sub} "
-        f"(MAT10_SUB_CELLS {MAT10_SUB_CELLS}); summary cells {cells}")
-    _p0(f"[WF-17 s34] (A_t) {err_A:.10e} [{err_A:.4e}] (A_BAND {A_BAND}; record "
-        f"{MAT12_A_T_PRINT}); q_cf {q_cf:.6f} W/m^3")
-    _p0(f"[WF-17 s34] (S2) ratio {ratio:.9f} |ratio - 1| {s2:.10e} [{s2:.4e}] "
-        f"(S2_BAND {S2_BAND:.0e}; record {MAT12_S2_PRINT})")
+    _p0(
+        f"[WF-17 s34] (Once) {once}; spy {calls['n']}; sub cells {n_sub} "
+        f"(MAT10_SUB_CELLS {MAT10_SUB_CELLS}); summary cells {cells}"
+    )
+    _p0(
+        f"[WF-17 s34] (A_t) {err_A:.10e} [{err_A:.4e}] (A_BAND {A_BAND}; record "
+        f"{MAT12_A_T_PRINT}); q_cf {q_cf:.6f} W/m^3"
+    )
+    _p0(
+        f"[WF-17 s34] (S2) ratio {ratio:.9f} |ratio - 1| {s2:.10e} [{s2:.4e}] "
+        f"(S2_BAND {S2_BAND:.0e}; record {MAT12_S2_PRINT})"
+    )
     _p0(f"[WF-17 s34] (E) {e} (E_BAND {E_BAND:.0e})")
     _p0(f"[WF-17 s34] elapsed {time.perf_counter() - t0:.1f} s")
 

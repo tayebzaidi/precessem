@@ -1,0 +1,19 @@
+[flake8]
+max-line-length = 100
+extend-ignore =
+    # Black owns layout. E203 / W503 conflict with it; E501 is left to it too,
+    # because what black cannot wrap is long string literals and comments.
+    E203, W503, E501,
+    # Python 3.12 tokenizes f-strings, and pycodestyle then reports whitespace
+    # inside replacement fields such as f"{a[0,0]}" and f"{ {k: v} }".
+    E201, E202, E231,
+    # Physics notation: l, I and O are standard symbols in the formulas.
+    E741,
+    # Small lambdas bound to names are used deliberately as local helpers.
+    E731
+per-file-ignores =
+    # Package __init__ modules re-export the public API.
+    __init__.py: F401
+    # pytest fixtures imported from another test module are requested by
+    # parameter name, which pyflakes reads as redefining the import.
+    tests/*: F811

@@ -28,6 +28,7 @@ side fraction.  Scope: no peak, SAR, birdcage or ✅ claim; no band on levels.
 from __future__ import annotations
 
 import numpy as np
+from dolfinx import geometry
 from mpi4py import MPI
 
 from fem_em_solver.post.evaluation import evaluate_vector_field_parallel
@@ -39,7 +40,6 @@ from tests.validation.test_lossy_sphere_fullwave import (
     _mesh_and_solve,
     _series,
 )
-from dolfinx import geometry
 
 AIR_TAG = 2  # io/mesh.py sphere_in_box_domain: 1 sphere, 2 air
 FREQUENCY_HZ = 64.0e6
@@ -95,14 +95,10 @@ def _interface_points(msh, cell_tags, radius, comm):
     def _cat(lst, shape):
         return np.asarray(lst, dtype=np.float64).reshape(shape)
 
-    g_keys = np.concatenate(
-        [np.asarray(k, dtype=np.int64) for k in comm.allgather(keys)]
-    )
+    g_keys = np.concatenate([np.asarray(k, dtype=np.int64) for k in comm.allgather(keys)])
     g_verts = np.concatenate([_cat(v, (-1, 9)) for v in comm.allgather(verts_out)])
     g_normals = np.concatenate([_cat(v, (-1, 3)) for v in comm.allgather(normals)])
-    g_vids = np.concatenate(
-        [np.asarray(v, dtype=np.int64) for v in comm.allgather(vertex_ids)]
-    )
+    g_vids = np.concatenate([np.asarray(v, dtype=np.int64) for v in comm.allgather(vertex_ids)])
 
     sort_keys = tuple(g_verts[:, j] for j in range(8, -1, -1)) + (g_keys,)
     order = np.lexsort(sort_keys)
@@ -146,11 +142,17 @@ def _rung(series, hs, hf, comm):
 
     e = fields.e_complex
     e_in, v_in = evaluate_vector_field_parallel(
-        e, points, comm, owner="lowest_original_cell",
+        e,
+        points,
+        comm,
+        owner="lowest_original_cell",
         candidate_cells=cell_tags.find(SPHERE_TAG),
     )
     e_out, v_out = evaluate_vector_field_parallel(
-        e, points, comm, owner="lowest_original_cell",
+        e,
+        points,
+        comm,
+        owner="lowest_original_cell",
         candidate_cells=cell_tags.find(AIR_TAG),
     )
     e_leg, v_leg = evaluate_vector_field_parallel(e, points, comm)
@@ -169,25 +171,18 @@ def _rung(series, hs, hf, comm):
         / np.linalg.norm(np.sum(s_out_hat * r_hat, axis=1))
     )
     s0_tangent = float(
-        np.linalg.norm(np.cross(r_hat, s_in_hat - s_out_hat))
-        / np.linalg.norm(s_out_hat)
+        np.linalg.norm(np.cross(r_hat, s_in_hat - s_out_hat)) / np.linalg.norm(s_out_hat)
     )
 
     en_in = np.sum(e_in * normals, axis=1)
     en_out = np.sum(e_out * normals, axis=1)
     en_leg = np.sum(e_leg * normals, axis=1)
     r_n = float(np.linalg.norm(eps_c * en_in - en_out) / np.linalg.norm(en_out))
-    r_n_blind = float(
-        np.linalg.norm(eps_c.real * en_in - en_out) / np.linalg.norm(en_out)
-    )
-    r_n_conj = float(
-        np.linalg.norm(np.conj(eps_c) * en_in - en_out) / np.linalg.norm(en_out)
-    )
+    r_n_blind = float(np.linalg.norm(eps_c.real * en_in - en_out) / np.linalg.norm(en_out))
+    r_n_conj = float(np.linalg.norm(np.conj(eps_c) * en_in - en_out) / np.linalg.norm(en_out))
     r_n_legacy = float(np.linalg.norm(eps_c * en_leg - en_leg) / np.linalg.norm(en_leg))
     legacy_tag1 = float(
-        np.mean(
-            np.linalg.norm(e_leg - e_in, axis=1) < np.linalg.norm(e_leg - e_out, axis=1)
-        )
+        np.mean(np.linalg.norm(e_leg - e_in, axis=1) < np.linalg.norm(e_leg - e_out, axis=1))
     )
     x1 = float(np.max(np.linalg.norm(np.cross(normals, e_in - e_out), axis=1)))
     x1_scale = float(np.max(np.linalg.norm(e_out, axis=1)))
@@ -242,9 +237,7 @@ def test_post1_one_sided_interface_residuals_sphere_64mhz():
                 f"X1 max|n x (E- - E+)| {r['x1']:.3e} vs max|E+| {r['x1_scale']:.4e} "
                 f"(ratio {r['x1'] / r['x1_scale']:.3e})"
             )
-            print(
-                f"    R_n {r['r_n']!r}  e- {r['e_in']!r}  e+ {r['e_out']!r}"
-            )
+            print(f"    R_n {r['r_n']!r}  e- {r['e_in']!r}  e+ {r['e_out']!r}")
             print(
                 f"    controls: sigma-blind {r['r_n_blind']:.4f} (pred 0.874), "
                 f"eps_c* {r['r_n_conj']:.4f} (pred 1.748), legacy R_n "
@@ -256,8 +249,7 @@ def test_post1_one_sided_interface_residuals_sphere_64mhz():
         for lo, hi in zip(runs[:-1], runs[1:]):
             h_ratio = lo["hs"] / hi["hs"]
             rates = {
-                k: float(np.log(lo[k] / hi[k]) / np.log(h_ratio))
-                for k in ("r_n", "e_in", "e_out")
+                k: float(np.log(lo[k] / hi[k]) / np.log(h_ratio)) for k in ("r_n", "e_in", "e_out")
             }
             print(
                 f"  rate h {lo['hs']:.5f} -> {hi['hs']:.5f}: "
@@ -281,7 +273,8 @@ def test_post1_one_sided_interface_residuals_sphere_64mhz():
         assert r["x1"] <= TANGENTIAL_TOL * r["x1_scale"], (r["x1"], r["x1_scale"])
         # (B)
         assert abs(r["r_n_legacy"] - eps_minus_one) <= LEGACY_TOL * eps_minus_one, (
-            r["r_n_legacy"], eps_minus_one,
+            r["r_n_legacy"],
+            eps_minus_one,
         )
     # (C) strictly decreasing over the three rungs
     for key in ("r_n", "e_in", "e_out"):

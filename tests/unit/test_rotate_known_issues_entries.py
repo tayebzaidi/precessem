@@ -19,6 +19,7 @@ Durability: the four are moved to the archive by the 2026-10-03 weekly. The
 it still carries all four, else known-issues.md as pinned at KI_PINNED_SHA (its
 last commit before OPS-66). No live line numbers are hard-coded.
 """
+
 from __future__ import annotations
 
 import importlib.util
@@ -78,7 +79,9 @@ tool = _load("rotate_plan_archive_ops66", TOOL)
 def _git(*args: str) -> subprocess.CompletedProcess:
     return subprocess.run(
         ["git", "-c", f"safe.directory={REPO_ROOT}", "-C", str(REPO_ROOT), *args],
-        capture_output=True, text=True, check=False,
+        capture_output=True,
+        text=True,
+        check=False,
     )
 
 
@@ -104,10 +107,14 @@ def _live_text() -> tuple[str, str]:
     lines = set(text.split("\n"))
     if all(h in lines for h in FOUR):
         return text, "working known-issues.md"
-    return _git_show(KI_PINNED_SHA, "docs/testing/known-issues.md"), f"known-issues.md@{KI_PINNED_SHA[:8]}"
+    return (
+        _git_show(KI_PINNED_SHA, "docs/testing/known-issues.md"),
+        f"known-issues.md@{KI_PINNED_SHA[:8]}",
+    )
 
 
 # --- A1 ---------------------------------------------------------------------
+
 
 @pytest.mark.parametrize("heading", FOUR, ids=["OPS-59b", "OPS-59a", "PORT-20", "PORT-20-ans3"])
 def test_a1_the_four_headings_are_entries_and_closed(heading):
@@ -117,6 +124,7 @@ def test_a1_the_four_headings_are_entries_and_closed(heading):
 
 
 # --- A2 ---------------------------------------------------------------------
+
 
 def _new_minus_old(text: str) -> tuple[list[str], set[str], set[str], set[str]]:
     heads = _headings(text)
@@ -135,11 +143,14 @@ def test_a2_old_subset_of_new_and_difference_is_exactly_the_four():
         unclosed = [h for h in extra if not tool._ki_closed(h)]
         assert not unclosed, f"{label}: new − old carries non-closed headings: {unclosed[:3]}"
         diffs[label] = extra
-        print(f"[OPS-66 A2] {label} ({src if label == 'live' else 'known-issues-archive.md'}): "
-              f"headings={len(heads)} old={len(old)} new={len(new)} new-old={len(extra)}")
+        print(
+            f"[OPS-66 A2] {label} ({src if label == 'live' else 'known-issues-archive.md'}): "
+            f"headings={len(heads)} old={len(old)} new={len(new)} new-old={len(extra)}"
+        )
     assert diffs["live"] == set(FOUR), (
         f"live new − old is {len(diffs['live'])}, expected exactly the four: "
-        f"{[h[:60] for h in diffs['live']]}")
+        f"{[h[:60] for h in diffs['live']]}"
+    )
     # OPS-66 step 3 (§9 item 393): the former clause `archive ⊆ FOUR` asserted a
     # snapshot of the archive, which later rotations broke by moving further
     # closed undated headings there (known-issues, 2026-10-12). The docstring's
@@ -151,8 +162,9 @@ def test_a2_old_subset_of_new_and_difference_is_exactly_the_four():
     for h in sorted(beyond):
         print(f"[OPS-66 A2]   {h[:60]}")
     assert beyond, "control: the old snapshot clause would pass on today's archive"
-    assert set(FOUR) <= diffs["archive"] | diffs["live"], (
-        [h[:60] for h in set(FOUR) - diffs["archive"] - diffs["live"]])
+    assert set(FOUR) <= diffs["archive"] | diffs["live"], [
+        h[:60] for h in set(FOUR) - diffs["archive"] - diffs["live"]
+    ]
     # Second control: a planted admitted-but-unclosed heading must be caught by
     # the closed check. The brief's form first; the first admitted-and-unclosed
     # form is used.
@@ -169,6 +181,7 @@ def test_a2_old_subset_of_new_and_difference_is_exactly_the_four():
 
 # --- A3 ---------------------------------------------------------------------
 
+
 def test_a3_section_headers_are_not_entries():
     for h in SECTION_HEADERS + (tool.KI_INDEX_HEADING,):
         assert not tool.KI_ENTRY_RE.match(h), f"section header became an entry: {h}"
@@ -182,12 +195,15 @@ def test_a3_section_headers_are_not_entries():
 
 def test_a3_struck_open_clauses_stay_closed():
     struck = [h for h in FOUR if "🟡 OPEN" in h]
-    assert len(struck) == 2, f"expected two headings with a struck 🟡 OPEN clause, got {len(struck)}"
+    assert (
+        len(struck) == 2
+    ), f"expected two headings with a struck 🟡 OPEN clause, got {len(struck)}"
     for h in struck:
         assert not h.startswith("## 🟡") and tool._ki_closed(h), h[:60]
 
 
 # --- NC: pinned pre-change tool vs new tool ---------------------------------
+
 
 def _dry_run_count(module, ki_path: Path, capsys, monkeypatch) -> tuple[int, list[str]]:
     monkeypatch.setattr(module, "KNOWN_ISSUES", ki_path)
@@ -205,8 +221,9 @@ def _dry_run_count(module, ki_path: Path, capsys, monkeypatch) -> tuple[int, lis
 def test_negative_control_pinned_tool_reports_none_new_reports_four(capsys, monkeypatch):
     SCRATCH.mkdir(parents=True, exist_ok=True)
     old_path = SCRATCH / "rotate_plan_archive_e5af2cae.py"
-    old_path.write_text(_git_show(TOOL_PINNED_SHA, "scripts/maintenance/rotate_plan_archive.py"),
-                        encoding="utf-8")
+    old_path.write_text(
+        _git_show(TOOL_PINNED_SHA, "scripts/maintenance/rotate_plan_archive.py"), encoding="utf-8"
+    )
     old_tool = _load("rotate_plan_archive_pinned_e5af2cae", old_path)
     assert not hasattr(old_tool, "KI_ENTRY_RE"), "pinned tool already carries KI_ENTRY_RE"
     live, src = _live_text()

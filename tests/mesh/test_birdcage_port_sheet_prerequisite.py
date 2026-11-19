@@ -28,7 +28,6 @@ from mpi4py import MPI
 
 from fem_em_solver.io.mesh import MeshGenerator
 from tests.mesh.helpers import global_cell_tag_set
-from tests.mesh.test_coil_phantom_conforming import _tag_volume, _total_volume
 from tests.mesh.test_birdcage_conductor_sizing import CAD_MASS_GATE
 from tests.mesh.test_birdcage_port_tags import (
     AIR_PADDING,
@@ -44,6 +43,7 @@ from tests.mesh.test_birdcage_port_tags import (
     RING_RADIUS,
     _analytic_box_volume,
 )
+from tests.mesh.test_coil_phantom_conforming import _tag_volume, _total_volume
 
 # The sizing `PORT-9` step 3 assumes and budgets from (§7 `PORT-9` step 3:
 # "*assumes* it (`conductor_resolution = 1.6e-3`; budget from **98 474 cells**,

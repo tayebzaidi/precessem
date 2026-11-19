@@ -76,14 +76,14 @@ def test_control_repo_location_is_detected():
 def test_installed_package_is_outside_the_repo():
     import importlib.metadata
 
-    import fem_em_solver
-    import fem_em_solver.core
-    import fem_em_solver.post.evaluation
     import dolfinx
+    import numpy as np
     from mpi4py import MPI
     from petsc4py import PETSc
 
-    import numpy as np
+    import fem_em_solver
+    import fem_em_solver.core
+    import fem_em_solver.post.evaluation
 
     v = _location_violations(fem_em_solver.__file__, sys.path, os.environ, os.getcwd())
     assert v == [], v

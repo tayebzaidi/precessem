@@ -36,8 +36,9 @@ ENTRY62_FEEDS = ("P33", "P41")
 #: The 10-24 exit's pre-registered threshold, as the ``ans:11`` page's
 #: ``ORDER_RULE_REL``; not a band set here.
 ORDER_RULE_REL = 0.02
-ORDER_RULE_FIRES = ("clinical rod figures quoted at degree 2 only, degree-1 values as "
-                    "records beside them")
+ORDER_RULE_FIRES = (
+    "clinical rod figures quoted at degree 2 only, degree-1 values as " "records beside them"
+)
 ORDER_RULE_QUIET = "the 2 % order rule does not fire"
 TAG = "[GEO-36 C56]"
 #: The 11-14 weekly's quoted degree-2 figures (PROJECT_PLAN.md, entry-62 ruling:
@@ -79,8 +80,10 @@ def check_degree2(block, node_pf, name):
         other.append((f"{name} (Deg) expected red with detail 'degree 2'", repr(deg)))
     ok2 = block["tip"]["degree"] == "2"
     res.append((f"{name} (Deg2) degree 2", ok2, f"degree {block['tip']['degree']}"))
-    print(f"{TAG} {'PASS' if ok2 else 'FAIL'} {name} (Deg2) degree 2: "
-          f"degree {block['tip']['degree']}")
+    print(
+        f"{TAG} {'PASS' if ok2 else 'FAIL'} {name} (Deg2) degree 2: "
+        f"degree {block['tip']['degree']}"
+    )
     if not ok2:
         other.append((f"{name} (Deg2) degree 2", f"degree {block['tip']['degree']}"))
     if other:
@@ -125,10 +128,15 @@ def moves_from_rows(rows1, rows2):
             rule_rows.append(row)
         if over:
             rows_over.append(row)
-        table.append({"row": row, "cls": cls, "d1": r1[3], "d2": r2[3],
-                      "move": f"{mv:+.3e}", "over": over})
-    verdict = {"threshold": ORDER_RULE_REL, "rows_over": rows_over, "rule_rows": rule_rows,
-               "sentence": ORDER_RULE_FIRES if rows_over else ORDER_RULE_QUIET}
+        table.append(
+            {"row": row, "cls": cls, "d1": r1[3], "d2": r2[3], "move": f"{mv:+.3e}", "over": over}
+        )
+    verdict = {
+        "threshold": ORDER_RULE_REL,
+        "rows_over": rows_over,
+        "rule_rows": rule_rows,
+        "sentence": ORDER_RULE_FIRES if rows_over else ORDER_RULE_QUIET,
+    }
     return table, verdict
 
 
@@ -140,8 +148,10 @@ def moves_and_rule(b1, b2):
 
 def print_c56(b1, b2):
     table, verdict = moves_and_rule(b1, b2)
-    print(f"{TAG} C56 table: degree 1 ({b1['log']}, node {b1['node']['c_pf']} pF) | "
-          f"degree 2 ({b2['log']}, node {b2['node']['c_pf']} pF) | move | class | over")
+    print(
+        f"{TAG} C56 table: degree 1 ({b1['log']}, node {b1['node']['c_pf']} pF) | "
+        f"degree 2 ({b2['log']}, node {b2['node']['c_pf']} pF) | move | class | over"
+    )
     for t in table:
         over = "-" if t["cls"] == "printed" else ("over" if t["over"] else "under")
         print(f"{TAG}   {t['row']}: {t['d1']} | {t['d2']} | {t['move']} | {t['cls']} | {over}")
@@ -149,12 +159,16 @@ def print_c56(b1, b2):
         f1 = b1["arms"][arm]["y_in"]["feeds"]
         f2 = b2["arms"][arm]["y_in"]["feeds"]
         for i in range(2):
-            print(f"{TAG}   Im Y_in (1,+1j) arm {arm} feed {i + 1} ({f1[i]} | {f2[i]}) [S]: "
-                  f"{b1['arms'][arm]['y_in'][f1[i]][1]} | {b2['arms'][arm]['y_in'][f2[i]][1]} "
-                  f"(side by side, never a ratio)")
-    print(f"{TAG} order rule (threshold {ORDER_RULE_REL}; the node moved "
-          f"{b1['node']['c_pf']} -> {b2['node']['c_pf']} pF with the order): rows over "
-          f"{verdict['rows_over']} -> \"{verdict['sentence']}\"")
+            print(
+                f"{TAG}   Im Y_in (1,+1j) arm {arm} feed {i + 1} ({f1[i]} | {f2[i]}) [S]: "
+                f"{b1['arms'][arm]['y_in'][f1[i]][1]} | {b2['arms'][arm]['y_in'][f2[i]][1]} "
+                f"(side by side, never a ratio)"
+            )
+    print(
+        f"{TAG} order rule (threshold {ORDER_RULE_REL}; the node moved "
+        f"{b1['node']['c_pf']} -> {b2['node']['c_pf']} pF with the order): rows over "
+        f"{verdict['rows_over']} -> \"{verdict['sentence']}\""
+    )
     return table, verdict
 
 
@@ -180,8 +194,10 @@ def custody_values(block, path):
         return None
     form = [b for b in bad if _value_equal(b[1], b[2])]
     value = [b for b in bad if not _value_equal(b[1], b[2])]
-    print(f"{TAG} (J) {Path(path).name}: n_fields {n}, value mismatches {value}, "
-          f"print_form_only {form}")
+    print(
+        f"{TAG} (J) {Path(path).name}: n_fields {n}, value mismatches {value}, "
+        f"print_form_only {form}"
+    )
     return {"n_fields": n, "value": value, "print_form_only": form}
 
 
@@ -190,23 +206,27 @@ def custody_values(block, path):
 # ---------------------------------------------------------------------------
 def _read_entry62():
     n_node = c45._on_root(
-        lambda: sum(1 for ln in c45._read_log(ENTRY62_LOG).splitlines()
-                    if c45._RX_NODE.search(ln)))
+        lambda: sum(1 for ln in c45._read_log(ENTRY62_LOG).splitlines() if c45._RX_NODE.search(ln))
+    )
     print(f"{TAG} {ENTRY62_LOG.name}: [GEO-36 I36a] (Z) node lines: {n_node}")
     b62 = _parse(ENTRY62_LOG)
-    print(f"{TAG} (X62) parsed {b62['log']}: node {b62['node']['c_pf']} pF, block "
-          f":{b62['node']['line']}-:{b62['wrote']['line']}; tip :{b62['tip']['line']}; balls "
-          f"{list(b62['tip']['balls'])}, degree {b62['tip']['degree']}, eta valid "
-          f"{b62['tip']['eta_valid']}; feeds M {b62['arms']['M']['y_in']['feeds']}, "
-          f"R {b62['arms']['R']['y_in']['feeds']}")
+    print(
+        f"{TAG} (X62) parsed {b62['log']}: node {b62['node']['c_pf']} pF, block "
+        f":{b62['node']['line']}-:{b62['wrote']['line']}; tip :{b62['tip']['line']}; balls "
+        f"{list(b62['tip']['balls'])}, degree {b62['tip']['degree']}, eta valid "
+        f"{b62['tip']['eta_valid']}; feeds M {b62['arms']['M']['y_in']['feeds']}, "
+        f"R {b62['arms']['R']['y_in']['feeds']}"
+    )
     assert n_node == 1
     return b62
 
 
 def _read_entry48():
     b48 = _parse(c45.ENTRY48_LOG)
-    print(f"{TAG} (X48) parsed {b48['log']}: node {b48['node']['c_pf']} pF, block "
-          f":{b48['node']['line']}-:{b48['wrote']['line']}; degree {b48['tip']['degree']}")
+    print(
+        f"{TAG} (X48) parsed {b48['log']}: node {b48['node']['c_pf']} pF, block "
+        f":{b48['node']['line']}-:{b48['wrote']['line']}; degree {b48['tip']['degree']}"
+    )
     return b48
 
 
@@ -237,8 +257,10 @@ def test_c56_k_weekly():
     parsed = {f"q.{k}": v["q"] for k, v in b62["tip"]["balls"].items()}
     parsed["eta_t1"] = b62["tip"]["eta"]
     parsed["share.M"] = b62["arms"]["M"]["share"]
-    got = {k: (parsed[k] if fmt is None else format(float(parsed[k]), fmt))
-           for k, (_, fmt) in WEEKLY_QUOTED.items()}
+    got = {
+        k: (parsed[k] if fmt is None else format(float(parsed[k]), fmt))
+        for k, (_, fmt) in WEEKLY_QUOTED.items()
+    }
     want = {k: s for k, (s, _) in WEEKLY_QUOTED.items()}
     print(f"{TAG} (K-wk) parsed {got} vs weekly {want}: {'PASS' if got == want else 'FAIL'}")
     assert got == want
@@ -253,12 +275,14 @@ def test_c56_moves_rule():
     assert [t["row"] for t in rule] == verdict["rule_rows"]
     assert {t["cls"] for t in rule} == {"ratio", "per-watt"}
     assert [t["row"] for t in table if t["cls"] == "ratio"] == (
-        [f"q.{b}" for b in c45.ENTRY48_BALLS] + ["eta_t1", "share.M"])
+        [f"q.{b}" for b in c45.ENTRY48_BALLS] + ["eta_t1", "share.M"]
+    )
     assert [t["row"] for t in table if t["cls"] == "per-watt"] == [
-        f"sar_m_per_p_vol.{b}" for b in c45.ENTRY48_BALLS]
+        f"sar_m_per_p_vol.{b}" for b in c45.ENTRY48_BALLS
+    ]
     assert [t["row"] for t in table if t["cls"] == "printed"] == (
-        ["share.R"] + [f"sar_r_per_p_vol.{b}" for b in c45.ENTRY48_BALLS]
-        + ["p_vol.M", "rod.M"])
+        ["share.R"] + [f"sar_r_per_p_vol.{b}" for b in c45.ENTRY48_BALLS] + ["p_vol.M", "rod.M"]
+    )
 
     # Every move from the parsed strings, independently of rod_rows.
     def direct(b, row):
@@ -287,8 +311,10 @@ def test_c56_moves_rule():
 
 def test_c56_j_custody():
     """(J62r) / (J48): value custody against the host JSONs where present."""
-    for path, block in ((ENTRY62_JSON, _parse(ENTRY62_LOG)),
-                        (ENTRY48_JSON, _parse(c45.ENTRY48_LOG))):
+    for path, block in (
+        (ENTRY62_JSON, _parse(ENTRY62_LOG)),
+        (ENTRY48_JSON, _parse(c45.ENTRY48_LOG)),
+    ):
         out = custody_values(block, path)
         if out is None:
             continue
@@ -311,7 +337,7 @@ def _copy62(tmp_dir, q_digit=False, dup_node=False):
     if q_digit:
         tok = b["tip"]["balls"]["top"]["q"]
         i = tok.index(".") + 4  # the 4th decimal: 4.145285 -> 4.145385
-        new = tok[:i] + str((int(tok[i]) + 1) % 10) + tok[i + 1:]
+        new = tok[:i] + str((int(tok[i]) + 1) % 10) + tok[i + 1 :]
         assert f"top {tok} (M " in lines[i_tip]
         lines[i_tip] = lines[i_tip].replace(f"top {tok} (M ", f"top {new} (M ", 1)
     if dup_node:

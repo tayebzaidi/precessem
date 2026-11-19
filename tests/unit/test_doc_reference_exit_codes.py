@@ -46,8 +46,7 @@ def _load_checker():
 checker = _load_checker()
 
 RESULT_RE = re.compile(
-    r"RESULT: dead=(\d+) guide=(\d+) stale=(\d+) "
-    r"stale_severity=(\w+) exit=(\d+)"
+    r"RESULT: dead=(\d+) guide=(\d+) stale=(\d+) " r"stale_severity=(\w+) exit=(\d+)"
 )
 
 
@@ -105,8 +104,10 @@ def write_fixture(tmp_path: Path, reference: str) -> tuple[Path, Path]:
 
 def fixture_args(docs_root: Path, output_dir: Path, *extra: str) -> list[str]:
     return [
-        "--docs-root", str(docs_root),
-        "--output-dir", str(output_dir),
+        "--docs-root",
+        str(docs_root),
+        "--output-dir",
+        str(output_dir),
         *extra,
     ]
 
@@ -587,10 +588,12 @@ def test_the_in_tree_exemption_cannot_silently_widen():
     }
     from_git = _tracked_example_artifacts_via_git()
     pinned = committed_example_artifacts()
-    print(f"OPS-44 pinned={len(pinned)} "
-          f"(listed={len(LISTED_EXAMPLE_ARTIFACTS)} "
-          f"by_rule={len(pinned - LISTED_EXAMPLE_ARTIFACTS)}) "
-          f"checker={len(tracked)} git_ls_files={len(from_git)}")
+    print(
+        f"OPS-44 pinned={len(pinned)} "
+        f"(listed={len(LISTED_EXAMPLE_ARTIFACTS)} "
+        f"by_rule={len(pinned - LISTED_EXAMPLE_ARTIFACTS)}) "
+        f"checker={len(tracked)} git_ls_files={len(from_git)}"
+    )
     for path in sorted(from_git):
         print(f"  tracked example artifact: {path}")
     print(f"OPS-59 extras (tracked but not pinned): {sorted(tracked - pinned) or 'none'}")
@@ -676,9 +679,7 @@ def test_an_untracked_example_artifact_never_enters_the_exemption(tmp_path):
     git("init", "-q", cwd=docs_root)  # a work tree, but the artifact is not added
 
     exempt = {
-        str(path)
-        for paths in checker.tracked_artifacts(docs_root).values()
-        for path in paths
+        str(path) for paths in checker.tracked_artifacts(docs_root).values() for path in paths
     }
     print(f"OPS-44 untracked control: exemption holds {len(exempt)} path(s)")
     assert str(artifact) not in exempt

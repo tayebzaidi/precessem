@@ -38,8 +38,8 @@ import pytest
 from mpi4py import MPI
 
 from tests.complex_mode import complex_only
-from tests.package.test_wf13_study_estimate import WF15_CELLS_RECORD, WF15_DEG2_UNKNOWNS_RECORD
 from tests.package.test_wf1_study_yaml import SPHERE_FILE
+from tests.package.test_wf13_study_estimate import WF15_CELLS_RECORD, WF15_DEG2_UNKNOWNS_RECORD
 
 DEG2_FILE = Path(__file__).resolve().parent / "wf13" / "sphere_mat4_deg2.yaml"
 DEG1_MESSAGE = "fewer than two priced rows at degree 1"
@@ -162,7 +162,9 @@ def test_wf13_cli_estimate_degree1_passes_api_error(monkeypatch, capsys, tmp_pat
     from fem_em_solver.study_yaml import load_study
 
     orig = study_mod._predict
-    p1_only = tuple(row for row in study_mod.PRICE_TABLE if row["row"] not in ("P3", "T49", "FH1"))  # T49: item 479; FH1: §9 item 562
+    p1_only = tuple(
+        row for row in study_mod.PRICE_TABLE if row["row"] not in ("P3", "T49", "FH1")
+    )  # T49: item 479; FH1: §9 item 562
     monkeypatch.setattr(
         study_mod, "_predict", lambda u, d, r, n_rhs=1: orig(u, d, r, n_rhs, table=p1_only)
     )
@@ -214,8 +216,10 @@ def test_wf13_cli_estimate_thermal_ball_refusal(monkeypatch, capsys, tmp_path):
         with pytest.raises(AttributeError, match="sphere_tag") as ctrl_exc:
             load_study(THERMAL_FILE).estimate(comm)
     ctrl_counts = comm.allgather(len(ctrl_calls))
-    _say(f"\n[WF-13 s9] control (refusal no-op): {type(ctrl_exc.value).__name__}: "
-         f"{ctrl_exc.value}; build calls per rank {ctrl_counts}")
+    _say(
+        f"\n[WF-13 s9] control (refusal no-op): {type(ctrl_exc.value).__name__}: "
+        f"{ctrl_exc.value}; build calls per rank {ctrl_counts}"
+    )
     assert ctrl_counts == [1] * comm.size
 
     # (2) the API refuses before any mesh
@@ -244,8 +248,10 @@ def test_wf13_cli_estimate_thermal_ball_refusal(monkeypatch, capsys, tmp_path):
     # (4) anchor
     rcs = comm.allgather(rc)
     build_counts = comm.allgather(len(calls))
-    _say(f"[WF-13 s9] CLI rc per rank {rcs}; rank-0 stderr {lines!r}; "
-         f"build calls per rank {build_counts}")
+    _say(
+        f"[WF-13 s9] CLI rc per rank {rcs}; rank-0 stderr {lines!r}; "
+        f"build calls per rank {build_counts}"
+    )
     assert rcs == [2] * comm.size
     if comm.rank == 0:
         assert lines == [f"femem: error: {api_exc.value}"]
@@ -269,8 +275,11 @@ def test_wf13_cli_estimate_refuses_ranks(capsys, tmp_path, monkeypatch):
     capsys.readouterr()
     rc = main(["run", "--ranks", "2", "--estimate", str(DEG2_FILE), "--output-dir", str(out_dir)])
     cap = capsys.readouterr()
-    print(f"\n[WF-13 s4] (X) --ranks 2 --estimate: rc {rc}; stderr {cap.err.strip()!r}; "
-          f"marker exists {marker.exists()}", flush=True)
+    print(
+        f"\n[WF-13 s4] (X) --ranks 2 --estimate: rc {rc}; stderr {cap.err.strip()!r}; "
+        f"marker exists {marker.exists()}",
+        flush=True,
+    )
     assert rc == 2
     assert "--ranks" in cap.err and "--estimate" in cap.err
     assert "femem: launching" not in cap.out

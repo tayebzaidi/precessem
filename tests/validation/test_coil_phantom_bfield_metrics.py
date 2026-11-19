@@ -33,14 +33,13 @@ at ``-n 2/4``.
 
 import numpy as np
 import ufl
-from mpi4py import MPI
 from dolfinx import fem
+from mpi4py import MPI
 
 from fem_em_solver.core.solvers import MagnetostaticProblem, MagnetostaticSolver
 from fem_em_solver.io.mesh import MeshGenerator
 from fem_em_solver.post import evaluate_vector_field_parallel
 from fem_em_solver.utils.constants import MU_0
-
 from tests.tolerances import (
     B_FIELD_MAX_NONTRIVIAL_ABS_MIN,
     B_FIELD_MEAN_NONTRIVIAL_ABS_MIN,
@@ -162,12 +161,12 @@ def test_coil_phantom_bfield_metrics_are_finite_smooth_and_symmetric():
     b_max = float(np.max(centerline_mag))
     b_mean = float(np.mean(centerline_mag))
 
-    assert b_max > B_FIELD_MAX_NONTRIVIAL_ABS_MIN, (
-        f"Expected nontrivial phantom B-field, got max |B|={b_max:.3e}"
-    )
-    assert b_mean > B_FIELD_MEAN_NONTRIVIAL_ABS_MIN, (
-        f"Expected nontrivial average phantom B-field, got mean |B|={b_mean:.3e}"
-    )
+    assert (
+        b_max > B_FIELD_MAX_NONTRIVIAL_ABS_MIN
+    ), f"Expected nontrivial phantom B-field, got max |B|={b_max:.3e}"
+    assert (
+        b_mean > B_FIELD_MEAN_NONTRIVIAL_ABS_MIN
+    ), f"Expected nontrivial average phantom B-field, got mean |B|={b_mean:.3e}"
 
     # Centerline smoothness check: avoid large point-to-point jumps for symmetric setup
     point_to_point_jump = np.abs(np.diff(centerline_mag))
@@ -258,7 +257,9 @@ def test_coil_phantom_bfield_metrics_are_finite_smooth_and_symmetric():
             f"(pinned to h = {sampling_clearance_resolution:.6e} m)"
         )
         print(f"    interior safe radius/half-height: {safe_radius:.6e} / {safe_half_height:.6e} m")
-        print(f"    probe grid: {len(x_probe_positions)} x-positions × {len(z_probe_positions)} z-positions")
+        print(
+            f"    probe grid: {len(x_probe_positions)} x-positions × {len(z_probe_positions)} z-positions"
+        )
         print(f"    fixed y offset: {y_probe_offset:.6e} m")
         print("  symmetry mismatch, DG0 sampling (±x pairs) — the gated path:")
         print(

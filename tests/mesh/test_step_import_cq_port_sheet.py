@@ -18,13 +18,12 @@ Unit box with the rectangle (0.1, 0.2, 0.47, 0.8 x 0.6), constants of
 import hashlib
 import os
 
+import dolfinx
 import numpy as np
 import pytest
 import ufl
-from mpi4py import MPI
-
-import dolfinx
 from dolfinx import fem
+from mpi4py import MPI
 
 from fem_em_solver.io.step_import import import_step, load_step_config
 from fem_em_solver.ports.definitions import (
@@ -92,12 +91,15 @@ def test_p1_cad_identity(built):
     assert rec["tag"] == TAG_PORT and rec["role"] == "port"
     assert rec["step_name"] == "PortSheet"
     assert abs(rec["cad_area"] - RECT_AREA) <= 1e-12
-    area = COMM.allreduce(float(_tri_areas(mesh, _owned(mesh, facet_tags, TAG_PORT)).sum()),
-                          op=MPI.SUM)
+    area = COMM.allreduce(
+        float(_tri_areas(mesh, _owned(mesh, facet_tags, TAG_PORT)).sum()), op=MPI.SUM
+    )
     r1 = area / RECT_AREA - 1.0
     r2 = area / rec["cad_area"] - 1.0
-    print(f"[U12p] (P1) n={COMM.size} A={area!r} A/0.48-1={r1:+.3e} "
-          f"A/cad_area-1={r2:+.3e} n_triangles={rec['n_triangles']} route={rec['route']}")
+    print(
+        f"[U12p] (P1) n={COMM.size} A={area!r} A/0.48-1={r1:+.3e} "
+        f"A/cad_area-1={r2:+.3e} n_triangles={rec['n_triangles']} route={rec['route']}"
+    )
     assert abs(r1) <= STRIP_BAND
     assert abs(r2) <= STRIP_BAND
 
@@ -110,8 +112,10 @@ def test_p2_complete_and_embedded(built):
     f2c = mesh.topology.connectivity(2, 3)
     one_sided = sum(1 for f in owned if len(f2c.links(f)) != 2)
     one_sided = COMM.allreduce(one_sided, op=MPI.SUM)
-    print(f"[U12p] (P2) n={COMM.size} owned 201={count} "
-          f"n_triangles={diag['surface_groups']['port_1']['n_triangles']} one-sided={one_sided}")
+    print(
+        f"[U12p] (P2) n={COMM.size} owned 201={count} "
+        f"n_triangles={diag['surface_groups']['port_1']['n_triangles']} one-sided={one_sided}"
+    )
     assert count == diag["surface_groups"]["port_1"]["n_triangles"]
     assert one_sided == 0
 
@@ -126,8 +130,10 @@ def test_p3_dS_and_w_instrument(built):
     i_wall = COMM.allreduce(fem.assemble_scalar(fem.form(one * ds(TAG_WALL))), op=MPI.SUM)
     r3 = abs(i_port) / RECT_AREA - 1.0
     rw = abs(i_wall) / BOX_AREA - 1.0
-    print(f"[U12p] (P3) n={COMM.size} dS(201)={i_port!r} rel={r3:+.3e}; "
-          f"(W) ds(101)={i_wall!r} rel={rw:+.3e}")
+    print(
+        f"[U12p] (P3) n={COMM.size} dS(201)={i_port!r} rel={r3:+.3e}; "
+        f"(W) ds(101)={i_wall!r} rel={rw:+.3e}"
+    )
     assert abs(i_port - RECT_AREA) <= STRIP_BAND * RECT_AREA
     assert abs(i_wall - BOX_AREA) <= STRIP_BAND * BOX_AREA
 
@@ -152,8 +158,10 @@ def test_n3_dropped_facet_is_seen(built):
     kept = areas[1:] if COMM.rank == drop else areas
     a = COMM.allreduce(float(kept.sum()), op=MPI.SUM)
     r = a / RECT_AREA - 1.0
-    print(f"[U12p] (n3) n={COMM.size} drop rank {drop}: A'/0.48-1={r:+.3e} "
-          f"= {abs(r) / STRIP_BAND:.3e} x STRIP_BAND (predicted ~5e6)")
+    print(
+        f"[U12p] (n3) n={COMM.size} drop rank {drop}: A'/0.48-1={r:+.3e} "
+        f"= {abs(r) / STRIP_BAND:.3e} x STRIP_BAND (predicted ~5e6)"
+    )
     assert abs(r) > STRIP_BAND
 
 

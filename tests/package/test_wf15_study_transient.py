@@ -36,16 +36,15 @@ from fem_em_solver import (
     UniformHeatSource,
 )
 from fem_em_solver.utils.analytical import robin_sphere_duty_cycle_temperature
-
 from tests.materials.test_phantom_material_model import _dg0_owned_diff
 from tests.validation.test_mat5_em_coupled_sphere import L0_BAND
 from tests.validation.test_mat9_transient_conduction_sphere import (
+    RHO_C,
+    T_INF,
     H,
     K,
     Q,
     R,
-    RHO_C,
-    T_INF,
     _ball,
     _interior_error,
 )
@@ -132,9 +131,10 @@ def _on(msh_ref, T):
     identical first."""
     comm = msh_ref.comm
     V = fem.functionspace(msh_ref, ("Lagrange", 1))
-    same = np.array_equal(
-        V.tabulate_dof_coordinates(), T.function_space.tabulate_dof_coordinates()
-    ) and V.dofmap.index_map.size_local == T.function_space.dofmap.index_map.size_local
+    same = (
+        np.array_equal(V.tabulate_dof_coordinates(), T.function_space.tabulate_dof_coordinates())
+        and V.dofmap.index_map.size_local == T.function_space.dofmap.index_map.size_local
+    )
     assert _all(comm, same), "P1 dof layout differs between the two builds"
     f = fem.Function(V)
     f.x.array[:] = T.x.array
@@ -162,11 +162,23 @@ def _exact_duty(msh, t, period, duty):
     r, inv = np.unique(r_all, return_inverse=True)
     out = np.empty(r.shape)
     for a in range(0, r.size, CHUNK):
-        rr = r[a:a + CHUNK]
-        out[a:a + CHUNK] = robin_sphere_duty_cycle_temperature(
-            rr, np.full(rr.shape, t), radius=R, k=K, rho_c=RHO_C, q=Q, h=H,
-            t_inf=T_INF, period=period, duty=duty, periodic=False,
-        ) - T_INF
+        rr = r[a : a + CHUNK]
+        out[a : a + CHUNK] = (
+            robin_sphere_duty_cycle_temperature(
+                rr,
+                np.full(rr.shape, t),
+                radius=R,
+                k=K,
+                rho_c=RHO_C,
+                q=Q,
+                h=H,
+                t_inf=T_INF,
+                period=period,
+                duty=duty,
+                periodic=False,
+            )
+            - T_INF
+        )
     f.x.array[:] = out[inv.reshape(-1)]
     f.x.scatter_forward()
     return f
@@ -192,15 +204,22 @@ def test_wf15_transient_spec_and_refusals():
     # switch time of case A and case B.
     for P, D in (CASES["A"], CASES["B"]):
         d, chi = DutyCycle(P, D), _chi(P, D)
-        ts = np.concatenate([np.linspace(0.0, 13 * P, 4001), np.arange(14) * P,
-                             np.arange(14) * P + D * P])
+        ts = np.concatenate(
+            [np.linspace(0.0, 13 * P, 4001), np.arange(14) * P, np.arange(14) * P + D * P]
+        )
         assert all(d(float(t)) == chi(float(t)) for t in ts)
-    for bad in (lambda: TransientSpec(0.0, 10, RHO_C), lambda: TransientSpec(1.0, 0, RHO_C),
-                lambda: TransientSpec(1.0, 10, RHO_C, theta=1.5),
-                lambda: TransientSpec(1.0, 10, RHO_C, startup_half_steps=1),
-                lambda: DutyCycle(100.0, 0.0), lambda: DutyCycle(100.0, 1.5),
-                lambda: DutyCycle(-1.0, 0.5), lambda: ContainerWall(0.0, K2, RC2),
-                lambda: UniformHeatSource(0.0), lambda: ThermalBallGeometry(0.0, RES)):
+    for bad in (
+        lambda: TransientSpec(0.0, 10, RHO_C),
+        lambda: TransientSpec(1.0, 0, RHO_C),
+        lambda: TransientSpec(1.0, 10, RHO_C, theta=1.5),
+        lambda: TransientSpec(1.0, 10, RHO_C, startup_half_steps=1),
+        lambda: DutyCycle(100.0, 0.0),
+        lambda: DutyCycle(100.0, 1.5),
+        lambda: DutyCycle(-1.0, 0.5),
+        lambda: ContainerWall(0.0, K2, RC2),
+        lambda: UniformHeatSource(0.0),
+        lambda: ThermalBallGeometry(0.0, RES),
+    ):
         with pytest.raises(ValueError):
             bad()
     with pytest.raises(TypeError):
@@ -240,8 +259,9 @@ def test_wf15_duty_cycle_reproduces_mat17():
         direct = _run17(msh, ft, dt, n, 0.5, 2, schedule=_chi(P, D))
         # (UT) + (S0)
         ca, cb, geo = _same_mesh(api.mesh, msh, comm)
-        mult_eq = np.array_equal(np.asarray(api.source_multipliers),
-                                 np.asarray(direct.source_multipliers))
+        mult_eq = np.array_equal(
+            np.asarray(api.source_multipliers), np.asarray(direct.source_multipliers)
+        )
         _census(api, dt, 2, on_time, f"WF15S (S0) case {lab} API")
         T_api = _on(msh, api.temperature)
         it = _theta_owned_rel(T_api, direct.temperature, comm)
@@ -249,13 +269,19 @@ def test_wf15_duty_cycle_reproduces_mat17():
         e = _interior_error(msh, T_api, ex)
         e_dir = _interior_error(msh, direct.temperature, ex)
         rows[lab] = (e, ex, n, dt)
-        _say(f"WF15S (UT) case {lab}: cells {ca} / {cb} (direct {n_glob}); geometry equal {geo}; "
-             f"multipliers equal {mult_eq} ({len(api.source_multipliers)} (half-)steps)")
-        _say(f"WF15S (IT) case {lab}: owned max|dθ|/max|θ| = {it:.3e} (band {L0_BAND:.0e}, "
-             f"predicted <= 1e-14)")
-        _say(f"WF15S (G) case {lab} CN+Rannacher dt={dt:.4f} N={n}: interior_rel_L2={e:.10e} "
-             f"(band 1e-2) direct={e_dir:.10e}; API max_balance={api.max_balance_residual:.3e} "
-             f"direct={direct.max_balance_residual:.3e}; API solve+mesh {t_api:.1f}s")
+        _say(
+            f"WF15S (UT) case {lab}: cells {ca} / {cb} (direct {n_glob}); geometry equal {geo}; "
+            f"multipliers equal {mult_eq} ({len(api.source_multipliers)} (half-)steps)"
+        )
+        _say(
+            f"WF15S (IT) case {lab}: owned max|dθ|/max|θ| = {it:.3e} (band {L0_BAND:.0e}, "
+            f"predicted <= 1e-14)"
+        )
+        _say(
+            f"WF15S (G) case {lab} CN+Rannacher dt={dt:.4f} N={n}: interior_rel_L2={e:.10e} "
+            f"(band 1e-2) direct={e_dir:.10e}; API max_balance={api.max_balance_residual:.3e} "
+            f"direct={direct.max_balance_residual:.3e}; API solve+mesh {t_api:.1f}s"
+        )
         _say(f"WF15S (R) case {lab}: {e:.4e} vs record {rec}")
         assert ca == cb == n_glob, f"(UT) cells case {lab}"
         assert geo, f"(UT) geometry case {lab}"
@@ -269,12 +295,16 @@ def test_wf15_duty_cycle_reproduces_mat17():
     e_a, ex_a, n_a, dt_a = rows["A"]
     c1 = _duty_study(dt_a, n_a, None)
     e_c1 = _interior_error(msh, _on(msh, c1.temperature), ex_a)
-    _say(f"WF15S (c1) no DutyCycle, case A: interior miss measured {e_c1:.4e} vs predicted "
-         f"≈ {C1_PREDICTED:.1f} (asserted > 1e-2); source_multipliers {c1.source_multipliers!r}; "
-         f"max_balance={c1.max_balance_residual:.3e}")
+    _say(
+        f"WF15S (c1) no DutyCycle, case A: interior miss measured {e_c1:.4e} vs predicted "
+        f"≈ {C1_PREDICTED:.1f} (asserted > 1e-2); source_multipliers {c1.source_multipliers!r}; "
+        f"max_balance={c1.max_balance_residual:.3e}"
+    )
     assert c1.source_multipliers == []
     assert e_c1 > INTERIOR_BAND, f"(c1) did not miss: {e_c1:.4e}"
-    _say(f"WF15S W1a leg {time.perf_counter() - t00:.1f}s; summed ru_maxrss {_rss_gib(comm):.2f} GiB")
+    _say(
+        f"WF15S W1a leg {time.perf_counter() - t00:.1f}s; summed ru_maxrss {_rss_gib(comm):.2f} GiB"
+    )
 
 
 # --------------------------------------------------------------- W1b, wall
@@ -305,9 +335,11 @@ def test_wf15_wall_reproduces_mat18_2b():
     dk = _dg0_owned_diff(api.k, k_f, comm)
     drc = _dg0_owned_diff(api.rho_c, rc_f, comm)
     dq = _dg0_owned_diff(api.q, q_f, comm)
-    _say(f"WF15S (UT) wall: cells {ca} / {cb} (record {MAT18_T1_CELLS}); geometry equal {geo}; "
-         f"DG0 k max|d| {dk[0]!r} ({dk[1]} differ), rho_c {drc[0]!r} ({drc[1]}), "
-         f"q {dq[0]!r} ({dq[1]}) of {dk[2]} owned")
+    _say(
+        f"WF15S (UT) wall: cells {ca} / {cb} (record {MAT18_T1_CELLS}); geometry equal {geo}; "
+        f"DG0 k max|d| {dk[0]!r} ({dk[1]} differ), rho_c {drc[0]!r} ({drc[1]}), "
+        f"q {dq[0]!r} ({dq[1]}) of {dk[2]} owned"
+    )
     # (c3) the comparator, planted: one owned DG0 entry on rank 0.
     k_p = fem.Function(api.k.function_space)
     k_p.x.array[:] = api.k.x.array
@@ -322,19 +354,27 @@ def test_wf15_wall_reproduces_mat18_2b():
     it = _theta_owned_rel(T_api, direct.temperature, comm)
     e_all, e_in, e_sh = _errors(msh, ct, T_api, theta)
     _, e_dir, _ = _errors(msh, ct, direct.temperature, theta)
-    _say(f"WF15S (IT) wall: owned max|dθ|/max|θ| = {it:.3e} (band {L0_BAND:.0e}, predicted <= 1e-14)")
-    _say(f"WF15S (G) (T1) CN+Rannacher N={N_CN} res={RES} cells={ca}: interior_rel_L2={e_in:.10e} "
-         f"(band 1e-2) whole={e_all:.4e} shell={e_sh:.4e} direct={e_dir:.10e}; API "
-         f"max_balance={api.max_balance_residual:.3e} direct={direct.max_balance_residual:.3e}; "
-         f"API solve+mesh {t_api:.1f}s, direct solve {t_dir:.1f}s")
+    _say(
+        f"WF15S (IT) wall: owned max|dθ|/max|θ| = {it:.3e} (band {L0_BAND:.0e}, predicted <= 1e-14)"
+    )
+    _say(
+        f"WF15S (G) (T1) CN+Rannacher N={N_CN} res={RES} cells={ca}: interior_rel_L2={e_in:.10e} "
+        f"(band 1e-2) whole={e_all:.4e} shell={e_sh:.4e} direct={e_dir:.10e}; API "
+        f"max_balance={api.max_balance_residual:.3e} direct={direct.max_balance_residual:.3e}; "
+        f"API solve+mesh {t_api:.1f}s, direct solve {t_dir:.1f}s"
+    )
     _say(f"WF15S (R) (T1): {e_in:.4e} vs record {MAT18_T1_PRINT}")
 
     # (c2) the wall's ρc dropped through the API: ContainerWall(rho_c=RC1).
     c2 = _wall_study(RC1)
     _, e_c2, _ = _errors(msh, ct, _on(msh, c2.temperature), theta)
-    _say(f"WF15S (c2) wall rho_c = RC1: interior miss measured {e_c2:.4e} vs prior same-fixture "
-         f"{MAT18_C1_UNIFORM_RHOC:.4e} (asserted > 1e-2); max_balance={c2.max_balance_residual:.3e}")
-    _say(f"WF15S W1b leg {time.perf_counter() - t00:.1f}s; summed ru_maxrss {_rss_gib(comm):.2f} GiB")
+    _say(
+        f"WF15S (c2) wall rho_c = RC1: interior miss measured {e_c2:.4e} vs prior same-fixture "
+        f"{MAT18_C1_UNIFORM_RHOC:.4e} (asserted > 1e-2); max_balance={c2.max_balance_residual:.3e}"
+    )
+    _say(
+        f"WF15S W1b leg {time.perf_counter() - t00:.1f}s; summed ru_maxrss {_rss_gib(comm):.2f} GiB"
+    )
 
     assert ca == cb == MAT18_T1_CELLS, "(UT) cells"
     assert geo, "(UT) geometry"

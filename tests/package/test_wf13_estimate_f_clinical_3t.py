@@ -97,8 +97,10 @@ def test_wf13_s15_fc3_and_fc4(no_build):
     assert "build 327.6 s, Z50 pair 135.1 s" in price and "at -n 16" in price
     assert lines[14182 - 1].strip() == "[XL] memory.peak bytes:"
     peak_bytes = int(lines[14183 - 1].strip())
-    _say(f"[WF-13 s15] log :14125 {price[:80]!r}...; :14183 memory.peak {peak_bytes} B "
-         f"= {peak_bytes / 2**30:.4f} GiB")
+    _say(
+        f"[WF-13 s15] log :14125 {price[:80]!r}...; :14183 memory.peak {peak_bytes} B "
+        f"= {peak_bytes / 2**30:.4f} GiB"
+    )
     assert round(peak_bytes / 2**30, 2) == row["peak_gib"]
 
     # FC4: degree 2 is not priced; U_2 is the record, exactly.
@@ -122,20 +124,25 @@ def test_wf13_s15_controls(no_build, monkeypatch):
     # The 1.5 T geometry still returns FC1 (no shadowing by the 3 T row).
     fc1 = _study(FC15).estimate(MPI.COMM_WORLD)
     fc3 = _study().estimate(MPI.COMM_WORLD)
-    _say(f"\n[WF-13 s15] control 1.5 T: rows {fc1.rows_used} {fc1.predicted_seconds} s "
-         f"{fc1.predicted_peak_gib} GiB; 3 T: rows {fc3.rows_used}")
+    _say(
+        f"\n[WF-13 s15] control 1.5 T: rows {fc1.rows_used} {fc1.predicted_seconds} s "
+        f"{fc1.predicted_peak_gib} GiB; 3 T: rows {fc3.rows_used}"
+    )
     assert fc1.rows_used == ("FC1",) and fc1.unknowns == 1_525_193
     assert fc1.predicted_seconds == 203.3 and fc1.predicted_peak_gib == 49.07
     assert fc1.cells != fc3.cells
 
     # Planted second 3 T row: the 3 T estimate moves, FC1 does not.
     plant = dict(study_mod.PRICE_TABLE_CLINICAL_3T[0], row="PLANT", peak_gib=99.0)
-    monkeypatch.setattr(study_mod, "PRICE_TABLE_CLINICAL_3T",
-                        study_mod.PRICE_TABLE_CLINICAL_3T + (plant,))
+    monkeypatch.setattr(
+        study_mod, "PRICE_TABLE_CLINICAL_3T", study_mod.PRICE_TABLE_CLINICAL_3T + (plant,)
+    )
     moved = _study().estimate(MPI.COMM_WORLD)
     fc1_after = _study(FC15).estimate(MPI.COMM_WORLD)
-    _say(f"[WF-13 s15] planted 3 T row: peak {fc3.predicted_peak_gib} -> "
-         f"{moved.predicted_peak_gib}; FC1 peak {fc1_after.predicted_peak_gib}")
+    _say(
+        f"[WF-13 s15] planted 3 T row: peak {fc3.predicted_peak_gib} -> "
+        f"{moved.predicted_peak_gib}; FC1 peak {fc1_after.predicted_peak_gib}"
+    )
     assert moved.predicted_peak_gib == 99.0 and moved.rows_used == ("PLANT",)
     assert fc1_after == fc1
     assert no_build == []
@@ -157,8 +164,9 @@ def test_wf13_s15_yaml_key(tmp_path):
     _say(f"\n[WF-13 s15] 7.0 refused: {exc.value}")
 
     unk = tmp_path / "unk.yaml"
-    unk.write_text(text.replace("field_strength_t: 3.0",
-                                "field_strength_t: 3.0\n  ring_radius: 0.352"))
+    unk.write_text(
+        text.replace("field_strength_t: 3.0", "field_strength_t: 3.0\n  ring_radius: 0.352")
+    )
     with pytest.raises(StudyConfigError, match="ring_radius") as exc2:
         load_study(unk)
     _say(f"[WF-13 s15] unknown key still refused: {exc2.value}")

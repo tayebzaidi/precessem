@@ -9,7 +9,6 @@ import numpy as np
 
 from ..utils.constants import EPSILON_0
 
-
 _PHANTOM_PRESET_TABLE: Mapping[str, tuple[float, float]] = {
     # (sigma [S/m], epsilon_r [-])
     "low": (0.45, 80.0),
@@ -96,8 +95,8 @@ class GelledSalinePhantomMaterial:
             raise ValueError("permittivity_exponent must be finite")
 
         ratio = float(frequency_hz / self.frequency_hz)
-        sigma = float(self.sigma * ratio ** conductivity_exponent)
-        epsilon_r = float(self.epsilon_r * ratio ** permittivity_exponent)
+        sigma = float(self.sigma * ratio**conductivity_exponent)
+        epsilon_r = float(self.epsilon_r * ratio**permittivity_exponent)
         adjusted = GelledSalinePhantomMaterial(
             sigma=sigma,
             epsilon_r=epsilon_r,

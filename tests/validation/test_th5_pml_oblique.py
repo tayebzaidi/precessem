@@ -69,8 +69,9 @@ def _p(msg, comm=MPI.COMM_WORLD):
 
 
 def _drive(x):
-    return np.vstack([np.zeros(x.shape[1]), np.zeros(x.shape[1]),
-                      np.sin(np.pi * x[1] / A_O)]).astype(PETSc.ScalarType)
+    return np.vstack(
+        [np.zeros(x.shape[1]), np.zeros(x.shape[1]), np.sin(np.pi * x[1] / A_O)]
+    ).astype(PETSc.ScalarType)
 
 
 def _guide(comm, n_per_lambda, degree, s_max=None):
@@ -88,8 +89,7 @@ def _guide(comm, n_per_lambda, degree, s_max=None):
         term = pml_slab_term(msh, L_O, PML_D, s_max, PML_M, OMEGA)
         e_h = _solve_terms(msh, tags, degree, _drive, [TAG_Y, TAG_Z], [term])
     x = ufl.SpatialCoordinate(msh)
-    proj = _Projection(e_h[2], msh, FIT_O[0], FIT_O[1], BETA_O,
-                       w=ufl.sin(ufl.pi * x[1] / A_O))
+    proj = _Projection(e_h[2], msh, FIT_O[0], FIT_O[1], BETA_O, w=ufl.sin(ufl.pi * x[1] / A_O))
     out = {"cells": ncells, "proj": proj.gamma(BETA_O, L_O)}
     out["k_fit"], out["gamma_k_fit"], out["scan_interior"] = proj.k_fit(BETA_O, L_O)
     out["seconds"] = time.perf_counter() - t0
@@ -103,31 +103,41 @@ def test_pml_oblique_te10():
     gc = pml_reflection_pec_backed(S_ABSORB, PML_D, PML_M, K0, cos_theta=COS_O)
     gc0 = pml_reflection_pec_backed(S_ABSORB, PML_D, PML_M, K0)
     ident = abs(abs(gc) / abs(gc0) ** COS_O - 1.0)
-    _p(f"\n[TH-5 s3b Gc] theta = 60 deg, cos = {COS_O:.15f}; Gc(theta) = {gc:.6e}, "
-       f"|Gc| = {abs(gc):.6e} (R(0)^cos = {R_ABSORB ** COS_O:.6e}); "
-       f"| |Gc|/|Gc0|^cos - 1 | = {ident:.3e}")
+    _p(
+        f"\n[TH-5 s3b Gc] theta = 60 deg, cos = {COS_O:.15f}; Gc(theta) = {gc:.6e}, "
+        f"|Gc| = {abs(gc):.6e} (R(0)^cos = {R_ABSORB ** COS_O:.6e}); "
+        f"| |Gc|/|Gc0|^cos - 1 | = {ident:.3e}"
+    )
 
     r2 = _guide(comm, N_GATE, 2, S_ABSORB)
     r1 = _guide(comm, N_GATE, 1, S_ABSORB)
     for deg, r in ((2, r2), (1, r1)):
-        _p(f"[TH-5 s3b B] degree {deg}, lambda0/{N_GATE}: cells {r['cells']}, "
-           f"{r['seconds']:.1f} s; k_fit-beta = {r['k_fit'] - BETA_O:+.4e} rad/m "
-           f"(interior {r['scan_interior']}); k_fit read G = {r['gamma_k_fit']:.6e}, "
-           f"|G| = {abs(r['gamma_k_fit']):.6e}, |G-Gc| = {abs(r['gamma_k_fit'] - gc):.4e}; "
-           f"k0cos read G = {r['proj']:.6e}, |G-Gc| = {abs(r['proj'] - gc):.4e}")
+        _p(
+            f"[TH-5 s3b B] degree {deg}, lambda0/{N_GATE}: cells {r['cells']}, "
+            f"{r['seconds']:.1f} s; k_fit-beta = {r['k_fit'] - BETA_O:+.4e} rad/m "
+            f"(interior {r['scan_interior']}); k_fit read G = {r['gamma_k_fit']:.6e}, "
+            f"|G| = {abs(r['gamma_k_fit']):.6e}, |G-Gc| = {abs(r['gamma_k_fit'] - gc):.4e}; "
+            f"k0cos read G = {r['proj']:.6e}, |G-Gc| = {abs(r['proj'] - gc):.4e}"
+        )
 
     abc = _guide(comm, N_GATE, 2, None)
     nc0 = _guide(comm, N_GATE, 2, 0.0)
     ratio = abs(abc["gamma_k_fit"]) / abs(r2["gamma_k_fit"])
-    _p(f"[TH-5 s3b Cabc] degree 2 ABC: {abc['seconds']:.1f} s; k_fit read G = "
-       f"{abc['gamma_k_fit']:.6e} (|G| {abs(abc['gamma_k_fit']):.6e}, interior "
-       f"{abc['scan_interior']}); k0cos read G = {abc['proj']:.6e}; "
-       f"|G_ABC|/|G_PML| (k_fit) = {ratio:.1f}")
-    _p(f"[TH-5 s3b NC-0] s_max = 0: k_fit read |G| = {abs(nc0['gamma_k_fit']):.6f}, "
-       f"k0cos read |G| = {abs(nc0['proj']):.6f}")
+    _p(
+        f"[TH-5 s3b Cabc] degree 2 ABC: {abc['seconds']:.1f} s; k_fit read G = "
+        f"{abc['gamma_k_fit']:.6e} (|G| {abs(abc['gamma_k_fit']):.6e}, interior "
+        f"{abc['scan_interior']}); k0cos read G = {abc['proj']:.6e}; "
+        f"|G_ABC|/|G_PML| (k_fit) = {ratio:.1f}"
+    )
+    _p(
+        f"[TH-5 s3b NC-0] s_max = 0: k_fit read |G| = {abs(nc0['gamma_k_fit']):.6f}, "
+        f"k0cos read |G| = {abs(nc0['proj']):.6f}"
+    )
     err = abs(r2["gamma_k_fit"] - gc)
-    _p(f"[TH-5 s3b summary] (B) degree 2 |G-Gc| = {err:.4e}, bar {PML_REFLECTION_BAR:.1e}; "
-       f"degree 1 {abs(r1['gamma_k_fit'] - gc):.4e} (printed)")
+    _p(
+        f"[TH-5 s3b summary] (B) degree 2 |G-Gc| = {err:.4e}, bar {PML_REFLECTION_BAR:.1e}; "
+        f"degree 1 {abs(r1['gamma_k_fit'] - gc):.4e} (printed)"
+    )
 
     assert abs(gc - 1e-3) <= 1e-3 * 1e-9, gc
     assert ident <= IDENTITY_TOLERANCE, ident

@@ -64,11 +64,31 @@ def test_x_extraction(page, ctx):
     assert not _fails(res), _fails(res)
     p = ctx["p58"]
     # The brief's lines (docs/planning/chunks/ANS-12.md, §9 item 930, reading 2).
-    lines = {k: p[k]["line"] for k in ("node", "s2", "y_in_ccw", "y_in_cw", "means", "c_star",
-                                       "normalisers", "wrote", "price")}
-    assert lines == {"node": 12010, "s2": 12228, "y_in_ccw": 12232, "y_in_cw": 12233,
-                     "means": 12237, "c_star": 12256, "normalisers": 12259, "wrote": 12260,
-                     "price": 12261}, lines
+    lines = {
+        k: p[k]["line"]
+        for k in (
+            "node",
+            "s2",
+            "y_in_ccw",
+            "y_in_cw",
+            "means",
+            "c_star",
+            "normalisers",
+            "wrote",
+            "price",
+        )
+    }
+    assert lines == {
+        "node": 12010,
+        "s2": 12228,
+        "y_in_ccw": 12232,
+        "y_in_cw": 12233,
+        "means": 12237,
+        "c_star": 12256,
+        "normalisers": 12259,
+        "wrote": 12260,
+        "price": 12261,
+    }, lines
     assert ctx["c21"]["line"] == 12235
     assert [r["line"] for r in p["lattice"]] == list(range(12238, 12256))
     assert {n: line for n, line, _ in ctx["gates"]}["elapsed_s"] == 12350
@@ -78,9 +98,11 @@ def test_x_raw_multiplicity(page, ctx):
     """Reading 1: tokens matched once to their field; the raw multiplicity is printed."""
     text = ctx["page"]._read_log(ctx["log_path"])
     sp = ctx["spec"]
-    for name, tok in (("centroid mean", sp["means"]["b1p_ccw"]),
-                      ("c* SAR", sp["c_star"]["sar10g"]),
-                      ("S12", sp["s2"]["s12"])):
+    for name, tok in (
+        ("centroid mean", sp["means"]["b1p_ccw"]),
+        ("c* SAR", sp["c_star"]["sar10g"]),
+        ("S12", sp["s2"]["s12"]),
+    ):
         print(f"[ANS-12 X-mult] {name} {tok}: {text.count(tok)} occurrences in the log")
     assert text.count(sp["means"]["b1p_ccw"]) >= 2
 
@@ -89,12 +111,24 @@ def test_d_derived(page, ctx):
     res = page.check_d(ctx)
     _show("D", res)
     names = [n for n, _, _ in res]
-    for want in ("(D-Pacc)", "(D-box)", "(D-sar)", "(D-cen)", "(D-argmax)", "(D-cstar)",
-                 "(D-S12)", "(Node)", "(D-lat)", "(D-latP)"):
+    for want in (
+        "(D-Pacc)",
+        "(D-box)",
+        "(D-sar)",
+        "(D-cen)",
+        "(D-argmax)",
+        "(D-cstar)",
+        "(D-S12)",
+        "(Node)",
+        "(D-lat)",
+        "(D-latP)",
+    ):
         assert any(want in n for n in names), want
     d = ctx["d"]
-    print(f"[ANS-12 N-sense] P_acc cw {d['p_acc_cw']:.4e} W vs ccw {d['p_acc_ccw']:.4e} W, "
-          f"ratio {d['p_acc_cw'] / d['p_acc_ccw']:.4f} (printed, not asserted)")
+    print(
+        f"[ANS-12 N-sense] P_acc cw {d['p_acc_cw']:.4e} W vs ccw {d['p_acc_ccw']:.4e} W, "
+        f"ratio {d['p_acc_cw'] / d['p_acc_ccw']:.4f} (printed, not asserted)"
+    )
     assert not _fails(res), _fails(res)
 
 
@@ -189,8 +223,11 @@ def _root_dir(tmp_path):
 
 
 def _ledger_header(page):
-    return [ln for ln in page.XXL_LEDGER.read_text().splitlines()
-            if ln.startswith("| Date (UTC) |") or ln.startswith("|---|")]
+    return [
+        ln
+        for ln in page.XXL_LEDGER.read_text().splitlines()
+        if ln.startswith("| Date (UTC) |") or ln.startswith("|---|")
+    ]
 
 
 def _write(path, text):
@@ -198,12 +235,16 @@ def _write(path, text):
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(text)
         return str(path)
+
     return Path(_on_root(w))
 
 
 def _e62_lines(page):
-    return page._page()._read_log(page.TRACKED_LOG_DIR / page.ENTRY62_LOG_BASENAME).splitlines(
-        keepends=True)
+    return (
+        page._page()
+        ._read_log(page.TRACKED_LOG_DIR / page.ENTRY62_LOG_BASENAME)
+        .splitlines(keepends=True)
+    )
 
 
 STUB66 = "20990101T000000Z_GEO-38-C19-3T.log"
@@ -218,8 +259,10 @@ def test_c58_k(page):
     mf, blk = page.fields_from_metrics()
     out = page.check_k_d2(res, mf, blk)
     _show("C58 K", out)
-    print(f"[ANS-12 C58 K] first {res['lines'][0]}, last {res['lines'][-1]}; grid_lines "
-          f"{res['grid_lines']}")
+    print(
+        f"[ANS-12 C58 K] first {res['lines'][0]}, last {res['lines'][-1]}; grid_lines "
+        f"{res['grid_lines']}"
+    )
     assert not _fails(out), _fails(out)
     assert len(res["fields"]) == page.D2_FIELDS_N == 53
     assert res["node"] == ("185.7629", 12160) and res["grid_lines"] == 1
@@ -233,8 +276,11 @@ def test_c58_pend(page, tmp_path):
     assert len(hdr) == 2, hdr
     led = _write(root / "ledger_hdr.md", "\n".join(hdr) + "\n")
     assert page.entry66_log(led, logs) is None
-    row27 = [ln for ln in page.XXL_LEDGER.read_text().splitlines()
-             if ln.startswith("| 2026-11-14 | GEO-38-C19 |")]
+    row27 = [
+        ln
+        for ln in page.XXL_LEDGER.read_text().splitlines()
+        if ln.startswith("| 2026-11-14 | GEO-38-C19 |")
+    ]
     assert len(row27) == 1
     led2 = _write(root / "ledger_row27.md", "\n".join(hdr + row27) + "\n")
     assert page.entry66_scan(led2) == (0, [])
@@ -259,7 +305,9 @@ def test_c58_n_twin(page, tmp_path):
     logs = root / "logs"
     _on_root(lambda: logs.mkdir())
     other = "20990108T000000Z_GEO-38-C19-3T.log"
-    led = _write(root / "twin.md", "\n".join(_ledger_header(page) + [_stub_row(), _stub_row(other)]))
+    led = _write(
+        root / "twin.md", "\n".join(_ledger_header(page) + [_stub_row(), _stub_row(other)])
+    )
     with pytest.raises(ValueError, match="name 2 distinct logs"):
         page.entry66_log(led, logs)
     _write(logs / STUB66, "".join(_e62_lines(page)))

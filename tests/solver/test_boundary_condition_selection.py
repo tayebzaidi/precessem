@@ -17,9 +17,7 @@ from fem_em_solver.core import (
     normalize_boundary_condition,
 )
 from fem_em_solver.io.mesh import MeshGenerator
-
 from fem_em_solver.utils.constants import EPSILON_0, MU_0
-
 from tests.complex_mode import complex_only
 from tests.validation.test_time_harmonic_mms import (
     BOX_L,
@@ -74,7 +72,10 @@ def test_normalize_boundary_condition_accepts_enum_and_string_values():
         normalize_boundary_condition(TimeHarmonicBoundaryCondition.NATURAL)
         == TimeHarmonicBoundaryCondition.NATURAL
     )
-    assert normalize_boundary_condition("pec_zero_tangential_a") == TimeHarmonicBoundaryCondition.PEC_ZERO_TANGENTIAL_A
+    assert (
+        normalize_boundary_condition("pec_zero_tangential_a")
+        == TimeHarmonicBoundaryCondition.PEC_ZERO_TANGENTIAL_A
+    )
 
 
 def test_normalize_boundary_condition_rejects_unknown_value():
@@ -191,8 +192,12 @@ def _solve_mms(mode: str, field: str, n: int, return_fields: bool = False):
     exact = _th3_field_ufl(field, x)
     diff = fields.e_complex - exact
     # assemble_scalar is rank-local: allreduce before the square root.
-    err_sq = comm.allreduce(fem.assemble_scalar(fem.form(ufl.inner(diff, diff) * ufl.dx)), op=MPI.SUM)
-    ref_sq = comm.allreduce(fem.assemble_scalar(fem.form(ufl.inner(exact, exact) * ufl.dx)), op=MPI.SUM)
+    err_sq = comm.allreduce(
+        fem.assemble_scalar(fem.form(ufl.inner(diff, diff) * ufl.dx)), op=MPI.SUM
+    )
+    ref_sq = comm.allreduce(
+        fem.assemble_scalar(fem.form(ufl.inner(exact, exact) * ufl.dx)), op=MPI.SUM
+    )
     ncells = msh.topology.index_map(msh.topology.dim).size_global
     result = (float(np.sqrt(abs(err_sq)) / np.sqrt(abs(ref_sq))), int(owned), int(ncells))
     if return_fields:
@@ -226,16 +231,20 @@ def test_th3_boundary_mode_solves_to_its_manufactured_field(mode, field, expecte
                 f"(expected {expected_constrained(n)})"
             )
         # (0) exact count, allreduced owned dofs.
-        assert owned == expected_constrained(n), (
-            f"{mode.value} at {n}^3 constrained {owned} owned dofs, expected {expected_constrained(n)}"
-        )
+        assert owned == expected_constrained(
+            n
+        ), f"{mode.value} at {n}^3 constrained {owned} owned dofs, expected {expected_constrained(n)}"
     coarse, fine = rel[TH3_SIZES[0]], rel[TH3_SIZES[1]]
     rate = float(np.log(coarse / fine) / np.log(TH3_SIZES[1] / TH3_SIZES[0]))
     if comm.rank == 0:
         print(f"[TH-3] mode={mode.value}: rate 12^3 -> 24^3 = {rate:.4f}")
     # (i) TH-1's bands.
-    assert fine < TH3_REL_L2_BAND, f"{mode.value}: relative L2 at 24^3 {fine:.4e} >= {TH3_REL_L2_BAND}"
-    assert fine < coarse, f"{mode.value}: refinement did not reduce the error ({coarse:.4e} -> {fine:.4e})"
+    assert (
+        fine < TH3_REL_L2_BAND
+    ), f"{mode.value}: relative L2 at 24^3 {fine:.4e} >= {TH3_REL_L2_BAND}"
+    assert (
+        fine < coarse
+    ), f"{mode.value}: refinement did not reduce the error ({coarse:.4e} -> {fine:.4e})"
     assert rate > TH3_RATE_FLOOR, f"{mode.value}: L2 rate {rate:.4f} <= {TH3_RATE_FLOOR}"
 
 

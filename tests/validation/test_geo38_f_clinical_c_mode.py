@@ -73,9 +73,9 @@ C3_KEYS = ("s64", "order", "azimuth_deg", "z_m", "cells", "n_ranks")
 # H12c attempt 2: docs/testing/logs/20261006T170222Z_WF-12-step3-a2-W1.log.gz.
 C_MODE_CU_D1_RECORD_F = 1.181185799070e-10  # :6366 (also test_ans8_copper_degree2_rows.py:90)
 LAMBDA_ANTI_CU_D1_RECORD = {  # :6361 (k=0 lambda_1), :6362 (k=1 lambda_0), :6364 (k=2 lambda_0)
-    0: 2.431344655e-01 + 1.481624570e+01j,
-    1: 3.131486739e-01 + 2.105338540e+01j,
-    2: 2.555062808e-01 + 3.155133217e+01j,
+    0: 2.431344655e-01 + 1.481624570e01j,
+    1: 3.131486739e-01 + 2.105338540e01j,
+    2: 2.555062808e-01 + 3.155133217e01j,
 }
 OFF_BLOCK_CU_D1_RECORD = 4.195925e-03  # :6366
 C2_OVER_CMODE_CU_D1_RECORD = 0.332726  # :6397, |C_2/C_mode - 1|
@@ -158,10 +158,20 @@ def ring_c_modes(s, port_map, *, freq_hz, n_slots, z0):
     modes = {}
     for k in range(n // 2 + 1):
         lam, anti, both = antisymmetric_eigenpair(blocks[k])
-        modes[k] = {"lambda_anti": lam, "anti": anti, "c_anti_f": 1.0 / (omega * lam.imag),
-                    "eig": both}
-    return {"n_slots": n, "freq_hz": float(freq_hz), "off_block": off, "modes": modes,
-            "c_mode_f": modes[1]["c_anti_f"], "c_k2_f": modes[2]["c_anti_f"]}
+        modes[k] = {
+            "lambda_anti": lam,
+            "anti": anti,
+            "c_anti_f": 1.0 / (omega * lam.imag),
+            "eig": both,
+        }
+    return {
+        "n_slots": n,
+        "freq_hz": float(freq_hz),
+        "off_block": off,
+        "modes": modes,
+        "c_mode_f": modes[1]["c_anti_f"],
+        "c_k2_f": modes[2]["c_anti_f"],
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -175,8 +185,10 @@ def map_from_slot_keys(slot_k, slot_sign):
 
 def map_from_geometry(azimuth_deg, z_m):
     """``[(slot, ring)]`` from measured azimuth / z: C4a's ``_slot_of``; bottom when z < 0."""
-    return [(c4._slot_of(float(a)), "bottom" if float(z) < 0.0 else "top")
-            for a, z in zip(azimuth_deg, z_m)]
+    return [
+        (c4._slot_of(float(a)), "bottom" if float(z) < 0.0 else "top")
+        for a, z in zip(azimuth_deg, z_m)
+    ]
 
 
 def map_from_names_64(names):
@@ -246,9 +258,15 @@ def _i16_worst(local, ref):
 
 
 def _ref16(s, port_map, c_f):
-    return ring_mode_rows(s, port_map=port_map, freq_hz=FREQUENCY_HZ, c_f=c_f,
-                          feeds=[(0, "bottom"), (4, "bottom")], drives={"x": (1.0, 0.0)},
-                          z0=REFERENCE_IMPEDANCE_OHM)
+    return ring_mode_rows(
+        s,
+        port_map=port_map,
+        freq_hz=FREQUENCY_HZ,
+        c_f=c_f,
+        feeds=[(0, "bottom"), (4, "bottom")],
+        drives={"x": (1.0, 0.0)},
+        z0=REFERENCE_IMPEDANCE_OHM,
+    )
 
 
 def _load(path):
@@ -276,11 +294,18 @@ def test_c10a_coding(monkeypatch):
     for n in (32, 16):
         zs, pm = _shuffled(_block_circulant(_sym_blocks(n, omega, c0), n), n, seed=581 + n)
         r = ring_c_modes(z_to_s(zs, z0), pm, freq_hz=FREQUENCY_HZ, n_slots=n, z0=z0)
-        k1[n] = (abs(r["c_mode_f"] / c0 - 1.0), abs(r["c_k2_f"] / c2_closed - 1.0),
-                 r["modes"][1]["anti"], r["off_block"], len(r["modes"]))
-        _say(f"(K1) N={n}: C_mode rel {k1[n][0]:.3e}, C_2 rel {k1[n][1]:.3e} (band "
-             f"EXACT_IDENTITY_RTOL {EXACT_IDENTITY_RTOL:g}); anti(k=1) {k1[n][2]:.15f}; "
-             f"off-block {k1[n][3]:.3e}; modes k=0..{k1[n][4] - 1}")
+        k1[n] = (
+            abs(r["c_mode_f"] / c0 - 1.0),
+            abs(r["c_k2_f"] / c2_closed - 1.0),
+            r["modes"][1]["anti"],
+            r["off_block"],
+            len(r["modes"]),
+        )
+        _say(
+            f"(K1) N={n}: C_mode rel {k1[n][0]:.3e}, C_2 rel {k1[n][1]:.3e} (band "
+            f"EXACT_IDENTITY_RTOL {EXACT_IDENTITY_RTOL:g}); anti(k=1) {k1[n][2]:.15f}; "
+            f"off-block {k1[n][3]:.3e}; modes k=0..{k1[n][4] - 1}"
+        )
 
     # (K2) the local reader equals ring_mode_rows at N = 16 (a C16-broken Z, off-block O(1e-2)).
     rng = np.random.default_rng(5810)
@@ -292,8 +317,10 @@ def test_c10a_coding(monkeypatch):
     loc = ring_c_modes(s16, pm16, freq_hz=FREQUENCY_HZ, n_slots=16, z0=z0)
     ref = _ref16(s16, pm16, C_MODE_CU_D1_RECORD_F)
     k2 = _i16_worst(loc, ref)
-    _say(f"(K2) N=16 local vs ring_mode_rows: worst rel {k2:.3e} over lambda_anti k=0..8, C_mode, "
-         f"C_2, off-block ({loc['off_block']:.4e}) (band {EXACT_IDENTITY_RTOL:g}; predicted 0)")
+    _say(
+        f"(K2) N=16 local vs ring_mode_rows: worst rel {k2:.3e} over lambda_anti k=0..8, C_mode, "
+        f"C_2, off-block ({loc['off_block']:.4e}) (band {EXACT_IDENTITY_RTOL:g}; predicted 0)"
+    )
 
     # (K3) geometry map on C3a's ideal layout = the name route, 64/64; N = 16 on 64 ports raises.
     az, zc = c3._ideal_layout()
@@ -302,8 +329,10 @@ def test_c10a_coding(monkeypatch):
     nm = map_from_names_64(names)
     agree = sum(g == m for g, m in zip(geo, nm))
     unique = len(set(geo)) == 64 and len(geo) == 64
-    _say(f"(K3) geometry map vs name route {agree}/64, unique {unique}; P33 -> {geo[0]}, "
-         f"P41 -> {geo[8]}, P65 -> {geo[32]}")
+    _say(
+        f"(K3) geometry map vs name route {agree}/64, unique {unique}; P33 -> {geo[0]}, "
+        f"P41 -> {geo[8]}, P65 -> {geo[32]}"
+    )
     s64 = c3._synthetic_s(az, zc)
     syn32 = ring_c_modes(s64, geo, freq_hz=FREQUENCY_HZ, n_slots=32, z0=z0)
     _say(f"(K3) C3a synthetic 64x64 read at N=32: off-block {syn32['off_block']:.3e} (printed)")
@@ -353,49 +382,68 @@ def test_c10a_records():
     pm_slot = map_from_slot_keys(a2["slot_k"], a2["slot_sign"])
     pm_name = ring_port_map_from_names(a2["order"])
     agree1 = sum(a == b for a, b in zip(pm_slot, pm_name))
-    _say(f"(R-d1) {H12C_A2_NPZ.name}: shape {s1.shape}; slot-key map vs names {agree1}/32, "
-         f"unique {len(set(pm_slot))}")
+    _say(
+        f"(R-d1) {H12C_A2_NPZ.name}: shape {s1.shape}; slot-key map vs names {agree1}/32, "
+        f"unique {len(set(pm_slot))}"
+    )
     r1 = ring_c_modes(s1, pm_slot, freq_hz=FREQUENCY_HZ, n_slots=16, z0=z0)
     c1 = r1["c_mode_f"]
     rel_key = abs(c1 / float(a2["c_mode"]) - 1.0)
     rel_rec = abs(c1 / C_MODE_CU_D1_RECORD_F - 1.0)
-    _say(f"(R-d1) C_mode {c1:.12e} F vs npz c_mode rel {rel_key:.3e}, vs record "
-         f"{C_MODE_CU_D1_RECORD_F:.12e} rel {rel_rec:.3e} (band REUSE_REPRODUCTION_RTOL "
-         f"{REUSE_REPRODUCTION_RTOL:g}; H25 read 1.776e-15 / 3.515e-13)")
+    _say(
+        f"(R-d1) C_mode {c1:.12e} F vs npz c_mode rel {rel_key:.3e}, vs record "
+        f"{C_MODE_CU_D1_RECORD_F:.12e} rel {rel_rec:.3e} (band REUSE_REPRODUCTION_RTOL "
+        f"{REUSE_REPRODUCTION_RTOL:g}; H25 read 1.776e-15 / 3.515e-13)"
+    )
     for k in (0, 1, 2):
         lam = r1["modes"][k]["lambda_anti"]
         rec = LAMBDA_ANTI_CU_D1_RECORD[k]
-        _say(f"(R-d1)   k={k} lambda_anti {lam.real:+.9e} {lam.imag:+.9e}j Ohm anti "
-             f"{r1['modes'][k]['anti']:.6f} C {r1['modes'][k]['c_anti_f'] * 1e12:+.4f} pF beside "
-             f"WF-12 {rec.real:+.9e} {rec.imag:+.9e}j (rel {abs(lam - rec) / abs(rec):.2e}, printed)")
+        _say(
+            f"(R-d1)   k={k} lambda_anti {lam.real:+.9e} {lam.imag:+.9e}j Ohm anti "
+            f"{r1['modes'][k]['anti']:.6f} C {r1['modes'][k]['c_anti_f'] * 1e12:+.4f} pF beside "
+            f"WF-12 {rec.real:+.9e} {rec.imag:+.9e}j (rel {abs(lam - rec) / abs(rec):.2e}, printed)"
+        )
     _say(f"(R-d1) off-block {r1['off_block']:.6e} beside WF-12 :6366 {OFF_BLOCK_CU_D1_RECORD:.6e}")
     i16_d1 = _i16_worst(r1, _ref16(s1, pm_name, c1))
-    _say(f"(R-d1) (I16) local vs ring_mode_rows worst rel {i16_d1:.3e} (band {EXACT_IDENTITY_RTOL:g})")
+    _say(
+        f"(R-d1) (I16) local vs ring_mode_rows worst rel {i16_d1:.3e} (band {EXACT_IDENTITY_RTOL:g})"
+    )
 
     # ---- negative controls on the d1 record (rule (e)) ----
     k2_miss = abs(r1["c_k2_f"] / C_MODE_CU_D1_RECORD_F - 1.0)
-    _say(f"NEG (asserted) k=2 in place of k=1: C_2 {r1['c_k2_f']:.6e} misses the d1 record by "
-         f"{k2_miss:.6f} (> REDUCTION_BAND {REDUCTION_BAND:g}; WF-12 :6397 {C2_OVER_CMODE_CU_D1_RECORD})")
+    _say(
+        f"NEG (asserted) k=2 in place of k=1: C_2 {r1['c_k2_f']:.6e} misses the d1 record by "
+        f"{k2_miss:.6f} (> REDUCTION_BAND {REDUCTION_BAND:g}; WF-12 :6397 {C2_OVER_CMODE_CU_D1_RECORD})"
+    )
     swap = [(j, "top" if r == "bottom" else "bottom") for j, r in pm_slot]
     rs = ring_c_modes(s1, swap, freq_hz=FREQUENCY_HZ, n_slots=16, z0=z0)
     swap_c = abs(rs["c_mode_f"] / c1 - 1.0)
-    swap_l = max(abs(rs["modes"][k]["lambda_anti"] - r1["modes"][k]["lambda_anti"])
-                 / abs(r1["modes"][k]["lambda_anti"]) for k in range(9))
-    _say(f"NEG (printed) ring swap: C_mode rel {swap_c:.3e}, lambda_anti worst rel {swap_l:.3e} "
-         f"(predicted <= {PRED_SWAP_REL:g})")
+    swap_l = max(
+        abs(rs["modes"][k]["lambda_anti"] - r1["modes"][k]["lambda_anti"])
+        / abs(r1["modes"][k]["lambda_anti"])
+        for k in range(9)
+    )
+    _say(
+        f"NEG (printed) ring swap: C_mode rel {swap_c:.3e}, lambda_anti worst rel {swap_l:.3e} "
+        f"(predicted <= {PRED_SWAP_REL:g})"
+    )
     for n_slots in (16,):
         off1 = [((j + 1) % n_slots, r) if r == "top" else (j, r) for j, r in pm_slot]
         ro = ring_c_modes(s1, off1, freq_hz=FREQUENCY_HZ, n_slots=n_slots, z0=z0)
-        _say(f"NEG (printed) top ring offset one slot: C_mode rel {abs(ro['c_mode_f'] / c1 - 1.0):.3e} "
-             f"(predicted unchanged); anti(k=1) {ro['modes'][1]['anti']:.6f} vs "
-             f"{r1['modes'][1]['anti']:.6f} (predicted cos^2(pi/N) = {np.cos(np.pi / n_slots) ** 2:.4f}; "
-             f"N=32 would give {np.cos(np.pi / 32) ** 2:.4f}) — C_mode cannot validate the port map")
+        _say(
+            f"NEG (printed) top ring offset one slot: C_mode rel {abs(ro['c_mode_f'] / c1 - 1.0):.3e} "
+            f"(predicted unchanged); anti(k=1) {ro['modes'][1]['anti']:.6f} vs "
+            f"{r1['modes'][1]['anti']:.6f} (predicted cos^2(pi/N) = {np.cos(np.pi / n_slots) ** 2:.4f}; "
+            f"N=32 would give {np.cos(np.pi / 32) ** 2:.4f}) — C_mode cannot validate the port map"
+        )
     rng = np.random.default_rng(581)
     bottom_slots = rng.permutation(16)
     scr = [(int(bottom_slots[j]), r) if r == "bottom" else (j, r) for j, r in pm_slot]
     rsc = ring_c_modes(s1, scr, freq_hz=FREQUENCY_HZ, n_slots=16, z0=z0)
-    _say(f"NEG (printed) fixed-seed scramble within the bottom ring: off-block {rsc['off_block']:.4e} "
-         f"vs {r1['off_block']:.4e} (predicted >= {PRED_SCRAMBLE_OFF_BLOCK_FLOOR:g})")
+    _say(
+        f"NEG (printed) fixed-seed scramble within the bottom ring: off-block {rsc['off_block']:.4e} "
+        f"vs {r1['off_block']:.4e} (predicted >= {PRED_SCRAMBLE_OFF_BLOCK_FLOOR:g})"
+    )
 
     # ---- (R-d2) degree-2 copper, names map ----
     d2 = _load(H16B_D2_NPZ)
@@ -404,16 +452,23 @@ def test_c10a_records():
     r2 = ring_c_modes(s2, pm2, freq_hz=FREQUENCY_HZ, n_slots=16, z0=z0)
     c2 = r2["c_mode_f"]
     rel_d2 = abs(c2 / C_MODE_CU_D2_COMPARAND_F - 1.0)
-    _say(f"(R-d2) {H16B_D2_NPZ.name}: shape {s2.shape}; C_mode {c2:.12e} F vs H25 W1 :171 "
-         f"{C_MODE_CU_D2_COMPARAND_F:.12e} rel {rel_d2:.3e} (band {REUSE_REPRODUCTION_RTOL:g}); "
-         f"anti(k=1) {r2['modes'][1]['anti']:.6f}; off-block {r2['off_block']:.6e}")
+    _say(
+        f"(R-d2) {H16B_D2_NPZ.name}: shape {s2.shape}; C_mode {c2:.12e} F vs H25 W1 :171 "
+        f"{C_MODE_CU_D2_COMPARAND_F:.12e} rel {rel_d2:.3e} (band {REUSE_REPRODUCTION_RTOL:g}); "
+        f"anti(k=1) {r2['modes'][1]['anti']:.6f}; off-block {r2['off_block']:.6e}"
+    )
     i16_d2 = _i16_worst(r2, _ref16(s2, pm2, c2))
-    _say(f"(R-d2) (I16) local vs ring_mode_rows worst rel {i16_d2:.3e} (band {EXACT_IDENTITY_RTOL:g})")
+    _say(
+        f"(R-d2) (I16) local vs ring_mode_rows worst rel {i16_d2:.3e} (band {EXACT_IDENTITY_RTOL:g})"
+    )
     _say(f"test body {time.perf_counter() - t0:.2f} s")
 
     assert agree1 == 32 and len(set(pm_slot)) == 32, (agree1, pm_slot)
     assert i16_d1 <= EXACT_IDENTITY_RTOL, i16_d1
-    assert rel_key <= REUSE_REPRODUCTION_RTOL and rel_rec <= REUSE_REPRODUCTION_RTOL, (rel_key, rel_rec)
+    assert rel_key <= REUSE_REPRODUCTION_RTOL and rel_rec <= REUSE_REPRODUCTION_RTOL, (
+        rel_key,
+        rel_rec,
+    )
     assert k2_miss > REDUCTION_BAND, k2_miss
     assert i16_d2 <= EXACT_IDENTITY_RTOL, i16_d2
     assert rel_d2 <= REUSE_REPRODUCTION_RTOL, rel_d2
@@ -446,29 +501,59 @@ def test_geo38_c10_c_mode():
     sigma_max = float(np.linalg.norm(s, 2))
     r = ring_c_modes(s, geo, freq_hz=FREQUENCY_HZ, n_slots=32, z0=REFERENCE_IMPEDANCE_OHM)
     lam1 = r["modes"][1]["lambda_anti"]
-    print(f"[GEO-38 C10] {path} ({path.stat().st_size} B); geometry map unique 64/64; name-route "
-          f"agreement {agree}/64 (predicted 64/64); P33 -> {geo[0]}, P41 -> {geo[8]} (predicted "
-          f"{PRED_C3_P33_P41_SLOTS}); cells {int(sv['cells'])}, n_ranks {int(sv['n_ranks'])}", flush=True)
-    print(f"[GEO-38 C10] reciprocity {ratio:.6e} (band {RECIPROCITY_BAND:.0e}); sigma_max "
-          f"{sigma_max:.12f} (ceiling {MATRIX_PASSIVITY_CEILING})", flush=True)
+    print(
+        f"[GEO-38 C10] {path} ({path.stat().st_size} B); geometry map unique 64/64; name-route "
+        f"agreement {agree}/64 (predicted 64/64); P33 -> {geo[0]}, P41 -> {geo[8]} (predicted "
+        f"{PRED_C3_P33_P41_SLOTS}); cells {int(sv['cells'])}, n_ranks {int(sv['n_ranks'])}",
+        flush=True,
+    )
+    print(
+        f"[GEO-38 C10] reciprocity {ratio:.6e} (band {RECIPROCITY_BAND:.0e}); sigma_max "
+        f"{sigma_max:.12f} (ceiling {MATRIX_PASSIVITY_CEILING})",
+        flush=True,
+    )
     for k in range(17):
         m = r["modes"][k]
         lam = m["lambda_anti"]
-        print(f"[GEO-38 C10]   k={k:2d} lambda_anti {lam.real:+.9e} {lam.imag:+.9e}j Ohm anti "
-              f"{m['anti']:.6f} C {m['c_anti_f'] * 1e12:+.4f} pF", flush=True)
-    print(f"[GEO-38 C10] C_mode {r['c_mode_f']:.12e} F = {r['c_mode_f'] * 1e12:.4f} pF; C_2 "
-          f"{r['c_k2_f']:.12e} F; anti(k=1) {r['modes'][1]['anti']:.6f}; off-block "
-          f"{r['off_block']:.6e}; body {time.perf_counter() - t0:.2f} s", flush=True)
+        print(
+            f"[GEO-38 C10]   k={k:2d} lambda_anti {lam.real:+.9e} {lam.imag:+.9e}j Ohm anti "
+            f"{m['anti']:.6f} C {m['c_anti_f'] * 1e12:+.4f} pF",
+            flush=True,
+        )
+    print(
+        f"[GEO-38 C10] C_mode {r['c_mode_f']:.12e} F = {r['c_mode_f'] * 1e12:.4f} pF; C_2 "
+        f"{r['c_k2_f']:.12e} F; anti(k=1) {r['modes'][1]['anti']:.6f}; off-block "
+        f"{r['off_block']:.6e}; body {time.perf_counter() - t0:.2f} s",
+        flush=True,
+    )
     C10_JSON.parent.mkdir(parents=True, exist_ok=True)
-    C10_JSON.write_text(json.dumps({
-        "source": str(path), "freq_hz": FREQUENCY_HZ, "z0_ohm": REFERENCE_IMPEDANCE_OHM,
-        "n_slots": 32, "c_mode_f": r["c_mode_f"], "c_k2_f": r["c_k2_f"],
-        "off_block": r["off_block"], "reciprocity": ratio, "sigma_max": sigma_max,
-        "name_route_agreement": agree, "cells": int(sv["cells"]), "n_ranks": int(sv["n_ranks"]),
-        "modes": {str(k): {"lambda_anti": [m["lambda_anti"].real, m["lambda_anti"].imag],
-                           "anti": m["anti"], "c_anti_f": m["c_anti_f"]}
-                  for k, m in r["modes"].items()},
-    }, indent=2))
+    C10_JSON.write_text(
+        json.dumps(
+            {
+                "source": str(path),
+                "freq_hz": FREQUENCY_HZ,
+                "z0_ohm": REFERENCE_IMPEDANCE_OHM,
+                "n_slots": 32,
+                "c_mode_f": r["c_mode_f"],
+                "c_k2_f": r["c_k2_f"],
+                "off_block": r["off_block"],
+                "reciprocity": ratio,
+                "sigma_max": sigma_max,
+                "name_route_agreement": agree,
+                "cells": int(sv["cells"]),
+                "n_ranks": int(sv["n_ranks"]),
+                "modes": {
+                    str(k): {
+                        "lambda_anti": [m["lambda_anti"].real, m["lambda_anti"].imag],
+                        "anti": m["anti"],
+                        "c_anti_f": m["c_anti_f"],
+                    }
+                    for k, m in r["modes"].items()
+                },
+            },
+            indent=2,
+        )
+    )
     assert ratio <= RECIPROCITY_BAND, ratio
     assert sigma_max <= MATRIX_PASSIVITY_CEILING, sigma_max
     assert lam1.imag > 0.0, lam1

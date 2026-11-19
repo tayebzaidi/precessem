@@ -26,9 +26,7 @@ def _tagged_cube(comm, n=8):
     # Facet -> cell connectivity before any facet write or ds integral
     # (known-issues 9).
     msh.topology.create_connectivity(tdim - 1, tdim)
-    facets = mesh.locate_entities_boundary(
-        msh, tdim - 1, lambda x: np.isclose(x[0], 0.0)
-    )
+    facets = mesh.locate_entities_boundary(msh, tdim - 1, lambda x: np.isclose(x[0], 0.0))
     facets = np.sort(facets)
     values = np.full(facets.shape, TAG, dtype=np.int32)
     tags = mesh.meshtags(msh, tdim - 1, facets, values)
@@ -54,9 +52,7 @@ def test_facet_tags_round_trip_reproduces_the_face_area(tmp_path):
 
     with io.XDMFFile(comm, base + ".xdmf", "r") as xdmf:
         read_msh = xdmf.read_mesh(name="mesh")
-        read_msh.topology.create_connectivity(
-            read_msh.topology.dim - 1, read_msh.topology.dim
-        )
+        read_msh.topology.create_connectivity(read_msh.topology.dim - 1, read_msh.topology.dim)
         read_tags = xdmf.read_meshtags(read_msh, name="mesh_tags")
 
     # (i) the tag set read back, reduced across ranks
@@ -71,9 +67,7 @@ def test_facet_tags_round_trip_reproduces_the_face_area(tmp_path):
     # (iii) the closed form: the x = 0 face of the unit cube has area 1
     ds = ufl.Measure("ds", domain=read_msh, subdomain_data=read_tags)
     area = comm.allreduce(
-        fem.assemble_scalar(
-            fem.form(fem.Constant(read_msh, default_scalar_type(1.0)) * ds(TAG))
-        ),
+        fem.assemble_scalar(fem.form(fem.Constant(read_msh, default_scalar_type(1.0)) * ds(TAG))),
         op=MPI.SUM,
     )
     assert abs(area - EXACT_AREA) < 1e-12, area
@@ -89,8 +83,6 @@ def test_without_the_keyword_there_is_no_facet_grid(tmp_path):
 
     with io.XDMFFile(comm, base + ".xdmf", "r") as xdmf:
         read_msh = xdmf.read_mesh(name="mesh")
-        read_msh.topology.create_connectivity(
-            read_msh.topology.dim - 1, read_msh.topology.dim
-        )
+        read_msh.topology.create_connectivity(read_msh.topology.dim - 1, read_msh.topology.dim)
         with pytest.raises(Exception):
             xdmf.read_meshtags(read_msh, name="mesh_tags")

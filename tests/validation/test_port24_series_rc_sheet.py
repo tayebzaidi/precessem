@@ -41,17 +41,15 @@ import time
 import numpy as np
 import pytest
 import ufl
-from mpi4py import MPI
-
 from dolfinx import fem
+from mpi4py import MPI
 
 from fem_em_solver.core.cavity import surface_resistance_ohm
 from fem_em_solver.ports.circuit import reduce_terminated_ports
 from fem_em_solver.ports.lumped import run_lumped_sheet_port_case, series_rlc_impedance
 from fem_em_solver.ports.sparameters import _power_waves, run_n_port_sparameter_sweep
-
 from tests.complex_mode import complex_only
-from tests.validation.test_ans7_exact_strip import C_F, _ANS7, _exact_geo
+from tests.validation.test_ans7_exact_strip import _ANS7, C_F, _exact_geo
 from tests.validation.test_birdcage_power_identity import (
     DISCRETE_IDENTITY_RTOL,
     _sheet_field_dissipation_w,
@@ -66,9 +64,9 @@ ARM_ENV = "FEM_EM_PORT24_ARM"
 ARMS = ("r02", "r0", "plant")
 FREQUENCY_HZ = 64.0e6
 DEGREE = 1
-ESR_OHM = 0.2          # operator ESR ruling 2026-10-06 (§9)
+ESR_OHM = 0.2  # operator ESR ruling 2026-10-06 (§9)
 PLANT_OHM = 0.4
-PLANT_INDEX = 1        # P2: a capacitor sheet in the Route A configuration
+PLANT_INDEX = 1  # P2: a capacitor sheet in the Route A configuration
 POWER_DRIVEN = "P1"
 
 
@@ -102,15 +100,24 @@ def _rc(r):
 
 def _terminated_three_port(problem, port_defs, specs, tags_f, extra, index, z_term):
     """Sheet ``index`` carries ``z_term``; the 3×3 over the kept ports (ascending)."""
-    sp = [dataclasses.replace(s, port_impedance_ohm=z_term) if i == index else s
-          for i, s in enumerate(specs)]
+    sp = [
+        dataclasses.replace(s, port_impedance_ohm=z_term) if i == index else s
+        for i, s in enumerate(specs)
+    ]
     kept = [p for i, p in enumerate(port_defs) if i != index]
     z0 = float(REFERENCE_IMPEDANCE_OHM)
     s3 = np.zeros((3, 3), dtype=np.complex128)
     for col, drv in enumerate(kept):
-        res = run_lumped_sheet_port_case(problem, port_defs, sp, facet_tags=tags_f,
-                                         driven_port_id=drv.port_id, verbose=False,
-                                         extra_bilinear_terms=extra, degree=DEGREE)
+        res = run_lumped_sheet_port_case(
+            problem,
+            port_defs,
+            sp,
+            facet_tags=tags_f,
+            driven_port_id=drv.port_id,
+            verbose=False,
+            extra_bilinear_terms=extra,
+            degree=DEGREE,
+        )
         d = res.responses[drv.port_id]
         a_d, _ = _power_waves(d.voltage_v, d.current_a, z0)
         assert abs(a_d) > 0.0
@@ -141,7 +148,7 @@ def _run_port24_arm(arm, return_fields=False):
     """
     from tests.validation import test_th14_birdcage_copper as th14
 
-    comm =MPI.COMM_WORLD
+    comm = MPI.COMM_WORLD
     t0 = time.perf_counter()
     geo, specs, cells = _exact_geo(th14, comm, GATED_WIDTH_FRACTION)
     msh, cell_tags, facet_tags, outer_tags, tags_f, port_defs = geo
@@ -151,17 +158,26 @@ def _run_port24_arm(arm, return_fields=False):
     z_s = (1.0 + 1.0j) * surface_resistance_ohm(omega, th14.COPPER_SIGMA)
     extra = [th14._leontovich_term(msh, facet_tags, z_s, omega)]
     t_mesh = time.perf_counter() - t0
-    _say(f"\n[PORT-24 s2] arm {arm}: exact F-small hole mesh {cells} cells "
-         f"({t_mesh:.1f} s), f = {FREQUENCY_HZ:.6e} Hz, degree {DEGREE}, kappa off, Cu "
-         f"Leontovich, C = {C_F!r} F, -n {comm.size}")
+    _say(
+        f"\n[PORT-24 s2] arm {arm}: exact F-small hole mesh {cells} cells "
+        f"({t_mesh:.1f} s), f = {FREQUENCY_HZ:.6e} Hz, degree {DEGREE}, kappa off, Cu "
+        f"Leontovich, C = {C_F!r} F, -n {comm.size}"
+    )
 
     t1 = time.perf_counter()
-    sw = run_n_port_sparameter_sweep(problem, port_defs, lumped_sheet_ports=specs,
-                                     lumped_sheet_facet_tags=tags_f,
-                                     extra_bilinear_terms=extra, degree=DEGREE)
+    sw = run_n_port_sparameter_sweep(
+        problem,
+        port_defs,
+        lumped_sheet_ports=specs,
+        lumped_sheet_facet_tags=tags_f,
+        extra_bilinear_terms=extra,
+        degree=DEGREE,
+    )
     s4 = np.asarray(sw.s_matrix, dtype=np.complex128)
-    _say(f"[PORT-24 s2] 50 ohm 4x4 in {time.perf_counter() - t1:.1f} s; "
-         f"||S-S^T||/||S|| = {np.linalg.norm(s4 - s4.T) / np.linalg.norm(s4):.3e}")
+    _say(
+        f"[PORT-24 s2] 50 ohm 4x4 in {time.perf_counter() - t1:.1f} s; "
+        f"||S-S^T||/||S|| = {np.linalg.norm(s4 - s4.T) / np.linalg.norm(s4):.3e}"
+    )
 
     r_list, r_ref = _arm_r(arm)
     z_ref = _rc(r_ref)
@@ -172,34 +188,62 @@ def _run_port24_arm(arm, return_fields=False):
         z_i = _rc(r_list[i])
         meas = _terminated_three_port(problem, port_defs, specs, tags_f, extra, i, z_i)
         pred = reduce_terminated_ports(s4, z0, {i: z_ref})
-        row = {"i": i, "r": r_list[i], "z": z_i, "meas": meas, "pred": pred,
-               "res": _rel(meas, pred)}
+        row = {
+            "i": i,
+            "r": r_list[i],
+            "z": z_i,
+            "meas": meas,
+            "pred": pred,
+            "res": _rel(meas, pred),
+        }
         if arm == "r0":
             zc = _ANS7.z_cap(omega, C_F)
             cap = _terminated_three_port(problem, port_defs, specs, tags_f, extra, i, zc)
             row["zc"] = zc
             row["cap_res"] = _rel(meas, cap)
         ident.append(row)
-        _say(f"[PORT-24 s2] (I) sheet P{i + 1}: r = {r_list[i]:g} ohm, Z = "
-             f"{z_i.real:+.9e}{z_i.imag:+.9e}j ohm vs reduction at "
-             f"series_rlc_impedance(r={r_ref:g}, L=0, C) = {z_ref.real:+.9e}{z_ref.imag:+.9e}j; "
-             f"||S'_meas - S'_pred||_F/||S'_pred||_F = {row['res']:.6e} "
-             f"({row['res'] / REDUCTION_BAND:.4f} x REDUCTION_BAND {REDUCTION_BAND:.0e})"
-             + (f"; (Z) vs capacitor-only z_cap {row['zc'].real:+.3e}{row['zc'].imag:+.9e}j: "
-                f"{row['cap_res']:.6e} (band {LEG_D0_REPRODUCTION_BAND:.0e})" if arm == "r0" else "")
-             + f"; {time.perf_counter() - t2:.1f} s")
+        _say(
+            f"[PORT-24 s2] (I) sheet P{i + 1}: r = {r_list[i]:g} ohm, Z = "
+            f"{z_i.real:+.9e}{z_i.imag:+.9e}j ohm vs reduction at "
+            f"series_rlc_impedance(r={r_ref:g}, L=0, C) = {z_ref.real:+.9e}{z_ref.imag:+.9e}j; "
+            f"||S'_meas - S'_pred||_F/||S'_pred||_F = {row['res']:.6e} "
+            f"({row['res'] / REDUCTION_BAND:.4f} x REDUCTION_BAND {REDUCTION_BAND:.0e})"
+            + (
+                f"; (Z) vs capacitor-only z_cap {row['zc'].real:+.3e}{row['zc'].imag:+.9e}j: "
+                f"{row['cap_res']:.6e} (band {LEG_D0_REPRODUCTION_BAND:.0e})"
+                if arm == "r0"
+                else ""
+            )
+            + f"; {time.perf_counter() - t2:.1f} s"
+        )
 
     # (P) power identity: P1 driven at 50 ohm, P2-P4 in the arm's series-RC.
     t3 = time.perf_counter()
-    sp = [s if i == 0 else dataclasses.replace(s, port_impedance_ohm=_rc(r_list[i]))
-          for i, s in enumerate(specs)]
+    sp = [
+        s if i == 0 else dataclasses.replace(s, port_impedance_ohm=_rc(r_list[i]))
+        for i, s in enumerate(specs)
+    ]
     _res, fields = run_lumped_sheet_port_case(
-        problem, port_defs, sp, facet_tags=tags_f, driven_port_id=POWER_DRIVEN,
-        verbose=False, return_fields=True, extra_bilinear_terms=extra, degree=DEGREE)
+        problem,
+        port_defs,
+        sp,
+        facet_tags=tags_f,
+        driven_port_id=POWER_DRIVEN,
+        verbose=False,
+        return_fields=True,
+        extra_bilinear_terms=extra,
+        degree=DEGREE,
+    )
     e = fields.e_complex
     dx = ufl.Measure("dx", domain=msh, subdomain_data=cell_tags)
-    p_vol = float(np.real(comm.allreduce(fem.assemble_scalar(fem.form(
-        0.5 * fields.sigma_field * ufl.inner(e, e) * dx)), op=MPI.SUM)))
+    p_vol = float(
+        np.real(
+            comm.allreduce(
+                fem.assemble_scalar(fem.form(0.5 * fields.sigma_field * ufl.inner(e, e) * dx)),
+                op=MPI.SUM,
+            )
+        )
+    )
     acct = {"mesh": msh, "facet_tags": tags_f}
     sheets = {s.port_id: s.sheet(driven=(s.port_id == POWER_DRIVEN)) for s in sp}
     p_sheet = {pid: _sheet_field_dissipation_w(acct, sh, e, omega) for pid, sh in sheets.items()}
@@ -209,40 +253,61 @@ def _run_port24_arm(arm, return_fields=False):
     p_all = sum(p_sheet.values())
     resid = abs(p_src - p_all - p_vol - p_surf) / abs(p_src)
     resid_dz = abs(p_src - (p_all - p_rc) - p_vol - p_surf) / abs(p_src)
-    p_rest = p_vol + p_surf          # dissipation other than the RC sheets
+    p_rest = p_vol + p_surf  # dissipation other than the RC sheets
     share = p_rc / (p_rc + p_rest)
     q_c = 1.0 / (omega * C_F * ESR_OHM)
-    _say(f"[PORT-24 s2] (P) P1 drive, P2-P4 series-RC r = {r_list[1:]}: P_src {p_src:.9e} W, "
-         f"P_sheets {p_all:.9e} W (P1 {p_sheet['P1']:.9e}, RC "
-         + ", ".join(f"{k} {v:.9e}" for k, v in p_sheet.items() if k != 'P1')
-         + f"), P_vol {p_vol:.9e} W, P_surf {p_surf:.9e} W; residual/P_src {resid:.3e} "
-         f"(ASSERTED <= {DISCRETE_IDENTITY_RTOL:g}); {time.perf_counter() - t3:.1f} s")
-    _say(f"[PORT-24 s2] (Dz) RC-sheet dissipation omitted: residual/P_src {resid_dz:.6e} "
-         f"(printed, never asserted; PREDICTED ~ ESR loss share Q_rest/(Q_rest + Q_C)); "
-         f"measured ESR share P_RC/(P_RC + P_vol + P_surf) = {share:.6e}")
+    _say(
+        f"[PORT-24 s2] (P) P1 drive, P2-P4 series-RC r = {r_list[1:]}: P_src {p_src:.9e} W, "
+        f"P_sheets {p_all:.9e} W (P1 {p_sheet['P1']:.9e}, RC "
+        + ", ".join(f"{k} {v:.9e}" for k, v in p_sheet.items() if k != "P1")
+        + f"), P_vol {p_vol:.9e} W, P_surf {p_surf:.9e} W; residual/P_src {resid:.3e} "
+        f"(ASSERTED <= {DISCRETE_IDENTITY_RTOL:g}); {time.perf_counter() - t3:.1f} s"
+    )
+    _say(
+        f"[PORT-24 s2] (Dz) RC-sheet dissipation omitted: residual/P_src {resid_dz:.6e} "
+        f"(printed, never asserted; PREDICTED ~ ESR loss share Q_rest/(Q_rest + Q_C)); "
+        f"measured ESR share P_RC/(P_RC + P_vol + P_surf) = {share:.6e}"
+    )
     q_ratio = None
     q_rest = None
     if p_rc > 0.0:
         q_ratio = p_rest / (p_rest + p_rc)
         q_rest_over_qc = p_rc / p_rest
         q_rest = q_rest_over_qc * q_c
-        _say(f"[PORT-24 s2] Q(r)/Q(0) at fixed stored energy = P_rest/(P_rest + P_RC) = "
-             f"{p_rest / (p_rest + p_rc):.6e}; 1/Q = 1/Q_rest + 1/Q_C with Q_C = 1/(omega C r) "
-             f"= {q_c:.6e} => Q_rest = {q_rest_over_qc * q_c:.6e} (printed only)")
+        _say(
+            f"[PORT-24 s2] Q(r)/Q(0) at fixed stored energy = P_rest/(P_rest + P_RC) = "
+            f"{p_rest / (p_rest + p_rc):.6e}; 1/Q = 1/Q_rest + 1/Q_C with Q_C = 1/(omega C r) "
+            f"= {q_c:.6e} => Q_rest = {q_rest_over_qc * q_c:.6e} (printed only)"
+        )
     else:
-        _say("[PORT-24 s2] Q(r)/Q(0) = 1 (r = 0: the RC sheets dissipate "
-             f"{p_rc:.3e} W); Q_C at 0.2 ohm would be {q_c:.6e} (printed only)")
+        _say(
+            "[PORT-24 s2] Q(r)/Q(0) = 1 (r = 0: the RC sheets dissipate "
+            f"{p_rc:.3e} W); Q_C at 0.2 ohm would be {q_c:.6e} (printed only)"
+        )
     _say(f"[PORT-24 s2] arm {arm} total {time.perf_counter() - t0:.1f} s, -n {comm.size}")
-    out = {"arm": arm, "ident": ident, "resid": resid, "resid_dz": resid_dz,
-           "p_rc": p_rc, "s4": s4}
+    out = {"arm": arm, "ident": ident, "resid": resid, "resid_dz": resid_dz, "p_rc": p_rc, "s4": s4}
     if return_fields:
-        out.update({
-            "cells": cells, "t_mesh": t_mesh, "omega": omega, "p_src": p_src,
-            "p_sheet": p_sheet, "p_vol": p_vol, "p_surf": p_surf, "p_rest": p_rest,
-            "share": share, "q_c": q_c, "q_ratio": q_ratio, "q_rest": q_rest,
-            "msh": msh, "cell_tags": cell_tags, "facet_tags": facet_tags,
-            "specs": sp, "e": e,
-        })
+        out.update(
+            {
+                "cells": cells,
+                "t_mesh": t_mesh,
+                "omega": omega,
+                "p_src": p_src,
+                "p_sheet": p_sheet,
+                "p_vol": p_vol,
+                "p_surf": p_surf,
+                "p_rest": p_rest,
+                "share": share,
+                "q_c": q_c,
+                "q_ratio": q_ratio,
+                "q_rest": q_rest,
+                "msh": msh,
+                "cell_tags": cell_tags,
+                "facet_tags": facet_tags,
+                "specs": sp,
+                "e": e,
+            }
+        )
     return out
 
 
@@ -254,13 +319,16 @@ def test_port24_series_rc_sheet(port24):
     if arm == "plant":
         planted = rows[PLANT_INDEX]
         others = [r for r in rows if r["i"] != PLANT_INDEX]
-        _say(f"[PORT-24 s2] (Pl) planted P{PLANT_INDEX + 1} residual {planted['res']:.6e} = "
-             f"{planted['res'] / REDUCTION_BAND:.3f} x REDUCTION_BAND (ASSERTED > band; "
-             f"predicted ceiling ~5.3e-3); unplanted max "
-             f"{max(r['res'] for r in others):.6e} (ASSERTED <= band)")
+        _say(
+            f"[PORT-24 s2] (Pl) planted P{PLANT_INDEX + 1} residual {planted['res']:.6e} = "
+            f"{planted['res'] / REDUCTION_BAND:.3f} x REDUCTION_BAND (ASSERTED > band; "
+            f"predicted ceiling ~5.3e-3); unplanted max "
+            f"{max(r['res'] for r in others):.6e} (ASSERTED <= band)"
+        )
         assert planted["res"] > REDUCTION_BAND, (
             "(Pl): the planted 0.4 ohm sheet passes the 0.2 ohm identity -- the identity "
-            f"cannot see r at this C (residual {planted['res']:.6e}); report and stop")
+            f"cannot see r at this C (residual {planted['res']:.6e}); report and stop"
+        )
         for r in others:
             assert r["res"] <= REDUCTION_BAND, (r["i"], r["res"])
     else:

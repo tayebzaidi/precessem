@@ -42,7 +42,6 @@ from fem_em_solver import RobinCooling, StudyConfigError, TwoPortQuadratureDrive
 from fem_em_solver import study as study_mod
 from fem_em_solver.study import TransientSpec
 from fem_em_solver.study_yaml import _load, _study_from_mapping, run_study_file
-
 from tests.package.test_wf1_study_yaml import (
     LOGS,
     WF1,
@@ -52,8 +51,8 @@ from tests.package.test_wf1_study_yaml import (
     _rc_all,
     _spec_diff,
 )
-from tests.package.test_wf16_study_tuned_f_human import _c_f, _study
 from tests.package.test_wf1_yaml_f_human import FH_FILE
+from tests.package.test_wf16_study_tuned_f_human import _study
 from tests.validation.test_mat12_transient_sar_heating_sphere import RHO_C
 from tests.validation.test_mat15_coil_driven_heating_phantom import (
     H_GEL,
@@ -142,13 +141,22 @@ def test_wf1_fht_parse_and_refusals():
     _, kind, outputs, fh = _load(FHT_FILE)
     assert kind == "f_human_birdcage" and outputs == {}
     exp_cool = RobinCooling(K_GEL, H_GEL, T_INF, source_scale=js["G_per_w"])
-    exp_tr = TransientSpec(dt_s=T_STAR / N_MAIN, n_steps=N_MAIN, rho_c_j_per_m3_k=RHO_C,
-                           theta=0.5, startup_half_steps=2)
+    exp_tr = TransientSpec(
+        dt_s=T_STAR / N_MAIN,
+        n_steps=N_MAIN,
+        rho_c_j_per_m3_k=RHO_C,
+        theta=0.5,
+        startup_half_steps=2,
+    )
     cool, tr = fh.cooling, fh.transient
-    cool_hex = {k: (_hex(getattr(cool, k)), _hex(getattr(exp_cool, k)))
-                for k in ("k_w_per_m_k", "h_w_per_m2_k", "t_inf_c", "source_scale")}
-    tr_hex = {k: (_hex(getattr(tr, k)), _hex(getattr(exp_tr, k)))
-              for k in ("dt_s", "rho_c_j_per_m3_k", "theta")}
+    cool_hex = {
+        k: (_hex(getattr(cool, k)), _hex(getattr(exp_cool, k)))
+        for k in ("k_w_per_m_k", "h_w_per_m2_k", "t_inf_c", "source_scale")
+    }
+    tr_hex = {
+        k: (_hex(getattr(tr, k)), _hex(getattr(exp_tr, k)))
+        for k in ("dt_s", "rho_c_j_per_m3_k", "theta")
+    }
     for k, (g, e) in {**cool_hex, **tr_hex}.items():
         _p0(f"  (K) {k}: parsed {g} expected {e}")
     assert type(cool) is RobinCooling and type(tr) is TransientSpec
@@ -157,9 +165,11 @@ def test_wf1_fht_parse_and_refusals():
     assert all(g == e for g, e in tr_hex.values())
     assert (tr.n_steps, tr.startup_half_steps, tr.t_init_c) == (N_MAIN, 2, None)
     got_c = fh.balls["centres"]
-    _p0(f"  (K) ball centres {[[_hex(v) for v in c] for c in got_c]} vs JSON "
+    _p0(
+        f"  (K) ball centres {[[_hex(v) for v in c] for c in got_c]} vs JSON "
         f"{[_hex(v) for v in js['c_star_m']]}; mass_g {_hex(fh.balls['mass_g'])}; window_s "
-        f"{_hex(fh.window_s)} vs W_B2 {_hex(W_B2)}; sense {fh.sense!r}")
+        f"{_hex(fh.window_s)} vs W_B2 {_hex(W_B2)}; sense {fh.sense!r}"
+    )
     assert len(got_c) == 1
     assert [_hex(v) for v in got_c[0]] == [_hex(v) for v in js["c_star_m"]]
     assert _hex(fh.balls["mass_g"]) == _hex(10.0)
@@ -169,8 +179,10 @@ def test_wf1_fht_parse_and_refusals():
     with redirect_stdout(buf):
         rc = cli.main(["check", str(FHT_FILE)])
     printed = buf.getvalue()
-    _p0(f"  (K) cli check rc (min, max) {_rc_all(rc, comm)}; family line present "
-        f"{'family: f_human_birdcage' in printed}")
+    _p0(
+        f"  (K) cli check rc (min, max) {_rc_all(rc, comm)}; family line present "
+        f"{'family: f_human_birdcage' in printed}"
+    )
     assert _rc_all(rc, comm) == (0, 0)
     # cli prints on rank 0 only
     assert comm.bcast("family: f_human_birdcage" in printed, root=0)
@@ -186,24 +198,43 @@ def test_wf1_fht_parse_and_refusals():
     def _th(fn):
         def f(m):
             fn(m["thermal"])
+
         return f
 
     cases = [
         ("transient removed", _th(lambda t: t.pop("transient")), "thermal"),
-        ("dt_s 0.0", _th(lambda t: t["transient"].__setitem__("dt_s", 0.0)),
-         "thermal.transient.dt_s"),
-        ("n_steps 0", _th(lambda t: t["transient"].__setitem__("n_steps", 0)),
-         "thermal.transient.n_steps"),
-        ("theta 1.5", _th(lambda t: t["transient"].__setitem__("theta", 1.5)),
-         "thermal.transient.theta"),
+        (
+            "dt_s 0.0",
+            _th(lambda t: t["transient"].__setitem__("dt_s", 0.0)),
+            "thermal.transient.dt_s",
+        ),
+        (
+            "n_steps 0",
+            _th(lambda t: t["transient"].__setitem__("n_steps", 0)),
+            "thermal.transient.n_steps",
+        ),
+        (
+            "theta 1.5",
+            _th(lambda t: t["transient"].__setitem__("theta", 1.5)),
+            "thermal.transient.theta",
+        ),
         ("balls removed", _th(lambda t: t.pop("balls")), "thermal"),
-        ("mass_g 0.0", _th(lambda t: t["balls"].__setitem__("mass_g", 0.0)),
-         "thermal.balls.mass_g"),
-        ("centres []", _th(lambda t: t["balls"].__setitem__("centres", [])),
-         "thermal.balls.centres"),
+        (
+            "mass_g 0.0",
+            _th(lambda t: t["balls"].__setitem__("mass_g", 0.0)),
+            "thermal.balls.mass_g",
+        ),
+        (
+            "centres []",
+            _th(lambda t: t["balls"].__setitem__("centres", [])),
+            "thermal.balls.centres",
+        ),
         ("sense up", _th(lambda t: t.__setitem__("sense", "up")), "thermal.sense"),
-        ("unknown transient.dt", _th(lambda t: t["transient"].__setitem__("dt", 31.35)),
-         "thermal.transient.dt"),
+        (
+            "unknown transient.dt",
+            _th(lambda t: t["transient"].__setitem__("dt", 31.35)),
+            "thermal.transient.dt",
+        ),
     ]
     for label, fn, expected in cases:
         exc = _raises(mut(fn), f"<{label}>")
@@ -228,8 +259,10 @@ def test_wf1_fht_parse_and_refusals():
     run_all = _rc_all(cli.main(["run", str(bad), "--output-dir", str(out)]), comm)
     check_all = _rc_all(cli.main(["check", str(bad)]), comm)
     exists = comm.allreduce(bool(out.exists()), op=MPI.LOR)
-    _p0(f"  (X) cli on transient-less file: run rc {run_all}, check rc {check_all}, "
-        f"out exists {exists}")
+    _p0(
+        f"  (X) cli on transient-less file: run rc {run_all}, check rc {check_all}, "
+        f"out exists {exists}"
+    )
     assert run_all == (2, 2) and check_all == (2, 2)
     assert not exists
 
@@ -237,18 +270,26 @@ def test_wf1_fht_parse_and_refusals():
     m1 = mut(_th(lambda t: t.pop("source_scale")))
     c1 = _load_from_mapping(m1).cooling
     default = RobinCooling(K_GEL, H_GEL, T_INF).source_scale
-    d1 = [k for k in ("k_w_per_m_k", "h_w_per_m2_k", "t_inf_c", "source_scale", "degree")
-          if _hex(getattr(c1, k)) != _hex(getattr(cool, k))]
-    _p0(f"  (c1) dropped source_scale diff {d1}; {_hex(c1.source_scale)} vs default "
-        f"{_hex(default)}")
+    d1 = [
+        k
+        for k in ("k_w_per_m_k", "h_w_per_m2_k", "t_inf_c", "source_scale", "degree")
+        if _hex(getattr(c1, k)) != _hex(getattr(cool, k))
+    ]
+    _p0(
+        f"  (c1) dropped source_scale diff {d1}; {_hex(c1.source_scale)} vs default "
+        f"{_hex(default)}"
+    )
     assert d1 == ["source_scale"], d1
     assert _hex(c1.source_scale) == _hex(default)
     G = float(js["G_per_w"])
     ulp = yaml.safe_load(repr(float(np.nextafter(G, 2.0 * G))))
     assert type(ulp) is float and ulp != G
     c2 = _load_from_mapping(mut(_th(lambda t: t.__setitem__("source_scale", ulp)))).cooling
-    d2 = [k for k in ("k_w_per_m_k", "h_w_per_m2_k", "t_inf_c", "source_scale", "degree")
-          if _hex(getattr(c2, k)) != _hex(getattr(cool, k))]
+    d2 = [
+        k
+        for k in ("k_w_per_m_k", "h_w_per_m2_k", "t_inf_c", "source_scale", "degree")
+        if _hex(getattr(c2, k)) != _hex(getattr(cool, k))
+    ]
     _p0(f"  (c2) one-ULP source_scale {ulp!r} diff {d2}")
     assert d2 == ["source_scale"], d2
     assert np.nextafter(G, 2.0 * G) == c2.source_scale
@@ -266,39 +307,61 @@ def test_wf1_fht_run_branch_no_mesh():
 
     comm = MPI.COMM_WORLD
     s_node = np.array([[0.125 + 0.25j, -0.375 + 0.5j], [-0.375 + 0.5j, 0.625 - 0.75j]])
-    y_in = {"ccw": np.array([0.01 + 0.02j, 0.03 - 0.04j]),
-            "cw": np.array([-0.05 + 0.06j, 0.07 + 0.08j])}
+    y_in = {
+        "ccw": np.array([0.01 + 0.02j, 0.03 - 0.04j]),
+        "cw": np.array([-0.05 + 0.06j, 0.07 + 0.08j]),
+    }
     gap, feed, vs = complex(0.2, -21.03), complex(7.6, -17.7), complex(1.02, 2.38)
     solves, temps = [], []
 
     def fake(study, comm_=MPI.COMM_WORLD):
         solves.append(1)
         study.result = SimpleNamespace(
-            cells=369387, s_node=s_node, y_in=y_in, feeds=("P17", "P21"),
-            az_feeds=(11.25, 101.25), az_mirror=56.25, gap_impedance_ohm=gap,
-            feed_impedance_ohm=feed, source_voltage_v=vs,
+            cells=369387,
+            s_node=s_node,
+            y_in=y_in,
+            feeds=("P17", "P21"),
+            az_feeds=(11.25, 101.25),
+            az_mirror=56.25,
+            gap_impedance_ohm=gap,
+            feed_impedance_ohm=feed,
+            source_voltage_v=vs,
         )
         return study.result
 
-    def fake_temp(self, study, cooling, *, transient, balls, window_s, sense="ccw",
-                  comm=MPI.COMM_WORLD):
+    def fake_temp(
+        self, study, cooling, *, transient, balls, window_s, sense="ccw", comm=MPI.COMM_WORLD
+    ):
         temps.append((cooling, transient, balls, window_s, sense))
         return SimpleNamespace(
             times_s=[0.0, 1.5, 3.0],
             volume_mean_k=[0.0, 0.25, 0.5],
             balls=[
-                {"centre": [0.01, 0.02, 0.0], "radius_m": 0.0125, "volume_m3": 8.0e-6,
-                 "theta_k": [0.0, 0.375, 0.75]},
-                {"centre": [-0.01, 0.0, 0.05], "radius_m": 0.0125, "volume_m3": 7.5e-6,
-                 "theta_k": [0.0, 0.125, 0.625]},
+                {
+                    "centre": [0.01, 0.02, 0.0],
+                    "radius_m": 0.0125,
+                    "volume_m3": 8.0e-6,
+                    "theta_k": [0.0, 0.375, 0.75],
+                },
+                {
+                    "centre": [-0.01, 0.0, 0.05],
+                    "radius_m": 0.0125,
+                    "volume_m3": 7.5e-6,
+                    "theta_k": [0.0, 0.125, 0.625],
+                },
             ],
             six_minute={
                 "window_s": 3.0,
                 "volume_mean": {"peak_k": 0.25, "t_max_s": 3.0},
                 "balls": [{"peak_k": 0.375, "t_max_s": 3.0}, {"peak_k": 0.21875, "t_max_s": 3.0}],
             },
-            source_power_w=0.875, max_balance_residual=1.5e-10, cells=369387, n_sub=3306,
-            sense=sense, cooling=cooling, transient=transient,
+            source_power_w=0.875,
+            max_balance_residual=1.5e-10,
+            cells=369387,
+            n_sub=3306,
+            sense=sense,
+            cooling=cooling,
+            transient=transient,
         )
 
     def boom(*args, **kwargs):
@@ -328,8 +391,10 @@ def test_wf1_fht_run_branch_no_mesh():
         n_s2 = comm.allreduce(len(solves), op=MPI.MAX), comm.allreduce(len(solves), op=MPI.MIN)
         n_t2 = comm.allreduce(len(temps) - temps_before, op=MPI.MAX)
     summary = run.summary
-    _p0(f"\n[WF-1 s10a] (Run-0) solve calls (max, min) {n_s}; temperature calls {n_t}; "
-        f"keys {sorted(summary)}")
+    _p0(
+        f"\n[WF-1 s10a] (Run-0) solve calls (max, min) {n_s}; temperature calls {n_t}; "
+        f"keys {sorted(summary)}"
+    )
     assert n_s == (1, 1) and n_t == (1, 1)
     cooling, transient, balls, window_s, sense = temps[0]
     js = _series_json()
@@ -339,19 +404,30 @@ def test_wf1_fht_run_branch_no_mesh():
     assert [_hex(v) for v in balls["centres"][0]] == [_hex(v) for v in js["c_star_m"]]
     assert _hex(window_s) == _hex(W_B2) and sense == "ccw"
     exp_t = {
-        "sense": "ccw", "times_s": [0.0, 1.5, 3.0], "volume_mean_k": [0.0, 0.25, 0.5],
+        "sense": "ccw",
+        "times_s": [0.0, 1.5, 3.0],
+        "volume_mean_k": [0.0, 0.25, 0.5],
         "balls": [
-            {"centre": [0.01, 0.02, 0.0], "radius_m": 0.0125, "volume_m3": 8.0e-6,
-             "theta_k": [0.0, 0.375, 0.75]},
-            {"centre": [-0.01, 0.0, 0.05], "radius_m": 0.0125, "volume_m3": 7.5e-6,
-             "theta_k": [0.0, 0.125, 0.625]},
+            {
+                "centre": [0.01, 0.02, 0.0],
+                "radius_m": 0.0125,
+                "volume_m3": 8.0e-6,
+                "theta_k": [0.0, 0.375, 0.75],
+            },
+            {
+                "centre": [-0.01, 0.0, 0.05],
+                "radius_m": 0.0125,
+                "volume_m3": 7.5e-6,
+                "theta_k": [0.0, 0.125, 0.625],
+            },
         ],
         "six_minute": {
             "window_s": 3.0,
             "volume_mean": {"peak_k": 0.25, "t_max_s": 3.0},
             "balls": [{"peak_k": 0.375, "t_max_s": 3.0}, {"peak_k": 0.21875, "t_max_s": 3.0}],
         },
-        "source_power_w": 0.875, "max_balance_residual": 1.5e-10,
+        "source_power_w": 0.875,
+        "max_balance_residual": 1.5e-10,
         "source_scale": float(js["G_per_w"]),
     }
     _p0(f"  (Run-0) summary temperature == fake: {summary.get('temperature') == exp_t}")
@@ -365,7 +441,9 @@ def test_wf1_fht_run_branch_no_mesh():
     same = comm.allreduce(bool(same), op=MPI.LAND)
     _p0(f"  (Run-0) written JSON == in-memory summary: {same}")
     assert same
-    _p0(f"  (Run-0) without thermal: solve calls {n_s2}, temperature calls (max) {n_t2}, "
-        f"'temperature' in summary {'temperature' in run2.summary}")
+    _p0(
+        f"  (Run-0) without thermal: solve calls {n_s2}, temperature calls (max) {n_t2}, "
+        f"'temperature' in summary {'temperature' in run2.summary}"
+    )
     assert n_s2 == (1, 1) and n_t2 == 0
     assert "temperature" not in run2.summary and run2.thermal is None

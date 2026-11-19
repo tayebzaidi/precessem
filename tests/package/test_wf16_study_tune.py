@@ -40,11 +40,10 @@ from fem_em_solver.study import (
     Study,
     TwoPortQuadratureDrive,
 )
-
 from tests.complex_mode import complex_only
+from tests.package.test_wf1_yaml_copper import _py_copper
 from tests.package.test_wf16_study_copper import _rel_means
 from tests.package.test_wf16_study_four_port import _record, _rel
-from tests.package.test_wf1_yaml_copper import _py_copper
 from tests.validation.test_ans6_exact_strip import (
     ANS6_EXACT_STRIP_CLASS_MEANS_P1,
     ANS6_EXACT_STRIP_HOLE_CELL_RECORD,
@@ -79,14 +78,18 @@ def _p0(*args):
 def _pec_circulant_s():
     m = ANS6_EXACT_STRIP_CLASS_MEANS_P1[KEY]["pec"]
     cls = (m["self"], m["adjacent"], m["opposite"], m["adjacent"])
-    return np.array([[cls[(j - i) % 4] for j in range(4)] for i in range(4)],
-                    dtype=np.complex128)
+    return np.array([[cls[(j - i) % 4] for j in range(4)] for i in range(4)], dtype=np.complex128)
 
 
 def _solid_study():
     phantom = GelledSalinePhantomMaterial(SALINE_SIGMA, SALINE_EPSILON_R, FREQUENCY_64_HZ)
-    return Study(FourPortBirdcageGeometry.f_small(), phantom, LumpedPortDrive(),
-                 frequency_hz=FREQUENCY_64_HZ, degree=1)
+    return Study(
+        FourPortBirdcageGeometry.f_small(),
+        phantom,
+        LumpedPortDrive(),
+        frequency_hz=FREQUENCY_64_HZ,
+        degree=1,
+    )
 
 
 def test_wf16_tune_refusals(monkeypatch):
@@ -100,19 +103,32 @@ def test_wf16_tune_refusals(monkeypatch):
     for cls in (SphereInBoxGeometry, FHumanBirdcageGeometry, FourPortBirdcageGeometry):
         monkeypatch.setattr(cls, "build", stub)
     phantom = GelledSalinePhantomMaterial(SALINE_SIGMA, SALINE_EPSILON_R, FREQUENCY_64_HZ)
-    sphere = Study(SphereInBoxGeometry(0.05, 0.15, 0.01, 0.03), phantom,
-                   QuasiStaticSphereField(), frequency_hz=FREQUENCY_64_HZ, degree=1)
+    sphere = Study(
+        SphereInBoxGeometry(0.05, 0.15, 0.01, 0.03),
+        phantom,
+        QuasiStaticSphereField(),
+        frequency_hz=FREQUENCY_64_HZ,
+        degree=1,
+    )
     with pytest.raises(TypeError):
         sphere.tune()
-    human = Study(FHumanBirdcageGeometry(as_hole=True), phantom,
-                  TwoPortQuadratureDrive(118.0e-12, esr_ohm=0.2),
-                  frequency_hz=FREQUENCY_64_HZ, degree=1,
-                  conductor=LeontovichWall(study_mod.COPPER_SIGMA))
+    human = Study(
+        FHumanBirdcageGeometry(as_hole=True),
+        phantom,
+        TwoPortQuadratureDrive(118.0e-12, esr_ohm=0.2),
+        frequency_hz=FREQUENCY_64_HZ,
+        degree=1,
+        conductor=LeontovichWall(study_mod.COPPER_SIGMA),
+    )
     with pytest.raises(TypeError):
         human.tune()
-    caps = Study(FourPortBirdcageGeometry.f_small(), phantom,
-                 CapacitorSheets(15.57e-12, on=("P2",)), frequency_hz=FREQUENCY_64_HZ,
-                 degree=1)
+    caps = Study(
+        FourPortBirdcageGeometry.f_small(),
+        phantom,
+        CapacitorSheets(15.57e-12, on=("P2",)),
+        frequency_hz=FREQUENCY_64_HZ,
+        degree=1,
+    )
     with pytest.raises(TypeError):
         caps.tune()
     pec = _py_copper("pec")
@@ -130,8 +146,10 @@ def test_wf16_tune_refusals(monkeypatch):
         pec.tune(k=0)  # Im z_0 < 0 on the PEC circulant
     t1 = pec.tune(k=1)
     zk, _ = _modal_z(s_to_z(_pec_circulant_s(), REFERENCE_IMPEDANCE_OHM))
-    _p0(f"\n[WF-16 s6 W0] circulant z_k = {zk}; circulant C_1 = {t1.c_mode_farad:.9e} F, "
-        f"vs record {t1.c_mode_farad / TH17_STEP3_C_MODE_RECORD_F - 1:+.3e} (printed)")
+    _p0(
+        f"\n[WF-16 s6 W0] circulant z_k = {zk}; circulant C_1 = {t1.c_mode_farad:.9e} F, "
+        f"vs record {t1.c_mode_farad / TH17_STEP3_C_MODE_RECORD_F - 1:+.3e} (printed)"
+    )
     assert zk[0].imag < 0.0
     assert calls["n"] == 0
 
@@ -139,8 +157,9 @@ def test_wf16_tune_refusals(monkeypatch):
 @pytest.fixture(scope="module")
 def tuned():
     comm = MPI.COMM_WORLD
-    assert comm.size == ANS6_EXACT_STRIP_RECORD_RANK_WIDTH, (
-        f"asserted at -n {ANS6_EXACT_STRIP_RECORD_RANK_WIDTH}; got -n {comm.size}")
+    assert (
+        comm.size == ANS6_EXACT_STRIP_RECORD_RANK_WIDTH
+    ), f"asserted at -n {ANS6_EXACT_STRIP_RECORD_RANK_WIDTH}; got -n {comm.size}"
     out = {}
     for name, make in (("pec", lambda: _py_copper("pec")), ("solid", _solid_study)):
         study = make()
@@ -149,17 +168,29 @@ def tuned():
         res = study.solve(comm)
         t_solve = time.perf_counter() - t0
         s = np.asarray(res.s_matrix, dtype=np.complex128)
-        out[name] = {"study": study, "res": res, "s": s, "means": _class_means(s),
-                     "t1": study.tune(k=1, comm=comm), "t2": study.tune(k=2, comm=comm),
-                     "t": t_solve}
-        _p0(f"\n[WF-16 s6] {name}: cells {res.cells}, mesh {res.mesh_time:.1f} s, sweep "
-            f"{res.sweep_time:.1f} s, total {t_solve:.1f} s, -n {comm.size}")
-        _p0(f"    {name} z_k = " + ", ".join(
-            f"{z.real:+.6e}{z.imag:+.6e}j" for z in out[name]["t1"].z_k))
+        out[name] = {
+            "study": study,
+            "res": res,
+            "s": s,
+            "means": _class_means(s),
+            "t1": study.tune(k=1, comm=comm),
+            "t2": study.tune(k=2, comm=comm),
+            "t": t_solve,
+        }
+        _p0(
+            f"\n[WF-16 s6] {name}: cells {res.cells}, mesh {res.mesh_time:.1f} s, sweep "
+            f"{res.sweep_time:.1f} s, total {t_solve:.1f} s, -n {comm.size}"
+        )
+        _p0(
+            f"    {name} z_k = "
+            + ", ".join(f"{z.real:+.6e}{z.imag:+.6e}j" for z in out[name]["t1"].z_k)
+        )
         for k in (1, 2):
             c = out[name][f"t{k}"].c_mode_farad
-            _p0(f"    {name} C_{k} = {c:.9e} F, vs TH-17 record "
-                f"{c / TH17_STEP3_C_MODE_RECORD_F - 1:+.6e}")
+            _p0(
+                f"    {name} C_{k} = {c:.9e} F, vs TH-17 record "
+                f"{c / TH17_STEP3_C_MODE_RECORD_F - 1:+.6e}"
+            )
     return out
 
 
@@ -169,8 +200,10 @@ def test_wf16_tune_r0_fixture_tie(tuned):
     pec = tuned["pec"]
     assert pec["res"].cells == ANS6_EXACT_STRIP_HOLE_CELL_RECORD
     rel = _rel_means(pec["means"], ANS6_EXACT_STRIP_CLASS_MEANS_P1[KEY]["pec"])
-    _p0(f"\n[WF-16 s6 R0] class-mean rel vs 'pec' record: "
-        + ", ".join(f"{c} {rel[c]:.3e}" for c in CLASSES))
+    _p0(
+        "\n[WF-16 s6 R0] class-mean rel vs 'pec' record: "
+        + ", ".join(f"{c} {rel[c]:.3e}" for c in CLASSES)
+    )
     for c in CLASSES:
         assert rel[c] <= LEG_D0_REPRODUCTION_BAND, (c, rel[c])
 
@@ -184,9 +217,11 @@ def test_wf16_tune_i_api_equals_modal_route(tuned):
     dz = float(np.max(np.abs(np.asarray(t1.z_k) - zk) / np.abs(zk)))
     dr = abs(t1.off_diagonal_residual - resid) / max(abs(resid), np.finfo(float).tiny)
     z1, z3 = t1.z_k[1], t1.z_k[3]
-    _p0(f"\n[WF-16 s6 I] max rel |z_k(api) - z_k(TH-17)| = {dz:.3e}; residual rel "
+    _p0(
+        f"\n[WF-16 s6 I] max rel |z_k(api) - z_k(TH-17)| = {dz:.3e}; residual rel "
         f"{dr:.3e} (api {t1.off_diagonal_residual:.3e}); |z1 - z3|/|z1| = "
-        f"{abs(z1 - z3) / abs(z1):.3e} (reciprocity, printed)")
+        f"{abs(z1 - z3) / abs(z1):.3e} (reciprocity, printed)"
+    )
     assert dz <= EXACT_IDENTITY_RTOL
     assert dr <= EXACT_IDENTITY_RTOL
     assert t1.k == 1 and t1.frequency_hz == FREQUENCY_64_HZ
@@ -200,9 +235,11 @@ def test_wf16_tune_a_c_mode_equals_th17_record(tuned):
     """(a): C_mode on the exact PEC hole within REDUCTION_BAND of `TH-17`'s."""
     c = tuned["pec"]["t1"].c_mode_farad
     gap = c / TH17_STEP3_C_MODE_RECORD_F - 1.0
-    _p0(f"\n[WF-16 s6 a] C_mode = {c:.9e} F; record {TH17_STEP3_C_MODE_RECORD_F:.9e} F; "
+    _p0(
+        f"\n[WF-16 s6 a] C_mode = {c:.9e} F; record {TH17_STEP3_C_MODE_RECORD_F:.9e} F; "
         f"gap {gap:+.6e} (predicted -2.98e-4 in [-4.5e-4, -1.5e-4], printed); "
-        f"band {REDUCTION_BAND:.1e}")
+        f"band {REDUCTION_BAND:.1e}"
+    )
     assert abs(gap) <= REDUCTION_BAND
 
 
@@ -211,8 +248,10 @@ def test_wf16_tune_c1_mode_index_control(tuned):
     """(c1): k = 2 on the same Study misses the record (predicted +48.9 %)."""
     c2 = tuned["pec"]["t2"].c_mode_farad
     gap = c2 / TH17_STEP3_C_MODE_RECORD_F - 1.0
-    _p0(f"\n[WF-16 s6 c1] k = 2 C = {c2:.9e} F, gap {gap:+.6e} "
-        f"({abs(gap) / REDUCTION_BAND:.1f}x band; predicted +48.9 %)")
+    _p0(
+        f"\n[WF-16 s6 c1] k = 2 C = {c2:.9e} F, gap {gap:+.6e} "
+        f"({abs(gap) / REDUCTION_BAND:.1f}x band; predicted +48.9 %)"
+    )
     assert abs(gap) > REDUCTION_BAND
 
 
@@ -223,7 +262,9 @@ def test_wf16_tune_c2_wrong_fixture_control(tuned):
     tie = _rel(solid["s"], _record(1))
     c = solid["t1"].c_mode_farad
     gap = c / TH17_STEP3_C_MODE_RECORD_F - 1.0
-    _p0(f"\n[WF-16 s6 c2] solid S vs record rel {tie:.3e}; C_1 = {c:.9e} F, gap "
-        f"{gap:+.6e} ({abs(gap) / REDUCTION_BAND:.1f}x band; predicted -6.98 %)")
+    _p0(
+        f"\n[WF-16 s6 c2] solid S vs record rel {tie:.3e}; C_1 = {c:.9e} F, gap "
+        f"{gap:+.6e} ({abs(gap) / REDUCTION_BAND:.1f}x band; predicted -6.98 %)"
+    )
     assert tie <= LEG_D0_REPRODUCTION_BAND
     assert abs(gap) > REDUCTION_BAND

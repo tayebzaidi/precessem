@@ -95,7 +95,9 @@ def _current_route_s(currents_by_drive, feeds_idx, z_th, v_s):
 
 def _parallel_currents(z32, z_load, drive):
     """``(Z + diag Z_load)⁻¹ v`` — circuit-side port currents for Thevenin ``v``."""
-    return np.linalg.solve(np.asarray(z32) + np.diag(z_load), np.asarray(drive, dtype=np.complex128))
+    return np.linalg.solve(
+        np.asarray(z32) + np.diag(z_load), np.asarray(drive, dtype=np.complex128)
+    )
 
 
 def _parallel_loads(n, feeds_idx, z_c, z_feed):
@@ -239,8 +241,10 @@ def test_wf12_step3b_termination_fit():
     c_mode = float(a2["c_mode"])
     meas = np.asarray(a2["meas"], dtype=np.complex128)
     circ = np.asarray(a2["circ"], dtype=np.complex128)
-    say(f"order[:2] {order[:2]}; cells {int(a2['cells'])}; C_mode {c_mode * 1e12:.4f} pF; "
-        f"kappa {float(a2['kappa']):.6e} (PRINTED ONLY, not applied)")
+    say(
+        f"order[:2] {order[:2]}; cells {int(a2['cells'])}; C_mode {c_mode * 1e12:.4f} pF; "
+        f"kappa {float(a2['kappa']):.6e} (PRINTED ONLY, not applied)"
+    )
     z32 = s_to_z(s32, z0)
     z_c = _capacitor_impedance(FREQUENCY_HZ, c_mode)
     z_th = _thevenin_feed_impedance(z_c, z0)
@@ -252,8 +256,9 @@ def test_wf12_step3b_termination_fit():
 
     # ---- (R0) reconstruction -------------------------------------------------
     z_load0 = _parallel_loads(32, feeds_idx, z_c, z_th)
-    curs0 = [_parallel_currents(z32, z_load0, np.eye(32, dtype=np.complex128)[j])
-             for j in feeds_idx]
+    curs0 = [
+        _parallel_currents(z32, z_load0, np.eye(32, dtype=np.complex128)[j]) for j in feeds_idx
+    ]
     s_ic = _current_route_s(curs0, feeds_idx, z_th, v_s)
     c0 = circ_at(np.zeros(32))
     r_r0 = max(_residual(s_ic, circ), _residual(c0, circ))
@@ -262,10 +267,12 @@ def test_wf12_step3b_termination_fit():
     r_r0_y = _residual(_y_route_s(s_red, omega, c_mode, z0), circ)
     r_id = _residual(meas, circ)
     r_id_rel = abs(r_id / ITEM285_R_ID - 1.0)
-    say(f"(R0) current route at delta=0 vs stored circ {r_r0:.3e} (band "
+    say(
+        f"(R0) current route at delta=0 vs stored circ {r_r0:.3e} (band "
         f"{REUSE_REPRODUCTION_RTOL:g}, ASSERTED); Y route vs stored circ {r_r0_y:.3e} (printed); "
         f"_residual(meas, circ) {r_id:.15f} vs item 285 {ITEM285_R_ID:.15f}, rel {r_id_rel:.3e} "
-        f"(band {R_ID_REREAD_RTOL:g}, ASSERTED)")
+        f"(band {R_ID_REREAD_RTOL:g}, ASSERTED)"
+    )
     assert r_r0 <= REUSE_REPRODUCTION_RTOL, f"(R0) copy defect: {r_r0:.3e}"
     assert r_id_rel <= R_ID_REREAD_RTOL, f"(R0) re-read {r_id!r}"
 
@@ -274,16 +281,19 @@ def test_wf12_step3b_termination_fit():
     s32_h = np.asarray(hb["s32"], dtype=np.complex128)
     b_rows = []
     for label, c_f, mkey, rkey, lit in (
-            ("C_tuned", C_TUNED_F, "meas_tuned", "r_tuned", ITEM175_R_TUNED),
-            ("C_mode(sigma=800)", C_MODE_F, "meas_mode", "r_mode", ITEM175_R_MODE)):
+        ("C_tuned", C_TUNED_F, "meas_tuned", "r_tuned", ITEM175_R_TUNED),
+        ("C_mode(sigma=800)", C_MODE_F, "meas_mode", "r_mode", ITEM175_R_MODE),
+    ):
         _, pred = tuned_input(s32_h, FREQUENCY_HZ, c_f, terminated=tuple(range(2, 32)))
         r = _residual(np.asarray(hb[mkey], dtype=np.complex128), pred)
         stored = float(hb[rkey])
         rel = abs(r / stored - 1.0)
         b_rows.append((label, rel))
-        say(f"(b) H8a configuration (feeds at 50 Ohm, NOT (a)'s quantity) {label} "
+        say(
+            f"(b) H8a configuration (feeds at 50 Ohm, NOT (a)'s quantity) {label} "
             f"{c_f * 1e12:.4f} pF: recomputed {r:.9e} vs stored {stored:.9e}, rel {rel:.3e} "
-            f"(band {REUSE_REPRODUCTION_RTOL:g}, ASSERTED); brief literal {lit:.6e}")
+            f"(band {REUSE_REPRODUCTION_RTOL:g}, ASSERTED); brief literal {lit:.6e}"
+        )
     say(f"(b) order[:2] {hb_order[:2]}; kappa {float(hb['kappa']):.6e} (printed only)")
     for label, rel in b_rows:
         assert rel <= REUSE_REPRODUCTION_RTOL, f"(b) {label} re-read rel {rel:.3e}"
@@ -297,28 +307,38 @@ def test_wf12_step3b_termination_fit():
     ratio = fit / miss0
     dmax = float(np.max(np.abs(d_hat)))
     imax = int(np.argmax(np.abs(d_hat)))
-    say(f"(a) ||CIRC(0) - MEAS||_F {miss0:.6e}; fit ||CIRC(d) - MEAS||_F {fit:.6e}; ratio "
+    say(
+        f"(a) ||CIRC(0) - MEAS||_F {miss0:.6e}; fit ||CIRC(d) - MEAS||_F {fit:.6e}; ratio "
         f"{ratio:.3e} (band <= {FIT_RESIDUAL_FRACTION:g}, ASSERTED); {iters} iterations, "
-        f"{t_fit:.2f} s")
-    say(f"(a) max|d_i| {dmax:.6e} at index {imax} ({order[imax]}, slot k {int(slot_k[imax])}, "
+        f"{t_fit:.2f} s"
+    )
+    say(
+        f"(a) max|d_i| {dmax:.6e} at index {imax} ({order[imax]}, slot k {int(slot_k[imax])}, "
         f"ring {float(slot_sign[imax]):+.0f}) (band {DELTA_MAX_BAND}, ASSERTED; PREDICTED RED "
         f"range {PREDICTED_RED_RANGE}); ||d||_2 {np.linalg.norm(d_hat):.6e}; feeds d "
-        f"{d_hat[0]:.4e}, {d_hat[1]:.4e}")
+        f"{d_hat[0]:.4e}, {d_hat[1]:.4e}"
+    )
     for i in range(32):
-        say(f"  d[{i:2d}] {order[i]:>4s} k={int(slot_k[i]):2d} ring {float(slot_sign[i]):+.0f}: "
-            f"{d_hat[i].real:+.6e}{d_hat[i].imag:+.6e}j |d| {abs(d_hat[i]):.4e}")
-    say(f"(a) Jacobian singular values at d=0: {', '.join(f'{v:.4e}' for v in sv0)}; at last "
+        say(
+            f"  d[{i:2d}] {order[i]:>4s} k={int(slot_k[i]):2d} ring {float(slot_sign[i]):+.0f}: "
+            f"{d_hat[i].real:+.6e}{d_hat[i].imag:+.6e}j |d| {abs(d_hat[i]):.4e}"
+        )
+    say(
+        f"(a) Jacobian singular values at d=0: {', '.join(f'{v:.4e}' for v in sv0)}; at last "
         f"iterate: {', '.join(f'{v:.4e}' for v in sv1)} (rank "
-        f"{int(np.sum(sv1 > 1e-10 * sv1[0]))} of {sv1.size})")
+        f"{int(np.sum(sv1 > 1e-10 * sv1[0]))} of {sv1.size})"
+    )
     spec = _k_spectrum(d_hat, slot_k, slot_sign)
     spec_gap = _k_spectrum(np.where(np.arange(32) < 2, 0.0, d_hat), slot_k, slot_sign)
     feed_sign = float(slot_sign[0])
     for sign in (1.0, -1.0):
         tag = "feed ring" if sign == feed_sign else "other ring"
-        say(f"(a) k-spectrum of d, ring {sign:+.0f} ({tag}), |k|=0..8: "
+        say(
+            f"(a) k-spectrum of d, ring {sign:+.0f} ({tag}), |k|=0..8: "
             f"{', '.join(f'{p:.4f}' for p in spec[sign])}; gap sheets only: "
             f"{', '.join(f'{p:.4f}' for p in spec_gap[sign])} (PREDICTED: k=0/+-1 if the "
-            f"copper-wall mechanism, flat if noise)")
+            f"copper-wall mechanism, flat if noise)"
+        )
 
     # ---- cross-check: d applied to the H8b-configuration pair at 113.108 pF ---
     c_e2 = float(a2["c_e2"])
@@ -329,10 +349,12 @@ def test_wf12_step3b_termination_fit():
     circ_e2 = np.asarray(a2["circ_e2"], dtype=np.complex128)
     ce2_0 = circ_at(np.zeros(32), zc2, zth2, vs2)
     ce2_d = circ_at(d_hat, zc2, zth2, vs2)
-    say(f"cross-check (PRINTED ONLY) H8b configuration at {c_e2 * 1e12:.4f} pF: route at d=0 vs "
+    say(
+        f"cross-check (PRINTED ONLY) H8b configuration at {c_e2 * 1e12:.4f} pF: route at d=0 vs "
         f"stored circ_e2 {_residual(ce2_0, circ_e2):.3e}; residual at d=0 "
         f"{_residual(meas_e2, ce2_0):.6e} (item 285 {ITEM285_R_E2:.6e}); after d "
-        f"{_residual(meas_e2, ce2_d):.6e} (a physical d shrinks it)")
+        f"{_residual(meas_e2, ce2_d):.6e} (a physical d shrinks it)"
+    )
 
     # ---- negative controls (PREDICTED, printed — ruling 313-4) ----------------
     def circ_uniform(u):
@@ -342,20 +364,25 @@ def test_wf12_step3b_termination_fit():
 
     u_hat, u_it, _, _ = _lm_fit(circ_uniform, 1, meas)
     u_fit = float(np.linalg.norm(circ_uniform(u_hat) - meas))
-    say(f"uniform-d control (PREDICTED > {FIT_RESIDUAL_FRACTION:g} of the miss, printed, not "
-        f"asserted): d_u {u_hat[0]:.6e} ({u_it} it), fit ratio {u_fit / miss0:.4e}")
+    say(
+        f"uniform-d control (PREDICTED > {FIT_RESIDUAL_FRACTION:g} of the miss, printed, not "
+        f"asserted): d_u {u_hat[0]:.6e} ({u_it} it), fit ratio {u_fit / miss0:.4e}"
+    )
     rng = np.random.default_rng(RANDOM_SEED)
     d_rand = rng.standard_normal(32) + 1j * rng.standard_normal(32)
     d_rand *= np.linalg.norm(d_hat) / np.linalg.norm(d_rand)
     c_rand = circ_at(d_rand)
-    say(f"random-d control (PREDICTED: change ~ miss, no reduction; seed {RANDOM_SEED}, norm "
+    say(
+        f"random-d control (PREDICTED: change ~ miss, no reduction; seed {RANDOM_SEED}, norm "
         f"{np.linalg.norm(d_rand):.4e}): ||CIRC(d_r) - CIRC(0)|| / miss "
         f"{np.linalg.norm(c_rand - c0) / miss0:.4e}; ||CIRC(d_r) - MEAS|| / miss "
-        f"{np.linalg.norm(c_rand - meas) / miss0:.4e}")
+        f"{np.linalg.norm(c_rand - meas) / miss0:.4e}"
+    )
     say(f"window {time.perf_counter() - t_window:.2f} s")
 
     # ---- (a) asserted last ----------------------------------------------------
     assert ratio <= FIT_RESIDUAL_FRACTION, f"(a) fit residual ratio {ratio:.3e}"
     assert DELTA_MAX_BAND[0] <= dmax <= DELTA_MAX_BAND[1], (
         f"(a) max|d| {dmax:.6e} outside {DELTA_MAX_BAND} (PREDICTED RED range "
-        f"{PREDICTED_RED_RANGE})")
+        f"{PREDICTED_RED_RANGE})"
+    )

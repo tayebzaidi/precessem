@@ -33,9 +33,8 @@ from __future__ import annotations
 import numpy as np
 import pytest
 import ufl
-from mpi4py import MPI
-
 from dolfinx import default_scalar_type, fem
+from mpi4py import MPI
 
 from fem_em_solver.io.mesh import MeshGenerator
 
@@ -109,8 +108,7 @@ def _check_outer_boundary(label, generator, comm):
         f"outer_boundary tag {OUTER_BOUNDARY_TAG} — this is known-issues 12."
     )
     assert n_facets > 0, (
-        f"{label}: tag {OUTER_BOUNDARY_TAG} exists but carries zero facets "
-        "globally."
+        f"{label}: tag {OUTER_BOUNDARY_TAG} exists but carries zero facets " "globally."
     )
     assert area / analytic == pytest.approx(1.0, abs=AREA_RTOL), (
         f"{label}: tagged outer-boundary area {area:.12e} m^2 differs from the "
@@ -134,8 +132,6 @@ def test_sphere_in_box_outer_boundary_area():
     """`TH-8`/`MAT-4`'s fixture: tag 1 exists and covers the cube exactly."""
     _check_outer_boundary(
         "sphere_in_box_domain",
-        lambda comm: MeshGenerator.sphere_in_box_domain(
-            box_half_width=BOX_HALF_WIDTH, comm=comm
-        ),
+        lambda comm: MeshGenerator.sphere_in_box_domain(box_half_width=BOX_HALF_WIDTH, comm=comm),
         MPI.COMM_WORLD,
     )

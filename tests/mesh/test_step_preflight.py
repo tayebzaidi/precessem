@@ -30,7 +30,6 @@ from __future__ import annotations
 
 import importlib.util
 import json
-import os
 import tempfile
 import time
 import xml.etree.ElementTree as ET
@@ -114,10 +113,17 @@ def read_file_census(xdmf_path):
     base = xdmf_path.parent
     domain = ET.parse(xdmf_path).getroot().find("Domain")
     grids = domain.findall("Grid")
-    tet = [g for g in grids if g.find("Topology") is not None
-           and g.find("Topology").get("TopologyType") == "Tetrahedron"]
-    tri = [g for g in grids if g.find("Topology") is not None
-           and g.find("Topology").get("TopologyType") == "Triangle"]
+    tet = [
+        g
+        for g in grids
+        if g.find("Topology") is not None
+        and g.find("Topology").get("TopologyType") == "Tetrahedron"
+    ]
+    tri = [
+        g
+        for g in grids
+        if g.find("Topology") is not None and g.find("Topology").get("TopologyType") == "Triangle"
+    ]
     assert len(tet) == 1, f"{len(tet)} tetrahedral grids"
     mesh_grid = tet[0]
     x = _data(mesh_grid.find("Geometry").find("DataItem"), base)
@@ -127,9 +133,12 @@ def read_file_census(xdmf_path):
     ctag = np.rint(_data(attr[0].find("DataItem"), base).reshape(-1)).astype(np.int64)
     assert ctag.size == topo.shape[0], (ctag.size, topo.shape)
     p = x[topo]
-    vol = np.abs(np.einsum(
-        "ij,ij->i", np.cross(p[:, 1] - p[:, 0], p[:, 2] - p[:, 0]), p[:, 3] - p[:, 0]
-    )) / 6.0
+    vol = (
+        np.abs(
+            np.einsum("ij,ij->i", np.cross(p[:, 1] - p[:, 0], p[:, 2] - p[:, 0]), p[:, 3] - p[:, 0])
+        )
+        / 6.0
+    )
     census = {
         "n_grids": len(grids),
         "n_facet_grids": len(tri),
@@ -195,9 +204,12 @@ def case():
         _write_config(UNBOUND_CONFIG, root / "unbound_ports.json")
         print(f"\n[GEO-34 2] generator rung + STEP export {t_export:.2f} s", flush=True)
     comm.barrier()
-    return {"root": root, "step": step,
-            "congruent": root / "congruent_ports.json",
-            "unbound": root / "unbound_ports.json"}
+    return {
+        "root": root,
+        "step": step,
+        "congruent": root / "congruent_ports.json",
+        "unbound": root / "unbound_ports.json",
+    }
 
 
 def _run_preflight(case, config_key, out_name):
@@ -211,9 +223,12 @@ def _run_preflight(case, config_key, out_name):
     assert rc == 0
     census = _bcast_file_census(out / "preflight.xdmf", comm)
     if comm.rank == 0:
-        print(f"[GEO-34 2] preflight ({config_key}) {elapsed:.2f} s; file cells "
-              f"{census['cells_total']} (congruent record {CONGRUENT_CELL_RECORD}, "
-              f"primitive {DEFAULT_CELL_COUNT}; printed, not gated)", flush=True)
+        print(
+            f"[GEO-34 2] preflight ({config_key}) {elapsed:.2f} s; file cells "
+            f"{census['cells_total']} (congruent record {CONGRUENT_CELL_RECORD}, "
+            f"primitive {DEFAULT_CELL_COUNT}; printed, not gated)",
+            flush=True,
+        )
     return {"out": out, "census": census}
 
 
@@ -259,14 +274,16 @@ def solve_census(case):
         census["area"][t] = _interface_area_or_zero(msh, tags_f, t, comm)
     t_total = time.perf_counter() - t0
     if comm.rank == 0:
-        print(f"[GEO-34 2] C_solve: import {t_import:.2f} s, census "
-              f"{t_total - t_import:.2f} s; cells {census['cells_total']}"
-              f"\n[GEO-34 2] C_solve cells per tag {census['cells']}"
-              f"\n[GEO-34 2] C_solve facets per tag {census['facets']} (wall = owned "
-              f"exterior facets; import's own wall-tag facets {import_wall}, of which "
-              f"not on exactly one cell {wall_not_one_cell}; facet_tags is None: "
-              f"{facet_tags is None})",
-              flush=True)
+        print(
+            f"[GEO-34 2] C_solve: import {t_import:.2f} s, census "
+            f"{t_total - t_import:.2f} s; cells {census['cells_total']}"
+            f"\n[GEO-34 2] C_solve cells per tag {census['cells']}"
+            f"\n[GEO-34 2] C_solve facets per tag {census['facets']} (wall = owned "
+            f"exterior facets; import's own wall-tag facets {import_wall}, of which "
+            f"not on exactly one cell {wall_not_one_cell}; facet_tags is None: "
+            f"{facet_tags is None})",
+            flush=True,
+        )
     return {"census": census, "mesh": msh, "cell_tags": cell_tags, "config": config}
 
 
@@ -301,18 +318,22 @@ def test_census(preflight, solve_census):
     c_file, c_solve = preflight["census"], solve_census["census"]
     mism, worst, rel = _compare(c_file, c_solve)
     if comm.rank == 0:
-        print(f"\n[GEO-34 2] (i) file cells per tag {c_file['cells']}"
-              f"\n[GEO-34 2] (i) file facets per tag {c_file['facets']} "
-              f"(facet array {c_file.get('facet_attr_name')!r})"
-              f"\n[GEO-34 2] (i) count mismatches {mism}"
-              f"\n[GEO-34 2] (i) worst volume/area rel diff {worst:.3e} (tol "
-              f"{CENSUS_REL_TOL:.0e}); " + ", ".join(f"{k} {v:.2e}" for k, v in rel.items()),
-              flush=True)
+        print(
+            f"\n[GEO-34 2] (i) file cells per tag {c_file['cells']}"
+            f"\n[GEO-34 2] (i) file facets per tag {c_file['facets']} "
+            f"(facet array {c_file.get('facet_attr_name')!r})"
+            f"\n[GEO-34 2] (i) count mismatches {mism}"
+            f"\n[GEO-34 2] (i) worst volume/area rel diff {worst:.3e} (tol "
+            f"{CENSUS_REL_TOL:.0e}); " + ", ".join(f"{k} {v:.2e}" for k, v in rel.items()),
+            flush=True,
+        )
     # (A1) the import's own wall group is the exterior, facet for facet.
     wall = int(solve_census["config"]["outer_boundary_tag"])
     assert not c_solve["facet_tags_is_none"]
     assert c_solve["import_wall_facets"] == c_solve["facets"][wall], (
-        c_solve["import_wall_facets"], c_solve["facets"][wall])
+        c_solve["import_wall_facets"],
+        c_solve["facets"][wall],
+    )
     assert c_solve["wall_not_one_cell"] == 0, c_solve["wall_not_one_cell"]
     assert c_file["n_facet_grids"] == 1
     assert c_file.get("facet_attr_name") == FACET_TAGS_NAME
@@ -329,16 +350,21 @@ def test_sheet_areas(preflight, solve_census):
     rel = {t: area.get(t, 0.0) / SHEET_AREA_M2 - 1.0 for t in (211, 212, 213, 214)}
     if comm.rank == 0:
         for t, r in rel.items():
-            print(f"[GEO-34 2] (ii) sheet {t}: file area {area.get(t, 0.0):.12e} m^2, "
-                  f"/ SHEET_AREA_M2 - 1 = {r:.3e}; facets "
-                  f"{preflight['census']['facets'].get(t)}", flush=True)
+            print(
+                f"[GEO-34 2] (ii) sheet {t}: file area {area.get(t, 0.0):.12e} m^2, "
+                f"/ SHEET_AREA_M2 - 1 = {r:.3e}; facets "
+                f"{preflight['census']['facets'].get(t)}",
+                flush=True,
+            )
         wall = preflight["census"]["area"].get(1)
         x0, y0, z0, x1, y1, z1 = solve_census["census"]["bbox"]
         a, b, c = x1 - x0, y1 - y0, z1 - z0
         box = 2.0 * (a * b + b * c + c * a)
-        print(f"[GEO-34 2] wall (tag 1) file area {wall} m^2 vs model-bbox surface "
-              f"{box:.12e} m^2 (rel {(wall or 0.0) / box - 1.0:.3e}; printed, not gated)",
-              flush=True)
+        print(
+            f"[GEO-34 2] wall (tag 1) file area {wall} m^2 vs model-bbox surface "
+            f"{box:.12e} m^2 (rel {(wall or 0.0) / box - 1.0:.3e}; printed, not gated)",
+            flush=True,
+        )
     for t, r in rel.items():
         assert abs(r) <= SHEET_AREA_TOL, (t, r)
 
@@ -355,12 +381,16 @@ def test_no_facet_grid(case, solve_census):
     """(n2, binary) written without ``facet_tags=``, the file has no facet grid."""
     comm = MPI.COMM_WORLD
     out = case["root"] / "no_facets"
-    write_preflight_files(solve_census["mesh"], solve_census["cell_tags"], None, out,
-                          comm, figure=False)
+    write_preflight_files(
+        solve_census["mesh"], solve_census["cell_tags"], None, out, comm, figure=False
+    )
     census = _bcast_file_census(out / "preflight.xdmf", comm)
     if comm.rank == 0:
-        print(f"[GEO-34 2] (n2) grids {census['n_grids']}, facet grids "
-              f"{census['n_facet_grids']}, facets {census['facets']}", flush=True)
+        print(
+            f"[GEO-34 2] (n2) grids {census['n_grids']}, facet grids "
+            f"{census['n_facet_grids']}, facets {census['facets']}",
+            flush=True,
+        )
     assert census["n_facet_grids"] == 0
     assert census["facets"] == {}
     assert census["cells_total"] == solve_census["census"]["cells_total"]
@@ -373,10 +403,13 @@ def test_mismatched_config(case, solve_census):
     mism, worst, _rel = _compare(unbound["census"], solve_census["census"])
     if comm.rank == 0:
         c = unbound["census"]
-        print(f"\n[GEO-34 2] (n1) unbound file cells {c['cells_total']} vs congruent "
-              f"C_solve {solve_census['census']['cells_total']}; sheet facets "
-              f"{[c['facets'].get(t) for t in (211, 212, 213, 214)]} vs "
-              f"{[solve_census['census']['facets'][t] for t in (211, 212, 213, 214)]}"
-              f"\n[GEO-34 2] (n1) count mismatches {len(mism)}: {mism}; worst "
-              f"volume/area rel diff {worst:.3e}", flush=True)
+        print(
+            f"\n[GEO-34 2] (n1) unbound file cells {c['cells_total']} vs congruent "
+            f"C_solve {solve_census['census']['cells_total']}; sheet facets "
+            f"{[c['facets'].get(t) for t in (211, 212, 213, 214)]} vs "
+            f"{[solve_census['census']['facets'][t] for t in (211, 212, 213, 214)]}"
+            f"\n[GEO-34 2] (n1) count mismatches {len(mism)}: {mism}; worst "
+            f"volume/area rel diff {worst:.3e}",
+            flush=True,
+        )
     assert mism, "the unbound config's preflight matched the congruent census"

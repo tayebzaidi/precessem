@@ -36,11 +36,11 @@ import os
 import numpy as np
 import pytest
 import ufl
+from dolfinx import fem
+from dolfinx import mesh as dmesh
+from dolfinx.fem.petsc import assemble_matrix
 from mpi4py import MPI
 from petsc4py import PETSc
-
-from dolfinx import fem, mesh as dmesh
-from dolfinx.fem.petsc import assemble_matrix
 
 from fem_em_solver.core import (
     HomogeneousMaterial,
@@ -142,8 +142,12 @@ def _solve_mms(n: int, comm) -> tuple[float, float, float, float, int]:
     # Step-3 check on the DG split: the exact phasor is purely real here, so
     # e_real must carry the field and e_imag must be small. The retired
     # E = −jωA proxy had e_real ≡ 0 identically.
-    real_local = float(np.max(np.abs(np.real(fields.e_real.x.array)))) if fields.e_real.x.array.size else 0.0
-    imag_local = float(np.max(np.abs(np.real(fields.e_imag.x.array)))) if fields.e_imag.x.array.size else 0.0
+    real_local = (
+        float(np.max(np.abs(np.real(fields.e_real.x.array)))) if fields.e_real.x.array.size else 0.0
+    )
+    imag_local = (
+        float(np.max(np.abs(np.real(fields.e_imag.x.array)))) if fields.e_imag.x.array.size else 0.0
+    )
     real_max = comm.allreduce(real_local, op=MPI.MAX)
     imag_max = comm.allreduce(imag_local, op=MPI.MAX)
 
@@ -188,9 +192,9 @@ def test_manufactured_solution_converges_at_first_order():
         f"fine-mesh relative L2 error {rel_fine:.4e} is too large for a "
         "manufactured solution the discretisation can represent"
     )
-    assert rel_fine < rel_coarse, (
-        f"refinement did not reduce the error: {rel_coarse:.4e} -> {rel_fine:.4e}"
-    )
+    assert (
+        rel_fine < rel_coarse
+    ), f"refinement did not reduce the error: {rel_coarse:.4e} -> {rel_fine:.4e}"
     assert rate > 0.9, (
         f"measured L2 convergence rate {rate:.3f} is below the O(h) expectation "
         "for N1curl degree 1 — the solve is not converging to E_ex"

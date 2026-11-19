@@ -47,9 +47,9 @@ from typing import Mapping, Optional, Union
 
 import numpy as np
 import ufl
+from dolfinx import fem
+from dolfinx import mesh as dmesh
 from mpi4py import MPI
-
-from dolfinx import fem, mesh as dmesh
 
 from ..utils.constants import EPSILON_0
 
@@ -133,9 +133,7 @@ def current_divergence_residual(
             raise ValueError(f"{name} must be finite and non-negative, got {prop!r}")
 
     sigma_ufl: object = sigma if isinstance(sigma, fem.Function) else float(sigma)
-    eps_ufl: object = (
-        epsilon_r if isinstance(epsilon_r, fem.Function) else float(epsilon_r)
-    )
+    eps_ufl: object = epsilon_r if isinstance(epsilon_r, fem.Function) else float(epsilon_r)
 
     # J_tot = (σ + jωε₀εᵣ)E — written as the current rather than as ε_c so the
     # conduction term can be dropped for the negative control without also
@@ -156,9 +154,7 @@ def current_divergence_residual(
 
     msh.topology.create_connectivity(msh.topology.dim - 1, msh.topology.dim)
     boundary_facets = dmesh.exterior_facet_indices(msh.topology)
-    boundary_dofs = fem.locate_dofs_topological(
-        space, msh.topology.dim - 1, boundary_facets
-    )
+    boundary_dofs = fem.locate_dofs_topological(space, msh.topology.dim - 1, boundary_facets)
     zero = fem.Function(space)
     zero.x.array[:] = 0.0
     bc = fem.dirichletbc(zero, boundary_dofs)
@@ -180,9 +176,7 @@ def current_divergence_residual(
     iterations = int(problem.solver.getIterationNumber())
 
     dual_sq = comm.allreduce(
-        fem.assemble_scalar(
-            fem.form(ufl.inner(ufl.grad(phi), ufl.grad(phi)) * ufl.dx)
-        ),
+        fem.assemble_scalar(fem.form(ufl.inner(ufl.grad(phi), ufl.grad(phi)) * ufl.dx)),
         op=MPI.SUM,
     )
     scale_sq = comm.allreduce(

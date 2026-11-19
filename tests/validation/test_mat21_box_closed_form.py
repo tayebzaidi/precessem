@@ -28,7 +28,7 @@ from fem_em_solver.utils.analytical import (
     robin_box_transient_temperature,
     robin_slab_eigenvalues,
 )
-from tests.validation.test_mat15_finite_cylinder_closed_form import H, K, Q, RHO_C, T_INF
+from tests.validation.test_mat15_finite_cylinder_closed_form import RHO_C, T_INF, H, K, Q
 
 # PROJECT_PLAN.md:4814 — the F2182 phantom, 650 × 420 × 90 mm, halved.
 A_BOX, B_BOX, C_BOX = 0.325, 0.21, 0.045
@@ -77,8 +77,10 @@ def test_r0_roots_and_coefficients():
         c2 = 2.0 * bi * np.cos(gam) * (gam**2 + bi**2) / (gam**2 * (gam**2 + bi**2 + bi))
         dc = np.max(np.abs(c1 - c2)) / np.max(np.abs(c1))
         dc_rel = np.max(np.abs(c1 - c2) / np.abs(c1))
-        _say(f"MAT21-0 (R0) Bi {bi:.4f}: gamma_1 {gam[0]:.6f}; max residual/gamma {res.max():.3e}; "
-             f"C two forms max|dC|/max|C| {dc:.3e} (per-root rel {dc_rel:.3e}, printed only)")
+        _say(
+            f"MAT21-0 (R0) Bi {bi:.4f}: gamma_1 {gam[0]:.6f}; max residual/gamma {res.max():.3e}; "
+            f"C two forms max|dC|/max|C| {dc:.3e} (per-root rel {dc_rel:.3e}, printed only)"
+        )
         assert res.max() <= 1e-12
         assert dc <= 1e-12
 
@@ -105,8 +107,10 @@ def _face_residuals(fn, half=HALF):
 
 def test_r1_robin_residuals():
     res = _face_residuals(lambda x, y, z: _steady(x, y, z, return_gradient=True))
-    _say(f"MAT21-0 (R1) steady per-face residual/(qC) (+x,-x,+y,-y,+z,-z): "
-         + ", ".join(f"{r:.3e}" for r in res))
+    _say(
+        "MAT21-0 (R1) steady per-face residual/(qC) (+x,-x,+y,-y,+z,-z): "
+        + ", ".join(f"{r:.3e}" for r in res)
+    )
     assert max(res) <= 1e-10
     for fo in FOS:
         t = fo * T_C
@@ -123,8 +127,11 @@ def _z_reduced(x, y, z, nl, nm):
     mu = np.sqrt((gx[:, None] / A_BOX) ** 2 + (gy[None, :] / B_BOX) ** 2)
     az = abs(z)
     e2c = np.exp(-2.0 * mu * C_BOX)
-    ratio = np.exp(mu * (az - C_BOX)) * (1.0 + np.exp(-2.0 * mu * az)) / (
-        (K * mu / H) * (1.0 - e2c) + 1.0 + e2c)
+    ratio = (
+        np.exp(mu * (az - C_BOX))
+        * (1.0 + np.exp(-2.0 * mu * az))
+        / ((K * mu / H) * (1.0 - e2c) + 1.0 + e2c)
+    )
     g = 1.0 - ratio
     w = cx[:, None] * cy[None, :] * g / mu**2
     X = np.cos(gx * x / A_BOX)
@@ -132,9 +139,13 @@ def _z_reduced(x, y, z, nl, nm):
     return (Q / K) * float(X @ w @ Y)
 
 
-R2_PTS = ((0.0, 0.0, 0.0), (0.5 * A_BOX, 0.5 * B_BOX, 0.5 * C_BOX),
-          (0.9 * A_BOX, 0.9 * B_BOX, 0.9 * C_BOX), (0.9 * A_BOX, 0.0, 0.0),
-          (0.0, 0.0, 0.95 * C_BOX))
+R2_PTS = (
+    (0.0, 0.0, 0.0),
+    (0.5 * A_BOX, 0.5 * B_BOX, 0.5 * C_BOX),
+    (0.9 * A_BOX, 0.9 * B_BOX, 0.9 * C_BOX),
+    (0.9 * A_BOX, 0.0, 0.0),
+    (0.0, 0.0, 0.95 * C_BOX),
+)
 
 
 def test_r2_z_reduced_route():
@@ -151,9 +162,11 @@ def test_r2_z_reduced_route():
     red9 = _z_reduced(*p9, 160, 160)
     d0 = abs(th0 - red0)
     d9 = abs(float(_steady(*p9) - T_INF) - red9) / th0
-    _say(f"MAT21-0 printed theta_ss(0) default (40,40,40) {th0:.6f} vs reduced (160,160) "
-         f"{red0:.6f} K: |diff| centre {d0:.3e} K (predicted 8.5e-7), "
-         f"at 0.9(A,B,C) {d9:.3e} theta_ss(0) (predicted 2.4e-6)")
+    _say(
+        f"MAT21-0 printed theta_ss(0) default (40,40,40) {th0:.6f} vs reduced (160,160) "
+        f"{red0:.6f} K: |diff| centre {d0:.3e} K (predicted 8.5e-7), "
+        f"at 0.9(A,B,C) {d9:.3e} theta_ss(0) (predicted 2.4e-6)"
+    )
     assert worst <= 1e-7
 
 
@@ -190,13 +203,20 @@ def test_r3_gauss_truncated_identity():
         defs60.append(1.0 - s)
     ratio = H * total / (Q * vol)
     err = abs(ratio - prod)
-    _say(f"MAT21-0 (R3) h*surface integral/(qV) {ratio:.15f}, prod S_d(40) {prod:.15f}, "
-         f"|diff| {err:.3e} (predicted <= 1e-13)")
-    _say(f"MAT21-0 printed truncation deficit 1 - prod S_d: 40 {1 - prod:.4e} (predicted 4.671e-6), "
-         f"60 {1 - prod60:.4e} (predicted 1.368e-6); S-deficits at 60 "
-         + " / ".join(f"{x:.3e}" for x in defs60) + " (predicted 9.52e-7 / 3.98e-7 / 1.83e-8)")
-    _say(f"MAT21-0 printed surface area {area:.4f} m^2 (predicted 0.7386); face-mean theta "
-         f"{total / area:.4f} K beside qV/(hA_s) {Q * vol / (H * area):.4f} K (predicted 6.6531)")
+    _say(
+        f"MAT21-0 (R3) h*surface integral/(qV) {ratio:.15f}, prod S_d(40) {prod:.15f}, "
+        f"|diff| {err:.3e} (predicted <= 1e-13)"
+    )
+    _say(
+        f"MAT21-0 printed truncation deficit 1 - prod S_d: 40 {1 - prod:.4e} (predicted 4.671e-6), "
+        f"60 {1 - prod60:.4e} (predicted 1.368e-6); S-deficits at 60 "
+        + " / ".join(f"{x:.3e}" for x in defs60)
+        + " (predicted 9.52e-7 / 3.98e-7 / 1.83e-8)"
+    )
+    _say(
+        f"MAT21-0 printed surface area {area:.4f} m^2 (predicted 0.7386); face-mean theta "
+        f"{total / area:.4f} K beside qV/(hA_s) {Q * vol / (H * area):.4f} K (predicted 6.6531)"
+    )
     assert err <= 1e-10
 
 
@@ -214,12 +234,17 @@ def _uprod(x, y, z, s, n):
     out = np.ones_like(s, dtype=float)
     for coord, L, nd in zip((x, y, z), HALF, n):
         gam, c = _axis_data(L, nd)
-        out = out * (np.exp(-ALPHA * np.outer(s, (gam / L) ** 2)) * (c * np.cos(gam * coord / L))).sum(1)
+        out = out * (
+            np.exp(-ALPHA * np.outer(s, (gam / L) ** 2)) * (c * np.cos(gam * coord / L))
+        ).sum(1)
     return out
 
 
-R4_PTS = ((0.0, 0.0, 0.0), (0.5 * A_BOX, 0.5 * B_BOX, 0.5 * C_BOX),
-          (0.9 * A_BOX, 0.8 * B_BOX, 0.8 * C_BOX))
+R4_PTS = (
+    (0.0, 0.0, 0.0),
+    (0.5 * A_BOX, 0.5 * B_BOX, 0.5 * C_BOX),
+    (0.9 * A_BOX, 0.8 * B_BOX, 0.8 * C_BOX),
+)
 
 
 def _r4_error(**kw):
@@ -232,8 +257,10 @@ def _r4_error(**kw):
             a = float(_trans(*p, t, **kw) - T_INF)
             b = _duhamel(*p, t)
             worst = max(worst, abs(a - b) / th0)
-            _say(f"MAT21-0 (R4{tag}) Fo {fo} {p}: series {a:.12f}  Duhamel {b:.12f}  "
-                 f"|d|/theta_ss(0) {abs(a - b) / th0:.3e}")
+            _say(
+                f"MAT21-0 (R4{tag}) Fo {fo} {p}: series {a:.12f}  Duhamel {b:.12f}  "
+                f"|d|/theta_ss(0) {abs(a - b) / th0:.3e}"
+            )
     return worst
 
 
@@ -242,8 +269,10 @@ def test_r4_duhamel():
     _say(f"MAT21-0 (R4) max |series - Duhamel|/theta_ss(0) = {worst:.3e} (predicted <= 1e-13)")
     th_star = float(_trans(0.0, 0.0, 0.0, 0.2 * T_C) - T_INF)
     th_c = float(_trans(0.0, 0.0, 0.0, T_C) - T_INF)
-    _say(f"MAT21-0 printed theta(0, 0.2 t_C) = {th_star:.6f} K (predicted 1.335705; q t/rho c "
-         f"{Q * 0.2 * T_C / RHO_C:.4f}); theta(0, t_C) = {th_c:.6f} K (predicted 5.511718)")
+    _say(
+        f"MAT21-0 printed theta(0, 0.2 t_C) = {th_star:.6f} K (predicted 1.335705; q t/rho c "
+        f"{Q * 0.2 * T_C / RHO_C:.4f}); theta(0, t_C) = {th_c:.6f} K (predicted 5.511718)"
+    )
     assert worst <= 1e-10
 
 
@@ -254,30 +283,51 @@ def test_r4s_initial_slope():
     ph = float(_uprod(0.5 * A_BOX, 0.5 * B_BOX, 0.5 * C_BOX, s, n)[0])
     t = s
     dt = 1e-2 * t
-    fd = (float(_trans(0.0, 0.0, 0.0, t + dt, n_terms=n)) - float(_trans(0.0, 0.0, 0.0, t - dt, n_terms=n))) \
-        / (2 * dt) / (Q / RHO_C)
-    _say(f"MAT21-0 (R4s) centre prod U_d at s = 0.01 t_C: |prod - 1| = {abs(pc - 1):.3e} (predicted 4.4e-14)")
-    _say(f"MAT21-0 printed prod U_d at 0.5(A,B,C): 1 - {1 - ph:.3e} (predicted 1 - 1.05e-5); "
-         f"FD slope / (q/rho c) at centre {fd:.12f}, |.-1| {abs(fd - 1):.3e} (predicted within 1e-8)")
+    fd = (
+        (
+            float(_trans(0.0, 0.0, 0.0, t + dt, n_terms=n))
+            - float(_trans(0.0, 0.0, 0.0, t - dt, n_terms=n))
+        )
+        / (2 * dt)
+        / (Q / RHO_C)
+    )
+    _say(
+        f"MAT21-0 (R4s) centre prod U_d at s = 0.01 t_C: |prod - 1| = {abs(pc - 1):.3e} (predicted 4.4e-14)"
+    )
+    _say(
+        f"MAT21-0 printed prod U_d at 0.5(A,B,C): 1 - {1 - ph:.3e} (predicted 1 - 1.05e-5); "
+        f"FD slope / (q/rho c) at centre {fd:.12f}, |.-1| {abs(fd - 1):.3e} (predicted within 1e-8)"
+    )
     assert abs(pc - 1.0) <= 1e-9
 
 
 # ---------------------------------------------------------------- (R5)
 def test_r5_limits():
-    pts = (np.array([0.0, 0.5 * A_BOX, 0.9 * A_BOX]), np.array([0.0, 0.3 * B_BOX, 0.7 * B_BOX]),
-           np.array([0.0, 0.5 * C_BOX, 0.9 * C_BOX]))
+    pts = (
+        np.array([0.0, 0.5 * A_BOX, 0.9 * A_BOX]),
+        np.array([0.0, 0.3 * B_BOX, 0.7 * B_BOX]),
+        np.array([0.0, 0.5 * C_BOX, 0.9 * C_BOX]),
+    )
     ss = _steady(*pts)
     late = _trans(*pts, 100.0 * T_C)
     e_late = np.max(np.abs(late - ss) / np.abs(ss - T_INF))
     zs = np.array([0.0, 0.5 * C_BOX, 0.9 * C_BOX])
     slab = Q * (C_BOX**2 - zs**2) / (2 * K) + Q * C_BOX / H
     got = robin_box_steady_temperature(
-        np.zeros_like(zs), np.zeros_like(zs), zs, half_widths=(20 * C_BOX, 20 * C_BOX, C_BOX),
-        n_terms=(400, 400, 60), **KW)
+        np.zeros_like(zs),
+        np.zeros_like(zs),
+        zs,
+        half_widths=(20 * C_BOX, 20 * C_BOX, C_BOX),
+        n_terms=(400, 400, 60),
+        **KW,
+    )
     e = np.abs(got / slab - 1.0)
     _say(f"MAT21-0 (R5a) t = 100 t_C vs steady: {e_late:.3e} (predicted 0)")
-    _say(f"MAT21-0 (R5b) A = B = 20C, n = (400,400,60): |theta/theta_slab - 1| at z = 0/0.5C/0.9C "
-         + " / ".join(f"{v:.3e}" for v in e) + " (predicted 3.98e-7 / - / 3.94e-7)")
+    _say(
+        "MAT21-0 (R5b) A = B = 20C, n = (400,400,60): |theta/theta_slab - 1| at z = 0/0.5C/0.9C "
+        + " / ".join(f"{v:.3e}" for v in e)
+        + " (predicted 3.98e-7 / - / 3.94e-7)"
+    )
     assert e_late <= 1e-12
     assert e.max() <= 1e-6
 
@@ -287,42 +337,60 @@ def test_r6_cube_permutation():
     cube = (C_BOX, C_BOX, C_BOX)
     p = np.array([0.2, 0.5, 0.8]) * C_BOX
     perms = np.array(list(itertools.permutations(p)))
-    for label, fn in (("steady", lambda x, y, z: robin_box_steady_temperature(
-            x, y, z, half_widths=cube, **KW)),
-                      ("Fo 0.2", lambda x, y, z: robin_box_transient_temperature(
-            x, y, z, 0.2 * T_C, half_widths=cube, rho_c=RHO_C, **KW))):
+    for label, fn in (
+        ("steady", lambda x, y, z: robin_box_steady_temperature(x, y, z, half_widths=cube, **KW)),
+        (
+            "Fo 0.2",
+            lambda x, y, z: robin_box_transient_temperature(
+                x, y, z, 0.2 * T_C, half_widths=cube, rho_c=RHO_C, **KW
+            ),
+        ),
+    ):
         v = fn(perms[:, 0], perms[:, 1], perms[:, 2])
         c0 = float(fn(0.0, 0.0, 0.0))
         spread = (v.max() - v.min()) / c0
-        _say(f"MAT21-0 (R6) cube {label}: permutation spread/theta(0) {spread:.3e} (predicted <= 1e-14)")
+        _say(
+            f"MAT21-0 (R6) cube {label}: permutation spread/theta(0) {spread:.3e} (predicted <= 1e-14)"
+        )
         assert spread <= 1e-12
 
 
 # ---------------------------------------------------------------- printed records
 def test_printed_records():
     (g1x, _), (g1y, _), (g1z, _) = (_axis_data(L, 1) for L in HALF)
-    _say(f"MAT21-0 printed gamma_1 x/y/z {g1x[0]:.6f} / {g1y[0]:.6f} / {g1z[0]:.6f} "
-         f"(predicted 1.330018 / 1.232272 / 0.771359)")
+    _say(
+        f"MAT21-0 printed gamma_1 x/y/z {g1x[0]:.6f} / {g1y[0]:.6f} / {g1z[0]:.6f} "
+        f"(predicted 1.330018 / 1.232272 / 0.771359)"
+    )
     vals = [float(_steady(0.0, 0.0, 0.0, n_terms=(n, n, n)) - T_INF) for n in (40, 60, 120)]
     slab = Q * C_BOX**2 / (2 * K) + Q * C_BOX / H
-    _say(f"MAT21-0 printed theta_ss(0) n = 40/60/120: {vals[0]:.6f} / {vals[1]:.6f} / {vals[2]:.6f} K "
-         f"(predicted 12.003947 / 12.003956 / -; reduced 12.003958; slab {slab:.4f})")
+    _say(
+        f"MAT21-0 printed theta_ss(0) n = 40/60/120: {vals[0]:.6f} / {vals[1]:.6f} / {vals[2]:.6f} K "
+        f"(predicted 12.003947 / 12.003956 / -; reduced 12.003958; slab {slab:.4f})"
+    )
     corner = float(_steady(A_BOX, B_BOX, C_BOX) - T_INF)
     fx = float(_steady(A_BOX, 0.0, 0.0) - T_INF)
     fy = float(_steady(0.0, B_BOX, 0.0) - T_INF)
     fz = float(_steady(0.0, 0.0, C_BOX) - T_INF)
-    _say(f"MAT21-0 printed corner {corner:.4f} K (predicted 2.5526); face centres x/y/z "
-         f"{fx:.4f} / {fy:.4f} / {fz:.4f} K (predicted 6.1505 / 6.2367 / 8.7340)")
+    _say(
+        f"MAT21-0 printed corner {corner:.4f} K (predicted 2.5526); face centres x/y/z "
+        f"{fx:.4f} / {fy:.4f} / {fz:.4f} K (predicted 6.1505 / 6.2367 / 8.7340)"
+    )
     lam = (g1x[0] / A_BOX) ** 2 + (g1y[0] / B_BOX) ** 2 + (g1z[0] / C_BOX) ** 2
-    _say(f"MAT21-0 printed Lambda_111 {lam:.3f} m^-2 (predicted 345.005); tau_1 "
-         f"{1 / (ALPHA * lam):.0f} s (predicted 20193); t_C {T_C:.1f} s")
+    _say(
+        f"MAT21-0 printed Lambda_111 {lam:.3f} m^-2 (predicted 345.005); tau_1 "
+        f"{1 / (ALPHA * lam):.0f} s (predicted 20193); t_C {T_C:.1f} s"
+    )
     d = 1e-2 * C_BOX
     th = lambda x, y, z: float(_steady(x, y, z) - T_INF)  # noqa: E731
     c = th(0.0, 0.0, 0.0)
-    lap = (th(d, 0, 0) + th(-d, 0, 0) + th(0, d, 0) + th(0, -d, 0) + th(0, 0, d) + th(0, 0, -d)
-           - 6 * c) / d**2
-    _say(f"MAT21-0 printed centre FD Laplacian residual |k lap + q|/q (delta 1e-2 C) "
-         f"{abs(K * lap + Q) / Q:.3e} (predicted 1e-4 to 1e-3; never asserted)")
+    lap = (
+        th(d, 0, 0) + th(-d, 0, 0) + th(0, d, 0) + th(0, -d, 0) + th(0, 0, d) + th(0, 0, -d) - 6 * c
+    ) / d**2
+    _say(
+        f"MAT21-0 printed centre FD Laplacian residual |k lap + q|/q (delta 1e-2 C) "
+        f"{abs(K * lap + Q) / Q:.3e} (predicted 1e-4 to 1e-3; never asserted)"
+    )
 
 
 # ---------------------------------------------------------------- negative control
@@ -334,10 +402,14 @@ def test_negative_control_dirichlet_z():
     zres = max(res[4:])
     worst = _r4_error(roots=roots)
     ss_c = float(_steady(0.0, 0.0, 0.0, roots=roots) - T_INF)
-    _say(f"MAT21-0 control (Dirichlet z): (R1-ctl) z-face residual/(qC) {zres:.3e} "
-         f"(predicted 0.95-1.0); lateral faces {max(res[:4]):.3e} (printed, round-off)")
+    _say(
+        f"MAT21-0 control (Dirichlet z): (R1-ctl) z-face residual/(qC) {zres:.3e} "
+        f"(predicted 0.95-1.0); lateral faces {max(res[:4]):.3e} (printed, round-off)"
+    )
     _say(f"MAT21-0 control (R4-ctl) max miss/theta_ss(0) {worst:.3e} (predicted 0.235)")
-    _say(f"MAT21-0 control printed steady Dirichlet-z centre {ss_c:.4f} K vs qC^2/(2k) "
-         f"{Q * C_BOX**2 / (2 * K):.4f} K (predicted 3.3735)")
+    _say(
+        f"MAT21-0 control printed steady Dirichlet-z centre {ss_c:.4f} K vs qC^2/(2k) "
+        f"{Q * C_BOX**2 / (2 * K):.4f} K (predicted 3.3735)"
+    )
     assert zres > 1e-3
     assert worst > 1e-3

@@ -40,17 +40,22 @@ from fem_em_solver.study import (
     ThermalBallGeometry,
     ThermalBoxGeometry,
 )
-
 from tests.complex_mode import complex_only
+from tests.package.test_wf1_study_yaml import WF1, _fresh_dir, _mapping, _rc_all, _spec_diff
 from tests.package.test_wf16_study_load_result import _swap12, _synthetic_s, _write
 from tests.package.test_wf16_study_tune_capacitors import ITEM429_C_MODE_F, _study
-from tests.package.test_wf1_study_yaml import WF1, _fresh_dir, _mapping, _rc_all, _spec_diff
 from tests.validation.test_port_birdcage_four_port import LEG_D0_REPRODUCTION_BAND
 
 OUT_DIR = Path("/workspace/logs/wf1_s24")  # gitignored
 TUNE_FILE = WF1 / "f_small_hole_pec_tune.yaml"
-REFUSED = ("conductor", "thermal", "study.sweep_hz", "outputs.sar", "outputs.b1_plus",
-           "outputs.probes")
+REFUSED = (
+    "conductor",
+    "thermal",
+    "study.sweep_hz",
+    "outputs.sar",
+    "outputs.b1_plus",
+    "outputs.probes",
+)
 
 
 def _p0(*args):
@@ -87,8 +92,13 @@ def _no_mesh(mp, calls):
         calls["n"] += 1
         raise AssertionError("a load_result run reached a mesh build or a solve")
 
-    for cls in (SphereInBoxGeometry, FHumanBirdcageGeometry, FourPortBirdcageGeometry,
-                ThermalBallGeometry, ThermalBoxGeometry):
+    for cls in (
+        SphereInBoxGeometry,
+        FHumanBirdcageGeometry,
+        FourPortBirdcageGeometry,
+        ThermalBallGeometry,
+        ThermalBoxGeometry,
+    ):
         mp.setattr(cls, "build", boom)
     mp.setattr(gmsh, "initialize", boom)
     mp.setattr(Study, "solve", boom)
@@ -136,8 +146,10 @@ def test_wf1_s24_load_result_coding_and_refusals(capsys):
         # Parse: the Study is step 11's file's; the key rides in outputs, resolved.
         st, kind, outputs, cooling = study_yaml._load(yml)
         diff = _spec_diff(st, load_study(TUNE_FILE))
-        _p0(f"\n[WF-1 s24 W0] parse: kind {kind}, outputs {outputs!r}, spec diff vs "
-            f"{TUNE_FILE.name} {diff}")
+        _p0(
+            f"\n[WF-1 s24 W0] parse: kind {kind}, outputs {outputs!r}, spec diff vs "
+            f"{TUNE_FILE.name} {diff}"
+        )
         assert kind == "four_port_birdcage" and cooling is None and diff == []
         assert outputs == {"tune": {"k": 1}, "load_result": target.resolve()}
         # Unchanged files carry no key.
@@ -152,8 +164,10 @@ def test_wf1_s24_load_result_coding_and_refusals(capsys):
         with open(d / "out" / "summary.json") as fh:
             js = json.load(fh)
         bad_js = _tune_block_hex_equal(js["tune"], api)
-        _p0(f"[WF-1 s24 W0] synthetic (I=): C {run.summary['tune']['c_mode_farad'].hex()} vs api "
-            f"{_hex(api.c_mode_farad)}; differing {bad} (json {bad_js})")
+        _p0(
+            f"[WF-1 s24 W0] synthetic (I=): C {run.summary['tune']['c_mode_farad'].hex()} vs api "
+            f"{_hex(api.c_mode_farad)}; differing {bad} (json {bad_js})"
+        )
         assert bad == [] and bad_js == []
         assert isinstance(run.study.result, study_mod.LoadedPortResult)
         assert "cells" not in js and "touchstone" not in js
@@ -198,14 +212,18 @@ def test_wf1_s24_load_result_coding_and_refusals(capsys):
         variants["<no tune>"] = m
         fields = {}
         for label, mm in variants.items():
-            f = _write_yaml(d / f"refused_{label.replace('.', '_').strip('<>').replace(' ', '_')}.yaml", mm)
+            f = _write_yaml(
+                d / f"refused_{label.replace('.', '_').strip('<>').replace(' ', '_')}.yaml", mm
+            )
             with pytest.raises(StudyConfigError) as ei:
                 load_study(f)
             o = d / f"out_{f.stem}"
             rc_run = _rc_all(cli.main(["run", str(f), "--output-dir", str(o)]), comm)
             exists = comm.allreduce(int(o.exists()), op=MPI.MAX)
             fields[label] = ei.value.field
-            _p0(f"  (Ref) {label}: field {ei.value.field!r}, run rc {rc_run}, out exists {exists}; {ei.value}")
+            _p0(
+                f"  (Ref) {label}: field {ei.value.field!r}, run rc {rc_run}, out exists {exists}; {ei.value}"
+            )
             assert type(ei.value) is StudyConfigError
             assert "load_result" in str(ei.value)
             assert rc_run == (2, 2) and exists == 0
@@ -225,7 +243,9 @@ def test_wf1_s24_load_result_coding_and_refusals(capsys):
 
         # --backend palace refuses by name (before any mesh).
         o = d / "out_palace"
-        rc_p = _rc_all(cli.main(["run", str(yml), "--backend", "palace", "--output-dir", str(o)]), comm)
+        rc_p = _rc_all(
+            cli.main(["run", str(yml), "--backend", "palace", "--output-dir", str(o)]), comm
+        )
         with pytest.raises(StudyConfigError) as ei:
             study_yaml._run_study_file_palace(yml, output_dir=o, comm=comm)
         _p0(f"  (Ref) --backend palace: rc {rc_p}; field {ei.value.field!r}; {ei.value}")
@@ -249,8 +269,9 @@ def s24():
     out["t_solve"] = time.perf_counter() - t0
     out["path"] = Path(res0.write_touchstone(d / f"s6b_pec_d1_n{comm.size}.s4p"))
     out["S"] = np.asarray(res0.s_matrix, dtype=np.complex128).copy()
-    out["yaml"] = _write_yaml(d / f"s6b_pec_d1_n{comm.size}_load.yaml",
-                              _loaded_mapping(out["path"].name))
+    out["yaml"] = _write_yaml(
+        d / f"s6b_pec_d1_n{comm.size}_load.yaml", _loaded_mapping(out["path"].name)
+    )
     sw = _write(d / f"swap12_n{comm.size}.s4p", [(s0.frequency_hz, _swap12(out["S"]))])
     out["yaml_swap"] = _write_yaml(d / f"swap12_n{comm.size}_load.yaml", _loaded_mapping(sw.name))
     _p0(f"\n[WF-1 s24] solve {out['t_solve']:.1f} s, cells {res0.cells}; wrote {out['path']}")
@@ -284,8 +305,10 @@ def test_wf1_s24_yaml_load_result_equals_api(s24, capsys):
     n_calls = comm.allreduce(calls["n"], op=MPI.SUM)
 
     # (S0)
-    _p0(f"\n[WF-1 s24 S0] Study.solve / _solve_ports / build / gmsh.initialize patched to raise: "
-        f"{n_calls} calls; run_study_file {t_run:.3f} s, femem run {t_cli:.3f} s")
+    _p0(
+        f"\n[WF-1 s24 S0] Study.solve / _solve_ports / build / gmsh.initialize patched to raise: "
+        f"{n_calls} calls; run_study_file {t_run:.3f} s, femem run {t_cli:.3f} s"
+    )
     assert n_calls == 0
     assert isinstance(run.study.result, study_mod.LoadedPortResult)
     rt = comm.allreduce(float(np.max(np.abs(run.study.result.s_matrix - s24["S"]))), op=MPI.MAX)
@@ -296,16 +319,20 @@ def test_wf1_s24_yaml_load_result_equals_api(s24, capsys):
     with open(d_api / "summary.json") as fh:
         js_api = json.load(fh)
     bad_js = _tune_block_hex_equal(js_api["tune"], api)
-    _p0(f"[WF-1 s24 I=] summary C {run.summary['tune']['c_mode_farad'].hex()} vs api "
+    _p0(
+        f"[WF-1 s24 I=] summary C {run.summary['tune']['c_mode_farad'].hex()} vs api "
         f"{_hex(api.c_mode_farad)}; residual {run.summary['tune']['off_diagonal_residual'].hex()} vs "
-        f"{_hex(api.off_diagonal_residual)}; z_k {len(api.z_k)}; differing {bad} (json {bad_js})")
+        f"{_hex(api.off_diagonal_residual)}; z_k {len(api.z_k)}; differing {bad} (json {bad_js})"
+    )
     assert bad == [] and bad_js == []
 
     # (CM)
     c = run.summary["tune"]["c_mode_farad"]
     rel = abs(c / ITEM429_C_MODE_F - 1.0)
-    _p0(f"[WF-1 s24 CM] C_mode {c:.12e} F; '{c:.9e}' vs item 429 '{ITEM429_C_MODE_F:.9e}'; rel "
-        f"{rel:.3e} (LEG_D0_REPRODUCTION_BAND {LEG_D0_REPRODUCTION_BAND:.0e})")
+    _p0(
+        f"[WF-1 s24 CM] C_mode {c:.12e} F; '{c:.9e}' vs item 429 '{ITEM429_C_MODE_F:.9e}'; rel "
+        f"{rel:.3e} (LEG_D0_REPRODUCTION_BAND {LEG_D0_REPRODUCTION_BAND:.0e})"
+    )
     assert f"{c:.9e}" == f"{ITEM429_C_MODE_F:.9e}"
     assert rel <= LEG_D0_REPRODUCTION_BAND
 
@@ -314,8 +341,10 @@ def test_wf1_s24_yaml_load_result_equals_api(s24, capsys):
     with open(d_cli / "summary.json") as fh:
         js_cli = json.load(fh)
     diff = _summary_diff(js_api, js_cli)
-    _p0(f"[WF-1 s24 CLI=API] femem run rc {rcs}; summary keys {sorted(js_cli)}; "
-        f"fields differing (elapsed_s excepted) {diff}")
+    _p0(
+        f"[WF-1 s24 CLI=API] femem run rc {rcs}; summary keys {sorted(js_cli)}; "
+        f"fields differing (elapsed_s excepted) {diff}"
+    )
     assert rcs == (0, 0)
     assert diff == []
     assert js_cli["ranks"] == comm.size == 2
@@ -323,6 +352,8 @@ def test_wf1_s24_yaml_load_result_equals_api(s24, capsys):
     # Negative control (asserted): P1 <-> P2 swapped file.
     cw = run_sw.summary["tune"]["c_mode_farad"]
     miss = abs(cw / ITEM429_C_MODE_F - 1.0)
-    _p0(f"[WF-1 s24 Sw] swapped file C {cw:.12e} F, miss {miss:.5f} vs band "
-        f"{LEG_D0_REPRODUCTION_BAND:.0e} (U94 measured 0.197)")
+    _p0(
+        f"[WF-1 s24 Sw] swapped file C {cw:.12e} F, miss {miss:.5f} vs band "
+        f"{LEG_D0_REPRODUCTION_BAND:.0e} (U94 measured 0.197)"
+    )
     assert miss > LEG_D0_REPRODUCTION_BAND

@@ -33,7 +33,6 @@ from fem_em_solver.utils.analytical import (
     two_layer_slab_eigenvalues,
     two_layer_slab_transient_temperature,
 )
-
 from tests.validation.test_mat15_finite_cylinder_closed_form import H, Q
 from tests.validation.test_mat21_box_closed_form import T_C
 from tests.validation.test_mat21_box_dose_closed_form import AVG_BAR, DOSE_BAR, T_GRID, W_B2
@@ -41,9 +40,13 @@ from tests.validation.test_mat21_box_dt_duty125_dose_closed_form import _q_check
 from tests.validation.test_mat21_box_duty25_dose_closed_form import DUTY25, T_SW25
 from tests.validation.test_mat21_box_duty_closed_form import DT_BOX, DUTY, HALF_T, T_SW
 from tests.validation.test_mat21_pre_equilibration_duty_dose_closed_form import (
+    LABS,
+    PTS,
+    T_INF,
+)
+from tests.validation.test_mat21_pre_equilibration_duty_dose_closed_form import (
     _hists as _hists_free,
 )
-from tests.validation.test_mat21_pre_equilibration_duty_dose_closed_form import LABS, PTS, T_INF
 from tests.validation.test_mat21_wall_closed_form import RHO_C_W
 from tests.validation.test_mat21_wall_pre_equilibration_closed_form import H_EFF, _drift, _sourced
 from tests.validation.test_mat21_wall_transient_closed_form import N_SERIES, WALL
@@ -72,9 +75,19 @@ def _lam(rho_c_w=RHO_C_W):
 
 def _step(tau, rho_c_w=RHO_C_W):
     """The two-layer step rise θ (K) at the three heights ``Z``."""
-    return np.asarray(two_layer_slab_transient_temperature(
-        Z, tau, q=Q, h=H, t_inf=0.0, n_terms=N_SERIES, eigenvalues=_lam(rho_c_w),
-        **_wall(rho_c_w)), dtype=float)
+    return np.asarray(
+        two_layer_slab_transient_temperature(
+            Z,
+            tau,
+            q=Q,
+            h=H,
+            t_inf=0.0,
+            n_terms=N_SERIES,
+            eigenvalues=_lam(rho_c_w),
+            **_wall(rho_c_w),
+        ),
+        dtype=float,
+    )
 
 
 def _uniform_w(sw, rho_c_w=RHO_C_W, drop=()):
@@ -92,8 +105,18 @@ def _duty_series(duty):
     for n, t in enumerate(T_GRID):
         if n:
             out[n] = two_layer_slab_duty_cycle_temperature(
-                Z, t, q=Q, h=H, period=PERIOD_BOX, duty=duty, t_inf=0.0, n_terms=N_SERIES,
-                eigenvalues=_lam(), side="left", **WALL)
+                Z,
+                t,
+                q=Q,
+                h=H,
+                period=PERIOD_BOX,
+                duty=duty,
+                t_inf=0.0,
+                n_terms=N_SERIES,
+                eigenvalues=_lam(),
+                side="left",
+                **WALL,
+            )
     return out
 
 
@@ -107,8 +130,11 @@ def _hists():
         _CACHE["50"] = _uniform_w(T_SW)
         _CACHE["50drop"] = _uniform_w(T_SW, drop=(0,))
         _CACHE["25m"] = _uniform_w(T_SW25, rho_c_w=MASSLESS * RHO_C_W)
-        _CACHE["drift"] = {(j, wl): np.array([_drift(p, t + w) for t in T_GRID])
-                           for j, p in enumerate(PTS) for wl, w in WAITS}
+        _CACHE["drift"] = {
+            (j, wl): np.array([_drift(p, t + w) for t in T_GRID])
+            for j, p in enumerate(PTS)
+            for wl, w in WAITS
+        }
     return _CACHE
 
 
@@ -122,10 +148,12 @@ def test_preconditions():
         v = _step(tau)
         for j, p in enumerate(PTS):
             worst = max(worst, abs(v[j] - _sourced(p, tau)) / abs(_sourced(p, tau)))
-    _say(f"MAT21-35 h_eff {H_EFF:.6f}; {T_GRID.size} rows, DT {DT_BOX:.4f} s, P {PERIOD_BOX:.4f} s; "
-         f"{len(T_SW25)} + {len(T_SW)} switches on the grid; vectorised step vs item 788 _sourced "
-         f"max rel {worst:.3e} (asserted <= 1e-10, item 788 adds and removes T_INF); bars DOSE "
-         f"{DOSE_BAR:g}, AVG {AVG_BAR:g}")
+    _say(
+        f"MAT21-35 h_eff {H_EFF:.6f}; {T_GRID.size} rows, DT {DT_BOX:.4f} s, P {PERIOD_BOX:.4f} s; "
+        f"{len(T_SW25)} + {len(T_SW)} switches on the grid; vectorised step vs item 788 _sourced "
+        f"max rel {worst:.3e} (asserted <= 1e-10, item 788 adds and removes T_INF); bars DOSE "
+        f"{DOSE_BAR:g}, AVG {AVG_BAR:g}"
+    )
     assert worst <= 1e-10, worst
     assert np.all(_hists()["25"][0] == 0.0)
 
@@ -151,9 +179,11 @@ def test_q_d_win_d_sym_d_and_rc():
                 sym = abs(dose / d_free - 1.0)
                 worst["sym"] = max(worst["sym"], sym)
                 assert sym <= DOSE_BAR, (wl, sym)
-    _say(f"MAT21-35 (Q-d) worst rel {worst['q']:.3e} (bar {DOSE_BAR:g}, ASSERTED); (Win-d) worst "
-         f"rel {worst['w']:.3e} (bar {AVG_BAR:g}, ASSERTED); (Sym-d) P0 worst rel {worst['sym']:.3e} "
-         f"(ASSERTED); R swap least miss {worst['rc']:.4e} (asserted > {DOSE_BAR:g})")
+    _say(
+        f"MAT21-35 (Q-d) worst rel {worst['q']:.3e} (bar {DOSE_BAR:g}, ASSERTED); (Win-d) worst "
+        f"rel {worst['w']:.3e} (bar {AVG_BAR:g}, ASSERTED); (Sym-d) P0 worst rel {worst['sym']:.3e} "
+        f"(ASSERTED); R swap least miss {worst['rc']:.4e} (asserted > {DOSE_BAR:g})"
+    )
 
 
 def test_d50_cf_against_the_two_layer_duty_series():
@@ -169,13 +199,17 @@ def test_d50_cf_against_the_two_layer_duty_series():
         miss = abs(d_drop / d_cf - 1.0)
         r25 = abs(_dose(h["25"][:, j]) / _dose(cf25[:, j]) - 1.0)
         worst, least, w25 = max(worst, rel), min(least, miss), max(w25, r25)
-        _say(f"MAT21-35 (D50-cf) {lab}: walled sum dose {d_sum:.6e} s, two-layer duty series dose "
-             f"{d_cf:.6e} s, rel {rel:.3e} (bar {DOSE_BAR:g}, ASSERTED); drop=(0,) miss {miss:.4e} "
-             f"(asserted > {DOSE_BAR:g}); D = 0.25 sum vs series rel {r25:.3e} (printed)")
+        _say(
+            f"MAT21-35 (D50-cf) {lab}: walled sum dose {d_sum:.6e} s, two-layer duty series dose "
+            f"{d_cf:.6e} s, rel {rel:.3e} (bar {DOSE_BAR:g}, ASSERTED); drop=(0,) miss {miss:.4e} "
+            f"(asserted > {DOSE_BAR:g}); D = 0.25 sum vs series rel {r25:.3e} (printed)"
+        )
         assert rel <= DOSE_BAR, (lab, rel)
         assert miss > DOSE_BAR, (lab, miss)
-    _say(f"MAT21-35 (D50-cf) worst {worst:.3e}; drop=(0,) least miss {least:.4e}; D = 0.25 worst "
-         f"{w25:.3e} (printed, no band)")
+    _say(
+        f"MAT21-35 (D50-cf) worst {worst:.3e}; drop=(0,) least miss {least:.4e}; D = 0.25 worst "
+        f"{w25:.3e} (printed, no band)"
+    )
 
 
 def test_control_massless_wall_misses_walled_dose_at_z_c():
@@ -188,8 +222,10 @@ def test_control_massless_wall_misses_walled_dose_at_z_c():
         d_m = _dose(h["25m"][:, j] + dr)
         miss = abs(d_m / d_w - 1.0)
         least = min(least, miss)
-        _say(f"MAT21-35 (Mw) {LABS[j]} t_w {wl}: walled dose {d_w:.9e} s, massless-wall dose "
-             f"{d_m:.9e} s, rel miss {miss:.4e} (asserted > {DOSE_BAR:g})")
+        _say(
+            f"MAT21-35 (Mw) {LABS[j]} t_w {wl}: walled dose {d_w:.9e} s, massless-wall dose "
+            f"{d_m:.9e} s, rel miss {miss:.4e} (asserted > {DOSE_BAR:g})"
+        )
         assert miss > DOSE_BAR, (wl, miss)
     _say(f"MAT21-35 (Mw) least miss {least:.4e}")
 
@@ -198,8 +234,10 @@ def test_table_printed():
     """The record (no band); asserts only that it was formed."""
     h = _hists()
     _q, uni_free, drift_free = _hists_free()
-    _say("MAT21-35 TABLE point | D_ref (no drift) s | D(t_w=0) s | D(t_w=T_C) s | D(T_C)/D(0) | "
-         "D(0)/D_ref-1 | D(T_C)/D_ref-1 || wall-free (P59') D_ref | D(0)/D_ref-1 | D(T_C)/D_ref-1")
+    _say(
+        "MAT21-35 TABLE point | D_ref (no drift) s | D(t_w=0) s | D(t_w=T_C) s | D(T_C)/D(0) | "
+        "D(0)/D_ref-1 | D(T_C)/D_ref-1 || wall-free (P59') D_ref | D(0)/D_ref-1 | D(T_C)/D_ref-1"
+    )
     for j, lab in enumerate(LABS):
         ref = _dose(h["25"][:, j])
         d0 = _dose(h["25"][:, j] + h["drift"][(j, "0")])
@@ -207,7 +245,9 @@ def test_table_printed():
         fref = _dose(uni_free["0.25"][:, j])
         f0 = _dose(uni_free["0.25"][:, j] + drift_free[(j, "0")])
         fc = _dose(uni_free["0.25"][:, j] + drift_free[(j, "T_C")])
-        _say(f"MAT21-35 TABLE {lab} | {ref:.6e} | {d0:.6e} | {dc:.6e} | {dc / d0:.6f} | "
-             f"{d0 / ref - 1.0:+.6e} | {dc / ref - 1.0:+.6e} || {fref:.6e} | {f0 / fref - 1.0:+.6e} | "
-             f"{fc / fref - 1.0:+.6e}")
+        _say(
+            f"MAT21-35 TABLE {lab} | {ref:.6e} | {d0:.6e} | {dc:.6e} | {dc / d0:.6f} | "
+            f"{d0 / ref - 1.0:+.6e} | {dc / ref - 1.0:+.6e} || {fref:.6e} | {f0 / fref - 1.0:+.6e} | "
+            f"{fc / fref - 1.0:+.6e}"
+        )
         assert ref > 0.0

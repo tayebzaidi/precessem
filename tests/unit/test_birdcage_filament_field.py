@@ -47,9 +47,9 @@ from tests.mesh.test_birdcage_port_tags import (
 DRIVE_CURRENT = 1.0
 
 # Exact-identity bands, one per anchor above.
-INFINITE_LINE_RTOL = 1e-5      # truncation 2(R/L)^2 = 2e-6 at L = 1e3 R
+INFINITE_LINE_RTOL = 1e-5  # truncation 2(R/L)^2 = 2e-6 at L = 1e3 R
 RING_LIMIT_RTOL = 1e-10
-DIVERGENCE_BAND = 1e-8         # dimensionless: |div B| * R / |B|
+DIVERGENCE_BAND = 1e-8  # dimensionless: |div B| * R / |B|
 C4_RTOL = 1e-12
 FINITE_LENGTH_RTOL = 1e-6
 MODE2_ZERO_RTOL = 1e-12
@@ -111,9 +111,7 @@ def test_infinite_line_limit_reproduces_the_straight_wire_closed_form():
     wire_position = np.array([RING_RADIUS, 0.0])
 
     angles = np.linspace(0.0, 2.0 * np.pi, 8, endpoint=False)
-    offsets = np.concatenate(
-        [0.5 * RING_RADIUS * np.ones(8), 1.0 * RING_RADIUS * np.ones(8)]
-    )
+    offsets = np.concatenate([0.5 * RING_RADIUS * np.ones(8), 1.0 * RING_RADIUS * np.ones(8)])
     ang = np.concatenate([angles, angles])
     points = np.stack(
         [
@@ -160,9 +158,7 @@ def test_ring_limit_reproduces_the_circular_loop_on_axis_closed_form():
         ring_radius=RING_RADIUS,
         coil_length=COIL_LENGTH,
         leg_currents=np.zeros(n_arcs),
-        ring_currents=np.array(
-            [loop_current * np.ones(n_arcs), np.zeros(n_arcs)]
-        ),
+        ring_currents=np.array([loop_current * np.ones(n_arcs), np.zeros(n_arcs)]),
     )
     expected = AnalyticalSolutions.circular_loop_magnetic_field_on_axis(
         z, loop_current, RING_RADIUS, loop_center=z_centre
@@ -170,8 +166,10 @@ def test_ring_limit_reproduces_the_circular_loop_on_axis_closed_form():
 
     axial = np.max(np.abs(got[:, 2] - expected)) / np.max(np.abs(expected))
     transverse = np.max(np.abs(got[:, :2])) / np.max(np.abs(expected))
-    print(f"(ii) ring limit: axial rel dev {axial:.6e}, on-axis transverse "
-          f"{transverse:.6e} (band {RING_LIMIT_RTOL:.1e})")
+    print(
+        f"(ii) ring limit: axial rel dev {axial:.6e}, on-axis transverse "
+        f"{transverse:.6e} (band {RING_LIMIT_RTOL:.1e})"
+    )
     assert axial <= RING_LIMIT_RTOL
     assert transverse <= RING_LIMIT_RTOL
 
@@ -186,8 +184,10 @@ def test_mode_one_field_is_solenoidal():
     """
     points = _interior_points(20)
     scaled = _scaled_divergence(points, _mode_currents(1))
-    print(f"(iii) mode-1 div B: max {scaled.max():.6e} |B|/R over 20 interior "
-          f"points (band {DIVERGENCE_BAND:.1e})")
+    print(
+        f"(iii) mode-1 div B: max {scaled.max():.6e} |B|/R over 20 interior "
+        f"points (band {DIVERGENCE_BAND:.1e})"
+    )
     assert scaled.max() <= DIVERGENCE_BAND
 
 
@@ -207,10 +207,7 @@ def test_mode_one_pattern_is_c4_covariant():
     reference = _field(points, currents)
     rotated = _field(points @ rotation.T, np.roll(currents, 1))
 
-    relative = (
-        np.max(np.abs(rotated - reference @ rotation.T))
-        / np.max(np.abs(reference))
-    )
+    relative = np.max(np.abs(rotated - reference @ rotation.T)) / np.max(np.abs(reference))
     print(f"(iv) C4 covariance: rel dev {relative:.6e} (band {C4_RTOL:.1e})")
     assert relative <= C4_RTOL
 
@@ -266,8 +263,10 @@ def test_finite_length_factor_and_the_end_ring_contribution_at_the_centre():
 
     expected_factor = COIL_LENGTH / np.sqrt(COIL_LENGTH**2 + 4.0 * RING_RADIUS**2)
     factor = legs_only[1] / infinite[1]
-    print(f"(v) finite-length factor: {factor:.9f} against closed form "
-          f"{expected_factor:.9f} (band {FINITE_LENGTH_RTOL:.1e})")
+    print(
+        f"(v) finite-length factor: {factor:.9f} against closed form "
+        f"{expected_factor:.9f} (band {FINITE_LENGTH_RTOL:.1e})"
+    )
     assert abs(factor - expected_factor) <= FINITE_LENGTH_RTOL * expected_factor
     assert abs(factor - 0.7071) <= 1e-4  # the item's stated digits
     # the legs' centre field is purely -y for the mode-1 drive
@@ -279,10 +278,12 @@ def test_finite_length_factor_and_the_end_ring_contribution_at_the_centre():
     rho = np.sqrt(RING_RADIUS**2 + h**2)
     expected_ring_y = -MU_0 * DRIVE_CURRENT * RING_RADIUS * h / (np.pi * rho**3)
     ring_dev = abs(ring_only[1] - expected_ring_y) / abs(expected_ring_y)
-    print(f"(v) end-ring transverse at the centre: {ring_only[1]:.9e} T against "
-          f"closed form {expected_ring_y:.9e} T, rel dev {ring_dev:.6e}; "
-          f"ring/leg = {ring_only[1] / legs_only[1]:.9f} "
-          f"(R^2/rho^2 = {RING_RADIUS**2 / rho**2:.9f})")
+    print(
+        f"(v) end-ring transverse at the centre: {ring_only[1]:.9e} T against "
+        f"closed form {expected_ring_y:.9e} T, rel dev {ring_dev:.6e}; "
+        f"ring/leg = {ring_only[1] / legs_only[1]:.9f} "
+        f"(R^2/rho^2 = {RING_RADIUS**2 / rho**2:.9f})"
+    )
     assert ring_dev <= FINITE_LENGTH_RTOL
     assert abs(ring_only[0]) <= 1e-12 * abs(ring_only[1])
     assert abs(ring_only[2]) <= 1e-12 * abs(ring_only[1])
@@ -301,9 +302,11 @@ def test_mode_two_drive_has_no_transverse_field_at_the_centre():
     centre = _field(np.zeros((1, 3)), _mode_currents(2))[0]
 
     transverse = np.max(np.abs(centre[:2])) / mode1_centre
-    print(f"(vi) mode-2 transverse at the centre: {transverse:.6e} of the "
-          f"mode-1 centre field (band {MODE2_ZERO_RTOL:.1e}); "
-          f"mode-1 |B| = {mode1_centre:.6e} T")
+    print(
+        f"(vi) mode-2 transverse at the centre: {transverse:.6e} of the "
+        f"mode-1 centre field (band {MODE2_ZERO_RTOL:.1e}); "
+        f"mode-1 |B| = {mode1_centre:.6e} T"
+    )
     assert transverse <= MODE2_ZERO_RTOL
 
 
@@ -347,9 +350,7 @@ def test_open_circuit_negative_control():
         ],
         axis=1,
     )
-    tangent = np.stack(
-        [-np.sin(psi), np.cos(psi), np.zeros(n_contour)], axis=1
-    ) * contour_radius
+    tangent = np.stack([-np.sin(psi), np.cos(psi), np.zeros(n_contour)], axis=1) * contour_radius
     d_psi = 2.0 * np.pi / n_contour
 
     def circulation(ring_currents):
@@ -360,21 +361,23 @@ def test_open_circuit_negative_control():
     closed_dev = abs(circulation(None) / enclosed - 1.0)
     open_dev = abs(circulation(np.zeros(LEG_COUNT)) / enclosed - 1.0)
 
-    ceiling = 1.0 - COIL_LENGTH / np.sqrt(
-        COIL_LENGTH**2 + 4.0 * contour_radius**2
-    )
+    ceiling = 1.0 - COIL_LENGTH / np.sqrt(COIL_LENGTH**2 + 4.0 * contour_radius**2)
     closed_div = _scaled_divergence(_interior_points(20), currents).max()
     open_div = _scaled_divergence(
         _interior_points(20), currents, ring_currents=np.zeros(LEG_COUNT)
     ).max()
 
-    print(f"control: Ampere deviation closed {closed_dev:.6e}, open "
-          f"{open_dev:.6e} ({open_dev / max(closed_dev, 1e-300):.3e}x), "
-          f"computed ceiling {ceiling:.6e}")
-    print(f"control (printed, NOT asserted): div B closed {closed_div:.6e}, "
-          f"open {open_div:.6e} |B|/R -- both machine level, which is the "
-          f"point: div B is blind to circuit closure")
+    print(
+        f"control: Ampere deviation closed {closed_dev:.6e}, open "
+        f"{open_dev:.6e} ({open_dev / max(closed_dev, 1e-300):.3e}x), "
+        f"computed ceiling {ceiling:.6e}"
+    )
+    print(
+        f"control (printed, NOT asserted): div B closed {closed_div:.6e}, "
+        f"open {open_div:.6e} |B|/R -- both machine level, which is the "
+        f"point: div B is blind to circuit closure"
+    )
 
-    assert closed_dev <= 1e-9          # Ampere's law, exactly, on the closed coil
+    assert closed_dev <= 1e-9  # Ampere's law, exactly, on the closed coil
     assert open_dev >= 100.0 * closed_dev
     assert 0.5 * ceiling <= open_dev <= 1.5 * ceiling

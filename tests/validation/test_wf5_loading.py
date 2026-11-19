@@ -48,7 +48,10 @@ CONTROL_INV_Q_MAX = 1.0e-6
 PREDICTED_E_SEC_U = 1.0e-3
 PREDICTED_DF0_ABS = 1.0e-3
 PREDICTED_PI_PH_REL = 2.0e-2
-STEP1_PI_PH = {"cu": 6.489692e-04, "pec": 6.493197e-04}  # 20261001T141511Z_WF-5-step1-W2.log:971,978
+STEP1_PI_PH = {
+    "cu": 6.489692e-04,
+    "pec": 6.493197e-04,
+}  # 20261001T141511Z_WF-5-step1-W2.log:971,978
 # Frozen from W1 (``20261001T184835Z_WF-5-step2-W1.log:962``): Cu e_sec,U
 # 5.7992e-4 ⇒ ceil_1sf(3 × 5.7992e-4) = 2e-3 (predicted 3e-3).  Never loosened.
 B_Q_U_FROZEN = 2.0e-3
@@ -83,13 +86,16 @@ def fixture_build(ans7):
     msh.topology.create_connectivity(tdim - 1, tdim)
     msh.topology.create_entity_permutations()
     outer_tags, _census = th14._outer_box_tags(msh, facet_tags, comm)
-    tags_k, port_defs_k, specs_k = th14._build_ports(msh, cell_tags, comm,
-                                                     width_correction_kappa=kappa)
+    tags_k, port_defs_k, specs_k = th14._build_ports(
+        msh, cell_tags, comm, width_correction_kappa=kappa
+    )
     geo_k = (msh, cell_tags, facet_tags, outer_tags, tags_k, port_defs_k)
     if comm.rank == 0:
-        print(f"[wf5-2] hole mesh {int(msh.topology.index_map(tdim).size_global)} cells; "
-              f"kappa (tracked) = {kappa:.9e}; SALINE_SIGMA (loaded) = {th14.SALINE_SIGMA}",
-              flush=True)
+        print(
+            f"[wf5-2] hole mesh {int(msh.topology.index_map(tdim).size_global)} cells; "
+            f"kappa (tracked) = {kappa:.9e}; SALINE_SIGMA (loaded) = {th14.SALINE_SIGMA}",
+            flush=True,
+        )
     return {"th14": th14, "geo": geo_k, "specs": specs_k, "tracked": tracked, "comm": comm}
 
 
@@ -124,7 +130,9 @@ def _rows_on_grid(f_mhz, y):
     y = np.asarray(y)
     b, g = y.imag, y.real
     up = [k for k in range(len(b) - 1) if b[k] < 0 <= b[k + 1]]
-    assert len(up) == 1, f"expected exactly one - -> + crossing of Im Y on {list(f_mhz)} MHz, got {up}"
+    assert (
+        len(up) == 1
+    ), f"expected exactly one - -> + crossing of Im Y on {list(f_mhz)} MHz, got {up}"
     k = up[0]
     f_hz = f_mhz * 1e6
     t = -b[k] / (b[k + 1] - b[k])
@@ -139,17 +147,23 @@ def _rows_on_grid(f_mhz, y):
     pb = np.polyfit(x, b[idx], 3)
     pg = np.polyfit(x, g[idx], 3)
     xk1 = f_mhz[k + 1] - fc
-    roots = [r.real for r in np.roots(pb)
-             if abs(r.imag) < 1e-12 and -1e-12 <= r.real <= xk1 + 1e-12]
+    roots = [
+        r.real for r in np.roots(pb) if abs(r.imag) < 1e-12 and -1e-12 <= r.real <= xk1 + 1e-12
+    ]
     assert len(roots) == 1, f"cubic B: expected one root in the bracket, got {roots}"
     x0 = roots[0]
     f0_c = (fc + x0) * 1e6
     dbdf_c = np.polyval(np.polyder(pb), x0) / 1.0e6
     inv_q_cub = 2.0 * np.polyval(pg, x0) / (f0_c * dbdf_c)
-    return {"f0_hz": float(f0), "g0": float(g0), "dbdf": float(dbdf),
-            "inv_q_sec": float(inv_q_sec), "f0_cubic_hz": float(f0_c),
-            "inv_q_cubic": float(inv_q_cub),
-            "bracket_mhz": (float(f_mhz[k]), float(f_mhz[k + 1]))}
+    return {
+        "f0_hz": float(f0),
+        "g0": float(g0),
+        "dbdf": float(dbdf),
+        "inv_q_sec": float(inv_q_sec),
+        "f0_cubic_hz": float(f0_c),
+        "inv_q_cubic": float(inv_q_cub),
+        "bracket_mhz": (float(f_mhz[k]), float(f_mhz[k + 1])),
+    }
 
 
 def _e_sec(rows):
@@ -166,20 +180,29 @@ def test_unloaded_band_candidate(fixture_build, sweep_unloaded):
     for col in COLUMNS:
         r = rows[col]
         if rank0:
-            print(f"[wf5-2] unloaded {col}: bracket {r['bracket_mhz']} MHz; secant f0 "
-                  f"{r['f0_hz']:.6f} Hz, G0 {r['g0']:.9e} S, dB/df {r['dbdf']:.9e} S/Hz, "
-                  f"1/Q_sec {r['inv_q_sec']:.9e}; cubic f0 {r['f0_cubic_hz']:.6f} Hz, "
-                  f"1/Q_cub {r['inv_q_cubic']:.9e}", flush=True)
+            print(
+                f"[wf5-2] unloaded {col}: bracket {r['bracket_mhz']} MHz; secant f0 "
+                f"{r['f0_hz']:.6f} Hz, G0 {r['g0']:.9e} S, dB/df {r['dbdf']:.9e} S/Hz, "
+                f"1/Q_sec {r['inv_q_sec']:.9e}; cubic f0 {r['f0_cubic_hz']:.6f} Hz, "
+                f"1/Q_cub {r['inv_q_cubic']:.9e}",
+                flush=True,
+            )
     e_sec_u = _e_sec(rows["cu"])
     b_q_u = ceil_1sf(max(3.0 * e_sec_u, BAND_FLOOR))
     ctrl = rows["pec"]["inv_q_sec"]
     if rank0:
-        print(f"[wf5-2] cu unloaded Q_sec {1.0 / rows['cu']['inv_q_sec']:.6f}, Q_cub "
-              f"{1.0 / rows['cu']['inv_q_cubic']:.6f}; e_sec,U {e_sec_u:.4e} (PREDICTED "
-              f"{PREDICTED_E_SEC_U:.0e}); B_Q,U candidate = ceil_1sf(max(3*{e_sec_u:.4e}, "
-              f"{BAND_FLOOR:.0e})) = {b_q_u:.1e}; frozen B_Q_U_FROZEN = {B_Q_U_FROZEN}", flush=True)
-        print(f"[wf5-2] control: PEC sigma=0 1/Q_slope,U = {ctrl:+.6e} (ASSERTED |.| <= "
-              f"{CONTROL_INV_Q_MAX:.0e}; PREDICTED <= 1e-9; dead knob reads 6.50e-4)", flush=True)
+        print(
+            f"[wf5-2] cu unloaded Q_sec {1.0 / rows['cu']['inv_q_sec']:.6f}, Q_cub "
+            f"{1.0 / rows['cu']['inv_q_cubic']:.6f}; e_sec,U {e_sec_u:.4e} (PREDICTED "
+            f"{PREDICTED_E_SEC_U:.0e}); B_Q,U candidate = ceil_1sf(max(3*{e_sec_u:.4e}, "
+            f"{BAND_FLOOR:.0e})) = {b_q_u:.1e}; frozen B_Q_U_FROZEN = {B_Q_U_FROZEN}",
+            flush=True,
+        )
+        print(
+            f"[wf5-2] control: PEC sigma=0 1/Q_slope,U = {ctrl:+.6e} (ASSERTED |.| <= "
+            f"{CONTROL_INV_Q_MAX:.0e}; PREDICTED <= 1e-9; dead knob reads 6.50e-4)",
+            flush=True,
+        )
     assert abs(ctrl) <= CONTROL_INV_Q_MAX, f"PEC sigma=0 control: 1/Q_slope,U = {ctrl}"
     if B_Q_U_FROZEN is not None:
         assert b_q_u <= B_Q_U_FROZEN, f"B_Q,U candidate {b_q_u} exceeds the frozen {B_Q_U_FROZEN}"
@@ -219,8 +242,9 @@ def test_loading_partition(ans7, fixture_build, sweep_loaded, sweep_unloaded):
         # (A2)
         id_u = abs(pu - (bu["p_src"] - bu["p_sheet1"])) / bu["p_src"]
         # (A3), Cu only (PEC unloaded Q is infinite)
-        miss_u = (abs(1.0 / inv_qf_u - 1.0 / ru["inv_q_sec"]) * ru["inv_q_sec"]
-                  if col == "cu" else None)
+        miss_u = (
+            abs(1.0 / inv_qf_u - 1.0 / ru["inv_q_sec"]) * ru["inv_q_sec"] if col == "cu" else None
+        )
         # (A4): |1/Q_s − 1/Q_f| = (|Q_f − Q_s|/Q_s)/Q_f ≤ B·(1/Q_f) per state.
         pi = inv_qf_l - inv_qf_u
         d_slope = rl["inv_q_sec"] - ru["inv_q_sec"]
@@ -229,39 +253,64 @@ def test_loading_partition(ans7, fixture_build, sweep_loaded, sweep_unloaded):
         pi_ph = bl["p_phantom"] / (bl["omega"] * wl)
         df0 = (ru["f0_hz"] - rl["f0_hz"]) / rl["f0_hz"]
         if rank0:
-            print(f"[wf5-2] {col}: (A0) loaded secant f0 {rl['f0_hz']:.6f} Hz (record "
-                  f"{tracked[col]['f0_hz']:.6f}, rel {df0_rec:.3e}); Q_slope,L {q_l_slope:.10f} "
-                  f"(record {tracked[col]['q_loaded']:.10f}, rel {dq_rec:.3e}; ASSERTED <= "
-                  f"{RECORD_RTOL:.0e})", flush=True)
-            print(f"[wf5-2] {col}: unloaded f0 {ru['f0_hz']:.6f} Hz; Delta f0/f0 = {df0:+.6e} "
-                  f"(PREDICTED |.| <~ {PREDICTED_DF0_ABS:.0e}, sign not predicted)", flush=True)
-            print(f"[wf5-2] {col}: (A1) P_phantom,U = {bu['p_phantom']!r} W (ASSERTED == 0.0); "
-                  f"P_surf,U {bu['p_surf']:.9e} W; p_src,U {bu['p_src']:.9e} W, p_sheet(P1),U "
-                  f"{bu['p_sheet1']:.9e} W; (A2) |P_loss,U - (p_src - p_sheet)|/p_src = {id_u:.3e} "
-                  f"(ASSERTED <= {DISCRETE_IDENTITY_RTOL:.0e})", flush=True)
-            print(f"[wf5-2] {col}: W_tot L {wl:.9e} J, U {wu:.9e} J; shares L: W_m "
-                  f"{bl['w_m'] / wl:.6f}, W_e {bl['w_e'] / wl:.6f}, W_sheets "
-                  f"{sum(bl['w_sheet'].values()) / wl:.6f}, W_C1 {bl['w_c1'] / wl:.6f}, W_surf "
-                  f"{bl['w_surf'] / wl:.4e}; shares U: W_m {bu['w_m'] / wu:.6f}, W_e "
-                  f"{bu['w_e'] / wu:.6f}, W_sheets {sum(bu['w_sheet'].values()) / wu:.6f}, W_C1 "
-                  f"{bu['w_c1'] / wu:.6f}, W_surf {bu['w_surf'] / wu:.4e}", flush=True)
-            print(f"[wf5-2] {col}: surface 1/Q share L {bl['p_surf'] / (bl['omega'] * wl):.6e}, "
-                  f"U {bu['p_surf'] / (bu['omega'] * wu):.6e}; 1/Q_field L {inv_qf_l:.9e}, U "
-                  f"{inv_qf_u:.9e}; 1/Q_slope L {rl['inv_q_sec']:.9e}, U {ru['inv_q_sec']:.9e}",
-                  flush=True)
+            print(
+                f"[wf5-2] {col}: (A0) loaded secant f0 {rl['f0_hz']:.6f} Hz (record "
+                f"{tracked[col]['f0_hz']:.6f}, rel {df0_rec:.3e}); Q_slope,L {q_l_slope:.10f} "
+                f"(record {tracked[col]['q_loaded']:.10f}, rel {dq_rec:.3e}; ASSERTED <= "
+                f"{RECORD_RTOL:.0e})",
+                flush=True,
+            )
+            print(
+                f"[wf5-2] {col}: unloaded f0 {ru['f0_hz']:.6f} Hz; Delta f0/f0 = {df0:+.6e} "
+                f"(PREDICTED |.| <~ {PREDICTED_DF0_ABS:.0e}, sign not predicted)",
+                flush=True,
+            )
+            print(
+                f"[wf5-2] {col}: (A1) P_phantom,U = {bu['p_phantom']!r} W (ASSERTED == 0.0); "
+                f"P_surf,U {bu['p_surf']:.9e} W; p_src,U {bu['p_src']:.9e} W, p_sheet(P1),U "
+                f"{bu['p_sheet1']:.9e} W; (A2) |P_loss,U - (p_src - p_sheet)|/p_src = {id_u:.3e} "
+                f"(ASSERTED <= {DISCRETE_IDENTITY_RTOL:.0e})",
+                flush=True,
+            )
+            print(
+                f"[wf5-2] {col}: W_tot L {wl:.9e} J, U {wu:.9e} J; shares L: W_m "
+                f"{bl['w_m'] / wl:.6f}, W_e {bl['w_e'] / wl:.6f}, W_sheets "
+                f"{sum(bl['w_sheet'].values()) / wl:.6f}, W_C1 {bl['w_c1'] / wl:.6f}, W_surf "
+                f"{bl['w_surf'] / wl:.4e}; shares U: W_m {bu['w_m'] / wu:.6f}, W_e "
+                f"{bu['w_e'] / wu:.6f}, W_sheets {sum(bu['w_sheet'].values()) / wu:.6f}, W_C1 "
+                f"{bu['w_c1'] / wu:.6f}, W_surf {bu['w_surf'] / wu:.4e}",
+                flush=True,
+            )
+            print(
+                f"[wf5-2] {col}: surface 1/Q share L {bl['p_surf'] / (bl['omega'] * wl):.6e}, "
+                f"U {bu['p_surf'] / (bu['omega'] * wu):.6e}; 1/Q_field L {inv_qf_l:.9e}, U "
+                f"{inv_qf_u:.9e}; 1/Q_slope L {rl['inv_q_sec']:.9e}, U {ru['inv_q_sec']:.9e}",
+                flush=True,
+            )
             if col == "cu":
-                print(f"[wf5-2] cu: Q_U slope {1.0 / ru['inv_q_sec']:.6f}, field "
-                      f"{1.0 / inv_qf_u:.6f} (PREDICTED ~ 2.3e3); (A3) |Q_field,U - Q_slope,U|"
-                      f"/Q_slope,U = {miss_u:.4e} (ASSERTED <= B_Q,U {B_Q_U_FROZEN:.0e})", flush=True)
-            print(f"[wf5-2] {col}: (A4) Delta(1/Q)_slope {d_slope:.9e}, Pi {pi:.9e}; "
-                  f"|Delta - Pi|/Pi = {miss_d:.4e} (ASSERTED <= B_Delta {b_delta:.4e})", flush=True)
-            print(f"[wf5-2] {col}: Pi_ph = P_ph,L/(w0 W_L) {pi_ph:.6e} (step 1 "
-                  f"{STEP1_PI_PH[col]:.6e}); |Delta - Pi_ph|/Pi_ph = "
-                  f"{abs(d_slope - pi_ph) / pi_ph:.4e} (PREDICTED <= {PREDICTED_PI_PH_REL:.0e})",
-                  flush=True)
+                print(
+                    f"[wf5-2] cu: Q_U slope {1.0 / ru['inv_q_sec']:.6f}, field "
+                    f"{1.0 / inv_qf_u:.6f} (PREDICTED ~ 2.3e3); (A3) |Q_field,U - Q_slope,U|"
+                    f"/Q_slope,U = {miss_u:.4e} (ASSERTED <= B_Q,U {B_Q_U_FROZEN:.0e})",
+                    flush=True,
+                )
+            print(
+                f"[wf5-2] {col}: (A4) Delta(1/Q)_slope {d_slope:.9e}, Pi {pi:.9e}; "
+                f"|Delta - Pi|/Pi = {miss_d:.4e} (ASSERTED <= B_Delta {b_delta:.4e})",
+                flush=True,
+            )
+            print(
+                f"[wf5-2] {col}: Pi_ph = P_ph,L/(w0 W_L) {pi_ph:.6e} (step 1 "
+                f"{STEP1_PI_PH[col]:.6e}); |Delta - Pi_ph|/Pi_ph = "
+                f"{abs(d_slope - pi_ph) / pi_ph:.4e} (PREDICTED <= {PREDICTED_PI_PH_REL:.0e})",
+                flush=True,
+            )
             if col == "pec":
-                print(f"[wf5-2] control: PEC sigma=0 1/Q_slope,U = {ru['inv_q_sec']:+.6e} "
-                      f"(ASSERTED |.| <= {CONTROL_INV_Q_MAX:.0e})", flush=True)
+                print(
+                    f"[wf5-2] control: PEC sigma=0 1/Q_slope,U = {ru['inv_q_sec']:+.6e} "
+                    f"(ASSERTED |.| <= {CONTROL_INV_Q_MAX:.0e})",
+                    flush=True,
+                )
         if not (df0_rec <= RECORD_RTOL and dq_rec <= RECORD_RTOL):
             fails.append((col, "A0", df0_rec, dq_rec))
         if not bu["p_phantom"] == 0.0:

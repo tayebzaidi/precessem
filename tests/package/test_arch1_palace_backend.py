@@ -57,8 +57,8 @@ def test_u16_case_equals_ops61(tmp_path):
     from mpi4py import MPI
 
     from fem_em_solver.backends.palace import PalaceRunRequired
-    from fem_em_solver.study import FourPortBirdcageGeometry, LumpedPortDrive, Study
     from fem_em_solver.materials import GelledSalinePhantomMaterial
+    from fem_em_solver.study import FourPortBirdcageGeometry, LumpedPortDrive, Study
 
     ref_cfg = OPS61 / "f05x_o2.json"
     ref_msh = OPS61 / "ops61_ans4_x1_strip.msh"
@@ -76,8 +76,7 @@ def test_u16_case_equals_ops61(tmp_path):
     t0 = time.perf_counter()
     with pytest.raises(PalaceRunRequired) as exc:
         study.solve(MPI.COMM_WORLD, backend="palace", case_dir=case)
-    print(f"[U16a T1] write stage {time.perf_counter() - t0:.1f} s; {exc.value}",
-          flush=True)
+    print(f"[U16a T1] write stage {time.perf_counter() - t0:.1f} s; {exc.value}", flush=True)
     assert exc.value.argv == ["palace", "-np", "8", "case.json"]
     assert not (case / "postpro").exists()
     ours = _flat(json.loads((case / "case.json").read_text()))
@@ -87,8 +86,11 @@ def test_u16_case_equals_ops61(tmp_path):
     assert diff == {"Problem.Output", "Model.Mesh"}
     a = (case / "mesh.msh").read_bytes()
     b = ref_msh.read_bytes()
-    print(f"[U16a W-msh] sha256 ours {hashlib.sha256(a).hexdigest()} "
-          f"ops61 {hashlib.sha256(b).hexdigest()}", flush=True)
+    print(
+        f"[U16a W-msh] sha256 ours {hashlib.sha256(a).hexdigest()} "
+        f"ops61 {hashlib.sha256(b).hexdigest()}",
+        flush=True,
+    )
     ntet = sum(1 for ln in a.decode().splitlines() if ln.split()[1:2] == ["4"])
     print(f"[U16a W-msh] tets {ntet}", flush=True)
     assert ntet == 117206
@@ -173,11 +175,14 @@ def _p_rec(s):
     spreads = {k: _class_spread(v) for k, v in cls.items()}
     pooled = _class_spread(np.concatenate([cls["adjacent"], cls["opposite"]]))
     worst = max(spreads.values())
-    print(f"[U16a P-rec] reciprocity {recip:.3e} (band {RECIPROCITY_BAND}); "
-          f"sigma_max {sig:.12f} (item 194: 0.999819887373 on f05x_o2); "
-          f"col powers {np.round(colp, 9)}; spreads "
-          f"{ {k: f'{v * 100:.4f}%' for k, v in spreads.items()} }; pooled "
-          f"{pooled * 100:.4f}% = {pooled / worst:.1f}x worst", flush=True)
+    print(
+        f"[U16a P-rec] reciprocity {recip:.3e} (band {RECIPROCITY_BAND}); "
+        f"sigma_max {sig:.12f} (item 194: 0.999819887373 on f05x_o2); "
+        f"col powers {np.round(colp, 9)}; spreads "
+        f"{ {k: f'{v * 100:.4f}%' for k, v in spreads.items()} }; pooled "
+        f"{pooled * 100:.4f}% = {pooled / worst:.1f}x worst",
+        flush=True,
+    )
     assert recip <= RECIPROCITY_BAND
     assert sig <= 1.0 + PASSIVITY_SIGMA_TOLERANCE
     assert np.all(colp <= 1.0 + PASSIVITY_SIGMA_TOLERANCE)
@@ -198,8 +203,12 @@ def test_u16_cli_write_stage_and_controls(tmp_path):
 
     from fem_em_solver import cli
 
-    for p in (YAML, OPS61 / "f05x.json", OPS61 / "ops61_ans4_x1.msh",
-              OPS61 / "ops61_ans4_x1_strip.msh"):
+    for p in (
+        YAML,
+        OPS61 / "f05x.json",
+        OPS61 / "ops61_ans4_x1.msh",
+        OPS61 / "ops61_ans4_x1_strip.msh",
+    ):
         if not p.exists():
             pytest.skip(f"BLOCKED: {p} absent")
     out = tmp_path / "cli"
@@ -242,8 +251,10 @@ def test_u16_read_path_on_recorded_output(tmp_path):
     assert isinstance(res, PalaceStudyResult)
     s_ref, _ = read_port_s(src / "port-S.csv")
     assert np.array_equal(res.s_matrix, s_ref)
-    print(f"[U16a T2] read back; palace_total_s {res.palace_total_s}; cells "
-          f"{res.cells}", flush=True)
+    print(
+        f"[U16a T2] read back; palace_total_s {res.palace_total_s}; cells " f"{res.cells}",
+        flush=True,
+    )
     assert res.cells == 117206 and res.order == 2
     _p_rec(res.s_matrix)
     # (c3) a 10 MHz output is refused by the frequency check
@@ -315,9 +326,13 @@ def test_u16_palace_read_back():
     from tests.validation.test_ans4_exact_strip_records import ANS4_EXACT_STRIP_S_P2_X1
     from tests.validation.test_port_birdcage_four_port import LEG_D0_REPRODUCTION_BAND
 
-    for p in (D2_CASE / "case.json", D2_CASE / "postpro" / "port-S.csv",
-              OPS61 / "postpro_f05x_o2" / "port-S.csv", OPS61 / "postpro_f05x" / "port-S.csv",
-              OPS61 / "postpro_f05x_o2_f10" / "port-S.csv"):
+    for p in (
+        D2_CASE / "case.json",
+        D2_CASE / "postpro" / "port-S.csv",
+        OPS61 / "postpro_f05x_o2" / "port-S.csv",
+        OPS61 / "postpro_f05x" / "port-S.csv",
+        OPS61 / "postpro_f05x_o2_f10" / "port-S.csv",
+    ):
         if not p.exists():
             pytest.skip(f"BLOCKED: {p} absent (comparand absent)")
     res = _d2_study().solve(MPI.COMM_WORLD, backend="palace", case_dir=D2_CASE)
@@ -326,22 +341,36 @@ def test_u16_palace_read_back():
     s = np.asarray(res.s_matrix)
     s_ops61, _ = read_port_s(OPS61 / "postpro_f05x_o2" / "port-S.csv")
     e2 = _fro_rel(s, s_ops61)
-    print(f"[U16c T4 E2] Study read vs postpro_f05x_o2: Frobenius-rel {e2:.3e} (band "
-          f"{LEG_D0_REPRODUCTION_BAND:.0e}); entry max {np.max(np.abs(s - s_ops61)):.3e}; "
-          f"palace_total_s {res.palace_total_s}", flush=True)
+    print(
+        f"[U16c T4 E2] Study read vs postpro_f05x_o2: Frobenius-rel {e2:.3e} (band "
+        f"{LEG_D0_REPRODUCTION_BAND:.0e}); entry max {np.max(np.abs(s - s_ops61)):.3e}; "
+        f"palace_total_s {res.palace_total_s}",
+        flush=True,
+    )
     _p_rec(s)
     m = _class_means(s)
     ref = _class_means(ANS4_EXACT_STRIP_S_P2_X1["64"])
     tie2 = {k: float(abs(m[k] - ref[k]) / abs(ref[k])) for k in ref}
-    print(f"[U16c T4 Tie2] " + ", ".join(f"{k} {v:.3e}" for k, v in tie2.items())
-          + f" (band {TIE2_BAND:.1e}; recorded {TIE2_RECORDED})", flush=True)
+    print(
+        "[U16c T4 Tie2] "
+        + ", ".join(f"{k} {v:.3e}" for k, v in tie2.items())
+        + f" (band {TIE2_BAND:.1e}; recorded {TIE2_RECORDED})",
+        flush=True,
+    )
     o1 = _class_means(read_port_s(OPS61 / "postpro_f05x" / "port-S.csv")[0])
     c_order = {k: float(abs(m[k] - o1[k]) / abs(o1[k])) for k in o1}
-    print(f"[U16c T4 c-order] " + ", ".join(f"{k} {v * 100:.4f}%" for k, v in c_order.items())
-          + f" (> {C_ORDER_FLOOR:.0e} each)", flush=True)
+    print(
+        "[U16c T4 c-order] "
+        + ", ".join(f"{k} {v * 100:.4f}%" for k, v in c_order.items())
+        + f" (> {C_ORDER_FLOOR:.0e} each)",
+        flush=True,
+    )
     s10 = read_port_s(OPS61 / "postpro_f05x_o2_f10" / "port-S.csv")[0]
-    print(f"[U16c T4 c-freq] Frobenius-rel vs 10 MHz o2 {_fro_rel(s, s10):.3e} (predicted "
-          f"O(1e-2 .. 1e-1); printed only)", flush=True)
+    print(
+        f"[U16c T4 c-freq] Frobenius-rel vs 10 MHz o2 {_fro_rel(s, s10):.3e} (predicted "
+        f"O(1e-2 .. 1e-1); printed only)",
+        flush=True,
+    )
     assert e2 <= LEG_D0_REPRODUCTION_BAND, e2
     for k, v in tie2.items():
         assert v <= TIE2_BAND, (k, v)
@@ -370,9 +399,12 @@ def test_u16_cli_palace_read_back():
     got = np.array([[complex(*z) for z in row] for row in summary["s_matrix"]])
     s_ref, _ = read_port_s(ref_csv)
     e1 = _fro_rel(got, s_ref)
-    print(f"[U16c T5 E1] CLI summary vs postpro_f05x: Frobenius-rel {e1:.3e} (band "
-          f"{LEG_D0_REPRODUCTION_BAND:.0e}); entry max {np.max(np.abs(got - s_ref)):.3e}; "
-          f"palace block {summary.get('palace')}", flush=True)
+    print(
+        f"[U16c T5 E1] CLI summary vs postpro_f05x: Frobenius-rel {e1:.3e} (band "
+        f"{LEG_D0_REPRODUCTION_BAND:.0e}); entry max {np.max(np.abs(got - s_ref)):.3e}; "
+        f"palace block {summary.get('palace')}",
+        flush=True,
+    )
     assert e1 <= LEG_D0_REPRODUCTION_BAND, e1
     _p_rec(got)
 
@@ -387,8 +419,10 @@ def test_u16_reader_equals_probe(run, freq_ghz):
         pytest.skip(f"BLOCKED: {path} absent")
     probe_s, _header = _load_probe()._read_port_s(path)
     s, f = read_port_s(path)
-    print(f"[U16a Rd] {run}: shape {s.shape}, f = {f} GHz, "
-          f"max|S| {np.max(np.abs(s)):.12f}", flush=True)
+    print(
+        f"[U16a Rd] {run}: shape {s.shape}, f = {f} GHz, " f"max|S| {np.max(np.abs(s)):.12f}",
+        flush=True,
+    )
     assert s.shape == (4, 4)
     assert np.array_equal(s, probe_s)
     assert f == freq_ghz

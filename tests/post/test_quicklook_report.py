@@ -176,7 +176,12 @@ def test_wf3_quicklook_report_prints_the_plane_wave_closed_form():
     root_dir = tempfile.mkdtemp(prefix="wf3_quicklook_") if comm.rank == 0 else None
     output_dir = Path(comm.bcast(root_dir, root=0))
     metrics = compute_phantom_eb_metrics_and_export(
-        fields.e_complex, b_fn, tags, phantom_tag=1, output_dir=output_dir, basename="wf3",
+        fields.e_complex,
+        b_fn,
+        tags,
+        phantom_tag=1,
+        output_dir=output_dir,
+        basename="wf3",
         comm=comm,
     )
     report = build_phantom_quicklook_report(metrics)
@@ -193,7 +198,11 @@ def test_wf3_quicklook_report_prints_the_plane_wave_closed_form():
 
     # Closed form on the owned cell centroids (numpy; extremes MIN/MAX-allreduced).
     owned = np.arange(cmap.size_local, dtype=np.int32)
-    cx = np.mean(msh.geometry.x[msh.geometry.dofmap[owned], 0], axis=1) if owned.size else np.array([])
+    cx = (
+        np.mean(msh.geometry.x[msh.geometry.dofmap[owned], 0], axis=1)
+        if owned.size
+        else np.array([])
+    )
     x_min = comm.allreduce(float(cx.min()) if cx.size else np.inf, op=MPI.MIN)
     x_max = comm.allreduce(float(cx.max()) if cx.size else -np.inf, op=MPI.MAX)
     count = comm.allreduce(int(cx.size), op=MPI.SUM)
@@ -201,10 +210,14 @@ def test_wf3_quicklook_report_prints_the_plane_wave_closed_form():
     b_over_e = abs(k) / omega
     ratio_cf = omega / abs(k)
     closed = {
-        "e_min": np.exp(-alpha * x_max), "e_max": np.exp(-alpha * x_min), "e_mean": mean_e,
-        "b_min": b_over_e * np.exp(-alpha * x_max), "b_max": b_over_e * np.exp(-alpha * x_min),
+        "e_min": np.exp(-alpha * x_max),
+        "e_max": np.exp(-alpha * x_min),
+        "e_mean": mean_e,
+        "b_min": b_over_e * np.exp(-alpha * x_max),
+        "b_max": b_over_e * np.exp(-alpha * x_min),
         "b_mean": b_over_e * mean_e,
-        "e_to_b_mean_ratio": ratio_cf, "e_to_b_max_ratio": ratio_cf,
+        "e_to_b_mean_ratio": ratio_cf,
+        "e_to_b_max_ratio": ratio_cf,
     }
     miss = {key: parsed[key] / closed[key] - 1.0 for key in closed}
     ratio_blind = 1.0 / np.sqrt(MU_0 * EPSILON_0) / np.sqrt(EPSILON_R)
@@ -215,16 +228,24 @@ def test_wf3_quicklook_report_prints_the_plane_wave_closed_form():
     r1 = {key: abs(parsed[key] / summary[key] - 1.0) for key in closed}
 
     if comm.rank == 0:
-        print(f"\nWF-3 n={n}: cells={ncells} centroids={count} alpha={alpha:.6f} "
-              f"x_c in [{x_min:.6f}, {x_max:.6f}] omega/|k|={ratio_cf:.6e}")
+        print(
+            f"\nWF-3 n={n}: cells={ncells} centroids={count} alpha={alpha:.6f} "
+            f"x_c in [{x_min:.6f}, {x_max:.6f}] omega/|k|={ratio_cf:.6e}"
+        )
         for key in closed:
-            print(f"  {key}: markdown {parsed[key]:.6e}  closed form {closed[key]:.6e}  "
-                  f"miss {miss[key] * 100:+.4f} %  |md/json - 1| {r1[key]:.2e}")
-        print(f"  status line (unmodified): {parsed['status']}; warning_flags={report['warning_flags']}; "
-              f"consistency_warnings={report['consistency_warnings']}")
-        print(f"  controls: n1 mean ratio vs c/sqrt(78) {n1 * 100:+.4f} % (prior -21.1963 %); "
-              f"n2 |E| min vs max's closed form {n2 * 100:+.2f} % (predicted ~72 %); "
-              f"n3 |B| mean vs |E|'s {n3 * 100:+.4f} % (predicted ~100 %)")
+            print(
+                f"  {key}: markdown {parsed[key]:.6e}  closed form {closed[key]:.6e}  "
+                f"miss {miss[key] * 100:+.4f} %  |md/json - 1| {r1[key]:.2e}"
+            )
+        print(
+            f"  status line (unmodified): {parsed['status']}; warning_flags={report['warning_flags']}; "
+            f"consistency_warnings={report['consistency_warnings']}"
+        )
+        print(
+            f"  controls: n1 mean ratio vs c/sqrt(78) {n1 * 100:+.4f} % (prior -21.1963 %); "
+            f"n2 |E| min vs max's closed form {n2 * 100:+.2f} % (predicted ~72 %); "
+            f"n3 |B| mean vs |E|'s {n3 * 100:+.4f} % (predicted ~100 %)"
+        )
 
     # (A) every parsed number on the closed form, in POST-2's band.
     for key, value in miss.items():
@@ -243,8 +264,11 @@ def test_wf3_quicklook_report_prints_the_plane_wave_closed_form():
     assert summary["e_to_b_max_ratio"] == metrics["consistency"]["e_to_b_max_ratio"]
     sampling = loaded["sampling"]
     assert (
-        sampling["requested_cells"], sampling["sampling_cells"], sampling["valid_sample_cells"],
-        sampling["boundary_adjacent_cells_dropped"], sampling["invalid_samples_dropped_e"],
+        sampling["requested_cells"],
+        sampling["sampling_cells"],
+        sampling["valid_sample_cells"],
+        sampling["boundary_adjacent_cells_dropped"],
+        sampling["invalid_samples_dropped_e"],
         sampling["invalid_samples_dropped_b"],
     ) == (6 * n**3, 6 * n**3, 6 * n**3, 0, 0, 0)
     assert count == 6 * n**3

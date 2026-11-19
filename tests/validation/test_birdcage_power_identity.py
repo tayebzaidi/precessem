@@ -151,9 +151,8 @@ from dataclasses import replace
 import numpy as np
 import pytest
 import ufl
-from mpi4py import MPI
-
 from dolfinx import default_scalar_type, fem
+from mpi4py import MPI
 
 from fem_em_solver.ports.lumped import (
     _sheet_measure,
@@ -161,7 +160,6 @@ from fem_em_solver.ports.lumped import (
     lumped_port_linear_term,
 )
 from fem_em_solver.utils.constants import MU_0
-
 from tests.complex_mode import complex_only
 from tests.mesh.test_birdcage_port_sheets import SHEET_IFACE
 from tests.validation.test_birdcage_b1_plus_map import (
@@ -215,10 +213,10 @@ def _c_over_terminal_minus_one(exact, terminal):
     """Pooled ``C/sheets_terminal − 1`` and the per-sheet ratios, for one drive."""
     pooled = exact["sheet_ceiling_total"] / terminal["sheet_total"] - 1.0
     per_sheet = {
-        pid: exact["sheet_ceiling"][pid] / terminal["sheets"][pid] - 1.0
-        for pid in PORT_IDS
+        pid: exact["sheet_ceiling"][pid] / terminal["sheets"][pid] - 1.0 for pid in PORT_IDS
     }
     return pooled, per_sheet
+
 
 # **Anchor (i)**, pre-registered by the 2026-09-06 18:00 review (§9 item 4).
 # ``a(E,E) = L(E)`` is exact for the discrete solution, so this is a statement
@@ -284,9 +282,7 @@ def _sheet_total_field_dissipation_w(sweep, sheet, e_complex) -> float:
     e_r = e_complex("+")
     e_t = e_r - ufl.dot(e_r, n) * n
     e_src = complex(sheet.source_voltage_v) / float(sheet.gap_height_m)
-    src_vec = ufl.as_vector(
-        [default_scalar_type(e_src * c) for c in sheet.unit_drive()]
-    )
+    src_vec = ufl.as_vector([default_scalar_type(e_src * c) for c in sheet.unit_drive()])
     total = e_t + src_vec
     integral = _reduce(mesh.comm, ufl.inner(total, total) * ds_sheet)
     y_s = 1.0 / sheet.sheet_resistivity
@@ -321,17 +317,12 @@ def _exact_shares(sweep, solved):
     omega = float(solved["omega"])
     e = solved["fields"].e_complex
     specs = sweep["specs"]
-    sheets = {
-        spec.port_id: spec.sheet(driven=(spec.port_id == solved["driven"]))
-        for spec in specs
-    }
+    sheets = {spec.port_id: spec.sheet(driven=(spec.port_id == solved["driven"])) for spec in specs}
     field_diss = {
-        pid: _sheet_field_dissipation_w(sweep, sheet, e, omega)
-        for pid, sheet in sheets.items()
+        pid: _sheet_field_dissipation_w(sweep, sheet, e, omega) for pid, sheet in sheets.items()
     }
     ceilings = {
-        pid: _sheet_total_field_dissipation_w(sweep, sheet, e)
-        for pid, sheet in sheets.items()
+        pid: _sheet_total_field_dissipation_w(sweep, sheet, e) for pid, sheet in sheets.items()
     }
     phantom, conductor = _loss_power_w(sweep, e, solved["fields"].sigma_field)
     return {
@@ -350,10 +341,7 @@ def _exact_shares(sweep, solved):
 def _terminal_sheet_powers(solved, port_impedance_ohm):
     """``½|I_i|² Re Z_p`` per sheet — the terminal form, for an arbitrary Z_p."""
     re_z = float(np.real(port_impedance_ohm))
-    return {
-        pid: 0.5 * abs(complex(i)) ** 2 * re_z
-        for pid, i in solved["currents"].items()
-    }
+    return {pid: 0.5 * abs(complex(i)) ** 2 * re_z for pid, i in solved["currents"].items()}
 
 
 @pytest.fixture(scope="module")
@@ -385,13 +373,9 @@ def power_identity_case():
     sweep_x2["specs"] = specs_x2
     control = _solve_driven(sweep_x2, "P1")
     exact_x2 = _exact_shares(sweep_x2, control)
-    terminal_x2 = _terminal_sheet_powers(
-        control, 2.0 * complex(TERMINATED_PORT_IMPEDANCE_OHM)
-    )
+    terminal_x2 = _terminal_sheet_powers(control, 2.0 * complex(TERMINATED_PORT_IMPEDANCE_OHM))
 
-    azimuths = {
-        f"P{s['tag'] - SHEET_IFACE}": float(s["azimuth_deg"]) for s in sweep["sheets"]
-    }
+    azimuths = {f"P{s['tag'] - SHEET_IFACE}": float(s["azimuth_deg"]) for s in sweep["sheets"]}
 
     if comm.rank == 0:
         print(
@@ -408,9 +392,7 @@ def power_identity_case():
         )
         for pid in PORT_IDS:
             ex, tm = exact[pid], terminal[pid]
-            resid = abs(ex["p_src"] - ex["p_vol"] - ex["sheet_field_total"]) / abs(
-                ex["p_src"]
-            )
+            resid = abs(ex["p_src"] - ex["p_vol"] - ex["sheet_field_total"]) / abs(ex["p_src"])
             print(
                 f"        {pid}  P_src,exact {ex['p_src']:.9e} W   "
                 f"P_vol {ex['p_vol']:.9e} W   "
@@ -438,9 +420,7 @@ def power_identity_case():
         )
         for pid in PORT_IDS:
             ex = exact[pid]
-            sheets_terminal = _terminal_sheet_powers(
-                solves[pid], TERMINATED_PORT_IMPEDANCE_OHM
-            )
+            sheets_terminal = _terminal_sheet_powers(solves[pid], TERMINATED_PORT_IMPEDANCE_OHM)
             for other in PORT_IDS:
                 tag = "driven" if other == pid else "undriven"
                 print(
@@ -498,9 +478,7 @@ def power_identity_case():
             )
         base, ctl = exact["P1"], exact_x2
         factor = ctl["sheet_field_total"] / base["sheet_field_total"]
-        resid = abs(ctl["p_src"] - ctl["p_vol"] - ctl["sheet_field_total"]) / abs(
-            ctl["p_src"]
-        )
+        resid = abs(ctl["p_src"] - ctl["p_vol"] - ctl["sheet_field_total"]) / abs(ctl["p_src"])
         print(
             "    negative control: P1 with every sheet's Z_p doubled "
             f"({2.0 * float(np.real(TERMINATED_PORT_IMPEDANCE_OHM)):.6e} Ohm)",
@@ -554,9 +532,7 @@ def test_the_discrete_power_identity_closes_on_every_drive(power_identity_case):
     for pid in PORT_IDS:
         ex = exact[pid]
         assert ex["p_src"] > 0.0, f"{pid}: P_src,exact must be positive, got {ex['p_src']:.6e}"
-        residual = abs(ex["p_src"] - ex["p_vol"] - ex["sheet_field_total"]) / abs(
-            ex["p_src"]
-        )
+        residual = abs(ex["p_src"] - ex["p_vol"] - ex["sheet_field_total"]) / abs(ex["p_src"])
         assert residual <= DISCRETE_IDENTITY_RTOL, (
             f"{pid}: the discrete power identity misses by {residual:.6e} against "
             f"{DISCRETE_IDENTITY_RTOL:g} — P_src,exact {ex['p_src']:.9e} W, "
@@ -607,9 +583,7 @@ def test_the_terminal_minus_exact_split_reproduces_the_accounting_gap(
         ex, tm = exact[pid], terminal[pid]
         gap = tm["supplied"] - tm["sheet_total"] - ex["p_vol"]
         assert gap != 0.0, f"{pid}: the accounting gap is exactly zero — nothing to attribute"
-        attributed = (ex["sheet_field_total"] - tm["sheet_total"]) + (
-            tm["supplied"] - ex["p_src"]
-        )
+        attributed = (ex["sheet_field_total"] - tm["sheet_total"]) + (tm["supplied"] - ex["p_src"])
         residual = abs(attributed - gap) / abs(gap)
         assert residual <= ATTRIBUTION_RTOL, (
             f"{pid}: the split misses the gap by {residual:.6e} against "
@@ -656,8 +630,7 @@ def test_the_cauchy_schwarz_deficit_of_the_terminal_form_reproduces_the_gap(
         gap = tm["supplied"] - tm["sheet_total"] - ex["p_vol"]
         deficit = ex["sheet_ceiling_total"] - tm["sheet_total"]
         assert deficit > 0.0, (
-            f"{pid}: the Cauchy-Schwarz deficit must be positive, got "
-            f"{deficit:.9e} W"
+            f"{pid}: the Cauchy-Schwarz deficit must be positive, got " f"{deficit:.9e} W"
         )
         residual = abs(deficit - gap) / abs(gap)
         assert residual <= ATTRIBUTION_RTOL, (
@@ -682,18 +655,14 @@ def test_doubling_the_sheet_resistivity_keeps_the_identity_and_moves_the_sheet_t
     base = power_identity_case["exact"]["P1"]
     ctl = power_identity_case["exact_x2"]
 
-    residual = abs(ctl["p_src"] - ctl["p_vol"] - ctl["sheet_field_total"]) / abs(
-        ctl["p_src"]
-    )
+    residual = abs(ctl["p_src"] - ctl["p_vol"] - ctl["sheet_field_total"]) / abs(ctl["p_src"])
     assert residual <= DISCRETE_IDENTITY_RTOL, (
         f"control (Z_p x2): the discrete power identity misses by "
         f"{residual:.6e} against {DISCRETE_IDENTITY_RTOL:g} — an identity that "
         "is a theorem must not depend on Z_p"
     )
 
-    move = abs(ctl["sheet_field_total"] - base["sheet_field_total"]) / base[
-        "sheet_field_total"
-    ]
+    move = abs(ctl["sheet_field_total"] - base["sheet_field_total"]) / base["sheet_field_total"]
     assert move >= CONTROL_SHEET_MIN_REL_MOVE, (
         f"control (Z_p x2): P_sheet,exact moved only {move:.6e} relative "
         f"(< {CONTROL_SHEET_MIN_REL_MOVE:g}) — the resistivity knob is not "
@@ -725,12 +694,8 @@ def test_step2d_c_over_terminal_is_printed(power_identity_case):
     s11_10 = complex(STEP1E_S11_S21_10MHZ[0])
     s11_move = abs(s11 - s11_10)
 
-    readings = {
-        pid: _c_over_terminal_minus_one(exact[pid], terminal[pid]) for pid in PORT_IDS
-    }
-    refs = {
-        pid: gap / (c - gap) for pid, (c, gap) in PORT16_10MHZ_C_AND_GAP_W.items()
-    }
+    readings = {pid: _c_over_terminal_minus_one(exact[pid], terminal[pid]) for pid in PORT_IDS}
+    refs = {pid: gap / (c - gap) for pid, (c, gap) in PORT16_10MHZ_C_AND_GAP_W.items()}
 
     if MPI.COMM_WORLD.rank == 0:
         print(
@@ -751,9 +716,7 @@ def test_step2d_c_over_terminal_is_printed(power_identity_case):
         )
         for pid in PORT_IDS:
             pooled, per_sheet = readings[pid]
-            sheets_line = "   ".join(
-                f"{other} {per_sheet[other]:.6e}" for other in PORT_IDS
-            )
+            sheets_line = "   ".join(f"{other} {per_sheet[other]:.6e}" for other in PORT_IDS)
             print(
                 f"[PORT-14 step2d] drive {pid}: C/terminal - 1 = {pooled:.9e}   "
                 f"/kappa_pooled {pooled / STEP2B_KAPPA_64MHZ_POOLED:.6f}   "
@@ -766,9 +729,7 @@ def test_step2d_c_over_terminal_is_printed(power_identity_case):
             print(f"                 per sheet: {sheets_line}", flush=True)
 
     if on:
-        assert freq == STEP2D_FREQUENCY_HZ, (
-            f"{STEP2D_ENV} on but the sweep ran at {freq:.6e} Hz"
-        )
+        assert freq == STEP2D_FREQUENCY_HZ, f"{STEP2D_ENV} on but the sweep ran at {freq:.6e} Hz"
         assert s11_move > STEP2D_S11_MIN_MOVE, (
             f"{STEP2D_ENV} on but S11 {s11:.9e} sits {s11_move:.3e} from the "
             f"10 MHz record — the frequency did not reach the builder"

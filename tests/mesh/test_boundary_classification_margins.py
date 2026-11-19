@@ -139,8 +139,12 @@ def _build_two_torus() -> tuple[Residual, float]:
     box_half_z = z_offset + minor_radius + padding
 
     domain = gmsh.model.occ.addBox(
-        -box_half_x, -box_half_y, -box_half_z,
-        2.0 * box_half_x, 2.0 * box_half_y, 2.0 * box_half_z,
+        -box_half_x,
+        -box_half_y,
+        -box_half_z,
+        2.0 * box_half_x,
+        2.0 * box_half_y,
+        2.0 * box_half_z,
     )
     gmsh.model.occ.fragment([(3, domain)], [(3, wire_1), (3, wire_2)])
     gmsh.model.occ.synchronize()
@@ -218,8 +222,11 @@ def _build_cylindrical() -> tuple[Residual, float]:
 #: ``pin``             known-issues reference when the margin is not met
 EXPECTATIONS = {
     "two_torus_domain": dict(
-        n_surfaces=8, n_accepted=6,
-        wall_ratio=1.000000e-01, interior_ratio=2.000010e04, pin=None,
+        n_surfaces=8,
+        n_accepted=6,
+        wall_ratio=1.000000e-01,
+        interior_ratio=2.000010e04,
+        pin=None,
     ),
     # Both re-measured 2026-08-06 after `GEO-12` widened their tol to 1e-6
     # (`20260806T183203Z_GEO-12-probe.log`): the walls are now accepted — 10 of
@@ -228,12 +235,18 @@ EXPECTATIONS = {
     # interface at 1.000001e-01) and 6 of 7 on the sphere box — and both land on
     # the same 1e-7/1e-6 = 0.1 wall ratio `GEO-10` designed.
     "loop_over_half_space_domain": dict(
-        n_surfaces=12, n_accepted=10,
-        wall_ratio=1.000000e-01, interior_ratio=9.000010e04, pin=None,
+        n_surfaces=12,
+        n_accepted=10,
+        wall_ratio=1.000000e-01,
+        interior_ratio=9.000010e04,
+        pin=None,
     ),
     "sphere_in_box_domain": dict(
-        n_surfaces=7, n_accepted=6,
-        wall_ratio=1.000000e-01, interior_ratio=1.500001e05, pin=None,
+        n_surfaces=7,
+        n_accepted=6,
+        wall_ratio=1.000000e-01,
+        interior_ratio=1.500001e05,
+        pin=None,
     ),
     # Re-measured 2026-08-07 after `GEO-13` replaced ``tol = resolution``
     # (0.02) with ``0.01 * (outer_radius - inner_radius)`` = 9.000e-04
@@ -244,8 +257,11 @@ EXPECTATIONS = {
     # every one lands on these same two ratios (7e-4 tol on the r_out = 0.08
     # geometry: wall 1.428571e-04, interior 9.999986e+01).
     "cylindrical_domain": dict(
-        n_surfaces=6, n_accepted=3,
-        wall_ratio=1.111111e-04, interior_ratio=9.999989e01, pin=None,
+        n_surfaces=6,
+        n_accepted=3,
+        wall_ratio=1.111111e-04,
+        interior_ratio=9.999989e01,
+        pin=None,
     ),
 }
 
@@ -319,9 +335,9 @@ def test_wall_classification_margin(name, build):
     )
 
     def _pinned(actual, recorded, label):
-        assert (actual is None) == (recorded is None), (
-            f"{name}: {label} ratio is {actual}, recorded {recorded}"
-        )
+        assert (actual is None) == (
+            recorded is None
+        ), f"{name}: {label} ratio is {actual}, recorded {recorded}"
         if recorded is not None:
             # 1e-6 relative: the ratios are exact CAD arithmetic, so this only
             # absorbs the printed precision of the recorded value.

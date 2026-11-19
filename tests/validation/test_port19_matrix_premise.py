@@ -58,7 +58,6 @@ from fem_em_solver.ports.lumped import (
     lumped_port_bilinear_term,
     lumped_port_linear_term,
 )
-
 from tests.complex_mode import complex_only
 from tests.validation.test_port_birdcage_four_port import build_four_port_sweep
 
@@ -184,9 +183,7 @@ def premise():
     # Control (ii): a copy of P2's frozen spec at 51 Ohm; every other field kept.
     spec_by_id = {spec.port_id: spec for spec in specs}
     original = spec_by_id[PERTURBED_PORT_ID]
-    perturbed = dataclasses.replace(
-        original, port_impedance_ohm=PERTURBED_PORT_IMPEDANCE_OHM
-    )
+    perturbed = dataclasses.replace(original, port_impedance_ohm=PERTURBED_PORT_IMPEDANCE_OHM)
     specs_pert = [perturbed if s.port_id == PERTURBED_PORT_ID else s for s in specs]
     ids_p, sheets_p = _sheets_for_drive(port_defs, specs_pert, ref)
     a_pert = _assemble_port_matrix(msh, facet_tags, v_space, ids_p, sheets_p, omega)
@@ -274,44 +271,34 @@ def test_every_drive_has_a_1s_nonzero_pattern(premise):
 
 @complex_only
 def test_the_port_matrix_is_bit_identical_across_drives(premise):
-    bad = {
-        pid: c["diff"]
-        for pid, c in premise["comparisons"].items()
-        if not (c["diff"][0] == 0.0)
-    }
-    assert not bad, (
-        "premise false — the port matrix depends on the drive: "
-        + "; ".join(
-            f"{pid}: ||A_k - A_1||_inf = {d[0]!r}, {d[1]} CSR values differ, "
-            f"max |dA| {d[2]!r}"
-            for pid, d in bad.items()
-        )
+    bad = {pid: c["diff"] for pid, c in premise["comparisons"].items() if not (c["diff"][0] == 0.0)}
+    assert not bad, "premise false — the port matrix depends on the drive: " + "; ".join(
+        f"{pid}: ||A_k - A_1||_inf = {d[0]!r}, {d[1]} CSR values differ, " f"max |dA| {d[2]!r}"
+        for pid, d in bad.items()
     )
 
 
 @complex_only
 def test_sheet_resistivity_does_not_depend_on_the_drive(premise):
     for pid, (rd, ru) in premise["resistivity"].items():
-        assert np.asarray(rd).tobytes() == np.asarray(ru).tobytes(), (
-            f"{pid}: rho_s(driven) = {rd!r} != rho_s(undriven) = {ru!r}"
-        )
+        assert (
+            np.asarray(rd).tobytes() == np.asarray(ru).tobytes()
+        ), f"{pid}: rho_s(driven) = {rd!r} != rho_s(undriven) = {ru!r}"
 
 
 @complex_only
 def test_control_i_the_right_hand_sides_differ(premise):
-    assert premise["b_diff_norm"] > 0.0, (
-        "||b_1 - b_2||_2 == 0 — the probe is blind to the drive"
-    )
+    assert premise["b_diff_norm"] > 0.0, "||b_1 - b_2||_2 == 0 — the probe is blind to the drive"
 
 
 @complex_only
 def test_control_ii_the_matrix_sees_a_termination_change(premise):
     original, perturbed = premise["original"], premise["perturbed"]
     assert perturbed.port_impedance_ohm == PERTURBED_PORT_IMPEDANCE_OHM
-    assert original.port_impedance_ohm != PERTURBED_PORT_IMPEDANCE_OHM, (
-        "dataclasses.replace mutated the fixture's spec"
-    )
+    assert (
+        original.port_impedance_ohm != PERTURBED_PORT_IMPEDANCE_OHM
+    ), "dataclasses.replace mutated the fixture's spec"
     assert premise["pert_pattern"], "the 51 Ohm copy changed the nonzero pattern"
-    assert premise["pert_diff"][0] > 0.0, (
-        "A with P2 at 51 Ohm equals A_1 — the probe is blind to rho_s"
-    )
+    assert (
+        premise["pert_diff"][0] > 0.0
+    ), "A with P2 at 51 Ohm equals A_1 — the probe is blind to rho_s"

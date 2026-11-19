@@ -50,7 +50,6 @@ from fem_em_solver.io.mesh import (
     MeshGenerator,
     _free_exponent_fit,
 )
-
 from tests.complex_mode import complex_only
 from tests.validation.test_geo4_box_padding_heuristic import P0_BAND_PP, P0_RUNG_PP
 from tests.validation.test_port_reaction_impedance import (
@@ -109,9 +108,7 @@ def _build_mesh(padding: float):
     )
     t_mesh = time.perf_counter() - t0
     ncells = msh.topology.index_map(msh.topology.dim).size_global
-    _root_print(
-        f"[TH-5 2b] mesh padding {padding} m: {ncells} cells, {t_mesh:.1f} s"
-    )
+    _root_print(f"[TH-5 2b] mesh padding {padding} m: {ncells} cells, {t_mesh:.1f} s")
     return msh, cell_tags, ncells
 
 

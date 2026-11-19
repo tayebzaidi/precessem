@@ -27,10 +27,9 @@ import basix
 import numpy as np
 import pytest
 import ufl
+from dolfinx import fem
 from mpi4py import MPI
 from petsc4py import PETSc
-
-from dolfinx import fem
 
 from fem_em_solver.core import (
     HomogeneousMaterial,
@@ -43,7 +42,6 @@ from fem_em_solver.utils.analytical import (
     oblate_spheroid_depolarisation,
     pec_oblate_spheroid_field,
 )
-
 from tests.complex_mode import complex_only
 from tests.validation.test_imp1_pec_sphere_lossy_host import (
     CAVITY_TAG,
@@ -98,9 +96,7 @@ def _mesh(aspect):
 
 
 def _ncells(msh):
-    return int(
-        msh.comm.allreduce(msh.topology.index_map(msh.topology.dim).size_local, op=MPI.SUM)
-    )
+    return int(msh.comm.allreduce(msh.topology.index_map(msh.topology.dim).size_local, op=MPI.SUM))
 
 
 def _rss_gib(comm):
@@ -113,7 +109,11 @@ def _field(aspect, drive, interior="zero"):
 
     def field(points):
         return pec_oblate_spheroid_field(
-            points, semi_major=SEMI_MAJOR, semi_minor=c, drive=drive, e0=E0,
+            points,
+            semi_major=SEMI_MAJOR,
+            semi_minor=c,
+            drive=drive,
+            e0=E0,
             interior=interior,
         )
 
@@ -276,12 +276,17 @@ def _solve_oblate(aspect, drive, *, return_fields=False):
     rho_r = _rho_r(aspect)
     v = msh.geometry.x[msh.geometry.dofmap[cells]] if cells.size else np.zeros((0, 4, 3))
     if cells.size:
-        edges = [np.linalg.norm(v[:, i] - v[:, j], axis=1) for i in range(4) for j in range(i + 1, 4)]
+        edges = [
+            np.linalg.norm(v[:, i] - v[:, j], axis=1) for i in range(4) for j in range(i + 1, 4)
+        ]
         mid = v.mean(axis=1)
-        near = np.minimum(
-            np.linalg.norm(mid - [SEMI_MAJOR, 0, 0], axis=1),
-            np.linalg.norm(mid + [SEMI_MAJOR, 0, 0], axis=1),
-        ) < rho_r
+        near = (
+            np.minimum(
+                np.linalg.norm(mid - [SEMI_MAJOR, 0, 0], axis=1),
+                np.linalg.norm(mid + [SEMI_MAJOR, 0, 0], axis=1),
+            )
+            < rho_r
+        )
         h_local = float(np.max(np.max(edges, axis=0)[near])) if np.any(near) else 0.0
     else:
         h_local = 0.0
@@ -382,7 +387,11 @@ def _report_and_gate(aspect, d):
     assert d["cavity_max"] < 1e-12
     assert abs(d["beta"] - 1.0) <= TH15_BETA_BAND, (aspect, d["beta"], d["h_rim_over_rho"])
     assert abs(d["phi_h"] / d["phi_cf_h"] - 1.0) <= MAT4_BAND, (
-        aspect, d["phi_h"], d["phi_cf_h"], d["h_rim_over_rho"])
+        aspect,
+        d["phi_h"],
+        d["phi_cf_h"],
+        d["h_rim_over_rho"],
+    )
 
 
 # --------------------------------------------------------------------- W1a

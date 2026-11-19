@@ -94,9 +94,7 @@ def _half_space_alpha1(
 ) -> np.ndarray:
     """``α₁ = √(α² + jωμ₀μᵣσ)`` on the ``Re α₁ ≥ 0`` branch."""
     omega = 2.0 * np.pi * frequency_hz
-    alpha1 = np.sqrt(
-        np.asarray(alpha, dtype=complex) ** 2 + 1j * omega * MU_0 * mu_r * sigma
-    )
+    alpha1 = np.sqrt(np.asarray(alpha, dtype=complex) ** 2 + 1j * omega * MU_0 * mu_r * sigma)
     # numpy's principal branch has Re ≥ 0 already, but the whole sign of ΔR
     # hangs on it: a flipped branch turns loss into gain.
     alpha1 = np.where(alpha1.real < 0.0, -alpha1, alpha1)
@@ -130,9 +128,9 @@ def half_space_reflection_coefficient(
     # α = 0 with σ = 0 is 0/0; the physical value there is the σ = 0 answer,
     # Γ = 0, and it is the only point where the ratio is indeterminate.
     return np.where(
-        np.abs(denominator) == 0.0, 0.0, (mu_r * alpha - alpha1) / np.where(
-            np.abs(denominator) == 0.0, 1.0, denominator
-        )
+        np.abs(denominator) == 0.0,
+        0.0,
+        (mu_r * alpha - alpha1) / np.where(np.abs(denominator) == 0.0, 1.0, denominator),
     )
 
 
@@ -182,9 +180,7 @@ def coil_impedance_change(
         gamma = half_space_reflection_coefficient(alpha, frequency_hz, sigma, mu_r)
         return gamma * j1(alpha * coil_radius) ** 2 * np.exp(-2.0 * alpha * liftoff)
 
-    integral = _integrate_oscillatory(
-        integrand, coil_radius, liftoff, n_oscillations
-    )
+    integral = _integrate_oscillatory(integrand, coil_radius, liftoff, n_oscillations)
     omega = 2.0 * np.pi * frequency_hz
     return complex(1j * omega * np.pi * MU_0 * coil_radius**2 * integral)
 
@@ -208,9 +204,7 @@ def _integrate_oscillatory(
 
     # Zeros of J₁ in α: the first is α = 0 itself, which is already the lower
     # limit, so jn_zeros(1, n) gives the interior breakpoints directly.
-    breakpoints = np.concatenate(
-        [[0.0], jn_zeros(1, n_oscillations) / coil_radius]
-    )
+    breakpoints = np.concatenate([[0.0], jn_zeros(1, n_oscillations) / coil_radius])
     # Truncate once e^{−2αh} has made the remaining panels irrelevant; this
     # keeps the panel count ~30 for typical liftoffs instead of n_oscillations.
     cutoff = 40.0 / (2.0 * liftoff)
@@ -254,9 +248,7 @@ def _disc_quadrature(
     if r_wire < 0.0:
         raise ValueError(f"r_wire must be non-negative, got {r_wire!r}")
     if r_wire >= coil_radius:
-        raise ValueError(
-            f"r_wire={r_wire!r} must be smaller than coil_radius={coil_radius!r}"
-        )
+        raise ValueError(f"r_wire={r_wire!r} must be smaller than coil_radius={coil_radius!r}")
     if r_wire >= liftoff:
         raise ValueError(
             f"r_wire={r_wire!r} must be smaller than liftoff={liftoff!r}: the "
@@ -356,23 +348,17 @@ def coil_impedance_change_finite_wire(
     if sigma < 0.0:
         raise ValueError(f"sigma must be non-negative, got {sigma!r}")
 
-    rho_nodes, z_nodes, weights = _disc_quadrature(
-        coil_radius, liftoff, r_wire, quadrature_order
-    )
+    rho_nodes, z_nodes, weights = _disc_quadrature(coil_radius, liftoff, r_wire, quadrature_order)
 
     def integrand(alpha: np.ndarray) -> np.ndarray:
-        gamma = np.atleast_1d(
-            half_space_reflection_coefficient(alpha, frequency_hz, sigma, mu_r)
-        )
+        gamma = np.atleast_1d(half_space_reflection_coefficient(alpha, frequency_hz, sigma, mu_r))
         form = _finite_wire_form_factor(alpha, rho_nodes, z_nodes, weights)
         value = gamma * form**2
         # ``_integrate_oscillatory`` feeds 0-d arrays and hands the result to
         # ``quad``, which needs a scalar back.
         return value if np.ndim(alpha) > 0 else value[0]
 
-    integral = _integrate_oscillatory(
-        integrand, coil_radius, liftoff, n_oscillations
-    )
+    integral = _integrate_oscillatory(integrand, coil_radius, liftoff, n_oscillations)
     omega = 2.0 * np.pi * frequency_hz
     return complex(1j * omega * np.pi * MU_0 * integral)
 
@@ -403,9 +389,7 @@ def image_limit_inductance_change_finite_wire(
     """
     from .analytical import AnalyticalSolutions
 
-    rho_nodes, z_nodes, weights = _disc_quadrature(
-        coil_radius, liftoff, r_wire, quadrature_order
-    )
+    rho_nodes, z_nodes, weights = _disc_quadrature(coil_radius, liftoff, r_wire, quadrature_order)
 
     total = 0.0
     for a_s, h_s, w_s in zip(rho_nodes, z_nodes, weights):

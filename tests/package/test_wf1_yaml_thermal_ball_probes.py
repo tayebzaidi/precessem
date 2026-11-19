@@ -48,7 +48,6 @@ from fem_em_solver import (
 )
 from fem_em_solver.study_yaml import _load, _study_from_mapping
 from fem_em_solver.thermal.probe import ProbeBall
-
 from tests.complex_mode import IS_COMPLEX
 from tests.package.test_wf1_study_yaml import (
     LOGS,
@@ -67,13 +66,13 @@ from tests.package.test_wf15_study_probe_thermal import (
 )
 from tests.package.test_wf15_study_transient import RES, _on, _same_mesh, _theta_owned_rel
 from tests.validation.test_mat5_em_coupled_sphere import L0_BAND
+from tests.validation.test_mat9_transient_conduction_sphere import RHO_C as RHO_C9
+from tests.validation.test_mat9_transient_conduction_sphere import T_INF as T_INF9
 from tests.validation.test_mat9_transient_conduction_sphere import H as H9
 from tests.validation.test_mat9_transient_conduction_sphere import K as K9
 from tests.validation.test_mat9_transient_conduction_sphere import Q as Q9
 from tests.validation.test_mat9_transient_conduction_sphere import R as R9
-from tests.validation.test_mat9_transient_conduction_sphere import RHO_C as RHO_C9
-from tests.validation.test_mat9_transient_conduction_sphere import T_INF as T_INF9
-from tests.validation.test_mat10_sar_to_heat_sphere import B_BAND, H, K, P_BAND, R, T_INF
+from tests.validation.test_mat10_sar_to_heat_sphere import B_BAND, P_BAND, T_INF, H, K, R
 from tests.validation.test_mat12_transient_sar_heating_sphere import N_MAIN, RHO_C, T_STAR
 from tests.validation.test_mat17_duty_cycle_closed_form import CASES
 from tests.validation.test_mat17_duty_cycle_fem import T_END_A, _n
@@ -159,8 +158,13 @@ def test_wf1_s19_parse_and_refusals(monkeypatch, capsys):
         calls["n"] += 1
         raise AssertionError("build must not be called by a parse")
 
-    for cls in (SphereInBoxGeometry, FHumanBirdcageGeometry, FourPortBirdcageGeometry,
-                ThermalBallGeometry, ThermalBoxGeometry):
+    for cls in (
+        SphereInBoxGeometry,
+        FHumanBirdcageGeometry,
+        FourPortBirdcageGeometry,
+        ThermalBallGeometry,
+        ThermalBoxGeometry,
+    ):
         monkeypatch.setattr(cls, "build", stub)
 
     diffs = {
@@ -171,10 +175,18 @@ def test_wf1_s19_parse_and_refusals(monkeypatch, capsys):
     assert all(d == [] for d in diffs.values()), diffs
 
     want = {
-        M19: (RobinCooling(K, H, T_INF), TransientSpec(T_STAR / N_MAIN, N_MAIN, RHO_C), None,
-              [WHOLE_BALL, *BALL_PROBES, DISP_PROBE]),
-        DUTY: (RobinCooling(K9, H9, T_INF9), TransientSpec(150.0, _n(T_END_A, 150.0), RHO_C9),
-               DutyCycle(*CASES["A"]), DUTY_PROBES),
+        M19: (
+            RobinCooling(K, H, T_INF),
+            TransientSpec(T_STAR / N_MAIN, N_MAIN, RHO_C),
+            None,
+            [WHOLE_BALL, *BALL_PROBES, DISP_PROBE],
+        ),
+        DUTY: (
+            RobinCooling(K9, H9, T_INF9),
+            TransientSpec(150.0, _n(T_END_A, 150.0), RHO_C9),
+            DutyCycle(*CASES["A"]),
+            DUTY_PROBES,
+        ),
     }
     for f, (cool, tr, du, probes) in want.items():
         _, kind, outputs, th = _load(f)
@@ -183,10 +195,16 @@ def test_wf1_s19_parse_and_refusals(monkeypatch, capsys):
         _cmp(th.transient, tr, "transient", out)
         _cmp(th.duty, du, "duty", out)
         got_p, want_p = _probe_hex(outputs["probes"]), _probe_hex(probes)
-        _say(capsys, f"  (K) {f.name}: kind {kind!r}, {len(outputs['probes'])} probes, hex equal "
-             f"{got_p == want_p}; thermal diffs {out}")
+        _say(
+            capsys,
+            f"  (K) {f.name}: kind {kind!r}, {len(outputs['probes'])} probes, hex equal "
+            f"{got_p == want_p}; thermal diffs {out}",
+        )
         if got_p != want_p:
-            _say(capsys, f"    want reprs {[([repr(float(x)) for x in pb.centre], repr(float(pb.radius))) for pb in probes]}")
+            _say(
+                capsys,
+                f"    want reprs {[([repr(float(x)) for x in pb.centre], repr(float(pb.radius))) for pb in probes]}",
+            )
         assert kind == "thermal_ball"
         assert set(outputs) == {"probes"}
         assert got_p == want_p, (f.name, got_p, want_p)
@@ -212,8 +230,11 @@ def test_wf1_s19_parse_and_refusals(monkeypatch, capsys):
     capsys.readouterr()
     run_all, check_all = _rc_all(rc_run, comm), _rc_all(rc_check, comm)
     exists = comm.allreduce(bool(d.exists()), op=MPI.LOR)
-    _say(capsys, f"  (X) malformed radius 0: run rc {run_all}, check rc {check_all}, out exists "
-         f"{exists}")
+    _say(
+        capsys,
+        f"  (X) malformed radius 0: run rc {run_all}, check rc {check_all}, out exists "
+        f"{exists}",
+    )
     assert run_all == (2, 2) and check_all == (2, 2)
     assert not exists
 
@@ -226,10 +247,14 @@ def test_wf1_s19_parse_and_refusals(monkeypatch, capsys):
         ({**base, "outputs": {"probes": {"centre": [0.0, 0.0, 0.0]}}}, "outputs.probes"),
         ({**base, "outputs": {"probes": [1]}}, "outputs.probes[0]"),
         ({**base, "outputs": {"probes": [{**ok, "mass": 1.0}]}}, "outputs.probes[0].mass"),
-        ({**base, "outputs": {"probes": [{"centre": [0.0, 0.0, 0.0]}]}},
-         "outputs.probes[0].radius"),
-        ({**base, "outputs": {"probes": [{**ok, "centre": [0.0, 0.0]}]}},
-         "outputs.probes[0].centre"),
+        (
+            {**base, "outputs": {"probes": [{"centre": [0.0, 0.0, 0.0]}]}},
+            "outputs.probes[0].radius",
+        ),
+        (
+            {**base, "outputs": {"probes": [{**ok, "centre": [0.0, 0.0]}]}},
+            "outputs.probes[0].centre",
+        ),
         ({**base, "outputs": {"probes": [ok], "sar": {}}}, "outputs.sar"),
         # ruling 2026-10-19 03:00 Q3: a walled ball with probes is refused
         ({**w, "outputs": {"probes": [ok]}}, "outputs.probes"),
@@ -248,8 +273,10 @@ def test_wf1_s19_parse_and_refusals(monkeypatch, capsys):
 
 def _require():
     if not _knob():
-        pytest.skip(f"{S19_ENV} unset: the thermal-ball probe solve legs are environment-"
-                    "selected (real build, -n 2)")
+        pytest.skip(
+            f"{S19_ENV} unset: the thermal-ball probe solve legs are environment-"
+            "selected (real build, -n 2)"
+        )
     comm = MPI.COMM_WORLD
     assert not IS_COMPLEX, "U60's ball probe records are real-build records"
     assert comm.size == 2, comm.size
@@ -264,8 +291,10 @@ def _check_summary(run, comm, label):
     rest = {k: v for k, v in s.items() if k != "elapsed_s"}
     js_rest = {k: v for k, v in js.items() if k != "elapsed_s"}
     same_json = _all(comm, js_rest == rest and (comm.rank != 0 or js == s))
-    _p0(f"  (U′) {label}: values == run.probes.values {vals_ok}; JSON == summary {same_json}; "
-        f"keys {sorted(s)}")
+    _p0(
+        f"  (U′) {label}: values == run.probes.values {vals_ok}; JSON == summary {same_json}; "
+        f"keys {sorted(s)}"
+    )
     assert vals_ok
     assert same_json
     assert s["family"] == "thermal_ball"
@@ -282,41 +311,57 @@ def test_wf1_s19_ball_probes_reproduce_u60():
     t_file = time.perf_counter() - t00
     pr = run.probes
     q = _q_cf()
-    py = _py_m19().probe([WHOLE_BALL, *BALL_PROBES, DISP_PROBE], RobinCooling(K, H, T_INF),
-                         transient=TransientSpec(T_STAR / N_MAIN, N_MAIN, RHO_C))
+    py = _py_m19().probe(
+        [WHOLE_BALL, *BALL_PROBES, DISP_PROBE],
+        RobinCooling(K, H, T_INF),
+        transient=TransientSpec(T_STAR / N_MAIN, N_MAIN, RHO_C),
+    )
     m_f = pr.theta.function_space.mesh
     m_p = py.theta.function_space.mesh
     ca, cb, geo = _same_mesh(m_f, m_p, comm)
     ip = _theta_owned_rel(_on(m_p, pr.thermal.temperature), py.thermal.temperature, comm)
-    two = _theta_owned_rel(_on(run.thermal.temperature.function_space.mesh,
-                               pr.thermal.temperature), run.thermal.temperature, comm)
+    two = _theta_owned_rel(
+        _on(run.thermal.temperature.function_space.mesh, pr.thermal.temperature),
+        run.thermal.temperature,
+        comm,
+    )
     vals_f = [float(v) for v in pr.values]
     vals_p = [float(v) for v in py.values]
-    _p0(f"WF1S19 (UT) m19: cells {ca} / {cb} (U60 {U60_BALL_CELLS}); geometry equal {geo}; "
-        f"file run {t_file:.1f}s")
-    _p0(f"WF1S19 (I-Py) m19: owned max|dT|/max|T-Tinf| = {ip:.3e} (band {L0_BAND:.0e}); "
-        f"temperature block vs probe re-solve {two:.3e}")
+    _p0(
+        f"WF1S19 (UT) m19: cells {ca} / {cb} (U60 {U60_BALL_CELLS}); geometry equal {geo}; "
+        f"file run {t_file:.1f}s"
+    )
+    _p0(
+        f"WF1S19 (I-Py) m19: owned max|dT|/max|T-Tinf| = {ip:.3e} (band {L0_BAND:.0e}); "
+        f"temperature block vs probe re-solve {two:.3e}"
+    )
     _p0(f"WF1S19 probe values file {vals_f!r}")
     _p0(f"WF1S19 probe values py   {vals_p!r} (printed only)")
     mean_h, v_h = _domain_mean(pr.theta, comm)
     a_val = abs(vals_f[0] - mean_h) / abs(mean_h)
     a_vol = abs(float(pr.volumes[0]) / v_h - 1.0)
-    _p0(f"WF1S19 (A-ball) |P0 - mean| / |mean| = {a_val:.3e}, |V0/V_h - 1| = {a_vol:.3e} (band "
-        f"{B_BAND:.0e}; U60 {U60_A_BALL:.3e})")
+    _p0(
+        f"WF1S19 (A-ball) |P0 - mean| / |mean| = {a_val:.3e}, |V0/V_h - 1| = {a_vol:.3e} (band "
+        f"{B_BAND:.0e}; U60 {U60_A_BALL:.3e})"
+    )
     ratios, digits = [], []
     for j, c in enumerate(CENTRES):
         cf = _ball_mean(float(np.linalg.norm(c)), A_PROBE, T_STAR, q)
         r = abs(vals_f[1 + j] / cf - 1.0)
         ratios.append(r)
         digits.append(f"{r:.4e}")
-        _p0(f"WF1S19 (T*-ball) c{j}: P = {vals_f[1 + j]:.6e}, ball mean = {cf:.6e}, rel = "
-            f"{r:.6e} -> {r:.4e} (U60 {U60_T_BALL[j]}; band {P_BAND:.0e})")
+        _p0(
+            f"WF1S19 (T*-ball) c{j}: P = {vals_f[1 + j]:.6e}, ball mean = {cf:.6e}, rel = "
+            f"{r:.6e} -> {r:.4e} (U60 {U60_T_BALL[j]}; band {P_BAND:.0e})"
+        )
     cf2 = _ball_mean(float(np.linalg.norm(CENTRES[2])), A_PROBE, T_STAR, q)
     c_disp = abs(vals_f[-1] / cf2 - 1.0)
     sep = abs(_ball_mean(float(np.linalg.norm(DISPLACED)), A_PROBE, T_STAR, q) / cf2 - 1.0)
-    _p0(f"WF1S19 control (c-disp) displaced vs c2's comparand: miss {c_disp:.4e} (U60 "
+    _p0(
+        f"WF1S19 control (c-disp) displaced vs c2's comparand: miss {c_disp:.4e} (U60 "
         f"{U60_C_DISP:.4e}; equal digits {f'{c_disp:.4e}' == f'{U60_C_DISP:.4e}'}; comparand "
-        f"separation {sep:.4e}; asserted > {P_BAND:.0e})")
+        f"separation {sep:.4e}; asserted > {P_BAND:.0e})"
+    )
     _check_summary(run, comm, "m19")
     assert ca == cb and geo
     assert ip <= L0_BAND, f"(I-Py) {ip:.3e}"
@@ -337,34 +382,44 @@ def test_wf1_s19_duty_probes_equal_python():
     run = run_study_file(DUTY, output_dir=out, comm=comm)
     pr = run.probes
     py = _py_duty().probe(
-        DUTY_PROBES, RobinCooling(K9, H9, T_INF9),
-        transient=TransientSpec(150.0, _n(T_END_A, 150.0), RHO_C9), duty=DutyCycle(*CASES["A"]),
+        DUTY_PROBES,
+        RobinCooling(K9, H9, T_INF9),
+        transient=TransientSpec(150.0, _n(T_END_A, 150.0), RHO_C9),
+        duty=DutyCycle(*CASES["A"]),
     )
     m_f = pr.theta.function_space.mesh
     m_p = py.theta.function_space.mesh
     ca, cb, geo = _same_mesh(m_f, m_p, comm)
     ip = _theta_owned_rel(_on(m_p, pr.thermal.temperature), py.thermal.temperature, comm)
-    mult = np.array_equal(np.asarray(pr.thermal.source_multipliers),
-                          np.asarray(py.thermal.source_multipliers))
-    mult_s = np.array_equal(np.asarray(run.summary["temperature"]["source_multipliers"]),
-                            np.asarray(py.thermal.source_multipliers))
+    mult = np.array_equal(
+        np.asarray(pr.thermal.source_multipliers), np.asarray(py.thermal.source_multipliers)
+    )
+    mult_s = np.array_equal(
+        np.asarray(run.summary["temperature"]["source_multipliers"]),
+        np.asarray(py.thermal.source_multipliers),
+    )
     mean_h, v_h = _domain_mean(pr.theta, comm)
     vals_f = [float(v) for v in pr.values]
     a_val = abs(vals_f[0] - mean_h) / abs(mean_h)
     a_vol = abs(float(pr.volumes[0]) / v_h - 1.0)
-    _p0(f"WF1S19 (I-du) duty: cells {ca} / {cb}; geometry equal {geo}; owned max|dT|/max|T-Tinf| "
+    _p0(
+        f"WF1S19 (I-du) duty: cells {ca} / {cb}; geometry equal {geo}; owned max|dT|/max|T-Tinf| "
         f"= {ip:.3e} (band {L0_BAND:.0e}); multipliers equal {mult} / summary {mult_s} "
-        f"({len(py.thermal.source_multipliers)} entries)")
-    _p0(f"WF1S19 (I-du) whole ball |P0 - mean| / |mean| = {a_val:.3e}, |V0/V_h - 1| = "
-        f"{a_vol:.3e} (band {B_BAND:.0e})")
+        f"({len(py.thermal.source_multipliers)} entries)"
+    )
+    _p0(
+        f"WF1S19 (I-du) whole ball |P0 - mean| / |mean| = {a_val:.3e}, |V0/V_h - 1| = "
+        f"{a_vol:.3e} (band {B_BAND:.0e})"
+    )
     _p0(f"WF1S19 (I-du) probe values file {vals_f!r}")
-    _p0(f"WF1S19 (I-du) probe values py   {[float(v) for v in py.values]!r} (printed; no "
-        "comparand is posed)")
+    _p0(
+        f"WF1S19 (I-du) probe values py   {[float(v) for v in py.values]!r} (printed; no "
+        "comparand is posed)"
+    )
     _check_summary(run, comm, "duty")
     assert ca == cb and geo
     assert ip <= L0_BAND, f"(I-du) {ip:.3e}"
     assert mult and mult_s
     assert a_val <= B_BAND and a_vol <= B_BAND
-    assert run.summary["temperature"]["duty"] == {"period_s": CASES["A"][0],
-                                                  "duty": CASES["A"][1]}
+    assert run.summary["temperature"]["duty"] == {"period_s": CASES["A"][0], "duty": CASES["A"][1]}
     _p0(f"WF1S19 W1 duty leg {time.perf_counter() - t00:.1f}s")

@@ -5,7 +5,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Iterable, Mapping, Sequence
 
-
 DEFAULT_REFERENCE_IMPEDANCE_OHM = 50.0
 PORT_POSITIVE_SUFFIX = "positive"
 PORT_NEGATIVE_SUFFIX = "negative"

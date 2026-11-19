@@ -71,8 +71,12 @@ def test_port_definition_rejects_invalid_values():
 
 def test_run_port_calibration_checks_accepts_consistent_order_orientation_and_area():
     ports = [
-        PortDefinition(port_id="P1", positive_tag=11, negative_tag=12, orientation="leg_1_to_leg_2"),
-        PortDefinition(port_id="P2", positive_tag=13, negative_tag=14, orientation="leg_2_to_leg_3"),
+        PortDefinition(
+            port_id="P1", positive_tag=11, negative_tag=12, orientation="leg_1_to_leg_2"
+        ),
+        PortDefinition(
+            port_id="P2", positive_tag=13, negative_tag=14, orientation="leg_2_to_leg_3"
+        ),
     ]
 
     checks = run_port_calibration_checks(
@@ -90,8 +94,12 @@ def test_run_port_calibration_checks_accepts_consistent_order_orientation_and_ar
 
 def test_run_port_calibration_checks_rejects_order_mismatch_with_checklist_reference():
     ports = [
-        PortDefinition(port_id="P1", positive_tag=11, negative_tag=12, orientation="leg_1_to_leg_2"),
-        PortDefinition(port_id="P2", positive_tag=13, negative_tag=14, orientation="leg_2_to_leg_3"),
+        PortDefinition(
+            port_id="P1", positive_tag=11, negative_tag=12, orientation="leg_1_to_leg_2"
+        ),
+        PortDefinition(
+            port_id="P2", positive_tag=13, negative_tag=14, orientation="leg_2_to_leg_3"
+        ),
     ]
 
     with pytest.raises(ValueError, match="port ordering mismatch") as exc_info:
@@ -106,7 +114,9 @@ def test_run_port_calibration_checks_rejects_order_mismatch_with_checklist_refer
 
 def test_run_port_calibration_checks_rejects_missing_orientation_metadata():
     ports = [
-        PortDefinition(port_id="P1", positive_tag=11, negative_tag=12, orientation="leg_1_to_leg_2"),
+        PortDefinition(
+            port_id="P1", positive_tag=11, negative_tag=12, orientation="leg_1_to_leg_2"
+        ),
         PortDefinition(port_id="P2", positive_tag=13, negative_tag=14, orientation="   "),
     ]
 
@@ -123,8 +133,12 @@ def test_run_port_calibration_checks_rejects_missing_orientation_metadata():
 
 def test_run_port_calibration_checks_rejects_inconsistent_face_area_ratio():
     ports = [
-        PortDefinition(port_id="P1", positive_tag=11, negative_tag=12, orientation="leg_1_to_leg_2"),
-        PortDefinition(port_id="P2", positive_tag=13, negative_tag=14, orientation="leg_2_to_leg_3"),
+        PortDefinition(
+            port_id="P1", positive_tag=11, negative_tag=12, orientation="leg_1_to_leg_2"
+        ),
+        PortDefinition(
+            port_id="P2", positive_tag=13, negative_tag=14, orientation="leg_2_to_leg_3"
+        ),
     ]
 
     with pytest.raises(ValueError, match="area ratio exceeds threshold") as exc_info:

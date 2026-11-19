@@ -20,9 +20,8 @@ from __future__ import annotations
 
 import numpy as np
 import ufl
-from mpi4py import MPI
-
 from dolfinx import default_scalar_type, fem
+from mpi4py import MPI
 
 from fem_em_solver.core import (
     HomogeneousMaterial,
@@ -163,17 +162,13 @@ def test_driven_torus_field_reaches_the_air_region():
     def current_density(x):
         # Regularised inside the sqrt: complex UFL refuses max_value here.
         rho_safe = ufl.sqrt(x[0] ** 2 + x[1] ** 2 + 1e-24)
-        return ufl.as_vector(
-            [-x[1] / rho_safe * j_magnitude, x[0] / rho_safe * j_magnitude, 0.0]
-        )
+        return ufl.as_vector([-x[1] / rho_safe * j_magnitude, x[0] / rho_safe * j_magnitude, 0.0])
 
     fields = solver.solve(current_density=current_density, subdomain_ids=[WIRE_TAGS[0]])
     e_field = fields.e_complex
 
     def energy(tag):
-        dx_tag = ufl.Measure(
-            "dx", domain=msh, subdomain_data=cell_tags, subdomain_id=(tag,)
-        )
+        dx_tag = ufl.Measure("dx", domain=msh, subdomain_data=cell_tags, subdomain_id=(tag,))
         local = fem.assemble_scalar(fem.form(ufl.inner(e_field, e_field) * dx_tag))
         return float(np.real(comm.allreduce(local, op=MPI.SUM)))
 

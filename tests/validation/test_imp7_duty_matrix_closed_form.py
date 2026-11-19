@@ -34,9 +34,8 @@ from fem_em_solver.utils.analytical import (
     pec_sphere_implant_duty_cycle_from_modes,
     pec_sphere_implant_transient_modes,
 )
-
 from tests.validation.test_imp4_pec_cylinder_closed_form import B1_BAND
-from tests.validation.test_imp7_duty_cycle_fem import A, B, PERIOD
+from tests.validation.test_imp7_duty_cycle_fem import PERIOD, A, B
 from tests.validation.test_imp7_duty_dose_closed_form import (
     AVG_BAR,
     DOSE_BAR,
@@ -76,8 +75,12 @@ def _duty_hist_at(modes, pts, duty):
     """`_duty_hist` (bound to ``PTS``) at any points; row 0 = 0.0 exactly."""
     out = np.zeros((T_GRID.size, pts.shape[0]))
     for n in range(1, T_GRID.size):
-        out[n] = pec_sphere_implant_duty_cycle_from_modes(
-            pts, T_GRID[n], modes, rho_c=RHO_C, t_inf=T_INF, period=PERIOD, duty=duty) - T_INF
+        out[n] = (
+            pec_sphere_implant_duty_cycle_from_modes(
+                pts, T_GRID[n], modes, rho_c=RHO_C, t_inf=T_INF, period=PERIOD, duty=duty
+            )
+            - T_INF
+        )
     return out
 
 
@@ -112,15 +115,19 @@ def test_precondition_grid():
     for d, on in ((0.5, 10.0), (0.25, 5.0)):
         assert abs(d * PERIOD / DT - on) < 1e-12, d
     assert A < P_POLE[2] < P_MID[2] < B, (A, P_POLE, P_MID, B)
-    _p(f"IMP7-10 grid: t* {T_STAR:.4f} s, T_END {T_END:.4f} s, dt {DT:.4f} s, period "
-       f"{PERIOD:.4f} s; {dict(zip(M_LABELS, M_PTS.tolist()))}; N {N_DEFAULT} / {N_DEFAULT // 2}")
+    _p(
+        f"IMP7-10 grid: t* {T_STAR:.4f} s, T_END {T_END:.4f} s, dt {DT:.4f} s, period "
+        f"{PERIOD:.4f} s; {dict(zip(M_LABELS, M_PTS.tolist()))}; N {N_DEFAULT} / {N_DEFAULT // 2}"
+    )
 
 
 def test_c100_m_full_duty_equals_continuous(hists):
     d1, cont = hists["full"][1.0], hists["cont"]
     worst = float(np.max(np.abs(d1[1:] - cont[1:]) / np.abs(cont[1:])))
-    _p(f"IMP7-10 (C100-m) D = 1 vs continuous over {cont.shape}: worst rel {worst:.3e} (band "
-       f"{B1_BAND:g}, ASSERTED)")
+    _p(
+        f"IMP7-10 (C100-m) D = 1 vs continuous over {cont.shape}: worst rel {worst:.3e} (band "
+        f"{B1_BAND:g}, ASSERTED)"
+    )
     assert worst <= B1_BAND, worst
 
 
@@ -136,12 +143,18 @@ def test_q_m_win_m_bd_i_and_rc_m(hists):
                 M = float(np.max(np.abs(th2 - th)))
                 m = abs(cem43(T_GRID, T_INF + th2) / dose - 1.0)
                 cell = f"D={d} {lab} {name}"
-                _p(f"IMP7-10 (Q-m) {cell}: CEM43 {dose:.6e} s rel quad {rel:.3e} (bar "
-                   f"{DOSE_BAR:g}, ASSERTED); max T {np.max(T):.6f} C; (Rc-m) miss {miss:.4e}")
-                _p(f"IMP7-10 (Win-m) {cell}: max six-minute mean {mx:.6e} K at {t_mx:.2f} s; "
-                   f"[{lo:.6e}, {hi:.6e}]; rel quad {wrel:.3e} (bar {AVG_BAR:g}, ASSERTED)")
-                _p(f"IMP7-10 (Bd-i) {cell}: m_p {m:.4e} <= ln4*M_p {LN4 * M:.4e} (M_p {M:.4e} K; "
-                   f"exact {math.expm1(LN4 * M):.4e}, printed only); ratio {m / (LN4 * M):.4f}")
+                _p(
+                    f"IMP7-10 (Q-m) {cell}: CEM43 {dose:.6e} s rel quad {rel:.3e} (bar "
+                    f"{DOSE_BAR:g}, ASSERTED); max T {np.max(T):.6f} C; (Rc-m) miss {miss:.4e}"
+                )
+                _p(
+                    f"IMP7-10 (Win-m) {cell}: max six-minute mean {mx:.6e} K at {t_mx:.2f} s; "
+                    f"[{lo:.6e}, {hi:.6e}]; rel quad {wrel:.3e} (bar {AVG_BAR:g}, ASSERTED)"
+                )
+                _p(
+                    f"IMP7-10 (Bd-i) {cell}: m_p {m:.4e} <= ln4*M_p {LN4 * M:.4e} (M_p {M:.4e} K; "
+                    f"exact {math.expm1(LN4 * M):.4e}, printed only); ratio {m / (LN4 * M):.4f}"
+                )
                 assert float(np.max(T)) < T_REF, (cell, float(np.max(T)))
                 assert rel <= DOSE_BAR, (cell, rel)
                 assert miss > DOSE_BAR, (cell, miss)
@@ -160,8 +173,10 @@ def test_bd_i_prime_on_the_coarse_pair(hists):
                 thc = hists["coarse"][d][:, j] * scale
                 M = float(np.max(np.abs(thc - th)))
                 m = abs(cem43(T_GRID, T_INF + thc) / cem43(T_GRID, T_INF + th) - 1.0)
-                _p(f"IMP7-10 (Bd-i') D={d} {lab} {name} N={N_COARSE}: m_p {m:.4e} <= ln4*M_p "
-                   f"{LN4 * M:.4e} (M_p {M:.4e} K); ratio {m / (LN4 * M):.4f}")
+                _p(
+                    f"IMP7-10 (Bd-i') D={d} {lab} {name} N={N_COARSE}: m_p {m:.4e} <= ln4*M_p "
+                    f"{LN4 * M:.4e} (M_p {M:.4e} K); ratio {m / (LN4 * M):.4f}"
+                )
                 assert m <= LN4 * M, (d, lab, name, m, LN4 * M)
 
 
@@ -170,22 +185,28 @@ def test_beta0_m_and_mis_m_controls(hists):
         d_b = cem43(T_GRID, T_INF + hists["full"][d][:, POLE])
         d_0 = cem43(T_GRID, T_INF + hists["iso"][d][:, POLE])
         miss = _rel(d_0, d_b)
-        _p(f"IMP7-10 (b0-m) D={d} pole: ratio {d_b / d_0:.6f}, miss {miss:.4e} (asserted > "
-           f"{DOSE_BAR:g})")
+        _p(
+            f"IMP7-10 (b0-m) D={d} pole: ratio {d_b / d_0:.6f}, miss {miss:.4e} (asserted > "
+            f"{DOSE_BAR:g})"
+        )
         assert miss > DOSE_BAR, (d, miss)
     for j, name in enumerate(M_LABELS):
         d25 = cem43(T_GRID, T_INF + hists["full"][0.25][:, j])
         d50 = cem43(T_GRID, T_INF + hists["full"][0.5][:, j])
         miss = _rel(d25, d50)
-        _p(f"IMP7-10 (Mis-m) {name}: D = 0.25 against D = 0.5 ratio {d25 / d50:.6f}, miss "
-           f"{miss:.4e} (asserted > {DOSE_BAR:g})")
+        _p(
+            f"IMP7-10 (Mis-m) {name}: D = 0.25 against D = 0.5 ratio {d25 / d50:.6f}, miss "
+            f"{miss:.4e} (asserted > {DOSE_BAR:g})"
+        )
         assert miss > DOSE_BAR, (name, miss)
 
 
 def test_printed_matrix(hists):
     """The records (no band); asserts only that they were formed."""
-    _p("IMP7-10 MATRIX D | point | D(peak) s | D(equal mean) s | six-minute peak K | "
-       "cap INTERIOR_BAND*max theta_s K | M_p K | headroom cap/M_p | m_p/(ln4*M_p)")
+    _p(
+        "IMP7-10 MATRIX D | point | D(peak) s | D(equal mean) s | six-minute peak K | "
+        "cap INTERIOR_BAND*max theta_s K | M_p K | headroom cap/M_p | m_p/(ln4*M_p)"
+    )
     for d in DUTIES:
         for j, name in enumerate(M_LABELS):
             th, th2 = hists["full"][d][:, j], hists["half"][d][:, j]
@@ -195,6 +216,8 @@ def test_printed_matrix(hists):
             cap = INTERIOR_BAND * float(np.max(th))
             M = float(np.max(np.abs(th2 - th)))
             ratio = abs(cem43(T_GRID, T_INF + th2) / d_pk - 1.0) / (LN4 * M)
-            _p(f"IMP7-10 MATRIX {d} | {name} | {d_pk:.6e} | {d_eq:.6e} | {mx:.6f} | {cap:.4e} | "
-               f"{M:.4e} | {cap / M:.3e} | {ratio:.4f}")
+            _p(
+                f"IMP7-10 MATRIX {d} | {name} | {d_pk:.6e} | {d_eq:.6e} | {mx:.6f} | {cap:.4e} | "
+                f"{M:.4e} | {cap / M:.3e} | {ratio:.4f}"
+            )
             assert np.isfinite(d_eq / d_pk)

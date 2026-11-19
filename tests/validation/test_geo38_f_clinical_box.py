@@ -85,7 +85,8 @@ def test_geo38_step2_astm_box_mesh_gates():
 
     t0 = time.perf_counter()
     msh, cells, facets, diag = MeshGenerator.birdcage_port_domain(
-        comm=comm, return_diagnostics=True, **kw)
+        comm=comm, return_diagnostics=True, **kw
+    )
     t_build = time.perf_counter() - t0
     if comm.rank == 0:
         print(f"\n[GEO-38 s2] build done {t_build:.1f} s at -n {comm.size}", flush=True)
@@ -107,7 +108,8 @@ def test_geo38_step2_astm_box_mesh_gates():
 
     # --- (T1), (T2): owned sheet facets, numpy sums, gathered once.
     sheet_tags = _interface_facet_tags(
-        msh, cells, {SHEET_IFACE + i: (PORT_LOWER + i, PORT_UPPER + i) for i in ring_ports})
+        msh, cells, {SHEET_IFACE + i: (PORT_LOWER + i, PORT_UPPER + i) for i in ring_ports}
+    )
     sv = np.asarray(sheet_tags.values)
     si = np.asarray(sheet_tags.indices)
     local_sheets, local_all = {}, {}
@@ -143,11 +145,17 @@ def test_geo38_step2_astm_box_mesh_gates():
     ph = ci[(cv == 3) & (ci < n_owned_cells)]
     if len(ph):
         g = dolfinx.cpp.mesh.entities_to_geometry(
-            msh._cpp_object, tdim, np.asarray(ph, dtype=np.int32), False)
+            msh._cpp_object, tdim, np.asarray(ph, dtype=np.int32), False
+        )
         X = msh.geometry.x[g[:, :4]]
-        vol_local = float(np.abs(np.einsum(
-            "ij,ij->i", X[:, 1] - X[:, 0],
-            np.cross(X[:, 2] - X[:, 0], X[:, 3] - X[:, 0]))).sum() / 6.0)
+        vol_local = float(
+            np.abs(
+                np.einsum(
+                    "ij,ij->i", X[:, 1] - X[:, 0], np.cross(X[:, 2] - X[:, 0], X[:, 3] - X[:, 0])
+                )
+            ).sum()
+            / 6.0
+        )
         P = X.reshape(-1, 3)
         lo_local, hi_local = P.min(axis=0), P.max(axis=0)
     else:
@@ -160,8 +168,12 @@ def test_geo38_step2_astm_box_mesh_gates():
     b1_dev = abs(box_vol / box_ref - 1.0)
     lo_ref = np.array([-0.5 * Lx, -0.5 * Ly + off, -0.5 * Lz])
     hi_ref = np.array([0.5 * Lx, 0.5 * Ly + off, 0.5 * Lz])
-    b2_dev = float(max(np.max(np.abs(lo - lo_ref) / np.abs(lo_ref)),
-                       np.max(np.abs(hi - hi_ref) / np.abs(hi_ref))))
+    b2_dev = float(
+        max(
+            np.max(np.abs(lo - lo_ref) / np.abs(lo_ref)),
+            np.max(np.abs(hi - hi_ref) / np.abs(hi_ref)),
+        )
+    )
 
     # --- (V1), (V2): CAD-internal partition and the can.
     cad_groups = dict(diag["cad_mass_by_group"])
@@ -185,8 +197,7 @@ def test_geo38_step2_astm_box_mesh_gates():
     c1_area = comm.allreduce(float(_area(xyz33[1:] if drop else xyz33).sum()), op=MPI.SUM)
     c1_dev = abs(c1_area / sheet_ref - 1.0)
 
-    rss = comm.allreduce(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024.0**2,
-                         op=MPI.SUM)
+    rss = comm.allreduce(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024.0**2, op=MPI.SUM)
 
     if comm.rank == 0:
         a0_rel = abs(n_cells / F_CLINICAL_R1_CELL_RECORD - 1.0)

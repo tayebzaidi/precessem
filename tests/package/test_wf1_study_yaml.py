@@ -44,14 +44,13 @@ from fem_em_solver import (
     LumpedPortDrive,
     Study,
     StudyConfigError,
+    cli,
     load_study,
 )
-from fem_em_solver import cli
 from fem_em_solver.core import HomogeneousMaterial, build_material_fields, build_mu_r_field
 from fem_em_solver.ports.touchstone import load_touchstone
 from fem_em_solver.study_yaml import _study_from_mapping
 from fem_em_solver.utils.instrumentation import report_peak_rss
-
 from tests.complex_mode import complex_only
 from tests.io.test_touchstone_skrf_crosscheck import ANCHOR_TOL, FREQ_ATOL_HZ
 from tests.materials.test_phantom_material_model import MAT4_BAND, _dg0_owned_diff

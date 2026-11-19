@@ -45,19 +45,25 @@ from mpi4py import MPI
 
 from fem_em_solver.io.mesh import MeshGenerator, _interface_facet_tags
 from tests.mesh.helpers import global_cell_tag_set
-from tests.mesh.test_coil_phantom_conforming import _tag_volume, _total_volume
 from tests.mesh.test_birdcage_conductor_sizing import CAD_MASS_GATE
+from tests.mesh.test_birdcage_leg_gaps import (
+    TERMINAL_AREA_BAND,
+    _analytic_box_volume,
+)
+from tests.mesh.test_birdcage_leg_offset import _sheet_azimuth_deg
+from tests.mesh.test_birdcage_port_scaleup import (
+    CONTROL_CELL_COUNT_BAND,
+    SCALED_LEG_COUNT,
+    TERMINAL_INTER_CLASS_CEILING,
+    TERMINAL_INTRA_CLASS_BAND,
+    _azimuth_class,
+    _measure,
+)
 from tests.mesh.test_birdcage_port_sheet_prerequisite import (
     CELL_COUNT_BAND,
     CONDUCTOR_RESOLUTION,
 )
-from tests.mesh.test_birdcage_port_terminals import (
-    AIR_IFACE,
-    CONDUCTOR_IFACE,
-    PHANTOM_IFACE,
-    _global_facet_count,
-    _interface_area_or_zero,
-)
+from tests.mesh.test_birdcage_port_sheets import PORT_LOWER, PORT_UPPER, SHEET_IFACE
 from tests.mesh.test_birdcage_port_tags import (
     AIR_PADDING,
     COIL_LENGTH,
@@ -70,12 +76,13 @@ from tests.mesh.test_birdcage_port_tags import (
     RING_MINOR_RADIUS,
     RING_RADIUS,
 )
-from tests.mesh.test_birdcage_leg_gaps import (
-    TERMINAL_AREA_BAND,
-    _analytic_box_volume,
+from tests.mesh.test_birdcage_port_terminals import (
+    AIR_IFACE,
+    CONDUCTOR_IFACE,
+    PHANTOM_IFACE,
+    _global_facet_count,
+    _interface_area_or_zero,
 )
-from tests.mesh.test_birdcage_port_sheets import PORT_LOWER, PORT_UPPER, SHEET_IFACE
-from tests.mesh.test_birdcage_leg_offset import _sheet_azimuth_deg
 from tests.mesh.test_birdcage_ring_gaps import (
     EXACT,
     RING_GAP_CELL_RECORD,
@@ -87,14 +94,7 @@ from tests.mesh.test_birdcage_ring_gaps import (
     _port_boundary_partition,
     _spread,
 )
-from tests.mesh.test_birdcage_port_scaleup import (
-    CONTROL_CELL_COUNT_BAND,
-    SCALED_LEG_COUNT,
-    TERMINAL_INTER_CLASS_CEILING,
-    TERMINAL_INTRA_CLASS_BAND,
-    _azimuth_class,
-    _measure,
-)
+from tests.mesh.test_coil_phantom_conforming import _tag_volume, _total_volume
 
 CONTROL_LEG_COUNT = 4
 
@@ -243,16 +243,12 @@ def _measure_ring(leg_count, *, orientation="transverse"):
         "v_total": _total_volume(mesh, comm),
         "counts": counts,
         "areas": areas,
-        "port_volume": {
-            i: sum(volumes[t] for t in port_cell_tags[i]) for i in ring_ports
-        },
+        "port_volume": {i: sum(volumes[t] for t in port_cell_tags[i]) for i in ring_ports},
         "sheet_area": {
-            i: _interface_area_or_zero(mesh, sheet_tags, SHEET_IFACE + i, comm)
-            for i in ring_ports
+            i: _interface_area_or_zero(mesh, sheet_tags, SHEET_IFACE + i, comm) for i in ring_ports
         },
         "sheet_count": {
-            i: _global_facet_count(mesh, sheet_tags, SHEET_IFACE + i, comm)
-            for i in ring_ports
+            i: _global_facet_count(mesh, sheet_tags, SHEET_IFACE + i, comm) for i in ring_ports
         },
         "sheet_flatness": {
             i: _out_of_plane_spread(
@@ -267,8 +263,7 @@ def _measure_ring(leg_count, *, orientation="transverse"):
         # Read off the mesh, not assumed from the ordinal: the class key must
         # come from where the sheet actually is (`GEO-19` step C's reading).
         "azimuth_deg": {
-            i: _sheet_azimuth_deg(mesh, sheet_tags, SHEET_IFACE + i, comm)
-            for i in ring_ports
+            i: _sheet_azimuth_deg(mesh, sheet_tags, SHEET_IFACE + i, comm) for i in ring_ports
         },
         "cad_conductor": diag["cad_mass_by_group"]["conductor"],
     }
@@ -380,9 +375,7 @@ def _report_safely(label, m, comm):
     return comm.bcast(problem, root=0)
 
 
-def _assert_ring_identity_family(
-    m, label, *, terminal_intra_band=TERMINAL_INTRA_CLASS_BAND
-):
+def _assert_ring_identity_family(m, label, *, terminal_intra_band=TERMINAL_INTRA_CLASS_BAND):
     """Step 1's gates at whatever leg count `m` was built at, terminals per class.
 
     `terminal_intra_band` defaults to the 2026-08-25 ruling's `1e-6` and is
@@ -558,9 +551,7 @@ def test_thirty_two_ring_ports_at_sixteen_legs():
     uncut_sheets = np.array([uncut["sheet_area"][i] for i in uncut["ports"]])
     # Step C's 1.331e-15 is a (max - min)/mean figure, so the comparison uses
     # that convention rather than this module's std/mean `_spread`.
-    uncut_spread = float(
-        (uncut_sheets.max() - uncut_sheets.min()) / uncut_sheets.mean()
-    )
+    uncut_spread = float((uncut_sheets.max() - uncut_sheets.min()) / uncut_sheets.mean())
     if comm.rank == 0:
         print(
             f"\n[GEO-20 step 2 control i] kwarg off at {SCALED_LEG_COUNT} legs: "
@@ -587,10 +578,7 @@ def test_thirty_two_ring_ports_at_sixteen_legs():
     assert not [p for p in problems if p], [p for p in problems if p]
 
     # Control (i): the ring opt-in left the leg-gapped default geometry alone.
-    assert (
-        abs(uncut["n_cells"] / SCALED_CONTROL_CELL_COUNT - 1.0)
-        < CONTROL_CELL_COUNT_BAND
-    ), (
+    assert abs(uncut["n_cells"] / SCALED_CONTROL_CELL_COUNT - 1.0) < CONTROL_CELL_COUNT_BAND, (
         f"the kwarg off at {SCALED_LEG_COUNT} legs meshed {uncut['n_cells']} cells "
         f"against `GEO-19` step C's record {SCALED_CONTROL_CELL_COUNT}; the "
         "ring-gap opt-in is not opt-in"

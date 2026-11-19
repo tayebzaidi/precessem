@@ -33,7 +33,7 @@ import re
 from pathlib import Path
 
 from tests.mesh.test_birdcage_implant_rod import ROD_LENGTH, ROD_RADIUS
-from tests.validation.test_geo36_i68_lumped_vs_clinical import PATTERNS, _H, _S, _p
+from tests.validation.test_geo36_i68_lumped_vs_clinical import _H, _S, PATTERNS, _p
 from tests.validation.test_imp8_probe_f2182_closed_form import SHAPES, Z_C, Z_P, _reads
 from tests.validation.test_imp8_rod_line_source_closed_form import MM
 from tests.validation.test_imp8_rod_probe_f2182_fem import ARMS
@@ -58,7 +58,13 @@ ENTRY63_ROD_GP = "9.997607068692e-01"
 ENTRY63_PTS = {"top": "0.105, 0.0, 0.017", "bottom": "0.105, 0.0, -0.017"}
 ENTRY63_F2182 = {
     ("gel twin", "top"): (ENTRY63_PTS["top"], "1.0", "900", "+9.364225563e-03", "True"),  # :12502
-    ("gel twin", "bottom"): (ENTRY63_PTS["bottom"], "1.0", "900", "+9.382406725e-03", "True"),  # :12503
+    ("gel twin", "bottom"): (
+        ENTRY63_PTS["bottom"],
+        "1.0",
+        "900",
+        "+9.382406725e-03",
+        "True",
+    ),  # :12503
     ("rod", "top"): (ENTRY63_PTS["top"], "1.0", "900", "+1.488186427e-02", "True"),  # :12517
     ("rod", "bottom"): (ENTRY63_PTS["bottom"], "1.0", "900", "+1.501090199e-02", "True"),  # :12518
 }
@@ -83,9 +89,7 @@ STUB_ROD_GP = "3.958333333333e+00"
 STUB_PTS = {"a": "0.03, -0.03, 0.002", "b": "-0.03, 0.03, 0.002"}
 STUB_F2182 = {
     ("gel twin", t): (STUB_PTS[t], "1.0", "900", "+2.121079410e-01", "True") for t in STUB_TIPS
-} | {
-    ("rod", t): (STUB_PTS[t], "1.0", "900", "+8.484317694e-01", "True") for t in STUB_TIPS
-}
+} | {("rod", t): (STUB_PTS[t], "1.0", "900", "+8.484317694e-01", "True") for t in STUB_TIPS}
 STUB_ROD_LINE = 119  # (K-c)'s line
 
 # --- I75 (`:120–122` of each log): +16, -16 (theta, D=0.5), then the means. ---
@@ -95,12 +99,18 @@ I75_LOGS = {
     "hole": "20261108T200636Z_IMP-8-item881-W3.log",
 }
 I75 = {
-    "ti": ((("+16", "1.064117e+01", "2.109553e+00"), ("-16", "1.049960e+01", "2.099602e+00")),
-           ("1.057039e+01", "2.104578e+00")),
-    "gel": ((("+16", "9.220827e+00", "1.979610e+00"), ("-16", "9.102961e+00", "1.970586e+00")),
-            ("9.161894e+00", "1.975098e+00")),
-    "hole": ((("+16", "8.815610e+00", "1.895292e+00"), ("-16", "8.750725e+00", "1.888582e+00")),
-             ("8.783168e+00", "1.891937e+00")),
+    "ti": (
+        (("+16", "1.064117e+01", "2.109553e+00"), ("-16", "1.049960e+01", "2.099602e+00")),
+        ("1.057039e+01", "2.104578e+00"),
+    ),
+    "gel": (
+        (("+16", "9.220827e+00", "1.979610e+00"), ("-16", "9.102961e+00", "1.970586e+00")),
+        ("9.161894e+00", "1.975098e+00"),
+    ),
+    "hole": (
+        (("+16", "8.815610e+00", "1.895292e+00"), ("-16", "8.750725e+00", "1.888582e+00")),
+        ("8.783168e+00", "1.891937e+00"),
+    ),
 }
 
 # --- I78 (`20261108T133157Z_IMP-8-item874-W1.log:58–59`, `:61–62`), .7g: cont, D=0.5, ss. ---
@@ -113,10 +123,16 @@ I78 = {
 N_BOUND = 1.0e-6  # one unit of the 7th significant digit of 6.810428
 P_BOUND = 1.0e-15  # m
 
-F2182 = (_H + r"\[{arm}\] F2182-shaped probe {tip} \(([^)]*)\) \((\S+) mm beyond the apex\), "
-         + _S + r": theta\((\S+) s\) (\S+) K \(valid (\S+);")
-I75_PROBE = (r"^\[imp8-i75\] probe \(0, ([+-]16)\) mm arm {arm}: theta\(900 s\) (\S+) K/W; "
-             r".*D=0\.5 superposed theta\(900 s\) (\S+) K/W$")
+F2182 = (
+    _H
+    + r"\[{arm}\] F2182-shaped probe {tip} \(([^)]*)\) \((\S+) mm beyond the apex\), "
+    + _S
+    + r": theta\((\S+) s\) (\S+) K \(valid (\S+);"
+)
+I75_PROBE = (
+    r"^\[imp8-i75\] probe \(0, ([+-]16)\) mm arm {arm}: theta\(900 s\) (\S+) K/W; "
+    r".*D=0\.5 superposed theta\(900 s\) (\S+) K/W$"
+)
 I75_MEAN = r"^\[imp8-i75\] probe arm {arm}: mean (\S+) K/W, .*D=0\.5 mean (\S+)$"
 
 
@@ -142,7 +158,9 @@ def _clinical_rows(text, tips):
     failures, rows = [], {}
     for arm in ("gel twin", "rod"):
         for tip in tips:
-            hit = _once(F2182.format(arm=re.escape(arm), tip=re.escape(tip)), text, f"{arm}/{tip}", failures)
+            hit = _once(
+                F2182.format(arm=re.escape(arm), tip=re.escape(tip)), text, f"{arm}/{tip}", failures
+            )
             if hit is not None:
                 rows[(arm, tip)] = hit
     share = _once(PATTERNS["share"][0], text, "share", failures)
@@ -156,8 +174,11 @@ def _stub_failures(text):
     for key, want in STUB_F2182.items():
         if key in rows and rows[key] != want:
             failures.append(f"{key}: log {rows[key]!r} != literal {want!r}")
-    for name, got, want in (("share", share, STUB_SHARE), ("twin_g", twin_g, STUB_TWIN_G),
-                            ("rod_g", rod_g, (STUB_ROD_GP,))):
+    for name, got, want in (
+        ("share", share, STUB_SHARE),
+        ("twin_g", twin_g, STUB_TWIN_G),
+        ("rod_g", rod_g, (STUB_ROD_GP,)),
+    ):
         if got is not None and tuple(got) != want:
             failures.append(f"{name}: log {got!r} != literal {want!r}")
     return failures
@@ -178,8 +199,10 @@ def _i75_failures(arm, text):
 
 def test_ks_stub_reads_the_entry63_print_form():
     failures = _stub_failures(_read_log(STUB_LOG))
-    _p(f"\n[GEO-36 I79] (K-s) stub {STUB_LOG}: 4 F2182 rows + share/twin_g/rod_g, "
-       f"failures {failures or 'none'} (ASSERTED exact)")
+    _p(
+        f"\n[GEO-36 I79] (K-s) stub {STUB_LOG}: 4 F2182 rows + share/twin_g/rod_g, "
+        f"failures {failures or 'none'} (ASSERTED exact)"
+    )
     assert not failures
 
 
@@ -190,7 +213,9 @@ def test_kc_one_digit_changed_fails():
     lines[STUB_ROD_LINE - 1] = orig.replace("+8.484317694e-01", "+8.484317695e-01")
     assert lines[STUB_ROD_LINE - 1] != orig
     failures = _stub_failures("\n".join(lines))
-    _p(f"[GEO-36 I79] (K-c) :{STUB_ROD_LINE} theta last digit 4->5: failures {failures} (ASSERTED non-empty)")
+    _p(
+        f"[GEO-36 I79] (K-c) :{STUB_ROD_LINE} theta last digit 4->5: failures {failures} (ASSERTED non-empty)"
+    )
     assert failures
 
 
@@ -212,7 +237,9 @@ def test_kd_rederived_at_last_digit():
             s = means[k - 1]
             unit = 10.0 ** (int(s.split("e")[1]) - 6)
             d = abs(avg - float(s))
-            _p(f"[GEO-36 I79] (K-d) {arm} {label} mean {s} vs (a+b)/2: |diff| {d:.2e} (bound {unit:.0e}, ASSERTED)")
+            _p(
+                f"[GEO-36 I79] (K-d) {arm} {label} mean {s} vs (a+b)/2: |diff| {d:.2e} (bound {unit:.0e}, ASSERTED)"
+            )
             worst.append(d <= unit)
     share, p_vol, _g, p_rod = STUB_SHARE
     d = abs(float(p_rod) / float(p_vol) - float(share))
@@ -236,8 +263,10 @@ def test_nc_line_at_zp_in_clinical_row_misses():
     kern, _kd, steady = SHAPES["line"]
     cont = _reads(kern, steady, Z_P)[0]
     miss = abs(cont - float(I78[("line", "Z_C")][0]))
-    _p(f"[GEO-36 I79] (N-c) line read at Z_P {cont:.7g} in the 17 mm row vs Z_C record "
-       f"{I78[('line', 'Z_C')][0]}: |miss| {miss:.4g} K/W (> {N_BOUND:.0e}, ASSERTED)")
+    _p(
+        f"[GEO-36 I79] (N-c) line read at Z_P {cont:.7g} in the 17 mm row vs Z_C record "
+        f"{I78[('line', 'Z_C')][0]}: |miss| {miss:.4g} K/W (> {N_BOUND:.0e}, ASSERTED)"
+    )
     assert miss > N_BOUND
 
 
@@ -250,9 +279,11 @@ def test_p_placement_identity():
     z_clin = 0.5 * ROD_LENGTH + ROD_RADIUS + off * MM
     d_c = abs(z_clin - Z_C)
     d_p = abs(Z_P_BRACKET_MM * MM - Z_P)
-    _p(f"[GEO-36 I79] (P) clinical probe L/2 + a + {off:g} mm = {z_clin / MM:.6g} mm vs I78 Z_C "
-       f"{Z_C / MM:.6g} mm: |diff| {d_c:.1e} m; I75 Z_P {Z_P_BRACKET_MM:g} mm vs I78 Z_P "
-       f"{Z_P / MM:.6g} mm: |diff| {d_p:.1e} m (bound {P_BOUND:.0e}, ASSERTED)")
+    _p(
+        f"[GEO-36 I79] (P) clinical probe L/2 + a + {off:g} mm = {z_clin / MM:.6g} mm vs I78 Z_C "
+        f"{Z_C / MM:.6g} mm: |diff| {d_c:.1e} m; I75 Z_P {Z_P_BRACKET_MM:g} mm vs I78 Z_P "
+        f"{Z_P / MM:.6g} mm: |diff| {d_p:.1e} m (bound {P_BOUND:.0e}, ASSERTED)"
+    )
     assert d_c <= P_BOUND
     assert d_p <= P_BOUND
 
@@ -263,14 +294,18 @@ def _clinical_cells(text, tips, label):
     g = float(twin_g[1])
     p_rod = share[3]
     gp_rod = g * float(p_rod)
-    _p(f"[GEO-36 I79] {label}: G {twin_g[1]} 1/W, P_rod {p_rod} W, G*P_rod {gp_rod:.7g} W in the rod "
-       f"per W in the gel (twin G, as I68' converts)")
+    _p(
+        f"[GEO-36 I79] {label}: G {twin_g[1]} 1/W, P_rod {p_rod} W, G*P_rod {gp_rod:.7g} W in the rod "
+        f"per W in the gel (twin G, as I68' converts)"
+    )
     for arm in ("rod", "gel twin"):
         for tip in tips:
             pt, off, t, th, valid = rows[(arm, tip)]
-            _p(f"[GEO-36 I79] {label} [{arm}] {tip} ({pt}), {off} mm beyond the capsule apex = I78 Z_C: "
-               f"theta({t} s) {th} K (valid {valid}); per rod watt {float(th) / gp_rod:.7g} K/W "
-               f"(gel SAR, rod unheated, ASTM box; not a matched source)")
+            _p(
+                f"[GEO-36 I79] {label} [{arm}] {tip} ({pt}), {off} mm beyond the capsule apex = I78 Z_C: "
+                f"theta({t} s) {th} K (valid {valid}); per rod watt {float(th) / gp_rod:.7g} K/W "
+                f"(gel SAR, rod unheated, ASTM box; not a matched source)"
+            )
 
 
 def test_printed_table():
@@ -278,14 +313,18 @@ def test_printed_table():
     for arm in ARMS:
         (p, m), means = I75[arm]
         ln = I78[("line", "Z_P")]
-        _p(f"[GEO-36 I79] I75 {arm} (16 mm, 1 mm beyond a flat end; 1 W in the rod, self-heated; "
-           f"{I75_LOGS[arm]}:120–122): theta mean {means[0]}, D=0.5 mean {means[1]}; "
-           f"FEM/line {float(means[0]) / float(ln[0]):.7g}, D=0.5 {float(means[1]) / float(ln[1]):.7g}")
+        _p(
+            f"[GEO-36 I79] I75 {arm} (16 mm, 1 mm beyond a flat end; 1 W in the rod, self-heated; "
+            f"{I75_LOGS[arm]}:120–122): theta mean {means[0]}, D=0.5 mean {means[1]}; "
+            f"FEM/line {float(means[0]) / float(ln[0]):.7g}, D=0.5 {float(means[1]) / float(ln[1]):.7g}"
+        )
     for name in ("line", "twin"):
         for lab, mm in (("Z_P", "16"), ("Z_C", "17")):
             c, d, s = I78[(name, lab)]
-            _p(f"[GEO-36 I79] I78 {name} at {lab} = {mm} mm (infinite gel, 1 W per rod): theta {c}, "
-               f"D=0.5 {d}, ss {s}")
+            _p(
+                f"[GEO-36 I79] I78 {name} at {lab} = {mm} mm (infinite gel, 1 W per rod): theta {c}, "
+                f"D=0.5 {d}, ss {s}"
+            )
     if ENTRY63_LOG is None:
         _p(f"[GEO-36 I79] clinical rod / gel twin at 17 mm (= I78 Z_C), per rod watt: {BLANK}")
     else:
@@ -301,8 +340,11 @@ def _entry63_failures(text):
     for key, want in ENTRY63_F2182.items():
         if key in rows and rows[key] != want:
             failures.append(f"{key}: log {rows[key]!r} != literal {want!r}")
-    for name, got, want in (("share", share, ENTRY63_SHARE), ("twin_g", twin_g, ENTRY63_TWIN_G),
-                            ("rod_g", rod_g, (ENTRY63_ROD_GP,))):
+    for name, got, want in (
+        ("share", share, ENTRY63_SHARE),
+        ("twin_g", twin_g, ENTRY63_TWIN_G),
+        ("rod_g", rod_g, (ENTRY63_ROD_GP,)),
+    ):
         if got is not None and tuple(got) != want:
             failures.append(f"{name}: log {got!r} != literal {want!r}")
     return failures
@@ -310,8 +352,10 @@ def _entry63_failures(text):
 
 def test_i76_k63_entry63_reads_as_recorded():
     failures = _entry63_failures(_read_log(ENTRY63_LOG))
-    _p(f"\n[GEO-36 I76'] (K-63) {ENTRY63_LOG}: 4 F2182 rows + share/twin_g/rod_g, "
-       f"failures {failures or 'none'} (ASSERTED exact)")
+    _p(
+        f"\n[GEO-36 I76'] (K-63) {ENTRY63_LOG}: 4 F2182 rows + share/twin_g/rod_g, "
+        f"failures {failures or 'none'} (ASSERTED exact)"
+    )
     assert not failures
 
 
@@ -322,8 +366,10 @@ def test_i76_kc63_one_digit_changed_fails():
     lines[ENTRY63_ROD_LINE - 1] = orig.replace("+1.488186427e-02", "+1.488186428e-02")
     assert lines[ENTRY63_ROD_LINE - 1] != orig
     failures = _entry63_failures("\n".join(lines))
-    _p(f"[GEO-36 I76'] (K-c63) :{ENTRY63_ROD_LINE} theta last digit 7->8: failures {failures} "
-       f"(ASSERTED non-empty)")
+    _p(
+        f"[GEO-36 I76'] (K-c63) :{ENTRY63_ROD_LINE} theta last digit 7->8: failures {failures} "
+        f"(ASSERTED non-empty)"
+    )
     assert failures
 
 
@@ -339,14 +385,18 @@ def test_i76_p63_placement():
         half = 0.5 * (float(top[2]) - float(bot[2]))
         d = abs(half - Z_C)
         offs = sorted({rows[(arm, t)][1] for t in ENTRY63_TIPS})
-        _p(f"[GEO-36 I76'] (P63) {arm}: top ({rows[(arm, 'top')][0]}), bottom ({rows[(arm, 'bottom')][0]}); "
-           f"(z_top - z_bottom)/2 {half / MM:.6g} mm vs I78 Z_C {Z_C / MM:.6g} mm: |diff| {d:.1e} m "
-           f"(bound {P63_BOUND:.0e}); offsets {offs} (ASSERTED)")
+        _p(
+            f"[GEO-36 I76'] (P63) {arm}: top ({rows[(arm, 'top')][0]}), bottom ({rows[(arm, 'bottom')][0]}); "
+            f"(z_top - z_bottom)/2 {half / MM:.6g} mm vs I78 Z_C {Z_C / MM:.6g} mm: |diff| {d:.1e} m "
+            f"(bound {P63_BOUND:.0e}); offsets {offs} (ASSERTED)"
+        )
         if top[:2] != bot[:2] or d > P63_BOUND or offs != ["1.0"]:
             bad.append(arm)
     d_l = abs(i83.RUNGS[1] - Z_C)
-    _p(f"[GEO-36 I76'] (L17) I81 RUNGS[1] {i83.RUNGS[1] / MM:.6g} mm vs Z_C {Z_C / MM:.6g} mm: "
-       f"|diff| {d_l:.1e} m (bound {P_BOUND:.0e}, ASSERTED)")
+    _p(
+        f"[GEO-36 I76'] (L17) I81 RUNGS[1] {i83.RUNGS[1] / MM:.6g} mm vs Z_C {Z_C / MM:.6g} mm: "
+        f"|diff| {d_l:.1e} m (bound {P_BOUND:.0e}, ASSERTED)"
+    )
     assert not bad, bad
     assert d_l <= P_BOUND
 
@@ -360,36 +410,52 @@ def test_i76_readout_beside_ladder_and_phi_a():
     gp_rod = float(twin_g[1]) * float(share[3])
     per_w = {key: float(r[3]) / gp_rod for key, r in rows.items()}
     for (arm, tip), v in per_w.items():
-        _p(f"[GEO-36 I76'] clinical [{arm}] {tip} at 17 mm (= I78 Z_C): theta(900 s) {rows[(arm, tip)][3]} K; "
-           f"per rod watt {v:.7g} K/W (G*P_rod {gp_rod:.7g} W; gel SAR, rod unheated, ASTM box; "
-           f"not a matched source)")
+        _p(
+            f"[GEO-36 I76'] clinical [{arm}] {tip} at 17 mm (= I78 Z_C): theta(900 s) {rows[(arm, tip)][3]} K; "
+            f"per rod watt {v:.7g} K/W (G*P_rod {gp_rod:.7g} W; gel SAR, rod unheated, ASTM box; "
+            f"not a matched source)"
+        )
     for tip in ENTRY63_TIPS:
         tip_ratio = float(rows[("rod", tip)][3]) / float(rows[("gel twin", tip)][3])
-        _p(f"[GEO-36 I76'] clinical rod / gel twin F2182 theta ratio {tip}: {tip_ratio:.7g} (printed)")
+        _p(
+            f"[GEO-36 I76'] clinical rod / gel twin F2182 theta ratio {tip}: {tip_ratio:.7g} (printed)"
+        )
     for arm in ARMS:
-        _p(f"[GEO-36 I76'] I75 {arm} 16 mm (1 W in the rod body, flat end): theta mean {I75[arm][1][0]}, "
-           f"D=0.5 mean {I75[arm][1][1]}")
+        _p(
+            f"[GEO-36 I76'] I75 {arm} 16 mm (1 W in the rod body, flat end): theta mean {I75[arm][1][0]}, "
+            f"D=0.5 mean {I75[arm][1][1]}"
+        )
     for arm, rec in i83.FEM.items():
         for k, z in enumerate(i83.RUNGS):
-            _p(f"[GEO-36 I76'] I81 {arm} |z| {z / MM:.6g} mm (1 W in the rod, I55's cube; {rec['log']}): "
-               f"+/- mean {rec['mean'][k]}, D=0.5 mean {rec['dmean'][k]} K/W")
+            _p(
+                f"[GEO-36 I76'] I81 {arm} |z| {z / MM:.6g} mm (1 W in the rod, I55's cube; {rec['log']}): "
+                f"+/- mean {rec['mean'][k]}, D=0.5 mean {rec['dmean'][k]} K/W"
+            )
     closed = [i83._closed(z) for z in i83.RUNGS]
     for z, (phi, dphi) in zip(i83.RUNGS, closed):
-        _p(f"[GEO-36 I76'] I83 |z| {z / MM:.6g} mm (uniform cylinder, infinite gel, 1 W): SCALE*Phi_a {phi:.7g}, "
-           f"D=0.5 {dphi:.7g} K/W")
+        _p(
+            f"[GEO-36 I76'] I83 |z| {z / MM:.6g} mm (uniform cylinder, infinite gel, 1 W): SCALE*Phi_a {phi:.7g}, "
+            f"D=0.5 {dphi:.7g} K/W"
+        )
     c, d, s = I78[("line", "Z_C")]
     _p(f"[GEO-36 I76'] I78 line at Z_C = 17 mm (infinite gel, 1 W): theta {c}, D=0.5 {d}, ss {s}")
     rod_mean = 0.5 * (per_w[("rod", "top")] + per_w[("rod", "bottom")])
     for arm, rec in i83.FEM.items():
         m17 = float(rec["mean"][1])
-        _p(f"[GEO-36 I76'] 17 mm ratio: clinical rod per rod watt (tip mean) {rod_mean:.7g} / I81 {arm} "
-           f"{rec['mean'][1]} = {rod_mean / m17:.7g} (printed, a record, no band)")
-    _p(f"[GEO-36 I76'] 17 mm ratio: clinical rod per rod watt (tip mean) {rod_mean:.7g} / SCALE*Phi_a "
-       f"{closed[1][0]:.7g} = {rod_mean / closed[1][0]:.7g} (printed, a record, no band)")
+        _p(
+            f"[GEO-36 I76'] 17 mm ratio: clinical rod per rod watt (tip mean) {rod_mean:.7g} / I81 {arm} "
+            f"{rec['mean'][1]} = {rod_mean / m17:.7g} (printed, a record, no band)"
+        )
+    _p(
+        f"[GEO-36 I76'] 17 mm ratio: clinical rod per rod watt (tip mean) {rod_mean:.7g} / SCALE*Phi_a "
+        f"{closed[1][0]:.7g} = {rod_mean / closed[1][0]:.7g} (printed, a record, no band)"
+    )
     # (N-row): I81's gel 16 mm mean placed in the 17 mm cell misses the 17 mm mean.
     m16s, m17s = i83.FEM["gel"]["mean"][0], i83.FEM["gel"]["mean"][1]
     unit = 10.0 ** (int(m17s.split("e")[1]) - 6)
     miss = abs(float(m16s) - float(m17s))
-    _p(f"[GEO-36 I76'] (N-row) I81 gel 16 mm mean {m16s} in the 17 mm cell vs {m17s}: |miss| {miss:.7g} K/W "
-       f"(> {unit:.0e}, ASSERTED); separation 1 - m17/m16 {1.0 - float(m17s) / float(m16s):.6f}")
+    _p(
+        f"[GEO-36 I76'] (N-row) I81 gel 16 mm mean {m16s} in the 17 mm cell vs {m17s}: |miss| {miss:.7g} K/W "
+        f"(> {unit:.0e}, ASSERTED); separation 1 - m17/m16 {1.0 - float(m17s) / float(m16s):.6f}"
+    )
     assert miss > unit

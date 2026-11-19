@@ -44,9 +44,16 @@ from fem_em_solver import (
     run_study_file,
 )
 from fem_em_solver.study_yaml import _load, _study_from_mapping
-
 from tests.complex_mode import IS_COMPLEX
-from tests.package.test_wf1_study_yaml import LOGS, WF1, _cmp, _fresh_dir, _mapping, _rc_all, _spec_diff
+from tests.package.test_wf1_study_yaml import (
+    LOGS,
+    WF1,
+    _cmp,
+    _fresh_dir,
+    _mapping,
+    _rc_all,
+    _spec_diff,
+)
 from tests.package.test_wf1_yaml_thermal_box import _check_summary
 from tests.package.test_wf1_yaml_thermal_box_quadratic import P36_DOFS, _on_p, _owned_rel
 from tests.package.test_wf15_study_transient import _same_mesh
@@ -140,8 +147,13 @@ def test_wf1_s18_parse_and_refusals(monkeypatch, capsys):
         calls["n"] += 1
         raise AssertionError("build must not be called by a parse")
 
-    for cls in (SphereInBoxGeometry, FHumanBirdcageGeometry, FourPortBirdcageGeometry,
-                ThermalBallGeometry, ThermalBoxGeometry):
+    for cls in (
+        SphereInBoxGeometry,
+        FHumanBirdcageGeometry,
+        FourPortBirdcageGeometry,
+        ThermalBallGeometry,
+        ThermalBoxGeometry,
+    ):
         monkeypatch.setattr(cls, "build", stub)
 
     assert P38_DOFS == P36_DOFS  # same fixture (m = 4, P2)
@@ -159,9 +171,12 @@ def test_wf1_s18_parse_and_refusals(monkeypatch, capsys):
     _cmp(th.transient, _transient(), "transient", out)
     _cmp(th.duty, _duty(), "duty", out)
     _say(capsys, f"  (K) {QUAD_DUTY.name}: kind {kind!r}, outputs {outputs!r}, thermal diffs {out}")
-    _say(capsys, f"  (K) dt_s {th.transient.dt_s.hex()} (DT_BOX {DT_BOX.hex()}); period "
-         f"{th.duty.period_s.hex()} (2 HALF_T {(2.0 * HALF_T).hex()}); duty "
-         f"{th.duty.duty.hex()} (DUTY {float(DUTY).hex()})")
+    _say(
+        capsys,
+        f"  (K) dt_s {th.transient.dt_s.hex()} (DT_BOX {DT_BOX.hex()}); period "
+        f"{th.duty.period_s.hex()} (2 HALF_T {(2.0 * HALF_T).hex()}); duty "
+        f"{th.duty.duty.hex()} (DUTY {float(DUTY).hex()})",
+    )
     assert kind == "thermal_box"
     assert out == [], out
 
@@ -196,8 +211,10 @@ def _hex_dict_equal(a, b):
 
 def test_wf1_s18_quadratic_duty_reproduces_p38():
     if not _knob():
-        pytest.skip(f"{S18_ENV} unset: the quadratic-duty solve leg is environment-selected "
-                    "(complex build, -n 2)")
+        pytest.skip(
+            f"{S18_ENV} unset: the quadratic-duty solve leg is environment-selected "
+            "(complex build, -n 2)"
+        )
     comm = MPI.COMM_WORLD
     assert IS_COMPLEX, "P38's records are complex-build records"
     assert comm.size == 2, comm.size
@@ -227,17 +244,25 @@ def test_wf1_s18_quadratic_duty_reproduces_p38():
     c_step = _rel_p(msh, th_t, ex_s, chi)
     bal = st["max_balance_residual"]
 
-    _p0(f"WF1S18 (Pdeg) P2 dofs file / Python {dofs} (P38 {P38_DOFS}); file run {t_file:.1f}s, "
-        f"Python run {t_py:.1f}s; summary source {st['source']!r}; duty {st['duty']!r}")
+    _p0(
+        f"WF1S18 (Pdeg) P2 dofs file / Python {dofs} (P38 {P38_DOFS}); file run {t_file:.1f}s, "
+        f"Python run {t_py:.1f}s; summary source {st['source']!r}; duty {st['duty']!r}"
+    )
     _p0(f"WF1S18 (UT) cells file / Python {ca} / {cb} (record {CELLS_M4}); geometry bitwise {geo}")
     _p0(f"WF1S18 (S0) schedule {s0} (SCHEDULE {SCHEDULE}); multipliers equal Python {mult}")
-    _p0(f"WF1S18 (I-Py) owned max|dθ|/max|θ| = {ip:.3e} (hex {float(ip).hex()}; band "
-        f"{L0_BAND:.0e})")
-    _p0(f"WF1S18 (T-qduty) interior vs duty quadratic series {t_qduty:.6e} (P38 {P38_T_QDUTY}; "
-        f"band {INTERIOR_BAND:.0e}); {npts} P3 points")
+    _p0(
+        f"WF1S18 (I-Py) owned max|dθ|/max|θ| = {ip:.3e} (hex {float(ip).hex()}; band "
+        f"{L0_BAND:.0e})"
+    )
+    _p0(
+        f"WF1S18 (T-qduty) interior vs duty quadratic series {t_qduty:.6e} (P38 {P38_T_QDUTY}; "
+        f"band {INTERIOR_BAND:.0e}); {npts} P3 points"
+    )
     _p0(f"WF1S18 (E-qduty) CN max balance residual {bal:.3e} (P38 {P38_E:.3e}; band {E_BAND:.0e})")
-    _p0(f"WF1S18 control (c-step) duty file vs unscheduled transient series {c_step:.4e} "
-        f"(P38 {P38_C_STEP:.4e}; asserted > {INTERIOR_BAND:.0e})")
+    _p0(
+        f"WF1S18 control (c-step) duty file vs unscheduled transient series {c_step:.4e} "
+        f"(P38 {P38_C_STEP:.4e}; asserted > {INTERIOR_BAND:.0e})"
+    )
     _check_summary(run, comm, "quadratic duty", transient=True)
 
     assert dofs == [P38_DOFS] * 2

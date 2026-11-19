@@ -65,7 +65,8 @@ def _call(st, g):
     return st.temperature(
         RobinCooling(K_GEL, H_GEL, T_INF),
         transient=study_mod.TransientSpec(
-            dt_s=1.0, n_steps=1, rho_c_j_per_m3_k=RHO_C, initial_gradient_k_per_m=g),
+            dt_s=1.0, n_steps=1, rho_c_j_per_m3_k=RHO_C, initial_gradient_k_per_m=g
+        ),
         balls={"mass_g": 10.0, "centres": [[0.0, 0.0, 0.0]]},
     )
 
@@ -77,8 +78,10 @@ def test_ops85_tuned_gradient_refused_at_its_frame(counters, g):
     with pytest.raises(ValueError) as excinfo:
         _call(st, g)
     entry = excinfo.traceback[-1]
-    _say(f"g={g!r}: {str(excinfo.value)!r} from {entry.name} line {entry.lineno + 1}; "
-         f"_tuned_result calls {counters['tuned_result']}, builder calls {counters['builder']}")
+    _say(
+        f"g={g!r}: {str(excinfo.value)!r} from {entry.name} line {entry.lineno + 1}; "
+        f"_tuned_result calls {counters['tuned_result']}, builder calls {counters['builder']}"
+    )
     assert str(excinfo.value) == MESSAGE
     assert entry.name == FRAME
     assert counters["tuned_result"] == 0
@@ -90,7 +93,9 @@ def test_ops85_gradient_free_spec_reaches_tuned_result(counters):
     st = _study()
     with pytest.raises(_Reached):
         _call(st, None)
-    _say(f"g=None: reached _tuned_result; _tuned_result calls {counters['tuned_result']}, "
-         f"builder calls {counters['builder']}")
+    _say(
+        f"g=None: reached _tuned_result; _tuned_result calls {counters['tuned_result']}, "
+        f"builder calls {counters['builder']}"
+    )
     assert counters["tuned_result"] == 1
     assert counters["builder"] == 0

@@ -25,7 +25,6 @@ import fem_em_solver.cli as cli
 import fem_em_solver.study as study_module
 from fem_em_solver import CapacitorSheets, FourPortBirdcageGeometry, LumpedPortDrive, Study
 from fem_em_solver.study_yaml import StudyConfigError
-
 from tests.mesh.test_birdcage_implant_rod import ROD
 from tests.package.test_wf15_study_implant_rod import _load, _mapping, _phantom, _rod_yaml
 from tests.validation.test_birdcage_power_identity import STEP2D_FREQUENCY_HZ
@@ -48,8 +47,13 @@ def _p0(*args):
 
 def _study(rod, excitation=None, degree=1):
     geometry = FourPortBirdcageGeometry(implant_rod=ROD if rod else None)
-    return Study(geometry, _phantom(), excitation or LumpedPortDrive(),
-                 frequency_hz=STEP2D_FREQUENCY_HZ, degree=degree)
+    return Study(
+        geometry,
+        _phantom(),
+        excitation or LumpedPortDrive(),
+        frequency_hz=STEP2D_FREQUENCY_HZ,
+        degree=degree,
+    )
 
 
 @pytest.fixture
@@ -99,16 +103,19 @@ def test_s12_api_refusals_before_any_mesh(name, builder, tmp_path):
             ENTRIES[name](_study(True, CAPS), tmp_path)
     # Off ``solve`` the CapacitorSheets TypeError still fires first, as on `main`.
     lifted = name in ("solve", "solve palace")
-    with pytest.raises(ValueError if lifted else TypeError,
-                       match="degree 2" if lifted else "CapacitorSheets") as caps2:
+    with pytest.raises(
+        ValueError if lifted else TypeError, match="degree 2" if lifted else "CapacitorSheets"
+    ) as caps2:
         ENTRIES[name](_study(True, CAPS, degree=2), tmp_path)
     with pytest.raises(ValueError, match="degree 2") as deg:
         ENTRIES[name](_study(True, degree=2), tmp_path)
     assert caps is None or "implant_rod" in str(caps.value)
     assert "implant_rod" in str(deg.value) and "implant_rod" in str(caps2.value)
     assert len(builder) == (1 if name == "solve" else 0)
-    _p0(f"\n[WF-15 s12] (Ref) {name}: {caps.value if caps else 'CAPS reached the builder (s13)'}"
-        f" | {caps2.value} | {deg.value}; builds {len(builder)}")
+    _p0(
+        f"\n[WF-15 s12] (Ref) {name}: {caps.value if caps else 'CAPS reached the builder (s13)'}"
+        f" | {caps2.value} | {deg.value}; builds {len(builder)}"
+    )
 
 
 def test_s12_tune_and_the_cache(builder):
@@ -168,9 +175,15 @@ YAML_CASES = {
     # degree 2 the degree refusal, and on the copper hole route the ``implant`` refusal.
     "caps, tune": (_doc({"degree": 1}, CAPS_YAML, tune={"k": 1}), "tune"),
     "caps, degree 2": (_doc({"degree": 2}, CAPS_YAML), "study.degree"),
-    "caps, hole conductor": (_doc({"degree": 1}, CAPS_YAML, conductor={"kind": "leontovich"},
-                                  geometry={"kind": "four_port_birdcage", "preset": "f_small",
-                                            "as_hole": True}), "implant"),
+    "caps, hole conductor": (
+        _doc(
+            {"degree": 1},
+            CAPS_YAML,
+            conductor={"kind": "leontovich"},
+            geometry={"kind": "four_port_birdcage", "preset": "f_small", "as_hole": True},
+        ),
+        "implant",
+    ),
     "degree 2": (_doc({"degree": 2}), "study.degree"),
     "degree omitted": (_doc({}), "study.degree"),
     "degree 2, sweep": (_doc({"degree": 2, "sweep_hz": list(SWEEP_HZ)}), "study.degree"),
@@ -201,8 +214,15 @@ def test_s12_yaml_controls_parse(tmp_path):
 def test_s12_study_default_is_what_the_omitted_refusal_assumes():
     """The YAML reads an omitted degree as not 1 because the default is 2."""
     assert _study(False).degree == 1
-    assert Study(FourPortBirdcageGeometry(), _phantom(), LumpedPortDrive(),
-                 frequency_hz=STEP2D_FREQUENCY_HZ).degree == 2
+    assert (
+        Study(
+            FourPortBirdcageGeometry(),
+            _phantom(),
+            LumpedPortDrive(),
+            frequency_hz=STEP2D_FREQUENCY_HZ,
+        ).degree
+        == 2
+    )
 
 
 @pytest.mark.parametrize("name", ["caps, degree 2", "degree 2"])

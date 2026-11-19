@@ -55,13 +55,12 @@ from fem_em_solver.core import (
 from fem_em_solver.post.evaluation import evaluate_vector_field_parallel
 from fem_em_solver.post.sar import mean_sar, uniform_sphere_sar_closed_form
 from fem_em_solver.utils.constants import EPSILON_0
-
 from tests.complex_mode import complex_only
 from tests.materials.test_phantom_material_model import (
     MAT4_BAND,
     SOLVE_FLOOR_RECORD,
-    _difference,
     _dg0_owned_diff,
+    _difference,
     _same_pattern,
     _volume_operator,
     build_preset_sphere_mesh,

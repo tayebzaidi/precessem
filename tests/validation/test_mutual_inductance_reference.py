@@ -76,7 +76,6 @@ import pytest
 from scipy.special import ellipe, ellipk
 
 from fem_em_solver.utils.constants import MU_0
-
 from tests.validation.test_port_reaction_impedance import (
     MAJOR_RADIUS,
     MINOR_RADIUS,
@@ -117,9 +116,7 @@ def mutual_inductance_elliptic(a: float, b: float, d: float) -> float:
     """
     m = 4.0 * a * b / ((a + b) ** 2 + d**2)
     k = np.sqrt(m)
-    return float(
-        MU_0 * np.sqrt(a * b) * ((2.0 / k - k) * ellipk(m) - (2.0 / k) * ellipe(m))
-    )
+    return float(MU_0 * np.sqrt(a * b) * ((2.0 / k - k) * ellipk(m) - (2.0 / k) * ellipe(m)))
 
 
 def _disc_nodes(radius: float, n_radial: int, n_angular: int):
@@ -158,11 +155,7 @@ def tube_mutual_inductance(
 
     m = 4.0 * rho1 * rho2 / ((rho1 + rho2) ** 2 + dz**2)
     k = np.sqrt(m)
-    kernel = (
-        MU_0
-        * np.sqrt(rho1 * rho2)
-        * ((2.0 / k - k) * ellipk(m) - (2.0 / k) * ellipe(m))
-    )
+    kernel = MU_0 * np.sqrt(rho1 * rho2) * ((2.0 / k - k) * ellipk(m) - (2.0 / k) * ellipe(m))
     return float(wt1 @ kernel @ wt2)
 
 
@@ -186,9 +179,9 @@ def test_filament_reference_two_independent_routes(label, radius, separation):
         f"M_vecpot = {m_vector_potential:.12e} H, "
         f"M_elliptic = {m_elliptic:.12e} H, rel = {rel:.3e}"
     )
-    assert rel < FILAMENT_ROUTE_TOLERANCE, (
-        f"{label}: two routes to the same closed form disagree at {rel:.3e}"
-    )
+    assert (
+        rel < FILAMENT_ROUTE_TOLERANCE
+    ), f"{label}: two routes to the same closed form disagree at {rel:.3e}"
 
 
 def test_modulus_convention_control_is_detectable():
@@ -205,9 +198,7 @@ def test_modulus_convention_control_is_detectable():
     m = 4.0 * a * a / ((2.0 * a) ** 2 + d**2)
     k = np.sqrt(m)
     m_correct = mutual_inductance_elliptic(a, a, d)
-    m_wrong = float(
-        MU_0 * a * ((2.0 / k - k) * ellipk(k) - (2.0 / k) * ellipe(k))
-    )
+    m_wrong = float(MU_0 * a * ((2.0 / k - k) * ellipk(k) - (2.0 / k) * ellipe(k)))
     rel = abs(m_wrong - m_correct) / abs(m_correct)
     print(
         f"\n[3b-viii] modulus-convention control: M(m={m:.6f}) = "
@@ -222,9 +213,7 @@ def test_modulus_convention_control_is_detectable():
 
 def test_filament_reference_matches_logged_omega_m12():
     """Anchor to executed history: the gates' printed ``ωM₁₂ = 1.241755 Ω``."""
-    omega_m = OMEGA * mutual_inductance_elliptic(
-        MAJOR_RADIUS, MAJOR_RADIUS, SEPARATION
-    )
+    omega_m = OMEGA * mutual_inductance_elliptic(MAJOR_RADIUS, MAJOR_RADIUS, SEPARATION)
     rel = abs(omega_m - OMEGA_M12_LOGGED_OHM) / OMEGA_M12_LOGGED_OHM
     print(
         f"\n[3b-viii] omega*M12 (elliptic) = {omega_m:.6f} Ohm vs logged "
@@ -239,26 +228,18 @@ def test_finite_cross_section_correction_is_percent_scale():
 
     values = []
     for n_radial, n_angular in TUBE_QUADRATURE_ORDERS:
-        m_tube = tube_mutual_inductance(
-            MAJOR_RADIUS, MINOR_RADIUS, SEPARATION, n_radial, n_angular
-        )
+        m_tube = tube_mutual_inductance(MAJOR_RADIUS, MINOR_RADIUS, SEPARATION, n_radial, n_angular)
         values.append(m_tube)
         print(
             f"\n[3b-viii] tube quadrature ({n_radial:2d}, {n_angular:2d}): "
             f"M_tube = {m_tube:.12e} H, ratio = {m_tube / m_fil:.12f}"
         )
 
-    deltas = [
-        abs(values[i + 1] - values[i]) / abs(values[i + 1])
-        for i in range(len(values) - 1)
-    ]
-    print(
-        "[3b-viii] successive quadrature deltas: "
-        + ", ".join(f"{d:.3e}" for d in deltas)
-    )
-    assert deltas[-1] < TUBE_QUADRATURE_TOLERANCE, (
-        f"tube quadrature not converged: last delta {deltas[-1]:.3e}"
-    )
+    deltas = [abs(values[i + 1] - values[i]) / abs(values[i + 1]) for i in range(len(values) - 1)]
+    print("[3b-viii] successive quadrature deltas: " + ", ".join(f"{d:.3e}" for d in deltas))
+    assert (
+        deltas[-1] < TUBE_QUADRATURE_TOLERANCE
+    ), f"tube quadrature not converged: last delta {deltas[-1]:.3e}"
 
     ratio = values[-1] / m_fil
     print(

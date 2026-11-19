@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from pathlib import Path
 import json
 import math
+from pathlib import Path
 from typing import Any
 
 
@@ -70,7 +70,9 @@ def build_phantom_quicklook_report(metrics: dict[str, Any]) -> dict[str, Any]:
             "requested_cells": int(sampling.get("requested_cells", 0)),
             "sampling_cells": sampling_cells,
             "valid_sample_cells": valid_cells,
-            "boundary_adjacent_cells_dropped": int(sampling.get("boundary_adjacent_cells_dropped", 0)),
+            "boundary_adjacent_cells_dropped": int(
+                sampling.get("boundary_adjacent_cells_dropped", 0)
+            ),
             "invalid_samples_dropped_e": int(sampling.get("invalid_samples_dropped_e", 0)),
             "invalid_samples_dropped_b": int(sampling.get("invalid_samples_dropped_b", 0)),
         },
@@ -87,14 +89,8 @@ def format_phantom_quicklook_report(report: dict[str, Any]) -> str:
     lines = [
         "quick-look phantom metrics:",
         f"  status: {report['status']}",
-        (
-            "  |E| min/max/mean: "
-            f"{s['e_min']:.6e} / {s['e_max']:.6e} / {s['e_mean']:.6e}"
-        ),
-        (
-            "  |B| min/max/mean: "
-            f"{s['b_min']:.6e} / {s['b_max']:.6e} / {s['b_mean']:.6e}"
-        ),
+        ("  |E| min/max/mean: " f"{s['e_min']:.6e} / {s['e_max']:.6e} / {s['e_mean']:.6e}"),
+        ("  |B| min/max/mean: " f"{s['b_min']:.6e} / {s['b_max']:.6e} / {s['b_mean']:.6e}"),
         (
             # Shape indicators only (POST-3): a mesh length scale times ω, not
             # a correctness gate.  Labelled so no reader mistakes them for one.

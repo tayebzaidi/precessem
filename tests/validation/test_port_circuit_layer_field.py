@@ -42,12 +42,13 @@ from fem_em_solver.ports.lumped import (
     series_rlc_impedance,
 )
 from fem_em_solver.ports.sparameters import _power_waves
-
 from tests.complex_mode import complex_only
 from tests.validation.test_port_birdcage_four_port import build_four_port_sweep
 from tests.validation.test_port_gap_voltage_impedance import FREQUENCY_HZ
 from tests.validation.test_port_lumped_rlc_termination import (
     RECORD_RANK_WIDTH as PORT14_RECORD_RANK_WIDTH,
+)
+from tests.validation.test_port_lumped_rlc_termination import (
     REDUCTION_BAND,
     REDUCTION_FLOOR_F_SMALL,
     REDUCTION_FLOOR_RTOL,
@@ -79,57 +80,178 @@ _LABELS_10 = ("C = 100 pF", "L = 1 uH", "R = 200 Ohm")
 # (this module's measurement window, `-n 2`, 116 085 cells); line numbers per
 # record.  New records — a later change that moves them is a change to the sheet,
 # the width or the fixture and must say so, never a re-record in passing.
-S_64MHZ_EPS0_RECORD = np.array([
-    [(0.04096032094515905+0.588438126273243j), (0.36869876847822247-0.20763176502125394j), (0.2175640063260772-0.2589766893184673j), (0.36885610834042515-0.20750858519022258j)],
-    [(0.3686987684782226-0.20763176502125388j), (0.0410990690416122+0.588462522735609j), (0.36865120652430045-0.20756213008361019j), (0.2176478860085907-0.2589825900939549j)],
-    [(0.21756400632607795-0.25897668931846657j), (0.3686512065243011-0.20756213008360905j), (0.04128575558847447+0.5883159795863748j), (0.36862349903114905-0.20749025534563978j)],
-    [(0.3688561083404254-0.2075085851902212j), (0.21764788600859156-0.25898259009395413j), (0.36862349903114905-0.2074902553456397j), (0.040899285519791384+0.5883497836949023j)],
-], dtype=np.complex128)
+S_64MHZ_EPS0_RECORD = np.array(
+    [
+        [
+            (0.04096032094515905 + 0.588438126273243j),
+            (0.36869876847822247 - 0.20763176502125394j),
+            (0.2175640063260772 - 0.2589766893184673j),
+            (0.36885610834042515 - 0.20750858519022258j),
+        ],
+        [
+            (0.3686987684782226 - 0.20763176502125388j),
+            (0.0410990690416122 + 0.588462522735609j),
+            (0.36865120652430045 - 0.20756213008361019j),
+            (0.2176478860085907 - 0.2589825900939549j),
+        ],
+        [
+            (0.21756400632607795 - 0.25897668931846657j),
+            (0.3686512065243011 - 0.20756213008360905j),
+            (0.04128575558847447 + 0.5883159795863748j),
+            (0.36862349903114905 - 0.20749025534563978j),
+        ],
+        [
+            (0.3688561083404254 - 0.2075085851902212j),
+            (0.21764788600859156 - 0.25898259009395413j),
+            (0.36862349903114905 - 0.2074902553456397j),
+            (0.040899285519791384 + 0.5883497836949023j),
+        ],
+    ],
+    dtype=np.complex128,
+)
 """64 MHz ε = 0 4×4, **50 Ω reference impedance**, κ-corrected width
 (κ = ``STEP2D_C_OVER_TERMINAL_64MHZ_P1``), ports P1..P4.  Log :1902–1907."""
 
-S_64MHZ_TERMINATED_C_RECORD = np.array([
-    [(-0.15896440742355208+0.7611698008127739j), (0.26746775861313826-0.02210515224469384j), (0.017472861817405805-0.08633128660988987j)],
-    [(0.26746775861312616-0.02210515224468717j), (0.017679229408695596+0.7555295770616381j), (0.2673408487665807-0.022043820811387258j)],
-    [(0.01747286181740617-0.08633128660988985j), (0.2673408487665842-0.022043820811380715j), (-0.15938728172611794+0.760945053997503j)],
-], dtype=np.complex128)
+S_64MHZ_TERMINATED_C_RECORD = np.array(
+    [
+        [
+            (-0.15896440742355208 + 0.7611698008127739j),
+            (0.26746775861313826 - 0.02210515224469384j),
+            (0.017472861817405805 - 0.08633128660988987j),
+        ],
+        [
+            (0.26746775861312616 - 0.02210515224468717j),
+            (0.017679229408695596 + 0.7555295770616381j),
+            (0.2673408487665807 - 0.022043820811387258j),
+        ],
+        [
+            (0.01747286181740617 - 0.08633128660988985j),
+            (0.2673408487665842 - 0.022043820811380715j),
+            (-0.15938728172611794 + 0.760945053997503j),
+        ],
+    ],
+    dtype=np.complex128,
+)
 """64 MHz 3×3 (P2..P4), **50 Ω reference**, P1 terminated in 100 pF, corrected
 width.  Log :1908–1912."""
 
-S_64MHZ_TERMINATED_L_RECORD = np.array([
-    [(0.1784314264161706+0.5468241980907841j), (0.45972047252613346-0.2773101463144525j), (0.35502328034306674-0.30056856575583146j)],
-    [(0.45972047252613363-0.27731014631445017j), (0.08983665645822514+0.5105322507454544j), (0.45973968015355254-0.2772111905245347j)],
-    [(0.35502328034306724-0.30056856575583j), (0.45973968015355254-0.27721119052453536j), (0.1783177017632695+0.5468161854897234j)],
-], dtype=np.complex128)
+S_64MHZ_TERMINATED_L_RECORD = np.array(
+    [
+        [
+            (0.1784314264161706 + 0.5468241980907841j),
+            (0.45972047252613346 - 0.2773101463144525j),
+            (0.35502328034306674 - 0.30056856575583146j),
+        ],
+        [
+            (0.45972047252613363 - 0.27731014631445017j),
+            (0.08983665645822514 + 0.5105322507454544j),
+            (0.45973968015355254 - 0.2772111905245347j),
+        ],
+        [
+            (0.35502328034306724 - 0.30056856575583j),
+            (0.45973968015355254 - 0.27721119052453536j),
+            (0.1783177017632695 + 0.5468161854897234j),
+        ],
+    ],
+    dtype=np.complex128,
+)
 """64 MHz 3×3 (P2..P4), **50 Ω reference**, P1 terminated in 1 µH, corrected
 width.  Log :1913–1917."""
 
-S_10MHZ_EPS0_RECORD = np.array([
-    [(-0.3712480826229221+0.1417750480315299j), (0.46710240751656223-0.041777467794962254j), (0.43692879315524397-0.07151541640516348j), (0.4671206517942747-0.04178189147804042j)],
-    [(0.46710240751656146-0.041777467794969825j), (-0.37122380826283563+0.14175320711906597j), (0.4670287302578389-0.041745836524977674j), (0.43699814599286685-0.07153035555845971j)],
-    [(0.43692879315524336-0.0715154164051673j), (0.4670287302578397-0.04174583652497423j), (-0.3710071039219082+0.14172799249526263j), (0.46695595163695913-0.041765219669900815j)],
-    [(0.4671206517942744-0.04178189147803934j), (0.43699814599286824-0.07153035555845194j), (0.4669559516369588-0.04176521966989565j), (-0.37117289843528445+0.14177968427047544j)],
-], dtype=np.complex128)
+S_10MHZ_EPS0_RECORD = np.array(
+    [
+        [
+            (-0.3712480826229221 + 0.1417750480315299j),
+            (0.46710240751656223 - 0.041777467794962254j),
+            (0.43692879315524397 - 0.07151541640516348j),
+            (0.4671206517942747 - 0.04178189147804042j),
+        ],
+        [
+            (0.46710240751656146 - 0.041777467794969825j),
+            (-0.37122380826283563 + 0.14175320711906597j),
+            (0.4670287302578389 - 0.041745836524977674j),
+            (0.43699814599286685 - 0.07153035555845971j),
+        ],
+        [
+            (0.43692879315524336 - 0.0715154164051673j),
+            (0.4670287302578397 - 0.04174583652497423j),
+            (-0.3710071039219082 + 0.14172799249526263j),
+            (0.46695595163695913 - 0.041765219669900815j),
+        ],
+        [
+            (0.4671206517942744 - 0.04178189147803934j),
+            (0.43699814599286824 - 0.07153035555845194j),
+            (0.4669559516369588 - 0.04176521966989565j),
+            (-0.37117289843528445 + 0.14177968427047544j),
+        ],
+    ],
+    dtype=np.complex128,
+)
 """10 MHz 4×4, **50 Ω reference impedance**, uncorrected width (the step 1e
 route; S11/S21 agree with ``STEP1E_S11_S21_10MHZ`` to the printed digit).  Log
 :1918–1923."""
 
 S_10MHZ_TERMINATED_RECORDS = {
-    "C = 100 pF": np.array([
-        [(-0.22052238260823231+0.055497976800163835j), (0.6029815666218163-0.13334267459628804j), (0.5877050260671661-0.15778989419733452j)],
-        [(0.6029815666217788-0.13334267459639468j), (-0.24930900074654927+0.04611773613902059j), (0.6029136268873555-0.13336649006510604j)],
-        [(0.5877050260671222-0.1577898941974242j), (0.6029136268873567-0.13336649006509965j), (-0.2204605637547934+0.05551583710999344j)],
-    ], dtype=np.complex128),
-    "L = 1 uH": np.array([
-        [(-0.26172946163106475+0.27765637055387615j), (0.5794872181046065+0.07867251624413349j), (0.5464976333238316+0.06437753930020826j)],
-        [(0.5794872181046555+0.07867251624396865j), (-0.25682445432130646+0.2473621989075926j), (0.5794196057418518+0.07865723389338376j)],
-        [(0.5464976333238585+0.0643775393000692j), (0.5794196057418515+0.07865723389339112j), (-0.26166827017746486+0.2776923107067478j)],
-    ], dtype=np.complex128),
-    "R = 200 Ohm": np.array([
-        [(-0.2638340723487933+0.1300324741074908j), (0.5673356030084661-0.06017986740403015j), (0.5443920637930691-0.08325218927408856j)],
-        [(0.5673356030084662-0.060179867404030966j), (-0.2778316886500638+0.11746090786602438j), (0.5672666860773957-0.06020057502815716j)],
-        [(0.5443920637930705-0.08325218927407826j), (0.567266686077396-0.06020057502814554j), (-0.2637747985927443+0.13005674978250828j)],
-    ], dtype=np.complex128),
+    "C = 100 pF": np.array(
+        [
+            [
+                (-0.22052238260823231 + 0.055497976800163835j),
+                (0.6029815666218163 - 0.13334267459628804j),
+                (0.5877050260671661 - 0.15778989419733452j),
+            ],
+            [
+                (0.6029815666217788 - 0.13334267459639468j),
+                (-0.24930900074654927 + 0.04611773613902059j),
+                (0.6029136268873555 - 0.13336649006510604j),
+            ],
+            [
+                (0.5877050260671222 - 0.1577898941974242j),
+                (0.6029136268873567 - 0.13336649006509965j),
+                (-0.2204605637547934 + 0.05551583710999344j),
+            ],
+        ],
+        dtype=np.complex128,
+    ),
+    "L = 1 uH": np.array(
+        [
+            [
+                (-0.26172946163106475 + 0.27765637055387615j),
+                (0.5794872181046065 + 0.07867251624413349j),
+                (0.5464976333238316 + 0.06437753930020826j),
+            ],
+            [
+                (0.5794872181046555 + 0.07867251624396865j),
+                (-0.25682445432130646 + 0.2473621989075926j),
+                (0.5794196057418518 + 0.07865723389338376j),
+            ],
+            [
+                (0.5464976333238585 + 0.0643775393000692j),
+                (0.5794196057418515 + 0.07865723389339112j),
+                (-0.26166827017746486 + 0.2776923107067478j),
+            ],
+        ],
+        dtype=np.complex128,
+    ),
+    "R = 200 Ohm": np.array(
+        [
+            [
+                (-0.2638340723487933 + 0.1300324741074908j),
+                (0.5673356030084661 - 0.06017986740403015j),
+                (0.5443920637930691 - 0.08325218927408856j),
+            ],
+            [
+                (0.5673356030084662 - 0.060179867404030966j),
+                (-0.2778316886500638 + 0.11746090786602438j),
+                (0.5672666860773957 - 0.06020057502815716j),
+            ],
+            [
+                (0.5443920637930705 - 0.08325218927407826j),
+                (0.567266686077396 - 0.06020057502814554j),
+                (-0.2637747985927443 + 0.13005674978250828j),
+            ],
+        ],
+        dtype=np.complex128,
+    ),
 }
 """10 MHz 3×3s (P2..P4), **50 Ω reference**, keyed by `TERMINATIONS` label,
 uncorrected width.  Log :1924–1938."""
@@ -153,9 +275,7 @@ def _reduce(s4, frequency_hz, element):
 
 
 def _literal(name, matrix):
-    rows = ",\n".join(
-        "    [" + ", ".join(repr(complex(v)) for v in row) + "]" for row in matrix
-    )
+    rows = ",\n".join("    [" + ", ".join(repr(complex(v)) for v in row) + "]" for row in matrix)
     return f"{name} = np.array([\n{rows},\n], dtype=np.complex128)"
 
 
@@ -267,7 +387,9 @@ def test_b_reduction_identity_from_the_stored_64mhz_records():
     f = STEP3_REGISTERED_FREQUENCY_HZ
     stored = {"C = 100 pF": S_64MHZ_TERMINATED_C_RECORD, "L = 1 uH": S_64MHZ_TERMINATED_L_RECORD}
     residuals = {
-        label: _residual(np.asarray(stored[label]), _reduce(S_64MHZ_EPS0_RECORD, f, _element(label)))
+        label: _residual(
+            np.asarray(stored[label]), _reduce(S_64MHZ_EPS0_RECORD, f, _element(label))
+        )
         for label in _LABELS_64
     }
     doubled = {"c_f": 2.0 * _element("C = 100 pF")["c_f"]}
@@ -276,8 +398,10 @@ def test_b_reduction_identity_from_the_stored_64mhz_records():
     )
     move = residual_2c - residuals["C = 100 pF"]
     if MPI.COMM_WORLD.rank == 0:
-        print(f"\n[PORT-15 step2] (b) reduction identity on stored records at {f:.3e} Hz "
-              f"(ASSERTED <= REDUCTION_BAND {REDUCTION_BAND:.0e}):")
+        print(
+            f"\n[PORT-15 step2] (b) reduction identity on stored records at {f:.3e} Hz "
+            f"(ASSERTED <= REDUCTION_BAND {REDUCTION_BAND:.0e}):"
+        )
         for label, r in residuals.items():
             print(f"    {label:<12s} residual {r:.6e}   ratio to band {r / REDUCTION_BAND:.6f}")
         print(
@@ -289,7 +413,9 @@ def test_b_reduction_identity_from_the_stored_64mhz_records():
             flush=True,
         )
     for label, r in residuals.items():
-        assert r <= REDUCTION_BAND, f"{label}: stored-record residual {r:.6e} > {REDUCTION_BAND:.0e}"
+        assert (
+            r <= REDUCTION_BAND
+        ), f"{label}: stored-record residual {r:.6e} > {REDUCTION_BAND:.0e}"
 
 
 @complex_only
@@ -305,11 +431,15 @@ def test_c_reduction_floor_reproduces_from_the_stored_10mhz_records():
         )
         rows.append((label, r, REDUCTION_FLOOR_F_SMALL[label]))
     if MPI.COMM_WORLD.rank == 0:
-        print(f"\n[PORT-15 step2] (c) 10 MHz floor from stored records "
-              f"(ASSERTED rtol {REDUCTION_FLOOR_RTOL:.0e}):")
+        print(
+            f"\n[PORT-15 step2] (c) 10 MHz floor from stored records "
+            f"(ASSERTED rtol {REDUCTION_FLOOR_RTOL:.0e}):"
+        )
         for label, r, rec in rows:
-            print(f"    {label:<12s} {r:.6e}   record {rec:.6e}   |ratio - 1| {abs(r / rec - 1):.3e}",
-                  flush=True)
+            print(
+                f"    {label:<12s} {r:.6e}   record {rec:.6e}   |ratio - 1| {abs(r / rec - 1):.3e}",
+                flush=True,
+            )
     for label, r, rec in rows:
         assert abs(r / rec - 1.0) <= REDUCTION_FLOOR_RTOL, (label, r, rec)
 
@@ -416,8 +546,13 @@ def tuning_sweep(s4, frequency_hz, grid=TUNING_C_GRID_F, max_iter=200, terminate
         z, s_red = tuned_input(s4, frequency_hz, c, terminated=terminated)
         rel = abs(z.imag) / abs(z) if np.isfinite(abs(z)) else np.inf
         roots.append(
-            {"c_f": c, "z": z, "s11": complex(s_red[0, 0]), "im_rel": float(rel),
-             "zero": bool(rel <= TUNING_IM_Z_RTOL)}
+            {
+                "c_f": c,
+                "z": z,
+                "s11": complex(s_red[0, 0]),
+                "im_rel": float(rel),
+                "zero": bool(rel <= TUNING_IM_Z_RTOL),
+            }
         )
     return grid, values, roots
 
@@ -431,8 +566,8 @@ def select_c_tuned(roots):
 
 def _series_lc_fit(x1, w1, x2, w2):
     """``X(ω) = ωL − 1/(ωC)`` through two reactances: ``(L, 1/C)``."""
-    l_h = (x2 * w2 - x1 * w1) / (w2 ** 2 - w1 ** 2)
-    return l_h, w1 ** 2 * l_h - x1 * w1
+    l_h = (x2 * w2 - x1 * w1) / (w2**2 - w1**2)
+    return l_h, w1**2 * l_h - x1 * w1
 
 
 @pytest.fixture(scope="module")
@@ -448,14 +583,21 @@ def test_step3_a_c_tuned_zeroes_im_z_in_on_the_stored_record(step3_tuning):
     f = step3_tuning["frequency_hz"]
     tuned = step3_tuning["tuned"]
     if MPI.COMM_WORLD.rank == 0:
-        print(f"\n[PORT-15 step3] tuning sweep on S_64MHZ_EPS0_RECORD at {f:.3e} Hz, P1 driven "
-              f"(50 Ohm), P2..P4 in C, grid {TUNING_C_GRID_F[0]:.1e}..{TUNING_C_GRID_F[-1]:.1e} F "
-              f"({TUNING_C_GRID_F.size} pts): {len(step3_tuning['roots'])} sign change(s)")
+        print(
+            f"\n[PORT-15 step3] tuning sweep on S_64MHZ_EPS0_RECORD at {f:.3e} Hz, P1 driven "
+            f"(50 Ohm), P2..P4 in C, grid {TUNING_C_GRID_F[0]:.1e}..{TUNING_C_GRID_F[-1]:.1e} F "
+            f"({TUNING_C_GRID_F.size} pts): {len(step3_tuning['roots'])} sign change(s)"
+        )
         for r in step3_tuning["roots"]:
-            print(f"    C = {r['c_f']:.15e} F  Z_in = {r['z'].real:+.9e} {r['z'].imag:+.9e}j Ohm  "
-                  f"|S11| = {abs(r['s11']):.9f}  |Im Z|/|Z| = {r['im_rel']:.3e}  "
-                  f"{'ZERO' if r['zero'] else 'pole (rejected)'}", flush=True)
-    assert tuned is not None, "no zero of Im Z_in on the grid — report, never widen the grid in-slot"
+            print(
+                f"    C = {r['c_f']:.15e} F  Z_in = {r['z'].real:+.9e} {r['z'].imag:+.9e}j Ohm  "
+                f"|S11| = {abs(r['s11']):.9f}  |Im Z|/|Z| = {r['im_rel']:.3e}  "
+                f"{'ZERO' if r['zero'] else 'pole (rejected)'}",
+                flush=True,
+            )
+    assert (
+        tuned is not None
+    ), "no zero of Im Z_in on the grid — report, never widen the grid in-slot"
     rel = tuned["im_rel"]
     s11_t = abs(tuned["s11"])
     controls = []
@@ -463,13 +605,17 @@ def test_step3_a_c_tuned_zeroes_im_z_in_on_the_stored_record(step3_tuning):
         _, s_red = tuned_input(S_64MHZ_EPS0_RECORD, f, factor * tuned["c_f"])
         controls.append((factor, abs(complex(s_red[0, 0]))))
     if MPI.COMM_WORLD.rank == 0:
-        print(f"[PORT-15 step3] (a) C_tuned = {tuned['c_f']:.15e} F: |Im Z_in|/|Z_in| = {rel:.3e} "
-              f"(ASSERTED <= {TUNING_IM_Z_RTOL:.0e}); Z_in = {tuned['z']:.9e} Ohm; "
-              f"S11 = {tuned['s11']:.9e}, |S11| = {s11_t:.9f}")
+        print(
+            f"[PORT-15 step3] (a) C_tuned = {tuned['c_f']:.15e} F: |Im Z_in|/|Z_in| = {rel:.3e} "
+            f"(ASSERTED <= {TUNING_IM_Z_RTOL:.0e}); Z_in = {tuned['z']:.9e} Ohm; "
+            f"S11 = {tuned['s11']:.9e}, |S11| = {s11_t:.9f}"
+        )
         for factor, s in controls:
-            print(f"    control {factor:g} x C_tuned: |S11| = {s:.9f} (PREDICTED > |S11(C_tuned)| "
-                  f"{s11_t:.9f}: {'held' if s > s11_t else 'NOT held'}; printed, never asserted)",
-                  flush=True)
+            print(
+                f"    control {factor:g} x C_tuned: |S11| = {s:.9f} (PREDICTED > |S11(C_tuned)| "
+                f"{s11_t:.9f}: {'held' if s > s11_t else 'NOT held'}; printed, never asserted)",
+                flush=True,
+            )
     assert rel <= TUNING_IM_Z_RTOL, f"|Im Z|/|Z| = {rel:.3e} > {TUNING_IM_Z_RTOL:.0e}"
 
 
@@ -503,16 +649,20 @@ def test_step3_the_ladder_mode1_frequency_at_c_tuned_is_printed(step3_tuning):
     m_adj, cinv_adj = _series_lc_fit(_mean(z10, 1), w1, _mean(z64, 1), w2)
     l_leg = -m_adj
     l_ring = l_self - 2.0 * l_leg
-    line = (f"\n[PORT-15 step3] de-embedded series-LC fit (10 & 64 MHz records, PRINTED): self "
-            f"L = {l_self:.6e} H, 1/C_gap = {cinv_self:.6e} 1/F; adjacent M = {m_adj:+.6e} H, "
-            f"1/C = {cinv_adj:+.6e} 1/F -> L_leg ~ -M = {l_leg:.6e} H, L_ring ~ L_self - 2 L_leg "
-            f"= {l_ring:.6e} H")
+    line = (
+        f"\n[PORT-15 step3] de-embedded series-LC fit (10 & 64 MHz records, PRINTED): self "
+        f"L = {l_self:.6e} H, 1/C_gap = {cinv_self:.6e} 1/F; adjacent M = {m_adj:+.6e} H, "
+        f"1/C = {cinv_adj:+.6e} 1/F -> L_leg ~ -M = {l_leg:.6e} H, L_ring ~ L_self - 2 L_leg "
+        f"= {l_ring:.6e} H"
+    )
     try:
         w = birdcage_highpass_mode_frequencies(n, l_leg, l_ring, tuned["c_f"])
-        line += (f"\n    ladder closed form at C_tuned = {tuned['c_f']:.6e} F: mode-1 f = "
-                 f"{w[1] / (2 * np.pi):.6e} Hz (k = 0..{n // 2}: "
-                 + ", ".join(f"{v / (2 * np.pi):.4e}" for v in w)
-                 + " Hz) — indicative only (leg-gap fixture, ring-capacitor ladder)")
+        line += (
+            f"\n    ladder closed form at C_tuned = {tuned['c_f']:.6e} F: mode-1 f = "
+            f"{w[1] / (2 * np.pi):.6e} Hz (k = 0..{n // 2}: "
+            + ", ".join(f"{v / (2 * np.pi):.4e}" for v in w)
+            + " Hz) — indicative only (leg-gap fixture, ring-capacitor ladder)"
+        )
     except ValueError as exc:
         line += f"\n    ladder closed form undefined on these read-offs: {exc}"
     if MPI.COMM_WORLD.rank == 0:
@@ -554,8 +704,12 @@ def _terminated_kept_network(sweep, terminations, return_fields=False):
     fields_by_port = {}
     for col, driven in enumerate(kept):
         out = run_lumped_sheet_port_case(
-            sweep["problem"], port_defs, specs, facet_tags=sweep["facet_tags"],
-            driven_port_id=driven.port_id, verbose=False,
+            sweep["problem"],
+            port_defs,
+            specs,
+            facet_tags=sweep["facet_tags"],
+            driven_port_id=driven.port_id,
+            verbose=False,
             return_fields=return_fields,
         )
         result, fields = out if return_fields else (out, None)
@@ -588,7 +742,8 @@ def build_step3_in_model(tuned, frequency_hz):
     comm.Barrier()
     t0 = time.perf_counter()
     built = build_four_port_sweep(
-        frequency_hz=frequency_hz, build_only=True,
+        frequency_hz=frequency_hz,
+        build_only=True,
         width_correction_kappa=float(STEP2D_C_OVER_TERMINAL_64MHZ_P1),
     )
     comm.Barrier()
@@ -601,9 +756,12 @@ def build_step3_in_model(tuned, frequency_hz):
     comm.Barrier()
     t_solve = time.perf_counter() - t1
     if comm.rank == 0:
-        print(f"\n[PORT-15 step3] in-model at C_tuned = {tuned['c_f']:.15e} F (Z_C = {z_c:.9e} Ohm), "
-              f"{int(built['cells'])} cells, -n {comm.size}: build {t_build:.2f} s; 1x1 + 2x2 "
-              f"(3 driven solves) {t_solve:.2f} s", flush=True)
+        print(
+            f"\n[PORT-15 step3] in-model at C_tuned = {tuned['c_f']:.15e} F (Z_C = {z_c:.9e} Ohm), "
+            f"{int(built['cells'])} cells, -n {comm.size}: build {t_build:.2f} s; 1x1 + 2x2 "
+            f"(3 driven solves) {t_solve:.2f} s",
+            flush=True,
+        )
     return {"cells": int(built["cells"]), "s1": s1, "s2": s2, "z_c": z_c, "built": built}
 
 
@@ -627,12 +785,20 @@ def test_step3_b_circuit_predicted_tuned_network_matches_in_model(step3_tuning, 
     r1, r2 = _residual(meas1, pred1), _residual(meas2, pred2)
     comm = MPI.COMM_WORLD
     if comm.rank == 0:
-        print(f"\n[PORT-15 step3] (b) circuit (stored 4x4 reduced) vs in-model at C_tuned "
-              f"(ASSERTED <= REDUCTION_BAND {REDUCTION_BAND:.0e}):")
-        print(f"    S11  predicted {complex(pred1[0, 0]):.12e}  in-model {complex(meas1[0, 0]):.12e}  "
-              f"|diff| {abs(meas1[0, 0] - pred1[0, 0]):.3e}  residual {r1:.6e}")
-        print(f"    2x2 predicted\n{_literal('    PRED_2X2', pred2)}\n{_literal('    MEAS_2X2', meas2)}")
-        print(f"    2x2 residual {r2:.6e}; in-model |S11| (1x1) = {abs(meas1[0, 0]):.9f}", flush=True)
+        print(
+            f"\n[PORT-15 step3] (b) circuit (stored 4x4 reduced) vs in-model at C_tuned "
+            f"(ASSERTED <= REDUCTION_BAND {REDUCTION_BAND:.0e}):"
+        )
+        print(
+            f"    S11  predicted {complex(pred1[0, 0]):.12e}  in-model {complex(meas1[0, 0]):.12e}  "
+            f"|diff| {abs(meas1[0, 0] - pred1[0, 0]):.3e}  residual {r1:.6e}"
+        )
+        print(
+            f"    2x2 predicted\n{_literal('    PRED_2X2', pred2)}\n{_literal('    MEAS_2X2', meas2)}"
+        )
+        print(
+            f"    2x2 residual {r2:.6e}; in-model |S11| (1x1) = {abs(meas1[0, 0]):.9f}", flush=True
+        )
     if comm.size != RECORD_RANK_WIDTH:
         pytest.skip(f"records are -n {RECORD_RANK_WIDTH}; this is -n {comm.size}")
     assert r1 <= REDUCTION_BAND, (

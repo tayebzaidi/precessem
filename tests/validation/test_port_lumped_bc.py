@@ -18,13 +18,12 @@ Cost: smoke tier — one 4³ unit-cube mesh, no solve.
 
 from __future__ import annotations
 
+import dolfinx
 import numpy as np
 import pytest
 import ufl
-from mpi4py import MPI
-
-import dolfinx
 from dolfinx import default_scalar_type, fem
+from mpi4py import MPI
 
 from fem_em_solver.ports.lumped import (
     LumpedPortSheet,
@@ -34,14 +33,13 @@ from fem_em_solver.ports.lumped import (
     sheet_terminal_current,
 )
 from fem_em_solver.utils.constants import MU_0
-
 from tests.complex_mode import complex_only
 
-FREQUENCY_HZ = 1.0e7          # 10 MHz — the two-torus fixture's frequency
+FREQUENCY_HZ = 1.0e7  # 10 MHz — the two-torus fixture's frequency
 OMEGA = 2.0 * np.pi * FREQUENCY_HZ
 PORT_IMPEDANCE_OHM = 50.0
 SHEET_TAG = 7
-GAP_HEIGHT_M = 1.0            # one square: R == Z_p
+GAP_HEIGHT_M = 1.0  # one square: R == Z_p
 SHEET_WIDTH_M = 1.0
 SOURCE_VOLTAGE_V = 1.0 + 0.0j
 
@@ -58,9 +56,7 @@ def sheet_mesh():
     msh = dolfinx.mesh.create_unit_cube(comm, 4, 4, 4, dolfinx.mesh.CellType.tetrahedron)
     tdim = msh.topology.dim
     msh.topology.create_connectivity(tdim - 1, tdim)
-    facets = dolfinx.mesh.locate_entities_boundary(
-        msh, tdim - 1, lambda x: np.isclose(x[0], 0.0)
-    )
+    facets = dolfinx.mesh.locate_entities_boundary(msh, tdim - 1, lambda x: np.isclose(x[0], 0.0))
     facets = np.sort(facets)
     facet_tags = dolfinx.mesh.meshtags(
         msh, tdim - 1, facets, np.full(facets.size, SHEET_TAG, dtype=np.int32)
@@ -141,9 +137,7 @@ def test_bilinear_sheet_term_matches_closed_form(sheet_mesh):
     msh, facet_tags = sheet_mesh
     e = _constant_z_field(msh)
     sheet = _sheet()
-    form = lumped_port_bilinear_term(
-        msh, facet_tags, sheet, e, e, omega_rad_per_s=OMEGA
-    )
+    form = lumped_port_bilinear_term(msh, facet_tags, sheet, e, e, omega_rad_per_s=OMEGA)
     measured = _assemble(form, msh.comm)
     expected = 1j * OMEGA * MU_0 * 1.0 / PORT_IMPEDANCE_OHM
     assert abs(measured - expected) / abs(expected) < EXACT_TOLERANCE
@@ -160,9 +154,7 @@ def test_linear_sheet_term_matches_closed_form(sheet_mesh):
     sheet = _sheet()
     form = lumped_port_linear_term(msh, facet_tags, sheet, v, omega_rad_per_s=OMEGA)
     measured = _assemble(form, msh.comm)
-    expected = (
-        -1j * OMEGA * MU_0 * SOURCE_VOLTAGE_V / (PORT_IMPEDANCE_OHM * GAP_HEIGHT_M) * 1.0
-    )
+    expected = -1j * OMEGA * MU_0 * SOURCE_VOLTAGE_V / (PORT_IMPEDANCE_OHM * GAP_HEIGHT_M) * 1.0
     assert abs(measured - expected) / abs(expected) < EXACT_TOLERANCE
 
 

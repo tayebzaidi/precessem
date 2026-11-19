@@ -41,8 +41,8 @@ from pathlib import Path
 import pytest
 
 from tests.materials.test_phantom_material_model import MAT4_BAND
-from tests.package.test_wf15_study_lossy_sphere import MAT4_DEG1_PRINT, MAT4_DEG1_RECORD, _closed
 from tests.package.test_wf1_study_yaml import SPHERE_FILE, WF15_DEG2_RECORD
+from tests.package.test_wf15_study_lossy_sphere import MAT4_DEG1_PRINT, MAT4_DEG1_RECORD, _closed
 from tests.validation.test_lossy_sphere_sar import EPSILON_R_SPHERE, SIGMA_HIGH
 from tests.validation.test_mat5_em_coupled_sphere import L0_BAND
 
@@ -92,7 +92,10 @@ def test_wf13_launch_provenance_and_width():
         timeout=60,
     )
     where = proc.stdout.strip().splitlines()[-1] if proc.stdout.strip() else ""
-    print(f"\n[WF-13 s3] (P) venv fem_em_solver.__file__ = {where!r} (rc {proc.returncode})", flush=True)
+    print(
+        f"\n[WF-13 s3] (P) venv fem_em_solver.__file__ = {where!r} (rc {proc.returncode})",
+        flush=True,
+    )
     assert proc.returncode == 0, proc.stderr[-2000:]
     assert where.startswith(str(VENV) + "/"), where
     assert not where.startswith("/workspace"), where
@@ -190,7 +193,10 @@ def test_wf13_launch_refusals(tmp_path):
         text=True,
         timeout=60,
     )
-    print(f"\n[WF-13 s3] (X) --ranks 0: rc {proc.returncode}; stderr {proc.stderr.strip()!r}", flush=True)
+    print(
+        f"\n[WF-13 s3] (X) --ranks 0: rc {proc.returncode}; stderr {proc.stderr.strip()!r}",
+        flush=True,
+    )
     assert proc.returncode == 2
     assert "--ranks must be >= 1" in proc.stderr
     assert "femem: launching" not in proc.stdout
@@ -199,8 +205,18 @@ def test_wf13_launch_refusals(tmp_path):
     out2 = tmp_path / "nested"
     proc = subprocess.run(
         [
-            "mpiexec", "-n", "2", "python3", "-m", "fem_em_solver", "run", "--ranks", "2",
-            str(SPHERE_FILE), "--output-dir", str(out2),
+            "mpiexec",
+            "-n",
+            "2",
+            "python3",
+            "-m",
+            "fem_em_solver",
+            "run",
+            "--ranks",
+            "2",
+            str(SPHERE_FILE),
+            "--output-dir",
+            str(out2),
         ],
         cwd="/workspace",
         capture_output=True,
@@ -212,6 +228,8 @@ def test_wf13_launch_refusals(tmp_path):
     assert proc.returncode == 2, proc.stderr[-2000:]
     assert len(refusals) == 2  # one per rank
     for ln in refusals:
-        assert any(k in ln for k in ("PMI_SIZE", "PMI_RANK", "OMPI_COMM_WORLD_SIZE", "PMIX_RANK")), ln
+        assert any(
+            k in ln for k in ("PMI_SIZE", "PMI_RANK", "OMPI_COMM_WORLD_SIZE", "PMIX_RANK")
+        ), ln
     assert "femem: launching" not in proc.stdout
     assert not out2.exists()

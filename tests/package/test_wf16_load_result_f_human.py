@@ -48,7 +48,6 @@ from fem_em_solver.study import (
     SphereInBoxGeometry,
     Study,
 )
-
 from tests.complex_mode import complex_only
 from tests.package.test_wf16_study_load_result import _synthetic_s, _write
 from tests.package.test_wf16_study_tune_capacitors import _study as _four_port_study
@@ -87,10 +86,13 @@ def _write_named(path, fhz, s, names, comm=MPI.COMM_WORLD):
     path = Path(path)
     if comm.rank == 0:
         path.parent.mkdir(parents=True, exist_ok=True)
-        defs = [PortDefinition(port_id=n, positive_tag=100 + i, negative_tag=1,
-                               orientation="ring_gap") for i, n in enumerate(names)]
-        sweep = SimpleNamespace(frequency_hz=float(fhz), s_matrix=np.asarray(s, np.complex128),
-                                port_ids=tuple(names))
+        defs = [
+            PortDefinition(port_id=n, positive_tag=100 + i, negative_tag=1, orientation="ring_gap")
+            for i, n in enumerate(names)
+        ]
+        sweep = SimpleNamespace(
+            frequency_hz=float(fhz), s_matrix=np.asarray(s, np.complex128), port_ids=tuple(names)
+        )
         export_touchstone([sweep], defs, output_path=path, write_csv_companion=False)
     comm.Barrier()
     return path
@@ -148,9 +150,11 @@ def test_wf16_s15_w0_knob_and_synthetic(monkeypatch):
     t1 = st.tune(1, n_slots=N_SLOTS, comm=comm)
     ref = 1.0 / (OMEGA * d[1].imag)
     e1 = abs(t1.c_mode_farad / ref - 1.0)
-    _p0(f"\n[WF-16 s15 W0] synthetic 32-port: ports {len(res.port_ids)}, max|dS| {rt:.3e}; "
+    _p0(
+        f"\n[WF-16 s15 W0] synthetic 32-port: ports {len(res.port_ids)}, max|dS| {rt:.3e}; "
         f"C_1 {t1.c_mode_farad:.12e} F vs closed {ref:.12e} F, rel {e1:.3e} "
-        f"(EXACT_IDENTITY_RTOL {EXACT_IDENTITY_RTOL:.1e})")
+        f"(EXACT_IDENTITY_RTOL {EXACT_IDENTITY_RTOL:.1e})"
+    )
     assert e1 <= EXACT_IDENTITY_RTOL
     _expect_ref(st, "W0")
 
@@ -196,6 +200,7 @@ def test_wf16_s15_tune_on_loaded_f_human(s15):
         def _boom(self, *a, **k):
             calls[name] += 1
             raise AssertionError(f"(S0) the loaded Study called {name}")
+
         return _boom
 
     with pytest.MonkeyPatch.context() as mp:
@@ -205,8 +210,10 @@ def test_wf16_s15_tune_on_loaded_f_human(s15):
         assert len(loaded.port_ids) == 32
         tl = fresh.tune(1, n_slots=N_SLOTS, comm=comm)
         _expect_ref(fresh, "W1")
-    _p0(f"[WF-16 s15 S0] class-level spies: solve {calls['solve']}, "
-        f"_solve_ports {calls['_solve_ports']}")
+    _p0(
+        f"[WF-16 s15 S0] class-level spies: solve {calls['solve']}, "
+        f"_solve_ports {calls['_solve_ports']}"
+    )
     assert calls == {"solve": 0, "_solve_ports": 0}
 
     cl = tl.c_mode_farad
@@ -215,26 +222,36 @@ def test_wf16_s15_tune_on_loaded_f_human(s15):
     g_t = abs(cl / cm - 1.0)
     g_cm_g = comm.allreduce(g_cm, op=MPI.MAX)
     g_t_g = comm.allreduce(g_t, op=MPI.MAX)
-    _p0(f"[WF-16 s15 CM] loaded C_mode {cl:.12e} F vs record {WF12_STEP3_C_MODE_CU_F:.12e} F: "
-        f"rel {g_cm_g:.3e} (REDUCTION_BAND {REDUCTION_BAND:.1e})")
-    _p0(f"[WF-16 s15 T=] loaded {cl:.12e} F vs in-memory {cm:.12e} F: rel {g_t_g:.3e} "
+    _p0(
+        f"[WF-16 s15 CM] loaded C_mode {cl:.12e} F vs record {WF12_STEP3_C_MODE_CU_F:.12e} F: "
+        f"rel {g_cm_g:.3e} (REDUCTION_BAND {REDUCTION_BAND:.1e})"
+    )
+    _p0(
+        f"[WF-16 s15 T=] loaded {cl:.12e} F vs in-memory {cm:.12e} F: rel {g_t_g:.3e} "
         f"(REDUCTION_BAND {REDUCTION_BAND:.1e}); off-block loaded "
-        f"{tl.off_diagonal_residual:.6e} vs in-memory {s15['tune_mem'].off_diagonal_residual:.6e}")
+        f"{tl.off_diagonal_residual:.6e} vs in-memory {s15['tune_mem'].off_diagonal_residual:.6e}"
+    )
     _p0(f"[WF-16 s15] port order (file): {list(loaded.port_ids)}")
     assert g_cm_g <= REDUCTION_BAND
     assert g_t_g <= REDUCTION_BAND
 
     # Negative control: ports 1 <-> 2 swapped in the data, names kept.
-    sw = _write_named(OUT_DIR / f"s15_swap12_n{comm.size}.s32p", s15["fhz"],
-                      _swap12_n(loaded.s_matrix), list(loaded.port_ids))
+    sw = _write_named(
+        OUT_DIR / f"s15_swap12_n{comm.size}.s32p",
+        s15["fhz"],
+        _swap12_n(loaded.s_matrix),
+        list(loaded.port_ids),
+    )
     st_sw = _study()
     st_sw.load_result(sw)
     try:
         cw = st_sw.tune(1, n_slots=N_SLOTS, comm=comm).c_mode_farad
         miss = abs(cw / WF12_STEP3_C_MODE_CU_F - 1.0)
         miss_g = comm.allreduce(miss, op=MPI.MAX)
-        _p0(f"[WF-16 s15 Sw] P1<->P2 swapped: C {cw:.12e} F, miss {miss_g:.6e} vs "
-            f"LEG_D0_REPRODUCTION_BAND {LEG_D0_REPRODUCTION_BAND:.1e}")
+        _p0(
+            f"[WF-16 s15 Sw] P1<->P2 swapped: C {cw:.12e} F, miss {miss_g:.6e} vs "
+            f"LEG_D0_REPRODUCTION_BAND {LEG_D0_REPRODUCTION_BAND:.1e}"
+        )
     except ValueError as exc:  # a non-capacitive read is a miss too; printed
         miss_g = float("inf")
         _p0(f"[WF-16 s15 Sw] P1<->P2 swapped: tune raised {exc} (miss = inf)")

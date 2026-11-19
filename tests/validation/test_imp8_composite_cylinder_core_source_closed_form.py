@@ -103,14 +103,20 @@ def test_imp8_composite_cylinder_core_source_closed_form():
     gates = {}
     a, b = A_ROD, B_WALL
     scale = Q_CORE * a**2 / K_GEL
-    _p(f"[I70] a = {a:.4g} m, b = {b:.4g} m, q_c = {Q_CORE:.7g} W/m3, t_c = {T_C:.7g} s, t* = {T_STAR:.7g} s, "
-       f"T_ST = {T_ST:.7g} s, scale q_c a^2/k_g = {scale:.7g} K per W/m")
-    _p(f"[I70] theta_ss(0) Ti = {_theta_ss(0.0):.7g} (predicted {PRED_SS0[0]}), gel core = "
-       f"{_theta_ss(0.0, k_r=K_GEL):.7g} (predicted {PRED_SS0[1]}); theta_ss(a) = {_theta_ss(a):.7g} "
-       f"(predicted {PRED_SSA})")
+    _p(
+        f"[I70] a = {a:.4g} m, b = {b:.4g} m, q_c = {Q_CORE:.7g} W/m3, t_c = {T_C:.7g} s, t* = {T_STAR:.7g} s, "
+        f"T_ST = {T_ST:.7g} s, scale q_c a^2/k_g = {scale:.7g} K per W/m"
+    )
+    _p(
+        f"[I70] theta_ss(0) Ti = {_theta_ss(0.0):.7g} (predicted {PRED_SS0[0]}), gel core = "
+        f"{_theta_ss(0.0, k_r=K_GEL):.7g} (predicted {PRED_SS0[1]}); theta_ss(a) = {_theta_ss(a):.7g} "
+        f"(predicted {PRED_SSA})"
+    )
     m20 = _modes(float(ROD_K), float(ROD_RHO_C), 20, False)
     G = _gram(m20, 20)
-    _p(f"[pre] Ti Gram N=20 max off-diagonal = {np.max(np.abs(G - np.eye(20))):.3e} (item 843's modes, printed)")
+    _p(
+        f"[pre] Ti Gram N=20 max off-diagonal = {np.max(np.abs(G - np.eye(20))):.3e} (item 843's modes, printed)"
+    )
 
     # (St): the series at T_ST against θ_ss, and θ_ss's own residuals.
     st = [abs(_theta(r, T_ST) - _theta_ss(r)) / scale for r in R_PTS]
@@ -118,7 +124,8 @@ def test_imp8_composite_cylinder_core_source_closed_form():
     res = {
         "theta(b)": abs(_theta_ss(b)) / scale,
         "theta cont at a": abs(_theta_ss(a - eps_r) - _theta_ss(a)) / scale,
-        "flux cont at a": abs(ROD_K * _d1(a, side="core") - K_GEL * _d1(a, side="shell")) / (Q_CORE * a / 2),
+        "flux cont at a": abs(ROD_K * _d1(a, side="core") - K_GEL * _d1(a, side="shell"))
+        / (Q_CORE * a / 2),
     }
     for r in (0.3e-3, 0.7e-3):
         res[f"pde core {r * 1e3:.1f} mm"] = abs(ROD_K * (_d2(r) + _d1(r) / r) + Q_CORE) / Q_CORE
@@ -132,7 +139,9 @@ def test_imp8_composite_cylinder_core_source_closed_form():
     # (En): steady wall flux equals the core's source per metre.
     bal = -K_GEL * b * _d1(b)
     gates["En_steady"] = abs(bal - Q_CORE * a**2 / 2) / (Q_CORE * a**2 / 2)
-    _p(f"[En] -k_g b theta'(b) = {bal:.7g}, q_c a^2/2 = {Q_CORE * a**2 / 2:.7g} W/m, rel = {gates['En_steady']:.3e}")
+    _p(
+        f"[En] -k_g b theta'(b) = {bal:.7g}, q_c a^2/2 = {Q_CORE * a**2 / 2:.7g} W/m, rel = {gates['En_steady']:.3e}"
+    )
 
     # (Lim): gel core equals the homogeneous J0 series, source in r < a.
     lim = []
@@ -141,12 +150,16 @@ def test_imp8_composite_cylinder_core_source_closed_form():
             comp = _theta(r, t, k_r=K_GEL, rhoc_r=RHO_C)
             ref = _theta_j0(r, t)
             lim.append(abs(comp - ref) / scale)
-            _p(f"[Lim] r = {r * 1e3:.1f} mm, t = {t:.7g} s: composite {comp:.7g}, J0 series {ref:.7g}, "
-               f"diff {lim[-1]:.3e}")
+            _p(
+                f"[Lim] r = {r * 1e3:.1f} mm, t = {t:.7g} s: composite {comp:.7g}, J0 series {ref:.7g}, "
+                f"diff {lim[-1]:.3e}"
+            )
     gates["Lim_theta"] = max(lim)
 
     # (Bq): N = 200 vs 400.
-    bq = [abs(_theta(r, t, n_modes=200) - _theta(r, t)) / scale for t in (T_C, T_STAR) for r in R_PTS]
+    bq = [
+        abs(_theta(r, t, n_modes=200) - _theta(r, t)) / scale for t in (T_C, T_STAR) for r in R_PTS
+    ]
     gates["Bq"] = max(bq)
     _p(f"[Bq] N=200 vs 400: {', '.join(f'{v:.3e}' for v in bq)}")
 
@@ -157,9 +170,13 @@ def test_imp8_composite_cylinder_core_source_closed_form():
     ctrl_cf = abs(_theta_ss(0.0, k_r=K_GEL) - _theta_ss(0.0)) / _theta_ss(0.0)
     miss_a = abs(_theta(a, T_ST, k_r=K_GEL, rhoc_r=ROD_RHO_C) - _theta(a, T_ST)) / scale
     gates["ctrl"] = ctrl
-    _p(f"[ctrl] k_r->K_GEL alone, steady (series at T_ST) theta(0): Ti {ti0_series:.7g}, swapped {kc0_series:.7g}, "
-       f"rel miss {ctrl:.4g} (closed form {ctrl_cf:.4g}), predicted {PRED_CTRL}")
-    _p(f"[ctrl] at r = a the steady miss is {miss_a:.3e} of scale (0 by construction: theta_ss(a) has no k_r)")
+    _p(
+        f"[ctrl] k_r->K_GEL alone, steady (series at T_ST) theta(0): Ti {ti0_series:.7g}, swapped {kc0_series:.7g}, "
+        f"rel miss {ctrl:.4g} (closed form {ctrl_cf:.4g}), predicted {PRED_CTRL}"
+    )
+    _p(
+        f"[ctrl] at r = a the steady miss is {miss_a:.3e} of scale (0 by construction: theta_ss(a) has no k_r)"
+    )
 
     # Printed record.
     for name, kw in (("Ti", dict()), ("gel", dict(k_r=K_GEL, rhoc_r=RHO_C))):
@@ -168,10 +185,14 @@ def test_imp8_composite_cylinder_core_source_closed_form():
             _p(f"[rec] {name:4s} {tl:6s} theta(0, a, (a+b)/2) = {', '.join(vals)} K per W/m")
     ti_c = _theta(0.0, T_C)
     rc_c = _theta(0.0, T_C, rhoc_r=RHO_C)
-    _p(f"[rec] rhoc-only swap (rhoc_r -> RHO_C) at t_c on the axis: Ti {ti_c:.7g}, swapped {rc_c:.7g}, "
-       f"rel miss {abs(rc_c - ti_c) / abs(ti_c):.4g}")
-    _p(f"[rec] theta(a, steady) per W/m: source in core {_theta_ss(a):.7g}, source in shell (item 843) "
-       f"{float(_theta_ss_shell(a)):.7g}, ratio {_theta_ss(a) / float(_theta_ss_shell(a)):.7g}")
+    _p(
+        f"[rec] rhoc-only swap (rhoc_r -> RHO_C) at t_c on the axis: Ti {ti_c:.7g}, swapped {rc_c:.7g}, "
+        f"rel miss {abs(rc_c - ti_c) / abs(ti_c):.4g}"
+    )
+    _p(
+        f"[rec] theta(a, steady) per W/m: source in core {_theta_ss(a):.7g}, source in shell (item 843) "
+        f"{float(_theta_ss_shell(a)):.7g}, ratio {_theta_ss(a) / float(_theta_ss_shell(a)):.7g}"
+    )
 
     _p("[gates] " + ", ".join(f"{k} = {v:.3e}" for k, v in gates.items()))
     assert gates["St_series"] <= B1_BAND, gates

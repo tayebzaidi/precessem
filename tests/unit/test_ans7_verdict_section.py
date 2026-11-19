@@ -53,7 +53,13 @@ TRACE = (
     ("p = 1.0625", T30, 94, "v", "1.0625"),
     ("BRANCH lines", T30, 87, "v", "BRANCH r_in_ohm"),
     ("BRANCH lines", T30, 91, "v", "BRANCH q_loaded"),
-    ("within 0.11 % of AED First Order at ×1", PLAN, 316, "v", "within 0.11 % of AED First Order at"),
+    (
+        "within 0.11 % of AED First Order at ×1",
+        PLAN,
+        316,
+        "v",
+        "within 0.11 % of AED First Order at",
+    ),
     ("0.03 % at h = 0.005", PLAN, 317, "v", "within 0.03 % at h = 0.005"),
     ("Q sits 3.1 %", PLAN, 4682, "v", "Q −3.1 %"),
     ("R_in 2.7 %", PLAN, 4682, "v", "`R_in` −2.7 %"),
@@ -63,19 +69,23 @@ TRACE = (
     ("share ≥ 0.9999", SPEC, 50, "v", "≥ 0.9999"),
     ("within 5 %", SPEC, 51, "v", "within 5 %"),
 )
-RECORD = re.compile(r"RECORD (\w+): v\(x1\) ([-+0-9.e]+), v\(0\.01\) ([-+0-9.e]+), "
-                    r"v\(0\.005\) ([-+0-9.e]+); Delta1 ([-+0-9.e]+), Delta2 ([-+0-9.e]+), "
-                    r"rho = Delta2/Delta1 ([-+0-9.e]+)")
+RECORD = re.compile(
+    r"RECORD (\w+): v\(x1\) ([-+0-9.e]+), v\(0\.01\) ([-+0-9.e]+), "
+    r"v\(0\.005\) ([-+0-9.e]+); Delta1 ([-+0-9.e]+), Delta2 ([-+0-9.e]+), "
+    r"rho = Delta2/Delta1 ([-+0-9.e]+)"
+)
 
 
 # PROJECT_PLAN.md is edited by every review, so its rows are anchored: the recorded line (as at
 # 2026-10-18, 316 / 4682) is re-located by a unique anchor string, the offset kept.
-PLAN_ANCHORS = {316: ("exact rectangles at degree 2, `f₀` sits within 0.11 % of AED First Order at", 0),
-                317: ("exact rectangles at degree 2, `f₀` sits within 0.11 % of AED First Order at", 1),
-                4682: ("**Against AED:** T13 read Q −3.1 %", 0),
-                4683: ("**Against AED:** T13 read Q −3.1 %", 1),
-                4686: ("**Against AED:** T13 read Q −3.1 %", 4),
-                4687: ("**Against AED:** T13 read Q −3.1 %", 5)}
+PLAN_ANCHORS = {
+    316: ("exact rectangles at degree 2, `f₀` sits within 0.11 % of AED First Order at", 0),
+    317: ("exact rectangles at degree 2, `f₀` sits within 0.11 % of AED First Order at", 1),
+    4682: ("**Against AED:** T13 read Q −3.1 %", 0),
+    4683: ("**Against AED:** T13 read Q −3.1 %", 1),
+    4686: ("**Against AED:** T13 read Q −3.1 %", 4),
+    4687: ("**Against AED:** T13 read Q −3.1 %", 5),
+}
 
 
 def _plan_line(line: int) -> int:
@@ -108,8 +118,13 @@ def _holds(cell, src, line, mode, needle) -> bool:
 def _record(line: int):
     mt = RECORD.search(_lines(T30)[line - 1])
     assert mt, line
-    return mt.group(1), [float(mt.group(k)) for k in (2, 3, 4)], float(mt.group(5)), \
-        float(mt.group(6)), float(mt.group(7))
+    return (
+        mt.group(1),
+        [float(mt.group(k)) for k in (2, 3, 4)],
+        float(mt.group(5)),
+        float(mt.group(6)),
+        float(mt.group(7)),
+    )
 
 
 def _printed_p(line: int) -> float:
@@ -121,6 +136,7 @@ def _printed_p(line: int) -> float:
 def _solve_p(rho: float) -> float:
     def g(p):
         return (H[1] ** p - H[2] ** p) / (H[0] ** p - H[1] ** p) - rho
+
     lo, hi = 0.1, 5.0
     assert g(lo) * g(hi) < 0
     for _ in range(200):
@@ -142,7 +158,7 @@ def _sp(x: float, fmt: str) -> str:
     """Format and typeset a thousands space in the integer part (18441.75 -> 18 441.75)."""
     s = format(x, fmt)
     sign = s[0] if s[0] in "+-" else ""
-    body = s[len(sign):]
+    body = s[len(sign) :]
     ip, _, fp = body.partition(".")
     if len(ip) > 3:
         ip = ip[:-3] + " " + ip[-3:]
@@ -211,11 +227,15 @@ def _expected_cells():
     cells.append(f"first-order quantity gives {first:.2f} and a second-order one {second:.2f}")
     pq, pr, pf = _printed_p(90), _printed_p(86), _printed_p(94)
     qi, ri, fi = _limit(q, pq), _limit(r, pr), _limit(f, pf)
-    cells.append(f"Q∞ ≈ {qi:.2f} ({_pct(100 * (qi / q[2] - 1))} % from h = 0.005, "
-                 f"{_pct(100 * (qi / q[0] - 1))} % from ×1)")
+    cells.append(
+        f"Q∞ ≈ {qi:.2f} ({_pct(100 * (qi / q[2] - 1))} % from h = 0.005, "
+        f"{_pct(100 * (qi / q[0] - 1))} % from ×1)"
+    )
     cells.append(f"R_in∞ ≈ {_sp(ri, '.0f')} Ω ({_pct(100 * (ri / r[2] - 1))} %)")
-    cells.append(f"Richardson limit ≈ {fi * 1e-6:.3f} MHz ({_pct(100 * (fi / f[2] - 1))} % from "
-                 f"h = 0.005)")
+    cells.append(
+        f"Richardson limit ≈ {fi * 1e-6:.3f} MHz ({_pct(100 * (fi / f[2] - 1))} % from "
+        f"h = 0.005)"
+    )
     return cells
 
 
@@ -248,8 +268,10 @@ def test_richardson_recomputed(ans7):
         pp = _printed_p(pline)
         fine = _limit(v, pp)
         coarse = _limit(v, pp, (0, 1))
-        print(f"(L) {name}: p solved {p:.6f} printed {pp} |dp| {abs(p - pp):.2e}; "
-              f"limit {fine:.6f} (fine pair) {coarse:.6f} (coarse pair) rel {abs(coarse / fine - 1):.2e}")
+        print(
+            f"(L) {name}: p solved {p:.6f} printed {pp} |dp| {abs(p - pp):.2e}; "
+            f"limit {fine:.6f} (fine pair) {coarse:.6f} (coarse pair) rel {abs(coarse / fine - 1):.2e}"
+        )
         assert abs(p - pp) <= 5e-5
         assert abs(coarse / fine - 1) <= rel
     _, q, *_ = _record(89)
@@ -276,8 +298,10 @@ def test_verdict_rendered(ans7, ans7_old, tmp_path):
     assert text.endswith("\n" + ans7.CLOSING_LINE + "\n")
 
     # (I)
-    for fn, arg in ((ans7._write_comparison_esr128, (json.loads(metrics_text),)),
-                    (ans7._write_comparison_palace, ())):
+    for fn, arg in (
+        (ans7._write_comparison_esr128, (json.loads(metrics_text),)),
+        (ans7._write_comparison_palace, ()),
+    ):
         d = tmp_path / fn.__name__
         d.mkdir()
         shutil.copy(CASE / "COMPARISON.md", d / "COMPARISON.md")

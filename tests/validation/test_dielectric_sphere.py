@@ -55,7 +55,6 @@ from fem_em_solver.core import (
 from fem_em_solver.io.mesh import MeshGenerator
 from fem_em_solver.post.evaluation import evaluate_vector_field_parallel
 from fem_em_solver.utils.constants import EPSILON_0, MU_0
-
 from tests.complex_mode import complex_only
 
 SPHERE_RADIUS = 0.05
@@ -164,9 +163,7 @@ def _solve_sphere(
     )
 
     material_map = (
-        None
-        if blind
-        else {SPHERE_TAG: HomogeneousMaterial(sigma=0.0, epsilon_r=epsilon_r_sphere)}
+        None if blind else {SPHERE_TAG: HomogeneousMaterial(sigma=0.0, epsilon_r=epsilon_r_sphere)}
     )
     problem = TimeHarmonicProblem(
         mesh=msh,
@@ -197,9 +194,7 @@ def _solve_sphere(
     transverse_ratio = float(np.max(transverse) / abs(ez_mean))
     imag_ratio = float(np.max(np.abs(ez_imag)) / abs(ez_mean))
 
-    ncells = comm.allreduce(
-        msh.topology.index_map(msh.topology.dim).size_local, op=MPI.SUM
-    )
+    ncells = comm.allreduce(msh.topology.index_map(msh.topology.dim).size_local, op=MPI.SUM)
     return ez_mean, ez_spread, transverse_ratio, imag_ratio, int(ncells)
 
 
@@ -213,7 +208,7 @@ def test_dielectric_sphere_interior_field_matches_closed_form():
     resolutions = [(0.0125, 0.025), (0.00833, 0.0167), (0.00625, 0.0125)]
     runs = [_solve_sphere(hs, hf) for hs, hf in resolutions]
     errors = [abs(m[0] - expected) / expected for m in runs]
-    coarse, fine = runs[0], runs[-1]
+    fine = runs[-1]
     err_coarse, err_fine = errors[0], errors[-1]
 
     # Rate fitted over three resolutions rather than a two-point ratio, so one
@@ -237,9 +232,9 @@ def test_dielectric_sphere_interior_field_matches_closed_form():
 
     # Bounds stated from the measurement recorded in PROJECT_PLAN §7 TH-8; the
     # mesh moves, not the bound, if a change pushes these up.
-    assert err_fine < err_coarse, (
-        f"refinement did not improve the interior field: {err_coarse:.4%} -> {err_fine:.4%}"
-    )
+    assert (
+        err_fine < err_coarse
+    ), f"refinement did not improve the interior field: {err_coarse:.4%} -> {err_fine:.4%}"
     assert rate > 0.9, (
         f"fitted convergence rate {rate:.3f} in h is below O(h) — the interior "
         "field is not converging to the closed form"
@@ -286,8 +281,12 @@ def test_sphere_permittivity_is_what_sets_the_interior_field():
 
     if comm.rank == 0:
         print(f"\n[TH-8] negative control (closed form E_in/E0 = {expected:.6f}):")
-        print(f"  with eps_r = {EPSILON_R_SPHERE} in the sphere: E_z = {loaded[0]:.6f} ({err_loaded:.3%})")
-        print(f"  eps-blind (vacuum sphere):                     E_z = {blind[0]:.6f} ({err_blind:.3%})")
+        print(
+            f"  with eps_r = {EPSILON_R_SPHERE} in the sphere: E_z = {loaded[0]:.6f} ({err_loaded:.3%})"
+        )
+        print(
+            f"  eps-blind (vacuum sphere):                     E_z = {blind[0]:.6f} ({err_blind:.3%})"
+        )
 
     assert err_loaded < 0.05, (
         f"the loaded solve missed the closed form by {err_loaded:.2%}; the control "

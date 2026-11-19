@@ -28,15 +28,15 @@ import ufl
 from mpi4py import MPI
 
 from fem_em_solver.thermal.dose import cem43, running_average
-
 from tests.complex_mode import complex_only
 from tests.validation.test_mat10_sar_to_heat_sphere import _say
 from tests.validation.test_mat13_transient_perfusion_sphere import INTERIOR_BAND
 from tests.validation.test_mat15_coil_driven_heating_phantom import N_MAIN, T_INF
 from tests.validation.test_mat15_finite_cylinder_fem import _max_imag
 from tests.validation.test_mat17_duty_cycle_coil_driven import D_BAND
-from tests.validation.test_mat21_box_closed_form import B_BOX, C_BOX, Q
+from tests.validation.test_mat21_box_closed_form import B_BOX, C_BOX
 from tests.validation.test_mat21_box_closed_form import T_INF as T_INF_0
+from tests.validation.test_mat21_box_closed_form import Q
 from tests.validation.test_mat21_box_dose_closed_form import (
     AVG_BAR,
     DOSE_BAR,
@@ -86,8 +86,10 @@ def pdose_m4():
     t0 = time.perf_counter()
     clk = _Clock15("pdose")
     out = {"imag": 0.0}
-    _say(f"\nMAT21-15 DEGREE = {DEGREE}; m = {M4}; N_MAIN = {N_MAIN}; ranks {comm.size}; "
-         f"HIST_PTS {HIST_PTS}; NEW_PTS {NEW_PTS} (two fixed batches)")
+    _say(
+        f"\nMAT21-15 DEGREE = {DEGREE}; m = {M4}; N_MAIN = {N_MAIN}; ranks {comm.size}; "
+        f"HIST_PTS {HIST_PTS}; NEW_PTS {NEW_PTS} (two fixed batches)"
+    )
 
     # 1. Build + uniform solve (serves (Pdeg) only).
     msh, ft, ns, n, v_h, st = _rung_p(M4, clk, DEGREE)
@@ -142,13 +144,17 @@ def _T(th):
 @complex_only
 def test_preconditions(pdose_m4):
     pred = _dofs_pred(M4)
-    _say(f"MAT21-15 (Pdeg) P2 dofs uniform {pdose_m4['ndof_u']} / CN {pdose_m4['ndof_t']} "
-         f"(predicted {pred} = 116025)")
+    _say(
+        f"MAT21-15 (Pdeg) P2 dofs uniform {pdose_m4['ndof_u']} / CN {pdose_m4['ndof_t']} "
+        f"(predicted {pred} = 116025)"
+    )
     assert pred == 116025
     assert pdose_m4["ndof_u"] == pred and pdose_m4["ndof_t"] == pred
     assert tuple(NEW_PTS) == tuple(PROBE_PTS[3:6])
-    _say(f"MAT21-15 validity HIST_PTS {pdose_m4['ok_h'].tolist()} NEW_PTS "
-         f"{pdose_m4['ok_n'].tolist()}")
+    _say(
+        f"MAT21-15 validity HIST_PTS {pdose_m4['ok_h'].tolist()} NEW_PTS "
+        f"{pdose_m4['ok_n'].tolist()}"
+    )
     assert bool(np.all(pdose_m4["ok_h"])), pdose_m4["ok_h"]
     assert bool(np.all(pdose_m4["ok_n"])), pdose_m4["ok_n"]
     assert T_INF == T_INF_0
@@ -156,8 +162,10 @@ def test_preconditions(pdose_m4):
     r36 = (f"{th_h[40, 2]:.6f}", f"{th_h[40, 3]:.6f}")
     same_h = bool(np.array_equal(th_h[40], pdose_m4["fin_h"]))
     same_n = bool(np.array_equal(th_n[40], pdose_m4["fin_n"]))
-    _say(f"MAT21-15 (R36) theta_h(t*) centre / (0,0.9B,0) {r36} (P36 {R36}); snapshot n=40 "
-         f"array_equal final: HIST_PTS {same_h}, NEW_PTS {same_n}")
+    _say(
+        f"MAT21-15 (R36) theta_h(t*) centre / (0,0.9B,0) {r36} (P36 {R36}); snapshot n=40 "
+        f"array_equal final: HIST_PTS {same_h}, NEW_PTS {same_n}"
+    )
     assert r36 == R36, r36
     assert same_h and same_n
     for arr in (th_h, th_n, pdose_m4["ths_h"], pdose_m4["ths_n"]):
@@ -169,13 +177,17 @@ def test_preconditions(pdose_m4):
 def test_r39p_and_rc_h_hist_batch(pdose_m4):
     th_h = pdose_m4["th_h"]
     got = tuple(f"{cem43(T_GRID, _T(th_h[:, j])):.10e}" for j in range(len(DOSE_PTS)))
-    _say(f"MAT21-15 (R39') HIST_PTS batch FEM doses {got} (P39P_FEM_DOSE {P39P_FEM_DOSE}; "
-         f"strings ASSERTED)")
+    _say(
+        f"MAT21-15 (R39') HIST_PTS batch FEM doses {got} (P39P_FEM_DOSE {P39P_FEM_DOSE}; "
+        f"strings ASSERTED)"
+    )
     assert got == tuple(P39P_FEM_DOSE), got
     for j, pt in enumerate(DOSE_PTS):
         _dose, _ref, _rel, swap, miss = _q_check(_T(th_h[:, j]))
-        _say(f"MAT21-15 (Rc'-h) {HIST_LABELS[j]}: R swap miss {miss:.4e} (asserted > "
-             f"{DOSE_BAR:g}); factor {swap / _ref:.4e}")
+        _say(
+            f"MAT21-15 (Rc'-h) {HIST_LABELS[j]}: R swap miss {miss:.4e} (asserted > "
+            f"{DOSE_BAR:g}); factor {swap / _ref:.4e}"
+        )
         assert miss > DOSE_BAR, (pt, miss)
 
 
@@ -184,10 +196,14 @@ def test_q_h_new_points(pdose_m4):
     th_n = pdose_m4["th_n"]
     for j, pt in enumerate(NEW_PTS):
         dose, ref, rel, swap, miss = _q_check(_T(th_n[:, j]))
-        _say(f"MAT21-15 (Q-h) {NEW_LABELS[j]}: FEM CEM43 {dose:.10e} s vs per-segment quad "
-             f"{ref:.15e} s: rel {rel:.3e} (bar {DOSE_BAR:g}, ASSERTED)")
-        _say(f"MAT21-15 control (Rc'-h) PREDICTED {NEW_LABELS[j]}: R swap miss {miss:.4e}; "
-             f"factor {swap / ref:.4e} (predicted range {PRED_RC}; printed only, ruling 10:30 (2))")
+        _say(
+            f"MAT21-15 (Q-h) {NEW_LABELS[j]}: FEM CEM43 {dose:.10e} s vs per-segment quad "
+            f"{ref:.15e} s: rel {rel:.3e} (bar {DOSE_BAR:g}, ASSERTED)"
+        )
+        _say(
+            f"MAT21-15 control (Rc'-h) PREDICTED {NEW_LABELS[j]}: R swap miss {miss:.4e}; "
+            f"factor {swap / ref:.4e} (predicted range {PRED_RC}; printed only, ruling 10:30 (2))"
+        )
         assert rel <= DOSE_BAR, (pt, rel)
 
 
@@ -196,9 +212,11 @@ def test_win_h_new_points(pdose_m4):
     th_n = pdose_m4["th_n"]
     for j, pt in enumerate(NEW_PTS):
         mx, t_mx, lo, hi, ref, rel = _win_check(th_n[:, j])
-        _say(f"MAT21-15 (Win-h) {NEW_LABELS[j]}: max six-minute mean {mx:.15e} K at t_max "
-             f"{t_mx:.6f} s; (ii) [{lo:.12e}, {hi:.12e}]; (iii) quad {ref:.15e}, rel {rel:.3e} "
-             f"(bar {AVG_BAR:g}, ASSERTED)")
+        _say(
+            f"MAT21-15 (Win-h) {NEW_LABELS[j]}: max six-minute mean {mx:.15e} K at t_max "
+            f"{t_mx:.6f} s; (ii) [{lo:.12e}, {hi:.12e}]; (iii) quad {ref:.15e}, rel {rel:.3e} "
+            f"(bar {AVG_BAR:g}, ASSERTED)"
+        )
         assert T_GRID[0] + W_B2 <= t_mx <= T_GRID[-1], t_mx
         assert lo <= mx <= hi, (lo, mx, hi)
         assert rel <= AVG_BAR, (pt, rel)
@@ -210,11 +228,13 @@ def test_bd_dose_sensitivity_bound_new_points(pdose_m4):
     rows = []
     for j in range(len(NEW_PTS)):
         d_h, d_s, m, M, cap = _bd(th_n, ths_n, j)
-        _say(f"MAT21-15 (Bd) {NEW_LABELS[j]} [ASSERTED]: FEM DOSE {d_h:.10e} s; SERIES DOSE "
-             f"{d_s:.15e} s; m_p {m:.4e}; M_p {M:.4e} K (predicted {PRED_M[j]}); ln4*M_p "
-             f"{LN4 * M:.4e}; exact e^(ln4 M)-1 {math.expm1(LN4 * M):.4e}; ratio m_p/(ln4 M_p) "
-             f"{m / (LN4 * M):.4f} (predicted {PRED_RATIO}); INTERIOR_BAND*max theta_s "
-             f"{cap:.4e} K; headroom {cap / M:.2f}x (predicted >= {PRED_HEADROOM:g}x)")
+        _say(
+            f"MAT21-15 (Bd) {NEW_LABELS[j]} [ASSERTED]: FEM DOSE {d_h:.10e} s; SERIES DOSE "
+            f"{d_s:.15e} s; m_p {m:.4e}; M_p {M:.4e} K (predicted {PRED_M[j]}); ln4*M_p "
+            f"{LN4 * M:.4e}; exact e^(ln4 M)-1 {math.expm1(LN4 * M):.4e}; ratio m_p/(ln4 M_p) "
+            f"{m / (LN4 * M):.4f} (predicted {PRED_RATIO}); INTERIOR_BAND*max theta_s "
+            f"{cap:.4e} K; headroom {cap / M:.2f}x (predicted >= {PRED_HEADROOM:g}x)"
+        )
         rows.append((j, m, M, cap))
     for j, m, M, cap in rows:
         assert m <= LN4 * M, ("(Bd)(i)", NEW_LABELS[j], m, LN4 * M)
@@ -227,9 +247,11 @@ def test_c_u_dose_control_new_points(pdose_m4):
     for j, pt in enumerate(NEW_PTS):
         Mu = float(np.max(np.abs(th_n[:, j] - th_u[:, j])))
         r = Mu / float(np.max(th_u[:, j]))
-        _say(f"MAT21-15 control (c-u-dose) PREDICTED {NEW_LABELS[j]}: M_u/max theta_u {r:.4e} "
-             f"(predicted range {PRED_CU[j]}; asserted only > INTERIOR_BAND; ratio to band "
-             f"{r / INTERIOR_BAND:.1f})")
+        _say(
+            f"MAT21-15 control (c-u-dose) PREDICTED {NEW_LABELS[j]}: M_u/max theta_u {r:.4e} "
+            f"(predicted range {PRED_CU[j]}; asserted only > INTERIOR_BAND; ratio to band "
+            f"{r / INTERIOR_BAND:.1f})"
+        )
         assert r > INTERIOR_BAND, (pt, r)
 
 
@@ -240,15 +262,21 @@ def test_printed_records(pdose_m4):
     W = float(W_B2)
     dt = float(T_GRID[1] - T_GRID[0])
     d_n = [cem43(T_GRID, _T(th_n[:, j])) for j in range(len(NEW_PTS))]
-    _say(f"MAT21-15 +x / -x FEM dose asymmetry d(+x)/d(-x) - 1 = {d_n[0] / d_n[1] - 1.0:+.4e} "
-         f"(predicted |.| <= {PRED_ASYM:g}); max|theta_h(+x) - theta_h(-x)| "
-         f"{np.max(np.abs(th_n[:, 0] - th_n[:, 1])):.3e} K")
-    labs = (("P1 +y wall", th_h, ths_h, 0), ("P2 -y wall", th_h, ths_h, 1),
-            ("P0 centre", th_h, ths_h, 2)) + tuple(
-                (NEW_LABELS[j], th_n, ths_n, j) for j in range(len(NEW_PTS)))
+    _say(
+        f"MAT21-15 +x / -x FEM dose asymmetry d(+x)/d(-x) - 1 = {d_n[0] / d_n[1] - 1.0:+.4e} "
+        f"(predicted |.| <= {PRED_ASYM:g}); max|theta_h(+x) - theta_h(-x)| "
+        f"{np.max(np.abs(th_n[:, 0] - th_n[:, 1])):.3e} K"
+    )
+    labs = (
+        ("P1 +y wall", th_h, ths_h, 0),
+        ("P2 -y wall", th_h, ths_h, 1),
+        ("P0 centre", th_h, ths_h, 2),
+    ) + tuple((NEW_LABELS[j], th_n, ths_n, j) for j in range(len(NEW_PTS)))
     for lab, a, s, j in labs:
-        _say(f"MAT21-15 SIX-POINT DOSE TABLE {lab}: FEM {cem43(T_GRID, _T(a[:, j])):.10e} s; "
-             f"series {cem43(T_GRID, _T(s[:, j])):.15e} s")
+        _say(
+            f"MAT21-15 SIX-POINT DOSE TABLE {lab}: FEM {cem43(T_GRID, _T(a[:, j])):.10e} s; "
+            f"series {cem43(T_GRID, _T(s[:, j])):.15e} s"
+        )
     for j in range(len(NEW_PTS)):
         a_h, mx_h, t_h = running_average(T_GRID, th_n[:, j], window=W)
         a_s, mx_s, t_s = running_average(T_GRID, ths_n[:, j], window=W)
@@ -257,8 +285,10 @@ def test_printed_records(pdose_m4):
         da = float(np.max(np.abs(a_h[good] - a_s[good])))
         dth = float(np.max(np.abs(th_n[:, j] - ths_n[:, j])))
         rhs = dth * (1.0 + 1e-12) + D_BAND * float(np.max(np.abs(a_s[good])))
-        _say(f"MAT21-15 {NEW_LABELS[j]}: six-minute peak FEM {mx_h:.9f} K at {t_h:.3f} s vs "
-             f"series {mx_s:.9f} K at {t_s:.3f} s; (Sh) W - dt: {mx_sh:.9f} K at {t_sh:.3f} s; "
-             f"(FEM-c-win) max|a_h - a_s| {da:.4e} vs max|dtheta|(1+1e-12) + D_BAND max|a_s| "
-             f"{rhs:.4e} (printed only; holds {da <= rhs})")
+        _say(
+            f"MAT21-15 {NEW_LABELS[j]}: six-minute peak FEM {mx_h:.9f} K at {t_h:.3f} s vs "
+            f"series {mx_s:.9f} K at {t_s:.3f} s; (Sh) W - dt: {mx_sh:.9f} K at {t_sh:.3f} s; "
+            f"(FEM-c-win) max|a_h - a_s| {da:.4e} vs max|dtheta|(1+1e-12) + D_BAND max|a_s| "
+            f"{rhs:.4e} (printed only; holds {da <= rhs})"
+        )
     assert all(np.isfinite(x) for x in d_n)

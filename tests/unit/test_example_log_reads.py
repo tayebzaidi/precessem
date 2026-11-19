@@ -26,10 +26,20 @@ import pytest
 from tests.log_records import read_log_text
 
 REPO = Path(__file__).resolve().parents[2]
-ANS4 = (REPO / "examples" / "ansys_benchmarks" / "ans4_birdcage_four_port_10_64_128MHz"
-        / "04_birdcage_four_port_10_64_128MHz.py")
-ANS8 = (REPO / "examples" / "ansys_benchmarks" / "ans8_f_human_quadrature_mode_content_64MHz"
-        / "08_f_human_quadrature_mode_content.py")
+ANS4 = (
+    REPO
+    / "examples"
+    / "ansys_benchmarks"
+    / "ans4_birdcage_four_port_10_64_128MHz"
+    / "04_birdcage_four_port_10_64_128MHz.py"
+)
+ANS8 = (
+    REPO
+    / "examples"
+    / "ansys_benchmarks"
+    / "ans8_f_human_quadrature_mode_content_64MHz"
+    / "08_f_human_quadrature_mode_content.py"
+)
 NODE = "h9p-node-1.0000-d2.json"
 NODE_TEXT = (
     "[WF-10 step2] [ccw] w = (1.000+0.000j, 0.000-1.000j); (P_w) P_src 5.000000000e+00 "
@@ -41,9 +51,11 @@ NODE_TEXT = (
     "tail ≈ with a non-ASCII byte\n"
 )
 _S_ROW = "S_{k}k = +1.0e-01+2.0e-01j +3.0e-01-4.0e-01j +5.0e-01+6.0e-01j -7.0e-01+8.0e-01j"
-H_TEXT = ("[ANS-4 step5] degree 2, -n 8, cells 1234\n"
-          "[ANS-4 step5] 64 MHz kappa-off S (10 digits):\n"
-          + "".join(_S_ROW.format(k=k) + "\n" for k in range(1, 5)))
+H_TEXT = (
+    "[ANS-4 step5] degree 2, -n 8, cells 1234\n"
+    "[ANS-4 step5] 64 MHz kappa-off S (10 digits):\n"
+    + "".join(_S_ROW.format(k=k) + "\n" for k in range(1, 5))
+)
 
 
 def _load(name: str, path: Path):

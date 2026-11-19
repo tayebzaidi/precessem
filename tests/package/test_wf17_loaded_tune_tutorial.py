@@ -48,14 +48,13 @@ from mpi4py import MPI
 
 from fem_em_solver import Study, StudyConfigError, cli, run_study_file
 from fem_em_solver import study as study_mod
-
 from tests.complex_mode import IS_COMPLEX, complex_only
-from tests.package.test_wf16_load_result_sweep import FREQS, SWEEP
-from tests.package.test_wf16_study_tune_capacitors import ITEM429_C_MODE_F
-from tests.package.test_wf16_study_tune_f_human_copper import _study as _f_human_study
 from tests.package.test_wf1_study_yaml import _fresh_dir, _rc_all
 from tests.package.test_wf1_yaml_load_result import _loaded_mapping, _no_mesh
 from tests.package.test_wf1_yaml_load_result_sweep import ITEM722_C_MODE_F
+from tests.package.test_wf16_load_result_sweep import FREQS, SWEEP
+from tests.package.test_wf16_study_tune_capacitors import ITEM429_C_MODE_F
+from tests.package.test_wf16_study_tune_f_human_copper import _study as _f_human_study
 from tests.package.test_wf17_first_study_tutorial import (
     LINK_PASS_RE,
     _checker_stdout,
@@ -212,10 +211,12 @@ def test_wf17_s20b_blocks_and_refusals(tmp_path):
     assert tagged == [block]
     fh = untagged[0]
     nb, nf = _names(block), _names(fh)
-    _p0(f"[WF-17 s20b] tagged block names include load_result {('load_result' in nb)}, tune "
+    _p0(
+        f"[WF-17 s20b] tagged block names include load_result {('load_result' in nb)}, tune "
         f"{('tune' in nb)}, solve {('solve' in nb)}, FHuman {('FHumanBirdcageGeometry' in nb)}, "
         f"n_slots {('n_slots' in nb)}; untagged: FHuman {('FHumanBirdcageGeometry' in nf)}, "
-        f"n_slots {('n_slots' in nf)}, load_result {('load_result' in nf)}")
+        f"n_slots {('n_slots' in nf)}, load_result {('load_result' in nf)}"
+    )
     # the tagged block: one solve on `solved`, one load_result + one tune(1) on `fresh`
     assert block.count("Study(") == 1 and block.count(" = f_small_study()") == 2
     assert block.count(".solve(") == 1 and "solved.solve()" in block
@@ -236,10 +237,16 @@ def test_wf17_s20b_blocks_and_refusals(tmp_path):
     # (c-page), by construction: tag removed / doubled raise
     for tag, lang in ((TAG, "python"), (BANDS_TAG, "text")):
         with pytest.raises(LookupError):
-            extract_tagged_block(text.replace(f"```{lang} {tag}\n", f"```{lang} other\n"), tag,
-                                 lang=lang)
-        doubled = (text + "\n" + f"```{lang} {tag}\n"
-                   + extract_tagged_block(text, tag, lang=lang) + "```\n")
+            extract_tagged_block(
+                text.replace(f"```{lang} {tag}\n", f"```{lang} other\n"), tag, lang=lang
+            )
+        doubled = (
+            text
+            + "\n"
+            + f"```{lang} {tag}\n"
+            + extract_tagged_block(text, tag, lang=lang)
+            + "```\n"
+        )
         with pytest.raises(LookupError):
             extract_tagged_block(doubled, tag, lang=lang)
     _p0("[WF-17 s20b] (c-page) tags removed / doubled raise LookupError for both blocks")
@@ -269,9 +276,11 @@ def test_wf17_s20b_docrefs_zero_dead():
     rc, counts = run_checker("--docs-root", "docs/guide", "--check-links")
     link = LINK_PASS_RE.search(_checker_stdout("--docs-root", "docs/guide", "--check-links"))
     assert link is not None, "(D) no 'Link pass:' line"
-    print(f"[WF-17 s20b] (D) dead={counts['dead']} links={link.group(1)} pages={link.group(2)} "
-          f"link-dead={link.group(3)} guide={counts['guide']} stale={counts['stale']} "
-          f"exit={counts['exit']} rc={rc}")
+    print(
+        f"[WF-17 s20b] (D) dead={counts['dead']} links={link.group(1)} pages={link.group(2)} "
+        f"link-dead={link.group(3)} guide={counts['guide']} stale={counts['stale']} "
+        f"exit={counts['exit']} rc={rc}"
+    )
     assert counts["dead"] == 0
     assert int(link.group(3)) == 0
     assert int(link.group(2)) >= MIN_GUIDE_PAGES
@@ -282,8 +291,10 @@ def test_wf17_s20b_docrefs_zero_dead():
 
 def test_wf17_s20b_loaded_tune_block(monkeypatch):
     if not _knob():
-        pytest.skip(f"{S20B_ENV} unset: the loaded-tune solve window is environment-selected "
-                    "(complex build, -n 2)")
+        pytest.skip(
+            f"{S20B_ENV} unset: the loaded-tune solve window is environment-selected "
+            "(complex build, -n 2)"
+        )
     comm = MPI.COMM_WORLD
     assert IS_COMPLEX, "the four-port Study needs the complex build"
     assert comm.size == 2, comm.size
@@ -318,8 +329,10 @@ def test_wf17_s20b_loaded_tune_block(monkeypatch):
     solved, fresh = ns["solved"], ns["fresh"]
     on_solved = [n for n, s in calls if s is solved]
     on_fresh = [n for n, s in calls if s is fresh]
-    _p0(f"[WF-17 s20b] (S0) calls {[n for n, _ in calls]}; on solved {on_solved}; on fresh "
-        f"{on_fresh}; fresh.result {type(fresh.result).__name__}; block {t1:.1f} s")
+    _p0(
+        f"[WF-17 s20b] (S0) calls {[n for n, _ in calls]}; on solved {on_solved}; on fresh "
+        f"{on_fresh}; fresh.result {type(fresh.result).__name__}; block {t1:.1f} s"
+    )
     # (In) both Studies are the gate's inputs
     _assert_gate_inputs(solved, "solved")
     _assert_gate_inputs(fresh, "fresh")
@@ -329,19 +342,23 @@ def test_wf17_s20b_loaded_tune_block(monkeypatch):
     c = float(tuned.c_mode_farad)
     rel = abs(c / U94_CM_RECORD_F - 1.0)
     rel_g = comm.allreduce(rel, op=MPI.MAX)
-    _p0(f"[WF-17 s20b] (X) block k {tuned.k}, C_mode {c:.12e} F (hex {c.hex()}) vs U94 (CM) "
+    _p0(
+        f"[WF-17 s20b] (X) block k {tuned.k}, C_mode {c:.12e} F (hex {c.hex()}) vs U94 (CM) "
         f"{U94_CM_RECORD_F:.12e}: rel {rel_g:.3e} (ASSERTED <= REDUCTION_BAND "
         f"{REDUCTION_BAND:.0e}); '{c:.9e}' vs ITEM429_C_MODE_F '{ITEM429_C_MODE_F:.9e}' "
-        f"equal {f'{c:.9e}' == f'{ITEM429_C_MODE_F:.9e}'} (printed)")
+        f"equal {f'{c:.9e}' == f'{ITEM429_C_MODE_F:.9e}'} (printed)"
+    )
 
     # negative control: the block with tune(2)
     c2 = float(ns2["tuned"].c_mode_farad)
     miss = abs(c2 / U94_CM_RECORD_F - 1.0)
     miss_g = comm.allreduce(miss, op=MPI.MIN)
     on_fresh2 = [n for n, s in calls2 if s is ns2["fresh"]]
-    _p0(f"[WF-17 s20b] (c-k2) tune(2) block k {ns2['tuned'].k}, C {c2:.12e} F: miss {miss_g:.4e} "
+    _p0(
+        f"[WF-17 s20b] (c-k2) tune(2) block k {ns2['tuned'].k}, C {c2:.12e} F: miss {miss_g:.4e} "
         f"({miss_g / REDUCTION_BAND:.1f} x REDUCTION_BAND; ASSERTED > {REDUCTION_BAND:.0e}); "
-        f"solves on its fresh Study {on_fresh2}; block {t2:.1f} s")
+        f"solves on its fresh Study {on_fresh2}; block {t2:.1f} s"
+    )
 
     assert on_solved == ["solve", "_solve_ports"], on_solved
     assert on_fresh == []
@@ -386,8 +403,9 @@ def test_wf17_s27_swept_file_section(capsys, monkeypatch):
     expected_file = _loaded_mapping(SWEPT_FILE)
     expected_file["tune"] = {"k": 1, "at_hz": FREQS[1]}
     assert yaml.safe_load(file_text) == expected_file
-    band_ok = bands == [f"Swept-file C_mode vs the single-frequency tune of its column: "
-                        f"{REDUCTION_BAND:.0e}"]
+    band_ok = bands == [
+        f"Swept-file C_mode vs the single-frequency tune of its column: " f"{REDUCTION_BAND:.0e}"
+    ]
 
     def exec_block(src, label):
         buf = io.StringIO()
@@ -443,30 +461,45 @@ def test_wf17_s27_swept_file_section(capsys, monkeypatch):
     summ = [(float(b["frequency_hz"]), float(b["c_mode_farad"])) for b, _rc in file_runs]
     summ_lines = [_swept_line(f, c) for f, c in summ]
     rcs = _rc_all(max(abs(rc) for _b, rc in file_runs), comm)
-    _p0(f"\n[WF-17 s27] block sha256 {_sha(block.encode())}, file sha256 "
-        f"{_sha(file_text.encode())}; (S0) mesh and solve patched: {n_calls} calls")
+    _p0(
+        f"\n[WF-17 s27] block sha256 {_sha(block.encode())}, file sha256 "
+        f"{_sha(file_text.encode())}; (S0) mesh and solve patched: {n_calls} calls"
+    )
     bad = []
     for i, f in enumerate(FREQS):
         sel, c = rows[i]
         rel = abs(c / ITEM722_C_MODE_F[i] - 1.0)
         rel_f = abs(summ[i][1] / ITEM722_C_MODE_F[i] - 1.0)
-        gate = (lines[i] in block_lines, summ_lines[i] == lines[i], sel == f, summ[i][0] == f,
-                c.hex() == ITEM730_HEX[i], summ[i][1].hex() == ITEM730_HEX[i],
-                rel <= REDUCTION_BAND, rel_f <= REDUCTION_BAND)
-        _p0(f"[WF-17 s27 lines] {f:.1e} Hz: page {lines[i]!r}; in block stdout {gate[0]}, equals "
-            f"summary line {gate[1]}")
-        _p0(f"[WF-17 s27 C=] {f:.1e} Hz: selected block {sel:.1e} {gate[2]}, file {summ[i][0]:.1e} "
+        gate = (
+            lines[i] in block_lines,
+            summ_lines[i] == lines[i],
+            sel == f,
+            summ[i][0] == f,
+            c.hex() == ITEM730_HEX[i],
+            summ[i][1].hex() == ITEM730_HEX[i],
+            rel <= REDUCTION_BAND,
+            rel_f <= REDUCTION_BAND,
+        )
+        _p0(
+            f"[WF-17 s27 lines] {f:.1e} Hz: page {lines[i]!r}; in block stdout {gate[0]}, equals "
+            f"summary line {gate[1]}"
+        )
+        _p0(
+            f"[WF-17 s27 C=] {f:.1e} Hz: selected block {sel:.1e} {gate[2]}, file {summ[i][0]:.1e} "
             f"{gate[3]}; hex block {gate[4]}, file {gate[5]}; rel to item 722 {rel:.3e} / "
-            f"{rel_f:.3e} (REDUCTION_BAND {REDUCTION_BAND:.0e})")
+            f"{rel_f:.3e} (REDUCTION_BAND {REDUCTION_BAND:.0e})"
+        )
         if not all(gate):
             bad.append(f)
     rows_n = [float(t.c_mode_farad) for t in ns_next["rows"]]
     next_n = [float(b["c_mode_farad"]) for b, _rc in next_runs]
     miss = min(abs(c / rec - 1.0) for c, rec in zip(rows_n, ITEM722_C_MODE_F))
     miss_f = min(abs(c / rec - 1.0) for c, rec in zip(next_n, ITEM722_C_MODE_F))
-    _p0(f"[WF-17 s27 ctl] every at_hz one frequency along: least miss block {miss:.6f}, file "
+    _p0(
+        f"[WF-17 s27 ctl] every at_hz one frequency along: least miss block {miss:.6f}, file "
         f"{miss_f:.6f} (asserted > {REDUCTION_BAND:.0e}); stdout differs "
-        f"{out_next != out}")
+        f"{out_next != out}"
+    )
     _p0(f"[WF-17 s27 Ref] block, out of span: {e_span.value}")
     _p0(f"[WF-17 s27 Ref] block, no at_hz: {e_none.value}")
     _p0(f"[WF-17 s27 Ref] file, out of span: field, rc, output dir {ref_file}; run rc {rcs}")

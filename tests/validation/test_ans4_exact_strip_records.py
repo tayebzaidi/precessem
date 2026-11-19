@@ -389,9 +389,7 @@ def _knobbed():
     return _resolution() is not None or _conductor_factor() is not None
 
 
-needs_degree = pytest.mark.skipif(
-    _degree() is None, reason=f"{DEGREE_ENV} unset (opt-in window)"
-)
+needs_degree = pytest.mark.skipif(_degree() is None, reason=f"{DEGREE_ENV} unset (opt-in window)")
 
 
 def _cjson(m):
@@ -456,9 +454,7 @@ def exact_rungs():
             reuse=_reuse_of(off[base_key]),
         )
     kappa_keys = (
-        ()
-        if kappa_off
-        else tuple(k for k in (("10", "128") if d == 1 else ("128",)) if k in keys)
+        () if kappa_off else tuple(k for k in (("10", "128") if d == 1 else ("128",)) if k in keys)
     )
     on = {}
     for key in kappa_keys:
@@ -501,15 +497,12 @@ def exact_rungs():
         }
 
     if comm.rank == 0:
-        print(
-            f"\n[ANS-4 step5] degree {d}, -n {comm.size}, cells {off[base_key]['cells']}"
-        )
+        print(f"\n[ANS-4 step5] degree {d}, -n {comm.size}, cells {off[base_key]['cells']}")
         for key, rung in off.items():
             print(f"[ANS-4 step5] {key} MHz kappa-off S (10 digits):", flush=True)
             for row in range(4):
                 print(
-                    f"    S_{row + 1}k = "
-                    + "  ".join(f"{z:+.9e}" for z in rung["s"][row]),
+                    f"    S_{row + 1}k = " + "  ".join(f"{z:+.9e}" for z in rung["s"][row]),
                     flush=True,
                 )
             print(
@@ -553,9 +546,7 @@ def exact_rungs():
                 flush=True,
             )
         if "vs_item192_x1" in readings:
-            comparand = (
-                "ANS4_EXACT_STRIP_S_P1_RECORDS" if d == 1 else "ANS4_EXACT_STRIP_S_P2_X1"
-            )
+            comparand = "ANS4_EXACT_STRIP_S_P1_RECORDS" if d == 1 else "ANS4_EXACT_STRIP_S_P2_X1"
             for key, moves in readings["vs_item192_x1"].items():
                 predicted = (
                     "predicted self 0.5-3.5 %, couplings 0.2-1.5 %"
@@ -599,8 +590,7 @@ def exact_rungs():
                     "cells": int(off[base_key]["cells"]),
                     "s_kappa_off": {k: _cjson(r["s"]) for k, r in off.items()},
                     "spreads": {
-                        k: {n: float(v) for n, v in r["spreads"].items()}
-                        for k, r in off.items()
+                        k: {n: float(v) for n, v in r["spreads"].items()} for k, r in off.items()
                     },
                     "pooled": {k: float(r["pooled"]) for k, r in off.items()},
                     "sigma": {k: [float(v) for v in r["sigma"]] for k, r in off.items()},
@@ -667,9 +657,9 @@ def test_f_the_spec_rectangle_by_cad_identity(exact_rungs):
             )
     if knobbed:
         # (F′) negative control: a misspelt/ignored knob reproduces 117 206.
-        assert off["cells"] > KNOB_CELL_FACTOR * ANS4_EXACT_STRIP_CELL_RECORD, (
-            f"cells {off['cells']}: mesh knob did not reach the mesh"
-        )
+        assert (
+            off["cells"] > KNOB_CELL_FACTOR * ANS4_EXACT_STRIP_CELL_RECORD
+        ), f"cells {off['cells']}: mesh knob did not reach the mesh"
     else:
         assert abs(ratio - 1.0) <= CELL_COUNT_BAND, f"cells {off['cells']}"
     for s in off["sheets"]:

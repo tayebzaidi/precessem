@@ -36,10 +36,7 @@ from mpi4py import MPI
 from fem_em_solver import StudyConfigError, cli, load_study, run_study_file
 from fem_em_solver import study as study_mod
 from fem_em_solver import study_yaml
-
 from tests.complex_mode import complex_only
-from tests.package.test_wf16_load_result_f_human import N_SLOTS, _write_named
-from tests.package.test_wf16_study_tune_f_human_copper import WF12_STEP3_C_MODE_CU_F, _synthetic
 from tests.package.test_wf1_study_yaml import WF1, _fresh_dir, _mapping, _rc_all
 from tests.package.test_wf1_yaml_load_result import (
     _hex,
@@ -48,6 +45,8 @@ from tests.package.test_wf1_yaml_load_result import (
     _tune_block_hex_equal,
     _write_yaml,
 )
+from tests.package.test_wf16_load_result_f_human import N_SLOTS, _write_named
+from tests.package.test_wf16_study_tune_f_human_copper import WF12_STEP3_C_MODE_CU_F, _synthetic
 from tests.validation.test_port_birdcage_four_port import LEG_D0_REPRODUCTION_BAND
 from tests.validation.test_port_lumped_rlc_termination import REDUCTION_BAND
 
@@ -102,8 +101,10 @@ def test_wf1_s26_coding_and_refusals(monkeypatch, capsys):
     with pytest.MonkeyPatch.context() as mp:
         _no_mesh(mp, calls)
         st, kind, outputs, _cooling = study_yaml._load(yml)
-        say(f"\n[WF-1 s26 W0] parse: kind {kind}, outputs {outputs!r}; conductor "
-            f"{type(st.conductor).__name__}")
+        say(
+            f"\n[WF-1 s26 W0] parse: kind {kind}, outputs {outputs!r}; conductor "
+            f"{type(st.conductor).__name__}"
+        )
         assert kind == "f_human_birdcage"
         assert outputs == {"tune": {"k": 1}, "load_result": target.resolve()}
 
@@ -114,8 +115,10 @@ def test_wf1_s26_coding_and_refusals(monkeypatch, capsys):
         bad = _tune_block_hex_equal(run.summary["tune"], api)
         with open(d / "out" / "summary.json") as fh:
             js = json.load(fh)
-        say(f"[WF-1 s26 W0] synthetic (I=): C {run.summary['tune']['c_mode_farad'].hex()} vs api "
-            f"{_hex(api.c_mode_farad)}; differing {bad}")
+        say(
+            f"[WF-1 s26 W0] synthetic (I=): C {run.summary['tune']['c_mode_farad'].hex()} vs api "
+            f"{_hex(api.c_mode_farad)}; differing {bad}"
+        )
         assert bad == []
         assert isinstance(run.study.result, study_mod.LoadedPortResult)
         assert len(js["port_ids"]) == 32 and "cells" not in js and "touchstone" not in js
@@ -129,8 +132,11 @@ def test_wf1_s26_coding_and_refusals(monkeypatch, capsys):
         m = copy.deepcopy(base)
         m["thermal"] = {}
         variants["thermal"] = m
-        for key, val in (("sar", {"mass_g": 10.0, "centres": [[0.0, 0.0, 0.0]]}),
-                         ("b1_plus", {}), ("probes", {"points": [[0.0, 0.0, 0.0]]})):
+        for key, val in (
+            ("sar", {"mass_g": 10.0, "centres": [[0.0, 0.0, 0.0]]}),
+            ("b1_plus", {}),
+            ("probes", {"points": [[0.0, 0.0, 0.0]]}),
+        ):
             m = copy.deepcopy(base)
             m["outputs"] = {key: val}
             variants[f"outputs.{key}"] = m
@@ -141,14 +147,18 @@ def test_wf1_s26_coding_and_refusals(monkeypatch, capsys):
             o = d / f"out_{f.stem}"
             rc_run = _rc_all(cli.main(["run", str(f), "--output-dir", str(o)]), comm)
             exists = comm.allreduce(int(o.exists()), op=MPI.MAX)
-            say(f"  (Ref) {label}: field {ei.value.field!r}, run rc {rc_run}, out exists {exists}; "
-                f"{ei.value}")
+            say(
+                f"  (Ref) {label}: field {ei.value.field!r}, run rc {rc_run}, out exists {exists}; "
+                f"{ei.value}"
+            )
             assert ei.value.field == label
             assert "load_result" in str(ei.value)
             assert rc_run == (2, 2) and exists == 0
 
         o = d / "out_palace"
-        rc_p = _rc_all(cli.main(["run", str(yml), "--backend", "palace", "--output-dir", str(o)]), comm)
+        rc_p = _rc_all(
+            cli.main(["run", str(yml), "--backend", "palace", "--output-dir", str(o)]), comm
+        )
         with pytest.raises(StudyConfigError) as ei:
             study_yaml._run_study_file_palace(yml, output_dir=o, comm=comm)
         say(f"  (Ref) --backend palace: rc {rc_p}; field {ei.value.field!r}; {ei.value}")
@@ -220,15 +230,23 @@ def test_wf1_s26_yaml_load_result_equals_api(capsys):
     diff = _summary_diff(js_api, js_cli)
     c = run.summary["tune"]["c_mode_farad"]
     rel = abs(c / WF12_STEP3_C_MODE_CU_F - 1.0)
-    say(f"\n[WF-1 s26 S0] Study.solve / _solve_ports / build / gmsh.initialize patched to raise: "
-        f"{n_calls} calls")
-    say(f"[WF-1 s26 I=] summary C {c.hex()} vs api {_hex(api.c_mode_farad)}; z_k {len(api.z_k)}; "
-        f"differing {bad} (json {bad_js}); ports {len(js_api['port_ids'])}")
-    say(f"[WF-1 s26 CM] C_mode vs WF12_STEP3_C_MODE_CU_F: rel {rel:.3e} (REDUCTION_BAND "
-        f"{REDUCTION_BAND:.0e}; item 685 read 3.421e-13)")
+    say(
+        f"\n[WF-1 s26 S0] Study.solve / _solve_ports / build / gmsh.initialize patched to raise: "
+        f"{n_calls} calls"
+    )
+    say(
+        f"[WF-1 s26 I=] summary C {c.hex()} vs api {_hex(api.c_mode_farad)}; z_k {len(api.z_k)}; "
+        f"differing {bad} (json {bad_js}); ports {len(js_api['port_ids'])}"
+    )
+    say(
+        f"[WF-1 s26 CM] C_mode vs WF12_STEP3_C_MODE_CU_F: rel {rel:.3e} (REDUCTION_BAND "
+        f"{REDUCTION_BAND:.0e}; item 685 read 3.421e-13)"
+    )
     say(f"[WF-1 s26 CLI] femem run rc {rc}; summary diff against the API run {diff}")
-    say(f"[WF-1 s26 Sw] ports 1 and 2 swapped: C {c_sw:.12e} F, miss {miss_sw:.6e} vs "
-        f"LEG_D0_REPRODUCTION_BAND {LEG_D0_REPRODUCTION_BAND:.1e}")
+    say(
+        f"[WF-1 s26 Sw] ports 1 and 2 swapped: C {c_sw:.12e} F, miss {miss_sw:.6e} vs "
+        f"LEG_D0_REPRODUCTION_BAND {LEG_D0_REPRODUCTION_BAND:.1e}"
+    )
     with capsys.disabled():
         _p0("\n".join(lines))
     assert n_calls == 0

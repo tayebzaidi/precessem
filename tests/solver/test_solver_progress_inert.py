@@ -69,7 +69,6 @@ import sys
 import time
 from pathlib import Path
 
-import pytest
 from mpi4py import MPI
 
 from tests.complex_mode import complex_only
@@ -164,9 +163,7 @@ def _child_main() -> None:
     def current_density(x):
         return j_expr
 
-    fields = solver.solve(
-        current_density=current_density, subdomain_id=1, gauge_penalty=1e-3
-    )
+    fields = solver.solve(current_density=current_density, subdomain_id=1, gauge_penalty=1e-3)
     dx_source = ufl.Measure("dx", domain=mesh, subdomain_data=cell_tags)(1)
     balance = poynting_power_balance(
         fields.e_complex,
@@ -191,9 +188,7 @@ def _child_main() -> None:
 
     # The factor's own ICNTL(4), read back from MUMPS.
     try:
-        icntl4 = int(
-            solver._linear_problem.solver.getPC().getFactorMatrix().getMumpsIcntl(4)
-        )
+        icntl4 = int(solver._linear_problem.solver.getPC().getFactorMatrix().getMumpsIcntl(4))
     except Exception as exc:  # pragma: no cover - reported, then fails the assert
         icntl4 = f"unreadable: {exc!r}"
     cells_per_rank = comm.gather(int(mesh.topology.index_map(tdim).size_local), root=0)
@@ -223,9 +218,7 @@ def _child_main() -> None:
             "sum_real": float(global_sum.real).hex(),
             "sum_imag": float(global_sum.imag).hex(),
             "relative_imbalance": float(balance["relative_imbalance"]).hex(),
-            "two_term_relative_imbalance": float(
-                balance["two_term_relative_imbalance"]
-            ).hex(),
+            "two_term_relative_imbalance": float(balance["two_term_relative_imbalance"]).hex(),
         }
         print(RESULT_SENTINEL + json.dumps(payload), flush=True)
 
@@ -236,7 +229,10 @@ def _scrubbed_env(progress: str | None) -> dict:
     if progress is not None:
         env["FEM_EM_SOLVER_PROGRESS"] = progress
     env["PYTHONPATH"] = (
-        str(REPO_ROOT / "src") + os.pathsep + str(REPO_ROOT) + os.pathsep
+        str(REPO_ROOT / "src")
+        + os.pathsep
+        + str(REPO_ROOT)
+        + os.pathsep
         + env.get("PYTHONPATH", "")
     )
     return env
@@ -246,8 +242,14 @@ def _run_child(progress: str | None, nranks: int) -> dict:
     t0 = time.perf_counter()
     try:
         proc = subprocess.run(
-            ["mpiexec", "-n", str(nranks), sys.executable,
-             str(Path(__file__).resolve()), "--child"],
+            [
+                "mpiexec",
+                "-n",
+                str(nranks),
+                sys.executable,
+                str(Path(__file__).resolve()),
+                "--child",
+            ],
             env=_scrubbed_env(progress),
             cwd=str(REPO_ROOT),
             capture_output=True,
@@ -264,7 +266,7 @@ def _run_child(progress: str | None, nranks: int) -> dict:
     result = None
     for line in lines:
         if line.startswith(RESULT_SENTINEL):
-            result = json.loads(line[len(RESULT_SENTINEL):])
+            result = json.loads(line[len(RESULT_SENTINEL) :])
     return {
         "progress": progress,
         "nranks": nranks,
@@ -328,8 +330,10 @@ def test_solver_progress_variable_is_bit_inert_at_n1_and_visible_only_when_set()
     anchor_set = [r for r in anchor if r["progress"] == PROGRESS_LEVEL]
 
     if comm.rank == 0:
-        print(f"\n[OPS-43(d)] anchor children, mpiexec -n {ANCHOR_NRANKS}, "
-              f"{ANCHOR_PAIRS} unset + {ANCHOR_PAIRS} set, launch order:")
+        print(
+            f"\n[OPS-43(d)] anchor children, mpiexec -n {ANCHOR_NRANKS}, "
+            f"{ANCHOR_PAIRS} unset + {ANCHOR_PAIRS} set, launch order:"
+        )
         for i, run in enumerate(anchor):
             _print_child(i, run)
         for run in anchor:
@@ -338,9 +342,11 @@ def test_solver_progress_variable_is_bit_inert_at_n1_and_visible_only_when_set()
                 for ln in run["output_tail"]:
                     print("  | " + ln)
         for key in ANCHOR_KEYS:
-            print(f"  -n {ANCHOR_NRANKS} all 8: distinct {key} "
-                  f"{_distribution(anchor, key)}  (one value required; record "
-                  f"norm2 {RECORD_N1_NORM2} 8/8)")
+            print(
+                f"  -n {ANCHOR_NRANKS} all 8: distinct {key} "
+                f"{_distribution(anchor, key)}  (one value required; record "
+                f"norm2 {RECORD_N1_NORM2} 8/8)"
+            )
         res0 = anchor[0]["result"]
         if res0 is not None:
             from tests.solver.test_time_harmonic_smoke import (
@@ -349,25 +355,33 @@ def test_solver_progress_variable_is_bit_inert_at_n1_and_visible_only_when_set()
             )
 
             print(f"  cells {res0['ncells']}, dofs {res0['ndofs']}")
-            print(f"  smoke scalars (printed, not asserted here): three-term "
-                  f"{float.fromhex(res0['relative_imbalance']):.9f} "
-                  f"(smoke band < {POYNTING_IMBALANCE_MAX}); two-term "
-                  f"{float.fromhex(res0['two_term_relative_imbalance']):.9f} "
-                  f"(smoke record {AXIAL_RECORD_IMBALANCE})")
+            print(
+                f"  smoke scalars (printed, not asserted here): three-term "
+                f"{float.fromhex(res0['relative_imbalance']):.9f} "
+                f"(smoke band < {POYNTING_IMBALANCE_MAX}); two-term "
+                f"{float.fromhex(res0['two_term_relative_imbalance']):.9f} "
+                f"(smoke record {AXIAL_RECORD_IMBALANCE})"
+            )
 
-        print(f"\n[OPS-43(d)] -n {PROBE_NRANKS} children (printed, asserted nowhere), "
-              f"{PROBE_PAIRS} unset + {PROBE_PAIRS} set, launch order:")
+        print(
+            f"\n[OPS-43(d)] -n {PROBE_NRANKS} children (printed, asserted nowhere), "
+            f"{PROBE_PAIRS} unset + {PROBE_PAIRS} set, launch order:"
+        )
         for i, run in enumerate(probe):
             _print_child(i, run)
         for label, prog in (("unset", None), ("set", PROGRESS_LEVEL)):
             sub = [r for r in probe if r["progress"] == prog]
             n_ok = sum(1 for r in sub if r["result"] is not None)
             for key in ANCHOR_KEYS:
-                print(f"  -n {PROBE_NRANKS} {label:<5s} ({n_ok}/{len(sub)} reported): "
-                      f"distinct {key} {_distribution(sub, key)}")
-        print(f"  record: 2 of 22 -n 2 children drifted 1 ULP, modal norm2 "
-              f"{RECORD_N2_MODAL_NORM2} (known-issues 2026-09-10). "
-              f"Predicted: the modal value is the same for both settings.")
+                print(
+                    f"  -n {PROBE_NRANKS} {label:<5s} ({n_ok}/{len(sub)} reported): "
+                    f"distinct {key} {_distribution(sub, key)}"
+                )
+        print(
+            f"  record: 2 of 22 -n 2 children drifted 1 ULP, modal norm2 "
+            f"{RECORD_N2_MODAL_NORM2} (known-issues 2026-09-10). "
+            f"Predicted: the modal value is the same for both settings."
+        )
         sys.stdout.flush()
 
     # --- Every anchor child ran and reported; none is dropped. ---
@@ -392,9 +406,9 @@ def test_solver_progress_variable_is_bit_inert_at_n1_and_visible_only_when_set()
     # --- Negative controls: visibility, the options dict, ICNTL(4) read-back. ---
     expected_set = dict(PRE_OPS43_BASELINE_OPTIONS, mat_mumps_icntl_4=int(PROGRESS_LEVEL))
     for run in anchor_unset:
-        assert len(run["tagged_lines"]) == 0, (
-            f"progress output leaked with the variable unset: {run['tagged_lines']}"
-        )
+        assert (
+            len(run["tagged_lines"]) == 0
+        ), f"progress output leaked with the variable unset: {run['tagged_lines']}"
         for rank_opts in run["result"]["options_per_rank"]:
             assert rank_opts == [PRE_OPS43_BASELINE_OPTIONS], (
                 f"unset-run options {rank_opts} differ from the pre-OPS-43 baseline "
@@ -402,9 +416,9 @@ def test_solver_progress_variable_is_bit_inert_at_n1_and_visible_only_when_set()
             )
         assert run["result"]["icntl4_per_rank"] == [0] * ANCHOR_NRANKS
     for run in anchor_set:
-        assert len(run["tagged_lines"]) >= 1, (
-            "FEM_EM_SOLVER_PROGRESS set but no progress-tagged line was printed"
-        )
+        assert (
+            len(run["tagged_lines"]) >= 1
+        ), "FEM_EM_SOLVER_PROGRESS set but no progress-tagged line was printed"
         for rank_opts in run["result"]["options_per_rank"]:
             assert rank_opts == [expected_set], (
                 f"set-run options {rank_opts} are not the baseline plus "

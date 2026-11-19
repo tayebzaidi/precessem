@@ -127,17 +127,11 @@ def _build_f_human(comm, phantom_resolution=None, as_hole=False, emit_leg_ports=
     )
     from fem_em_solver.io.mesh import MeshGenerator, _interface_facet_tags
     from fem_em_solver.ports.lumped import LumpedSheetPortSpec
-
     from tests.mesh.test_birdcage_leg_offset import _sheet_azimuth_deg
     from tests.mesh.test_birdcage_port_sheets import PORT_LOWER, PORT_UPPER, SHEET_IFACE
     from tests.mesh.test_birdcage_port_terminals import _interface_area_or_zero
     from tests.mesh.test_birdcage_ring_gaps_scaleup import _ring_gap_frame
-    from tests.validation.test_birdcage_f_human_rung import (
-        F_HUMAN_RING_RADIUS,
-        LEG_COUNT,
-        _params,
-        _ring_ports,
-    )
+    from tests.validation.test_birdcage_f_human_rung import LEG_COUNT, _ring_ports
     from tests.validation.test_lossy_sphere_fullwave import (
         SALINE_EPSILON_R,
         SALINE_SIGMA,
@@ -164,7 +158,8 @@ def _build_f_human(comm, phantom_resolution=None, as_hole=False, emit_leg_ports=
     ring_ports = _ring_ports()
     assert len(ring_ports) == 2 * LEG_COUNT
     tags_f = _interface_facet_tags(
-        msh, cell_tags,
+        msh,
+        cell_tags,
         {SHEET_IFACE + i: (PORT_LOWER + i, PORT_UPPER + i) for i in ring_ports},
     )
     tdim = msh.topology.dim
@@ -272,9 +267,7 @@ def f_human_quadrature_case():
             f"{build_s:.2f} s at -n {comm.size}; f = {FREQUENCY_HZ:.3e} Hz, degree {DEGREE}",
             flush=True,
         )
-    case = post6._build_ring_quadrature_case(
-        built=built, cell_record=F_HUMAN_BRANCH_B_CELL_RECORD
-    )
+    case = post6._build_ring_quadrature_case(built=built, cell_record=F_HUMAN_BRANCH_B_CELL_RECORD)
 
     # ---- (vi) the unit-weight identity on drive P17 ------------------------
     result = case["result"]
@@ -301,13 +294,9 @@ def f_human_quadrature_case():
     step = 360.0 / len(port_ids) * 2.0  # 22.5 deg on the 16-leg ring
     reads = {0: post6._read_senses(cg1_single, points)}
     for m in range(1, len(port_ids) // 2):
-        reads[m] = post6._read_senses(
-            cg1_single, post6._rotate_z(points, np.radians(m * step))
-        )
+        reads[m] = post6._read_senses(cg1_single, post6._rotate_z(points, np.radians(m * step)))
     mask = np.logical_and.reduce([case["mask"]] + [r[2] for r in reads.values()])
-    single_c16 = {
-        m: post6._relative_l2(reads[m][0], reads[0][0], mask) for m in reads if m != 0
-    }
+    single_c16 = {m: post6._relative_l2(reads[m][0], reads[0][0], mask) for m in reads if m != 0}
     single_worst_m = max(single_c16, key=single_c16.get)
     t_control = time.perf_counter() - t0
 
@@ -351,9 +340,7 @@ def test_i_the_f_human_cell_record(f_human_quadrature_case):
 
     c = f_human_quadrature_case
     rel = c["cells"] / c["cell_record"] - 1.0
-    assert abs(rel) < CELL_COUNT_BAND, (
-        f"{c['cells']} cells vs record {c['cell_record']}: {rel:.3e}"
-    )
+    assert abs(rel) < CELL_COUNT_BAND, f"{c['cells']} cells vs record {c['cell_record']}: {rel:.3e}"
     assert len(c["port_ids"]) == 32
 
 
@@ -378,9 +365,9 @@ def test_iv_mirror_identity(f_human_quadrature_case):
 @complex_only
 def test_v_exact_identity_on_the_superposed_field(f_human_quadrature_case):
     c = f_human_quadrature_case
-    assert c["identity_dev"] <= c["identity_rtol"], (
-        f"identity {c['identity_dev']:.3e} > {c['identity_rtol']:g}"
-    )
+    assert (
+        c["identity_dev"] <= c["identity_rtol"]
+    ), f"identity {c['identity_dev']:.3e} > {c['identity_rtol']:g}"
 
 
 @complex_only

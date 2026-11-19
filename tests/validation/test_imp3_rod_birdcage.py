@@ -46,7 +46,6 @@ from dataclasses import replace
 import basix
 import dolfinx
 import numpy as np
-import pytest
 from dolfinx import fem
 from mpi4py import MPI
 
@@ -64,7 +63,6 @@ from fem_em_solver.utils.analytical import (
     prolate_spheroid_depolarisation,
 )
 from fem_em_solver.utils.constants import EPSILON_0, MU_0
-
 from tests.complex_mode import complex_only
 from tests.mesh.helpers import global_cell_tag_set
 from tests.mesh.test_birdcage_conductor_hole import SOLID_CELL_RECORD
@@ -119,14 +117,30 @@ ROD_CELL_PREDICTED_W2 = (225_000, 275_000)
 # (digit-identical at `20261001T171613Z_PORT-21-step5-W2.log:3670-3673`).
 IMP3_FLAG_OFF_Z_64MHZ = np.array(
     [
-        [+2.647082952e01 + 4.646185233e01j, +1.877248178e01 + 6.880903941e-01j,
-         +1.429887332e01 - 4.749644673e00j, +1.877380478e01 + 6.929877997e-01j],
-        [+1.877079735e01 + 6.864775531e-01j, +2.647408805e01 + 4.647247309e01j,
-         +1.877301423e01 + 6.893105431e-01j, +1.429704807e01 - 4.748654779e00j],
-        [+1.429428638e01 - 4.749063864e00j, +1.876908728e01 + 6.896008822e-01j,
-         +2.649109802e01 + 4.648038833e01j, +1.876465515e01 + 6.882647066e-01j],
-        [+1.877383419e01 + 6.947656906e-01j, +1.429928713e01 - 4.746587865e00j,
-         +1.877029497e01 + 6.913645278e-01j, +2.647483350e01 + 4.645438954e01j],
+        [
+            +2.647082952e01 + 4.646185233e01j,
+            +1.877248178e01 + 6.880903941e-01j,
+            +1.429887332e01 - 4.749644673e00j,
+            +1.877380478e01 + 6.929877997e-01j,
+        ],
+        [
+            +1.877079735e01 + 6.864775531e-01j,
+            +2.647408805e01 + 4.647247309e01j,
+            +1.877301423e01 + 6.893105431e-01j,
+            +1.429704807e01 - 4.748654779e00j,
+        ],
+        [
+            +1.429428638e01 - 4.749063864e00j,
+            +1.876908728e01 + 6.896008822e-01j,
+            +2.649109802e01 + 4.648038833e01j,
+            +1.876465515e01 + 6.882647066e-01j,
+        ],
+        [
+            +1.877383419e01 + 6.947656906e-01j,
+            +1.429928713e01 - 4.746587865e00j,
+            +1.877029497e01 + 6.913645278e-01j,
+            +2.647483350e01 + 4.645438954e01j,
+        ],
     ],
     dtype=np.complex128,
 )
@@ -145,11 +159,21 @@ AXIS_SAMPLES = 9
 PORT_IDS = ("P1", "P2", "P3", "P4")
 DRIVES = PORT_IDS + ("ccw", "cw")
 # sigma_y swaps P2 <-> P4 (0-based 1 <-> 3).
-MIRROR_PAIRS = (((1, 1), (3, 3)), ((0, 1), (0, 3)), ((1, 0), (3, 0)),
-                ((2, 1), (2, 3)), ((1, 2), (3, 2)))
+MIRROR_PAIRS = (
+    ((1, 1), (3, 3)),
+    ((0, 1), (0, 3)),
+    ((1, 0), (3, 0)),
+    ((2, 1), (2, 3)),
+    ((1, 2), (3, 2)),
+)
 # sigma_x (broken) swaps P1 <-> P3 (0-based 0 <-> 2) — C2, printed.
-SIGMA_X_PAIRS = (((0, 0), (2, 2)), ((1, 0), (1, 2)), ((0, 1), (2, 1)),
-                 ((3, 0), (3, 2)), ((0, 3), (2, 3)))
+SIGMA_X_PAIRS = (
+    ((0, 0), (2, 2)),
+    ((1, 0), (1, 2)),
+    ((0, 1), (2, 1)),
+    ((3, 0), (3, 2)),
+    ((0, 3), (2, 3)),
+)
 
 # --- predictions, written before the first window (printed, never asserted) --
 PRED_Q = (2.0, 10.0)
@@ -249,7 +273,7 @@ def _ball_mean_closed_form(msh, centre, radius):
     num = 0.0
     vol = 0.0
     for start in range(0, cells.size, CF_CHUNK):
-        chunk = cells[start:start + CF_CHUNK]
+        chunk = cells[start : start + CF_CHUNK]
         v = xg[dmap[chunk]]
         jac = np.stack([v[:, 1] - v[:, 0], v[:, 2] - v[:, 0], v[:, 3] - v[:, 0]], axis=2)
         det = np.abs(np.linalg.det(jac))
@@ -296,9 +320,7 @@ def _arm(built, label, rod, *, field_hook=None):
     """Sweep one arm (steps 1-5, 9); return scalars and, for the rod arm, the mesh."""
     comm = MPI.COMM_WORLD
     t_arm = time.perf_counter()
-    case = build_four_port_sweep(
-        frequency_hz=STEP2D_FREQUENCY_HZ, built=built, build_only=True
-    )
+    case = build_four_port_sweep(frequency_hz=STEP2D_FREQUENCY_HZ, built=built, build_only=True)
     msh = case["mesh"]
     ncells = int(case["cells"])
     _say(
@@ -356,8 +378,12 @@ def _arm(built, label, rod, *, field_hook=None):
     for tip, centre in TIPS.items():
         for d in DRIVES:
             out = mass_averaged_sar(
-                e_of[d], sigma=sigma_field, rho=rho_field, center=centre,
-                radius=a_1g, quadrature_degree=QUADRATURE_DEGREE,
+                e_of[d],
+                sigma=sigma_field,
+                rho=rho_field,
+                center=centre,
+                radius=a_1g,
+                quadrature_degree=QUADRATURE_DEGREE,
             )
             sar[(tip, d)] = float(out["averaged_sar_w_per_kg"])
             mass[tip] = float(out["mass_kg"])
@@ -492,7 +518,9 @@ def _c3(a):
     )
     for line in lines:
         _say(line)
-    _say(f"        worst kept-mirror pair {worst:.4%} -> {'<=' if worst <= PRED_C3_PAIR_MAX else '>'} prediction")
+    _say(
+        f"        worst kept-mirror pair {worst:.4%} -> {'<=' if worst <= PRED_C3_PAIR_MAX else '>'} prediction"
+    )
 
 
 def _peak_rss_gib():
@@ -502,7 +530,6 @@ def _peak_rss_gib():
 
 def _case(phantom_resolution, *, field_hook=None):
     """Without-rod arm first, freed, then the rod arm (§9 item 174 steps 1-11)."""
-    comm = MPI.COMM_WORLD
     t_case = time.perf_counter()
     window = "W1" if phantom_resolution is None else "W2"
     kw = {} if phantom_resolution is None else {"phantom_resolution": phantom_resolution}
@@ -577,9 +604,18 @@ def _report(case):
     _c3(off)
     _c3(rod)
     # Ratio of record and the closed form.
-    k_mag = 2.0 * np.pi * float(STEP2D_FREQUENCY_HZ) * math.sqrt(
-        MU_0 * EPSILON_0 * abs(SALINE_EPSILON_R - 1j * SALINE_SIGMA
-                               / (2.0 * np.pi * float(STEP2D_FREQUENCY_HZ) * EPSILON_0))
+    k_mag = (
+        2.0
+        * np.pi
+        * float(STEP2D_FREQUENCY_HZ)
+        * math.sqrt(
+            MU_0
+            * EPSILON_0
+            * abs(
+                SALINE_EPSILON_R
+                - 1j * SALINE_SIGMA / (2.0 * np.pi * float(STEP2D_FREQUENCY_HZ) * EPSILON_0)
+            )
+        )
     )
     c_eq = math.sqrt(SPHEROID_SEMI_MAJOR**2 - SPHEROID_SEMI_MINOR**2)
     _say(
@@ -662,8 +698,11 @@ def _control_c1(case):
     sar_nat = {}
     for tip, centre in TIPS.items():
         out = mass_averaged_sar(
-            solved["fields"].e_complex, sigma=solved["fields"].sigma_field,
-            rho=rod["rho_field"], center=centre, radius=a_1g,
+            solved["fields"].e_complex,
+            sigma=solved["fields"].sigma_field,
+            rho=rod["rho_field"],
+            center=centre,
+            radius=a_1g,
             quadrature_degree=QUADRATURE_DEGREE,
         )
         sar_nat[tip] = float(out["averaged_sar_w_per_kg"])

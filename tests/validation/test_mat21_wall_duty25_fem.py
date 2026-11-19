@@ -29,13 +29,12 @@ from dolfinx import fem
 from fem_em_solver.post.evaluation import evaluate_vector_field_parallel
 from fem_em_solver.thermal import solve_transient_conduction
 from fem_em_solver.utils.analytical import two_layer_slab_duty_cycle_temperature
-
 from tests.validation.test_imp7_duty_cycle_fem import S0_BAND, _chi
 from tests.validation.test_mat10_sar_to_heat_sphere import _say
 from tests.validation.test_mat12_transient_sar_heating_sphere import E_BAND
 from tests.validation.test_mat13_transient_perfusion_sphere import INTERIOR_BAND
 from tests.validation.test_mat15_coil_driven_heating_phantom import H_GEL, K_GEL, N_MAIN
-from tests.validation.test_mat15_finite_cylinder_closed_form import H, K, Q, T_INF
+from tests.validation.test_mat15_finite_cylinder_closed_form import T_INF, H, K, Q
 from tests.validation.test_mat15_finite_cylinder_fem import _rel
 from tests.validation.test_mat21_box_closed_form import A_BOX, B_BOX, C_BOX
 from tests.validation.test_mat21_box_duty25_dose_closed_form import DUTY25
@@ -72,9 +71,19 @@ def _exact_duty_at(msh, t, duty, lam):
         n = x.shape[1]
         out = np.empty(n)
         for s in range(0, n, INTERP_CHUNK):
-            out[s:s + INTERP_CHUNK] = two_layer_slab_duty_cycle_temperature(
-                x[2, s:s + INTERP_CHUNK], t, q=Q, h=H, t_inf=0.0, rho_c_w=RHO_C_W, period=PERIOD,
-                duty=duty, n_terms=N_SERIES, eigenvalues=lam, **SLAB)
+            out[s : s + INTERP_CHUNK] = two_layer_slab_duty_cycle_temperature(
+                x[2, s : s + INTERP_CHUNK],
+                t,
+                q=Q,
+                h=H,
+                t_inf=0.0,
+                rho_c_w=RHO_C_W,
+                period=PERIOD,
+                duty=duty,
+                n_terms=N_SERIES,
+                eigenvalues=lam,
+                **SLAB,
+            )
         return out
 
     g.interpolate(ev)
@@ -102,24 +111,41 @@ def walled():
     rcf = _rho_c_field(msh)
     ft = _robin_facets(msh, (A_BOX, B_BOX, C_BOX + D_WALL), (2,))
     lam_w = _lam(RHO_C_W)
-    _say(f"\nMAT21-27 1D-reduced walled box m = {RUNG} cells {tuple(ns)} N_w = {nw}: n = "
-         f"{msh.topology.index_map(3).size_global}; t* {T_STAR:.3f} s, t2 {T2:.3f} s; P "
-         f"{PERIOD:.4f} s = {PERIOD / DT:.1f} steps; dt {DT:.4f} s, {N2} CN steps")
+    _say(
+        f"\nMAT21-27 1D-reduced walled box m = {RUNG} cells {tuple(ns)} N_w = {nw}: n = "
+        f"{msh.topology.index_map(3).size_global}; t* {T_STAR:.3f} s, t2 {T2:.3f} s; P "
+        f"{PERIOD:.4f} s = {PERIOD / DT:.1f} steps; dt {DT:.4f} s, {N2} CN steps"
+    )
     out = {"E": {}, "s0": {}, "e": {}, "read": {}, "ok": {}}
     res = {}
     for d in (DUTY25, 0.5):
         tq = time.perf_counter()
         r = solve_transient_conduction(
-            msh, ft, k=kf, rho_c=rcf, q=Q * chi, h=H_GEL, t_inf=T_INF, t_init=T_INF,
-            robin_tag=ROBIN, theta=0.5, startup_half_steps=2, dt=DT, n_steps=N2,
-            snapshot_steps=(N_MAIN, N2), source_schedule=_chi(PERIOD, d))
+            msh,
+            ft,
+            k=kf,
+            rho_c=rcf,
+            q=Q * chi,
+            h=H_GEL,
+            t_inf=T_INF,
+            t_init=T_INF,
+            robin_tag=ROBIN,
+            theta=0.5,
+            startup_half_steps=2,
+            dt=DT,
+            n_steps=N2,
+            snapshot_steps=(N_MAIN, N2),
+            source_schedule=_chi(PERIOD, d),
+        )
         res[d] = r
         out["E"][d] = float(r.max_balance_residual)
         s0, tot, target = _census_at(r.source_multipliers, d)
         out["s0"][d] = s0
-        _say(f"MAT21-27 D={d} CN solve {time.perf_counter() - tq:.1f} s; (E) {out['E'][d]:.3e} "
-             f"(E_BAND {E_BAND:.0e}); (S0) sum chi dt {tot:.6f} s vs D t2 {target:.6f} s rel "
-             f"{s0:.3e} (band {S0_BAND:g}); on {int(np.sum(np.asarray(r.source_multipliers)))}")
+        _say(
+            f"MAT21-27 D={d} CN solve {time.perf_counter() - tq:.1f} s; (E) {out['E'][d]:.3e} "
+            f"(E_BAND {E_BAND:.0e}); (S0) sum chi dt {tot:.6f} s vs D t2 {target:.6f} s rel "
+            f"{s0:.3e} (band {S0_BAND:g}); on {int(np.sum(np.asarray(r.source_multipliers)))}"
+        )
 
     for step, t in ((N_MAIN, T_STAR), (N2, T2)):
         tq = time.perf_counter()
@@ -128,20 +154,29 @@ def walled():
         exc = _exact_t(msh, t, RHO_C_W, lam_w)
         th25 = res[DUTY25].snapshots[step] - T_INF
         th50 = res[0.5].snapshots[step] - T_INF
-        rec = {"e25": _rel(msh, th25, ex25, inter), "e50": _rel(msh, th50, ex50, inter),
-               "miss_c": _rel(msh, th25, exc, inter), "miss_50": _rel(msh, th25, ex50, inter)}
+        rec = {
+            "e25": _rel(msh, th25, ex25, inter),
+            "e50": _rel(msh, th50, ex50, inter),
+            "miss_c": _rel(msh, th25, exc, inter),
+            "miss_50": _rel(msh, th25, ex50, inter),
+        }
         out["e"][step] = rec
-        _say(f"MAT21-27 step {step} t = {t:.3f} s: D=0.25 interior rel L2 {rec['e25']:.6e} (bound "
-             f"{INTERIOR_BAND:.0e}), whole {_rel(msh, th25, ex25):.6e} (printed); D=0.5 interior "
-             f"{rec['e50']:.6e} vs item 688 {ITEM_688[step]:.6e}, |delta| "
-             f"{abs(rec['e50'] - ITEM_688[step]):.3e} (bound {REPRO_BOUND:g}); misses of the "
-             f"D=0.25 run: continuous {rec['miss_c']:.6e}, D=0.5 series {rec['miss_50']:.6e}; "
-             f"{time.perf_counter() - tq:.1f} s")
+        _say(
+            f"MAT21-27 step {step} t = {t:.3f} s: D=0.25 interior rel L2 {rec['e25']:.6e} (bound "
+            f"{INTERIOR_BAND:.0e}), whole {_rel(msh, th25, ex25):.6e} (printed); D=0.5 interior "
+            f"{rec['e50']:.6e} vs item 688 {ITEM_688[step]:.6e}, |delta| "
+            f"{abs(rec['e50'] - ITEM_688[step]):.3e} (bound {REPRO_BOUND:g}); misses of the "
+            f"D=0.25 run: continuous {rec['miss_c']:.6e}, D=0.5 series {rec['miss_50']:.6e}; "
+            f"{time.perf_counter() - tq:.1f} s"
+        )
         vals, ok = evaluate_vector_field_parallel(res[DUTY25].snapshots[step], READ_PTS)
         out["ok"][step] = [bool(o) for o in ok]
         out["read"][step] = np.array(
-            [float(np.real(np.ravel(vals[i])[0])) - T_INF if bool(ok[i]) else np.nan
-             for i in range(READ_PTS.shape[0])])
+            [
+                float(np.real(np.ravel(vals[i])[0])) - T_INF if bool(ok[i]) else np.nan
+                for i in range(READ_PTS.shape[0])
+            ]
+        )
     _say(f"MAT21-27 elapsed {time.perf_counter() - t0:.1f} s")
     return out
 
@@ -154,8 +189,10 @@ def test_w0_schedule_arithmetic():
         chi = _chi(PERIOD, d)
         mult = [chi(t) for t in _mids()]
         rel, tot, target = _census_at(mult, d)
-        _say(f"MAT21-27 W0 D={d}: {len(mult)} (half-)steps; sum chi dt {tot:.6f} s vs "
-             f"{target:.6f} s rel {rel:.3e} (band {S0_BAND:g})")
+        _say(
+            f"MAT21-27 W0 D={d}: {len(mult)} (half-)steps; sum chi dt {tot:.6f} s vs "
+            f"{target:.6f} s rel {rel:.3e} (band {S0_BAND:g})"
+        )
         assert rel <= S0_BAND, (d, rel)
 
 
@@ -172,8 +209,10 @@ def test_all_gates(walled):
         gates[f"repro_688_{name}"] = abs(r["e50"] - ITEM_688[step]) <= REPRO_BOUND
         gates[f"control_continuous_{name}"] = r["miss_c"] > CTL_FACTOR * r["e25"]
         gates[f"control_D50_{name}"] = r["miss_50"] > CTL_FACTOR * r["e25"]
-        _say(f"MAT21-27 (control) {name}: continuous {r['miss_c'] / r['e25']:.2f}x, D=0.5 series "
-             f"{r['miss_50'] / r['e25']:.2f}x the FEM error (asserted > {CTL_FACTOR:.0f}x)")
+        _say(
+            f"MAT21-27 (control) {name}: continuous {r['miss_c'] / r['e25']:.2f}x, D=0.5 series "
+            f"{r['miss_50'] / r['e25']:.2f}x the FEM error (asserted > {CTL_FACTOR:.0f}x)"
+        )
     _say(f"MAT21-27 gates: {gates}")
     assert all(gates.values()), (gates, w)
 
@@ -187,6 +226,8 @@ def test_printed_six_points(walled):
             s = float(_duty(READ_PTS[i, 2], t, duty=DUTY25, side="left")[0])
             _say(f"MAT21-27 TABLE {name} | {lab} | {th[i]:.6f} | {s:.6f} | {th[i] - s:+.3e}")
         spread = float(np.max(th[:5]) - np.min(th[:5]))
-        _say(f"MAT21-27 z = 0 five-point spread at {name}: {spread:.3e} K (record, the lateral "
-             f"discretisation floor)")
+        _say(
+            f"MAT21-27 z = 0 five-point spread at {name}: {spread:.3e} K (record, the lateral "
+            f"discretisation floor)"
+        )
         assert np.all(np.isfinite(th))

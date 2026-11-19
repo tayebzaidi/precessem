@@ -37,7 +37,6 @@ from fem_em_solver.utils.analytical import (
     robin_sphere_linear_source_coefficients,
 )
 from fem_em_solver.utils.constants import EPSILON_0
-
 from tests.validation.test_lossy_sphere_sar import (
     E0,
     EPSILON_R_SPHERE,
@@ -61,8 +60,12 @@ T_REF = 20.0  # T0 = T_inf
 def q_cf_unit(sigma: float) -> float:
     """ρ·SAR_cf(σ) at E₀ = 1 V/m [W/m³ per (V/m)²] — multiply by G."""
     cf = uniform_sphere_sar_closed_form(
-        e0=E0, epsilon_r=EPSILON_R_SPHERE, sigma=float(sigma), omega=OMEGA,
-        rho=RHO_KG_M3, epsilon_0=EPSILON_0,
+        e0=E0,
+        epsilon_r=EPSILON_R_SPHERE,
+        sigma=float(sigma),
+        omega=OMEGA,
+        rho=RHO_KG_M3,
+        epsilon_0=EPSILON_0,
     )
     return RHO_KG_M3 * cf["sar_w_per_kg"]
 
@@ -93,13 +96,19 @@ def test_n1_lumped_root_is_50_k():
     a_th = ALPHA * theta_l
     picard_l = lam * a_th / (1.0 + a_th)
     sigma_zero = (EPSILON_R_SPHERE + 2.0) * OMEGA * EPSILON_0
-    print(f"\nMAT5s2 N1 G = {G_STEP2:.6e} (predicted 5.6191e8)  q* = {Q_STAR:.6f} W/m^3 "
-          f"(predicted 45000)  Bi = {BIOT:.6f}")
-    print(f"MAT5s2 N1 theta_L = {theta_l:.15f} K  rel = {abs(theta_l - THETA_STAR) / THETA_STAR:.3e} "
-          f"(bound 1e-12)  sigma* = {SIGMA_0 * (1.0 + a_th):.15f}")
-    print(f"MAT5s2 record Lambda(0.57) = {lam:.6f} (predicted -0.6004)  "
-          f"Lambda zero at sigma = {sigma_zero:.6f} S/m (predicted 0.2848)  "
-          f"Picard L = {picard_l:.6f} (predicted -0.3002)")
+    print(
+        f"\nMAT5s2 N1 G = {G_STEP2:.6e} (predicted 5.6191e8)  q* = {Q_STAR:.6f} W/m^3 "
+        f"(predicted 45000)  Bi = {BIOT:.6f}"
+    )
+    print(
+        f"MAT5s2 N1 theta_L = {theta_l:.15f} K  rel = {abs(theta_l - THETA_STAR) / THETA_STAR:.3e} "
+        f"(bound 1e-12)  sigma* = {SIGMA_0 * (1.0 + a_th):.15f}"
+    )
+    print(
+        f"MAT5s2 record Lambda(0.57) = {lam:.6f} (predicted -0.6004)  "
+        f"Lambda zero at sigma = {sigma_zero:.6f} S/m (predicted 0.2848)  "
+        f"Picard L = {picard_l:.6f} (predicted -0.3002)"
+    )
     assert abs(theta_l - THETA_STAR) / THETA_STAR <= 1e-12
     assert abs(Q_STAR - 3.0 * H_STEP2 * THETA_STAR / R) <= 1e-9 * Q_STAR
 
@@ -112,8 +121,10 @@ def test_n2_model_bracket_roots():
         shift[label] = 100.0 * (root / theta_l - 1.0)
         lam = feedback_lambda(SIGMA_STAR)
         picard_l = lam * ALPHA * theta_l / (1.0 + ALPHA * theta_l)
-        print(f"MAT5s2 N2 c = {label} = {c:.4f}: root = {root:.6f} K  shift = {shift[label]:+.4f} %  "
-              f"(first order L/(1-L)*c = {100.0 * picard_l / (1.0 - picard_l) * c:+.4f} %)")
+        print(
+            f"MAT5s2 N2 c = {label} = {c:.4f}: root = {root:.6f} K  shift = {shift[label]:+.4f} %  "
+            f"(first order L/(1-L)*c = {100.0 * picard_l / (1.0 - picard_l) * c:+.4f} %)"
+        )
     print("MAT5s2 N2 predicted -0.2302 % / -0.5727 %; c = Bi/5 root predicted 49.885 K")
     # One unit in the last digit the item prints.
     assert abs(shift["Bi/5"] - (-0.2302)) <= 1.0e-4, shift
@@ -125,10 +136,10 @@ def test_n3_fixed_field_has_no_steady_state():
     q0 = G_STEP2 * q_cf_unit(SIGMA_0)
     m_r = float(np.sqrt(ALPHA * q0 / K) * R)
     lam1 = float(robin_sphere_eigenvalues(BIOT, 1)[0])
-    print(f"MAT5s2 N3 q0 = G*q_cf(sigma0) = {q0:.4f} W/m^3  mR = {m_r:.4f} (predicted 0.4331)  "
-          f"lambda_1 = {lam1:.4f} (predicted 0.3854)")
+    print(
+        f"MAT5s2 N3 q0 = G*q_cf(sigma0) = {q0:.4f} W/m^3  mR = {m_r:.4f} (predicted 0.4331)  "
+        f"lambda_1 = {lam1:.4f} (predicted 0.3854)"
+    )
     assert m_r > lam1
     with pytest.raises(ValueError, match="thermal runaway"):
-        robin_sphere_linear_source_coefficients(
-            radius=R, k=K, q0=q0, alpha=ALPHA, h=H_STEP2
-        )
+        robin_sphere_linear_source_coefficients(radius=R, k=K, q0=q0, alpha=ALPHA, h=H_STEP2)

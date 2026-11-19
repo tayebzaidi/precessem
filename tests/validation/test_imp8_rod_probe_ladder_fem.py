@@ -38,14 +38,11 @@ import numpy as np
 import pytest
 
 from fem_em_solver.thermal import solve_transient_conduction
-
 from tests.mesh.test_birdcage_implant_rod import ROD_RADIUS
-from tests.validation.test_imp8_composite_cylinder_closed_form import (
-    ROD_K,  # nominal
-    ROD_RHO_C,  # nominal
-)
+from tests.validation.test_imp8_composite_cylinder_closed_form import ROD_K  # nominal
+from tests.validation.test_imp8_composite_cylinder_closed_form import ROD_RHO_C  # nominal
 from tests.validation.test_imp8_rod_conducting_body_fem import EPS_HOLE, _coefficients
-from tests.validation.test_imp8_rod_line_source_closed_form import L, MM, T_PRINT, _phi
+from tests.validation.test_imp8_rod_line_source_closed_form import MM, T_PRINT, L, _phi
 from tests.validation.test_imp8_rod_line_source_duty_closed_form import PERIOD, _duhamel
 from tests.validation.test_imp8_rod_line_source_duty_fem import STEP_T2, T2
 from tests.validation.test_imp8_rod_line_source_fem import (  # noqa: F401  (box: fixture)
@@ -60,7 +57,6 @@ from tests.validation.test_imp8_rod_line_source_fem import (  # noqa: F401  (box
     box,
 )
 from tests.validation.test_imp8_rod_probe_f2182_fem import (
-    ARM_ENV,
     ARMS,
     DUTY,
     GEL_NEW,
@@ -132,42 +128,68 @@ def ladder_run(box):
     body_idx, n_body = _body_cells(msh, q)
     k, rho_c, n_bad = _coefficients(msh, body_idx, arm)
     out.update({"arm": arm, "n": n, "n_body": n_body, "n_bad": n_bad})
-    _say(f"[imp8-i81] arm {arm}; ROD_K {ROD_K:g}, ROD_RHO_C {ROD_RHO_C:.6g} (nominal); K_GEL {K_GEL:g}, "
-         f"RHO_C {RHO_C:.6g}; EPS_HOLE {EPS_HOLE:.0e}; ROD_RADIUS {ROD_RADIUS:g} m, L {L:g} m")
-    _say(f"[imp8-i81] body cells (positive q dofs -> cells, owned, allreduced) {n_body} (BODY_CELLS "
-         f"{BODY_CELLS}); source-selected cells {out['n_sel']}")
+    _say(
+        f"[imp8-i81] arm {arm}; ROD_K {ROD_K:g}, ROD_RHO_C {ROD_RHO_C:.6g} (nominal); K_GEL {K_GEL:g}, "
+        f"RHO_C {RHO_C:.6g}; EPS_HOLE {EPS_HOLE:.0e}; ROD_RADIUS {ROD_RADIUS:g} m, L {L:g} m"
+    )
+    _say(
+        f"[imp8-i81] body cells (positive q dofs -> cells, owned, allreduced) {n_body} (BODY_CELLS "
+        f"{BODY_CELLS}); source-selected cells {out['n_sel']}"
+    )
     dt = T_PRINT / N_MAIN
     out["snap_t"] = [j * dt for j in SNAP_STEPS]
     t1 = time.perf_counter()
     res = solve_transient_conduction(
-        msh, ft, k=k, rho_c=rho_c, q=q, h=H_GEL, t_inf=T_INF, t_init=T_INF,
-        robin_tag=ROBIN_TAG, dt=dt, n_steps=N_MAIN, theta=0.5, startup_half_steps=2,
-        degree=DEGREE, snapshot_steps=SNAP_STEPS)
+        msh,
+        ft,
+        k=k,
+        rho_c=rho_c,
+        q=q,
+        h=H_GEL,
+        t_inf=T_INF,
+        t_init=T_INF,
+        robin_tag=ROBIN_TAG,
+        dt=dt,
+        n_steps=N_MAIN,
+        theta=0.5,
+        startup_half_steps=2,
+        degree=DEGREE,
+        snapshot_steps=SNAP_STEPS,
+    )
     out["t_call"] = time.perf_counter() - t1
     out["E"] = float(res.max_balance_residual)
     out["snap_keys"] = sorted(int(s) for s in res.snapshots)
-    _say(f"[imp8-i81] CN N={N_MAIN} dt={dt:g} s: t_call {out['t_call']:.1f} s; n_factorizations "
-         f"{res.n_factorizations}; ranks {msh.comm.size}; snapshots {out['snap_keys']} at t "
-         f"{out['snap_t']} s (I60 T2 {T2:g} s = step {STEP_T2})")
+    _say(
+        f"[imp8-i81] CN N={N_MAIN} dt={dt:g} s: t_call {out['t_call']:.1f} s; n_factorizations "
+        f"{res.n_factorizations}; ranks {msh.comm.size}; snapshots {out['snap_keys']} at t "
+        f"{out['snap_t']} s (I60 T2 {T2:g} s = step {STEP_T2})"
+    )
 
     # 1. I73's batch, unchanged.
     th = _theta_pts(res.temperature, READ_PTS)
     out["theta"] = dict(zip(READ_PTS, th))
     out["I"] = []
-    ref_tab = ({**I55_THETA, **GEL_NEW} if arm == "gel" else TI_THETA if arm == "ti" else {})
+    ref_tab = {**I55_THETA, **GEL_NEW} if arm == "gel" else TI_THETA if arm == "ti" else {}
     for (r, z), v in zip(READ_PTS, th):
         cf = QP * _phi(r * MM, z * MM, T_PRINT)
         rel = abs(v / cf - 1.0)
         if (r, z) in GATE_PTS:
             out["I"].append(rel)
         ref = ref_tab.get((r, z))
-        cmp = (f"ref {ref:.6e}, |diff| {abs(v - ref):.3e} (6th-digit unit {_sixth(ref):.0e})"
-               if ref is not None else "no reproduction on this arm")
-        _say(f"[imp8-i81] ({r:g}, {z:g}) mm t*={T_PRINT:g} s arm {arm}: theta {v:.6e} K/W; {cmp}; vs "
-             f"q'/(4 pi k) Phi {cf:.6e}: rel {rel:.3e}")
+        cmp = (
+            f"ref {ref:.6e}, |diff| {abs(v - ref):.3e} (6th-digit unit {_sixth(ref):.0e})"
+            if ref is not None
+            else "no reproduction on this arm"
+        )
+        _say(
+            f"[imp8-i81] ({r:g}, {z:g}) mm t*={T_PRINT:g} s arm {arm}: theta {v:.6e} K/W; {cmp}; vs "
+            f"q'/(4 pi k) Phi {cf:.6e}: rel {rel:.3e}"
+        )
     out["move"] = out["theta"][(2.0, 0.0)] / I55_THETA[(2.0, 0.0)] - 1.0
-    _say(f"[imp8-i81] (2, 0) mm theta/theta_55 - 1 = {out['move']:.4e} (control floor "
-         f"{CONTROL_FLOOR:.0e}, asserted on arm hole)")
+    _say(
+        f"[imp8-i81] (2, 0) mm theta/theta_55 - 1 = {out['move']:.4e} (control floor "
+        f"{CONTROL_FLOOR:.0e}, asserted on arm hole)"
+    )
 
     # 2. I75's probe batch on the final field and on each snapshot, unchanged.
     fields = {N_MAIN: res.temperature, **{j: res.snapshots[j] for j in SNAP_STEPS}}
@@ -177,10 +199,12 @@ def ladder_run(box):
     out["probe_duty"] = duty
     ref900, refD = I75_PROBE[arm]
     for i, (r, z) in enumerate(PROBE_PTS):
-        _say(f"[imp8-i81] (R75) probe ({r:g}, {z:+g}) mm arm {arm}: theta(900 s) {probe[N_MAIN][i]:.6e} "
-             f"vs I75 {ref900[i]:.6e} |diff| {abs(probe[N_MAIN][i] - ref900[i]):.3e} (unit "
-             f"{_sixth(ref900[i]):.0e}); D=0.5 {duty[i]:.6e} vs I75 {refD[i]:.6e} |diff| "
-             f"{abs(duty[i] - refD[i]):.3e} (unit {_sixth(refD[i]):.0e})")
+        _say(
+            f"[imp8-i81] (R75) probe ({r:g}, {z:+g}) mm arm {arm}: theta(900 s) {probe[N_MAIN][i]:.6e} "
+            f"vs I75 {ref900[i]:.6e} |diff| {abs(probe[N_MAIN][i] - ref900[i]):.3e} (unit "
+            f"{_sixth(ref900[i]):.0e}); D=0.5 {duty[i]:.6e} vs I75 {refD[i]:.6e} |diff| "
+            f"{abs(duty[i] - refD[i]):.3e} (unit {_sixth(refD[i]):.0e})"
+        )
 
     # 3. New: the ladder batch on the final field and on each snapshot.
     ladder = {j: _theta_pts(f, LADDER_PTS) for j, f in sorted(fields.items())}
@@ -190,33 +214,41 @@ def ladder_run(box):
     dutyz = {z: _superpose({j: by[j][z] for j in by}) for z in by[N_MAIN]}
     out["dutyz"] = dutyz
     for za in Z_ALL:
-        tag = (" (I75's probe)" if za == 16.0 else " (the clinical probe)" if za == 17.0 else "")
+        tag = " (I75's probe)" if za == 16.0 else " (the clinical probe)" if za == 17.0 else ""
         cf = QP * _phi(0.0, za * MM, T_PRINT)
         cfd = _duhamel(0.0, za * MM, T_PRINT, DUTY)
         for z in (za, -za):
             v = by[N_MAIN][z]
             series = ", ".join(f"{j * dt:g} s {by[j][z]:.6e}" for j in SNAP_STEPS)
             ref16 = by[N_MAIN][16.0 if z > 0 else -16.0]
-            _say(f"[imp8-i81] ladder (0, {z:+g}) mm{tag} arm {arm}: theta(900 s) {v:.6e} K/W; {series}; "
-                 f"theta(900)/theta(675) {v / by[30][z]:.6f}; D=0.5 superposed theta(900 s) "
-                 f"{dutyz[z]:.6e} K/W; theta(z)/theta(16) {v / ref16:.6f}; infinite medium, line "
-                 f"source, no rod: QP*Phi {cf:.6e} (FEM/cf {v / cf:.6f}), _duhamel(D=0.5, PERIOD "
-                 f"{PERIOD:g} s) {cfd:.6e} (FEM/cf {dutyz[z] / cfd:.6f})")
+            _say(
+                f"[imp8-i81] ladder (0, {z:+g}) mm{tag} arm {arm}: theta(900 s) {v:.6e} K/W; {series}; "
+                f"theta(900)/theta(675) {v / by[30][z]:.6f}; D=0.5 superposed theta(900 s) "
+                f"{dutyz[z]:.6e} K/W; theta(z)/theta(16) {v / ref16:.6f}; infinite medium, line "
+                f"source, no rod: QP*Phi {cf:.6e} (FEM/cf {v / cf:.6f}), _duhamel(D=0.5, PERIOD "
+                f"{PERIOD:g} s) {cfd:.6e} (FEM/cf {dutyz[z] / cfd:.6f})"
+            )
         vp, vm = by[N_MAIN][za], by[N_MAIN][-za]
         dp, dm = dutyz[za], dutyz[-za]
         mean = 0.5 * (vp + vm)
         dmean = 0.5 * (dp + dm)
-        _say(f"[imp8-i81] ladder |z|={za:g} mm{tag} arm {arm}: +/- mean theta(900 s) {mean:.6e} K/W, "
-             f"|+ - -| {abs(vp - vm):.3e} (mesh asymmetry); D=0.5 mean {dmean:.6e}, |+ - -| "
-             f"{abs(dp - dm):.3e}; mean FEM/QP*Phi {mean / cf:.6f}; D mean FEM/_duhamel "
-             f"{dmean / cfd:.6f}; I80 line record {I80_LINE[za]:.7g} (printed beside only)")
+        _say(
+            f"[imp8-i81] ladder |z|={za:g} mm{tag} arm {arm}: +/- mean theta(900 s) {mean:.6e} K/W, "
+            f"|+ - -| {abs(vp - vm):.3e} (mesh asymmetry); D=0.5 mean {dmean:.6e}, |+ - -| "
+            f"{abs(dp - dm):.3e}; mean FEM/QP*Phi {mean / cf:.6f}; D mean FEM/_duhamel "
+            f"{dmean / cfd:.6f}; I80 line record {I80_LINE[za]:.7g} (printed beside only)"
+        )
     for s in (1.0, -1.0):
         d = by[N_MAIN]
-        _say(f"[imp8-i81] control sign {s:+g} arm {arm}: theta 16/17/18/20 {d[16 * s]:.6e} / "
-             f"{d[17 * s]:.6e} / {d[18 * s]:.6e} / {d[20 * s]:.6e}; first drop 1 - theta(17)/theta(16) "
-             f"{1.0 - d[17 * s] / d[16 * s]:.6f} (band > {INTERIOR_BAND:g}, < 1; infinite line 0.2941583)")
-    _say(f"[imp8-i81] (E) {out['E']:.3e} (band {E_BAND:.0e}); (S0) {out['S0']:.3e} (band {B_BAND:.0e}); "
-         f"cells {n} (W0C {W0C_CELLS}); non-finite coefficient dofs {n_bad}")
+        _say(
+            f"[imp8-i81] control sign {s:+g} arm {arm}: theta 16/17/18/20 {d[16 * s]:.6e} / "
+            f"{d[17 * s]:.6e} / {d[18 * s]:.6e} / {d[20 * s]:.6e}; first drop 1 - theta(17)/theta(16) "
+            f"{1.0 - d[17 * s] / d[16 * s]:.6f} (band > {INTERIOR_BAND:g}, < 1; infinite line 0.2941583)"
+        )
+    _say(
+        f"[imp8-i81] (E) {out['E']:.3e} (band {E_BAND:.0e}); (S0) {out['S0']:.3e} (band {B_BAND:.0e}); "
+        f"cells {n} (W0C {W0C_CELLS}); non-finite coefficient dofs {n_bad}"
+    )
     return out
 
 

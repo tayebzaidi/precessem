@@ -46,7 +46,6 @@ from mpi4py import MPI
 import fem_em_solver.core.time_harmonic as th_module
 import fem_em_solver.ports.sparameters as sparam_module
 from fem_em_solver import FourPortBirdcageGeometry, LumpedPortDrive, Study
-
 from tests.complex_mode import complex_only
 from tests.mesh.test_birdcage_implant_rod import ROD
 from tests.mesh.test_birdcage_leg_offset import IDENTITY_BAND
@@ -99,8 +98,10 @@ def test_wf16_s18_fields_at_refused_before_mesh(monkeypatch):
     # The in-set value passes the check and reaches the build (the patched raise).
     with pytest.raises(AssertionError, match="build reached"):
         study.solve_sweep(FREQS, MPI.COMM_WORLD, fields_at=FIELDS_AT)
-    _p0(f"\n[WF-16 s18] (R) {len(bad)} values outside {FREQS} refused naming fields_at, "
-        "before any mesh; the in-set value reaches build")
+    _p0(
+        f"\n[WF-16 s18] (R) {len(bad)} values outside {FREQS} refused naming fields_at, "
+        "before any mesh; the in-set value reaches build"
+    )
 
 
 class _Counters:
@@ -128,7 +129,9 @@ def _spied_sweep(study, comm, fields_at):
     def _counted_sweep(*args, **kwargs):
         counters.init = counters.solve = 0
         out = original_sweep(*args, **kwargs)
-        counters.calls.append((counters.init, counters.solve, bool(kwargs.get("keep_fields", False))))
+        counters.calls.append(
+            (counters.init, counters.solve, bool(kwargs.get("keep_fields", False)))
+        )
         return out
 
     th_module.LinearProblem = _CountingLinearProblem
@@ -173,14 +176,23 @@ def s18():
     geom = FourPortBirdcageGeometry(implant_rod=ROD)
     keep, keep_counts, t_keep = _spied_sweep(_study(geom), comm, FIELDS_AT)
     none, none_counts, t_none = _spied_sweep(_study(geom), comm, None)
-    _p0(f"\n[WF-16 s18] -n {comm.size}: sweep fields_at={FIELDS_AT:g} {t_keep:.1f} s (solves "
-        f"{[round(t, 1) for t in keep.sweep_times]}); sweep fields_at=None {t_none:.1f} s")
+    _p0(
+        f"\n[WF-16 s18] -n {comm.size}: sweep fields_at={FIELDS_AT:g} {t_keep:.1f} s (solves "
+        f"{[round(t, 1) for t in keep.sweep_times]}); sweep fields_at=None {t_none:.1f} s"
+    )
     t0 = time.perf_counter()
-    route = Study(geom, dataclasses.replace(_phantom(), frequency_hz=FIELDS_AT), LumpedPortDrive(),
-                  frequency_hz=FIELDS_AT, degree=1)
+    route = Study(
+        geom,
+        dataclasses.replace(_phantom(), frequency_hz=FIELDS_AT),
+        LumpedPortDrive(),
+        frequency_hz=FIELDS_AT,
+        degree=1,
+    )
     route_res = route._solve_port_fields(comm)
-    _p0(f"[WF-16 s18] private _solve_port_fields route {time.perf_counter() - t0:.1f} s "
-        f"(cells {route_res.cells})")
+    _p0(
+        f"[WF-16 s18] private _solve_port_fields route {time.perf_counter() - t0:.1f} s "
+        f"(cells {route_res.cells})"
+    )
     # The swept result through the same public post-processing: a fresh Study
     # whose cached field-keeping result is the sweep's fields_at result.
     swept = _study(geom)
@@ -188,10 +200,19 @@ def s18():
     t0 = time.perf_counter()
     read_route = _readings(route, comm)
     read_swept = _readings(swept, comm)
-    _p0(f"[WF-16 s18] readings (both sides) {time.perf_counter() - t0:.1f} s; omega route "
-        f"{route.omega!r} vs swept {swept.omega!r}")
-    return {"keep": keep, "none": none, "keep_counts": keep_counts, "none_counts": none_counts,
-            "route_res": route_res, "read_route": read_route, "read_swept": read_swept}
+    _p0(
+        f"[WF-16 s18] readings (both sides) {time.perf_counter() - t0:.1f} s; omega route "
+        f"{route.omega!r} vs swept {swept.omega!r}"
+    )
+    return {
+        "keep": keep,
+        "none": none,
+        "keep_counts": keep_counts,
+        "none_counts": none_counts,
+        "route_res": route_res,
+        "read_route": read_route,
+        "read_swept": read_swept,
+    }
 
 
 @complex_only
@@ -204,19 +225,25 @@ def test_wf16_s18_fields_at_gates(s18):
     gates["control none"] = all(r.fields is None for r in none.results)
     held = [r.fields is not None for r in keep.results]
     gates["control fields_at"] = held == [f == FIELDS_AT for f in FREQS]
-    _p0(f"[WF-16 s18] control: fields_at=None fields {[r.fields for r in none.results]}; "
+    _p0(
+        f"[WF-16 s18] control: fields_at=None fields {[r.fields for r in none.results]}; "
         f"fields_at={FIELDS_AT:g} held {held} for {FREQS}; fields ids "
-        f"{sorted(keep.results[0].fields or {})}")
+        f"{sorted(keep.results[0].fields or {})}"
+    )
     # (S0)
     kc, nc = s18["keep_counts"], s18["none_counts"]
     one = (EXPECTED_FACTORISATIONS_PER_FREQUENCY, EXPECTED_FACTORISATIONS_PER_FREQUENCY)
     gates["S0 one per frequency"] = len(kc) == len(FREQS) and all(
-        c[0] == one and c[1] == one for c in kc)
+        c[0] == one and c[1] == one for c in kc
+    )
     gates["S0 equals None run"] = [c[:2] for c in kc] == [c[:2] for c in nc]
-    gates["S0 keep only at fields_at"] = [c[2] for c in kc] == [f == FIELDS_AT for f in FREQS] and \
-        not any(c[2] for c in nc)
-    _p0(f"[WF-16 s18] (S0) per frequency (init (min,max), solve (min,max), keep_fields): "
-        f"fields_at {kc}; None {nc}; expected {EXPECTED_FACTORISATIONS_PER_FREQUENCY} (ASSERTED)")
+    gates["S0 keep only at fields_at"] = [c[2] for c in kc] == [
+        f == FIELDS_AT for f in FREQS
+    ] and not any(c[2] for c in nc)
+    _p0(
+        f"[WF-16 s18] (S0) per frequency (init (min,max), solve (min,max), keep_fields): "
+        f"fields_at {kc}; None {nc}; expected {EXPECTED_FACTORISATIONS_PER_FREQUENCY} (ASSERTED)"
+    )
     # (I)
     b1_r, sar_r = s18["read_route"]
     b1_s, sar_s = s18["read_swept"]
@@ -228,21 +255,31 @@ def test_wf16_s18_fields_at_gates(s18):
         gates[f"I B1 {pid} valid"] = bool(np.array_equal(okr, oks)) and n_valid >= 1
         rel = _rel(vs[okr], vr[okr]) if n_valid else float("inf")
         gates[f"I B1 {pid}"] = rel <= IDENTITY_BAND
-        _p0(f"[WF-16 s18] (I) |B1+| {pid}: valid {n_valid}/{len(POINTS)}, max rel {rel:.3e} "
+        _p0(
+            f"[WF-16 s18] (I) |B1+| {pid}: valid {n_valid}/{len(POINTS)}, max rel {rel:.3e} "
             f"(IDENTITY_BAND {IDENTITY_BAND:.0e}, ASSERTED; OPS-77 largest drift "
-            f"{OPS77_LARGEST_DRIFT:.3e}, printed); route {np.array2string(vr, precision=9)}")
+            f"{OPS77_LARGEST_DRIFT:.3e}, printed); route {np.array2string(vr, precision=9)}"
+        )
     sr = float(sar_r["P1"][0]["averaged_sar_w_per_kg"])
     ss = float(sar_s["P1"][0]["averaged_sar_w_per_kg"])
     rel_sar = abs(ss - sr) / abs(sr)
     gates["I SAR P1"] = rel_sar <= IDENTITY_BAND and sr > 0.0
-    _p0(f"[WF-16 s18] (I) SAR10g P1 at {SAR_CENTRE}: route {sr:.12e} W/kg, swept {ss:.12e} W/kg, "
-        f"rel {rel_sar:.3e} (IDENTITY_BAND {IDENTITY_BAND:.0e}, ASSERTED)")
-    s_rel = float(np.linalg.norm(np.asarray(keep.results[0].s_matrix) - s18["route_res"].s_matrix)
-                  / np.linalg.norm(s18["route_res"].s_matrix))
-    s_none = float(np.linalg.norm(np.asarray(keep.results[0].s_matrix) - none.results[0].s_matrix)
-                   / np.linalg.norm(none.results[0].s_matrix))
-    _p0(f"[WF-16 s18] printed: 64 MHz S swept vs route rel {s_rel:.3e}; fields_at vs None sweep "
-        f"rel {s_none:.3e}")
+    _p0(
+        f"[WF-16 s18] (I) SAR10g P1 at {SAR_CENTRE}: route {sr:.12e} W/kg, swept {ss:.12e} W/kg, "
+        f"rel {rel_sar:.3e} (IDENTITY_BAND {IDENTITY_BAND:.0e}, ASSERTED)"
+    )
+    s_rel = float(
+        np.linalg.norm(np.asarray(keep.results[0].s_matrix) - s18["route_res"].s_matrix)
+        / np.linalg.norm(s18["route_res"].s_matrix)
+    )
+    s_none = float(
+        np.linalg.norm(np.asarray(keep.results[0].s_matrix) - none.results[0].s_matrix)
+        / np.linalg.norm(none.results[0].s_matrix)
+    )
+    _p0(
+        f"[WF-16 s18] printed: 64 MHz S swept vs route rel {s_rel:.3e}; fields_at vs None sweep "
+        f"rel {s_none:.3e}"
+    )
     red = sorted(k for k, v in gates.items() if not v)
     red_all = sorted(set(MPI.COMM_WORLD.allreduce(red, op=MPI.SUM)))
     _p0(f"[WF-16 s18] gates red: {red_all or 'none'} of {len(gates)}")

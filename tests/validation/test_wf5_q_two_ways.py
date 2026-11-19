@@ -41,7 +41,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 import ufl
-from dolfinx import default_scalar_type, fem
+from dolfinx import fem
 from mpi4py import MPI
 
 from fem_em_solver.utils.constants import EPSILON_0, MU_0
@@ -81,9 +81,9 @@ def _load(path: Path, name: str):
 def ceil_1sf(x: float) -> float:
     """Round ``x > 0`` up to one significant figure."""
     e = math.floor(math.log10(x))
-    m = x / 10.0 ** e
+    m = x / 10.0**e
     m_up = math.ceil(m - 1e-12)
-    return float(m_up * 10.0 ** e)
+    return float(m_up * 10.0**e)
 
 
 def _reduce(comm, form) -> complex:
@@ -108,12 +108,16 @@ def fixture_build(ans7):
     msh.topology.create_connectivity(tdim - 1, tdim)
     msh.topology.create_entity_permutations()
     outer_tags, _census = th14._outer_box_tags(msh, facet_tags, comm)
-    tags_k, port_defs_k, specs_k = th14._build_ports(msh, cell_tags, comm,
-                                                     width_correction_kappa=kappa)
+    tags_k, port_defs_k, specs_k = th14._build_ports(
+        msh, cell_tags, comm, width_correction_kappa=kappa
+    )
     geo_k = (msh, cell_tags, facet_tags, outer_tags, tags_k, port_defs_k)
     if comm.rank == 0:
-        print(f"[wf5] hole mesh {int(msh.topology.index_map(tdim).size_global)} cells; "
-              f"kappa (tracked) = {kappa:.9e}", flush=True)
+        print(
+            f"[wf5] hole mesh {int(msh.topology.index_map(tdim).size_global)} cells; "
+            f"kappa (tracked) = {kappa:.9e}",
+            flush=True,
+        )
     return {"th14": th14, "geo": geo_k, "specs": specs_k, "tracked": tracked, "comm": comm}
 
 
@@ -143,8 +147,7 @@ def _secant_and_cubic(ans7, y):
     x = (f - 64.0e6) / 1.0e6
     pb = np.polyfit(x, y.imag, 3)
     pg = np.polyfit(x, y.real, 3)
-    roots = [r.real for r in np.roots(pb)
-             if abs(r.imag) < 1e-12 and -0.1 <= r.real <= 0.0]
+    roots = [r.real for r in np.roots(pb) if abs(r.imag) < 1e-12 and -0.1 <= r.real <= 0.0]
     assert len(roots) == 1, f"cubic B: expected one root in [63.9, 64.0] MHz, got {roots}"
     x0 = roots[0]
     f0_c = 64.0e6 + x0 * 1.0e6
@@ -167,17 +170,23 @@ def test_band_candidate(ans7, fixture_build, sweep4):
         dq = abs(rows["q_loaded"] - tracked[col]["q_loaded"]) / tracked[col]["q_loaded"]
         e_sec[col] = abs(rows["q_loaded"] - q_cubic) / q_cubic
         if rank0:
-            print(f"[wf5] {col}: secant f0 {rows['f0_hz']:.6f} Hz (record "
-                  f"{tracked[col]['f0_hz']:.6f}, rel {df0:.3e}); Q_secant {rows['q_loaded']:.10f} "
-                  f"(record {tracked[col]['q_loaded']:.10f}, rel {dq:.3e}; ASSERTED <= "
-                  f"{RECORD_RTOL:.0e}); cubic f0 {f0_c:.6f} Hz, Q_cubic {q_cubic:.10f}; "
-                  f"e_sec {e_sec[col]:.4e} (PREDICTED {PREDICTED_E_SEC[col]:.1e})", flush=True)
+            print(
+                f"[wf5] {col}: secant f0 {rows['f0_hz']:.6f} Hz (record "
+                f"{tracked[col]['f0_hz']:.6f}, rel {df0:.3e}); Q_secant {rows['q_loaded']:.10f} "
+                f"(record {tracked[col]['q_loaded']:.10f}, rel {dq:.3e}; ASSERTED <= "
+                f"{RECORD_RTOL:.0e}); cubic f0 {f0_c:.6f} Hz, Q_cubic {q_cubic:.10f}; "
+                f"e_sec {e_sec[col]:.4e} (PREDICTED {PREDICTED_E_SEC[col]:.1e})",
+                flush=True,
+            )
         if not (df0 <= RECORD_RTOL and dq <= RECORD_RTOL):
             fails.append((col, df0, dq))
     b_q = ceil_1sf(max(3.0 * max(e_sec.values()), BAND_FLOOR))
     if rank0:
-        print(f"[wf5] B_Q candidate = ceil_1sf(max(3*{max(e_sec.values()):.4e}, "
-              f"{BAND_FLOOR:.0e})) = {b_q:.1e}; frozen B_Q_FROZEN = {B_Q_FROZEN}", flush=True)
+        print(
+            f"[wf5] B_Q candidate = ceil_1sf(max(3*{max(e_sec.values()):.4e}, "
+            f"{BAND_FLOOR:.0e})) = {b_q:.1e}; frozen B_Q_FROZEN = {B_Q_FROZEN}",
+            flush=True,
+        )
     assert not fails, f"fresh secant rows miss the records: {fails}"
     if B_Q_FROZEN is not None:
         assert b_q <= B_Q_FROZEN, f"B_Q candidate {b_q} exceeds the frozen {B_Q_FROZEN}"
@@ -199,8 +208,9 @@ def _solve_with_result(ans7, fb, f_hz, col):
 
     lumped.run_lumped_sheet_port_case = wrapper
     try:
-        s11, fields = ans7._route_a_solve(fb["th14"], fb["geo"], fb["specs"], f_hz, col,
-                                          return_fields=True)
+        s11, fields = ans7._route_a_solve(
+            fb["th14"], fb["geo"], fb["specs"], f_hz, col, return_fields=True
+        )
     finally:
         lumped.run_lumped_sheet_port_case = original
     return s11, fields, captured["result"]
@@ -223,10 +233,12 @@ def _budget(ans7, fb, f_hz, col):
     e = fields.e_complex
     z_c = ans7.z_cap(omega)
     term_idx = ans7.TUNING_TERMINATED_INDICES
-    specs = [dataclasses.replace(s, port_impedance_ohm=z_c) if i in term_idx else s
-             for i, s in enumerate(fb["specs"])]
+    specs = [
+        dataclasses.replace(s, port_impedance_ohm=z_c) if i in term_idx else s
+        for i, s in enumerate(fb["specs"])
+    ]
     dx = ufl.Measure("dx", domain=msh)
-    w_m = _reduce(comm, ufl.inner(ufl.curl(e), ufl.curl(e)) * dx).real / (4.0 * omega ** 2 * MU_0)
+    w_m = _reduce(comm, ufl.inner(ufl.curl(e), ufl.curl(e)) * dx).real / (4.0 * omega**2 * MU_0)
     eps_r = ufl.real(fields.epsilon_r_field)
     w_e = 0.25 * EPSILON_0 * _reduce(comm, eps_r * ufl.inner(e, e) * dx).real
     w_e_air_only = 0.25 * EPSILON_0 * _reduce(comm, ufl.inner(e, e) * dx).real
@@ -235,9 +247,10 @@ def _budget(ans7, fb, f_hz, col):
     w_sheet_blind = {}
     for i in term_idx:
         sp = specs[i]
-        form = lumped_port_bilinear_term(msh, tags_f, sp.sheet(driven=False), e, e,
-                                         omega_rad_per_s=omega)
-        w_sheet[sp.port_id] = -_reduce(comm, form).real / (4.0 * omega ** 2 * MU_0)
+        form = lumped_port_bilinear_term(
+            msh, tags_f, sp.sheet(driven=False), e, e, omega_rad_per_s=omega
+        )
+        w_sheet[sp.port_id] = -_reduce(comm, form).real / (4.0 * omega**2 * MU_0)
         v_t = result.responses[sp.port_id].voltage_v
         w_sheet_blind[sp.port_id] = 0.25 * ans7.C_F * abs(v_t) ** 2
     drive = result.responses[th14.DRIVEN]
@@ -246,8 +259,12 @@ def _budget(ans7, fb, f_hz, col):
     if col == "cu":
         z_s = (1.0 + 1.0j) * surface_resistance_ohm(omega, th14.COPPER_SIGMA)
         p_surf = th14._surface_loss_w(msh, facet_tags, z_s, e, comm)
-        ds_c = ufl.Measure("ds", domain=msh, subdomain_data=facet_tags,
-                           subdomain_id=th14.BIRDCAGE_CONDUCTOR_SURFACE_TAG)
+        ds_c = ufl.Measure(
+            "ds",
+            domain=msh,
+            subdomain_data=facet_tags,
+            subdomain_id=th14.BIRDCAGE_CONDUCTOR_SURFACE_TAG,
+        )
         n = ufl.FacetNormal(msh)
         tan2 = _reduce(comm, ufl.inner(ufl.cross(n, e), ufl.cross(n, e)) * ds_c).real
         w_surf_naive = 0.25 * (z_s.imag / omega) * tan2 / abs(z_s) ** 2
@@ -259,10 +276,24 @@ def _budget(ans7, fb, f_hz, col):
     sweep = {"mesh": msh, "facet_tags": tags_f}
     p_src = _source_power_w(sweep, driven_sheet, e, omega)
     p_sheet1 = _sheet_field_dissipation_w(sweep, driven_sheet, e, omega)
-    return {"omega": omega, "s11": s11, "w_m": w_m, "w_e": w_e, "w_e_air_only": w_e_air_only,
-            "w_sheet": w_sheet, "w_sheet_blind": w_sheet_blind, "w_c1": w_c1,
-            "w_surf": w_surf, "w_surf_naive": w_surf_naive, "p_phantom": p_phantom,
-            "p_surf": p_surf, "p_src": p_src, "p_sheet1": p_sheet1, "v1": v1, "i1": i1}
+    return {
+        "omega": omega,
+        "s11": s11,
+        "w_m": w_m,
+        "w_e": w_e,
+        "w_e_air_only": w_e_air_only,
+        "w_sheet": w_sheet,
+        "w_sheet_blind": w_sheet_blind,
+        "w_c1": w_c1,
+        "w_surf": w_surf,
+        "w_surf_naive": w_surf_naive,
+        "p_phantom": p_phantom,
+        "p_surf": p_surf,
+        "p_src": p_src,
+        "p_sheet1": p_sheet1,
+        "v1": v1,
+        "i1": i1,
+    }
 
 
 @complex_only
@@ -293,31 +324,50 @@ def test_q_two_ways(ans7, fixture_build, sweep4):
         q_blind = omega * (w_tot - w_sheets + sum(b["w_sheet_blind"].values())) / p_loss
         q_naive = omega * (w_tot - b["w_surf"] + b["w_surf_naive"]) / p_loss
         if rank0:
-            print(f"[wf5] {col}: f0 {f0:.6f} Hz; epsilon = Re(V1 I1*)/2/P_loss - 1 = {eps:+.6e} "
-                  f"(PRINTED, read before the gate)", flush=True)
-            print(f"[wf5] {col}: W_m {b['w_m']:.9e} J, W_e {b['w_e']:.9e} J (eps_r=1 everywhere "
-                  f"{b['w_e_air_only']:.9e}), W_sheets {w_sheets:.9e} J "
-                  f"({ {k: round(v, 15) for k, v in b['w_sheet'].items()} }), W_C1 {b['w_c1']:.9e} J, "
-                  f"W_surf,F {b['w_surf']:.9e} J (naive {b['w_surf_naive']:.9e}); W_tot {w_tot:.9e} J",
-                  flush=True)
-            print(f"[wf5] {col}: shares of W_tot: W_m {b['w_m'] / w_tot:.6f}, W_e "
-                  f"{b['w_e'] / w_tot:.6f}, W_sheets {w_sheets / w_tot:.6f} (control PREDICTED "
-                  f"{PREDICTED_SHEET_SHARE}), W_C1 {b['w_c1'] / w_tot:.6f}, W_surf "
-                  f"{b['w_surf'] / w_tot:.4e} (PREDICTED {PREDICTED_W_SURF_SHARE:.1e}); "
-                  f"W_m/W_e,tot {b['w_m'] / (b['w_e'] + w_sheets + b['w_c1']):.6f}", flush=True)
-            print(f"[wf5] {col}: P_phantom {b['p_phantom']:.9e} W, P_surf {b['p_surf']:.9e} W, "
-                  f"P_loss {p_loss:.9e} W; p_src {b['p_src']:.9e} W, p_sheet(P1) "
-                  f"{b['p_sheet1']:.9e} W; identity rel {id_rel:.3e} (ASSERTED <= "
-                  f"{DISCRETE_IDENTITY_RTOL:.0e}; PREDICTED ~1e-12)", flush=True)
-            print(f"[wf5] {col}: 1/Q split phantom {b['p_phantom'] / (omega * w_tot):.6e}, "
-                  f"surface {b['p_surf'] / (omega * w_tot):.6e}", flush=True)
-            print(f"[wf5] {col}: Q_field {q_field:.9f}, Q_slope {q_slope:.9f}; "
-                  f"|Q_field - Q_slope|/Q_slope = {miss:.4e} (ASSERTED <= B_Q {B_Q_FROZEN:.0e})",
-                  flush=True)
-            print(f"[wf5] {col}: control W_sheets omitted Q {q_noshe:.6f}, miss {miss_noshe:.4e} "
-                  f"(ASSERTED > B_Q); kappa-blind 1/4 C|V_term|^2 Q {q_blind:.6f}, miss "
-                  f"{abs(q_blind - q_slope) / q_slope:.4e} (printed); naive W_surf Q {q_naive:.6f}, "
-                  f"miss {abs(q_naive - q_slope) / q_slope:.4e} (printed)", flush=True)
+            print(
+                f"[wf5] {col}: f0 {f0:.6f} Hz; epsilon = Re(V1 I1*)/2/P_loss - 1 = {eps:+.6e} "
+                f"(PRINTED, read before the gate)",
+                flush=True,
+            )
+            print(
+                f"[wf5] {col}: W_m {b['w_m']:.9e} J, W_e {b['w_e']:.9e} J (eps_r=1 everywhere "
+                f"{b['w_e_air_only']:.9e}), W_sheets {w_sheets:.9e} J "
+                f"({ {k: round(v, 15) for k, v in b['w_sheet'].items()} }), W_C1 {b['w_c1']:.9e} J, "
+                f"W_surf,F {b['w_surf']:.9e} J (naive {b['w_surf_naive']:.9e}); W_tot {w_tot:.9e} J",
+                flush=True,
+            )
+            print(
+                f"[wf5] {col}: shares of W_tot: W_m {b['w_m'] / w_tot:.6f}, W_e "
+                f"{b['w_e'] / w_tot:.6f}, W_sheets {w_sheets / w_tot:.6f} (control PREDICTED "
+                f"{PREDICTED_SHEET_SHARE}), W_C1 {b['w_c1'] / w_tot:.6f}, W_surf "
+                f"{b['w_surf'] / w_tot:.4e} (PREDICTED {PREDICTED_W_SURF_SHARE:.1e}); "
+                f"W_m/W_e,tot {b['w_m'] / (b['w_e'] + w_sheets + b['w_c1']):.6f}",
+                flush=True,
+            )
+            print(
+                f"[wf5] {col}: P_phantom {b['p_phantom']:.9e} W, P_surf {b['p_surf']:.9e} W, "
+                f"P_loss {p_loss:.9e} W; p_src {b['p_src']:.9e} W, p_sheet(P1) "
+                f"{b['p_sheet1']:.9e} W; identity rel {id_rel:.3e} (ASSERTED <= "
+                f"{DISCRETE_IDENTITY_RTOL:.0e}; PREDICTED ~1e-12)",
+                flush=True,
+            )
+            print(
+                f"[wf5] {col}: 1/Q split phantom {b['p_phantom'] / (omega * w_tot):.6e}, "
+                f"surface {b['p_surf'] / (omega * w_tot):.6e}",
+                flush=True,
+            )
+            print(
+                f"[wf5] {col}: Q_field {q_field:.9f}, Q_slope {q_slope:.9f}; "
+                f"|Q_field - Q_slope|/Q_slope = {miss:.4e} (ASSERTED <= B_Q {B_Q_FROZEN:.0e})",
+                flush=True,
+            )
+            print(
+                f"[wf5] {col}: control W_sheets omitted Q {q_noshe:.6f}, miss {miss_noshe:.4e} "
+                f"(ASSERTED > B_Q); kappa-blind 1/4 C|V_term|^2 Q {q_blind:.6f}, miss "
+                f"{abs(q_blind - q_slope) / q_slope:.4e} (printed); naive W_surf Q {q_naive:.6f}, "
+                f"miss {abs(q_naive - q_slope) / q_slope:.4e} (printed)",
+                flush=True,
+            )
         if not id_rel <= DISCRETE_IDENTITY_RTOL:
             fails.append((col, "identity", id_rel))
         if not miss <= B_Q_FROZEN:

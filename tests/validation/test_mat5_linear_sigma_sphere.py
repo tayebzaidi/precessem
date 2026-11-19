@@ -31,13 +31,13 @@ from fem_em_solver.materials import LinearTemperatureConductivity
 from fem_em_solver.thermal.steady import solve_steady_conduction_picard
 from fem_em_solver.utils.analytical import robin_sphere_linear_source_coefficients
 from tests.validation.test_mat9_steady_conduction_sphere import (  # MAT-9 fixture
-    H,
-    K,
     QDEG,
-    R,
     ROBIN_TAG,
     T_INF,
+    H,
+    K,
     Q,
+    R,
     _allsum,
     _ball,
     _interior_indicator,
@@ -49,9 +49,7 @@ T0 = T_INF
 RES = 0.01
 SIGMA0 = 0.57  # cancels in Q = q0 σ(T)/σ0; any positive value
 
-M, D, A, LAM1 = robin_sphere_linear_source_coefficients(
-    radius=R, k=K, q0=Q0, alpha=ALPHA, h=H
-)
+M, D, A, LAM1 = robin_sphere_linear_source_coefficients(radius=R, k=K, q0=Q0, alpha=ALPHA, h=H)
 KAPPA = (M * R / LAM1) ** 2
 
 
@@ -74,8 +72,16 @@ def _interior_rel(msh, T_h, chi):
 
 def _picard(msh, ft, source):
     return solve_steady_conduction_picard(
-        msh, ft, k=K, source=source, h=H, t_inf=T_INF, robin_tag=ROBIN_TAG,
-        degree=1, rtol=1e-12, max_iter=60,
+        msh,
+        ft,
+        k=K,
+        source=source,
+        h=H,
+        t_inf=T_INF,
+        robin_tag=ROBIN_TAG,
+        degree=1,
+        rtol=1e-12,
+        max_iter=60,
     )
 
 
@@ -111,9 +117,7 @@ def test_picard_fixed_point_rate_and_balance():
     # (i)
     assert e_in <= 1e-2, f"(i) interior {e_in:.4e} > 1 %"
     # (ii)
-    assert abs(ratio6 / KAPPA - 1.0) <= 1e-2, (
-        f"(ii) ratio6 {ratio6:.6f} vs κ {KAPPA:.6f}"
-    )
+    assert abs(ratio6 / KAPPA - 1.0) <= 1e-2, f"(ii) ratio6 {ratio6:.6f} vs κ {KAPPA:.6f}"
     # (iii)
     assert bal <= 1e-9, f"(iii) balance {bal:.3e} > 1e-9"
 
@@ -127,13 +131,19 @@ def test_negative_controls():
     q0_c = fem.Constant(msh, Q0)
     sol_a = _picard(msh, ft, lambda T: q0_c)
     e_a = _interior_rel(msh, sol_a.temperature, chi)
-    _say(comm, f"MAT5 control (a) α dropped: interior_rel_L2={e_a:.4e} "
-         f"iterations={sol_a.iterations} (asserted > 1e-2; predicted ≈ 0.187)")
+    _say(
+        comm,
+        f"MAT5 control (a) α dropped: interior_rel_L2={e_a:.4e} "
+        f"iterations={sol_a.iterations} (asserted > 1e-2; predicted ≈ 0.187)",
+    )
     assert e_a > 1e-2, f"control (a) reads {e_a:.4e} <= 1 %"
 
     # (b) σ evaluated at T instead of T − T0: factor 1 + αT = 1.4 + αθ.
     sol_b = _picard(msh, ft, lambda T: Q0 * (1.0 + ALPHA * T))
     e_b = _interior_rel(msh, sol_b.temperature, chi)
-    _say(comm, f"MAT5 control (b) σ at T: interior_rel_L2={e_b:.4e} "
-         f"iterations={sol_b.iterations} (asserted > 1e-2; predicted 0.400)")
+    _say(
+        comm,
+        f"MAT5 control (b) σ at T: interior_rel_L2={e_b:.4e} "
+        f"iterations={sol_b.iterations} (asserted > 1e-2; predicted 0.400)",
+    )
     assert e_b > 1e-2, f"control (b) reads {e_b:.4e} <= 1 %"

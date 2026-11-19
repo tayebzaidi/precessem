@@ -32,9 +32,8 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
-from mpi4py import MPI
-
 from dolfinx import fem
+from mpi4py import MPI
 
 from fem_em_solver.core import (
     HomogeneousMaterial,
@@ -48,7 +47,6 @@ from fem_em_solver.post.phantom_fields import (
     _sampling_cells_with_interface_guardrails,
     compute_tagged_vector_magnitude_stats,
 )
-
 from tests.complex_mode import complex_only
 from tests.validation.test_lossy_plane_wave import EPSILON_R, FREQUENCY_HZ, MU_R, _exact_factory
 from tests.validation.test_poynting_balance import (
@@ -162,8 +160,7 @@ def test_reported_magnitudes_match_the_complex_sampling_helper(piecewise_sigma_f
 
     points, values = _module_samples(e_field, cell_tags, TAG_HIGH)
     assert np.iscomplexobj(values), (
-        "phantom_fields returned real samples on the complex build — the "
-        "float64 cast is back"
+        "phantom_fields returned real samples on the complex build — the " "float64 cast is back"
     )
     module_mags = np.abs(np.linalg.norm(values, axis=1))
 
@@ -194,9 +191,7 @@ def test_reported_magnitudes_match_the_complex_sampling_helper(piecewise_sigma_f
 
     n_samples = comm.allreduce(int(module_mags.size), op=MPI.SUM)
     if comm.rank == 0:
-        print(
-            f"\n[POST-3 step 4] identity 1, tag {TAG_HIGH}, {n_samples} centroid samples:"
-        )
+        print(f"\n[POST-3 step 4] identity 1, tag {TAG_HIGH}, {n_samples} centroid samples:")
         print(f"  worst relative disagreement vs evaluate_vector_field_parallel: {worst:.3e}")
         print(f"  mean |E| (phasor)  = {mean_honest:.6e}")
         print(f"  mean |Re E| (old)  = {mean_re_cast:.6e}")
@@ -306,7 +301,9 @@ def test_re_cast_negative_control_is_wrong_by_the_measured_deficit(piecewise_sig
             f"  sampled phase span: {phase_span:.4f} rad "
             f"(measured at band time {MEASURED_PHASE_SPAN_RAD}; 2*pi = {2 * np.pi:.4f})"
         )
-        print(f"  uniform-phase prediction 1 - 2/pi = {1.0 - 2.0 / np.pi:.4%} (does not apply here)")
+        print(
+            f"  uniform-phase prediction 1 - 2/pi = {1.0 - 2.0 / np.pi:.4%} (does not apply here)"
+        )
 
     lo, hi = RE_CAST_DEFICIT_BAND
     assert lo < deficits[0] < hi, (

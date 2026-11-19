@@ -89,8 +89,17 @@ def _modules():
     import tests.validation.test_geo38_f_clinical_esr_root as c4
     import tests.validation.test_wf7_f_human_b1_quadrature as wf7
 
-    return {"i35": i35, "i36": i36, "t3": t3, "c20": c20, "s2": s2, "box": box, "s1a": s1a,
-            "c4": c4, "wf7": wf7}
+    return {
+        "i35": i35,
+        "i36": i36,
+        "t3": t3,
+        "c20": c20,
+        "s2": s2,
+        "box": box,
+        "s1a": s1a,
+        "c4": c4,
+        "wf7": wf7,
+    }
 
 
 def _foreign_envs():
@@ -148,7 +157,9 @@ def _c21_patches(monkeypatch):
     monkeypatch.setattr(s2, "_f_clinical_kwargs", t3._f_clinical_3t_kwargs)
     # 2. records: read by `i36._route_drive` at call time.
     monkeypatch.setattr(i35, "F_CLINICAL_ROD_CELL_RECORD", c20.F_CLINICAL_3T_ROD_CELL_RECORD)
-    monkeypatch.setattr(i35, "F_CLINICAL_ROD_UNKNOWNS_RECORD", c20.F_CLINICAL_3T_ROD_UNKNOWNS_RECORD)
+    monkeypatch.setattr(
+        i35, "F_CLINICAL_ROD_UNKNOWNS_RECORD", c20.F_CLINICAL_3T_ROD_UNKNOWNS_RECORD
+    )
     # 3. frequency: C12's precedent.
     monkeypatch.setattr(wf7, "FREQUENCY_HZ", t3.FREQUENCY_3T_HZ)
     monkeypatch.setattr(c4, "FREQUENCY_HZ_C4", t3.FREQUENCY_3T_HZ)
@@ -161,11 +172,16 @@ def _c21_patches(monkeypatch):
         for sense in ("ccw", "cw"):
             s = out["senses"][sense]
             lat = np.asarray(s["lattice_b_plus"], dtype=float)
-            _LATTICE_MEANS.append((sense, float(s["mean_b_plus"]), float(np.mean(lat)), int(lat.size)))
-            box._say(comm, f"(C21) mean |B1+|_{sense}: centroid mean {s['mean_b_plus']:.9e} T over "
-                           f"{s['n_valid']} tag-3 centroids; lattice mean {np.mean(lat):.9e} T over the "
-                           f"{lat.size}-point lattice (both printed, neither asserted; the record is "
-                           f"the 11-04 weekly's call)")
+            _LATTICE_MEANS.append(
+                (sense, float(s["mean_b_plus"]), float(np.mean(lat)), int(lat.size))
+            )
+            box._say(
+                comm,
+                f"(C21) mean |B1+|_{sense}: centroid mean {s['mean_b_plus']:.9e} T over "
+                f"{s['n_valid']} tag-3 centroids; lattice mean {np.mean(lat):.9e} T over the "
+                f"{lat.size}-point lattice (both printed, neither asserted; the record is "
+                f"the 11-04 weekly's call)",
+            )
         return out
 
     monkeypatch.setattr(box, "_box_readouts", _readouts_with_lattice_mean)
@@ -180,18 +196,24 @@ def test_geo38_c21_box_loaded_3t(monkeypatch):
     m = _modules()
     comm = MPI.COMM_WORLD
     _c21_patches(monkeypatch)
-    _say(comm, f"3 T patch set: rung Ø {m['t3'].RUNG_DIAMETER_3T_M} m, f {m['wf7'].FREQUENCY_HZ:.6e} Hz "
-               f"(C4 {m['c4'].FREQUENCY_HZ_C4:.6e}); records cells "
-               f"{m['i35'].F_CLINICAL_ROD_CELL_RECORD}, U {m['i35'].F_CLINICAL_ROD_UNKNOWNS_RECORD}; "
-               f"degree {deg or 1} ({C21_DEGREE_ENV} {deg if deg else 'unset'})")
+    _say(
+        comm,
+        f"3 T patch set: rung Ø {m['t3'].RUNG_DIAMETER_3T_M} m, f {m['wf7'].FREQUENCY_HZ:.6e} Hz "
+        f"(C4 {m['c4'].FREQUENCY_HZ_C4:.6e}); records cells "
+        f"{m['i35'].F_CLINICAL_ROD_CELL_RECORD}, U {m['i35'].F_CLINICAL_ROD_UNKNOWNS_RECORD}; "
+        f"degree {deg or 1} ({C21_DEGREE_ENV} {deg if deg else 'unset'})",
+    )
     if mode == "1":
         m["box"]._run_box(comm, monkeypatch, c_pf, degree=deg)
         return
     # (Bore), §9 item 791: C20's `_bore_gap` on the kwargs the patched route builds
     # (K7-3T asserts they are C20's `_kwargs_3t`); the box sits strictly inside the rungs.
     gap, corner = m["c20"]._bore_gap(m["i35"]._kwargs())
-    _say(comm, f"(Bore) corner {corner:.9f} m vs rung radius {m['t3'].RUNG_DIAMETER_3T_M / 2.0} m, "
-               f"gap {gap:.9f} m (> 0, ASSERTED)")
+    _say(
+        comm,
+        f"(Bore) corner {corner:.9f} m vs rung radius {m['t3'].RUNG_DIAMETER_3T_M / 2.0} m, "
+        f"gap {gap:.9f} m (> 0, ASSERTED)",
+    )
     assert gap > 0.0, (gap, corner)
     if deg is None:
         m["box"]._run_build(comm, monkeypatch)
@@ -208,8 +230,9 @@ def test_geo38_c21_box_loaded_3t(monkeypatch):
 # ---------------------------------------------------------------------------
 # Coding tests (no gmsh); skip whenever C21_ENV is set.
 # ---------------------------------------------------------------------------
-_coding = pytest.mark.skipif(os.environ.get(C21_ENV, "").strip() != "",
-                             reason=f"{C21_ENV} set: coding tests skip in windows")
+_coding = pytest.mark.skipif(
+    os.environ.get(C21_ENV, "").strip() != "", reason=f"{C21_ENV} set: coding tests skip in windows"
+)
 
 
 @_coding
@@ -239,9 +262,11 @@ def test_c21_k1_knob_parsing(monkeypatch):
             with pytest.raises(ValueError):
                 _knobs()
     assert set(FOREIGN_ENVS_C21_EXTRA) <= set(foreign) and "FEM_EM_GEO38_C6" in foreign
-    print(f"\n[GEO-38 C21 K1] mode unset/build/1 accepted, 2/x refused; node knob refused under "
-          f"build, read under 1 ({K_NODE_3T_PF}); {len(foreign)} foreign variables refused "
-          f"(C6a's {len(foreign) - len(FOREIGN_ENVS_C21_EXTRA)} + {FOREIGN_ENVS_C21_EXTRA}) (ASSERTED)")
+    print(
+        f"\n[GEO-38 C21 K1] mode unset/build/1 accepted, 2/x refused; node knob refused under "
+        f"build, read under 1 ({K_NODE_3T_PF}); {len(foreign)} foreign variables refused "
+        f"(C6a's {len(foreign) - len(FOREIGN_ENVS_C21_EXTRA)} + {FOREIGN_ENVS_C21_EXTRA}) (ASSERTED)"
+    )
 
 
 @_coding
@@ -268,7 +293,10 @@ def test_c21_k5_sense_weights():
     from tests.validation.test_wf10_f_human_tuned_b1_sar import _sense_weights
 
     w = _sense_weights()
-    d = [max(abs(np.asarray(w[s]) - np.array(t))) for s, t in (("ccw", (1.0, -1.0j)), ("cw", (1.0, 1.0j)))]
+    d = [
+        max(abs(np.asarray(w[s]) - np.array(t)))
+        for s, t in (("ccw", (1.0, -1.0j)), ("cw", (1.0, 1.0j)))
+    ]
     print(f"\n[GEO-38 C21 K5] ccw {w['ccw']}, cw {w['cw']}; misses {d} (<= 1e-15, ASSERTED)")
     assert max(d) <= 1.0e-15, d
 
@@ -297,10 +325,23 @@ def test_c21_k6_readouts_at_128mhz():
     rho_field = box._gel_density(msh, cell_tags)
     points = box._box_sample_points(msh, cell_tags, comm)
     assert np.array_equal(points, comm.bcast(points, root=0))
-    rows = [(f"k6-{k}", (0.0, 0.0, dz), None, None, True)
-            for k, dz in enumerate((0.0, 0.05, 0.1, -0.05))]
-    out = box._box_readouts(msh, cell_tags, e_ccw, e_cw, sigma_f, omega, rho_field, rows, points, comm,
-                            coverage=(centre, radius))
+    rows = [
+        (f"k6-{k}", (0.0, 0.0, dz), None, None, True)
+        for k, dz in enumerate((0.0, 0.05, 0.1, -0.05))
+    ]
+    out = box._box_readouts(
+        msh,
+        cell_tags,
+        e_ccw,
+        e_cw,
+        sigma_f,
+        omega,
+        rho_field,
+        rows,
+        points,
+        comm,
+        coverage=(centre, radius),
+    )
     ccw, cw = out["senses"]["ccw"], out["senses"]["cw"]
     b0 = abs(c) / (2.0 * omega)
     miss_b = {
@@ -313,26 +354,38 @@ def test_c21_k6_readouts_at_128mhz():
     miss_64 = float(np.max(np.abs(ccw["b_plus"][ccw["valid"]] / b0_64 - 1.0)))
     r_star = abs(out["sar_star_cw"] / out["sar_star"] - 4.0) / 4.0
 
-    rho_403_zero = build_density_field(msh, PHANTOM_RHO_KG_PER_M3, cell_tags=cell_tags,
-                                       density_map={403: 0.0})
-    _w, tag3, p_miss_c, m_miss_zero = box._coverage_identity(e_ccw, sigma_f, rho_403_zero, cell_tags, 3,
-                                                             centre, radius, comm)
-    _w, _t, _p, m_miss_c = box._coverage_identity(e_ccw, sigma_f, rho_field, cell_tags, 3, centre,
-                                                  radius, comm)
+    rho_403_zero = build_density_field(
+        msh, PHANTOM_RHO_KG_PER_M3, cell_tags=cell_tags, density_map={403: 0.0}
+    )
+    _w, tag3, p_miss_c, m_miss_zero = box._coverage_identity(
+        e_ccw, sigma_f, rho_403_zero, cell_tags, 3, centre, radius, comm
+    )
+    _w, _t, _p, m_miss_c = box._coverage_identity(
+        e_ccw, sigma_f, rho_field, cell_tags, 3, centre, radius, comm
+    )
     v_all = out["tagged"]["volume_m3"]
     v_403 = v_all - tag3["volume_m3"]
     if comm.rank == 0:
-        print(f"\n[GEO-38 C21 K6] omega 2pi x {omega / (2.0 * np.pi):.6e} Hz; {len(points)} tag-3 "
-              f"centroids, {ccw['n_valid']} valid; b0 = |c|/(2 omega) {b0:.9e} T; (K6-B) misses "
-              f"{miss_b} (band {DISCRETE_IDENTITY_RTOL:g}, ASSERTED); against the 64 MHz b0 "
-              f"{b0_64:.9e} T the miss is {miss_64:.6f} (printed)")
-        print(f"[GEO-38 C21 K6] c* {out['star_label']} {out['c_star']}, SAR10g {out['sar10g'].tolist()} "
-              f"W/kg; cw/ccw ball at c* rel to 4 {r_star:.3e} (band {EXACT_IDENTITY_RTOL:g}, ASSERTED)")
-        print(f"[GEO-38 C21 K6] (K6-i) radius {radius:.9f} m: power miss {out['power_miss']:.3e}, mass "
-              f"miss {out['mass_miss']:.3e} (band {EXACT_IDENTITY_RTOL:g}, ASSERTED)")
-        print(f"[GEO-38 C21 K6] (K6-c) tag 3 alone: ball rho(403) = 0, power miss {p_miss_c:.6e} (mass "
-              f"then matches, {m_miss_zero:.3e}); ball rho(403) = gel, mass miss {m_miss_c:.6e}; V403/V "
-              f"{v_403 / v_all:.6e} (> band, ASSERTED)", flush=True)
+        print(
+            f"\n[GEO-38 C21 K6] omega 2pi x {omega / (2.0 * np.pi):.6e} Hz; {len(points)} tag-3 "
+            f"centroids, {ccw['n_valid']} valid; b0 = |c|/(2 omega) {b0:.9e} T; (K6-B) misses "
+            f"{miss_b} (band {DISCRETE_IDENTITY_RTOL:g}, ASSERTED); against the 64 MHz b0 "
+            f"{b0_64:.9e} T the miss is {miss_64:.6f} (printed)"
+        )
+        print(
+            f"[GEO-38 C21 K6] c* {out['star_label']} {out['c_star']}, SAR10g {out['sar10g'].tolist()} "
+            f"W/kg; cw/ccw ball at c* rel to 4 {r_star:.3e} (band {EXACT_IDENTITY_RTOL:g}, ASSERTED)"
+        )
+        print(
+            f"[GEO-38 C21 K6] (K6-i) radius {radius:.9f} m: power miss {out['power_miss']:.3e}, mass "
+            f"miss {out['mass_miss']:.3e} (band {EXACT_IDENTITY_RTOL:g}, ASSERTED)"
+        )
+        print(
+            f"[GEO-38 C21 K6] (K6-c) tag 3 alone: ball rho(403) = 0, power miss {p_miss_c:.6e} (mass "
+            f"then matches, {m_miss_zero:.3e}); ball rho(403) = gel, mass miss {m_miss_c:.6e}; V403/V "
+            f"{v_403 / v_all:.6e} (> band, ASSERTED)",
+            flush=True,
+        )
     assert len(points) > 0 and ccw["n_valid"] == len(points) and cw["n_valid"] == len(points)
     assert max(miss_b.values()) <= DISCRETE_IDENTITY_RTOL, miss_b
     assert out["star_label"] == "k6-2", out["star_label"]
@@ -355,10 +408,15 @@ def _builder_sentinel(m, seen):
     mods = _modules()
 
     def _sentinel(*_a, **kw):
-        seen.append({"kw": dict(kw), "f_wf7": float(mods["wf7"].FREQUENCY_HZ),
-                     "f_c4": float(mods["c4"].FREQUENCY_HZ_C4),
-                     "cells": mods["s1a"].F_CLINICAL_R1_CELL_RECORD,
-                     "unknowns": tuple(mods["s1a"].F_CLINICAL_R1_UNKNOWNS_RECORD)})
+        seen.append(
+            {
+                "kw": dict(kw),
+                "f_wf7": float(mods["wf7"].FREQUENCY_HZ),
+                "f_c4": float(mods["c4"].FREQUENCY_HZ_C4),
+                "cells": mods["s1a"].F_CLINICAL_R1_CELL_RECORD,
+                "unknowns": tuple(mods["s1a"].F_CLINICAL_R1_UNKNOWNS_RECORD),
+            }
+        )
         raise _BuilderReached
 
     m.setattr(MeshGenerator, "birdcage_port_domain", staticmethod(_sentinel))
@@ -405,15 +463,20 @@ def test_c21_k7_one_with_node_reaches_builder_with_3t_kwargs(monkeypatch):
     call_only = ("comm", "return_diagnostics")  # `_build_rod_f_clinical`'s own call arguments
     keys_same = sorted(k for k in kw if k not in call_only) == sorted(kw3)
     diff3 = [k for k in kw3 if k != "comm" and kw.get(k) != kw3[k]]
-    print(f"\n[GEO-38 C21 K7] C21=1 node {K_NODE_3T_PF}: builder reached with rung Ø {rung_d:.12f} m "
-          f"(3 T {t3.RUNG_DIAMETER_3T_M}), coil_length {kw['coil_length']}, shield_radius "
-          f"{kw['shield_radius']}; rod {kw['implant_rod']}; f wf7 {got['f_wf7']:.6e} / C4 "
-          f"{got['f_c4']:.6e} Hz; records cells {got['cells']}, U {got['unknowns']}; overrides "
-          f"missed {over or 'none'}; vs C20 _kwargs_3t: keys same {keys_same}, differing "
-          f"{diff3 or 'none'} (ASSERTED)")
-    print(f"[GEO-38 C21 K7] control (C11's s1a route only): rung Ø {rung_d_neg:.12f} m (1.5 T "
-          f"{2.0 * kw15['ring_radius']:.12f}), f wf7 {got_neg['f_wf7']:.6e} / C4 {got_neg['f_c4']:.6e} "
-          f"Hz, records cells {got_neg['cells']} (ASSERTED: the 1.5 T kwargs)", flush=True)
+    print(
+        f"\n[GEO-38 C21 K7] C21=1 node {K_NODE_3T_PF}: builder reached with rung Ø {rung_d:.12f} m "
+        f"(3 T {t3.RUNG_DIAMETER_3T_M}), coil_length {kw['coil_length']}, shield_radius "
+        f"{kw['shield_radius']}; rod {kw['implant_rod']}; f wf7 {got['f_wf7']:.6e} / C4 "
+        f"{got['f_c4']:.6e} Hz; records cells {got['cells']}, U {got['unknowns']}; overrides "
+        f"missed {over or 'none'}; vs C20 _kwargs_3t: keys same {keys_same}, differing "
+        f"{diff3 or 'none'} (ASSERTED)"
+    )
+    print(
+        f"[GEO-38 C21 K7] control (C11's s1a route only): rung Ø {rung_d_neg:.12f} m (1.5 T "
+        f"{2.0 * kw15['ring_radius']:.12f}), f wf7 {got_neg['f_wf7']:.6e} / C4 {got_neg['f_c4']:.6e} "
+        f"Hz, records cells {got_neg['cells']} (ASSERTED: the 1.5 T kwargs)",
+        flush=True,
+    )
     # (K7-3T)
     assert abs(rung_d / t3.RUNG_DIAMETER_3T_M - 1.0) <= 1e-15, rung_d
     assert not over, over
@@ -462,11 +525,21 @@ def _k8_stubs_3t(m, fx, json_dir, *, p_src_p2=1.0):
         v = np.zeros(4, dtype=np.complex128)
         v[j] = 1.0
         cur = h17._parallel_currents(z_sym, loads, v)
-        return {"currents": dict(zip(order, cur)), "kind": "held" if held else "solve",
-                "t_solve": 0.0, "t_post": 0.0, "e": columns[j].copy(), "sigma": sigma_f,
-                "p_src": p_src_p2 if j == 1 else 1.0, "p_sheets": 0.5, "p_phantom": 0.2,
-                "p_rest": 0.2, "p_surf": 0.1, "p_rod": 0.0,
-                "p_sheet_by_id": {"P1": 0.1, "P2": 0.1, "P3": 0.15, "P4": 0.15}}
+        return {
+            "currents": dict(zip(order, cur)),
+            "kind": "held" if held else "solve",
+            "t_solve": 0.0,
+            "t_post": 0.0,
+            "e": columns[j].copy(),
+            "sigma": sigma_f,
+            "p_src": p_src_p2 if j == 1 else 1.0,
+            "p_sheets": 0.5,
+            "p_phantom": 0.2,
+            "p_rest": 0.2,
+            "p_surf": 0.1,
+            "p_rod": 0.0,
+            "p_sheet_by_id": {"P1": 0.1, "P2": 0.1, "P3": 0.15, "P4": 0.15},
+        }
 
     m.setattr(i36, "_drive_env", lambda _fixture, _comm: env)
     m.setattr(c4, "_esr_specs", lambda *_a: (specs, z_rc, z_th))
@@ -532,35 +605,71 @@ def test_c21_k8_run_box_end_to_end_on_stubs_at_128mhz(monkeypatch, tmp_path):
     s_json = np.array([[complex(*v) for v in row] for row in rec["s2"]])
     r_s2 = float(np.linalg.norm(s_json - s_route) / np.linalg.norm(s_route))
     z_rc_64 = h17._z_rc(K_NODE_3T_PF * 1e-12, 64.0e6)
-    r_s2_64 = float(np.linalg.norm(s_json - h17._circuit_current_route_s(z_sym, [0, 1], z_rc_64,
-                                                                         z_rc_64, z0))
-                    / np.linalg.norm(s_route))
+    r_s2_64 = float(
+        np.linalg.norm(s_json - h17._circuit_current_route_s(z_sym, [0, 1], z_rc_64, z_rc_64, z0))
+        / np.linalg.norm(s_route)
+    )
 
     by_sense = {s: (cm, lm, n) for s, cm, lm, n in means}
     json_lat = float(np.mean([p["b_plus_ccw"] for p in rec["lattice"]]))
     r_lat = abs(by_sense["ccw"][1] / json_lat - 1.0)
     r_cen = abs(by_sense["ccw"][0] / rec["mean_b_plus"]["ccw"] - 1.0)
-    keys = {"c_pf", "feeds", "az_feeds", "s2", "y_in", "mean_b_plus", "mean_b_minus", "lattice",
-            "c_star", "star_label", "sar_star", "sar_star_cw", "p_box", "p_src", "p_acc", "parts"}
-    heads = ("(i) ball radius", "normalisers:", "price:", "(C21) mean |B1+|_ccw", "(C21) mean |B1+|_cw")
+    keys = {
+        "c_pf",
+        "feeds",
+        "az_feeds",
+        "s2",
+        "y_in",
+        "mean_b_plus",
+        "mean_b_minus",
+        "lattice",
+        "c_star",
+        "star_label",
+        "sar_star",
+        "sar_star_cw",
+        "p_box",
+        "p_src",
+        "p_acc",
+        "parts",
+    }
+    heads = (
+        "(i) ball radius",
+        "normalisers:",
+        "price:",
+        "(C21) mean |B1+|_ccw",
+        "(C21) mean |B1+|_cw",
+    )
     missing_heads = [h for h in heads if not any(ln.startswith(h) for ln in lines)]
     if comm.rank == 0:
-        print(f"\n[GEO-38 C21 K8] (K8-B) ccw/cw miss from 3 {r_b:.3e} (band "
-              f"{DISCRETE_IDENTITY_RTOL:g}, ASSERTED); (K8-S) miss from 9 {r_s:.3e} (band "
-              f"{EXACT_IDENTITY_RTOL:g}, ASSERTED)")
-        print(f"[GEO-38 C21 K8] (K8-w) mean |B1+|_ccw {rec['mean_b_plus']['ccw']:.9e} T vs 1.5|c|/(2 omega) "
-              f"at 128 MHz: miss {r_abs:.3e} (band {DISCRETE_IDENTITY_RTOL:g}, ASSERTED); vs the 64 MHz "
-              f"value {r_abs_64:.6f} (printed)")
-        print(f"[GEO-38 C21 K8] (K8-Ps) seen {seen}, JSON p_src {rec['p_src']!r}, c_pf {rec['c_pf']!r} "
-              f"(ASSERTED)")
-        print(f"[GEO-38 C21 K8] (K8-J) keys {sorted(rec)}; s2 vs circuit route at 128 MHz {r_s2:.3e} (band "
-              f"{EXACT_IDENTITY_RTOL:g}, ASSERTED); vs the 64 MHz route {r_s2_64:.3e} (printed); (K8-L) "
-              f"missing {missing_heads or 'none'}")
-        print(f"[GEO-38 C21 K8] (Lat) printed lattice mean ccw {by_sense['ccw'][1]:.9e} T over "
-              f"{by_sense['ccw'][2]} points vs JSON lattice mean {json_lat:.9e} T: rel {r_lat:.3e}; "
-              f"printed centroid mean vs JSON mean_b_plus rel {r_cen:.3e} (<= 1e-12, ASSERTED)")
-        print(f"[GEO-38 C21 K8] control: raised {str(neg.value).splitlines()[0]}; JSON still "
-              f"written, parts[1] p_src {rec_neg['parts'][1]['p_src']!r} (ASSERTED)", flush=True)
+        print(
+            f"\n[GEO-38 C21 K8] (K8-B) ccw/cw miss from 3 {r_b:.3e} (band "
+            f"{DISCRETE_IDENTITY_RTOL:g}, ASSERTED); (K8-S) miss from 9 {r_s:.3e} (band "
+            f"{EXACT_IDENTITY_RTOL:g}, ASSERTED)"
+        )
+        print(
+            f"[GEO-38 C21 K8] (K8-w) mean |B1+|_ccw {rec['mean_b_plus']['ccw']:.9e} T vs 1.5|c|/(2 omega) "
+            f"at 128 MHz: miss {r_abs:.3e} (band {DISCRETE_IDENTITY_RTOL:g}, ASSERTED); vs the 64 MHz "
+            f"value {r_abs_64:.6f} (printed)"
+        )
+        print(
+            f"[GEO-38 C21 K8] (K8-Ps) seen {seen}, JSON p_src {rec['p_src']!r}, c_pf {rec['c_pf']!r} "
+            f"(ASSERTED)"
+        )
+        print(
+            f"[GEO-38 C21 K8] (K8-J) keys {sorted(rec)}; s2 vs circuit route at 128 MHz {r_s2:.3e} (band "
+            f"{EXACT_IDENTITY_RTOL:g}, ASSERTED); vs the 64 MHz route {r_s2_64:.3e} (printed); (K8-L) "
+            f"missing {missing_heads or 'none'}"
+        )
+        print(
+            f"[GEO-38 C21 K8] (Lat) printed lattice mean ccw {by_sense['ccw'][1]:.9e} T over "
+            f"{by_sense['ccw'][2]} points vs JSON lattice mean {json_lat:.9e} T: rel {r_lat:.3e}; "
+            f"printed centroid mean vs JSON mean_b_plus rel {r_cen:.3e} (<= 1e-12, ASSERTED)"
+        )
+        print(
+            f"[GEO-38 C21 K8] control: raised {str(neg.value).splitlines()[0]}; JSON still "
+            f"written, parts[1] p_src {rec_neg['parts'][1]['p_src']!r} (ASSERTED)",
+            flush=True,
+        )
     assert r_b <= DISCRETE_IDENTITY_RTOL, r_b
     assert r_s <= EXACT_IDENTITY_RTOL, r_s
     assert r_abs <= DISCRETE_IDENTITY_RTOL, r_abs
@@ -589,11 +698,37 @@ def test_c21_k8_grid_3t_on_stubs(monkeypatch, tmp_path):
         box._g1_asserts(box._g1_check(" 3T"))
     fx = box._k6_fixture(comm)
     root = comm.bcast(str(tmp_path), root=0)
-    keys = {"c_pf", "feeds", "az_feeds", "s2", "y_in", "mean_b_plus", "mean_b_minus", "lattice",
-            "c_star", "star_label", "sar_star", "sar_star_cw", "p_box", "p_src", "p_acc", "parts"}
-    rec, _off = box._k8_grid_check(comm, monkeypatch, fx, os.path.join(root, "on"),
-                                   os.path.join(root, "off"), keys, "-3T", _c21_patches,
-                                   lambda m, d: _k8_stubs_3t(m, fx, d), K_NODE_3T_PF, _k8_json_3t)
+    keys = {
+        "c_pf",
+        "feeds",
+        "az_feeds",
+        "s2",
+        "y_in",
+        "mean_b_plus",
+        "mean_b_minus",
+        "lattice",
+        "c_star",
+        "star_label",
+        "sar_star",
+        "sar_star_cw",
+        "p_box",
+        "p_src",
+        "p_acc",
+        "parts",
+    }
+    rec, _off = box._k8_grid_check(
+        comm,
+        monkeypatch,
+        fx,
+        os.path.join(root, "on"),
+        os.path.join(root, "off"),
+        keys,
+        "-3T",
+        _c21_patches,
+        lambda m, d: _k8_stubs_3t(m, fx, d),
+        K_NODE_3T_PF,
+        _k8_json_3t,
+    )
     assert rec["c_pf"] == K_NODE_3T_PF, rec["c_pf"]
 
 
@@ -662,12 +797,15 @@ def test_c52_kdeg_3t_knob_parsing_and_build_route(monkeypatch):
         rec_wrong = tuple(s1a.F_CLINICAL_R1_UNKNOWNS_RECORD)
     got = seen[0] if seen else None
     if MPI.COMM_WORLD.rank == 0:
-        print(f"\n[GEO-38 C52 K-deg-3T] {C21_DEGREE_ENV}: unset / '' / 2 accepted (build included), "
-              f"1 / x / 3 refused; build+2: builder reached {len(seen)}x, s1a records U "
-              f"{got and got['unknowns']}, cells {got and got['cells']}, f {got and got['f_wf7']}, "
-              f"rung Ø {got and 2.0 * got['kw']['ring_radius']}; C6a _run_build calls {len(box_calls)}; "
-              f"build unset: C6a {len(box_calls_u)} / C4a {len(c4_calls_u)}; stray C6 knob: "
-              f"{stray.value}; (N-order) reverse order leaves s1a U {rec_wrong} (ASSERTED)", flush=True)
+        print(
+            f"\n[GEO-38 C52 K-deg-3T] {C21_DEGREE_ENV}: unset / '' / 2 accepted (build included), "
+            f"1 / x / 3 refused; build+2: builder reached {len(seen)}x, s1a records U "
+            f"{got and got['unknowns']}, cells {got and got['cells']}, f {got and got['f_wf7']}, "
+            f"rung Ø {got and 2.0 * got['kw']['ring_radius']}; C6a _run_build calls {len(box_calls)}; "
+            f"build unset: C6a {len(box_calls_u)} / C4a {len(c4_calls_u)}; stray C6 knob: "
+            f"{stray.value}; (N-order) reverse order leaves s1a U {rec_wrong} (ASSERTED)",
+            flush=True,
+        )
     assert len(seen) == 1, len(seen)
     assert got["unknowns"] == c20.F_CLINICAL_3T_ROD_UNKNOWNS_RECORD == (1_508_256, 7_783_028)
     assert got["cells"] == 1_128_430
@@ -745,23 +883,36 @@ def test_c52_k8_3t_d2_run_box_on_stubs(monkeypatch, tmp_path):
     deg_lines_n, n_deg_n = _deg(lines_n)
     miss_n = abs(n_deg_n / 7_783_028 - 1.0) if n_deg_n else float("nan")
     if comm.rank == 0:
-        print(f"\n[GEO-38 C52 K8-3T-d2] C4 variable at the fixture call {env_seen}, after {env_after!r}; "
-              f"solver degrees {degrees}; JSON -d2 keys exact {set(rec) == box.K8_JSON_KEYS}, degree-1 "
-              f"name written {d1_exists}; {deg_lines[0] if deg_lines else '(Deg) MISSING'} (ASSERTED)")
-        print(f"[GEO-38 C52 K8-3T-d2] (K8-B) miss from 3 {r_b:.3e}, (K8-S) miss from 9 {r_s:.3e}, (K8-w) "
-              f"at 128 MHz {r_w:.3e} (ASSERTED)")
-        print(f"[GEO-38 C52 N-patch] without _c21_patches: "
-              f"{deg_lines_n[0] if deg_lines_n else '(Deg) MISSING'}; |{n_deg_n}/7783028 - 1| = "
-              f"{miss_n:.3e} (> 6e-02, ASSERTED)")
-        print(f"[GEO-38 C52 d2-c-3T] degree 1 under degree=2 raised {exc_c!s}; solvers {degrees_c}, "
-              f"files {files_c} (ASSERTED)", flush=True)
+        print(
+            f"\n[GEO-38 C52 K8-3T-d2] C4 variable at the fixture call {env_seen}, after {env_after!r}; "
+            f"solver degrees {degrees}; JSON -d2 keys exact {set(rec) == box.K8_JSON_KEYS}, degree-1 "
+            f"name written {d1_exists}; {deg_lines[0] if deg_lines else '(Deg) MISSING'} (ASSERTED)"
+        )
+        print(
+            f"[GEO-38 C52 K8-3T-d2] (K8-B) miss from 3 {r_b:.3e}, (K8-S) miss from 9 {r_s:.3e}, (K8-w) "
+            f"at 128 MHz {r_w:.3e} (ASSERTED)"
+        )
+        print(
+            f"[GEO-38 C52 N-patch] without _c21_patches: "
+            f"{deg_lines_n[0] if deg_lines_n else '(Deg) MISSING'}; |{n_deg_n}/7783028 - 1| = "
+            f"{miss_n:.3e} (> 6e-02, ASSERTED)"
+        )
+        print(
+            f"[GEO-38 C52 d2-c-3T] degree 1 under degree=2 raised {exc_c!s}; solvers {degrees_c}, "
+            f"files {files_c} (ASSERTED)",
+            flush=True,
+        )
     assert exc is None and exc_n is None, (exc, exc_n)
     assert env_seen == ["2"] and env_after is None, (env_seen, env_after)
     assert degrees == [2], degrees
     assert set(rec) == box.K8_JSON_KEYS, sorted(rec)
     assert not d1_exists
     assert len(deg_lines) == 1 and n_deg == 7_783_028, deg_lines
-    assert r_b <= DISCRETE_IDENTITY_RTOL and r_s <= EXACT_IDENTITY_RTOL and r_w <= DISCRETE_IDENTITY_RTOL
+    assert (
+        r_b <= DISCRETE_IDENTITY_RTOL
+        and r_s <= EXACT_IDENTITY_RTOL
+        and r_w <= DISCRETE_IDENTITY_RTOL
+    )
     assert n_deg_n == 8_327_394 != 7_783_028 and miss_n > 6.0e-2, (n_deg_n, miss_n)
     assert exc_c is not None and "(1, 2)" in str(exc_c), exc_c
     assert degrees_c == [] and files_c == [], (degrees_c, files_c)
@@ -779,8 +930,11 @@ def test_c52_deg_c_3t_degree1_count_is_not_degree2():
         _check_unknowns(1_508_256, 2, 1_508_256, 2_383_258)
     assert _check_unknowns(u2, 2, e, f) == u2 == 2 * e + 2 * f == 7_783_028
     if MPI.COMM_WORLD.rank == 0:
-        print(f"\n[GEO-38 C52 Deg-c-3T] 2E + 2F = {2 * e + 2 * f} = record {u2}; U1 {u1} at degree 2 "
-              f"refused; U2/U1 {u2 / u1:.4f} > 5 (ASSERTED on integers)", flush=True)
+        print(
+            f"\n[GEO-38 C52 Deg-c-3T] 2E + 2F = {2 * e + 2 * f} = record {u2}; U1 {u1} at degree 2 "
+            f"refused; U2/U1 {u2 / u1:.4f} > 5 (ASSERTED on integers)",
+            flush=True,
+        )
     assert u1 == e
     assert u2 > 5 * u1
 
@@ -797,5 +951,7 @@ def test_c52_k66_c21_call_alone(monkeypatch):
     monkeypatch.setenv(C21_DEGREE_ENV, "2")
     got = (_knobs(), _c21_degree("1"))
     if MPI.COMM_WORLD.rank == 0:
-        print(f"\n[GEO-38 C52 K-66] C21=1 + {C21_DEGREE_ENV}=2 + node: {got} (ASSERTED)", flush=True)
+        print(
+            f"\n[GEO-38 C52 K-66] C21=1 + {C21_DEGREE_ENV}=2 + node: {got} (ASSERTED)", flush=True
+        )
     assert got == (("1", K_NODE_3T_PF), 2), got

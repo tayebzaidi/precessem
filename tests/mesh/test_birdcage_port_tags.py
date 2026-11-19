@@ -10,7 +10,6 @@ from fem_em_solver.io.mesh_qa import print_cell_tag_summary
 from tests.mesh.helpers import global_cell_tag_set
 from tests.mesh.test_coil_phantom_conforming import _tag_volume, _total_volume
 
-
 BIRDCAGE_CORE_TAGS = {
     1: "conductor",
     2: "air",
@@ -46,10 +45,7 @@ def _analytic_box_volume() -> float:
     """``8·radial_extent²·z_extent``, the generator's own extents."""
     leg_radius_eff = 0.5 * LEG_WIDTH
     radial_extent = (
-        RING_RADIUS
-        + max(leg_radius_eff, RING_MINOR_RADIUS)
-        + PORT_BOX_SIZE[1]
-        + AIR_PADDING
+        RING_RADIUS + max(leg_radius_eff, RING_MINOR_RADIUS) + PORT_BOX_SIZE[1] + AIR_PADDING
     )
     z_extent = (
         max(
@@ -116,9 +112,7 @@ def test_birdcage_port_layout_diagnostics_match_the_closed_forms():
         "conductor_outer_radius_m": conductor_outer_radius,
         "port_radius_m": port_radius,
         "min_port_center_separation_m": 2.0 * port_radius * np.sin(np.pi / LEG_COUNT),
-        "conductor_radial_clearance_m": (
-            port_radius - 0.5 * port_dy - conductor_outer_radius
-        ),
+        "conductor_radial_clearance_m": (port_radius - 0.5 * port_dy - conductor_outer_radius),
         "phantom_radial_clearance_m": port_radius - 0.5 * port_dy - PHANTOM_RADIUS,
     }
 
@@ -127,8 +121,7 @@ def test_birdcage_port_layout_diagnostics_match_the_closed_forms():
         for key, want in expected.items():
             got = float(diagnostics[key])
             print(
-                f"    {key}: {got:.12e} vs {want:.12e} "
-                f"(rel {abs(got / want - 1.0):.3e})",
+                f"    {key}: {got:.12e} vs {want:.12e} " f"(rel {abs(got / want - 1.0):.3e})",
                 flush=True,
             )
 

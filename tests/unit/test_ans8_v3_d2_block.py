@@ -40,12 +40,11 @@ from tests.validation.test_birdcage_power_identity import DISCRETE_IDENTITY_RTOL
 from tests.validation.test_wf10_f_human_tuned_b1_sar import C_IN_F_HUMAN_D2_PF
 
 REPO = Path(__file__).resolve().parents[2]
-CASE = (REPO / "examples" / "ansys_benchmarks"
-        / "ans8_f_human_quadrature_mode_content_64MHz")
+CASE = REPO / "examples" / "ansys_benchmarks" / "ans8_f_human_quadrature_mode_content_64MHz"
 SCRIPT = CASE / "08_f_human_quadrature_mode_content.py"
 CASE_REL = CASE.relative_to(REPO).as_posix()
 COMPARISON_PRE_SHA = "e5d287d4"  # last commit of COMPARISON.md before this item
-METRICS_PRE_SHA = "8f50751e"     # last commit of metrics.json before this item
+METRICS_PRE_SHA = "8f50751e"  # last commit of metrics.json before this item
 H30_LOG = REPO / "docs" / "testing" / "logs" / "20261022T093054Z_ANS-8-H30-W1.log"
 D2_HEAD = "## Step 2 at the degree-2 root"
 NUM = re.compile(r"[-+]?\d+\.\d+(?:e[-+]\d+)?")
@@ -62,7 +61,9 @@ def _load(name: str, path: Path):
 def _git_show(sha: str, rel: str) -> bytes:
     return subprocess.run(
         ["git", "-c", f"safe.directory={REPO}", "-C", str(REPO), "show", f"{sha}:{rel}"],
-        check=True, capture_output=True).stdout
+        check=True,
+        capture_output=True,
+    ).stdout
 
 
 @pytest.fixture(scope="module")
@@ -72,7 +73,7 @@ def ans8():
 
 def _block_cells(text: str):
     """(degree-2 cell, degree-1 parenthetical or None) for each block table row."""
-    block = text[text.index(D2_HEAD):]
+    block = text[text.index(D2_HEAD) :]
     out = []
     for ln in block.splitlines():
         if not ln.startswith("| ") or ln.startswith("| Row") or ln.startswith("|---"):
@@ -103,29 +104,37 @@ def test_ans8_v3_d2_block(ans8):
     new = ans8.comparison_text(metrics)
 
     # (R2)
-    print(f"(R2) render == committed COMPARISON.md: {new.encode() == committed} "
-          f"({len(committed)} bytes)")
+    print(
+        f"(R2) render == committed COMPARISON.md: {new.encode() == committed} "
+        f"({len(committed)} bytes)"
+    )
     assert new.encode() == committed
 
     # (Row2) §9 item 740: the rendered row's four values and c_mode_pf are the key's strings
     key = d2["row2_circuit_route_h25"]
     row = next(ln for ln in new.splitlines() if ln.startswith("| row 2"))
-    want = [key["c_mode_pf"], key["lossless"]["ccw_feed_share"],
-            key["lossless"]["ccw_feed_leak_k0"], key["esr_0p2_ohm"]["ccw_feed_share"],
-            key["esr_0p2_ohm"]["ccw_feed_leak_k0"]]
+    want = [
+        key["c_mode_pf"],
+        key["lossless"]["ccw_feed_share"],
+        key["lossless"]["ccw_feed_leak_k0"],
+        key["esr_0p2_ohm"]["ccw_feed_share"],
+        key["esr_0p2_ohm"]["ccw_feed_leak_k0"],
+    ]
     got = re.findall(r"\b\d+\.\d+\b", row.replace("r = 0.2 Ω", ""))
     print(f"(Row2) rendered {got}, key {want}")
     assert got == want
 
     # (Ins)
     pre_cmp = _git_show(COMPARISON_PRE_SHA, f"{CASE_REL}/COMPARISON.md")
-    rest = committed[len(pre_cmp):].decode()
+    rest = committed[len(pre_cmp) :].decode()
     pre_metrics = json.loads(_git_show(METRICS_PRE_SHA, f"{CASE_REL}/metrics.json"))
     popped = copy.deepcopy(metrics)
     popped.pop("rows_v3_d2")
-    print(f"(Ins) starts with {COMPARISON_PRE_SHA} ({len(pre_cmp)} bytes): "
-          f"{committed.startswith(pre_cmp)}; remainder begins {rest[:32]!r}; metrics less "
-          f"rows_v3_d2 == {METRICS_PRE_SHA}: {popped == pre_metrics}")
+    print(
+        f"(Ins) starts with {COMPARISON_PRE_SHA} ({len(pre_cmp)} bytes): "
+        f"{committed.startswith(pre_cmp)}; remainder begins {rest[:32]!r}; metrics less "
+        f"rows_v3_d2 == {METRICS_PRE_SHA}: {popped == pre_metrics}"
+    )
     assert committed.startswith(pre_cmp)
     assert rest.startswith("\n" + D2_HEAD)
     assert popped == pre_metrics
@@ -136,8 +145,10 @@ def test_ans8_v3_d2_block(ans8):
     assert ok
 
     # (Deg)
-    print(f"(Deg) degree {d2['degree']}, c_in_pf {d2['c_in_pf']} (expected {C_IN_F_HUMAN_D2_PF}), "
-          f"node_knob {d2['node_knob']!r}")
+    print(
+        f"(Deg) degree {d2['degree']}, c_in_pf {d2['c_in_pf']} (expected {C_IN_F_HUMAN_D2_PF}), "
+        f"node_knob {d2['node_knob']!r}"
+    )
     assert d2["degree"] == 2
     assert d2["c_in_pf"] == C_IN_F_HUMAN_D2_PF
     assert d2["node_knob"] == "d2root"
@@ -147,23 +158,28 @@ def test_ans8_v3_d2_block(ans8):
     cells = _block_cells(new)
     missing = _dig(new, h30)
     n_tok = sum(len(NUM.findall(c)) for c, _ in cells)
-    print(f"(Dig) {len(cells)} block rows, {n_tok} degree-2 numbers, {len(h30)} [H30a H30] "
-          f"lines; missing {missing}")
+    print(
+        f"(Dig) {len(cells)} block rows, {n_tok} degree-2 numbers, {len(h30)} [H30a H30] "
+        f"lines; missing {missing}"
+    )
     assert len(h30) >= 5 and len(cells) == 9 and n_tok == 9
     assert not missing
     v3 = metrics["rows_v3"]
     p1 = v3["power_w"]["p_acc_spec"]
     m1 = v3["gap"]["mechanism"]
-    want_d1 = [f"{p1:.12e}", f"{v3['row4']['sar10g_per_w']:.7f}",
-               *(f"{v3['row5'][k]:.6f}" for k in ("phantom", "copper", "esr", "sum")),
-               *(f"{m1[n]['x_w']:.9e}" for n in v3["feeds"]),
-               f"{sum(m1[n]['x_w'] for n in v3['feeds']) / p1:.6e}"]
+    want_d1 = [
+        f"{p1:.12e}",
+        f"{v3['row4']['sar10g_per_w']:.7f}",
+        *(f"{v3['row5'][k]:.6f}" for k in ("phantom", "copper", "esr", "sum")),
+        *(f"{m1[n]['x_w']:.9e}" for n in v3["feeds"]),
+        f"{sum(m1[n]['x_w'] for n in v3['feeds']) / p1:.6e}",
+    ]
     got_d1 = [c for _, c in cells]
     print(f"(Dig) degree-1 cells {got_d1}")
     assert got_d1 == want_d1
 
     # (D)-compatibility: the block carries none of the v3 section's single-count strings
-    block = new[new.index(D2_HEAD):]
+    block = new[new.index(D2_HEAD) :]
     assert "0.83 %" not in block
     assert "accepted power at the 50 Ω lumped port" not in block
     assert all(ln.endswith("| |") for ln in block.splitlines() if ln.startswith("| ("))
@@ -185,8 +201,10 @@ def test_ans8_v3_d2_negative_controls(ans8):
     # (N-digit)
     text = committed.decode()
     i = text.index("2.910591023475e-02", text.index(D2_HEAD))
-    planted = text[:i] + "3" + text[i + 1:]
-    print(f"(N-digit) planted digit equals render: {planted.encode() == committed} (ASSERTED False)")
+    planted = text[:i] + "3" + text[i + 1 :]
+    print(
+        f"(N-digit) planted digit equals render: {planted.encode() == committed} (ASSERTED False)"
+    )
     assert planted.encode() != committed
 
     # (N-d1)
@@ -201,8 +219,10 @@ def test_ans8_v3_d2_negative_controls(ans8):
     no_row = copy.deepcopy(metrics)
     no_row["rows_v3_d2"].pop("row2_circuit_route_h25")
     text_nr = ans8.comparison_text(no_row)
-    print(f"(N-row) row {'| row 2' in text_nr}, sentence {'Row 2 is now carried' in text_nr}, "
-          f"equals committed {text_nr.encode() == committed} (ASSERTED False ×3)")
+    print(
+        f"(N-row) row {'| row 2' in text_nr}, sentence {'Row 2 is now carried' in text_nr}, "
+        f"equals committed {text_nr.encode() == committed} (ASSERTED False ×3)"
+    )
     assert "| row 2" not in text_nr and "Row 2 is now carried" not in text_nr
     assert text_nr.encode() != committed
 

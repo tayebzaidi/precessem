@@ -174,8 +174,7 @@ def _normalize_passive_termination_map(
 
     if driven_port_id in raw_map:
         raise ValueError(
-            "passive_port_terminations_ohm must not include driven port "
-            f"'{driven_port_id}'"
+            "passive_port_terminations_ohm must not include driven port " f"'{driven_port_id}'"
         )
 
     normalized: dict[str, float] = {}
@@ -243,8 +242,7 @@ def run_placeholder_port_coupling_case(
     if driven_port_index is not None:
         if driven_port_index < 0 or driven_port_index >= len(ports):
             raise ValueError(
-                "driven_port_index must be within [0, len(ports)-1], got "
-                f"{driven_port_index}"
+                "driven_port_index must be within [0, len(ports)-1], got " f"{driven_port_index}"
             )
         if inferred_driven_index != driven_port_index:
             raise ValueError(
@@ -269,9 +267,13 @@ def run_placeholder_port_coupling_case(
     # tests/solver/test_single_port_excitation.py tagging over rank-local cell
     # indices — is untouched, so that entry does not close.
     global_tag_values = sorted(
-        {int(v) for values in problem.mesh.comm.allgather(
-            np.unique(np.asarray(problem.cell_tags.values)).tolist()
-        ) for v in values}
+        {
+            int(v)
+            for values in problem.mesh.comm.allgather(
+                np.unique(np.asarray(problem.cell_tags.values)).tolist()
+            )
+            for v in values
+        }
     )
     validate_required_port_tags_exist(ports, available_tags=global_tag_values)
 

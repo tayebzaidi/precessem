@@ -55,12 +55,12 @@ from tests.mesh.test_birdcage_conductor_hole import (
     SOLID_CELL_RECORD,
     _owned_census,
 )
-from tests.mesh.test_birdcage_implant_rod import (
+from tests.mesh.test_birdcage_implant_rod import (  # noqa: F401  (used through _interior_facet_check)
     KEPT_ROD_CELL_GUARD,
     PHANTOM_CELL_TAG,
     ROD,
     _build_rod,
-    _cell_values_with_ghosts,  # noqa: F401  (used through _interior_facet_check)
+    _cell_values_with_ghosts,
     _interior_facet_check,
 )
 from tests.mesh.test_birdcage_leg_gaps import TERMINAL_AREA_BAND
@@ -222,8 +222,10 @@ def builds():
         "diag": off_diag,
         "t": t_off,
     }
-    _say(f"\n[GEO-36 step 7] flag off: {off['n_cells']} cells, census {off['census']}, "
-         f"elapsed {t_off:.2f} s")
+    _say(
+        f"\n[GEO-36 step 7] flag off: {off['n_cells']} cells, census {off['census']}, "
+        f"elapsed {t_off:.2f} s"
+    )
 
     h_msh, h_cells, h_facets, h_diag, t_h = _build_spheroid()
     hole = {
@@ -231,8 +233,10 @@ def builds():
         "diag": h_diag,
         "t": t_h,
     }
-    _say(f"[GEO-36 step 7] hole: {hole['n_cells']} cells (guard {KEPT_ROD_CELL_GUARD}), "
-         f"mesh_wall_time_s={h_diag['mesh_wall_time_s']:.2f}, elapsed {t_h:.2f} s")
+    _say(
+        f"[GEO-36 step 7] hole: {hole['n_cells']} cells (guard {KEPT_ROD_CELL_GUARD}), "
+        f"mesh_wall_time_s={h_diag['mesh_wall_time_s']:.2f}, elapsed {t_h:.2f} s"
+    )
     assert hole["n_cells"] < KEPT_ROD_CELL_GUARD  # (S10)
     hole["census"] = _owned_census(h_msh, h_cells, tdim, comm)
     hole["area402"] = _exterior_facet_area(h_msh, h_facets, BIRDCAGE_IMPLANT_SURFACE_TAG, comm)
@@ -240,12 +244,16 @@ def builds():
         h_msh, h_cells, h_facets, comm
     )
     x = ufl.SpatialCoordinate(h_msh)
-    ds = ufl.Measure("ds", domain=h_msh, subdomain_data=h_facets,
-                     subdomain_id=(BIRDCAGE_IMPLANT_SURFACE_TAG,))
+    ds = ufl.Measure(
+        "ds", domain=h_msh, subdomain_data=h_facets, subdomain_id=(BIRDCAGE_IMPLANT_SURFACE_TAG,)
+    )
     hole["mesh_centroid"] = tuple(
-        float(np.real(comm.allreduce(
-            dolfinx.fem.assemble_scalar(dolfinx.fem.form(x[i] * ds)), op=MPI.SUM
-        ))) / hole["area402"]
+        float(
+            np.real(
+                comm.allreduce(dolfinx.fem.assemble_scalar(dolfinx.fem.form(x[i] * ds)), op=MPI.SUM)
+            )
+        )
+        / hole["area402"]
         for i in range(3)
     )
     hole["rim"] = _rim_census(h_msh, h_cells, comm)
@@ -257,21 +265,31 @@ def builds():
         "diag": k_diag,
         "t": t_k,
     }
-    _say(f"[GEO-36 step 7] kept: {kept['n_cells']} cells, mesh_wall_time_s="
-         f"{k_diag['mesh_wall_time_s']:.2f}, elapsed {t_k:.2f} s")
+    _say(
+        f"[GEO-36 step 7] kept: {kept['n_cells']} cells, mesh_wall_time_s="
+        f"{k_diag['mesh_wall_time_s']:.2f}, elapsed {t_k:.2f} s"
+    )
     assert kept["n_cells"] < KEPT_ROD_CELL_GUARD  # (S10)
     kept["census"] = _owned_census(k_msh, k_cells, tdim, comm)
-    (kept["n402"], kept["n402_ext"], kept["n402_int"], kept["n402_pair"],
-     kept["area402"], moments) = _interior_facet_check(
-        k_msh, k_cells, k_facets, BIRDCAGE_IMPLANT_SURFACE_TAG, comm
-    )
+    (
+        kept["n402"],
+        kept["n402_ext"],
+        kept["n402_int"],
+        kept["n402_pair"],
+        kept["area402"],
+        moments,
+    ) = _interior_facet_check(k_msh, k_cells, k_facets, BIRDCAGE_IMPLANT_SURFACE_TAG, comm)
     kept["mesh_centroid"] = tuple(m / kept["area402"] for m in moments)
     one = dolfinx.fem.Constant(k_msh, dolfinx.default_scalar_type(1.0))
     dx = ufl.Measure("dx", domain=k_msh, subdomain_data=k_cells)
-    kept["implant_volume"] = float(np.real(comm.allreduce(
-        dolfinx.fem.assemble_scalar(dolfinx.fem.form(one * dx(BIRDCAGE_IMPLANT_CELL_TAG))),
-        op=MPI.SUM,
-    )))
+    kept["implant_volume"] = float(
+        np.real(
+            comm.allreduce(
+                dolfinx.fem.assemble_scalar(dolfinx.fem.form(one * dx(BIRDCAGE_IMPLANT_CELL_TAG))),
+                op=MPI.SUM,
+            )
+        )
+    )
     kept["rim"] = _rim_census(k_msh, k_cells, comm)
     kept["E"], kept["F"] = _edges_faces(k_msh, comm)
 
@@ -456,16 +474,26 @@ def test_s8_rim_fidelity(builds):
         {"implant_spheroid": dict(SPHEROID, centre=(0.025, 0.0, 0.0))},
         {"implant_spheroid": dict(SPHEROID, keep_cells="yes")},
     ],
-    ids=["rod_and_spheroid", "symmetry_quadrant", "as_hole_hole", "a_eq_c", "c0",
-         "zero_axis", "poking_out", "keep_str"],
+    ids=[
+        "rod_and_spheroid",
+        "symmetry_quadrant",
+        "as_hole_hole",
+        "a_eq_c",
+        "c0",
+        "zero_axis",
+        "poking_out",
+        "keep_str",
+    ],
 )
 def test_s9_refusals_raise_without_meshing(overrides):
     started = time.perf_counter()
     with pytest.raises(ValueError, match="implant_spheroid"):
         _build_spheroid(**overrides)
     assert not gmsh.isInitialized()
-    _say(f"[GEO-36 step 7] (S9) {sorted(overrides)} refused in "
-         f"{time.perf_counter() - started:.3f} s")
+    _say(
+        f"[GEO-36 step 7] (S9) {sorted(overrides)} refused in "
+        f"{time.perf_counter() - started:.3f} s"
+    )
 
 
 def test_s9_kept_accepted_with_as_hole():

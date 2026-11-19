@@ -128,25 +128,35 @@ def _run_step4():
     n_edges = int(msh.topology.index_map(1).size_global)
     n_faces = int(msh.topology.index_map(2).size_global)
     t_build = time.perf_counter() - t0
-    say(f"(A0) hole cells {built['cells']} vs record {HOLE_CELL_RECORD}, rel {cell_rel:.3e} "
+    say(
+        f"(A0) hole cells {built['cells']} vs record {HOLE_CELL_RECORD}, rel {cell_rel:.3e} "
         f"(band {CELL_COUNT_BAND}, ASSERTED); build {t_build:.1f} s; (iv) failures "
-        f"{census_fails or 'none'}; outer census {oc}")
-    say(f"(Deg) solver.degree {solver.degree}; global unknowns {n_dofs} vs 2E+2F = "
+        f"{census_fails or 'none'}; outer census {oc}"
+    )
+    say(
+        f"(Deg) solver.degree {solver.degree}; global unknowns {n_dofs} vs 2E+2F = "
         f"2*{n_edges}+2*{n_faces} = {2 * n_edges + 2 * n_faces} (ASSERTED exact; "
-        f"PREDICTED ≈{PREDICTED_UNKNOWNS:.1e})")
-    say(f"(Deg) control (PREDICTED, printed; rule (e)): a degree-1 space would read E = "
-        f"{n_edges} unknowns, not 2E+2F (the `WF-15` step 1 degree-1 default trap)")
+        f"PREDICTED ≈{PREDICTED_UNKNOWNS:.1e})"
+    )
+    say(
+        f"(Deg) control (PREDICTED, printed; rule (e)): a degree-1 space would read E = "
+        f"{n_edges} unknowns, not 2E+2F (the `WF-15` step 1 degree-1 default trap)"
+    )
     _phase("build", t_build)
     assert abs(cell_rel) <= CELL_COUNT_BAND, cell_rel
     assert not census_fails, census_fails
     assert oc["tag_collision"] == 0 and oc["cavity"] > 0, oc
-    assert oc["cavity_exterior"] == oc["cavity"] and oc["outer"] + oc["cavity"] == oc["exterior"], oc
+    assert (
+        oc["cavity_exterior"] == oc["cavity"] and oc["outer"] + oc["cavity"] == oc["exterior"]
+    ), oc
     assert solver.degree == DEGREE_2, solver.degree
     assert n_dofs == 2 * n_edges + 2 * n_faces, (n_dofs, n_edges, n_faces)
     if os.environ.get(BUILD_ONLY_ENV, "").strip() == "1":
         # (K) §9 item 312: build-only knob — no form compiled, nothing assembled.
-        say(f"{BUILD_ONLY_ENV}=1: build-only return after (A0)/(Deg); no assembly, "
-            f"no factorisation; window {time.perf_counter() - t_window:.1f} s")
+        say(
+            f"{BUILD_ONLY_ENV}=1: build-only return after (A0)/(Deg); no assembly, "
+            f"no factorisation; window {time.perf_counter() - t_window:.1f} s"
+        )
         return {"cells": built["cells"], "n_dofs": n_dofs, "t_build": t_build}
 
     z_s = (1.0 + 1.0j) * surface_resistance_ohm(omega, COPPER_SIGMA)
@@ -161,20 +171,30 @@ def _run_step4():
         switches the power accounting off for the held cadence probe."""
         sheets = [sp.sheet(driven=(sp.port_id == driven_id)) for sp in ctx["specs"]]
         dsheet = next(s for s in sheets if s.port_id == driven_id)
-        linear = [lambda test, _s=dsheet: lumped_port_linear_term(
-            msh, tags_f, _s, test, omega_rad_per_s=omega)]
+        linear = [
+            lambda test, _s=dsheet: lumped_port_linear_term(
+                msh, tags_f, _s, test, omega_rad_per_s=omega
+            )
+        ]
         comm.Barrier()
         t0 = time.perf_counter()
         if held:
             fields = solver.solve_with_held_factorization(extra_linear_terms=linear)
         else:
             bil = [wall] + [
-                (lambda trial, test, _s=s: lumped_port_bilinear_term(
-                    msh, tags_f, _s, trial, test, omega_rad_per_s=omega))
+                (
+                    lambda trial, test, _s=s: lumped_port_bilinear_term(
+                        msh, tags_f, _s, trial, test, omega_rad_per_s=omega
+                    )
+                )
                 for s in sheets
             ]
-            fields = solver.solve(current_density=None, project_source=False,
-                                  extra_bilinear_terms=bil, extra_linear_terms=linear)
+            fields = solver.solve(
+                current_density=None,
+                project_source=False,
+                extra_bilinear_terms=bil,
+                extra_linear_terms=linear,
+            )
         comm.Barrier()
         t_solve = time.perf_counter() - t0
         # Flushed before post-processing so a window killed in post keeps the price.
@@ -195,8 +215,9 @@ def _run_step4():
                 form = fem.form(0.5 * sigma_f * ufl.inner(e, e) * measure)
                 return float(np.real(comm.allreduce(fem.assemble_scalar(form), op=MPI.SUM)))
 
-            out["p_sheets"] = float(sum(_sheet_field_dissipation_w(acct, s, e, omega)
-                                        for s in sheets))
+            out["p_sheets"] = float(
+                sum(_sheet_field_dissipation_w(acct, s, e, omega) for s in sheets)
+            )
             out["p_src"] = float(_source_power_w(acct, dsheet, e, omega))
             p_total = _vol(dx)
             out["p_phantom"] = _vol(dx(PHANTOM_CELL_TAG))
@@ -218,18 +239,26 @@ def _run_step4():
     colsum = float(sum(abs(v) ** 2 for v in d["s"].values()))
     s1717 = d["s"][DRIVEN]
     move = abs(s1717 - S1717_D1_RECORD) / abs(S1717_D1_RECORD)
-    say(f"Cu d2 drive {DRIVEN}: factorising solve {d['t_solve']:.2f} s + post {d['t_post']:.2f} s "
-        f"t={time.perf_counter() - t_window:.1f} s")
-    say(f"(P) P_src {d['p_src']:.9e} W sumP_sheet {d['p_sheets']:.9e} P_phantom "
+    say(
+        f"Cu d2 drive {DRIVEN}: factorising solve {d['t_solve']:.2f} s + post {d['t_post']:.2f} s "
+        f"t={time.perf_counter() - t_window:.1f} s"
+    )
+    say(
+        f"(P) P_src {d['p_src']:.9e} W sumP_sheet {d['p_sheets']:.9e} P_phantom "
         f"{d['p_phantom']:.9e} P_rest {d['p_rest']:.9e} P_surf {d['p_surf']:.9e} W; rel "
-        f"{rel:.3e} (band {DISCRETE_IDENTITY_RTOL:g}, ASSERTED); P_surf > 0 (ASSERTED)")
-    say(f"NEG blind {blind:.4e} = {blind / DISCRETE_IDENTITY_RTOL:.1f}x band (bar "
-        f"{BLIND_FACTOR:.0f}x, ASSERTED; d1 123.3x / 123.6x)")
+        f"{rel:.3e} (band {DISCRETE_IDENTITY_RTOL:g}, ASSERTED); P_surf > 0 (ASSERTED)"
+    )
+    say(
+        f"NEG blind {blind:.4e} = {blind / DISCRETE_IDENTITY_RTOL:.1f}x band (bar "
+        f"{BLIND_FACTOR:.0f}x, ASSERTED; d1 123.3x / 123.6x)"
+    )
     say(f"(Col) column sum|S_i,17|^2 {colsum:.9f} (ceiling {COLUMN_PASSIVITY_CEILING}, ASSERTED)")
     say(f"coil share P_surf/(P_src-sumP_sheet) {share:.4f} (d1 {D1_COIL_SHARE})")
-    say(f"S17,17 d2 {s1717:.6f} vs d1 {S1717_D1_RECORD:.6f}: rel move {move * 100:.3f}% "
+    say(
+        f"S17,17 d2 {s1717:.6f} vs d1 {S1717_D1_RECORD:.6f}: rel move {move * 100:.3f}% "
         f"(PREDICTED in [{PREDICTED_D12_MOVE[0] * 100:.1f}%, {PREDICTED_D12_MOVE[1] * 100:.0f}%], "
-        f"printed)")
+        f"printed)"
+    )
 
     # P17-adjacent same-ring entries, by azimuth.
     by_ord = {sh["ordinal"]: sh for sh in built["sheets"]}
@@ -263,13 +292,17 @@ def _run_step4():
         say(line)
     if d1_col is not None:
         worst_pid = max(d1_col, key=lambda p: abs(d["s"][p] - d1_col[p]) / abs(d1_col[p]))
-        say(f"largest relative d1->d2 entry move: {worst_pid} "
-            f"{abs(d['s'][worst_pid] - d1_col[worst_pid]) / abs(d1_col[worst_pid]) * 100:.3f}%")
+        say(
+            f"largest relative d1->d2 entry move: {worst_pid} "
+            f"{abs(d['s'][worst_pid] - d1_col[worst_pid]) / abs(d1_col[worst_pid]) * 100:.3f}%"
+        )
 
-    say(f"PRICE: build {t_build:.1f} s + d2 factorising drive {t_first:.1f} s = "
+    say(
+        f"PRICE: build {t_build:.1f} s + d2 factorising drive {t_first:.1f} s = "
         f"{t_build + t_first:.1f} s (PREDICTED {PREDICTED_BUILD_DRIVE_S}); unknowns {n_dofs}; "
         f"RSS per rank {', '.join(f'{r:.2f}' for r in (rss_per or []))} GiB, summed "
-        f"{rss_sum:.2f} GiB (PREDICTED {PREDICTED_RSS_GIB})")
+        f"{rss_sum:.2f} GiB (PREDICTED {PREDICTED_RSS_GIB})"
+    )
 
     # ---- optional held cadence probe -------------------------------------
     elapsed = time.perf_counter() - t_window
@@ -278,18 +311,26 @@ def _run_step4():
         cad = h["t_solve"] + h["t_post"]
         dh = abs(h["s"][DRIVEN] - s1717) / abs(s1717)
         proj = t_build + t_first + 31 * cad
-        say(f"held re-solve {DRIVEN}: {h['t_solve']:.2f} s + post {h['t_post']:.2f} s; "
-            f"S17,17 held vs factorised rel {dh:.3e} (printed)")
-        say(f"PROJECTED xl entry 32 (-n {comm.size}): build {t_build:.1f} + factor {t_first:.1f} "
-            f"+ 31 x {cad:.2f} = {proj:.0f} s")
+        say(
+            f"held re-solve {DRIVEN}: {h['t_solve']:.2f} s + post {h['t_post']:.2f} s; "
+            f"S17,17 held vs factorised rel {dh:.3e} (printed)"
+        )
+        say(
+            f"PROJECTED xl entry 32 (-n {comm.size}): build {t_build:.1f} + factor {t_first:.1f} "
+            f"+ 31 x {cad:.2f} = {proj:.0f} s"
+        )
     else:
-        say(f"held probe SKIPPED (elapsed {elapsed:.1f} s > {HELD_PROBE_CUTOFF_S:.0f} s); "
+        say(
+            f"held probe SKIPPED (elapsed {elapsed:.1f} s > {HELD_PROBE_CUTOFF_S:.0f} s); "
             f"PROJECTED xl entry 32 lower bound: build {t_build:.1f} + factor {t_first:.1f} "
-            f"+ 31 x (held cadence, unmeasured)")
+            f"+ 31 x (held cadence, unmeasured)"
+        )
 
     _m, rss_per, rss_sum = _rss_gib(comm)
-    say(f"window {time.perf_counter() - t_window:.1f} s; RSS summed {rss_sum:.2f} GiB, per rank "
-        f"max {max(rss_per) if rss_per else float('nan'):.2f} GiB")
+    say(
+        f"window {time.perf_counter() - t_window:.1f} s; RSS summed {rss_sum:.2f} GiB, per rank "
+        f"max {max(rss_per) if rss_per else float('nan'):.2f} GiB"
+    )
 
     assert d["p_surf"] > 0.0, d["p_surf"]
     assert rel <= DISCRETE_IDENTITY_RTOL, rel

@@ -38,7 +38,6 @@ Cost: heavy tier, three meshes + one driven column each (3b-xi timings).
 from __future__ import annotations
 
 import importlib.util
-import math
 import sys
 from pathlib import Path
 
@@ -276,7 +275,8 @@ def test_c1_measured_unsized_box_term(gate_deficits_pp):
 def test_g_signs_and_monotone(gate_deficits_pp):
     vals = [gate_deficits_pp[w] for w in GATE_PADDINGS]
     _root_print(
-        "[GEO-4 G] deficits " + ", ".join(f"{w} m: {v:+.4f} pp" for w, v in zip(GATE_PADDINGS, vals))
+        "[GEO-4 G] deficits "
+        + ", ".join(f"{w} m: {v:+.4f} pp" for w, v in zip(GATE_PADDINGS, vals))
     )
     assert all(v < 0.0 for v in vals)
     mags = [abs(v) for v in vals]
@@ -302,6 +302,4 @@ def test_g_measured_box_term_within_tolerance(gate_deficits_pp, tau):
         f"{pred_free:+.4f} pp, p=3 prediction {pred_p3:+.4f} pp "
         f"(|p=3 prediction - D_inf| = {abs(pred_p3 - d_inf):.4f} pp)"
     )
-    assert excess <= tau, (
-        f"tau = {tau}: measured box term {excess:.4f} pp at {w} m exceeds tau"
-    )
+    assert excess <= tau, f"tau = {tau}: measured box term {excess:.4f} pp at {w} m exceeds tau"

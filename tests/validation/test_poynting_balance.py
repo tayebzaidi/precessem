@@ -27,18 +27,18 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+from dolfinx import default_scalar_type, fem
+from dolfinx import mesh as dmesh
 from mpi4py import MPI
-
-from dolfinx import default_scalar_type, fem, mesh as dmesh
 
 from fem_em_solver.core import (
     HomogeneousMaterial,
     TimeHarmonicProblem,
     TimeHarmonicSolver,
+    build_material_fields,
+    build_mu_r_field,
 )
-from fem_em_solver.core import build_material_fields, build_mu_r_field
 from fem_em_solver.post.power_balance import poynting_power_balance
-
 from tests.complex_mode import complex_only
 from tests.validation.test_lossy_plane_wave import (
     BOX_L,
@@ -79,9 +79,7 @@ def _solve_and_balance(
     problem = TimeHarmonicProblem(
         mesh=msh,
         frequency_hz=FREQUENCY_HZ,
-        material=HomogeneousMaterial(
-            sigma=solve_sigma, epsilon_r=EPSILON_R, mu_r=MU_R
-        ),
+        material=HomogeneousMaterial(sigma=solve_sigma, epsilon_r=EPSILON_R, mu_r=MU_R),
         boundary_condition="pec_zero_tangential_a",
         dirichlet_e_field=exact_numpy,
     )
@@ -94,9 +92,7 @@ def _solve_and_balance(
         mu_r=MU_R,
         comm=comm,
     )
-    ncells = comm.allreduce(
-        msh.topology.index_map(msh.topology.dim).size_local, op=MPI.SUM
-    )
+    ncells = comm.allreduce(msh.topology.index_map(msh.topology.dim).size_local, op=MPI.SUM)
     balance["ncells"] = int(ncells)
     return balance
 
@@ -165,12 +161,8 @@ def _solve_two_material_and_balance(n: int, *, sigma_material_scale: float = 1.0
     msh, cell_tags = _two_material_mesh(n)
 
     honest_map = {
-        TAG_LOW: HomogeneousMaterial(
-            sigma=SIGMA_LOW, epsilon_r=EPSILON_R, mu_r=MU_R
-        ),
-        TAG_HIGH: HomogeneousMaterial(
-            sigma=SIGMA_HIGH, epsilon_r=EPSILON_R, mu_r=MU_R
-        ),
+        TAG_LOW: HomogeneousMaterial(sigma=SIGMA_LOW, epsilon_r=EPSILON_R, mu_r=MU_R),
+        TAG_HIGH: HomogeneousMaterial(sigma=SIGMA_HIGH, epsilon_r=EPSILON_R, mu_r=MU_R),
     }
     solve_map = {
         tag: HomogeneousMaterial(
@@ -237,10 +229,7 @@ def test_poynting_balance_holds_and_converges():
 
     coarse = _solve_and_balance(12, SIGMA)
     fine = _solve_and_balance(24, SIGMA)
-    rate = float(
-        np.log(coarse["relative_imbalance"] / fine["relative_imbalance"])
-        / np.log(2.0)
-    )
+    rate = float(np.log(coarse["relative_imbalance"] / fine["relative_imbalance"]) / np.log(2.0))
 
     if comm.rank == 0:
         print(
@@ -339,12 +328,8 @@ def test_uniform_sigma_field_reproduces_the_scalar_path():
     sigma_field, _ = build_material_fields(
         msh, HomogeneousMaterial(sigma=SIGMA, epsilon_r=EPSILON_R, mu_r=MU_R)
     )
-    scalar = poynting_power_balance(
-        e_field, omega=OMEGA, sigma=SIGMA, mu_r=MU_R, comm=comm
-    )
-    fielded = poynting_power_balance(
-        e_field, omega=OMEGA, sigma=sigma_field, mu_r=MU_R, comm=comm
-    )
+    scalar = poynting_power_balance(e_field, omega=OMEGA, sigma=SIGMA, mu_r=MU_R, comm=comm)
+    fielded = poynting_power_balance(e_field, omega=OMEGA, sigma=sigma_field, mu_r=MU_R, comm=comm)
 
     if comm.rank == 0:
         print("\n[POST-3] scalar vs uniform-field sigma path (4^3, no solve):")
@@ -374,10 +359,7 @@ def test_poynting_balance_holds_for_piecewise_sigma():
 
     coarse = _solve_two_material_and_balance(PIECEWISE_N_COARSE)
     fine = _solve_two_material_and_balance(PIECEWISE_N_FINE)
-    rate = float(
-        np.log(coarse["relative_imbalance"] / fine["relative_imbalance"])
-        / np.log(2.0)
-    )
+    rate = float(np.log(coarse["relative_imbalance"] / fine["relative_imbalance"]) / np.log(2.0))
 
     if comm.rank == 0:
         print(
@@ -499,12 +481,8 @@ def _solve_two_mu_and_balance(
     msh, cell_tags = _two_material_mesh(n)
 
     mu_map = {
-        TAG_LOW: HomogeneousMaterial(
-            sigma=SIGMA, epsilon_r=EPSILON_R, mu_r=mu_entry
-        ),
-        TAG_HIGH: HomogeneousMaterial(
-            sigma=SIGMA, epsilon_r=EPSILON_R, mu_r=mu_far
-        ),
+        TAG_LOW: HomogeneousMaterial(sigma=SIGMA, epsilon_r=EPSILON_R, mu_r=mu_entry),
+        TAG_HIGH: HomogeneousMaterial(sigma=SIGMA, epsilon_r=EPSILON_R, mu_r=mu_far),
     }
     solve_map = (
         {
@@ -584,12 +562,8 @@ def test_uniform_mu_r_field_reproduces_the_scalar_path():
     mu_field = build_mu_r_field(
         msh, HomogeneousMaterial(sigma=SIGMA, epsilon_r=EPSILON_R, mu_r=1.0)
     )
-    scalar = poynting_power_balance(
-        e_field, omega=OMEGA, sigma=SIGMA, mu_r=1.0, comm=comm
-    )
-    fielded = poynting_power_balance(
-        e_field, omega=OMEGA, sigma=SIGMA, mu_r=mu_field, comm=comm
-    )
+    scalar = poynting_power_balance(e_field, omega=OMEGA, sigma=SIGMA, mu_r=1.0, comm=comm)
+    fielded = poynting_power_balance(e_field, omega=OMEGA, sigma=SIGMA, mu_r=mu_field, comm=comm)
 
     if comm.rank == 0:
         print("\n[POST-3] scalar vs uniform-field mu_r path (4^3, no solve):")
@@ -619,10 +593,7 @@ def test_poynting_balance_holds_for_piecewise_mu_r():
 
     coarse = _solve_two_mu_and_balance(MU_N_COARSE)
     fine = _solve_two_mu_and_balance(MU_N_FINE)
-    rate = float(
-        np.log(coarse["relative_imbalance"] / fine["relative_imbalance"])
-        / np.log(2.0)
-    )
+    rate = float(np.log(coarse["relative_imbalance"] / fine["relative_imbalance"]) / np.log(2.0))
 
     if comm.rank == 0:
         print(
@@ -638,9 +609,7 @@ def test_poynting_balance_holds_for_piecewise_mu_r():
         "boundary curl trace sets — steps 1-2 measured 0.987/0.9915 and the "
         "mu_r interface should not change the order"
     )
-    assert coarse["dissipated_power_w"] > 0.0, (
-        "no Ohmic dissipation from the piecewise-mu_r solve"
-    )
+    assert coarse["dissipated_power_w"] > 0.0, "no Ohmic dissipation from the piecewise-mu_r solve"
     assert fine["relative_imbalance"] < coarse["relative_imbalance"], (
         "power imbalance did not fall under refinement: "
         f"{coarse['relative_imbalance']:.4e} -> {fine['relative_imbalance']:.4e}"
@@ -687,17 +656,15 @@ def test_piecewise_mu_r_balance_fails_when_a_leg_ignores_mu_r():
                 f"{b['relative_imbalance'] / honest['relative_imbalance']:.3f}x"
             )
 
-    assert flux_blind["relative_imbalance"] > MU_FLUX_BLIND_FACTOR * honest[
-        "relative_imbalance"
-    ], (
+    assert flux_blind["relative_imbalance"] > MU_FLUX_BLIND_FACTOR * honest["relative_imbalance"], (
         "scoring the honest two-mu_r solve with mu_r = 1 in the flux leg gave an "
         f"imbalance of only {flux_blind['relative_imbalance']:.4%} against the "
         f"honest {honest['relative_imbalance']:.4%} — H in the boundary integral "
         "is not seeing mu_r(x)"
     )
-    assert solve_blind["relative_imbalance"] > MU_SOLVE_BLIND_FACTOR * honest[
-        "relative_imbalance"
-    ], (
+    assert (
+        solve_blind["relative_imbalance"] > MU_SOLVE_BLIND_FACTOR * honest["relative_imbalance"]
+    ), (
         "a uniform-mu_r solve scored against the honest mu_r(x) gave an imbalance "
         f"of only {solve_blind['relative_imbalance']:.4%} against the honest "
         f"{honest['relative_imbalance']:.4%} — mu_r(x) is not reaching the "
@@ -815,8 +782,7 @@ def test_each_leg_scored_against_its_own_closed_form():
     def _errs(b: dict) -> tuple[float, float]:
         return (
             abs(b["net_inward_power_w"] - exact["flux_w"]) / exact["flux_w"],
-            abs(b["dissipated_power_w"] - exact["dissipated_w"])
-            / exact["dissipated_w"],
+            abs(b["dissipated_power_w"] - exact["dissipated_w"]) / exact["dissipated_w"],
         )
 
     flux_c, diss_c = _errs(coarse)
@@ -855,9 +821,9 @@ def test_each_leg_scored_against_its_own_closed_form():
         f"{diss_f:.4%} — the boundary leg is defective in its own right and "
         "the 5% whole-identity gate on this fixture passes by cancellation"
     )
-    assert fine["net_inward_power_w"] > 0.0, (
-        "net real power flows out of a passive lossy box on the fine rung"
-    )
+    assert (
+        fine["net_inward_power_w"] > 0.0
+    ), "net real power flows out of a passive lossy box on the fine rung"
 
 
 # ---------------------------------------------------------------------------
@@ -923,9 +889,7 @@ def test_zero_impressed_current_leaves_the_source_free_balance_untouched():
 
     if comm.rank == 0:
         print("\n[POST-5 step 4] zero-J control on the TH-6 plane wave (12^3):")
-        print(
-            f"  source term        = {with_zero_source['source_power_w']:.6e} W"
-        )
+        print(f"  source term        = {with_zero_source['source_power_w']:.6e} W")
         print(
             f"  imbalance: source-free {source_free['relative_imbalance']:.6%}, "
             f"three-term {with_zero_source['relative_imbalance']:.6%}",
@@ -956,7 +920,5 @@ def test_zero_impressed_current_leaves_the_source_free_balance_untouched():
         )
     # The source-free path must still *be* the two-term identity, digit for
     # digit — this is what keeps the `POST-3` gates above meaning what they did.
-    assert source_free["relative_imbalance"] == (
-        source_free["two_term_relative_imbalance"]
-    )
+    assert source_free["relative_imbalance"] == (source_free["two_term_relative_imbalance"])
     assert source_free["power_scale_w"] == source_free["two_term_power_scale_w"]

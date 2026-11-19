@@ -30,8 +30,7 @@ def test_n1_cole_cole_alpha_zero_equals_debye():
     eps = cc.complex_permittivity(FREQS)
     omega = 2.0 * np.pi * FREQS
     wt = omega * TAU
-    debye = (EPS_INF + DELTA_EPS * (1.0 - 1j * wt) / (1.0 + wt**2)
-             - 1j * SIGMA / (omega * EPSILON_0))
+    debye = EPS_INF + DELTA_EPS * (1.0 - 1j * wt) / (1.0 + wt**2) - 1j * SIGMA / (omega * EPSILON_0)
     err = _rel(eps, debye)
     print(f"\n[MAT-3 N1] max rel |CC(alpha=0) - Debye| = {err:.3e}")
     assert err <= 1e-14
@@ -56,8 +55,10 @@ def test_n3_debye_semicircle():
     eps_s = EPS_INF + DELTA_EPS
     dev = np.max(np.abs(np.abs(eps - 0.5 * (eps_s + EPS_INF)) - 0.5 * DELTA_EPS))
     peak = mat.complex_permittivity(1.0 / (2.0 * np.pi * TAU))
-    print(f"\n[MAT-3 N3] max |radius - de/2| = {dev:.3e} (bound {1e-12 * DELTA_EPS:.1e}); "
-          f"eps'' at wt=1 = {-peak.imag:.15f} (de/2 = {DELTA_EPS / 2})")
+    print(
+        f"\n[MAT-3 N3] max |radius - de/2| = {dev:.3e} (bound {1e-12 * DELTA_EPS:.1e}); "
+        f"eps'' at wt=1 = {-peak.imag:.15f} (de/2 = {DELTA_EPS / 2})"
+    )
     assert dev <= 1e-12 * DELTA_EPS
     assert abs(-peak.imag - 0.5 * DELTA_EPS) <= 1e-12 * DELTA_EPS
 
@@ -81,8 +82,10 @@ def test_n4_cole_cole_depressed_arc():
     # The conjugated pole (the e^{-jωt} sign) must fail the same identity:
     # this is what N4 exists to catch.
     dev_conj = _arc_deviation(np.conj(eps), alpha)
-    print(f"\n[MAT-3 N4] alpha=0.1 arc deviation = {dev:.3e} "
-          f"(bound {1e-12 * DELTA_EPS:.1e}); conjugated pole: {dev_conj:.3e}")
+    print(
+        f"\n[MAT-3 N4] alpha=0.1 arc deviation = {dev:.3e} "
+        f"(bound {1e-12 * DELTA_EPS:.1e}); conjugated pole: {dev_conj:.3e}"
+    )
     assert dev <= 1e-12 * DELTA_EPS
     assert dev_conj > 1e-3 * DELTA_EPS
 
@@ -91,8 +94,11 @@ def test_n5_passivity():
     mats = (
         ColeColeMaterial(EPS_INF, poles=((DELTA_EPS, TAU, 0.0),), sigma_ionic=SIGMA),
         ColeColeMaterial(EPS_INF, poles=((DELTA_EPS, TAU, 0.1),), sigma_ionic=0.0),
-        ColeColeMaterial(4.0, poles=((45.0, 7.23e-12, 0.1), (400.0, 3.18e-9, 0.1),
-                                     (2.0e5, 159e-6, 0.2)), sigma_ionic=0.2),
+        ColeColeMaterial(
+            4.0,
+            poles=((45.0, 7.23e-12, 0.1), (400.0, 3.18e-9, 0.1), (2.0e5, 159e-6, 0.2)),
+            sigma_ionic=0.2,
+        ),
     )
     for mat in mats:
         eps = mat.complex_permittivity(FREQS)
@@ -105,13 +111,12 @@ def test_n6_sigma_epsilon_round_trip():
     mat = ColeColeMaterial(EPS_INF, poles=((DELTA_EPS, TAU, 0.1),), sigma_ionic=SIGMA)
     eps = mat.complex_permittivity(FREQS)
     sigma_eff, eps_r = mat.sigma_epsilon_at(FREQS)
-    back = np.array([complex_permittivity(e, s, f)
-                     for e, s, f in zip(eps_r, sigma_eff, FREQS)])
+    back = np.array([complex_permittivity(e, s, f) for e, s, f in zip(eps_r, sigma_eff, FREQS)])
     err = _rel(back, eps)
     # Scalar path too, via the literal ``*sigma_epsilon_at(f)[::-1]`` spelling.
     err_scalar = max(
-        abs(complex_permittivity(*mat.sigma_epsilon_at(f)[::-1], f)
-            - mat.complex_permittivity(f)) / abs(mat.complex_permittivity(f))
+        abs(complex_permittivity(*mat.sigma_epsilon_at(f)[::-1], f) - mat.complex_permittivity(f))
+        / abs(mat.complex_permittivity(f))
         for f in (63.87e6, 127.74e6, 1e3, 1e11)
     )
     print(f"\n[MAT-3 N6] round-trip max rel = {err:.3e} (scalar {err_scalar:.3e})")

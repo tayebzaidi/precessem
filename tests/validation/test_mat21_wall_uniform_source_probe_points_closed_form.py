@@ -33,7 +33,6 @@ from fem_em_solver.utils.analytical import (
     two_layer_slab_eigenvalues,
     two_layer_slab_transient_temperature,
 )
-
 from tests.validation.test_imp4_pec_cylinder_closed_form import B1_BAND
 from tests.validation.test_mat15_coil_driven_heating_phantom import H_GEL, K_GEL
 from tests.validation.test_mat15_coil_driven_heating_phantom import T_INF as T_INF_59
@@ -42,14 +41,9 @@ from tests.validation.test_mat21_box_closed_form import (
     B_BOX,
     C_BOX,
     HALF,
-    SERIES_TERMS,
-    T_C,
-    T_INF,
-    H,
-    K,
-    Q,
 )
 from tests.validation.test_mat21_box_closed_form import RHO_C as RHO_C_0
+from tests.validation.test_mat21_box_closed_form import SERIES_TERMS, T_C, T_INF, H, K, Q
 from tests.validation.test_mat21_box_dose_closed_form import AVG_BAR, DOSE_BAR, T_GRID, W_B2
 from tests.validation.test_mat21_box_dt_duty125_dose_closed_form import _q_check_g, _win_check_g
 from tests.validation.test_mat21_box_fem import T_STAR as T_STAR_BOX
@@ -70,9 +64,9 @@ TIMES = (("t*", T_STAR), ("360 s", float(W_B2)))
 # P37's steady record (`20261018T111612Z_MAT-21-step10-W2a-points-n2.log.gz:90–95`), K.
 P37_STEADY = (12.003947, 6.236654, 6.236654, 6.150392, 6.150392, 8.733966)
 P37_TOL = 5e-7
-REPRO_SRC_P0 = (1.327311508, 5e-10)   # `20261028T021107Z_MAT-21-step20c-W1-fem.log.gz:55`
+REPRO_SRC_P0 = (1.327311508, 5e-10)  # `20261028T021107Z_MAT-21-step20c-W1-fem.log.gz:55`
 REPRO_DRIFT_P5 = (1.819866e-01, 5e-8)  # `…P67-W1.log:68`
-ZC = {0.0: 2, float(C_BOX): 0}         # height -> column of Z
+ZC = {0.0: 2, float(C_BOX): 0}  # height -> column of Z
 _LAM = {}
 _CACHE = {}
 
@@ -97,15 +91,32 @@ def _lam(n=N_SERIES):
 
 
 def _src_q(t, q, n=N_SERIES):
-    return np.asarray(two_layer_slab_transient_temperature(
-        Z, t, q=q, h=H, t_inf=0.0, n_terms=n, eigenvalues=_lam(n), **WALL), dtype=float)
+    return np.asarray(
+        two_layer_slab_transient_temperature(
+            Z, t, q=q, h=H, t_inf=0.0, n_terms=n, eigenvalues=_lam(n), **WALL
+        ),
+        dtype=float,
+    )
 
 
 def _u3(t, q=Q, n_terms=SERIES_TERMS):
     P = np.asarray(PROBE_PTS, dtype=float)
-    return np.asarray(robin_box_transient_temperature(
-        P[:, 0], P[:, 1], P[:, 2], t, half_widths=HALF, k=K, q=q, h=H, rho_c=RHO_C_0,
-        t_inf=0.0, n_terms=n_terms), dtype=float)
+    return np.asarray(
+        robin_box_transient_temperature(
+            P[:, 0],
+            P[:, 1],
+            P[:, 2],
+            t,
+            half_widths=HALF,
+            k=K,
+            q=q,
+            h=H,
+            rho_c=RHO_C_0,
+            t_inf=0.0,
+            n_terms=n_terms,
+        ),
+        dtype=float,
+    )
 
 
 def _hists():
@@ -141,10 +152,12 @@ def test_preconditions_and_height_map():
     gates.append((("z map", zs), all(z in (0.0, float(C_BOX)) for z in zs), 0))
     gates.append((("Z", Z.tolist()), Z[0] == C_BOX and Z[2] == 0.0, 0))
     gates.append((("row0",), bool(np.all(_hists()["Wsrc_raw"][0] == 0.0)), 0))
-    _say(f"MAT21-42 T_STAR {T_STAR:.6f} s vs T_STAR_BOX {T_STAR_BOX:.6f} s; K {K} K_GEL {K_GEL}; "
-         f"H {H} H_GEL {H_GEL}; T_INF {T_INF} T_INF_59 {T_INF_59}; P_dep {P_DEP:.12e} W vs FEM "
-         f"{FEM_P_DEP} W, |ratio-1| {pr:.3e} (bound 1e-12); heights {zs}; Z {Z.tolist()}; "
-         f"T_GRID {T_GRID.size} rows to {T_GRID[-1]:.4f} s")
+    _say(
+        f"MAT21-42 T_STAR {T_STAR:.6f} s vs T_STAR_BOX {T_STAR_BOX:.6f} s; K {K} K_GEL {K_GEL}; "
+        f"H {H} H_GEL {H_GEL}; T_INF {T_INF} T_INF_59 {T_INF_59}; P_dep {P_DEP:.12e} W vs FEM "
+        f"{FEM_P_DEP} W, |ratio-1| {pr:.3e} (bound 1e-12); heights {zs}; Z {Z.tolist()}; "
+        f"T_GRID {T_GRID.size} rows to {T_GRID[-1]:.4f} s"
+    )
     bad = [g for g in gates if not g[1]]
     assert not bad, bad
 
@@ -168,30 +181,47 @@ def test_sup_lim_bq_and_reproductions():
             w["Bq"] = max(w["Bq"], _err(dz, dz2))
             _say(f"MAT21-42 (Bq) {tl} {zl}: drift N {dz:+.12e} K, 2N {dz2:+.12e} K")
     for k_, v in w.items():
-        _say(f"MAT21-42 ({k_}) max over both heights, t* and 360 s: {v:.3e} (band {B1_BAND:g}, "
-             f"ASSERTED)")
+        _say(
+            f"MAT21-42 ({k_}) max over both heights, t* and 360 s: {v:.3e} (band {B1_BAND:g}, "
+            f"ASSERTED)"
+        )
         gates.append(((k_,), v <= B1_BAND, v))
     # (Lim)
-    ss = np.asarray(robin_box_steady_temperature(
-        *np.asarray(PROBE_PTS, dtype=float).T, half_widths=HALF, k=K, q=Q, h=H, t_inf=0.0,
-        n_terms=SERIES_TERMS), dtype=float)
+    ss = np.asarray(
+        robin_box_steady_temperature(
+            *np.asarray(PROBE_PTS, dtype=float).T,
+            half_widths=HALF,
+            k=K,
+            q=Q,
+            h=H,
+            t_inf=0.0,
+            n_terms=SERIES_TERMS,
+        ),
+        dtype=float,
+    )
     ul = _u3(1000.0 * T_C)
     lim = float(np.max(np.abs(ul - ss) / np.abs(ss)))
-    _say(f"MAT21-42 (Lim) U3(1000 T_C) vs steady series max rel {lim:.3e} (band {B1_BAND:g}, "
-         f"ASSERTED; predicted 0)")
+    _say(
+        f"MAT21-42 (Lim) U3(1000 T_C) vs steady series max rel {lim:.3e} (band {B1_BAND:g}, "
+        f"ASSERTED; predicted 0)"
+    )
     gates.append((("Lim",), lim <= B1_BAND, lim))
     for i, lab in enumerate(PROBE_LABELS):
         dv = abs(ul[i] - P37_STEADY[i])
-        _say(f"MAT21-42 (Lim) {lab}: U3(1000 T_C) {ul[i]:.9f} K, steady {ss[i]:.9f} K, P37 "
-             f"{P37_STEADY[i]:.6f} K, |diff| {dv:.3e} (bound {P37_TOL:g})")
+        _say(
+            f"MAT21-42 (Lim) {lab}: U3(1000 T_C) {ul[i]:.9f} K, steady {ss[i]:.9f} K, P37 "
+            f"{P37_STEADY[i]:.6f} K, |diff| {dv:.3e} (bound {P37_TOL:g})"
+        )
         gates.append(((lab, "P37"), dv <= P37_TOL, dv))
     # reproductions
     ws0 = float(_step(T_STAR)[2])
     wd5 = float(_drift_cap_z(Z, T_STAR)[0])
-    _say(f"MAT21-42 (repro) W_src P0 t* {ws0:.12f} K vs {REPRO_SRC_P0[0]} |diff| "
-         f"{abs(ws0 - REPRO_SRC_P0[0]):.3e} (bound {REPRO_SRC_P0[1]:g}); W_drift P5 t* "
-         f"{wd5:+.9e} K vs {REPRO_DRIFT_P5[0]:+.6e} |diff| {abs(wd5 - REPRO_DRIFT_P5[0]):.3e} "
-         f"(bound {REPRO_DRIFT_P5[1]:g})")
+    _say(
+        f"MAT21-42 (repro) W_src P0 t* {ws0:.12f} K vs {REPRO_SRC_P0[0]} |diff| "
+        f"{abs(ws0 - REPRO_SRC_P0[0]):.3e} (bound {REPRO_SRC_P0[1]:g}); W_drift P5 t* "
+        f"{wd5:+.9e} K vs {REPRO_DRIFT_P5[0]:+.6e} |diff| {abs(wd5 - REPRO_DRIFT_P5[0]):.3e} "
+        f"(bound {REPRO_DRIFT_P5[1]:g})"
+    )
     gates.append((("repro-src",), abs(ws0 - REPRO_SRC_P0[0]) <= REPRO_SRC_P0[1], ws0))
     gates.append((("repro-drift",), abs(wd5 - REPRO_DRIFT_P5[0]) <= REPRO_DRIFT_P5[1], wd5))
     bad = [g for g in gates if not g[1]]
@@ -209,15 +239,22 @@ def test_q_d_win_d_on_per_watt_histories():
             mx, t_mx, lo, hi, _ref, wrel = _win_check_g(th, T_GRID)
             gates.append(((key, lab, "Q"), rel <= DOSE_BAR, rel))
             gates.append(((key, lab, "swap"), miss > DOSE_BAR, miss))
-            gates.append(((key, lab, "win-loc"),
-                          lo <= mx <= hi and T_GRID[0] + W_B2 <= t_mx <= T_GRID[-1], t_mx))
+            gates.append(
+                (
+                    (key, lab, "win-loc"),
+                    lo <= mx <= hi and T_GRID[0] + W_B2 <= t_mx <= T_GRID[-1],
+                    t_mx,
+                )
+            )
             gates.append(((key, lab, "Win"), wrel <= AVG_BAR, wrel))
             worst["q"] = max(worst["q"], rel)
             worst["w"] = max(worst["w"], wrel)
             worst["rc"] = min(worst["rc"], miss)
-    _say(f"MAT21-42 (Q-d) worst rel {worst['q']:.3e} (bar {DOSE_BAR:g}, ASSERTED); (Win-d) worst "
-         f"rel {worst['w']:.3e} (bar {AVG_BAR:g}, ASSERTED); R swap least miss {worst['rc']:.4e} "
-         f"(asserted > {DOSE_BAR:g}); 3 histories x 6 points")
+    _say(
+        f"MAT21-42 (Q-d) worst rel {worst['q']:.3e} (bar {DOSE_BAR:g}, ASSERTED); (Win-d) worst "
+        f"rel {worst['w']:.3e} (bar {AVG_BAR:g}, ASSERTED); R swap least miss {worst['rc']:.4e} "
+        f"(asserted > {DOSE_BAR:g}); 3 histories x 6 points"
+    )
     bad = [g for g in gates if not g[1]]
     assert not bad, bad
 
@@ -230,10 +267,14 @@ def test_controls_c_wall_c_drift():
     wd5 = float(_drift_cap_z(Z, T_STAR)[0])
     cd = abs((ws5 + wd5) / ws5 - 1.0)
     d0 = float(_drift_cap_z(Z, T_STAR)[2])
-    _say(f"MAT21-42 (c-wall) P0 t*: W_src {ws0:.9e} K vs U3 {u0:.9e} K, |W_src/U3-1| {cw:.4e} "
-         f"(ASSERTED > {B1_BAND:g}; no log predicts it)")
-    _say(f"MAT21-42 (c-drift) P5 t*: W_src/P {ws5:.9e} K/W, + W_drift {ws5 + wd5:.9e}, rel miss "
-         f"{cd:.4e} (ASSERTED > {B1_BAND:g}); drift at P0 {d0!r} K (0 by odd symmetry)")
+    _say(
+        f"MAT21-42 (c-wall) P0 t*: W_src {ws0:.9e} K vs U3 {u0:.9e} K, |W_src/U3-1| {cw:.4e} "
+        f"(ASSERTED > {B1_BAND:g}; no log predicts it)"
+    )
+    _say(
+        f"MAT21-42 (c-drift) P5 t*: W_src/P {ws5:.9e} K/W, + W_drift {ws5 + wd5:.9e}, rel miss "
+        f"{cd:.4e} (ASSERTED > {B1_BAND:g}); drift at P0 {d0!r} K (0 by odd symmetry)"
+    )
     assert cw > B1_BAND and cd > B1_BAND, (cw, cd)
 
 
@@ -245,33 +286,48 @@ def test_record_printed():
         u = _u3(t) / P_DEP
         s = _step(t)
         dr = _drift_cap_z(Z, t)
-        _say(f"MAT21-42 TABLE {tl} point | U3/P K/W | W_src/P K/W | W_drift K | W_src/P+W_drift "
-             f"| W_src/U3")
+        _say(
+            f"MAT21-42 TABLE {tl} point | U3/P K/W | W_src/P K/W | W_drift K | W_src/P+W_drift "
+            f"| W_src/U3"
+        )
         for i, lab in enumerate(PROBE_LABELS):
             j = _col(i)
             tag = " (1D: z = 0)" if i in (1, 2, 3, 4) else ""
             ws = float(s[j]) / P_DEP
-            _say(f"MAT21-42 TABLE {tl} {lab}{tag} | {u[i]:.7g} | {ws:.7g} | {float(dr[j]):+.7g} | "
-                 f"{ws + float(dr[j]):.7g} | {ws / u[i]:.7g}")
+            _say(
+                f"MAT21-42 TABLE {tl} {lab}{tag} | {u[i]:.7g} | {ws:.7g} | {float(dr[j]):+.7g} | "
+                f"{ws + float(dr[j]):.7g} | {ws / u[i]:.7g}"
+            )
         if tl == "t*":
             hot = int(np.argmax(u))
             _say(f"MAT21-42 hottest by U3 at t*: {PROBE_LABELS[hot]} (predicted P0 centre)")
             assert u[hot] > 0.0
-    _say("MAT21-42 DOSE point | cem43/W U3 | W_src | W_src+drift (s) | max 360 s mean/W U3 | "
-         "W_src | W_src+drift (K)")
+    _say(
+        "MAT21-42 DOSE point | cem43/W U3 | W_src | W_src+drift (s) | max 360 s mean/W U3 | "
+        "W_src | W_src+drift (K)"
+    )
     for i, lab in enumerate(PROBE_LABELS):
         tag = " (1D: z = 0)" if i in (1, 2, 3, 4) else ""
         ds = [_q_check_g(T_INF + h[k][:, i], T_GRID)[0] for k in ("U3", "Wsrc", "Wsd")]
         ms = [_win_check_g(h[k][:, i], T_GRID)[0] for k in ("U3", "Wsrc", "Wsd")]
-        _say(f"MAT21-42 DOSE {lab}{tag} | {ds[0]:.7g} | {ds[1]:.7g} | {ds[2]:.7g} | {ms[0]:.7g} | "
-             f"{ms[1]:.7g} | {ms[2]:.7g}")
+        _say(
+            f"MAT21-42 DOSE {lab}{tag} | {ds[0]:.7g} | {ds[1]:.7g} | {ds[2]:.7g} | {ms[0]:.7g} | "
+            f"{ms[1]:.7g} | {ms[2]:.7g}"
+        )
     # (Bq) printed only
-    bq_s = max(_err(float(a), float(b)) for t in (T_STAR, float(W_B2))
-               for a, b in zip(_src_q(t, Q), _src_q(t, Q, n=2 * N_SERIES)))
-    _say(f"MAT21-42 (Bq-src) N_SERIES {N_SERIES} vs 2N max rel {bq_s:.3e} (predicted <= 1e-12, "
-         f"printed only)")
+    bq_s = max(
+        _err(float(a), float(b))
+        for t in (T_STAR, float(W_B2))
+        for a, b in zip(_src_q(t, Q), _src_q(t, Q, n=2 * N_SERIES))
+    )
+    _say(
+        f"MAT21-42 (Bq-src) N_SERIES {N_SERIES} vs 2N max rel {bq_s:.3e} (predicted <= 1e-12, "
+        f"printed only)"
+    )
     u40, u80 = _u3(T_STAR), _u3(T_STAR, n_terms=(80, 80, 80))
     rel3 = np.abs(u40 / u80 - 1.0)
-    _say("MAT21-42 (Bq-3D) (40,40,40) vs (80,80,80) at t*, rel per point: "
-         + ", ".join(f"{lab.split()[0]} {r:.3e}" for lab, r in zip(PROBE_LABELS, rel3))
-         + " (printed; steady tail 1.4e-07 to 3.0e-06)")
+    _say(
+        "MAT21-42 (Bq-3D) (40,40,40) vs (80,80,80) at t*, rel per point: "
+        + ", ".join(f"{lab.split()[0]} {r:.3e}" for lab, r in zip(PROBE_LABELS, rel3))
+        + " (printed; steady tail 1.4e-07 to 3.0e-06)"
+    )

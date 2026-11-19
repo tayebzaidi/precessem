@@ -72,9 +72,11 @@ F_CLINICAL_15T_FROZEN = dict(
 LEG_OVERHANG_M = 0.0321428571  # the 1.5 T absolute leg overhang past each ring
 _COIL_LENGTH_3T = RUNG_LENGTH_3T_M
 _LEG_SPACING_3T = RUNG_LENGTH_3T_M - 2.0 * LEG_OVERHANG_M
-_Z_NEED_3T = max(0.5 * _COIL_LENGTH_3T,
-                 0.5 * _LEG_SPACING_3T + F_CLINICAL_15T_FROZEN["ring_minor_radius"],
-                 0.5 * F_CLINICAL_15T_FROZEN["phantom_height"])
+_Z_NEED_3T = max(
+    0.5 * _COIL_LENGTH_3T,
+    0.5 * _LEG_SPACING_3T + F_CLINICAL_15T_FROZEN["ring_minor_radius"],
+    0.5 * F_CLINICAL_15T_FROZEN["phantom_height"],
+)
 F_CLINICAL_3T_OVERRIDES = dict(
     ring_radius=0.5 * RUNG_DIAMETER_3T_M,
     leg_spacing=_LEG_SPACING_3T,
@@ -152,10 +154,13 @@ class _GmshStopRule:
 
     def _abort(self):
         comm = MPI.COMM_WORLD
-        print(f"[GEO-38 C8] GMSH STOP RULE: gmsh > {self.stop_s:.0f} s (3T, {self.label}, -n "
-              f"{comm.size}; generate entered at t={self.t_gen - self.t_test0:.1f} s after test "
-              f"start; /proc/loadavg {_loadavg()}) — price recorded as a lower bound; the build "
-              f"goes to the weekly's xl list", flush=True)
+        print(
+            f"[GEO-38 C8] GMSH STOP RULE: gmsh > {self.stop_s:.0f} s (3T, {self.label}, -n "
+            f"{comm.size}; generate entered at t={self.t_gen - self.t_test0:.1f} s after test "
+            f"start; /proc/loadavg {_loadavg()}) — price recorded as a lower bound; the build "
+            f"goes to the weekly's xl list",
+            flush=True,
+        )
         comm.Abort(STOP_RULE_RC)
 
     def _fire(self):
@@ -208,8 +213,11 @@ def _install_recording_domain(monkeypatch, label):
     def wrapper(*a, **k):
         t0 = time.perf_counter()
         if comm.rank == 0:
-            print(f"[GEO-38 C8] build start t={time.time():.1f} ({label}, -n {comm.size}; "
-                  f"/proc/loadavg {_loadavg()})", flush=True)
+            print(
+                f"[GEO-38 C8] build start t={time.time():.1f} ({label}, -n {comm.size}; "
+                f"/proc/loadavg {_loadavg()})",
+                flush=True,
+            )
         with _GmshStopRule(monkeypatch, GMSH_STOP_S, label):
             out = orig(*a, **k)
         msh, diag = out[0], out[3]
@@ -217,9 +225,12 @@ def _install_recording_domain(monkeypatch, label):
         _RECORD["kw"] = dict(k)
         _RECORD["cells"] = int(msh.topology.index_map(msh.topology.dim).size_global)
         if comm.rank == 0:
-            print(f"[GEO-38 C8] build done {time.perf_counter() - t0:.1f} s; gmsh "
-                  f"{diag.get('mesh_wall_time_s', float('nan')):.1f} s; {_RECORD['cells']} cells; "
-                  f"/proc/loadavg {_loadavg()}", flush=True)
+            print(
+                f"[GEO-38 C8] build done {time.perf_counter() - t0:.1f} s; gmsh "
+                f"{diag.get('mesh_wall_time_s', float('nan')):.1f} s; {_RECORD['cells']} cells; "
+                f"/proc/loadavg {_loadavg()}",
+                flush=True,
+            )
         return out
 
     monkeypatch.setattr(MeshGenerator, "birdcage_port_domain", staticmethod(wrapper))
@@ -275,10 +286,12 @@ def test_geo38_c8_3t_identities(monkeypatch):
     _assert_3t_table(rung)
     if MPI.COMM_WORLD.rank == 0:
         rho = _RECORD["cells"] / s1a.F_HUMAN_N1
-        print(f"[GEO-38 C8] brief-rho projection (rho = N1/369387 on cells = {rho:.4f}; printed "
-              f"only): degree-2 xl t ≈ t_b + {287.1 * rho ** 0.84:.1f} s, memory "
-              f"{89.31 * rho ** 0.84:.1f} GiB (x rho^(4/3): {89.31 * rho ** (4 / 3):.1f} GiB)",
-              flush=True)
+        print(
+            f"[GEO-38 C8] brief-rho projection (rho = N1/369387 on cells = {rho:.4f}; printed "
+            f"only): degree-2 xl t ≈ t_b + {287.1 * rho ** 0.84:.1f} s, memory "
+            f"{89.31 * rho ** 0.84:.1f} GiB (x rho^(4/3): {89.31 * rho ** (4 / 3):.1f} GiB)",
+            flush=True,
+        )
 
 
 def test_geo38_c8_3t_box_gates(monkeypatch):
@@ -289,16 +302,21 @@ def test_geo38_c8_3t_box_gates(monkeypatch):
     _install_recording_domain(monkeypatch, "box")
     if MPI.COMM_WORLD.rank == 0:
         pb, br = PREDICTED_BOX_BUILD_S_3T
-        print(f"[GEO-38 C8] box PREDICTED build ≈{pb} s {br}; cells ≈ W1 + 0.16 %; the (A0) line "
-              f"below compares with the 1.5 T record and is meaningless at 3 T", flush=True)
+        print(
+            f"[GEO-38 C8] box PREDICTED build ≈{pb} s {br}; cells ≈ W1 + 0.16 %; the (A0) line "
+            f"below compares with the 1.5 T record and is meaningless at 3 T",
+            flush=True,
+        )
     s2.test_geo38_step2_astm_box_mesh_gates()
     _assert_3t_table("box", box=True)
 
 
 # --- coding tests (skip whenever a window selector is set) -------------------
 
-_coding = pytest.mark.skipif(bool(os.environ.get(C8_ENV, "").strip()),
-                             reason=f"{C8_ENV} set: windowed run, coding tests skipped")
+_coding = pytest.mark.skipif(
+    bool(os.environ.get(C8_ENV, "").strip()),
+    reason=f"{C8_ENV} set: windowed run, coding tests skipped",
+)
 
 
 @_coding
@@ -308,15 +326,23 @@ def test_geo38_c8_k0_table_derivation(monkeypatch):
         if key not in F_CLINICAL_3T_OVERRIDES:
             assert F_CLINICAL_3T_KWARGS[key] == val, key
     kw = F_CLINICAL_3T_KWARGS
-    z_e = max(0.5 * kw["coil_length"], 0.5 * kw["leg_spacing"] + kw["ring_minor_radius"],
-              0.5 * kw["phantom_height"]) + kw["air_padding"]
+    z_e = (
+        max(
+            0.5 * kw["coil_length"],
+            0.5 * kw["leg_spacing"] + kw["ring_minor_radius"],
+            0.5 * kw["phantom_height"],
+        )
+        + kw["air_padding"]
+    )
     R, g, w = kw["ring_radius"], kw["ring_gap_length"], 0.010
     alpha = g / (2.0 * R)
     chord = 2.0 * R * math.tan(alpha)
-    print(f"\n[GEO-38 C8] (K0) 3T table {F_CLINICAL_3T_OVERRIDES}; z_e {z_e!r} (== 0.35: "
-          f"{z_e == 0.35}); alpha {alpha:.9f} rad; chord {chord:.9e} m; sheet area "
-          f"{chord * w:.9e} m^2; can volume {math.pi * kw['shield_radius'] ** 2 * 2 * z_e:.6f} m^3",
-          flush=True)
+    print(
+        f"\n[GEO-38 C8] (K0) 3T table {F_CLINICAL_3T_OVERRIDES}; z_e {z_e!r} (== 0.35: "
+        f"{z_e == 0.35}); alpha {alpha:.9f} rad; chord {chord:.9e} m; sheet area "
+        f"{chord * w:.9e} m^2; can volume {math.pi * kw['shield_radius'] ** 2 * 2 * z_e:.6f} m^3",
+        flush=True,
+    )
     assert abs(z_e / 0.35 - 1.0) <= 1.0e-15, z_e
     assert abs(kw["coil_length"] / RUNG_LENGTH_3T_M - 1.0) <= s1a.IDENTITY_BAND
     assert abs(chord * w / 1.714624621e-4 - 1.0) <= 1.0e-9
@@ -377,14 +403,18 @@ def test_geo38_c8_sr0_watchdog_fires_inside_gmsh(monkeypatch):
         def run(stop_s, label):
             # A fresh MonkeyPatch per rule: a stacked earlier rule's wrapper
             # would otherwise re-arm its own timer (W0 first run).
-            with pytest.MonkeyPatch.context() as mp, _GmshStopRule(mp, stop_s, label,
-                                                                   action=record):
+            with (
+                pytest.MonkeyPatch.context() as mp,
+                _GmshStopRule(mp, stop_s, label, action=record),
+            ):
+
                 def flagged(*a, **k):
                     seen["in_generate"] = True
                     try:
                         return gmsh.model.mesh.generate(*a, **k)
                     finally:
                         seen["in_generate"] = False
+
                 t0 = time.perf_counter()
                 flagged(3)
                 dt = time.perf_counter() - t0
@@ -393,8 +423,11 @@ def test_geo38_c8_sr0_watchdog_fires_inside_gmsh(monkeypatch):
 
         build()
         dt = run(0.25, "SR0")
-        print(f"\n[GEO-38 C8] (SR0) unit cube generate(3) {dt:.2f} s; fired in generate: "
-              f"{seen.get('fired_in_generate')}", flush=True)
+        print(
+            f"\n[GEO-38 C8] (SR0) unit cube generate(3) {dt:.2f} s; fired in generate: "
+            f"{seen.get('fired_in_generate')}",
+            flush=True,
+        )
         assert dt >= 0.25, f"inconclusive: generate returned in {dt:.3f} s < 0.25 s"
         assert seen.get("fired_in_generate") is True
         seen.clear()

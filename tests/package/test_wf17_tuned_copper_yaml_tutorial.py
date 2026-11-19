@@ -49,7 +49,6 @@ import fem_em_solver.study as study_module
 import fem_em_solver.study_yaml as study_yaml_module
 from fem_em_solver import cli
 from fem_em_solver.study_yaml import load_study
-
 from tests.complex_mode import complex_only
 from tests.package.test_wf1_study_yaml import _spec_diff
 from tests.package.test_wf1_yaml_f_human import FH_FILE
@@ -120,8 +119,11 @@ def _blocks(text):
 
 
 def _call_names(source, name):
-    return [n for n in ast.walk(ast.parse(source))
-            if isinstance(n, ast.Call) and getattr(n.func, "id", getattr(n.func, "attr", None)) == name]
+    return [
+        n
+        for n in ast.walk(ast.parse(source))
+        if isinstance(n, ast.Call) and getattr(n.func, "id", getattr(n.func, "attr", None)) == name
+    ]
 
 
 def exec_yaml_block(page_text, monkeypatch, *, stop_before_solve):
@@ -185,8 +187,10 @@ def test_wf17_s5_extracts_the_blocks():
 def test_wf17_s5_yaml_block_is_the_tracked_file():
     block = _blocks(_page())["yaml"].encode()
     tracked = FH_FILE.read_bytes()
-    _p0(f"(Y=) block sha256 {_sha(block)}; tracked sha256 {_sha(tracked)}; "
-        f"{len(block)} / {len(tracked)} bytes")
+    _p0(
+        f"(Y=) block sha256 {_sha(block)}; tracked sha256 {_sha(tracked)}; "
+        f"{len(block)} / {len(tracked)} bytes"
+    )
     assert block == tracked
 
 
@@ -196,8 +200,10 @@ def test_wf17_s5_block_configures_the_h9p_study(monkeypatch):
     assert rec["solve_calls"] == 1, "(K) the block never reached the tuned solve"
     resolved = Path(rec["path"]).resolve()
     diff = _spec_diff(rec["solve_study"], _study())
-    _p0(f"(K) path {rec['path']!r} -> {resolved}; output_dir {rec['output_dir']!r}; "
-        f"_spec_diff {diff}; degree {rec['solve_study'].degree}")
+    _p0(
+        f"(K) path {rec['path']!r} -> {resolved}; output_dir {rec['output_dir']!r}; "
+        f"_spec_diff {diff}; degree {rec['solve_study'].degree}"
+    )
     assert resolved == (SCRATCH / YAML_NAME).resolve()
     assert rec["output_dir"] == "femem_out"
     assert diff == []
@@ -210,10 +216,12 @@ def test_wf17_s5_cli_block_matches_the_python_call(monkeypatch):
     line = [ln for ln in b["cli"].splitlines() if "mpiexec -n 8" in ln]
     assert len(line) == 1, line
     tokens = shlex.split(line[0])
-    argv = tokens[tokens.index("femem") + 1:]
+    argv = tokens[tokens.index("femem") + 1 :]
     py_call = _call_names(b["py"], "run_study_file")[0]
-    py_args = (ast.literal_eval(py_call.args[0]),
-               ast.literal_eval({k.arg: k.value for k in py_call.keywords}["output_dir"]))
+    py_args = (
+        ast.literal_eval(py_call.args[0]),
+        ast.literal_eval({k.arg: k.value for k in py_call.keywords}["output_dir"]),
+    )
     seen = {}
 
     def recorder(path, *, output_dir=None, comm=None):
@@ -230,20 +238,27 @@ def test_wf17_s5_cli_block_matches_the_python_call(monkeypatch):
 def test_wf17_s5_planted_page_and_yaml_controls(tmp_path):
     text = _page()
     # (c1) each tag removed, and the YAML block doubled, raise.
-    for tag, lang in ((YAML_TAG, "yaml"), (PY_TAG, "python"), (CLI_TAG, "bash"),
-                      (OUTPUT_TAG, "text")):
+    for tag, lang in (
+        (YAML_TAG, "yaml"),
+        (PY_TAG, "python"),
+        (CLI_TAG, "bash"),
+        (OUTPUT_TAG, "text"),
+    ):
         fence = f"```{lang} {tag}\n"
         assert text.count(fence) == 1, tag
         with pytest.raises(LookupError):
             extract_tagged_block(text.replace(fence, f"```{lang}\n"), tag, lang=lang)
     yaml_block = _blocks(text)["yaml"]
     with pytest.raises(LookupError):
-        extract_tagged_block(text + f"\n```yaml {YAML_TAG}\n{yaml_block}```\n", YAML_TAG, lang="yaml")
+        extract_tagged_block(
+            text + f"\n```yaml {YAML_TAG}\n{yaml_block}```\n", YAML_TAG, lang="yaml"
+        )
     # (c2) one-field mutations: (Y=) fails and _spec_diff names exactly that field.
     tracked = FH_FILE.read_bytes()
-    for old, new, field in (("esr_ohm: 0.2", "esr_ohm: 0.0", "excitation.esr_ohm"),
-                            ("c_in_f: 1.1824370000000001e-10", "c_in_f: 1.182e-10",
-                             "excitation.c_in_f")):
+    for old, new, field in (
+        ("esr_ohm: 0.2", "esr_ohm: 0.0", "excitation.esr_ohm"),
+        ("c_in_f: 1.1824370000000001e-10", "c_in_f: 1.182e-10", "excitation.c_in_f"),
+    ):
         assert yaml_block.count(old) == 1, old
         mutated = yaml_block.replace(old, new)
         assert mutated.encode() != tracked
@@ -267,9 +282,11 @@ def test_wf17_s5_docrefs_guide_has_zero_dead_links():
     rc, counts = run_checker("--docs-root", "docs/guide", "--check-links")
     link = LINK_PASS_RE.search(_checker_stdout("--docs-root", "docs/guide", "--check-links"))
     assert link is not None, "(D) no 'Link pass:' line"
-    print(f"[WF-17 s5] (D) dead={counts['dead']} links={link.group(1)} pages={link.group(2)} "
-          f"link-dead={link.group(3)} guide={counts['guide']} stale={counts['stale']} "
-          f"exit={counts['exit']} rc={rc}")
+    print(
+        f"[WF-17 s5] (D) dead={counts['dead']} links={link.group(1)} pages={link.group(2)} "
+        f"link-dead={link.group(3)} guide={counts['guide']} stale={counts['stale']} "
+        f"exit={counts['exit']} rc={rc}"
+    )
     assert counts["dead"] == 0
     assert int(link.group(3)) == 0
     assert int(link.group(2)) >= MIN_GUIDE_PAGES
@@ -303,8 +320,10 @@ def test_wf17_s5_block_reproduces_the_u43_record(monkeypatch):
     seconds = time.perf_counter() - t0
     run = ns["run"]
     summary = run.summary
-    _p0(f"block exec (build + node pair + 38 balls + 2 points): {seconds:.1f} s at -n {comm.size}; "
-        f"cells {summary.get('cells')}; solve calls {spied['solve_calls']}")
+    _p0(
+        f"block exec (build + node pair + 38 balls + 2 points): {seconds:.1f} s at -n {comm.size}; "
+        f"cells {summary.get('cells')}; solve calls {spied['solve_calls']}"
+    )
 
     # (R-1)
     sha_file = _sha(FH_FILE.read_bytes())
@@ -313,8 +332,10 @@ def test_wf17_s5_block_reproduces_the_u43_record(monkeypatch):
     s = _summary_s(summary)
     s_json = np.array([[_cx(v) for v in row] for row in rec["s_node"]], dtype=np.complex128)
     r_s = _residual(s, s_json)
-    _p0(f"(R-S) s_node vs node JSON residual {r_s:.6e} (band {REUSE_REPRODUCTION_RTOL:g}; "
-        f"390b 4.287849e-12)")
+    _p0(
+        f"(R-S) s_node vs node JSON residual {r_s:.6e} (band {REUSE_REPRODUCTION_RTOL:g}; "
+        f"390b 4.287849e-12)"
+    )
     r_y = {}
     for sense in ("ccw", "cw"):
         y = np.array([_cx(p) for p in summary["y_in"][sense]])
@@ -326,8 +347,10 @@ def test_wf17_s5_block_reproduces_the_u43_record(monkeypatch):
     if h17 is not None and "s_node" in h17:
         s17 = np.array([[_cx(v) for v in row] for row in h17["s_node"]], dtype=np.complex128)
         r_n2 = _residual(s, s17)
-        _p0(f"(N2') s_node vs H17 node at {h17.get('c_f')!r} F residual {r_n2:.6e} = "
-            f"{r_n2 / REUSE_REPRODUCTION_RTOL:.3e}x band (> band ASSERTED; prior 4.266875e-02)")
+        _p0(
+            f"(N2') s_node vs H17 node at {h17.get('c_f')!r} F residual {r_n2:.6e} = "
+            f"{r_n2 / REUSE_REPRODUCTION_RTOL:.3e}x band (> band ASSERTED; prior 4.266875e-02)"
+        )
     else:
         _p0("(N2') not run: H17 node JSON absent")
     # (R-SAR)
@@ -341,14 +364,20 @@ def test_wf17_s5_block_reproduces_the_u43_record(monkeypatch):
     sar_star = float(ns["sar_star"])
     r_star = abs(sar_star - H9P_SAR10G_CSTAR_RECORD_W_PER_KG) / H9P_SAR10G_CSTAR_RECORD_W_PER_KG
     for i, lab in enumerate(labels):
-        _p0(f"  [{i:2d}] {lab:<22s} ccw {sar_c[i]:.9e} (rec {table[lab][0]:.9e}, rel {r_ccw[i]:.2e})")
+        _p0(
+            f"  [{i:2d}] {lab:<22s} ccw {sar_c[i]:.9e} (rec {table[lab][0]:.9e}, rel {r_ccw[i]:.2e})"
+        )
     i_twin = labels.index("r=45 dz=+0 az17+90")
-    _p0(f"(R-SAR) max rel {r_ccw.max():.3e} (390b 2.857e-10); argmax {key_star} (record "
+    _p0(
+        f"(R-SAR) max rel {r_ccw.max():.3e} (390b 2.857e-10); argmax {key_star} (record "
         f"{H9P_CSTAR_LABEL}); block sar_star {sar_star!r} ({sar_star:.9e}) vs record "
-        f"{H9P_SAR10G_CSTAR_RECORD_W_PER_KG:.9e}, rel {r_star:.3e} (390b 4.310e-11)")
-    _p0(f"printed: cw[18] - cw[{i_twin}] = "
+        f"{H9P_SAR10G_CSTAR_RECORD_W_PER_KG:.9e}, rel {r_star:.3e} (390b 4.310e-11)"
+    )
+    _p0(
+        f"printed: cw[18] - cw[{i_twin}] = "
         f"{cw[N_LATTICE]['averaged_sar_w_per_kg'] - cw[i_twin]['averaged_sar_w_per_kg']:.3e}; "
-        f"summary b1_plus {summary['b1_plus']['values']}")
+        f"summary b1_plus {summary['b1_plus']['values']}"
+    )
     # (R-B)
     res = run.result
     points = _sample_points({"mesh": res.mesh, "cell_tags": res.cell_tags})
@@ -357,8 +386,10 @@ def test_wf17_s5_block_reproduces_the_u43_record(monkeypatch):
     n_pts, n_valid = int(points.shape[0]), int(np.count_nonzero(valid))
     mean_b = float(np.mean(vals[valid]))
     r_b = abs(mean_b - H9P_MEAN_B1_PLUS_CCW_RECORD_T) / H9P_MEAN_B1_PLUS_CCW_RECORD_T
-    _p0(f"(R-B) {n_valid}/{n_pts} valid; mean|B1+|_ccw {mean_b:.9e} T vs record "
-        f"{H9P_MEAN_B1_PLUS_CCW_RECORD_T:.6e} T, rel {r_b:.3e} (390b 1.101e-07)")
+    _p0(
+        f"(R-B) {n_valid}/{n_pts} valid; mean|B1+|_ccw {mean_b:.9e} T vs record "
+        f"{H9P_MEAN_B1_PLUS_CCW_RECORD_T:.6e} T, rel {r_b:.3e} (390b 1.101e-07)"
+    )
     _p0(f"(R-1) solve calls after every read: {spied['solve_calls']}")
 
     assert spied["solve_calls"] == 1, spied["solve_calls"]

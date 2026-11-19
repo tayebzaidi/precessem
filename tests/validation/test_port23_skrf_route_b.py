@@ -49,18 +49,23 @@ from fem_em_solver.ports.circuit_skrf import (  # noqa: E402
 from tests.validation.test_ans7_sparse_route_b import BANDS, DENSE_ROWS  # noqa: E402
 
 REPO = Path(__file__).resolve().parents[2]
-SCRIPT = (REPO / "examples" / "ansys_benchmarks" / "ans7_tuned_copper_birdcage_driven_sweep"
-          / "07_tuned_copper_birdcage_driven_sweep.py")
+SCRIPT = (
+    REPO
+    / "examples"
+    / "ansys_benchmarks"
+    / "ans7_tuned_copper_birdcage_driven_sweep"
+    / "07_tuned_copper_birdcage_driven_sweep.py"
+)
 STAGE_DIR = REPO / "logs" / "ans7"
 COLUMNS = ("cu", "pec")
 ROWS = ("f0_hz", "r_in_ohm", "q_loaded")
 Z0 = 50.0
 
-STORED_Z_IN_RTOL = 1.0e-12   # (P0) reproduction of the stored Z_in (brief, §9 item 155)
-ROW_AGREE_RTOL = 1.0e-9      # (R2) skrf rows vs raw rows (brief)
-BLIND_FLOOR = 1.0e-9         # (N1)/(N2): a reading inside this means the gate is blind
+STORED_Z_IN_RTOL = 1.0e-12  # (P0) reproduction of the stored Z_in (brief, §9 item 155)
+ROW_AGREE_RTOL = 1.0e-9  # (R2) skrf rows vs raw rows (brief)
+BLIND_FLOOR = 1.0e-9  # (N1)/(N2): a reading inside this means the gate is blind
 N1_Z0 = 75.0
-N2_PORT_MAP = (2, 1, 0, 3)   # logical P1 (drive) wired to network P3 and vice versa
+N2_PORT_MAP = (2, 1, 0, 3)  # logical P1 (drive) wired to network P3 and vice versa
 
 
 def _load(path, name):
@@ -112,11 +117,14 @@ def data():
     for col in COLUMNS:
         out[col] = {
             "s": np.array([_unmat(p[col]["s"]) for p in pts]),
-            "z_in_stored": np.array([complex(p[col]["Z_in"]["re"], p[col]["Z_in"]["im"])
-                                     for p in pts]),
+            "z_in_stored": np.array(
+                [complex(p[col]["Z_in"]["re"], p[col]["Z_in"]["im"]) for p in pts]
+            ),
         }
-    _say(f"[port23] skrf {skrf.__version__}; C_F {C_F:.6e} F; z0 {Z0} ohm; "
-         f"S_VS_Z_ROUTE_RTOL {S_VS_Z_ROUTE_RTOL:.0e}")
+    _say(
+        f"[port23] skrf {skrf.__version__}; C_F {C_F:.6e} F; z0 {Z0} ohm; "
+        f"S_VS_Z_ROUTE_RTOL {S_VS_Z_ROUTE_RTOL:.0e}"
+    )
     return out
 
 
@@ -142,15 +150,16 @@ def test_p0_stored_route_b_reproduces_dense(data):
         z_in = np.array([route_b_s(s[k], f_hz[k])[0] for k in range(len(f_hz))])
         dev = np.max(np.abs(z_in - data[col]["z_in_stored"]) / np.abs(data[col]["z_in_stored"]))
         z_in_z = np.array([route_b_z(z_from_s(s[k]), f_hz[k])[0] for k in range(len(f_hz))])
-        dev_z = np.max(np.abs(z_in_z - data[col]["z_in_stored"])
-                       / np.abs(data[col]["z_in_stored"]))
+        dev_z = np.max(np.abs(z_in_z - data[col]["z_in_stored"]) / np.abs(data[col]["z_in_stored"]))
         rows = parallel_rows(f_hz, z_in)
         rel = _row_rel(rows, DENSE_ROWS[col])
-        _say(f"[port23] (P0) {col}: S-route Z_in vs stored max rel {dev:.3e} "
-             f"(<= {STORED_Z_IN_RTOL:.0e}); Z-route vs stored {dev_z:.3e} (printed); "
-             f"rows vs DENSE_ROWS f0 {rel['f0_hz']:.3e} R_in {rel['r_in_ohm']:.3e} "
-             f"Q {rel['q_loaded']:.3e} (BANDS {BANDS}); up-crossings "
-             f"{rows['crossings_up_hz']}")
+        _say(
+            f"[port23] (P0) {col}: S-route Z_in vs stored max rel {dev:.3e} "
+            f"(<= {STORED_Z_IN_RTOL:.0e}); Z-route vs stored {dev_z:.3e} (printed); "
+            f"rows vs DENSE_ROWS f0 {rel['f0_hz']:.3e} R_in {rel['r_in_ohm']:.3e} "
+            f"Q {rel['q_loaded']:.3e} (BANDS {BANDS}); up-crossings "
+            f"{rows['crossings_up_hz']}"
+        )
         if not dev <= STORED_Z_IN_RTOL:
             fails.append((col, "stored Z_in", dev))
         for k in ROWS:
@@ -168,9 +177,11 @@ def test_r1_r2_r3_skrf_reproduces_route_b(data):
         zb_raw = np.array([route_b_z(z_from_s(s[k]), f_hz[k])[1] for k in range(len(f_hz))])
         zb_skrf = _skrf_z_bare(s, f_hz)
         r1 = np.abs(zb_skrf - zb_raw) / np.abs(zb_raw)
-        _say(f"[port23] (R1) {col}: skrf Z_bare vs route_b_z max rel {r1.max():.3e} at "
-             f"{f_hz[int(np.argmax(r1))] / 1e6:.1f} MHz (<= {S_VS_Z_ROUTE_RTOL:.0e}, "
-             f"predicted ~1e-13), 51 points")
+        _say(
+            f"[port23] (R1) {col}: skrf Z_bare vs route_b_z max rel {r1.max():.3e} at "
+            f"{f_hz[int(np.argmax(r1))] / 1e6:.1f} MHz (<= {S_VS_Z_ROUTE_RTOL:.0e}, "
+            f"predicted ~1e-13), 51 points"
+        )
         if not np.all(r1 <= S_VS_Z_ROUTE_RTOL):
             fails.append((col, "R1", float(r1.max())))
 
@@ -178,10 +189,12 @@ def test_r1_r2_r3_skrf_reproduces_route_b(data):
         rows_skrf = _rows_from_bare(f_hz, zb_skrf)
         r2 = _row_rel(rows_skrf, rows_raw)
         same_bracket = rows_skrf.get("bracket_hz") == rows_raw.get("bracket_hz")
-        _say(f"[port23] (R2) {col}: skrf vs raw rows f0 {r2['f0_hz']:.3e} R_in "
-             f"{r2['r_in_ohm']:.3e} Q {r2['q_loaded']:.3e} (<= {ROW_AGREE_RTOL:.0e}); "
-             f"bracket skrf {rows_skrf.get('bracket_hz')} raw {rows_raw.get('bracket_hz')} "
-             f"same {same_bracket}")
+        _say(
+            f"[port23] (R2) {col}: skrf vs raw rows f0 {r2['f0_hz']:.3e} R_in "
+            f"{r2['r_in_ohm']:.3e} Q {r2['q_loaded']:.3e} (<= {ROW_AGREE_RTOL:.0e}); "
+            f"bracket skrf {rows_skrf.get('bracket_hz')} raw {rows_raw.get('bracket_hz')} "
+            f"same {same_bracket}"
+        )
         for k in ROWS:
             if not r2[k] <= ROW_AGREE_RTOL:
                 fails.append((col, "R2", k, r2[k]))
@@ -189,10 +202,12 @@ def test_r1_r2_r3_skrf_reproduces_route_b(data):
             fails.append((col, "R2", "bracket"))
 
         r3 = _row_rel(rows_skrf, DENSE_ROWS[col])
-        _say(f"[port23] (R3) {col}: skrf rows f0 {rows_skrf.get('f0_hz')!r} Hz, R_in "
-             f"{rows_skrf.get('r_in_ohm')!r} ohm, Q {rows_skrf.get('q_loaded')!r}; vs "
-             f"DENSE_ROWS f0 {r3['f0_hz']:.3e} R_in {r3['r_in_ohm']:.3e} Q "
-             f"{r3['q_loaded']:.3e} (BANDS {BANDS})")
+        _say(
+            f"[port23] (R3) {col}: skrf rows f0 {rows_skrf.get('f0_hz')!r} Hz, R_in "
+            f"{rows_skrf.get('r_in_ohm')!r} ohm, Q {rows_skrf.get('q_loaded')!r}; vs "
+            f"DENSE_ROWS f0 {r3['f0_hz']:.3e} R_in {r3['r_in_ohm']:.3e} Q "
+            f"{r3['q_loaded']:.3e} (BANDS {BANDS})"
+        )
         for k in ROWS:
             if not r3[k] <= BANDS[k]:
                 fails.append((col, "R3", k, r3[k]))
@@ -203,19 +218,23 @@ def test_r1_r2_r3_skrf_reproduces_route_b(data):
         n1_zb = float(np.max(np.abs(zb_n1 - zb_raw) / np.abs(zb_raw)))
         n1_rows = _row_rel(rows_n1, rows_skrf)
         n1 = max(n1_rows.values())
-        _say(f"[port23] (N1, predicted) {col}: S labelled z0 = {N1_Z0:g} ohm -> up-crossings "
-             f"{rows_n1['crossings_up_hz']} (predicted none in 62–67 MHz; k = 1 near "
-             f"{64 / np.sqrt(1.5):.1f} MHz); Z_bare shift max rel {n1_zb:.3e}; row shift "
-             f"{n1:.3e} (blind if <= {BLIND_FLOOR:.0e})")
+        _say(
+            f"[port23] (N1, predicted) {col}: S labelled z0 = {N1_Z0:g} ohm -> up-crossings "
+            f"{rows_n1['crossings_up_hz']} (predicted none in 62–67 MHz; k = 1 near "
+            f"{64 / np.sqrt(1.5):.1f} MHz); Z_bare shift max rel {n1_zb:.3e}; row shift "
+            f"{n1:.3e} (blind if <= {BLIND_FLOOR:.0e})"
+        )
         zb_n2 = _skrf_z_bare(s, f_hz, port_map=N2_PORT_MAP)
         rows_n2 = _rows_from_bare(f_hz, zb_n2)
         n2_zb = float(np.max(np.abs(zb_n2 - zb_raw) / np.abs(zb_raw)))
         n2_rows = _row_rel(rows_n2, rows_skrf)
         n2 = max(n2_rows.values())
-        _say(f"[port23] (N2, predicted) {col}: port_map {N2_PORT_MAP} (P1<->P3) -> Z_bare "
-             f"shift max rel {n2_zb:.3e}; row shift f0 {n2_rows['f0_hz']:.3e} R_in "
-             f"{n2_rows['r_in_ohm']:.3e} Q {n2_rows['q_loaded']:.3e}, max {n2:.3e} "
-             f"(predicted >> 1e-9; blind if <= {BLIND_FLOOR:.0e})")
+        _say(
+            f"[port23] (N2, predicted) {col}: port_map {N2_PORT_MAP} (P1<->P3) -> Z_bare "
+            f"shift max rel {n2_zb:.3e}; row shift f0 {n2_rows['f0_hz']:.3e} R_in "
+            f"{n2_rows['r_in_ohm']:.3e} Q {n2_rows['q_loaded']:.3e}, max {n2:.3e} "
+            f"(predicted >> 1e-9; blind if <= {BLIND_FLOOR:.0e})"
+        )
         if n1 <= BLIND_FLOOR or n2 <= BLIND_FLOOR:
             _say(f"[port23] GATE BLIND ({col}): N1 {n1:.3e}, N2 {n2:.3e} -- stop and report")
     assert not fails, f"PORT-23 step 2: {fails}"

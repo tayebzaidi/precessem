@@ -119,11 +119,10 @@ from fem_em_solver.ports.lumped import (
     sheet_terminal_current,
 )
 from fem_em_solver.post import mean_sar
-
 from tests.complex_mode import complex_only
+from tests.mesh.test_birdcage_port_scaleup import SCALED_LEG_COUNT
 from tests.mesh.test_birdcage_port_sheet_prerequisite import CELL_COUNT_BAND
 from tests.mesh.test_birdcage_port_sheets import SHEET_IFACE
-from tests.mesh.test_birdcage_port_scaleup import SCALED_LEG_COUNT
 from tests.mesh.test_birdcage_ring_gaps_scaleup import _measure_ring, _ring_gap_frame
 from tests.mesh.test_birdcage_ring_sheet_orientation import (
     RING_LONGITUDINAL_SCALED_CELL_RECORD,
@@ -239,9 +238,7 @@ def _solve_one_drive(ctx, driven_id, *, reuse_factorization=False):
     """
     comm = ctx["comm"]
     msh, tags_f, omega = ctx["msh"], ctx["tags_f"], ctx["omega"]
-    port_sheets = [
-        spec.sheet(driven=(spec.port_id == driven_id)) for spec in ctx["specs"]
-    ]
+    port_sheets = [spec.sheet(driven=(spec.port_id == driven_id)) for spec in ctx["specs"]]
     driven_sheet = next(s for s in port_sheets if s.port_id == driven_id)
     linear_terms = [
         lambda test, _s=driven_sheet: lumped_port_linear_term(
@@ -256,9 +253,7 @@ def _solve_one_drive(ctx, driven_id, *, reuse_factorization=False):
     comm.Barrier()
     t0 = time.perf_counter()
     if use_held:
-        fields = ctx["solver"].solve_with_held_factorization(
-            extra_linear_terms=linear_terms
-        )
+        fields = ctx["solver"].solve_with_held_factorization(extra_linear_terms=linear_terms)
     else:
         fields = ctx["solver"].solve(
             current_density=None,
@@ -288,9 +283,7 @@ def _solve_one_drive(ctx, driven_id, *, reuse_factorization=False):
     # Column `j` of `S`, from the one expression — the diagonal is not a second
     # convention, it is `V_j = V_src − I_j z0` put through the same formula.
     v_src = complex(driven_sheet.source_voltage_v)
-    s_column = {
-        pid: (voltages[pid] - z_p * currents[pid]) / v_src for pid in voltages
-    }
+    s_column = {pid: (voltages[pid] - z_p * currents[pid]) / v_src for pid in voltages}
 
     kwargs = dict(
         sigma=fields.sigma_field,
@@ -299,24 +292,16 @@ def _solve_one_drive(ctx, driven_id, *, reuse_factorization=False):
         comm=comm,
     )
     phantom = float(
-        mean_sar(fields.e_complex, subdomain_ids=PHANTOM_CELL_TAG, **kwargs)[
-            "dissipated_power_w"
-        ]
+        mean_sar(fields.e_complex, subdomain_ids=PHANTOM_CELL_TAG, **kwargs)["dissipated_power_w"]
     )
     conductor = float(
-        mean_sar(fields.e_complex, subdomain_ids=CONDUCTOR_CELL_TAG, **kwargs)[
-            "dissipated_power_w"
-        ]
+        mean_sar(fields.e_complex, subdomain_ids=CONDUCTOR_CELL_TAG, **kwargs)["dissipated_power_w"]
     )
-    sheet_powers = {
-        pid: 0.5 * abs(i) ** 2 * float(np.real(z_p)) for pid, i in currents.items()
-    }
+    sheet_powers = {pid: 0.5 * abs(i) ** 2 * float(np.real(z_p)) for pid, i in currents.items()}
     supplied = 0.5 * float(np.real(v_src * np.conjugate(currents[driven_id])))
     total = phantom + conductor + sum(sheet_powers.values())
     residual = abs(supplied - total) / abs(supplied) if supplied else float("inf")
-    blind = (
-        abs(supplied - (total - conductor)) / abs(supplied) if supplied else float("inf")
-    )
+    blind = abs(supplied - (total - conductor)) / abs(supplied) if supplied else float("inf")
 
     return {
         "driven_id": driven_id,
@@ -503,9 +488,7 @@ def ring_four_columns():
     t_solve = step1["solve_time"]
     phantom, conductor = step1["phantom"], step1["conductor"]
     supplied, residual, blind = step1["supplied"], step1["residual"], step1["blind"]
-    sheet_powers = {
-        pid: 0.5 * abs(i) ** 2 * float(np.real(z_p)) for pid, i in currents.items()
-    }
+    sheet_powers = {pid: 0.5 * abs(i) ** 2 * float(np.real(z_p)) for pid, i in currents.items()}
 
     # Peak RSS against the 128 G cap: rank-local by construction, summed over the
     # ranks (ru_maxrss is in KiB on Linux), which is the `PORT-11` step 1
@@ -538,8 +521,8 @@ def ring_four_columns():
             flush=True,
         )
         print(
-            f"[PORT-13 step1] the 32-vector of ring-port voltages "
-            f"(V = V_src - I·Z_p, generator convention), printed for step 2:",
+            "[PORT-13 step1] the 32-vector of ring-port voltages "
+            "(V = V_src - I·Z_p, generator convention), printed for step 2:",
             flush=True,
         )
         for s in sheets:
@@ -576,10 +559,7 @@ def ring_four_columns():
             f"(driven P{driven}, its z-mirror P{mirror} at the same measured "
             f"azimuth, and the two measured opposites "
             f"{', '.join('P%d' % o for o in opposite)}); solve wall times "
-            + ", ".join(
-                f"P{o} {columns['P%d' % o]['solve_time']:.2f} s"
-                for o in drive_ordinals
-            )
+            + ", ".join(f"P{o} {columns['P%d' % o]['solve_time']:.2f} s" for o in drive_ordinals)
             + f"; four-drive total "
             f"{sum(c['solve_time'] for c in columns.values()):.2f} s",
             flush=True,
@@ -658,9 +638,9 @@ def test_the_ring_column_came_off_the_longitudinal_fixture(ring_column):
     az = ring_column["azimuth_deg"]
     for i in opposite:
         delta = abs((az[i] - az[driven] + 180.0) % 360.0 - 180.0)
-        assert abs(delta - 180.0) < 1.0e-6, (
-            f"P{i} sits {delta:.9f} deg from the driven port, not 180 deg"
-        )
+        assert (
+            abs(delta - 180.0) < 1.0e-6
+        ), f"P{i} sits {delta:.9f} deg from the driven port, not 180 deg"
     assert driven not in opposite
 
     currents = ring_column["currents"]
@@ -687,9 +667,7 @@ def test_power_accounting_closes_on_the_thirty_two_port_drive(ring_column):
         "absorb negative real power, so the generator convention or the terminal "
         "current is wrong"
     )
-    total = (
-        ring_column["phantom"] + ring_column["conductor"] + ring_column["sheet_total"]
-    )
+    total = ring_column["phantom"] + ring_column["conductor"] + ring_column["sheet_total"]
     residual = abs(supplied - total) / abs(supplied)
     assert residual <= POWER_BALANCE_BAND, (
         f"power accounting misses by {residual:.6e} of the supplied "
@@ -799,21 +777,18 @@ def test_the_four_columns_came_off_one_mesh_and_one_convention(ring_four_columns
     for i, j in sigma_map.items():
         assert sigma_map[j] == i, f"sigma is not an involution at P{i} -> P{j}"
         assert i != j
-        assert by_ord[i]["z"] * by_ord[j]["z"] < 0.0, (
-            f"P{i} and P{j} are mirrored onto one another but sit on the same ring"
-        )
-        delta = abs(
-            (by_ord[i]["azimuth_deg"] - by_ord[j]["azimuth_deg"] + 180.0) % 360.0
-            - 180.0
-        )
-        assert delta < AZIMUTH_MATCH_DEG, (
-            f"P{i} and P{j} are mirrored but {delta:.9f} deg apart in azimuth"
-        )
+        assert (
+            by_ord[i]["z"] * by_ord[j]["z"] < 0.0
+        ), f"P{i} and P{j} are mirrored onto one another but sit on the same ring"
+        delta = abs((by_ord[i]["azimuth_deg"] - by_ord[j]["azimuth_deg"] + 180.0) % 360.0 - 180.0)
+        assert (
+            delta < AZIMUTH_MATCH_DEG
+        ), f"P{i} and P{j} are mirrored but {delta:.9f} deg apart in azimuth"
 
     assert four["mirror"] == sigma_map[four["driven"]]
-    assert len(four["drive_ordinals"]) == 4, (
-        f"{four['drive_ordinals']} is not the four-drive set the item pre-registered"
-    )
+    assert (
+        len(four["drive_ordinals"]) == 4
+    ), f"{four['drive_ordinals']} is not the four-drive set the item pre-registered"
     assert set(four["drive_ordinals"]) == {
         four["driven"],
         four["mirror"],
@@ -823,10 +798,7 @@ def test_the_four_columns_came_off_one_mesh_and_one_convention(ring_four_columns
     z_p = four["z_p"]
     for pid, col in four["columns"].items():
         assert len(col["s_column"]) == 2 * SCALED_LEG_COUNT
-        assert all(
-            np.isfinite(s.real) and np.isfinite(s.imag)
-            for s in col["s_column"].values()
-        )
+        assert all(np.isfinite(s.real) and np.isfinite(s.imag) for s in col["s_column"].values())
         for other, s in col["s_column"].items():
             # The one convention, re-derived: `−2 z0 I/V_src` everywhere, plus
             # the unit incident wave on the driven port and nowhere else.
@@ -872,8 +844,7 @@ def test_the_four_by_four_sub_block_is_reciprocal(ring_four_columns):
         )
         for i, pid in enumerate(ids):
             print(
-                f"    {pid:>4s}  "
-                + "  ".join(f"{s4[i, j]:+.9e}" for j in range(len(ids))),
+                f"    {pid:>4s}  " + "  ".join(f"{s4[i, j]:+.9e}" for j in range(len(ids))),
                 flush=True,
             )
         print(

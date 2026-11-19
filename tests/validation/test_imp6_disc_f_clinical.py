@@ -33,7 +33,6 @@ the conductor mass against C2's are printed only.
 
 from __future__ import annotations
 
-import math
 import os
 import resource
 import time
@@ -114,8 +113,10 @@ def test_n3_poke_out_cylinder_accepts_box_refuses(monkeypatch):
     )
     margin = R - (float(np.hypot(*POKE_OUT_CENTRE[:2])) + SPHEROID_SEMI_MAJOR)
     breach = abs(POKE_OUT_CENTRE[1] - off) + SPHEROID_SEMI_MAJOR - 0.5 * Ly
-    _say(f"\n[IMP-6 s4] (N3) R {R:.6f} m, H {Lz} m: cylinder test accepts with margin "
-         f"{margin:.6f} m; box breach |c_y - off| + a - Ly/2 = {breach:.6e} m")
+    _say(
+        f"\n[IMP-6 s4] (N3) R {R:.6f} m, H {Lz} m: cylinder test accepts with margin "
+        f"{margin:.6f} m; box breach |c_y - off| + a - Ly/2 = {breach:.6e} m"
+    )
     assert out["keep_cells"] is True
     assert margin > 0.16
     assert breach > 0.0
@@ -153,8 +154,11 @@ def test_d10_kept_with_box_accepted():
     Lx, Ly, Lz = box["size_m"]
     R = float(np.hypot(0.5 * Lx, 0.5 * Ly + abs(box["table_offset_m"])))
     out = MeshGenerator._normalise_implant_spheroid(
-        dict(SPHEROID, keep_cells=True), phantom_radius=R, phantom_height=Lz,
-        as_hole=True, phantom_box=dict(box),
+        dict(SPHEROID, keep_cells=True),
+        phantom_radius=R,
+        phantom_height=Lz,
+        as_hole=True,
+        phantom_box=dict(box),
     )
     assert out["keep_cells"] is True
     assert out["centre"] == tuple(SPHEROID_CENTRE)
@@ -196,7 +200,8 @@ def test_imp6_step4_disc_in_astm_box(monkeypatch):
         arm_gmsh_stop_rule(monkeypatch, comm, "IMP-6 s4")
     t0 = time.perf_counter()
     msh, cells, facets, diag = MeshGenerator.birdcage_port_domain(
-        comm=comm, return_diagnostics=True, **kw)
+        comm=comm, return_diagnostics=True, **kw
+    )
     t_build = time.perf_counter() - t0
     _say(f"\n[IMP-6 s4] build done {t_build:.1f} s at -n {comm.size}")
     tdim = msh.topology.dim
@@ -233,15 +238,21 @@ def test_imp6_step4_disc_in_astm_box(monkeypatch):
         if len(sel) == 0:
             return np.zeros((0, 4, 3))
         g = dolfinx.cpp.mesh.entities_to_geometry(
-            msh._cpp_object, tdim, np.asarray(sel, dtype=np.int32), False)
+            msh._cpp_object, tdim, np.asarray(sel, dtype=np.int32), False
+        )
         return msh.geometry.x[g[:, :4]]
 
     def _vol(X):
         if len(X) == 0:
             return 0.0
-        return float(np.abs(np.einsum(
-            "ij,ij->i", X[:, 1] - X[:, 0],
-            np.cross(X[:, 2] - X[:, 0], X[:, 3] - X[:, 0]))).sum() / 6.0)
+        return float(
+            np.abs(
+                np.einsum(
+                    "ij,ij->i", X[:, 1] - X[:, 0], np.cross(X[:, 2] - X[:, 0], X[:, 3] - X[:, 0])
+                )
+            ).sum()
+            / 6.0
+        )
 
     X3 = _tets(PHANTOM_CELL_TAG)
     X403 = _tets(BIRDCAGE_IMPLANT_CELL_TAG)
@@ -257,8 +268,12 @@ def test_imp6_step4_disc_in_astm_box(monkeypatch):
     d3_vol = abs((vol3 + vol403) / L3 - 1.0)
     lo_ref = np.array([-0.5 * Lx, -0.5 * Ly + off, -0.5 * Lz])
     hi_ref = np.array([0.5 * Lx, 0.5 * Ly + off, 0.5 * Lz])
-    d3_ext = float(max(np.max(np.abs(lo - lo_ref) / np.abs(lo_ref)),
-                       np.max(np.abs(hi - hi_ref) / np.abs(hi_ref))))
+    d3_ext = float(
+        max(
+            np.max(np.abs(lo - lo_ref) / np.abs(lo_ref)),
+            np.max(np.abs(hi - hi_ref) / np.abs(hi_ref)),
+        )
+    )
 
     # --- (D4), (N2): the can partition with the body.
     cad_sum = float(sum(cad.values()))
@@ -270,7 +285,8 @@ def test_imp6_step4_disc_in_astm_box(monkeypatch):
 
     # --- (D5): the 402 interface (ghosted mesh, dS licensed).
     n402, n402_ext, n402_int, n402_pair, area402, moments = _interior_facet_check(
-        msh, cells, facets, BIRDCAGE_IMPLANT_SURFACE_TAG, comm)
+        msh, cells, facets, BIRDCAGE_IMPLANT_SURFACE_TAG, comm
+    )
     d5_ratio = area402 / A
 
     # --- (D6) centroid.
@@ -290,7 +306,8 @@ def test_imp6_step4_disc_in_astm_box(monkeypatch):
     sheet_ref = chord * width
     n_gmsh = {int(k): int(v) for k, v in diag["ring_sheet_gmsh_triangles"].items()}
     sheet_tags = _interface_facet_tags(
-        msh, cells, {SHEET_IFACE + i: (PORT_LOWER + i, PORT_UPPER + i) for i in ring_ports})
+        msh, cells, {SHEET_IFACE + i: (PORT_LOWER + i, PORT_UPPER + i) for i in ring_ports}
+    )
     sv = np.asarray(sheet_tags.values)
     si = np.asarray(sheet_tags.indices)
     local = {i: _facet_coords(msh, _owned(msh, si[sv == SHEET_IFACE + i])) for i in ring_ports}
@@ -305,8 +322,7 @@ def test_imp6_step4_disc_in_astm_box(monkeypatch):
     msh.topology.create_entities(2)
     E = comm.allreduce(msh.topology.index_map(1).size_local, op=MPI.SUM)
     F = comm.allreduce(msh.topology.index_map(2).size_local, op=MPI.SUM)
-    rss = comm.allreduce(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024.0**2,
-                         op=MPI.SUM)
+    rss = comm.allreduce(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024.0**2, op=MPI.SUM)
 
     if comm.rank == 0:
         wa = max(d9_area, key=d9_area.get)

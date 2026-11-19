@@ -71,9 +71,8 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
-from mpi4py import MPI
-
 from dolfinx import fem
+from mpi4py import MPI
 
 from fem_em_solver.core import HomogeneousMaterial
 from fem_em_solver.core.time_harmonic import build_material_fields
@@ -84,7 +83,6 @@ from fem_em_solver.post.sar import (
     mass_averaged_sar,
     point_sar,
 )
-
 from tests.complex_mode import complex_only
 from tests.validation.test_lossy_sphere_sar import (
     EPSILON_R_SPHERE,
@@ -150,9 +148,7 @@ def uniform_field_sphere():
         HomogeneousMaterial(sigma=0.0, epsilon_r=1.0),
         cell_tags=cell_tags,
         material_map={
-            SPHERE_TAG: HomogeneousMaterial(
-                sigma=SIGMA_HIGH, epsilon_r=EPSILON_R_SPHERE
-            )
+            SPHERE_TAG: HomogeneousMaterial(sigma=SIGMA_HIGH, epsilon_r=EPSILON_R_SPHERE)
         },
     )
 
@@ -180,9 +176,7 @@ def uniform_field_sphere():
     e_real.x.scatter_forward()
     e_imag.x.scatter_forward()
 
-    n_cells = comm.allreduce(
-        msh.topology.index_map(msh.topology.dim).size_local, op=MPI.SUM
-    )
+    n_cells = comm.allreduce(msh.topology.index_map(msh.topology.dim).size_local, op=MPI.SUM)
     if comm.rank == 0:
         print(
             f"\n[MAT-4 step 3] R = {SPHERE_RADIUS * 1e3:.1f} mm, "
@@ -206,9 +200,7 @@ def uniform_field_sphere():
 
 @complex_only
 @pytest.mark.integration
-@pytest.mark.parametrize(
-    "label, mass_kg", [("1 g", ONE_GRAM_KG), ("10 g", TEN_GRAM_KG)]
-)
+@pytest.mark.parametrize("label, mass_kg", [("1 g", ONE_GRAM_KG), ("10 g", TEN_GRAM_KG)])
 def test_mass_averaging_is_the_identity_at_the_standard_masses(
     uniform_field_sphere, label, mass_kg
 ):
@@ -241,9 +233,7 @@ def test_mass_averaging_is_the_identity_at_the_standard_masses(
 
     # The closed-form pointwise value, independent of the evaluation path: the
     # imposed field is uniform, so sigma|E|^2/(2 rho) is known exactly here.
-    sar_closed_form = (
-        SIGMA_HIGH * abs(uniform_field_sphere["e_uniform"]) ** 2 / (2.0 * RHO_KG_M3)
-    )
+    sar_closed_form = SIGMA_HIGH * abs(uniform_field_sphere["e_uniform"]) ** 2 / (2.0 * RHO_KG_M3)
     point_error = abs(pointwise - sar_closed_form) / sar_closed_form
 
     if comm.rank == 0:

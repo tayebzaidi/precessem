@@ -75,15 +75,13 @@ import time
 import numpy as np
 import pytest
 import ufl
-from mpi4py import MPI
-
 from dolfinx import fem
+from mpi4py import MPI
 
 from fem_em_solver.io.mesh import MeshGenerator
 from fem_em_solver.utils.dodd_deeds import coil_impedance_change
 from tests.complex_mode import complex_only
 from tests.validation.test_dodd_deeds_impedance import (
-    FEM_CURRENT_A,
     FEM_FREQUENCY_HZ,
     FEM_LIFTOFF,
     FEM_LOOP_RADIUS,
@@ -175,9 +173,7 @@ def _mesh_xlarge_box(comm):
     )
     comm.Barrier()
     t_mesh = time.perf_counter() - t0
-    ncells = comm.allreduce(
-        msh.topology.index_map(msh.topology.dim).size_local, op=MPI.SUM
-    )
+    ncells = comm.allreduce(msh.topology.index_map(msh.topology.dim).size_local, op=MPI.SUM)
     return msh, cell_tags, float(t_mesh), int(ncells)
 
 
@@ -234,18 +230,14 @@ def projected_xlarge_box():
     comm = MPI.COMM_WORLD
     msh, cell_tags, t_mesh, ncells = _mesh_xlarge_box(comm)
 
-    e_loaded, j_prime_loaded, t_loaded = _solve_projected(
-        msh, cell_tags, FEM_SIGMA_SLAB, comm
-    )
+    e_loaded, j_prime_loaded, t_loaded = _solve_projected(msh, cell_tags, FEM_SIGMA_SLAB, comm)
     e_free, _, t_free = _solve_projected(msh, cell_tags, 0.0, comm)
 
     # I' from the drive actually used, and ΔZ over the WHOLE domain: J' has
     # support everywhere, unlike J.  Exactly as steps 3-7 compute them.
     x = ufl.SpatialCoordinate(msh)
     phi_hat = _azimuthal_current_density(1.0)(x)
-    dx_wire = ufl.Measure(
-        "dx", domain=msh, subdomain_data=cell_tags, subdomain_id=(WIRE_TAG,)
-    )
+    dx_wire = ufl.Measure("dx", domain=msh, subdomain_data=cell_tags, subdomain_id=(WIRE_TAG,))
     current = _reduced_real(ufl.inner(j_prime_loaded, phi_hat) * dx_wire, comm) / (
         2.0 * np.pi * FEM_LOOP_RADIUS
     )
@@ -253,15 +245,11 @@ def projected_xlarge_box():
     # inner()'s conjugation of the second argument is a no-op — reaction, not
     # power.
     reaction = comm.allreduce(
-        fem.assemble_scalar(
-            fem.form(ufl.inner(e_loaded - e_free, j_prime_loaded) * ufl.dx)
-        ),
+        fem.assemble_scalar(fem.form(ufl.inner(e_loaded - e_free, j_prime_loaded) * ufl.dx)),
         op=MPI.SUM,
     )
     dz = complex(-reaction / current**2)
-    dz_ref = coil_impedance_change(
-        FEM_FREQUENCY_HZ, FEM_LOOP_RADIUS, FEM_LIFTOFF, FEM_SIGMA_SLAB
-    )
+    dz_ref = coil_impedance_change(FEM_FREQUENCY_HZ, FEM_LOOP_RADIUS, FEM_LIFTOFF, FEM_SIGMA_SLAB)
 
     ratio_x = dz.imag / dz_ref.imag
     rel_r = abs(dz.real / dz_ref.real - 1.0)
@@ -439,14 +427,11 @@ def test_reactance_change_has_the_right_sign_and_magnitude_on_the_xlarge_box(
     r_inf, p = projected_xlarge_box["r_inf"], projected_xlarge_box["p"]
 
     lines = [
-        f"\n  ΔX: FEM {dz.imag:.7e} Ω vs exact {dz_ref.imag:.7e} Ω → ratio "
-        f"{ratio:.4f}",
+        f"\n  ΔX: FEM {dz.imag:.7e} Ω vs exact {dz_ref.imag:.7e} Ω → ratio " f"{ratio:.4f}",
         "  trend (projected, coarse wire): "
         + " → ".join(
             f"W = {w:.2f} m: {r:.4f}"
-            for w, r in zip(
-                projected_xlarge_box["widths"], projected_xlarge_box["ratios"]
-            )
+            for w, r in zip(projected_xlarge_box["widths"], projected_xlarge_box["ratios"])
         ),
     ]
     if r_inf is None:
@@ -471,6 +456,4 @@ def test_reactance_change_has_the_right_sign_and_magnitude_on_the_xlarge_box(
     print("\n".join(lines))
 
     assert dz.imag < 0.0, f"the conductor must expel flux, got ΔX = {dz.imag}"
-    assert 0.5 < ratio < 2.0, (
-        f"projected ΔX is not within an order of magnitude: {ratio}"
-    )
+    assert 0.5 < ratio < 2.0, f"projected ΔX is not within an order of magnitude: {ratio}"

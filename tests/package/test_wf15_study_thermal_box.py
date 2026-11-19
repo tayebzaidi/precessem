@@ -34,7 +34,6 @@ from fem_em_solver import (
     TransientSpec,
     UniformHeatSource,
 )
-
 from tests.complex_mode import IS_COMPLEX
 from tests.package.test_wf13_cli_estimate import THERMAL_MESSAGE
 from tests.package.test_wf15_study_transient import _on, _same_mesh, _theta_owned_rel
@@ -60,7 +59,9 @@ from tests.validation.test_mat21_box_fem import (
 S5_ENV = "FEM_EM_WF15_S5"
 
 # Records (transcribed with their log lines).
-STEP1_M4_WHOLE = "3.4599e-03"  # 20261013T142646Z_MAT-21-step1r-W1-steady.log:112 (3.459853e-03 at :102)
+STEP1_M4_WHOLE = (
+    "3.4599e-03"  # 20261013T142646Z_MAT-21-step1r-W1-steady.log:112 (3.459853e-03 at :102)
+)
 STEP1_M4_CELLS = 79872  # ibid. :102
 STEP1_M4_P1_DOFS = 15741  # ibid. :102
 STEP1_M6_CELLS = 269568  # ibid. :106
@@ -124,8 +125,11 @@ def test_wf15_box_spec_and_refusals(monkeypatch):
         st.temperature(cool, duty=DutyCycle(period_s=2.0 * HALF_T, duty=0.5))
     with pytest.raises(ValueError, match="source_scale"):
         st.temperature(RobinCooling(K_GEL, H_GEL, T_INF, source_scale=2.0))
-    for hw, dv in [((0.1, 0.1), (1, 1, 1)), ((0.1, 0.0, 0.1), (1, 1, 1)),
-                   ((0.1, 0.1, 0.1), (1, 0, 1))]:
+    for hw, dv in [
+        ((0.1, 0.1), (1, 1, 1)),
+        ((0.1, 0.0, 0.1), (1, 1, 1)),
+        ((0.1, 0.1, 0.1), (1, 0, 1)),
+    ]:
         with pytest.raises(ValueError):
             ThermalBoxGeometry(hw, dv)
     assert calls == []
@@ -135,7 +139,9 @@ def test_wf15_box_spec_and_refusals(monkeypatch):
         ball.estimate()
     assert str(exc.value) == THERMAL_MESSAGE
     # (c0) by construction: the box branch is taken (no frequency_hz needed).
-    assert isinstance(study_mod.Study(geo, None, UniformHeatSource(Q)).excitation, UniformHeatSource)
+    assert isinstance(
+        study_mod.Study(geo, None, UniformHeatSource(Q)).excitation, UniformHeatSource
+    )
 
 
 def test_wf15_box_steady_reproduces_mat21_step1_m4():
@@ -149,15 +155,19 @@ def test_wf15_box_steady_reproduces_mat21_step1_m4():
     smsh = res.submesh
     ca, cb, geo_eq = _same_mesh(smsh, msh, comm)
     tags_eq = _same_tags(res.facet_tags, ft, comm)
-    _say(f"WF15-5 (UT) cells Study {ca} / direct {cb} (record {STEP1_M4_CELLS}); "
-         f"geometry equal {geo_eq}; facet tags equal {tags_eq}")
+    _say(
+        f"WF15-5 (UT) cells Study {ca} / direct {cb} (record {STEP1_M4_CELLS}); "
+        f"geometry equal {geo_eq}; facet tags equal {tags_eq}"
+    )
     assert ca == cb == STEP1_M4_CELLS and geo_eq and tags_eq
     T = _on(msh, res.temperature)
     d = _theta_owned_rel(T, st.temperature, comm)
     n_own = st.temperature.function_space.dofmap.index_map.size_local
     hex_eq = _all(comm, np.array_equal(T.x.array[:n_own], st.temperature.x.array[:n_own]))
-    _say(f"WF15-5 (I-dir) steady theta_Study vs direct: {d:.3e} (bound {L0_BAND:.0e}); "
-         f"owned arrays bitwise {hex_eq} (printed only)")
+    _say(
+        f"WF15-5 (I-dir) steady theta_Study vs direct: {d:.3e} (bound {L0_BAND:.0e}); "
+        f"owned arrays bitwise {hex_eq} (printed only)"
+    )
     assert d <= L0_BAND
     th_h = T - T_INF
     ex, npts = _exact(msh, _steady_ex())
@@ -171,16 +181,22 @@ def test_wf15_box_steady_reproduces_mat21_step1_m4():
     one = fem.Constant(msh, default_scalar_type(1.0))
     vh = float(np.real(_allsum(comm, one * ufl.dx(domain=msh))))
     gauss = abs(conv - Q * vh) / (Q * vh)
-    _say(f"WF15-5 (S1-m4) whole L2 rel = {whole:.6e} -> {whole:.4e} (record {STEP1_M4_WHOLE}); "
-         f"interior = {interior:.6e} (bound {INTERIOR_BAND:.0e}; new reading at the step's band); "
-         f"P1 dofs {p1} (record {STEP1_M4_P1_DOFS}); Gauss {gauss:.3e} (bound {S2_GAUSS_BAND:.0e}); "
-         f"max imag {_max_imag(res.temperature):.1e}")
+    _say(
+        f"WF15-5 (S1-m4) whole L2 rel = {whole:.6e} -> {whole:.4e} (record {STEP1_M4_WHOLE}); "
+        f"interior = {interior:.6e} (bound {INTERIOR_BAND:.0e}; new reading at the step's band); "
+        f"P1 dofs {p1} (record {STEP1_M4_P1_DOFS}); Gauss {gauss:.3e} (bound {S2_GAUSS_BAND:.0e}); "
+        f"max imag {_max_imag(res.temperature):.1e}"
+    )
     # (c-wall) predicted: Robin h doubled through the API.
-    res2 = Study(_box(4), None, UniformHeatSource(Q)).temperature(RobinCooling(K_GEL, 2.0 * H_GEL, T_INF))
+    res2 = Study(_box(4), None, UniformHeatSource(Q)).temperature(
+        RobinCooling(K_GEL, 2.0 * H_GEL, T_INF)
+    )
     T2 = _on(msh, res2.temperature)
     c_wall = _rel(msh, T2 - T_INF, ex, chi)
-    _say(f"WF15-5 control (c-wall) h doubled: interior miss = {c_wall:.4e} "
-         f"(predicted 0.37, range 0.32-0.42, printed only; asserted > {INTERIOR_BAND:.0e})")
+    _say(
+        f"WF15-5 control (c-wall) h doubled: interior miss = {c_wall:.4e} "
+        f"(predicted 0.37, range 0.32-0.42, printed only; asserted > {INTERIOR_BAND:.0e})"
+    )
     assert f"{whole:.4e}" == STEP1_M4_WHOLE
     assert interior <= INTERIOR_BAND
     assert p1 == STEP1_M4_P1_DOFS
@@ -205,11 +221,14 @@ def test_wf15_box_duty_reproduces_mat21_p26():
     clk.lap("Study CN duty")
     ca, cb, geo_eq = _same_mesh(res.mesh, msh, comm)
     tags_eq = _same_tags(res.facet_tags, ft, comm)
-    _say(f"WF15-5 (UT) cells Study {ca} / direct {cb} (record {STEP1_M6_CELLS}); "
-         f"geometry equal {geo_eq}; facet tags equal {tags_eq}")
+    _say(
+        f"WF15-5 (UT) cells Study {ca} / direct {cb} (record {STEP1_M6_CELLS}); "
+        f"geometry equal {geo_eq}; facet tags equal {tags_eq}"
+    )
     assert ca == cb == STEP1_M6_CELLS and geo_eq and tags_eq
-    mult_eq = np.array_equal(np.asarray(res.source_multipliers),
-                             np.asarray(direct.source_multipliers))
+    mult_eq = np.array_equal(
+        np.asarray(res.source_multipliers), np.asarray(direct.source_multipliers)
+    )
     _say(f"WF15-5 (S0) multipliers equal {mult_eq} ({len(res.source_multipliers)} entries)")
     assert mult_eq
     T = _on(msh, res.temperature)
@@ -225,9 +244,11 @@ def test_wf15_box_duty_reproduces_mat21_p26():
     clk.lap("step-response interpolation (c3)")
     c3 = _rel(msh, th, ex_s, chi)
     bal = float(res.max_balance_residual)
-    _say(f"WF15-5 (T-duty) interior rel = {t_duty:.6e} -> {t_duty:.4e} (record {P26_T_DUTY}; "
-         f"bound {INTERIOR_BAND:.0e}); balance {bal:.3e} (bound {E_BAND:.0e}); "
-         f"(c3) miss {c3:.4e} (P26 {P26_C3:.4e}; asserted > {INTERIOR_BAND:.0e})")
+    _say(
+        f"WF15-5 (T-duty) interior rel = {t_duty:.6e} -> {t_duty:.4e} (record {P26_T_DUTY}; "
+        f"bound {INTERIOR_BAND:.0e}); balance {bal:.3e} (bound {E_BAND:.0e}); "
+        f"(c3) miss {c3:.4e} (P26 {P26_C3:.4e}; asserted > {INTERIOR_BAND:.0e})"
+    )
     assert t_duty <= INTERIOR_BAND
     assert f"{t_duty:.4e}" == P26_T_DUTY
     assert bal <= E_BAND

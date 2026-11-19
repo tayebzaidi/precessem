@@ -56,7 +56,6 @@ from fem_em_solver import (
 from fem_em_solver.ports.circuit import reduce_terminated_ports
 from fem_em_solver.study import COPPER_SIGMA, GATED_WIDTH_FRACTION
 from fem_em_solver.study_yaml import load_study
-
 from tests.complex_mode import IS_COMPLEX
 from tests.package.test_wf16_study_capacitor_sheets import PORTS, _phantom, _study
 from tests.package.test_wf16_study_copper import _geometry
@@ -187,8 +186,10 @@ def _knob() -> bool:
 
 def _solve_preamble():
     if not _knob():
-        pytest.skip(f"{S15_ENV} unset: the tutorial solve window is environment-selected "
-                    "(complex build, -n 2)")
+        pytest.skip(
+            f"{S15_ENV} unset: the tutorial solve window is environment-selected "
+            "(complex build, -n 2)"
+        )
     comm = MPI.COMM_WORLD
     assert IS_COMPLEX, "the copper four-port capacitor-sheet Study needs the complex build"
     assert comm.size == ANS6_EXACT_STRIP_RECORD_RANK_WIDTH, comm.size
@@ -208,15 +209,21 @@ def exec_run_block(monkeypatch):
     block = extract_tagged_block(raw.decode(), RUN_TAG)
     data = YAML_FILE.read_bytes()
     if comm.rank == 0:
-        print(f"[WF-17 s15] page sha256 {_sha(raw)}; block {RUN_TAG} sha256 "
-              f"{_sha(block.encode())}", flush=True)
+        print(
+            f"[WF-17 s15] page sha256 {_sha(raw)}; block {RUN_TAG} sha256 "
+            f"{_sha(block.encode())}",
+            flush=True,
+        )
         if SCRATCH_ROOT.exists():
             shutil.rmtree(SCRATCH_ROOT)
         target = SCRATCH_ROOT / FILE_REL
         target.parent.mkdir(parents=True)
         target.write_bytes(data)
-        print(f"[WF-17 s15] copied {FILE_REL} sha256 {_sha(target.read_bytes())} (tracked "
-              f"{_sha(data)})", flush=True)
+        print(
+            f"[WF-17 s15] copied {FILE_REL} sha256 {_sha(target.read_bytes())} (tracked "
+            f"{_sha(data)})",
+            flush=True,
+        )
     comm.Barrier()
     monkeypatch.chdir(SCRATCH_ROOT)
     calls = {"n": 0, "paths": []}
@@ -248,11 +255,15 @@ def test_wf17_s15_blocks_and_inputs(tmp_path):
     rblock = extract_tagged_block(text, RUN_TAG)
     extract_tagged_block(text, BANDS_TAG, lang="text")
     y_reason, r_reason = _yaml_defect(yblock), _run_defect(rblock)
-    _p0(f"[WF-17 s15] (X) {YAML_TAG}: sha256 {_sha(yblock.encode())} vs tracked "
-        f"{_sha(YAML_FILE.read_bytes())}; defect {y_reason}")
-    _p0(f"[WF-17 s15] (X) {RUN_TAG}: run_study_file {len(_calls_named(rblock, 'run_study_file'))}, "
+    _p0(
+        f"[WF-17 s15] (X) {YAML_TAG}: sha256 {_sha(yblock.encode())} vs tracked "
+        f"{_sha(YAML_FILE.read_bytes())}; defect {y_reason}"
+    )
+    _p0(
+        f"[WF-17 s15] (X) {RUN_TAG}: run_study_file {len(_calls_named(rblock, 'run_study_file'))}, "
         f"Study {len(_calls_named(rblock, 'Study'))}, solve {len(_calls_named(rblock, 'solve'))}; "
-        f"defect {r_reason}")
+        f"defect {r_reason}"
+    )
     assert y_reason is None, y_reason
     assert r_reason is None, r_reason
     assert "Study(" not in rblock and rblock.count("run_study_file(") == 1
@@ -265,12 +276,14 @@ def test_wf17_s15_blocks_and_inputs(tmp_path):
     base = BASE_FILE.read_text().splitlines()
     new = YAML_FILE.read_text().splitlines()
     i_b, i_n = base.index("excitation:"), new.index("excitation:")
-    _p0(f"[WF-17 s15] (X) file vs {BASE_FILE.name}: body before excitation equal "
+    _p0(
+        f"[WF-17 s15] (X) file vs {BASE_FILE.name}: body before excitation equal "
         f"{base[1:i_b] == new[1:i_n]}; after equal {base[i_b + 2:] == new[i_n + 5:]}; "
-        f"excitation {new[i_n:i_n + 5]}")
+        f"excitation {new[i_n:i_n + 5]}"
+    )
     assert base[1:i_b] == new[1:i_n]
     assert base[i_b + 1] == "  kind: lumped_port_drive"
-    assert base[i_b + 2:] == new[i_n + 5:]
+    assert base[i_b + 2 :] == new[i_n + 5 :]
     assert len(new[0]) > 0 and new[0].startswith("# ") and not base[0] == new[0]
 
     # femem check on the file (copper + capacitor_sheets must be accepted)
@@ -289,23 +302,33 @@ def test_wf17_s15_blocks_and_inputs(tmp_path):
     # (c-page), by construction: a removed / doubled tag raises
     for tag, lang in ((YAML_TAG, "yaml"), (RUN_TAG, "python"), (BANDS_TAG, "text")):
         with pytest.raises(LookupError):
-            extract_tagged_block(text.replace(f"```{lang} {tag}\n", f"```{lang} other\n"), tag,
-                                 lang=lang)
-        doubled = (text + "\n" + f"```{lang} {tag}\n"
-                   + extract_tagged_block(text, tag, lang=lang) + "```\n")
+            extract_tagged_block(
+                text.replace(f"```{lang} {tag}\n", f"```{lang} other\n"), tag, lang=lang
+            )
+        doubled = (
+            text
+            + "\n"
+            + f"```{lang} {tag}\n"
+            + extract_tagged_block(text, tag, lang=lang)
+            + "```\n"
+        )
         with pytest.raises(LookupError):
             extract_tagged_block(doubled, tag, lang=lang)
     # a tmp copy of the page with esr_ohm: 0.2 removed from the YAML block fails (X)
     stripped = tmp_path / "page.md"
     stripped.write_text(text.replace("  esr_ohm: 0.2\n", "", 1))
-    stripped_reason = _yaml_defect(extract_tagged_block(stripped.read_text(), YAML_TAG,
-                                                        lang="yaml"))
+    stripped_reason = _yaml_defect(
+        extract_tagged_block(stripped.read_text(), YAML_TAG, lang="yaml")
+    )
     other_file = tmp_path / "page2.md"
-    other_file.write_text(text.replace(f'run_study_file("{FILE_REL}")',
-                                       f'run_study_file("{LOSSLESS_REL}")', 1))
+    other_file.write_text(
+        text.replace(f'run_study_file("{FILE_REL}")', f'run_study_file("{LOSSLESS_REL}")', 1)
+    )
     other_reason = _run_defect(extract_tagged_block(other_file.read_text(), RUN_TAG))
-    _p0(f"[WF-17 s15] (c-page) tags removed / doubled raise LookupError for all three blocks; "
-        f"esr_ohm removed -> {stripped_reason}; lossless file named -> {other_reason}")
+    _p0(
+        f"[WF-17 s15] (c-page) tags removed / doubled raise LookupError for all three blocks; "
+        f"esr_ohm removed -> {stripped_reason}; lossless file named -> {other_reason}"
+    )
     assert stripped_reason is not None
     assert other_reason is not None and "f_small_hole_pec_capacitors" in other_reason
     for token in ("Study(", ".json", ".npz", ".s4p", ".xdmf", "AED", "HFSS"):
@@ -314,10 +337,12 @@ def test_wf17_s15_blocks_and_inputs(tmp_path):
     # (In): the file's Study is the gate's (parse only, no mesh)
     st = load_study(YAML_FILE)
     want_exc = CapacitorSheets(C_F, ESR_OHM, on=(PORTS[PLANT_INDEX],))
-    _p0(f"[WF-17 s15] (In) geometry {st.geometry!r}; material {st.material!r}; excitation "
+    _p0(
+        f"[WF-17 s15] (In) geometry {st.geometry!r}; material {st.material!r}; excitation "
         f"{st.excitation!r}; frequency {float(st.frequency_hz).hex()} (want "
         f"{FREQUENCY_64_HZ.hex()}); degree {st.degree}; conductor {st.conductor!r}; c_f hex "
-        f"{float(st.excitation.c_f).hex()} (C_F {C_F.hex()})")
+        f"{float(st.excitation.c_f).hex()} (C_F {C_F.hex()})"
+    )
     assert type(st.geometry) is FourPortBirdcageGeometry and st.geometry == _geometry()
     assert st.geometry.strip_fraction == GATED_WIDTH_FRACTION
     assert st.material == _phantom()
@@ -357,9 +382,11 @@ def test_wf17_s15_docrefs_zero_dead():
     rc, counts = run_checker("--docs-root", "docs/guide", "--check-links")
     link = LINK_PASS_RE.search(_checker_stdout("--docs-root", "docs/guide", "--check-links"))
     assert link is not None, "(D) no 'Link pass:' line"
-    print(f"[WF-17 s15] (D) dead={counts['dead']} links={link.group(1)} pages={link.group(2)} "
-          f"link-dead={link.group(3)} guide={counts['guide']} stale={counts['stale']} "
-          f"exit={counts['exit']} rc={rc}")
+    print(
+        f"[WF-17 s15] (D) dead={counts['dead']} links={link.group(1)} pages={link.group(2)} "
+        f"link-dead={link.group(3)} guide={counts['guide']} stale={counts['stale']} "
+        f"exit={counts['exit']} rc={rc}"
+    )
     assert counts["dead"] == 0
     assert int(link.group(3)) == 0
     assert int(link.group(2)) >= MIN_GUIDE_PAGES
@@ -396,20 +423,26 @@ def test_wf17_s15_yaml_block_reproduces_wf16_s10(monkeypatch):
             plant_path.write_text(_plant_text())
         comm.Barrier()
         t0 = time.perf_counter()
-        plant = fem_em_solver.run_study_file(plant_path, output_dir=SCRATCH_ROOT / "plant",
-                                             comm=comm)
+        plant = fem_em_solver.run_study_file(
+            plant_path, output_dir=SCRATCH_ROOT / "plant", comm=comm
+        )
         t_plant = time.perf_counter() - t0
-    _p0(f"[WF-17 s15] build cache: {cache['real']} real build, {cache['hits']} hits (3 Studies); "
-        f"S0 {t_s0:.1f} s, page block {t_page:.1f} s, planted run {t_plant:.1f} s")
+    _p0(
+        f"[WF-17 s15] build cache: {cache['real']} real build, {cache['hits']} hits (3 Studies); "
+        f"S0 {t_s0:.1f} s, page block {t_page:.1f} s, planted run {t_plant:.1f} s"
+    )
 
     # (R0)
     s0 = s0_res.s_matrix
     means = _class_means(s0)
     want = ANS6_EXACT_STRIP_CLASS_MEANS_P1["64"]["cu"]
     rel_r0 = {c: abs(means[c] - want[c]) / abs(want[c]) for c in CLASSES}
-    _p0(f"[WF-17 s15] (R0) cells {s0_res.cells} (record {ANS6_EXACT_STRIP_HOLE_CELL_RECORD}); "
-        "Cu class means vs record: " + " / ".join(f"{c} {rel_r0[c]:.3e}" for c in CLASSES)
-        + f" (ASSERTED <= {LEG_D0_REPRODUCTION_BAND:.0e}; s14-Wesr:941 {S14_R0})")
+    _p0(
+        f"[WF-17 s15] (R0) cells {s0_res.cells} (record {ANS6_EXACT_STRIP_HOLE_CELL_RECORD}); "
+        "Cu class means vs record: "
+        + " / ".join(f"{c} {rel_r0[c]:.3e}" for c in CLASSES)
+        + f" (ASSERTED <= {LEG_D0_REPRODUCTION_BAND:.0e}; s14-Wesr:941 {S14_R0})"
+    )
 
     # (I) the page's identity
     run = ns["run"]
@@ -419,20 +452,26 @@ def test_wf17_s15_yaml_block_reproduces_wf16_s10(monkeypatch):
     z0 = float(REFERENCE_IMPEDANCE_OHM)
     pred = reduce_terminated_ports(s0, z0, {PLANT_INDEX: _rc(ESR_OHM)})
     r_i = _rel(result.s_matrix, pred)
-    _p0(f"[WF-17 s15] (I) block spy calls {calls['n']} {calls['paths']}; family "
+    _p0(
+        f"[WF-17 s15] (I) block spy calls {calls['n']} {calls['paths']}; family "
         f"{summ['family']!r}; kept {summ['kept_ports']}; capacitors {summ['capacitors']}; "
-        f"cells {result.cells}")
-    _p0(f"[WF-17 s15] (I) page ports {ids}; Z {result.capacitor_impedance_ohm!r} (want "
+        f"cells {result.cells}"
+    )
+    _p0(
+        f"[WF-17 s15] (I) page ports {ids}; Z {result.capacitor_impedance_ohm!r} (want "
         f"{_rc(ESR_OHM)!r}); S {result.s_matrix.shape}; rel {r_i:.6e} "
         f"({r_i / REDUCTION_BAND:.4f} x REDUCTION_BAND {REDUCTION_BAND:.0e}; s14-Wesr:942 "
-        f"{S14_I_P2})")
+        f"{S14_I_P2})"
+    )
 
     # (N1) planted esr_ohm: 0.4 in a scratch copy of the file
     r_n1 = _rel(plant.result.s_matrix, pred)
-    _p0(f"[WF-17 s15] (N1) planted esr_ohm {plant.summary['capacitors']['esr_ohm']!r} on "
+    _p0(
+        f"[WF-17 s15] (N1) planted esr_ohm {plant.summary['capacitors']['esr_ohm']!r} on "
         f"{plant.summary['capacitors']['sheets']}: {r_n1:.6e} = "
         f"{r_n1 / REDUCTION_BAND:.3f} x REDUCTION_BAND (ASSERTED > {REDUCTION_BAND:.0e}; "
-        f"s14-Wesr:943 {S14_N1})")
+        f"s14-Wesr:943 {S14_N1})"
+    )
     _p0(f"[WF-17 s15] W-yaml node {time.perf_counter() - t_node:.1f} s")
 
     assert cache["real"] == 1 and cache["hits"] == 2

@@ -39,16 +39,15 @@ import numpy as np
 import pytest
 from mpi4py import MPI
 
-from fem_em_solver import LumpedPortDrive, load_study, run_study_file
+from fem_em_solver import LumpedPortDrive, run_study_file
 from fem_em_solver import study as study_mod
 from fem_em_solver.ports.touchstone import load_touchstone
 from fem_em_solver.study import FClinicalBirdcageGeometry, Study
-
 from tests.complex_mode import complex_only
-from tests.package.test_wf13_estimate_f_clinical import FC, _study
-from tests.package.test_wf16_load_result_f_human import OUT_DIR, _write_named
 from tests.package.test_wf1_study_yaml import _fresh_dir, _mapping
 from tests.package.test_wf1_yaml_load_result import _hex, _no_mesh, _write_yaml
+from tests.package.test_wf13_estimate_f_clinical import FC, _study
+from tests.package.test_wf16_load_result_f_human import OUT_DIR, _write_named
 from tests.validation.test_birdcage_sar_mass_averaged import EXACT_IDENTITY_RTOL
 from tests.validation.test_geo38_c15_3t_c_mode import C15_JSON
 from tests.validation.test_geo38_f_clinical_3t_matrix import C11_SAVE_PATH
@@ -79,8 +78,13 @@ def _knob() -> bool:
 
 def _study_3t():
     base = _study()
-    st = Study(FClinicalBirdcageGeometry(field_strength_t=3.0), base.material,
-               LumpedPortDrive(), frequency_hz=FREQUENCY_3T_HZ, degree=1)
+    st = Study(
+        FClinicalBirdcageGeometry(field_strength_t=3.0),
+        base.material,
+        LumpedPortDrive(),
+        frequency_hz=FREQUENCY_3T_HZ,
+        degree=1,
+    )
     return st
 
 
@@ -94,8 +98,10 @@ def test_wf16_s19_w0_knob_and_selector(monkeypatch):
     monkeypatch.delenv(S19_ENV, raising=False)
     assert _knob() is False
     st = _study_3t()
-    _p0(f"\n[WF-16 s19 W0] selector: FClinicalBirdcageGeometry(field_strength_t="
-        f"{st.geometry.field_strength_t}), frequency_hz {st.frequency_hz!r}, degree {st.degree}")
+    _p0(
+        f"\n[WF-16 s19 W0] selector: FClinicalBirdcageGeometry(field_strength_t="
+        f"{st.geometry.field_strength_t}), frequency_hz {st.frequency_hz!r}, degree {st.degree}"
+    )
     assert st.geometry.field_strength_t == 3.0
     assert st.frequency_hz == FREQUENCY_3T_HZ
     assert st.result is None
@@ -130,6 +136,7 @@ def test_wf16_s19_tune_on_saved_f_clinical_3t(capsys):
         def _boom(self, *a, **k):
             calls[name] += 1
             raise AssertionError(f"(S0) the loaded Study called {name}")
+
         return _boom
 
     with pytest.MonkeyPatch.context() as mp:
@@ -145,9 +152,12 @@ def test_wf16_s19_tune_on_saved_f_clinical_3t(capsys):
 
     # Control: the 1.5 T file (C3's 64 MHz matrix) into the 128 MHz Study is refused.
     d15 = _load(npz15)
-    p15 = _write_named(OUT_DIR / f"s19_f_clinical_15t_cu_d1_n{comm.size}.s64p",
-                       float(_study().frequency_hz),
-                       np.asarray(d15["s64"], dtype=np.complex128), d15["order"])
+    p15 = _write_named(
+        OUT_DIR / f"s19_f_clinical_15t_cu_d1_n{comm.size}.s64p",
+        float(_study().frequency_hz),
+        np.asarray(d15["s64"], dtype=np.complex128),
+        d15["order"],
+    )
     st_c = _study_3t()
     with pytest.raises(ValueError, match="file frequency") as ei:
         st_c.load_result(p15)
@@ -173,23 +183,35 @@ def test_wf16_s19_tune_on_saved_f_clinical_3t(capsys):
         cy_js = float(json.load(fh)["tune"]["c_mode_farad"])
 
     with capsys.disabled():
-        _p0(f"\n[WF-16 s19 sel] FClinicalBirdcageGeometry(field_strength_t="
-            f"{fresh.geometry.field_strength_t}), frequency_hz {fhz!r}")
-        _p0(f"[WF-16 s19 S0] class-level spies: solve {calls['solve']}, "
-            f"_solve_ports {calls['_solve_ports']}")
+        _p0(
+            f"\n[WF-16 s19 sel] FClinicalBirdcageGeometry(field_strength_t="
+            f"{fresh.geometry.field_strength_t}), frequency_hz {fhz!r}"
+        )
+        _p0(
+            f"[WF-16 s19 S0] class-level spies: solve {calls['solve']}, "
+            f"_solve_ports {calls['_solve_ports']}"
+        )
         _p0(f"[WF-16 s19 F] file frequency {f_file.tolist()} Hz; loaded {loaded.frequency_hz!r}")
-        _p0(f"[WF-16 s19 RT] max|dS| against the npz {rt:.3e} (EXACT_IDENTITY_RTOL "
+        _p0(
+            f"[WF-16 s19 RT] max|dS| against the npz {rt:.3e} (EXACT_IDENTITY_RTOL "
             f"{EXACT_IDENTITY_RTOL:.1e}); port order kept {list(loaded.port_ids) == order}; "
-            f"port swap applied: none (C15 reads the npz unpermuted)")
-        _p0(f"[WF-16 s19 CM] loaded C_mode {cl:.12e} F vs C15 {c_ref:.12e} F: rel "
+            f"port swap applied: none (C15 reads the npz unpermuted)"
+        )
+        _p0(
+            f"[WF-16 s19 CM] loaded C_mode {cl:.12e} F vs C15 {c_ref:.12e} F: rel "
             f"{g_cm:.3e} (REDUCTION_BAND {REDUCTION_BAND:.1e}); off-block "
-            f"{tl.off_diagonal_residual:.6e} (C15 {float(c15['off_block']):.6e})")
+            f"{tl.off_diagonal_residual:.6e} (C15 {float(c15['off_block']):.6e})"
+        )
         _p0(f"[WF-16 s19 CM-r] {pf} pF vs record {C15_C_MODE_PF_RECORD}")
-        _p0(f"[WF-16 s19 Ctl] 1.5 T file into the 128 MHz Study: ValueError: {ctrl_msg}; "
-            f"result None {ctrl_none}")
-        _p0(f"[WF-16 s19 Y=] YAML C {_hex(cy)} vs api {_hex(cl)}; summary.json {_hex(cy_js)}; "
+        _p0(
+            f"[WF-16 s19 Ctl] 1.5 T file into the 128 MHz Study: ValueError: {ctrl_msg}; "
+            f"result None {ctrl_none}"
+        )
+        _p0(
+            f"[WF-16 s19 Y=] YAML C {_hex(cy)} vs api {_hex(cl)}; summary.json {_hex(cy_js)}; "
             f"mesh/solve calls reached {n_y}; result loaded "
-            f"{isinstance(run.study.result, study_mod.LoadedPortResult)}")
+            f"{isinstance(run.study.result, study_mod.LoadedPortResult)}"
+        )
 
     assert calls == {"solve": 0, "_solve_ports": 0}
     assert f_file.shape == (1,) and float(f_file[0]) == FREQUENCY_3T_HZ

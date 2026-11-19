@@ -53,7 +53,9 @@ GENERATOR = ROOT / "scripts" / "docs" / "generate_validation_page.py"
 LINK_PASS_RE = re.compile(r"Link pass: (\d+) link\(s\) checked over (\d+) page\(s\), (\d+) dead\.")
 SECTION_RE = re.compile(r"^### (\S+)$", re.MULTILINE)
 ROW_RE = re.compile(r"^\| \[`([^`]+)`\]\(")
-BAND_RE = re.compile(r"`([A-Z][A-Z0-9_]*)(?: = [^`]*| \(computed\))` \(\[[^\]]+\]\(\.\./\.\./([^)]+)\)\)")
+BAND_RE = re.compile(
+    r"`([A-Z][A-Z0-9_]*)(?: = [^`]*| \(computed\))` \(\[[^\]]+\]\(\.\./\.\./([^)]+)\)\)"
+)
 
 
 def _load_generator():
@@ -102,7 +104,9 @@ def test_wf14_page_names_equal_surface(page_text):
     """(N)"""
     surface = _surface()
     secs = parse_sections(page_text)
-    print(f"\nWF-14 s2 (N): sections={len(secs)} surface={len(surface)} registry={len(_load_registry())}")
+    print(
+        f"\nWF-14 s2 (N): sections={len(secs)} surface={len(surface)} registry={len(_load_registry())}"
+    )
     assert list(secs) == surface
     assert set(secs) == set(_load_registry())
     for n in surface:
@@ -126,7 +130,9 @@ def test_wf14_page_is_what_the_generator_emits(tmp_path):
     gen.generate(g2)
     same12 = g1.read_bytes() == g2.read_bytes()
     same_c = g1.read_bytes() == PAGE.read_bytes()
-    print(f"\nWF-14 s2 (G): gen1==gen2 {same12}; gen1==committed {same_c}; bytes={len(g1.read_bytes())}; stats={stats}")
+    print(
+        f"\nWF-14 s2 (G): gen1==gen2 {same12}; gen1==committed {same_c}; bytes={len(g1.read_bytes())}; stats={stats}"
+    )
     assert same12
     assert same_c
     assert gen.main(["--out", str(PAGE), "--check"]) == 0
@@ -137,7 +143,9 @@ def test_wf14_page_chunk_ids_are_plan_rows(page_text):
     ids = set(gen.ID_RE.findall(page_text))
     rows = gen.plan_rows()
     missing = sorted(ids - rows)
-    print(f"\nWF-14 s2 (I): distinct chunk IDs on page={len(ids)} {sorted(ids)}; not a row={missing}")
+    print(
+        f"\nWF-14 s2 (I): distinct chunk IDs on page={len(ids)} {sorted(ids)}; not a row={missing}"
+    )
     assert ids
     assert missing == []
 
@@ -176,10 +184,14 @@ def test_wf14_docrefs_guide_zero_dead_with_page(capsys):
     rc, counts = run_checker("--docs-root", "docs/guide", "--check-links")
     out = capsys.readouterr().out
     m = LINK_PASS_RE.search(out)
-    api_only = sum(1 for p in GUIDE.rglob("*.md") if p != PAGE and not p.name.endswith("_private.md"))
+    api_only = sum(
+        1 for p in GUIDE.rglob("*.md") if p != PAGE and not p.name.endswith("_private.md")
+    )
     with capsys.disabled():
         print(out)
-        print(f"WF-14 s2 (D): rc={rc} counts={counts} link_pass={m.group(0) if m else None} api-only pages={api_only}")
+        print(
+            f"WF-14 s2 (D): rc={rc} counts={counts} link_pass={m.group(0) if m else None} api-only pages={api_only}"
+        )
     assert m is not None
     n_links, n_pages, n_dead = (int(g) for g in m.groups())
     assert counts["dead"] == 0
@@ -205,7 +217,9 @@ def test_wf14_page_c1_planted_unregistered_name(tmp_path, monkeypatch):
 
 def _scratch_module(tmp_path: Path) -> str:
     p = tmp_path / "test_scratch_no_id.py"
-    p.write_text('"""A scratch module whose docstring names no chunk."""\n\n\ndef test_x():\n    pass\n')
+    p.write_text(
+        '"""A scratch module whose docstring names no chunk."""\n\n\ndef test_x():\n    pass\n'
+    )
     return f"{p.as_posix()}::test_x"
 
 
@@ -255,6 +269,8 @@ def test_wf14_page_c5_planted_dead_link(tmp_path, capsys, page_text):
     rc1, counts1 = run_checker("--docs-root", str(guide), "--check-links")
     capsys.readouterr()
     with capsys.disabled():
-        print(f"\nWF-14 s2 (c5): rc {rc0}/{rc1}; unplanted copy dead={counts0['dead']}; planted copy dead={counts1['dead']}")
+        print(
+            f"\nWF-14 s2 (c5): rc {rc0}/{rc1}; unplanted copy dead={counts0['dead']}; planted copy dead={counts1['dead']}"
+        )
     assert counts0["dead"] == 0
     assert counts1["dead"] == 1

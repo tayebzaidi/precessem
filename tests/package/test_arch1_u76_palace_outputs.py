@@ -39,12 +39,16 @@ from fem_em_solver import (
     ThermalBallGeometry,
     ThermalBoxGeometry,
     cli,
+    study_yaml,
 )
-from fem_em_solver import study_yaml
-from fem_em_solver.study_yaml import _PALACE_ROUTED_OUTPUTS, _load, _run_palace, _run_study_file_palace
-
-from tests.package.test_wf17_first_study_tutorial import extract_tagged_block
+from fem_em_solver.study_yaml import (
+    _PALACE_ROUTED_OUTPUTS,
+    _load,
+    _run_palace,
+    _run_study_file_palace,
+)
 from tests.package.test_wf1_study_yaml import WF1, _fresh_dir, _mapping, _rc_all
+from tests.package.test_wf17_first_study_tutorial import extract_tagged_block
 
 REPO = Path(__file__).resolve().parents[2]
 SCRATCH = REPO / "logs" / "arch1" / "u76"  # gitignored (logs/)
@@ -52,16 +56,32 @@ PAGE = REPO / "docs" / "guide" / "backends.md"
 LOG_DIR = REPO / "docs" / "testing" / "logs"
 U16C_LOG = "20261018T172228Z_ARCH-1-U16c-W1.log"
 BIT_PREFIXES = ("[U16c T4 E2]", "[U16c T4 Tie2]", "[U16c T4 c-order]", "[U16c T5 E1]")
-EM_OUTPUT_KEYS = {"s_matrix", "z_matrix", "touchstone", "sar", "b1_plus", "probes",
-                  "tune", "temperature", "s_matrices"}
+EM_OUTPUT_KEYS = {
+    "s_matrix",
+    "z_matrix",
+    "touchstone",
+    "sar",
+    "b1_plus",
+    "probes",
+    "tune",
+    "temperature",
+    "s_matrices",
+}
 REFUSAL_RE = re.compile(r"palace: (?:a )?(\S+) is not supported")
 
 FOUR_PORT = WF1 / "f_small_four_port.yaml"
-TRACKED = ("f_small_em_probes.yaml", "f_small_sar_b1.yaml", "f_small_sweep.yaml",
-           "f_small_copper.yaml", "f_small_hole_pec_capacitors.yaml",
-           "f_small_hole_pec_tune.yaml", "sphere_mat4.yaml",
-           "f_human_tuned_copper_thermal.yaml", "thermal_box_steady_m4.yaml",
-           "thermal_ball_wall.yaml")
+TRACKED = (
+    "f_small_em_probes.yaml",
+    "f_small_sar_b1.yaml",
+    "f_small_sweep.yaml",
+    "f_small_copper.yaml",
+    "f_small_hole_pec_capacitors.yaml",
+    "f_small_hole_pec_tune.yaml",
+    "sphere_mat4.yaml",
+    "f_human_tuned_copper_thermal.yaml",
+    "thermal_box_steady_m4.yaml",
+    "thermal_ball_wall.yaml",
+)
 
 
 def _say(capsys, msg):
@@ -90,8 +110,13 @@ def _stub_builds(monkeypatch):
         calls["n"] += 1
         raise AssertionError("build must not be called on a refused route")
 
-    for cls in (SphereInBoxGeometry, FHumanBirdcageGeometry, FourPortBirdcageGeometry,
-                ThermalBallGeometry, ThermalBoxGeometry):
+    for cls in (
+        SphereInBoxGeometry,
+        FHumanBirdcageGeometry,
+        FourPortBirdcageGeometry,
+        ThermalBallGeometry,
+        ThermalBoxGeometry,
+    ):
         monkeypatch.setattr(cls, "build", stub)
     return calls
 
@@ -112,21 +137,32 @@ def _rows(comm):
     probes = _mapping(WF1 / "f_small_em_probes.yaml")["outputs"]["probes"]
     _fresh_dir(SCRATCH / "yaml", comm)
     rows = [
-        ("+outputs.sar", _write("u76_sar.yaml", {**base, "outputs": {"sar": sar_b1["sar"]}}, comm),
-         "--backend", "outputs.sar"),
-        ("+outputs.b1_plus", _write("u76_b1_plus.yaml",
-                                    {**base, "outputs": {"b1_plus": sar_b1["b1_plus"]}}, comm),
-         "--backend", "outputs.b1_plus"),
-        ("+outputs.probes", _write("u76_probes.yaml",
-                                   {**base, "outputs": {"probes": probes}}, comm),
-         "--backend", "outputs.probes"),
+        (
+            "+outputs.sar",
+            _write("u76_sar.yaml", {**base, "outputs": {"sar": sar_b1["sar"]}}, comm),
+            "--backend",
+            "outputs.sar",
+        ),
+        (
+            "+outputs.b1_plus",
+            _write("u76_b1_plus.yaml", {**base, "outputs": {"b1_plus": sar_b1["b1_plus"]}}, comm),
+            "--backend",
+            "outputs.b1_plus",
+        ),
+        (
+            "+outputs.probes",
+            _write("u76_probes.yaml", {**base, "outputs": {"probes": probes}}, comm),
+            "--backend",
+            "outputs.probes",
+        ),
         ("+tune", _write("u76_tune.yaml", {**base, "tune": {}}, comm), "--backend", "tune"),
     ]
     for name in TRACKED:
         key = "study.sweep_hz" if name == "f_small_sweep.yaml" else None
         rows.append((name, WF1 / name, "--backend", key))
-    rows.append(("malformed_thermal_on_port.yaml", WF1 / "malformed_thermal_on_port.yaml",
-                 "thermal", None))
+    rows.append(
+        ("malformed_thermal_on_port.yaml", WF1 / "malformed_thermal_on_port.yaml", "thermal", None)
+    )
     return rows
 
 
@@ -174,8 +210,11 @@ def test_u76_palace_refusals_by_field(monkeypatch, capsys):
         unwritten = _all(comm, not out_py.exists() and not out_cli.exists())
         results.append((label, want_field, want_key, g, msg, rc_all, err, unwritten))
     for label, want_field, want_key, g, msg, rc_all, err, unwritten in results:
-        _say(capsys, f"[U76 X] {label}: field {g!r} (want {want_field!r}); msg {msg!r}; "
-             f"rc {rc_all}; nothing written {unwritten}")
+        _say(
+            capsys,
+            f"[U76 X] {label}: field {g!r} (want {want_field!r}); msg {msg!r}; "
+            f"rc {rc_all}; nothing written {unwritten}",
+        )
     for label, want_field, want_key, g, msg, rc_all, err, unwritten in results:
         assert g == want_field, (label, g, msg)
         if want_key is not None:
@@ -190,10 +229,15 @@ def test_u76_palace_refusals_by_field(monkeypatch, capsys):
     study, kind, outputs, cooling = _load(FOUR_PORT)
     out_th = SCRATCH / "out" / "thermal_guard"
     _fresh_dir(out_th, comm)
-    g_th, msg_th = _field(lambda: _run_palace(study, kind, outputs, FOUR_PORT, out_th, "",
-                                              0.0, comm, cooling=object()))
-    _say(capsys, f"[U76 Th] cooling=object(): field {g_th!r}; msg {msg_th!r}; "
-         f"builds {calls['n']}")
+    g_th, msg_th = _field(
+        lambda: _run_palace(
+            study, kind, outputs, FOUR_PORT, out_th, "", 0.0, comm, cooling=object()
+        )
+    )
+    _say(
+        capsys,
+        f"[U76 Th] cooling=object(): field {g_th!r}; msg {msg_th!r}; " f"builds {calls['n']}",
+    )
     assert g_th == "--backend"
     assert msg_th is not None and msg_th.endswith("palace: thermal is not supported"), msg_th
     assert _all(comm, not out_th.exists())
@@ -213,13 +257,24 @@ def _refused_names(monkeypatch, comm):
     for _label, f, want_field, _k in _rows(comm):
         if want_field != "--backend":
             continue
-        _g, msg = _field(lambda f=f: _run_study_file_palace(
-            f, output_dir=SCRATCH / "out" / "names", comm=comm))
+        _g, msg = _field(
+            lambda f=f: _run_study_file_palace(f, output_dir=SCRATCH / "out" / "names", comm=comm)
+        )
         names.update(REFUSAL_RE.findall(msg or ""))
     study, kind, outputs, _c = _load(FOUR_PORT)
-    _g, msg = _field(lambda: _run_palace(study, kind, outputs, FOUR_PORT,
-                                         SCRATCH / "out" / "names", "", 0.0, comm,
-                                         cooling=object()))
+    _g, msg = _field(
+        lambda: _run_palace(
+            study,
+            kind,
+            outputs,
+            FOUR_PORT,
+            SCRATCH / "out" / "names",
+            "",
+            0.0,
+            comm,
+            cooling=object(),
+        )
+    )
     names.update(REFUSAL_RE.findall(msg or ""))
     return names
 
@@ -236,16 +291,27 @@ def test_u76_palace_admits_and_carries(monkeypatch, capsys):
         if backend != "palace":
             raise AssertionError(f"spy: backend {backend!r}")
         spy["n"] += 1
-        return SimpleNamespace(s_matrix=np.eye(4), cells=0, order=1,
-                               case_dir=kw.get("case_dir"), sha256={}, palace_total_s=None)
+        return SimpleNamespace(
+            s_matrix=np.eye(4),
+            cells=0,
+            order=1,
+            case_dir=kw.get("case_dir"),
+            sha256={},
+            palace_total_s=None,
+        )
 
     monkeypatch.setattr("fem_em_solver.study.Study.solve", fake_solve)
     base = _mapping(FOUR_PORT)
     files = [
         ("no outputs", _write("u76_admit_plain.yaml", base, comm)),
-        ("outputs.directory", _write(
-            "u76_admit_dir.yaml",
-            {**base, "outputs": {"directory": str(SCRATCH / "out" / "admit_dir_yaml")}}, comm)),
+        (
+            "outputs.directory",
+            _write(
+                "u76_admit_dir.yaml",
+                {**base, "outputs": {"directory": str(SCRATCH / "out" / "admit_dir_yaml")}},
+                comm,
+            ),
+        ),
     ]
     keysets = []
     for label, f in files:
@@ -256,8 +322,11 @@ def test_u76_palace_admits_and_carries(monkeypatch, capsys):
         summary = json.loads((out / "summary.json").read_text())
         keys = set(summary) & EM_OUTPUT_KEYS
         keysets.append(keys)
-        _say(capsys, f"[U76 A] {label}: solves {spy['n'] - before}; EM keys {sorted(keys)}; "
-             f"run.summary == file {run.summary == summary}")
+        _say(
+            capsys,
+            f"[U76 A] {label}: solves {spy['n'] - before}; EM keys {sorted(keys)}; "
+            f"run.summary == file {run.summary == summary}",
+        )
         assert spy["n"] - before == 1
         assert keys == {"s_matrix"}
 
@@ -268,8 +337,11 @@ def test_u76_palace_admits_and_carries(monkeypatch, capsys):
     before = spy["n"]
     _run_study_file_palace(WF1 / "f_small_em_probes.yaml", output_dir=out, comm=comm)
     summary = json.loads((out / "summary.json").read_text())
-    _say(capsys, f"[U76 c-drop] allow-list + probes: solves {spy['n'] - before}; "
-         f"'probes' in summary {'probes' in summary}")
+    _say(
+        capsys,
+        f"[U76 c-drop] allow-list + probes: solves {spy['n'] - before}; "
+        f"'probes' in summary {'probes' in summary}",
+    )
     assert spy["n"] - before == 1
     assert "probes" not in summary
     monkeypatch.setattr(study_yaml, "_PALACE_ROUTED_OUTPUTS", _PALACE_ROUTED_OUTPUTS)
@@ -279,8 +351,11 @@ def test_u76_palace_admits_and_carries(monkeypatch, capsys):
     returns = sorted(keysets[0])
     text = PAGE.read_text()
     mism = _page_mismatch(text, honoured, returns, refused)
-    _say(capsys, f"[U76 Pg] honoured {honoured}; returns {returns}; refused {sorted(refused)}; "
-         f"page block {_page_lines(text)}; mismatch {mism}")
+    _say(
+        capsys,
+        f"[U76 Pg] honoured {honoured}; returns {returns}; refused {sorted(refused)}; "
+        f"page block {_page_lines(text)}; mismatch {mism}",
+    )
     assert mism == [], mism
 
     # (c-pg): the page with outputs.probes deleted from refused: fails, naming it
@@ -340,8 +415,13 @@ def test_u76_u16_readings_bitwise(capsys):
     _say(capsys, f"[U76 c-bit] unequal {c_bit}")
     assert c_bit == ["[U16c T4 Tie2]"]
 
-    names = sorted({p.name.removesuffix(".gz") for p in LOG_DIR.iterdir()
-                    if re.search(r"_ARCH-1-U76-RGU16[^/]*\.log(\.gz)?$", p.name)})
+    names = sorted(
+        {
+            p.name.removesuffix(".gz")
+            for p in LOG_DIR.iterdir()
+            if re.search(r"_ARCH-1-U76-RGU16[^/]*\.log(\.gz)?$", p.name)
+        }
+    )
     assert names, "no ARCH-1-U76-RGU16 log"
     new = _bit_lines(_read_log(names[-1]))
     diff = _bit_unequal(ref, new)

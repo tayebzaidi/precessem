@@ -80,9 +80,8 @@ import time
 import numpy as np
 import pytest
 import ufl
-from mpi4py import MPI
-
 from dolfinx import fem
+from mpi4py import MPI
 
 from fem_em_solver.core import (
     HomogeneousMaterial,
@@ -92,7 +91,6 @@ from fem_em_solver.core import (
 from fem_em_solver.core.resonance import stored_electric_energy
 from fem_em_solver.io.mesh import MeshGenerator
 from fem_em_solver.utils.constants import MU_0
-
 from tests.complex_mode import complex_only
 from tests.validation.test_port_reaction_impedance import (
     AIR_PADDING,
@@ -186,9 +184,7 @@ def self_impedance_routes():
     comm.Barrier()
     t_solve = time.perf_counter() - t_solve
 
-    z11_reaction = _reaction(
-        msh, cell_tags, fields.e_complex, DRIVEN_TAG, current, current, comm
-    )
+    z11_reaction = _reaction(msh, cell_tags, fields.e_complex, DRIVEN_TAG, current, current, comm)
     w_e = stored_electric_energy(fields, comm=comm)
     w_m = stored_magnetic_energy(fields.e_complex, comm)
     im_z11_energy = 4.0 * OMEGA * (w_m - w_e) / current**2
@@ -201,8 +197,7 @@ def self_impedance_routes():
             flush=True,
         )
         print(
-            f"[PORT-1 step 2b] W_m = {w_m:.6e} J, W_e = {w_e:.6e} J, "
-            f"W_e/W_m = {w_e / w_m:.6f}",
+            f"[PORT-1 step 2b] W_m = {w_m:.6e} J, W_e = {w_e:.6e} J, " f"W_e/W_m = {w_e / w_m:.6f}",
             flush=True,
         )
         print(
@@ -259,9 +254,7 @@ def test_reaction_diagonal_real_part_is_structurally_zero(self_impedance_routes)
     real_part = self_impedance_routes["z11_reaction"].real
     if MPI.COMM_WORLD.rank == 0:
         print(f"[PORT-1 step 2b] Re Z11 = {real_part:+.6e} Ohm", flush=True)
-    assert abs(real_part) < 1e-30, (
-        f"Re Z11 = {real_part:.6e} Ohm is not structurally zero"
-    )
+    assert abs(real_part) < 1e-30, f"Re Z11 = {real_part:.6e} Ohm is not structurally zero"
 
 
 @complex_only

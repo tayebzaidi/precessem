@@ -93,9 +93,7 @@ def _rung(strip_fraction):
         tag = SHEET_IFACE + i
         azimuth = _sheet_azimuth_deg(msh, tags_full, tag, comm)
         radial, azimuthal, axial = _port_frame(azimuth)
-        spans, centres = _projected_extents(
-            msh, tags_full, tag, comm, [radial, azimuthal, axial]
-        )
+        spans, centres = _projected_extents(msh, tags_full, tag, comm, [radial, azimuthal, axial])
         ports[i] = {
             "tag": tag,
             "frame": (radial, azimuthal, axial),
@@ -129,9 +127,7 @@ def _rung(strip_fraction):
             _tag_volume(msh, cell_tags, PORT_LOWER + i, comm),
             _tag_volume(msh, cell_tags, PORT_UPPER + i, comm),
         )
-    subset_all = bool(
-        comm.allreduce(all(ports[i]["subset_local"] for i in PORTS), op=MPI.LAND)
-    )
+    subset_all = bool(comm.allreduce(all(ports[i]["subset_local"] for i in PORTS), op=MPI.LAND))
     return {
         "cells": int(msh.topology.index_map(tdim).size_global),
         "dx": dx,
@@ -196,9 +192,9 @@ def test_a2_strip_is_exactly_half(rungs):
         )
         width = p["N"] / p["N_h"]
         target = GATED_WIDTH_FRACTION * r["dx"]
-        assert abs(width / target - 1.0) < STRIP_BAND, (
-            f"P{i}: width A/h={width:.12e} vs {target:.12e}"
-        )
+        assert (
+            abs(width / target - 1.0) < STRIP_BAND
+        ), f"P{i}: width A/h={width:.12e} vs {target:.12e}"
 
 
 def test_a3_strip_is_a_subset_and_the_complement_is_half(rungs):
@@ -208,16 +204,14 @@ def test_a3_strip_is_a_subset_and_the_complement_is_half(rungs):
     for i in PORTS:
         p = r["ports"][i]
         comp = p["F"] - p["N"]
-        assert abs(comp / half - 1.0) < STRIP_BAND, (
-            f"P{i}: F\\N={comp:.12e} vs {half:.12e}"
-        )
+        assert abs(comp / half - 1.0) < STRIP_BAND, f"P{i}: F\\N={comp:.12e} vs {half:.12e}"
 
 
 def test_a4_default_path_cell_count_unchanged(rungs):
     cells = rungs["off"]["cells"]
-    assert abs(cells / STEP2_CELL_COUNT - 1.0) < CELL_COUNT_BAND, (
-        f"flag off meshed {cells} cells against {STEP2_CELL_COUNT}"
-    )
+    assert (
+        abs(cells / STEP2_CELL_COUNT - 1.0) < CELL_COUNT_BAND
+    ), f"flag off meshed {cells} cells against {STEP2_CELL_COUNT}"
 
 
 def test_a5_box_halves_partition_the_box(rungs):
@@ -231,15 +225,13 @@ def test_a6_flag_on_cell_record(rungs):
     cells = rungs["on"]["cells"]
     if MPI.COMM_WORLD.rank == 0:
         print(
-            f"\n[OPS-61 1b] A6 flag-on cells = {cells} "
-            f"(record {ANS4_EXACT_STRIP_CELL_RECORD})",
+            f"\n[OPS-61 1b] A6 flag-on cells = {cells} " f"(record {ANS4_EXACT_STRIP_CELL_RECORD})",
             flush=True,
         )
     if ANS4_EXACT_STRIP_CELL_RECORD is None:
         pytest.skip("A6 record not yet registered (W1 measures it)")
     assert abs(cells / ANS4_EXACT_STRIP_CELL_RECORD - 1.0) < CELL_COUNT_BAND, (
-        f"flag-on meshed {cells} cells against the record "
-        f"{ANS4_EXACT_STRIP_CELL_RECORD}"
+        f"flag-on meshed {cells} cells against the record " f"{ANS4_EXACT_STRIP_CELL_RECORD}"
     )
 
 
@@ -250,9 +242,9 @@ def test_negative_control_flag_off_strip_is_ragged(rungs):
         miss = r["ports"][i]["N"] / half - 1.0
         if MPI.COMM_WORLD.rank == 0:
             print(f"[OPS-61 1b] negative control P{i}: miss {miss:+.3e}", flush=True)
-        assert abs(miss) > NEGATIVE_CONTROL_FLOOR, (
-            f"P{i}: flag-off N_i misses only {miss:+.3e} — the control is not one"
-        )
+        assert (
+            abs(miss) > NEGATIVE_CONTROL_FLOOR
+        ), f"P{i}: flag-off N_i misses only {miss:+.3e} — the control is not one"
 
 
 def test_strip_fraction_refusals():

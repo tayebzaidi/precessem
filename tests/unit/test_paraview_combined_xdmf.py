@@ -11,15 +11,14 @@ structure and round-trips the heavy data through the HDF5 file byte-for-byte.
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
-import numpy as np
 import h5py
+import numpy as np
 import pytest
+from dolfinx import default_scalar_type, fem
+from dolfinx import mesh as dmesh
 from mpi4py import MPI
 
-from dolfinx import default_scalar_type, fem, mesh as dmesh
-
 from fem_em_solver.io.paraview_utils import write_combined_paraview_output
-
 
 CONSTANT = np.array([1.5, -2.0, 3.0])
 
@@ -44,7 +43,7 @@ def _split_name(name):
     """``real_F`` -> ``("F", "real")``; ``F`` -> ``("F", "real")`` in real mode."""
     for part in ("real", "imag"):
         if name.startswith(f"{part}_"):
-            return name[len(part) + 1:], part
+            return name[len(part) + 1 :], part
     return name, "real"
 
 
@@ -102,9 +101,7 @@ def cube_with_fields(tmp_path_factory):
     g.interpolate(lambda x: -2.0 * x[:3])
 
     # All ranks need the same directory; broadcast rank 0's tmp path.
-    out_dir = comm.bcast(
-        str(tmp_path_factory.mktemp("pv")) if comm.rank == 0 else None
-    )
+    out_dir = comm.bcast(str(tmp_path_factory.mktemp("pv")) if comm.rank == 0 else None)
     return comm, msh, cell_tags, f, g, out_dir
 
 
@@ -135,8 +132,7 @@ def test_combined_xdmf_is_single_grid_with_all_attributes(cube_with_fields):
     # Inverted assertion: the other build's spelling must be absent, so a
     # both-spellings union can never be mistaken for a fix.
     assert names.isdisjoint(FORBIDDEN_NAMES), (
-        f"emitted the other build's attribute spelling: "
-        f"{sorted(names & FORBIDDEN_NAMES)}"
+        f"emitted the other build's attribute spelling: " f"{sorted(names & FORBIDDEN_NAMES)}"
     )
 
     n_cells_global = msh.topology.index_map(msh.topology.dim).size_global
@@ -149,9 +145,7 @@ def test_combined_xdmf_is_single_grid_with_all_attributes(cube_with_fields):
         assert data is not None, f"{name} has no DataItem"
         base, part = _split_name(name)
         if part == "imag":
-            assert np.array_equal(data, np.zeros_like(data)), (
-                f"{name} is not identically zero"
-            )
+            assert np.array_equal(data, np.zeros_like(data)), f"{name} is not identically zero"
             continue
         if base == "F":
             assert data.shape[1] == 3

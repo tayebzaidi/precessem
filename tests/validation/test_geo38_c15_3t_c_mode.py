@@ -168,8 +168,11 @@ def test_c15_reader_frequency_closed_form():
     r64 = ring_c_modes(s, pm, freq_hz=FREQUENCY_HZ, n_slots=n, z0=REFERENCE_IMPEDANCE_OHM)
     rel128 = abs(r128["c_mode_f"] / c_true - 1.0)
     ratio = r64["c_mode_f"] / r128["c_mode_f"]
-    print(f"\n[GEO-38 C15] (K) closed form N=32: C_mode(128 MHz) rel {rel128:.3e}; "
-          f"C_mode(64)/C_mode(128) {ratio:.12f}", flush=True)
+    print(
+        f"\n[GEO-38 C15] (K) closed form N=32: C_mode(128 MHz) rel {rel128:.3e}; "
+        f"C_mode(64)/C_mode(128) {ratio:.12f}",
+        flush=True,
+    )
     assert rel128 <= 1e-9, rel128
     assert abs(ratio - 2.0) <= 1e-12, ratio
     assert pm != _canonical_map(n)
@@ -190,8 +193,10 @@ def test_geo38_c15_3t_c_mode():
     order = [str(x) for x in sv["order"]]
     az = np.asarray(sv["azimuth_deg"], dtype=float)
     zc = np.asarray(sv["z_m"], dtype=float)
-    _say(f"{path} ({path.stat().st_size} B); s64 {s.shape} {s.dtype}; order {order[0]}…{order[-1]}; "
-         f"cells {int(sv['cells'])}, n_ranks {int(sv['n_ranks'])}")
+    _say(
+        f"{path} ({path.stat().st_size} B); s64 {s.shape} {s.dtype}; order {order[0]}…{order[-1]}; "
+        f"cells {int(sv['cells'])}, n_ranks {int(sv['n_ranks'])}"
+    )
     assert s.shape == (64, 64), s.shape
     assert order == [f"P{i}" for i in range(33, 97)], order[:4]
 
@@ -199,9 +204,11 @@ def test_geo38_c15_3t_c_mode():
     ratio = _reciprocity_ratio(s)
     sigma_max = float(np.linalg.norm(s, 2))
     rr = (f"{ratio:.6e}", f"{sigma_max:.12f}")
-    _say(f"(RR3) reciprocity {rr[0]} vs entry 47 {RECIPROCITY_3T_RECORD_STR} (band {RECIPROCITY_BAND:.0e}); "
-         f"sigma_max {rr[1]} vs entry 47 {SIGMA_MAX_3T_RECORD_STR} (ceiling {MATRIX_PASSIVITY_CEILING}) "
-         f"(string equality, ASSERTED)")
+    _say(
+        f"(RR3) reciprocity {rr[0]} vs entry 47 {RECIPROCITY_3T_RECORD_STR} (band {RECIPROCITY_BAND:.0e}); "
+        f"sigma_max {rr[1]} vs entry 47 {SIGMA_MAX_3T_RECORD_STR} (ceiling {MATRIX_PASSIVITY_CEILING}) "
+        f"(string equality, ASSERTED)"
+    )
 
     # ---- (CT3) ----
     classes, res = _class_table(az, zc, classify=_azimuth_class_32)
@@ -209,11 +216,13 @@ def test_geo38_c15_3t_c_mode():
     spreads = _class_spreads(s, classes)
     mine = _table_lines(spreads, N_AZIMUTH_CLASSES_32)
     ct_miss = _ct_misses(mine)
-    _say(f"(CT3) classes {len(classes)} (expected {N_SYMMETRY_CLASSES_32}), sizes equal expected "
-         f"{sizes == _expected_class_sizes()}, worst pair residual {res:.3e} deg; lines matching "
-         f"C11.log:14750–14783 {len(C11_TABLE_LINES) - len(ct_miss)}/{len(C11_TABLE_LINES)} "
-         f"(normalisation: payload after the '[GEO-38 C3] ' prefix, '{WORST_MARKER}' dropped, "
-         f"whitespace runs collapsed; ASSERTED)")
+    _say(
+        f"(CT3) classes {len(classes)} (expected {N_SYMMETRY_CLASSES_32}), sizes equal expected "
+        f"{sizes == _expected_class_sizes()}, worst pair residual {res:.3e} deg; lines matching "
+        f"C11.log:14750–14783 {len(C11_TABLE_LINES) - len(ct_miss)}/{len(C11_TABLE_LINES)} "
+        f"(normalisation: payload after the '[GEO-38 C3] ' prefix, '{WORST_MARKER}' dropped, "
+        f"whitespace runs collapsed; ASSERTED)"
+    )
     for a, b in ct_miss:
         _say(f"(CT3) MISS mine '{_norm(a)}' vs C11 '{_norm(b)}'")
 
@@ -221,8 +230,10 @@ def test_geo38_c15_3t_c_mode():
     geo = map_from_geometry(az, zc)
     agree = sum(g == m for g, m in zip(geo, map_from_names_64(order)))
     p33_p41 = (geo[0], geo[8])
-    _say(f"(Map) geometry map unique {len(set(geo))}/64; name-route agreement {agree}/64; P33 -> {geo[0]}, "
-         f"P41 -> {geo[8]} (C10's {PRED_C3_P33_P41_SLOTS}; ASSERTED)")
+    _say(
+        f"(Map) geometry map unique {len(set(geo))}/64; name-route agreement {agree}/64; P33 -> {geo[0]}, "
+        f"P41 -> {geo[8]} (C10's {PRED_C3_P33_P41_SLOTS}; ASSERTED)"
+    )
 
     # ---- C_mode at 128 MHz, and (CF) at 64 MHz ----
     r = ring_c_modes(s, geo, freq_hz=FREQUENCY_3T_HZ, n_slots=32, z0=REFERENCE_IMPEDANCE_OHM)
@@ -230,25 +241,37 @@ def test_geo38_c15_3t_c_mode():
     for k in range(17):
         m = r["modes"][k]
         lam = m["lambda_anti"]
-        _say(f"  k={k:2d} lambda_anti {lam.real:+.9e} {lam.imag:+.9e}j Ohm anti {m['anti']:.6f} "
-             f"C {m['c_anti_f'] * 1e12:+.4f} pF")
-    _say(f"C_mode {r['c_mode_f']:.12e} F = {r['c_mode_f'] * 1e12:.4f} pF at {FREQUENCY_3T_HZ / 1e6:g} MHz; "
-         f"C_2 {r['c_k2_f']:.12e} F = {r['c_k2_f'] * 1e12:.4f} pF; anti(k=1) {r['modes'][1]['anti']:.6f}; "
-         f"off-block {r['off_block']:.6e}; (Im) Im lambda_1 {lam1.imag:+.9e} Ohm (ASSERTED > 0)")
+        _say(
+            f"  k={k:2d} lambda_anti {lam.real:+.9e} {lam.imag:+.9e}j Ohm anti {m['anti']:.6f} "
+            f"C {m['c_anti_f'] * 1e12:+.4f} pF"
+        )
+    _say(
+        f"C_mode {r['c_mode_f']:.12e} F = {r['c_mode_f'] * 1e12:.4f} pF at {FREQUENCY_3T_HZ / 1e6:g} MHz; "
+        f"C_2 {r['c_k2_f']:.12e} F = {r['c_k2_f'] * 1e12:.4f} pF; anti(k=1) {r['modes'][1]['anti']:.6f}; "
+        f"off-block {r['off_block']:.6e}; (Im) Im lambda_1 {lam1.imag:+.9e} Ohm (ASSERTED > 0)"
+    )
     r64 = ring_c_modes(s, geo, freq_hz=FREQUENCY_HZ, n_slots=32, z0=REFERENCE_IMPEDANCE_OHM)
     cf_ratio = r64["c_mode_f"] / r["c_mode_f"]
-    _say(f"(CF) C_mode read at {FREQUENCY_HZ / 1e6:g} MHz {r64['c_mode_f'] * 1e12:.4f} pF; ratio 64/128 "
-         f"{cf_ratio:.6f} (expected 2; ASSERTED |ratio - 1| > {CF_MIN_REL})")
+    _say(
+        f"(CF) C_mode read at {FREQUENCY_HZ / 1e6:g} MHz {r64['c_mode_f'] * 1e12:.4f} pF; ratio 64/128 "
+        f"{cf_ratio:.6f} (expected 2; ASSERTED |ratio - 1| > {CF_MIN_REL})"
+    )
 
     # ---- (CN) negative control: P33's z sign flipped ----
     zf = zc.copy()
     zf[0] = -zf[0]
     cls_f, _r = _class_table(az, zf, classify=_azimuth_class_32)
     n_changed = sum(1 for k in classes if len(cls_f.get(k, [])) != len(classes[k]))
-    lines_f = _table_lines(_class_spreads(s, cls_f), N_AZIMUTH_CLASSES_32) if len(cls_f) == len(classes) else []
+    lines_f = (
+        _table_lines(_class_spreads(s, cls_f), N_AZIMUTH_CLASSES_32)
+        if len(cls_f) == len(classes)
+        else []
+    )
     cn_miss = len(_ct_misses(lines_f))
-    _say(f"(CN) {order[0]} z sign flipped: classes {len(cls_f)}, classes with changed n {n_changed} "
-         f"(ASSERTED >= 1), (CT3) lines differing {cn_miss} (ASSERTED > 0)")
+    _say(
+        f"(CN) {order[0]} z sign flipped: classes {len(cls_f)}, classes with changed n {n_changed} "
+        f"(ASSERTED >= 1), (CT3) lines differing {cn_miss} (ASSERTED > 0)"
+    )
 
     assert rr == (RECIPROCITY_3T_RECORD_STR, SIGMA_MAX_3T_RECORD_STR), rr
     assert ratio <= RECIPROCITY_BAND, ratio
@@ -263,34 +286,62 @@ def test_geo38_c15_3t_c_mode():
 
     # ---- entry 49's grid centre (written only after the anchors hold) ----
     C15_JSON.parent.mkdir(parents=True, exist_ok=True)
-    C15_JSON.write_text(json.dumps({
-        "source": str(path), "freq_hz": FREQUENCY_3T_HZ, "z0_ohm": REFERENCE_IMPEDANCE_OHM,
-        "n_slots": 32, "c_mode_f": r["c_mode_f"], "c_k2_f": r["c_k2_f"],
-        "off_block": r["off_block"], "reciprocity": ratio, "sigma_max": sigma_max,
-        "name_route_agreement": agree, "cells": int(sv["cells"]), "n_ranks": int(sv["n_ranks"]),
-        "modes": {str(k): {"lambda_anti": [m["lambda_anti"].real, m["lambda_anti"].imag],
-                           "anti": m["anti"], "c_anti_f": m["c_anti_f"]}
-                  for k, m in r["modes"].items()},
-    }, indent=2))
+    C15_JSON.write_text(
+        json.dumps(
+            {
+                "source": str(path),
+                "freq_hz": FREQUENCY_3T_HZ,
+                "z0_ohm": REFERENCE_IMPEDANCE_OHM,
+                "n_slots": 32,
+                "c_mode_f": r["c_mode_f"],
+                "c_k2_f": r["c_k2_f"],
+                "off_block": r["off_block"],
+                "reciprocity": ratio,
+                "sigma_max": sigma_max,
+                "name_route_agreement": agree,
+                "cells": int(sv["cells"]),
+                "n_ranks": int(sv["n_ranks"]),
+                "modes": {
+                    str(k): {
+                        "lambda_anti": [m["lambda_anti"].real, m["lambda_anti"].imag],
+                        "anti": m["anti"],
+                        "c_anti_f": m["c_anti_f"],
+                    }
+                    for k, m in r["modes"].items()
+                },
+            },
+            indent=2,
+        )
+    )
     _say(f"wrote {C15_JSON} ({C15_JSON.stat().st_size} B)")
 
     # ---- the anatomy (printed only; entry 47's decision-rule action) ----
     abs_sp = _abs_spreads(s, classes)
     ref_key = (True, 1)
     ref_abs = abs_sp[ref_key]
-    _say(f"reference class 'same ring, 1 step': rel {spreads[ref_key][0] * 100:.4f}%, abs {ref_abs:.6e}")
-    over = [k for same in (True, False) for k in [(same, st) for st in range(N_AZIMUTH_CLASSES_32)]
-            if spreads[k][0] > ADJACENT_SPREAD_BAND]
+    _say(
+        f"reference class 'same ring, 1 step': rel {spreads[ref_key][0] * 100:.4f}%, abs {ref_abs:.6e}"
+    )
+    over = [
+        k
+        for same in (True, False)
+        for k in [(same, st) for st in range(N_AZIMUTH_CLASSES_32)]
+        if spreads[k][0] > ADJACENT_SPREAD_BAND
+    ]
     ratios = {}
     for key in over:
         sp, cnt, mean = spreads[key]
         ratios[key] = abs_sp[key] / ref_abs
-        _say(f"anatomy {'same ' if key[0] else 'other'} ring, {key[1]:2d} steps  n = {cnt:4d}  "
-             f"mean |S| {mean:.9e}  abs spread {abs_sp[key]:.6e}  rel {sp * 100:8.4f}%  "
-             f"abs / (same ring, 1 step) {ratios[key]:.4f}")
+        _say(
+            f"anatomy {'same ' if key[0] else 'other'} ring, {key[1]:2d} steps  n = {cnt:4d}  "
+            f"mean |S| {mean:.9e}  abs spread {abs_sp[key]:.6e}  rel {sp * 100:8.4f}%  "
+            f"abs / (same ring, 1 step) {ratios[key]:.4f}"
+        )
     worst = max(ratios, key=ratios.get)
     n_gt1 = sum(v > 1.0 for v in ratios.values())
-    _say(f"SUMMARY classes above ADJACENT_SPREAD_BAND {ADJACENT_SPREAD_BAND}: {len(over)}/34; largest "
-         f"abs-spread ratio {ratios[worst]:.4f} on {'same' if worst[0] else 'other'} ring, {worst[1]} steps; "
-         f"classes with ratio > 1: {n_gt1} (printed, not asserted)")
+    _say(
+        f"SUMMARY classes above ADJACENT_SPREAD_BAND {ADJACENT_SPREAD_BAND}: {len(over)}/34; largest "
+        f"abs-spread ratio {ratios[worst]:.4f} on {'same' if worst[0] else 'other'} ring, {worst[1]} steps; "
+        f"classes with ratio > 1: {n_gt1} (printed, not asserted)"
+    )
     _say(f"body {time.perf_counter() - t0:.2f} s")

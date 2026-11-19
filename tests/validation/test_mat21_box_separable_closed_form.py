@@ -30,15 +30,15 @@ from tests.validation.test_mat21_box_closed_form import (
     B_BOX,
     C_BOX,
     FOS,
-    H,
     HALF,
-    K,
-    Q,
     R2_PTS,
     R4_PTS,
     RHO_C,
     SERIES_TERMS,
     T_C,
+    H,
+    K,
+    Q,
     _face_residuals,
 )
 
@@ -56,13 +56,24 @@ def _say(msg):
 
 def _sep(x, y, z, profiles=PROFILES, n_terms=SERIES_TERMS, **kw):
     return robin_box_separable_steady_temperature(
-        x, y, z, half_widths=HALF, profiles=profiles, n_terms=n_terms, t_inf=T_INF, **KW, **kw)
+        x, y, z, half_widths=HALF, profiles=profiles, n_terms=n_terms, t_inf=T_INF, **KW, **kw
+    )
 
 
 def _sep_t(x, y, z, t, profiles=PROFILES, n_terms=SERIES_TERMS, **kw):
     return robin_box_separable_transient_temperature(
-        x, y, z, t, half_widths=HALF, profiles=profiles, n_terms=n_terms, t_inf=T_INF,
-        rho_c=RHO_C, **KW, **kw)
+        x,
+        y,
+        z,
+        t,
+        half_widths=HALF,
+        profiles=profiles,
+        n_terms=n_terms,
+        t_inf=T_INF,
+        rho_c=RHO_C,
+        **KW,
+        **kw,
+    )
 
 
 def _axis(L, n, prof=(1.0, 0.0, 0)):
@@ -106,19 +117,28 @@ def test_q1_projection_vs_quadrature():
 # ---------------------------------------------------------------- (Q2)
 def test_q2_uniform_bitwise():
     pts = np.array(R2_PTS)
-    g = np.meshgrid(np.linspace(-0.9, 0.9, 7) * A_BOX, np.linspace(-0.9, 0.9, 7) * B_BOX,
-                    np.linspace(-0.9, 0.9, 3) * C_BOX, indexing="ij")
+    g = np.meshgrid(
+        np.linspace(-0.9, 0.9, 7) * A_BOX,
+        np.linspace(-0.9, 0.9, 7) * B_BOX,
+        np.linspace(-0.9, 0.9, 3) * C_BOX,
+        indexing="ij",
+    )
     x = np.concatenate([pts[:, 0], g[0].ravel()])
     y = np.concatenate([pts[:, 1], g[1].ravel()])
     z = np.concatenate([pts[:, 2], g[2].ravel()])
     a = _sep(x, y, z, profiles=UNIFORM)
-    b = robin_box_steady_temperature(x, y, z, half_widths=HALF, n_terms=SERIES_TERMS, t_inf=T_INF, **KW)
+    b = robin_box_steady_temperature(
+        x, y, z, half_widths=HALF, n_terms=SERIES_TERMS, t_inf=T_INF, **KW
+    )
     t = 0.2 * T_C
     at = _sep_t(x, y, z, t, profiles=UNIFORM)
-    bt = robin_box_transient_temperature(x, y, z, t, half_widths=HALF, n_terms=SERIES_TERMS,
-                                         t_inf=T_INF, rho_c=RHO_C, **KW)
-    _say(f"MAT21-6 (Q2) uniform profile vs step 0: steady equal {np.array_equal(a, b)}, "
-         f"Fo 0.2 equal {np.array_equal(at, bt)} over {x.size} points")
+    bt = robin_box_transient_temperature(
+        x, y, z, t, half_widths=HALF, n_terms=SERIES_TERMS, t_inf=T_INF, rho_c=RHO_C, **KW
+    )
+    _say(
+        f"MAT21-6 (Q2) uniform profile vs step 0: steady equal {np.array_equal(a, b)}, "
+        f"Fo 0.2 equal {np.array_equal(at, bt)} over {x.size} points"
+    )
     assert np.array_equal(a, b)
     assert np.array_equal(at, bt)
 
@@ -153,11 +173,15 @@ def test_q4_gauss_truncated_identity():
     ratio = H * total / (Q * vol)
     prod = _sprime(SERIES_TERMS)
     err = abs(ratio - prod)
-    _say(f"MAT21-6 (Q4) h*surface/(QV) {ratio:.15f}, prod S' (40,40,40) {prod:.15f}, "
-         f"|diff| {err:.3e} (predicted <= 1e-14)")
-    _say(f"MAT21-6 printed floor 1 - prod S': (40,40,40) {1 - prod:.4e} (predicted 7.9221e-6); "
-         f"SEP_TERMS {1 - _sprime(SEP_TERMS):.4e} (predicted 2.2196e-6); step 0 uniform "
-         f"{1 - _sprime(SERIES_TERMS, UNIFORM):.4e} (4.6708e-6)")
+    _say(
+        f"MAT21-6 (Q4) h*surface/(QV) {ratio:.15f}, prod S' (40,40,40) {prod:.15f}, "
+        f"|diff| {err:.3e} (predicted <= 1e-14)"
+    )
+    _say(
+        f"MAT21-6 printed floor 1 - prod S': (40,40,40) {1 - prod:.4e} (predicted 7.9221e-6); "
+        f"SEP_TERMS {1 - _sprime(SEP_TERMS):.4e} (predicted 2.2196e-6); step 0 uniform "
+        f"{1 - _sprime(SERIES_TERMS, UNIFORM):.4e} (4.6708e-6)"
+    )
     assert err <= 1e-10
 
 
@@ -173,8 +197,13 @@ def _x_reduced(x, y, z, nm, nn, profile_sign=-1.0):
     gpa = Q / (K * mu2) - s * Q / (K * (mu2 + p**2))  # g_p(A), cos(pA) = -1
     ax = abs(x)
     e2a = np.exp(-2.0 * mu * A_BOX)
-    hom = -H * gpa * np.exp(mu * (ax - A_BOX)) * (1.0 + np.exp(-2.0 * mu * ax)) / (
-        K * mu * (1.0 - e2a) + H * (1.0 + e2a))
+    hom = (
+        -H
+        * gpa
+        * np.exp(mu * (ax - A_BOX))
+        * (1.0 + np.exp(-2.0 * mu * ax))
+        / (K * mu * (1.0 - e2a) + H * (1.0 + e2a))
+    )
     g = Q / (K * mu2) + s * Q * np.cos(p * x) / (K * (mu2 + p**2)) + hom
     Y = np.cos(gy * y / B_BOX)
     Z = np.cos(gz * z / C_BOX)
@@ -189,8 +218,10 @@ def test_q5_x_reduced_route():
         a = float(_sep(*p, n_terms=(200, 40, 40)) - T_INF)
         worst = max(worst, abs(a - b) / th_ref)
         _say(f"MAT21-6 (Q5) {p}: triple(200,40,40) {a:.12f}  reduced(40,40) {b:.12f}")
-    _say(f"MAT21-6 (Q5) theta_ref {th_ref:.6f} K (predicted 14.92); max |triple - reduced|/theta_ref "
-         f"{worst:.3e} (predicted <= 3e-9)")
+    _say(
+        f"MAT21-6 (Q5) theta_ref {th_ref:.6f} K (predicted 14.92); max |triple - reduced|/theta_ref "
+        f"{worst:.3e} (predicted <= 3e-9)"
+    )
     assert worst <= 1e-7
 
 
@@ -200,7 +231,9 @@ def _uprod_sep(x, y, z, s, n=SERIES_TERMS):
     out = np.ones_like(s, dtype=float)
     for coord, L, nd, prof in zip((x, y, z), HALF, n, PROFILES):
         gam, _, p = _axis(L, nd, prof)
-        out = out * (np.exp(-ALPHA * np.outer(s, (gam / L) ** 2)) * (p * np.cos(gam * coord / L))).sum(1)
+        out = out * (
+            np.exp(-ALPHA * np.outer(s, (gam / L) ** 2)) * (p * np.cos(gam * coord / L))
+        ).sum(1)
     return out
 
 
@@ -223,8 +256,11 @@ def test_q6_duhamel_and_late_time():
             worst = max(worst, abs(a - b) / th_ref)
             _say(f"MAT21-6 (Q6) Fo {fo} {p}: series {a:.12f}  Duhamel {b:.12f}")
     _say(f"MAT21-6 (Q6) max |series - Duhamel|/theta_ref {worst:.3e} (predicted <= 1e-13)")
-    pts = (np.array([0.0, 0.5 * A_BOX, 0.9 * A_BOX]), np.array([0.0, 0.3 * B_BOX, 0.7 * B_BOX]),
-           np.array([0.0, 0.5 * C_BOX, 0.9 * C_BOX]))
+    pts = (
+        np.array([0.0, 0.5 * A_BOX, 0.9 * A_BOX]),
+        np.array([0.0, 0.3 * B_BOX, 0.7 * B_BOX]),
+        np.array([0.0, 0.5 * C_BOX, 0.9 * C_BOX]),
+    )
     ss = _sep(*pts)
     late = _sep_t(*pts, 100.0 * T_C)
     e_late = np.max(np.abs(late - ss) / np.abs(ss - T_INF))
@@ -238,17 +274,23 @@ def test_printed_records():
     for L, lab in zip(HALF, "xyz"):
         gam, c, _ = _axis(L, 3)
         d = robin_slab_cosine_coefficients(gam, 1)
-        _say(f"MAT21-6 printed {lab}: gamma {np.array2string(gam, precision=6)}; C "
-             f"{np.array2string(c, precision=6)}; D1 {np.array2string(d, precision=6)}; "
-             f"C - D1 {np.array2string(c - d, precision=6)}")
-    _say("MAT21-6 printed drafting (x): gamma 1.330018/4.068213/6.945535; C 1.243794/-0.351594/0.165527; "
-         "D 0.271608/0.871010/-0.208103; P 0.972185/-1.222604/0.373630")
+        _say(
+            f"MAT21-6 printed {lab}: gamma {np.array2string(gam, precision=6)}; C "
+            f"{np.array2string(c, precision=6)}; D1 {np.array2string(d, precision=6)}; "
+            f"C - D1 {np.array2string(c - d, precision=6)}"
+        )
+    _say(
+        "MAT21-6 printed drafting (x): gamma 1.330018/4.068213/6.945535; C 1.243794/-0.351594/0.165527; "
+        "D 0.271608/0.871010/-0.208103; P 0.972185/-1.222604/0.373630"
+    )
     pts = ((0.0, 0.0, 0.0), (0.9 * A_BOX, 0.0, 0.0), (0.9 * A_BOX, 0.9 * B_BOX, 0.9 * C_BOX))
     vs = [float(_sep(*p, n_terms=SEP_TERMS) - T_INF) for p in pts]
     vu = [float(_sep(*p, profiles=UNIFORM) - T_INF) for p in pts]
-    _say(f"MAT21-6 printed steady sep (80,40,40) {vs[0]:.6f} / {vs[1]:.6f} / {vs[2]:.6f} K "
-         f"(predicted 2.741147 / 14.919189 / 8.541895); uniform {vu[0]:.6f} / {vu[1]:.6f} / {vu[2]:.6f} "
-         f"(predicted 12.003947 / 8.706255 / 4.852187)")
+    _say(
+        f"MAT21-6 printed steady sep (80,40,40) {vs[0]:.6f} / {vs[1]:.6f} / {vs[2]:.6f} K "
+        f"(predicted 2.741147 / 14.919189 / 8.541895); uniform {vu[0]:.6f} / {vu[1]:.6f} / {vu[2]:.6f} "
+        f"(predicted 12.003947 / 8.706255 / 4.852187)"
+    )
     ts = 0.2 * T_C
     t0 = float(_sep_t(0.0, 0.0, 0.0, ts, n_terms=SEP_TERMS) - T_INF)
     t9 = float(_sep_t(0.9 * A_BOX, 0.0, 0.0, ts, n_terms=SEP_TERMS) - T_INF)
@@ -264,6 +306,8 @@ def test_q_ctl_flipped_profile_misses():
         a = float(_sep(*p, profiles=FLIPPED, n_terms=(200, 40, 40)) - T_INF)
         worst = max(worst, abs(a - b) / th_ref)
     c = float(_sep(0.0, 0.0, 0.0, profiles=FLIPPED, n_terms=(200, 40, 40)) - T_INF)
-    _say(f"MAT21-6 control (1 + cos vs 1 - cos reduced): max miss/theta_ref {worst:.3e} "
-         f"(predicted 1.24); centre {c:.4f} vs {red[0]:.4f} K (predicted 21.27 vs 2.74)")
+    _say(
+        f"MAT21-6 control (1 + cos vs 1 - cos reduced): max miss/theta_ref {worst:.3e} "
+        f"(predicted 1.24); centre {c:.4f} vs {red[0]:.4f} K (predicted 21.27 vs 2.74)"
+    )
     assert worst > 1e-3

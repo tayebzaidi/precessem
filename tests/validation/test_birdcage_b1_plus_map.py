@@ -66,7 +66,6 @@ import time
 import dolfinx
 import numpy as np
 import pytest
-from mpi4py import MPI
 
 from fem_em_solver.core import TimeHarmonicSolver
 from fem_em_solver.ports.lumped import (
@@ -81,7 +80,6 @@ from fem_em_solver.post import (
     mean_sar,
     project_to_cg1,
 )
-
 from tests.complex_mode import complex_only
 from tests.mesh.test_birdcage_port_sheets import SHEET_IFACE
 from tests.validation.test_port_birdcage_four_port import (
@@ -187,9 +185,7 @@ def _solve_driven(sweep, driven_port_id, degree=None, sigma_field_hook=None):
     t_solve = time.perf_counter() - t0
 
     currents = {
-        sheet.port_id: sheet_terminal_current(
-            msh, tags_f, sheet, fields.e_complex, comm
-        )
+        sheet.port_id: sheet_terminal_current(msh, tags_f, sheet, fields.e_complex, comm)
         for sheet in sheets
     }
 
@@ -216,14 +212,10 @@ def _power_shares(sweep, solved):
         comm=sweep["mesh"].comm,
     )
     phantom = float(
-        mean_sar(fields.e_complex, subdomain_ids=PHANTOM_CELL_TAG, **kwargs)[
-            "dissipated_power_w"
-        ]
+        mean_sar(fields.e_complex, subdomain_ids=PHANTOM_CELL_TAG, **kwargs)["dissipated_power_w"]
     )
     conductor = float(
-        mean_sar(fields.e_complex, subdomain_ids=CONDUCTOR_CELL_TAG, **kwargs)[
-            "dissipated_power_w"
-        ]
+        mean_sar(fields.e_complex, subdomain_ids=CONDUCTOR_CELL_TAG, **kwargs)["dissipated_power_w"]
     )
     # ``Z_p`` is the same 50 Ohm on every sheet by leg (d0)'s finding; each
     # sheet dissipates ½|I|²Re Z_p, the driven one included.
@@ -268,9 +260,11 @@ def _sample_points(sweep):
         mids = mids[keep]
 
     gathered = comm.allgather(np.ascontiguousarray(mids, dtype=np.float64))
-    points = np.concatenate([g for g in gathered if g.size], axis=0) if any(
-        g.size for g in gathered
-    ) else np.zeros((0, 3), dtype=np.float64)
+    points = (
+        np.concatenate([g for g in gathered if g.size], axis=0)
+        if any(g.size for g in gathered)
+        else np.zeros((0, 3), dtype=np.float64)
+    )
 
     order = np.lexsort((points[:, 2], points[:, 1], points[:, 0]))
     points = points[order]
@@ -305,9 +299,7 @@ def b1_plus_map():
     """
     sweep = build_four_port_sweep()
     comm = sweep["mesh"].comm
-    azimuths = {
-        f"P{s['tag'] - SHEET_IFACE}": float(s["azimuth_deg"]) for s in sweep["sheets"]
-    }
+    azimuths = {f"P{s['tag'] - SHEET_IFACE}": float(s["azimuth_deg"]) for s in sweep["sheets"]}
     # The rotation is read off the *fixture's* geometry, not chosen: it is the
     # azimuthal separation of the two sheets whose drives are being compared.
     delta_deg = (azimuths["P2"] - azimuths["P1"]) % 360.0
@@ -326,15 +318,13 @@ def b1_plus_map():
     mask = valid_a & valid_b & valid_c & valid_d
 
     def mismatch(other):
-        return float(
-            np.linalg.norm(other[mask] - a[mask]) / np.linalg.norm(a[mask])
-        ) if mask.sum() else float("inf")
+        return (
+            float(np.linalg.norm(other[mask] - a[mask]) / np.linalg.norm(a[mask]))
+            if mask.sum()
+            else float("inf")
+        )
 
-    deviation = (
-        np.abs(b[mask] - a[mask]) / np.abs(a[mask])
-        if mask.sum()
-        else np.array([np.inf])
-    )
+    deviation = np.abs(b[mask] - a[mask]) / np.abs(a[mask]) if mask.sum() else np.array([np.inf])
     shares = {pid: _power_shares(sweep, solves[pid]) for pid in ("P1", "P2")}
 
     if comm.rank == 0:
@@ -453,9 +443,7 @@ def test_power_accounting_closes_at_each_single_drive(b1_plus_map):
 
 
 @complex_only
-def test_b1_plus_map_is_c4_covariant_under_the_drive_rotation(
-    cg1_estimator_table, b1_plus_map
-):
+def test_b1_plus_map_is_c4_covariant_under_the_drive_rotation(cg1_estimator_table, b1_plus_map):
     """**Gate (ii)** — the symmetry identity, with its mis-rotated control.
 
     Re-registered on the CG1-projected estimator by the 2026-08-30 weekly review
@@ -598,9 +586,7 @@ def _read_b1_plus_cg1(projected, points):
 
 
 def _relative_l2(other, reference, mask):
-    return float(
-        np.linalg.norm(other[mask] - reference[mask]) / np.linalg.norm(reference[mask])
-    )
+    return float(np.linalg.norm(other[mask] - reference[mask]) / np.linalg.norm(reference[mask]))
 
 
 @pytest.fixture(scope="module")
@@ -661,8 +647,7 @@ def cg1_estimator_table(b1_plus_map):
             "gate (ii) on the CG1 estimator with this table as its provenance"
         )
     elif (
-        min(table[label]["cg1"] for label in ("P2@+90deg", "P4@-90deg"))
-        >= VERDICT_ASYMMETRY_BAND
+        min(table[label]["cg1"] for label in ("P2@+90deg", "P4@-90deg")) >= VERDICT_ASYMMETRY_BAND
         and table["P3@180deg"]["cg1"] <= VERDICT_RESOLVED_BAND
     ):
         verdict = (
@@ -751,9 +736,7 @@ def test_cg1_projection_reads_the_same_field_as_step_1(cg1_estimator_table, b1_p
         "silently drop points"
     )
 
-    assert b1_plus_map["covariance"] == pytest.approx(
-        STEP1_DG0_C4_MISMATCH, rel=RECORD_RTOL
-    ), (
+    assert b1_plus_map["covariance"] == pytest.approx(STEP1_DG0_C4_MISMATCH, rel=RECORD_RTOL), (
         f"the DG0 P2-at-+90deg covariance mismatch reads "
         f"{b1_plus_map['covariance'] * 100:.6f}%, not step 1's "
         f"{STEP1_DG0_C4_MISMATCH * 100:.4f}% — same mesh, same points, so the "
@@ -768,7 +751,10 @@ def test_cg1_projection_reads_the_same_field_as_step_1(cg1_estimator_table, b1_p
         f"{STEP1_GATE_I_P1_RESIDUAL:.6e}"
     )
 
-    for name, values in (("DG0", cg1_estimator_table["dg0_p1"]), ("CG1", cg1_estimator_table["cg1_p1"])):
+    for name, values in (
+        ("DG0", cg1_estimator_table["dg0_p1"]),
+        ("CG1", cg1_estimator_table["cg1_p1"]),
+    ):
         masked = values[cg1_estimator_table["mask"]]
         assert np.all(np.isfinite(masked)), f"{name} |B1+| is not finite on the sample set"
         assert float(np.min(masked)) > 0.0, f"{name} |B1+| vanishes identically on the sample set"
@@ -844,8 +830,7 @@ def _ring_points():
     set (and the reading on it) is the same at any rank count.
     """
     azimuths = np.radians(
-        RING_AZIMUTH_JITTER_DEG
-        + 360.0 / RING_AZIMUTH_COUNT * np.arange(RING_AZIMUTH_COUNT)
+        RING_AZIMUTH_JITTER_DEG + 360.0 / RING_AZIMUTH_COUNT * np.arange(RING_AZIMUTH_COUNT)
     )
     points = [
         (r * np.cos(phi), r * np.sin(phi), z)
@@ -956,9 +941,7 @@ def ring_set_table(b1_plus_map):
                 ),
                 flush=True,
             )
-        deltas_pp = {
-            label: (table[label]["l2"] - centroid[label]) * 100.0 for label in centroid
-        }
+        deltas_pp = {label: (table[label]["l2"] - centroid[label]) * 100.0 for label in centroid}
         within = max(abs(v) for v in deltas_pp.values()) <= 2.0
         print(
             f"    |B1+| over the ring set, P1 driven: mean "
@@ -1021,9 +1004,7 @@ def test_the_ring_set_reproduces_step_1s_records(ring_set_table, b1_plus_map):
     Neither reading is new — they are the proof that changing the sample set
     changed only the sample set.
     """
-    assert b1_plus_map["covariance"] == pytest.approx(
-        STEP1_DG0_C4_MISMATCH, rel=RECORD_RTOL
-    ), (
+    assert b1_plus_map["covariance"] == pytest.approx(STEP1_DG0_C4_MISMATCH, rel=RECORD_RTOL), (
         f"the centroid-set DG0 P2-at-+90deg mismatch reads "
         f"{b1_plus_map['covariance'] * 100:.6f}%, not step 1's "
         f"{STEP1_DG0_C4_MISMATCH * 100:.4f}%"

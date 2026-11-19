@@ -41,7 +41,6 @@ from fem_em_solver.study import (
     SphereInBoxGeometry,
     Study,
 )
-
 from tests.complex_mode import complex_only
 from tests.package.test_wf13_estimate_f_clinical import _study, no_build  # noqa: F401
 from tests.package.test_wf16_load_result_f_human import OUT_DIR, _swap12_n, _write_named
@@ -87,8 +86,10 @@ def _expect_ref(st, tag):
     ):
         with pytest.raises((TypeError, ValueError)) as ei:
             call()
-        _p0(f"[WF-16 s16 {tag} Ref] {name} on the loaded F-clinical: "
-            f"{type(ei.value).__name__}: {ei.value}")
+        _p0(
+            f"[WF-16 s16 {tag} Ref] {name} on the loaded F-clinical: "
+            f"{type(ei.value).__name__}: {ei.value}"
+        )
 
 
 @complex_only
@@ -128,15 +129,18 @@ def test_wf16_s16_w0_knob_and_synthetic(monkeypatch, no_build):  # noqa: F811
     rt = float(np.max(np.abs(res.s_matrix - s)))
     t1 = st.tune(1, n_slots=N_SLOTS, comm=comm)
     e1 = abs(t1.c_mode_farad / c_ref - 1.0)
-    _p0(f"\n[WF-16 s16 W0] synthetic 64-port: ports {len(res.port_ids)}, max|dS| {rt:.3e}; "
+    _p0(
+        f"\n[WF-16 s16 W0] synthetic 64-port: ports {len(res.port_ids)}, max|dS| {rt:.3e}; "
         f"C_1 {t1.c_mode_farad:.12e} F vs closed {c_ref:.12e} F, rel {e1:.3e} "
-        f"(EXACT_IDENTITY_RTOL {EXACT_IDENTITY_RTOL:.1e})")
+        f"(EXACT_IDENTITY_RTOL {EXACT_IDENTITY_RTOL:.1e})"
+    )
     assert e1 <= EXACT_IDENTITY_RTOL
     _expect_ref(st, "W0")
 
     st63 = _study()
-    p63 = _write_named(OUT_DIR / f"s16_synthetic63_{tag}.s63p", st63.frequency_hz, s[:63, :63],
-                       names[:63])
+    p63 = _write_named(
+        OUT_DIR / f"s16_synthetic63_{tag}.s63p", st63.frequency_hz, s[:63, :63], names[:63]
+    )
     with pytest.raises(ValueError, match="ports") as ei:
         st63.load_result(p63)
     assert st63.result is None
@@ -176,6 +180,7 @@ def test_wf16_s16_tune_on_saved_f_clinical():
         def _boom(self, *a, **k):
             calls[name] += 1
             raise AssertionError(f"(S0) the loaded Study called {name}")
+
         return _boom
 
     with pytest.MonkeyPatch.context() as mp:
@@ -183,30 +188,42 @@ def test_wf16_s16_tune_on_saved_f_clinical():
         mp.setattr(Study, "_solve_ports", _spy("_solve_ports"))
         loaded = fresh.load_result(path)
         tl = fresh.tune(1, comm=comm)
-    _p0(f"\n[WF-16 s16 S0] class-level spies: solve {calls['solve']}, "
-        f"_solve_ports {calls['_solve_ports']}")
+    _p0(
+        f"\n[WF-16 s16 S0] class-level spies: solve {calls['solve']}, "
+        f"_solve_ports {calls['_solve_ports']}"
+    )
     _expect_ref(fresh, "W1")
 
     rt = float(np.max(np.abs(loaded.s_matrix - s64)))
     cl = tl.c_mode_farad
     g_cm = abs(cl / float(c10["c_mode_f"]) - 1.0)
     pf = f"{cl * 1e12:.4f}"
-    _p0(f"[WF-16 s16 RT] max|dS| against the npz {rt:.3e} (EXACT_IDENTITY_RTOL "
-        f"{EXACT_IDENTITY_RTOL:.1e}); port order kept {list(loaded.port_ids) == order}")
-    _p0(f"[WF-16 s16 CM] loaded C_mode {cl:.12e} F vs C10 {float(c10['c_mode_f']):.12e} F: rel "
-        f"{g_cm:.3e} (REDUCTION_BAND {REDUCTION_BAND:.1e}); off-block {tl.off_diagonal_residual:.6e}")
+    _p0(
+        f"[WF-16 s16 RT] max|dS| against the npz {rt:.3e} (EXACT_IDENTITY_RTOL "
+        f"{EXACT_IDENTITY_RTOL:.1e}); port order kept {list(loaded.port_ids) == order}"
+    )
+    _p0(
+        f"[WF-16 s16 CM] loaded C_mode {cl:.12e} F vs C10 {float(c10['c_mode_f']):.12e} F: rel "
+        f"{g_cm:.3e} (REDUCTION_BAND {REDUCTION_BAND:.1e}); off-block {tl.off_diagonal_residual:.6e}"
+    )
     _p0(f"[WF-16 s16 CM-r] {pf} pF vs record {C10_C_MODE_PF_RECORD}")
 
     # Negative control: ports 1 <-> 2 swapped in the data, names kept.
-    sw = _write_named(OUT_DIR / f"s16_swap12_n{comm.size}.s64p", fhz, _swap12_n(loaded.s_matrix),
-                      list(loaded.port_ids))
+    sw = _write_named(
+        OUT_DIR / f"s16_swap12_n{comm.size}.s64p",
+        fhz,
+        _swap12_n(loaded.s_matrix),
+        list(loaded.port_ids),
+    )
     st_sw = _study()
     st_sw.load_result(sw)
     try:
         cw = st_sw.tune(1, comm=comm).c_mode_farad
         miss = abs(cw / float(c10["c_mode_f"]) - 1.0)
-        _p0(f"[WF-16 s16 Sw] ports 1<->2 swapped: C {cw:.12e} F, miss {miss:.6e} vs "
-            f"LEG_D0_REPRODUCTION_BAND {LEG_D0_REPRODUCTION_BAND:.1e}")
+        _p0(
+            f"[WF-16 s16 Sw] ports 1<->2 swapped: C {cw:.12e} F, miss {miss:.6e} vs "
+            f"LEG_D0_REPRODUCTION_BAND {LEG_D0_REPRODUCTION_BAND:.1e}"
+        )
     except ValueError as exc:  # a non-capacitive read is a miss too; printed
         miss = float("inf")
         _p0(f"[WF-16 s16 Sw] ports 1<->2 swapped: tune raised {exc} (miss = inf)")

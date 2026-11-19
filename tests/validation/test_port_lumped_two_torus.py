@@ -89,7 +89,7 @@ from fem_em_solver.ports.lumped import (
     sheet_terminal_current,
 )
 from fem_em_solver.ports.systematics import mutual_systematics_ladder
-
+from fem_em_solver.post.evaluation import evaluate_vector_field_parallel
 from tests.complex_mode import complex_only
 from tests.mesh.test_two_torus_port_facets import _facet_group_area
 from tests.mesh.test_two_torus_port_sheet import (
@@ -117,6 +117,7 @@ from tests.validation.test_port_gap_voltage_impedance import (
     SIGMA_WIRE_S_PER_M,
     WIRE_TAGS,
     _azimuthal_unit,
+    _fringe_fraction,
     _gap_drive,
     _gap_half_extents,
     _path_voltage,
@@ -124,9 +125,7 @@ from tests.validation.test_port_gap_voltage_impedance import (
     _tag_measure,
     _tag_volume,
 )
-from tests.validation.test_port_gap_voltage_impedance import _fringe_fraction
 from tests.validation.test_port_reaction_impedance import mutual_inductance
-from fem_em_solver.post.evaluation import evaluate_vector_field_parallel
 
 # `GEO-16`'s fragment: each gap box becomes two cell groups, told apart by
 # centroid z. A caller selecting the gap volume by tag must take BOTH halves —
@@ -144,13 +143,13 @@ PROBE_PORT_IMPEDANCE_OHM = 1.0e6
 # here as *printed comparators only* — nothing below asserts on them, because
 # the fragmented mesh is a mesh no record was measured on and whether the route
 # moved is this step's measurement.
-GAP_ROUTE_RAW_RECORD = 0.894543          # × ωM₁₂, unfragmented mesh
-GAP_ROUTE_CORRECTED_RECORD = 0.939849    # × ωM₁₂, through ports.systematics
+GAP_ROUTE_RAW_RECORD = 0.894543  # × ωM₁₂, unfragmented mesh
+GAP_ROUTE_CORRECTED_RECORD = 0.939849  # × ωM₁₂, through ports.systematics
 
 # Structural identity bands, all inherited, none invented here.
-VOLUME_IDENTITY_BAND = 1.0e-9            # `PORT-1` 3b-i measured 1.000000000000
-AREA_IDENTITY_BAND = 1.0e-9              # `GEO-16` / `GEO-15` CAD denominator
-QUADRATURE_DRIFT_TOLERANCE = 1.0e-3      # 3b-x, unmoved
+VOLUME_IDENTITY_BAND = 1.0e-9  # `PORT-1` 3b-i measured 1.000000000000
+AREA_IDENTITY_BAND = 1.0e-9  # `GEO-16` / `GEO-15` CAD denominator
+QUADRATURE_DRIFT_TOLERANCE = 1.0e-3  # 3b-x, unmoved
 
 # ---------------------------------------------------------------------------
 # Step 2 — the cross-route adjudication and its diagnosis.
@@ -159,8 +158,8 @@ QUADRATURE_DRIFT_TOLERANCE = 1.0e-3      # 3b-x, unmoved
 # They are recorded as module constants so the numbers this run measures are
 # printed against the band they were always going to be judged by; whether they
 # hold is the step's finding, and the §7 entry carries the verdict.
-CROSS_ROUTE_BAND = 0.05                  # |ΔZ12|/|Z12|, two feed models
-MUTUAL_BAND = 0.10                       # |ratio − 1| against omega*M12
+CROSS_ROUTE_BAND = 0.05  # |ΔZ12|/|Z12|, two feed models
+MUTUAL_BAND = 0.10  # |ratio − 1| against omega*M12
 
 # Step 1's own measurements on this identical fixture (2026-08-17,
 # `20260817T050734Z_PORT-9-step1-rerun-final.log`). Reproducing them is the
@@ -176,18 +175,18 @@ MUTUAL_BAND = 0.10                       # |ratio − 1| against omega*M12
 # below is unchanged, as are the physics bands; under (b') each record's own
 # run-to-run move is 3.3e-10 (gap ratio, 3.3e-06 of band), 6.6e-10 (lumped
 # ratio, 6.6e-06 of band) and below the printed six digits (cross-route).
-STEP1_GAP_RATIO_RECORD = 0.894141        # × omega*M12, fragmented mesh
-                                         # (v0.7.2 read 0.894310)
-STEP1_LUMPED_RATIO_RECORD = 0.828893     # × omega*M12
-                                         # (v0.7.2 read 0.829782)
-STEP1_CROSS_ROUTE_RECORD = 0.077431      # |ΔZ12|/|Z12|
-                                         # (v0.7.2 read 0.077095)
+STEP1_GAP_RATIO_RECORD = 0.894141  # × omega*M12, fragmented mesh
+# (v0.7.2 read 0.894310)
+STEP1_LUMPED_RATIO_RECORD = 0.828893  # × omega*M12
+# (v0.7.2 read 0.829782)
+STEP1_CROSS_ROUTE_RECORD = 0.077431  # |ΔZ12|/|Z12|
+# (v0.7.2 read 0.077095)
 # The lumped route's own `Im Z12`, in ohms — the width-flat quantity.  Measured
 # 1.029281338 / …337 / …336 / …338 at -n 2 / 4 / 8 / 12 (`PORT-12` step 1), i.e.
 # flat to 2e-9 relative where the gap route moves 2.06e-04.
 STEP1_LUMPED_IM_Z12_OHM = 1.029281338
-LUMPED_WIDTH_FLATNESS_RTOL = 1.0e-8      # 5x the measured 2e-9 spread
-REPRODUCTION_BAND = 1.0e-4               # 0.01 pp — the grain step 1 printed to
+LUMPED_WIDTH_FLATNESS_RTOL = 1.0e-8  # 5x the measured 2e-9 spread
+REPRODUCTION_BAND = 1.0e-4  # 0.01 pp — the grain step 1 printed to
 # `PORT-12` step 2 (ruled 2026-08-30 weekly review, option (i) with a bounded
 # envelope).  REPRODUCTION_BAND above is a **`-n 2` record**: every
 # `PORT-1`/`OPS-18`/`PORT-9` two-torus digit quoted in this module was measured
@@ -206,7 +205,7 @@ REPRODUCTION_BAND = 1.0e-4               # 0.01 pp — the grain step 1 printed 
 # Widening the record band itself was declined (it would let the `-n 2` record
 # drift); so was a root-cause step on the line integral (no birdcage or Larmor
 # quantity reads a gap-route integral — see the lumped negative control below).
-PARALLEL_DRIFT_ENVELOPE = 3.0e-4         # `comm.size > 2` only; provenance above
+PARALLEL_DRIFT_ENVELOPE = 3.0e-4  # `comm.size > 2` only; provenance above
 
 # Exact-arithmetic identities: these are algebra on one solved field, so they
 # hold to round-off or the code is wrong.
@@ -221,8 +220,8 @@ HYPOTHESIS_EXPLANATION_BAND = 0.01
 # which the per-line voltage profile is sampled. Kept off the very edge
 # (|s| ≤ 0.98) so every quadrature point is strictly inside the gap box.
 PROFILE_STATIONS = np.linspace(-0.98, 0.98, 9)
-PROFILE_ORDER = 513                      # per station; the chord uses the
-                                         # gated orders instead
+PROFILE_ORDER = 513  # per station; the chord uses the
+# gated orders instead
 
 
 def _sheet_chord_voltage(e_field, x_station, z_c, half_y, order, comm) -> complex:
@@ -240,9 +239,7 @@ def _sheet_chord_voltage(e_field, x_station, z_c, half_y, order, comm) -> comple
     """
     nodes, weights = np.polynomial.legendre.leggauss(order)
     y = half_y * nodes
-    points = np.column_stack(
-        [np.full_like(y, float(x_station)), y, np.full_like(y, float(z_c))]
-    )
+    points = np.column_stack([np.full_like(y, float(x_station)), y, np.full_like(y, float(z_c))])
     values, valid = evaluate_vector_field_parallel(e_field, points, comm)
     if not bool(np.all(valid)):
         raise RuntimeError(
@@ -284,9 +281,9 @@ def _build(comm):
 def lumped_run():
     """One mesh, one solve, both routes read off the same field."""
     comm = MPI.COMM_WORLD
-    col = PRODUCTION_LADDER_DRIVEN_COLUMN          # 0 → gap 101 driven
+    col = PRODUCTION_LADDER_DRIVEN_COLUMN  # 0 → gap 101 driven
     driven_tags = GAP_CELL_TAGS_WITH_SHEET[GAP_TAGS[col]]
-    sheet_tag = SHEET_FACET_TAGS[1 - col]          # 212 — the undriven port
+    sheet_tag = SHEET_FACET_TAGS[1 - col]  # 212 — the undriven port
 
     msh, cell_tags, facet_tags, t_mesh = _build(comm)
     assert facet_tags is not None, "model_to_mesh returned no facet tags"
@@ -307,15 +304,12 @@ def lumped_run():
     # The sheet, measured — never nominal. `GEO-16`'s entry is explicit that the
     # gap box crosses a round arc, so ``R = Z_p·w/h`` needs extents read off the
     # facet set that was actually reconstructed on this mesh.
-    sheet_facets = {t: _sheet_facet_count(msh, facet_tags, t, comm)
-                    for t in SHEET_FACET_TAGS}
-    sheet_areas = {t: _facet_group_area(msh, facet_tags, t, comm)
-                   for t in SHEET_FACET_TAGS}
-    sheet_extents = {t: _sheet_extents(msh, facet_tags, t, comm)
-                     for t in SHEET_FACET_TAGS}
+    sheet_facets = {t: _sheet_facet_count(msh, facet_tags, t, comm) for t in SHEET_FACET_TAGS}
+    sheet_areas = {t: _facet_group_area(msh, facet_tags, t, comm) for t in SHEET_FACET_TAGS}
+    sheet_extents = {t: _sheet_extents(msh, facet_tags, t, comm) for t in SHEET_FACET_TAGS}
     sheet_area_cad = 4.0 * half_xz * half_y
-    w_measured = float(sheet_extents[sheet_tag][0])     # transverse, x
-    h_measured = float(sheet_extents[sheet_tag][1])     # along the current, y
+    w_measured = float(sheet_extents[sheet_tag][0])  # transverse, x
+    h_measured = float(sheet_extents[sheet_tag][1])  # along the current, y
 
     sheet = LumpedPortSheet(
         port_id=f"p{1 - col}",
@@ -353,8 +347,14 @@ def lumped_run():
         subdomain_ids=list(driven_tags),
         project_source=False,
         extra_bilinear_terms=[
+            # F821: pyflakes sees the `del` at the end of this function; the closure runs before it.
             lambda trial, test: lumped_port_bilinear_term(
-                msh, facet_tags, sheet, trial, test, omega_rad_per_s=OMEGA
+                msh,  # noqa: F821
+                facet_tags,  # noqa: F821
+                sheet,
+                trial,
+                test,
+                omega_rad_per_s=OMEGA,
             )
         ],
     )
@@ -364,9 +364,7 @@ def lumped_run():
     e = fields.e_complex
     i_conduction = (
         SIGMA_WIRE_S_PER_M
-        * _reduce(
-            ufl.inner(e, phi_hat) * _tag_measure(msh, cell_tags, WIRE_TAGS[col]), comm
-        )
+        * _reduce(ufl.inner(e, phi_hat) * _tag_measure(msh, cell_tags, WIRE_TAGS[col]), comm)
         / arc_length
     )
     # The gap route, unchanged: terminal-to-terminal path integral on the
@@ -406,9 +404,7 @@ def lumped_run():
     # difference between them is exactly why the hypothesis needs measuring
     # rather than quoting.
     x_ufl_sheet = ufl.SpatialCoordinate(msh)("+")
-    in_shadow = ufl.conditional(
-        ufl.lt(abs(x_ufl_sheet[0] - MAJOR_RADIUS), MINOR_RADIUS), 1.0, 0.0
-    )
+    in_shadow = ufl.conditional(ufl.lt(abs(x_ufl_sheet[0] - MAJOR_RADIUS), MINOR_RADIUS), 1.0, 0.0)
     area_shadow = _reduce(in_shadow * ds_sheet, comm).real
     area_fringe = _reduce((1.0 - in_shadow) * ds_sheet, comm).real
     int_ey = _reduce(e_y * ds_sheet, comm)
@@ -426,9 +422,7 @@ def lumped_run():
     profile = [
         (
             float(s),
-            _sheet_chord_voltage(
-                e, MAJOR_RADIUS + s * half_xz, z_c, half_y, PROFILE_ORDER, comm
-            ),
+            _sheet_chord_voltage(e, MAJOR_RADIUS + s * half_xz, z_c, half_y, PROFILE_ORDER, comm),
         )
         for s in PROFILE_STATIONS
     ]
@@ -464,9 +458,7 @@ def lumped_run():
         "ratio_gap": ratio_gap,
         "ratio_lumped": ratio_lumped,
         "corrected_gap": mutual_systematics_ladder(z12_gap.imag, omega_m)["corrected"],
-        "corrected_lumped": mutual_systematics_ladder(
-            z12_lumped.imag, omega_m
-        )["corrected"],
+        "corrected_lumped": mutual_systematics_ladder(z12_lumped.imag, omega_m)["corrected"],
         # Step 2's own metric, computed here so the number it will gate on is
         # on record from the run that first read both routes.
         "cross_route_complex": abs(z12_lumped - z12_gap) / abs(z12_gap),
@@ -720,11 +712,8 @@ def test_the_open_limit_reduces_to_the_sheet_average(lumped_run):
         "transverse partition is not a partition"
     )
     int_split = r["int_ey_shadow"] + r["int_ey_fringe"]
-    assert abs(int_split - r["int_ey"]) < DECOMPOSITION_IDENTITY_BAND * abs(
-        r["int_ey"]
-    ), (
-        f"partitioned sheet integral {int_split:+.9e} against the unsplit "
-        f"{r['int_ey']:+.9e}"
+    assert abs(int_split - r["int_ey"]) < DECOMPOSITION_IDENTITY_BAND * abs(r["int_ey"]), (
+        f"partitioned sheet integral {int_split:+.9e} against the unsplit " f"{r['int_ey']:+.9e}"
     )
 
 

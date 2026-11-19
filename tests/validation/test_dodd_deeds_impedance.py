@@ -47,9 +47,8 @@ import time
 import numpy as np
 import pytest
 import ufl
-from mpi4py import MPI
-
 from dolfinx import fem
+from mpi4py import MPI
 
 from fem_em_solver.core import (
     HomogeneousMaterial,
@@ -77,17 +76,10 @@ def test_nonconducting_half_space_is_exactly_invisible():
     gamma = half_space_reflection_coefficient(alphas, FREQUENCY_HZ, sigma=0.0)
     assert np.max(np.abs(gamma)) < 1e-14, f"Γ not identically zero: {gamma}"
 
-    dz = coil_impedance_change(
-        FREQUENCY_HZ, COIL_RADIUS, LIFTOFF, sigma=0.0
-    )
+    dz = coil_impedance_change(FREQUENCY_HZ, COIL_RADIUS, LIFTOFF, sigma=0.0)
     # Scale against the perfect-conductor reactance, which is what "small"
     # means here: the vacuum answer is ~14 orders of magnitude below it.
-    scale = abs(
-        2.0
-        * np.pi
-        * FREQUENCY_HZ
-        * image_limit_inductance_change(COIL_RADIUS, LIFTOFF)
-    )
+    scale = abs(2.0 * np.pi * FREQUENCY_HZ * image_limit_inductance_change(COIL_RADIUS, LIFTOFF))
     assert abs(dz) / scale < 1e-12, f"vacuum half-space gave ΔZ = {dz}"
 
 
@@ -103,9 +95,7 @@ def test_perfect_conductor_limit_matches_image_mutual_inductance():
     delta_l_image = image_limit_inductance_change(COIL_RADIUS, LIFTOFF)
     assert delta_l_image < 0.0, "image theory must *reduce* the inductance"
 
-    dz = coil_impedance_change(
-        FREQUENCY_HZ, COIL_RADIUS, LIFTOFF, sigma=1.0e12
-    )
+    dz = coil_impedance_change(FREQUENCY_HZ, COIL_RADIUS, LIFTOFF, sigma=1.0e12)
     delta_l_hankel = dz.imag / omega
 
     rel = abs(delta_l_hankel - delta_l_image) / abs(delta_l_image)
@@ -169,10 +159,7 @@ def test_loss_scales_as_sqrt_frequency_in_the_thin_skin_regime():
     sigma = 1.0e7
     freqs = np.array([1.0e7, 3.0e7, 1.0e8])
     resistances = np.array(
-        [
-            coil_impedance_change(f, COIL_RADIUS, LIFTOFF, sigma=sigma).real
-            for f in freqs
-        ]
+        [coil_impedance_change(f, COIL_RADIUS, LIFTOFF, sigma=sigma).real for f in freqs]
     )
     for f in freqs:
         assert skin_depth(f, sigma) < 0.1 * LIFTOFF, "not in the thin-skin regime"
@@ -249,11 +236,13 @@ def _azimuthal_current_density(j_magnitude: float):
         # mode UFL refuses conditionals on complex-valued operands, so the
         # magnetostatic loop fixture's max_value form does not compile here.
         rho_safe = ufl.sqrt(x[0] ** 2 + x[1] ** 2 + 1e-24)
-        return ufl.as_vector([
-            -x[1] / rho_safe * j_magnitude,
-            x[0] / rho_safe * j_magnitude,
-            0.0,
-        ])
+        return ufl.as_vector(
+            [
+                -x[1] / rho_safe * j_magnitude,
+                x[0] / rho_safe * j_magnitude,
+                0.0,
+            ]
+        )
 
     return current_density
 
@@ -309,9 +298,7 @@ def _reaction_impedance(msh, cell_tags, e_a, e_b, current_a, comm) -> complex:
     j_magnitude = FEM_CURRENT_A / (np.pi * FEM_WIRE_RADIUS**2)
     x = ufl.SpatialCoordinate(msh)
     j_vec = _azimuthal_current_density(j_magnitude)(x)
-    dx_wire = ufl.Measure(
-        "dx", domain=msh, subdomain_data=cell_tags, subdomain_id=(WIRE_TAG,)
-    )
+    dx_wire = ufl.Measure("dx", domain=msh, subdomain_data=cell_tags, subdomain_id=(WIRE_TAG,))
     # J is real, so inner()'s conjugation of its second argument is a no-op:
     # this is the reaction integral ∫ΔE·J, not ∫ΔE·J̄.
     local = fem.assemble_scalar(fem.form(ufl.inner(e_a - e_b, j_vec) * dx_wire))
@@ -345,9 +332,7 @@ def fem_impedance_change():
     tdim = msh.topology.dim
     ncells = comm.allreduce(msh.topology.index_map(tdim).size_local, op=MPI.SUM)
 
-    dx_wire = ufl.Measure(
-        "dx", domain=msh, subdomain_data=cell_tags, subdomain_id=(WIRE_TAG,)
-    )
+    dx_wire = ufl.Measure("dx", domain=msh, subdomain_data=cell_tags, subdomain_id=(WIRE_TAG,))
     one = fem.Constant(msh, np.array(1.0, dtype=np.complex128).item())
     v_wire = float(
         np.real(comm.allreduce(fem.assemble_scalar(fem.form(one * dx_wire)), op=MPI.SUM))
@@ -359,17 +344,11 @@ def fem_impedance_change():
 
     e_loaded, t_loaded = _solve_loop(msh, cell_tags, FEM_SIGMA_SLAB, comm)
     e_free, t_free = _solve_loop(msh, cell_tags, 0.0, comm)
-    e_untagged, t_untagged = _solve_loop(
-        msh, cell_tags, 0.0, comm, tag_the_slab=False
-    )
+    e_untagged, t_untagged = _solve_loop(msh, cell_tags, 0.0, comm, tag_the_slab=False)
 
     dz = _reaction_impedance(msh, cell_tags, e_loaded, e_free, current_meshed, comm)
-    dz_null = _reaction_impedance(
-        msh, cell_tags, e_free, e_untagged, current_meshed, comm
-    )
-    dz_ref = coil_impedance_change(
-        FEM_FREQUENCY_HZ, FEM_LOOP_RADIUS, FEM_LIFTOFF, FEM_SIGMA_SLAB
-    )
+    dz_null = _reaction_impedance(msh, cell_tags, e_free, e_untagged, current_meshed, comm)
+    dz_ref = coil_impedance_change(FEM_FREQUENCY_HZ, FEM_LOOP_RADIUS, FEM_LIFTOFF, FEM_SIGMA_SLAB)
 
     if comm.rank == 0:
         print(

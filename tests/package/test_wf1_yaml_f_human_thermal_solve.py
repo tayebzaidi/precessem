@@ -56,7 +56,6 @@ from fem_em_solver import study as study_mod
 from fem_em_solver.post.sar import mean_sar
 from fem_em_solver.study_yaml import _load, run_study_file
 from fem_em_solver.thermal.dose import running_average
-
 from tests.complex_mode import complex_only
 from tests.mesh.test_birdcage_port_sheet_prerequisite import CELL_COUNT_BAND
 from tests.package.test_wf1_study_yaml import LOGS
@@ -114,9 +113,11 @@ def _inputs():
             node = json.loads((REPO / NODE_JSON).read_text())
             for p in (SERIES_JSON, NODE_JSON, H12C_NPZ):
                 st = os.stat(REPO / p)
-                print(f"[WF-1 s10b] input {p}: {st.st_size} bytes, mtime "
-                      f"{time.strftime('%Y-%m-%d %H:%M:%S %Z', time.localtime(st.st_mtime))}",
-                      flush=True)
+                print(
+                    f"[WF-1 s10b] input {p}: {st.st_size} bytes, mtime "
+                    f"{time.strftime('%Y-%m-%d %H:%M:%S %Z', time.localtime(st.st_mtime))}",
+                    flush=True,
+                )
         out = (missing, series, node)
     return comm.bcast(out, root=0)
 
@@ -128,10 +129,12 @@ def test_wf1_fht_solve_knob_and_inputs():
     missing, series, _node = _inputs()
     assert not missing, f"inputs absent: {missing} — stop (BLOCKED, rule (d))"
     _study, kind, _outputs, fh = _load(FHT_FILE)
-    _p0(f"kind {kind}; source_scale {fh.cooling.source_scale.hex()} vs G "
+    _p0(
+        f"kind {kind}; source_scale {fh.cooling.source_scale.hex()} vs G "
         f"{float(series['G_per_w']).hex()}; centres {fh.balls['centres']} vs c*_theta "
         f"{series['c_star_m']}; json ranks {series['ranks']}, n_sub {series['n_sub']}, cells "
-        f"{series['cells']}, {len(series['times_s'])} samples")
+        f"{series['cells']}, {len(series['times_s'])} samples"
+    )
     assert fh.cooling.source_scale == float(series["G_per_w"])
     assert [list(map(float, c)) for c in fh.balls["centres"]] == [list(series["c_star_m"])]
     assert series["ranks"] == RECORD_RANK_WIDTH
@@ -141,8 +144,10 @@ def test_wf1_fht_solve_knob_and_inputs():
 @pytest.fixture(scope="module")
 def solved():
     if not _knob():
-        pytest.skip(f"{S10B_ENV} unset: the YAML F-human thermal solve is a heavy -n 8 window, "
-                    "environment-selected")
+        pytest.skip(
+            f"{S10B_ENV} unset: the YAML F-human thermal solve is a heavy -n 8 window, "
+            "environment-selected"
+        )
     comm = MPI.COMM_WORLD
     assert comm.size == RECORD_RANK_WIDTH, f"records are -n {RECORD_RANK_WIDTH}; got {comm.size}"
     missing, series, node = _inputs()  # read and broadcast before the run
@@ -164,11 +169,20 @@ def solved():
         comm.Barrier()
         elapsed = time.perf_counter() - t0
         res = run.result
-        _p0(f"run_study_file: {elapsed:.1f} s at -n {comm.size} (build "
+        _p0(
+            f"run_study_file: {elapsed:.1f} s at -n {comm.size} (build "
             f"{res.times.get('build', 0.0):.1f} s, node pair {res.times.get('node_pair', 0.0):.1f} s); "
-            f"solve calls {calls['n']}")
-        yield {"run": run, "series": series, "node": node, "fh": fh, "calls": calls,
-               "comm": comm, "elapsed": elapsed}
+            f"solve calls {calls['n']}"
+        )
+        yield {
+            "run": run,
+            "series": series,
+            "node": node,
+            "fh": fh,
+            "calls": calls,
+            "comm": comm,
+            "elapsed": elapsed,
+        }
 
 
 def _red(comm, form):
@@ -191,25 +205,41 @@ def test_wf1_fht_cells_once_and_source(solved):
     r_v = abs(v_sub / V_PHANTOM_H9P_RECORD_M3 - 1.0)
     # (B): P_phantom,ccw by mean_sar on the run's ccw field (collective reduction inside).
     f = res.fields["ccw"]
-    tagged = mean_sar(f.e_complex, sigma=f.sigma_field, rho=PHANTOM_RHO_KG_PER_M3,
-                      cell_tags=res.cell_tags, subdomain_ids=PHANTOM_CELL_TAG, comm=comm)
+    tagged = mean_sar(
+        f.e_complex,
+        sigma=f.sigma_field,
+        rho=PHANTOM_RHO_KG_PER_M3,
+        cell_tags=res.cell_tags,
+        subdomain_ids=PHANTOM_CELL_TAG,
+        comm=comm,
+    )
     p_ph = float(np.real(tagged["dissipated_power_w"]))
     G = float(series["G_per_w"])
     tp = summary["temperature"]
     r_b = abs(tp["source_power_w"] - G * p_ph) / (G * p_ph)
     eta = p_ph * G  # = P_phantom / P_acc,ccw (G = 1 / P_acc,ccw)
-    _p0(f"(A0) cells {summary['cells']} vs record {HOLE_CELL_RECORD} (rel {cell_rel:.3e}, band "
+    _p0(
+        f"(A0) cells {summary['cells']} vs record {HOLE_CELL_RECORD} (rel {cell_rel:.3e}, band "
         f"{CELL_COUNT_BAND}, ASSERTED); thermal cells {th.cells}; solve calls "
-        f"{solved['calls']['n']} (== 1 ASSERTED)")
-    _p0(f"(S_rep) summary s_node vs node JSON residual {r_s:.6e} (band "
-        f"{REUSE_REPRODUCTION_RTOL:g}, ASSERTED; prior 4.287849e-12)")
-    _p0(f"(V) V_sub {v_sub:.12e} m^3 vs record {V_PHANTOM_H9P_RECORD_M3:.12e}: rel {r_v:.3e} (band "
-        f"{V_BAND:g}, ASSERTED; prior 7.749e-14); n_sub {th.n_sub} vs JSON {series['n_sub']}")
-    _p0(f"(B) source_power_w {tp['source_power_w']:.15e} W vs G*P_phantom,ccw {G * p_ph:.15e} W "
+        f"{solved['calls']['n']} (== 1 ASSERTED)"
+    )
+    _p0(
+        f"(S_rep) summary s_node vs node JSON residual {r_s:.6e} (band "
+        f"{REUSE_REPRODUCTION_RTOL:g}, ASSERTED; prior 4.287849e-12)"
+    )
+    _p0(
+        f"(V) V_sub {v_sub:.12e} m^3 vs record {V_PHANTOM_H9P_RECORD_M3:.12e}: rel {r_v:.3e} (band "
+        f"{V_BAND:g}, ASSERTED; prior 7.749e-14); n_sub {th.n_sub} vs JSON {series['n_sub']}"
+    )
+    _p0(
+        f"(B) source_power_w {tp['source_power_w']:.15e} W vs G*P_phantom,ccw {G * p_ph:.15e} W "
         f"(P_phantom {p_ph:.15e} W, JSON {series['p_phantom_ccw_w']:.15e}): rel {r_b:.3e} (band "
-        f"{B_BAND:g}, ASSERTED; prior 0)")
-    _p0(f"(E) max balance residual {tp['max_balance_residual']:.3e} (band {E_BAND:g}, ASSERTED; "
-        f"P17 <= 3.3e-10)")
+        f"{B_BAND:g}, ASSERTED; prior 0)"
+    )
+    _p0(
+        f"(E) max balance residual {tp['max_balance_residual']:.3e} (band {E_BAND:g}, ASSERTED; "
+        f"P17 <= 3.3e-10)"
+    )
     _p0(f"eta = P_phantom / P_acc,ccw {eta:.6f} (printed; P17 0.2821)")
     assert abs(cell_rel) <= CELL_COUNT_BAND, cell_rel
     assert summary["cells"] == int(res.cells) == th.cells
@@ -232,13 +262,17 @@ def test_wf1_fht_ball_reproduces_p17(solved):
     th_star = ball["theta_k"][-1]
     th_json = float(series["theta_ball10g_k"][-1])
     r_t = abs(th_star / th_json - 1.0)
-    _p0(f"(T*) theta-bar(c*_theta, t* = {tp['times_s'][-1]:.1f} s) {th_star:.12e} K vs JSON "
+    _p0(
+        f"(T*) theta-bar(c*_theta, t* = {tp['times_s'][-1]:.1f} s) {th_star:.12e} K vs JSON "
         f"{th_json:.12e} K: rel {r_t:.3e} (band {REUSE_REPRODUCTION_RTOL:g}, ASSERTED; predicted "
-        f"<= 1e-10); logged {LOGGED_THETA_TSTAR_K:.9e} K")
-    _p0(f"ball radius {ball['radius_m']:.15e} m vs JSON a10 {series['a10_m']:.15e}; volume "
+        f"<= 1e-10); logged {LOGGED_THETA_TSTAR_K:.9e} K"
+    )
+    _p0(
+        f"ball radius {ball['radius_m']:.15e} m vs JSON a10 {series['a10_m']:.15e}; volume "
         f"{ball['volume_m3']:.15e} m^3 vs JSON {series['ball_volume_m3']:.15e} (rel "
         f"{abs(ball['volume_m3'] / series['ball_volume_m3'] - 1.0):.3e}, printed); sense "
-        f"{tp['sense']}; centre {ball['centre']}")
+        f"{tp['sense']}; centre {ball['centre']}"
+    )
     assert tp["sense"] == "ccw"
     assert r_t <= REUSE_REPRODUCTION_RTOL, f"(T*) {r_t:.3e}"
     assert solved["calls"]["n"] == 1, solved["calls"]["n"]
@@ -266,18 +300,26 @@ def test_wf1_fht_series_and_six_minute(solved):
     _m2, peak_own, _t_own = running_average(t_sum, b_sum, window=W_B2)
     r_own = abs(peak - float(peak_own)) / abs(float(peak_own))
     _m3, peak_vol_json, _tv = running_average(t_json, m_json, window=W_B2)
-    _p0(f"(Ser) {t_sum.size} samples; max|t - t_json| {d_t:.3e} s (<= 1e-12 ASSERTED); ball "
+    _p0(
+        f"(Ser) {t_sum.size} samples; max|t - t_json| {d_t:.3e} s (<= 1e-12 ASSERTED); ball "
         f"series max|d|/max {r_ball:.3e}, volume-mean {r_mean:.3e} (band "
-        f"{REUSE_REPRODUCTION_RTOL:g}, ASSERTED); sample 0 ball {b_sum[0]!r} mean {m_sum[0]!r}")
-    _p0(f"(6min) window {six['window_s']} s: peak {peak:.12e} K at {tmax} s vs JSON series "
+        f"{REUSE_REPRODUCTION_RTOL:g}, ASSERTED); sample 0 ball {b_sum[0]!r} mean {m_sum[0]!r}"
+    )
+    _p0(
+        f"(6min) window {six['window_s']} s: peak {peak:.12e} K at {tmax} s vs JSON series "
         f"{float(peak_json):.12e} K at {float(tmax_json)} s: rel {r_6:.3e} (band "
         f"{REUSE_REPRODUCTION_RTOL:g}, ASSERTED; t_max exact ASSERTED); logged "
-        f"{LOGGED_SIX_MIN_K:.6e} K at 1254 s")
-    _p0(f"(6min) API vs in-test running_average on the summary's own series rel {r_own:.3e} (band "
-        f"{AVG_BAR:g}, ASSERTED)")
-    _p0(f"volume-mean six-minute peak {six['volume_mean']['peak_k']:.9e} K at "
+        f"{LOGGED_SIX_MIN_K:.6e} K at 1254 s"
+    )
+    _p0(
+        f"(6min) API vs in-test running_average on the summary's own series rel {r_own:.3e} (band "
+        f"{AVG_BAR:g}, ASSERTED)"
+    )
+    _p0(
+        f"volume-mean six-minute peak {six['volume_mean']['peak_k']:.9e} K at "
         f"{six['volume_mean']['t_max_s']} s (JSON series {float(peak_vol_json):.9e}; MAT-20 "
-        f"{LOGGED_VOL_SIX_MIN_K:.3e} K; printed only)")
+        f"{LOGGED_VOL_SIX_MIN_K:.3e} K; printed only)"
+    )
     assert six["window_s"] == W_B2
     assert d_t <= 1e-12, d_t
     assert r_ball <= REUSE_REPRODUCTION_RTOL, f"(Ser) ball {r_ball:.3e}"
@@ -297,30 +339,48 @@ def test_wf1_fht_controls(solved):
     c_star = np.array([series["c_star_m"]], dtype=float)
     m_c = [float(x) for x in _mirror_xy(c_star, float(run.result.az_mirror))[0]]
     t0 = time.perf_counter()
-    n1 = run.study.temperature(fh.cooling, transient=fh.transient,
-                               balls={"mass_g": fh.balls["mass_g"], "centres": [m_c]},
-                               window_s=fh.window_s, sense="ccw", comm=comm)
+    n1 = run.study.temperature(
+        fh.cooling,
+        transient=fh.transient,
+        balls={"mass_g": fh.balls["mass_g"], "centres": [m_c]},
+        window_s=fh.window_s,
+        sense="ccw",
+        comm=comm,
+    )
     t_n1 = time.perf_counter() - t0
     r_n1 = abs(n1.balls[0]["theta_k"][-1] / th_json - 1.0)
     dt = float(series["dt_s"])
     _m, peak_json, _t = running_average(series["times_s"], series["theta_ball10g_k"], window=W_B2)
-    _m2, peak_short, _t2 = running_average(tp["times_s"], tp["balls"][0]["theta_k"],
-                                           window=W_B2 - dt)
+    _m2, peak_short, _t2 = running_average(
+        tp["times_s"], tp["balls"][0]["theta_k"], window=W_B2 - dt
+    )
     r_n2 = abs(float(peak_short) / float(peak_json) - 1.0)
     doubled = dataclasses.replace(fh.cooling, source_scale=2.0 * fh.cooling.source_scale)
     t0 = time.perf_counter()
-    n3 = run.study.temperature(doubled, transient=fh.transient, balls=fh.balls,
-                               window_s=fh.window_s, sense="ccw", comm=comm)
+    n3 = run.study.temperature(
+        doubled,
+        transient=fh.transient,
+        balls=fh.balls,
+        window_s=fh.window_s,
+        sense="ccw",
+        comm=comm,
+    )
     t_n3 = time.perf_counter() - t0
     r_n3 = abs(n3.balls[0]["theta_k"][-1] / th_json - 1.0)
-    _p0(f"(N1) M(c*_theta) = {m_c} (az_mirror {run.result.az_mirror:.12f} deg): theta-bar(t*) "
+    _p0(
+        f"(N1) M(c*_theta) = {m_c} (az_mirror {run.result.az_mirror:.12f} deg): theta-bar(t*) "
         f"{n1.balls[0]['theta_k'][-1]:.9e} K, miss {r_n1:.6e} = {r_n1 / REUSE_REPRODUCTION_RTOL:.3e}x "
-        f"band (> band ASSERTED; P17 mis-paired 13.21 %); {t_n1:.1f} s")
-    _p0(f"(N2) window {W_B2 - dt} s peak {float(peak_short):.9e} K vs {float(peak_json):.9e} K: "
+        f"band (> band ASSERTED; P17 mis-paired 13.21 %); {t_n1:.1f} s"
+    )
+    _p0(
+        f"(N2) window {W_B2 - dt} s peak {float(peak_short):.9e} K vs {float(peak_json):.9e} K: "
         f"miss {r_n2:.6e} = {r_n2 / REUSE_REPRODUCTION_RTOL:.3e}x band (> band ASSERTED; MAT-20 "
-        f"(Sh) 1.36 %)")
-    _p0(f"(N3) source_scale 2G: theta-bar(t*) {n3.balls[0]['theta_k'][-1]:.9e} K, miss "
-        f"{r_n3:.6f} (> {D_CONTROL_FLOOR:g} ASSERTED; predicted 1.000); {t_n3:.1f} s")
+        f"(Sh) 1.36 %)"
+    )
+    _p0(
+        f"(N3) source_scale 2G: theta-bar(t*) {n3.balls[0]['theta_k'][-1]:.9e} K, miss "
+        f"{r_n3:.6f} (> {D_CONTROL_FLOOR:g} ASSERTED; predicted 1.000); {t_n3:.1f} s"
+    )
     assert r_n1 > REUSE_REPRODUCTION_RTOL, f"(N1) blind comparator {r_n1:.3e}"
     assert r_n2 > REUSE_REPRODUCTION_RTOL, f"(N2) blind comparator {r_n2:.3e}"
     assert r_n3 > D_CONTROL_FLOOR, f"(N3) blind comparator {r_n3:.3e}"
@@ -337,9 +397,11 @@ def test_wf1_fht_summary_json(solved):
     differing = sorted(k for k in set(on_disk) | set(summary) if on_disk.get(k) != summary.get(k))
     if comm.rank != 0:
         print(f"[WF-1 s10b] (J) rank {comm.rank} differing keys {differing}", flush=True)
-    _p0(f"(J) rank 0 differing keys {differing} (== [] ASSERTED); family {summary['family']}; keys "
+    _p0(
+        f"(J) rank 0 differing keys {differing} (== [] ASSERTED); family {summary['family']}; keys "
         f"{sorted(summary)}; temperature keys {sorted(summary['temperature'])}; paths "
-        f"{sorted(run.paths)}; window run_study_file {solved['elapsed']:.1f} s")
+        f"{sorted(run.paths)}; window run_study_file {solved['elapsed']:.1f} s"
+    )
     if comm.rank == 0:
         assert on_disk == summary, differing
     assert summary["family"] == "f_human_birdcage"

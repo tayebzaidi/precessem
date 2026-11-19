@@ -43,7 +43,6 @@ from mpi4py import MPI
 
 from fem_em_solver.post.sar import averaging_ball_radius, mean_sar
 from fem_em_solver.thermal import solve_transient_conduction
-
 from tests.complex_mode import complex_only
 from tests.mesh.test_birdcage_port_sheets import SHEET_IFACE
 from tests.mesh.test_birdcage_port_tags import PHANTOM_RADIUS
@@ -144,17 +143,36 @@ def _cell_average_dg0_tag(msh, cell_tags, tag, integrand):
 
 def _transient(sub, ft, q, *, dt, n_steps, theta, startup_half_steps=0, snapshot_steps=()):
     return solve_transient_conduction(
-        sub, ft, k=K_GEL, rho_c=RHO_C, q=q, h=H_GEL, t_inf=T_INF, t_init=T_INF,
-        robin_tag=ROBIN_TAG, dt=dt, n_steps=n_steps, theta=theta,
-        startup_half_steps=startup_half_steps, degree=1,
+        sub,
+        ft,
+        k=K_GEL,
+        rho_c=RHO_C,
+        q=q,
+        h=H_GEL,
+        t_inf=T_INF,
+        t_init=T_INF,
+        robin_tag=ROBIN_TAG,
+        dt=dt,
+        n_steps=n_steps,
+        theta=theta,
+        startup_half_steps=startup_half_steps,
+        degree=1,
         snapshot_steps=snapshot_steps,
     )
 
 
 def _cn(sub, ft, q):
     """CN, N = 40 to t*, two BE half-steps first; snapshots N−1, N for (E′)."""
-    return _transient(sub, ft, q, dt=T_STAR / N_MAIN, n_steps=N_MAIN, theta=0.5,
-                      startup_half_steps=2, snapshot_steps=(N_MAIN - 1, N_MAIN))
+    return _transient(
+        sub,
+        ft,
+        q,
+        dt=T_STAR / N_MAIN,
+        n_steps=N_MAIN,
+        theta=0.5,
+        startup_half_steps=2,
+        snapshot_steps=(N_MAIN - 1, N_MAIN),
+    )
 
 
 def _be_one(sub, ft, q):
@@ -194,8 +212,9 @@ def _run_heated(*, return_fields=False):
 
     azimuths = {f"P{s['tag'] - SHEET_IFACE}": float(s["azimuth_deg"]) for s in sweep["sheets"]}
     order = sorted(azimuths)
-    indices = {pid: _port_index(azimuths[pid], azimuths["P1"], QUADRATURE_STEP_DEG)
-               for pid in order}
+    indices = {
+        pid: _port_index(azimuths[pid], azimuths["P1"], QUADRATURE_STEP_DEG) for pid in order
+    }
     by_k = {indices[pid]: pid for pid in order}
     solves = {pid: _solve_driven(sweep, pid) for pid in order}
     t_em = time.perf_counter() - t0
@@ -203,16 +222,27 @@ def _run_heated(*, return_fields=False):
     P = {}
     for k in range(4):
         f = solves[by_k[k]]["fields"]
-        P[k] = float(mean_sar(f.e_complex, sigma=f.sigma_field, rho=PHANTOM_RHO_KG_PER_M3,
-                              cell_tags=cell_tags, comm=comm,
-                              subdomain_ids=PHANTOM_CELL_TAG)["dissipated_power_w"])
+        P[k] = float(
+            mean_sar(
+                f.e_complex,
+                sigma=f.sigma_field,
+                rho=PHANTOM_RHO_KG_PER_M3,
+                cell_tags=cell_tags,
+                comm=comm,
+                subdomain_ids=PHANTOM_CELL_TAG,
+            )["dissipated_power_w"]
+        )
     G = 1.0 / P[0]
-    _say(f"\nMAT15 mesh {int(sweep['cells'])} cells, f = {sweep['problem'].frequency_hz:.3e} Hz; "
-         f"mesh+rung {t_mesh:.1f} s, EM total {t_em:.1f} s; drive order "
-         + ", ".join(f"k={k}:{by_k[k]}@{azimuths[by_k[k]]:.1f}deg" for k in range(4)))
-    _say(f"MAT15 G = 1 W / P_1 = {G:.12e} 1/W;  P_k [W] = "
-         + "  ".join(f"{P[k]:.12e}" for k in range(4))
-         + f"  (P_1 record {P1_RECORD_W:.12e}, rel {abs(P[0] / P1_RECORD_W - 1.0):.3e}, printed)")
+    _say(
+        f"\nMAT15 mesh {int(sweep['cells'])} cells, f = {sweep['problem'].frequency_hz:.3e} Hz; "
+        f"mesh+rung {t_mesh:.1f} s, EM total {t_em:.1f} s; drive order "
+        + ", ".join(f"k={k}:{by_k[k]}@{azimuths[by_k[k]]:.1f}deg" for k in range(4))
+    )
+    _say(
+        f"MAT15 G = 1 W / P_1 = {G:.12e} 1/W;  P_k [W] = "
+        + "  ".join(f"{P[k]:.12e}" for k in range(4))
+        + f"  (P_1 record {P1_RECORD_W:.12e}, rel {abs(P[0] / P1_RECORD_W - 1.0):.3e}, printed)"
+    )
 
     sub, parent_ids = _tag_submesh(msh, cell_tags, PHANTOM_CELL_TAG)
     ft = _robin_tags(sub)
@@ -222,11 +252,15 @@ def _run_heated(*, return_fields=False):
     v_sub = float(np.real(_allsum(comm, one * ufl.dx(domain=sub))))
     area = float(np.real(_allsum(comm, one * ds)))
     err_V = abs(v_sub / V_SUB_RECORD_M3 - 1.0)
-    _say(f"MAT15 sub cells = {n_sub} (record 58866); V_sub = {v_sub:.12e} m^3 vs record "
-         f"{V_SUB_RECORD_M3:.12e} rel {err_V:.3e} (bound {V_BAND:.0e}); oint ds = {area:.9e} m^2 "
-         f"vs CAD {CAD_AREA_M2} ({area / CAD_AREA_M2 - 1.0:+.4e}, printed)")
-    _say(f"MAT15 t_R = {T_R:.3f} s  t* = {T_STAR:.3f} s  dt = {T_STAR / N_MAIN:.4f} s  "
-         f"dt_1 = {DT_1:.6e} s  Bi = {H_GEL * A / K_GEL:.3f}")
+    _say(
+        f"MAT15 sub cells = {n_sub} (record 58866); V_sub = {v_sub:.12e} m^3 vs record "
+        f"{V_SUB_RECORD_M3:.12e} rel {err_V:.3e} (bound {V_BAND:.0e}); oint ds = {area:.9e} m^2 "
+        f"vs CAD {CAD_AREA_M2} ({area / CAD_AREA_M2 - 1.0:+.4e}, printed)"
+    )
+    _say(
+        f"MAT15 t_R = {T_R:.3f} s  t* = {T_STAR:.3f} s  dt = {T_STAR / N_MAIN:.4f} s  "
+        f"dt_1 = {DT_1:.6e} s  Bi = {H_GEL * A / K_GEL:.3f}"
+    )
 
     # Ball-mean forms, compiled once each (centre as a Constant).
     a10 = averaging_ball_radius(mass_kg=TEN_GRAM_KG, rho=PHANTOM_RHO_KG_PER_M3)
@@ -247,8 +281,13 @@ def _run_heated(*, return_fields=False):
         return float(np.real(comm.allreduce(fem.assemble_scalar(form), op=MPI.SUM)))
 
     centres = {
-        k: np.array([CENTRE_RADIUS_M * np.cos(np.radians(azimuths[by_k[k]])),
-                     CENTRE_RADIUS_M * np.sin(np.radians(azimuths[by_k[k]])), 0.0])
+        k: np.array(
+            [
+                CENTRE_RADIUS_M * np.cos(np.radians(azimuths[by_k[k]])),
+                CENTRE_RADIUS_M * np.sin(np.radians(azimuths[by_k[k]])),
+                0.0,
+            ]
+        )
         for k in range(4)
     }
     ball_vol = {}
@@ -260,15 +299,30 @@ def _run_heated(*, return_fields=False):
         centre_c.value[:] = centres[j]
         return _red(form) / ball_vol[j]
 
-    out = {"P": P, "G": G, "v_sub": v_sub, "err_V": err_V, "B": {}, "E": {},
-           "Ep": {}, "S2": {}, "th_own": {}, "th_far": {}, "q_own": {}}
+    out = {
+        "P": P,
+        "G": G,
+        "v_sub": v_sub,
+        "err_V": err_V,
+        "B": {},
+        "E": {},
+        "Ep": {},
+        "S2": {},
+        "th_own": {},
+        "th_far": {},
+        "q_own": {},
+    }
     tmax_imag = 0.0
     q_first = None
     q_h_by_k, t_star_by_k = {}, {}
     for k in range(4):
         f = solves[by_k[k]]["fields"]
-        Wp, q_par = _cell_average_dg0_tag(msh, cell_tags, PHANTOM_CELL_TAG,
-                                          G * 0.5 * f.sigma_field * ufl.inner(f.e_complex, f.e_complex))
+        Wp, q_par = _cell_average_dg0_tag(
+            msh,
+            cell_tags,
+            PHANTOM_CELL_TAG,
+            G * 0.5 * f.sigma_field * ufl.inner(f.e_complex, f.e_complex),
+        )
         q_h = _to_sub(Wp, q_par, sub, parent_ids)
         dep = G * P[k]
         int_q = float(np.real(_allsum(comm, q_h * ufl.dx(domain=sub))))
@@ -291,7 +345,9 @@ def _run_heated(*, return_fields=False):
         out["q_own"][k] = _ball_mean(f_q, k)
 
         res1 = _be_one(sub, ft, q_h)
-        thbar1 = float(np.real(_allsum(comm, (res1.temperature - T_INF) * ufl.dx(domain=sub)))) / v_sub
+        thbar1 = (
+            float(np.real(_allsum(comm, (res1.temperature - T_INF) * ufl.dx(domain=sub)))) / v_sub
+        )
         ratio = RHO_C * thbar1 / (DT_1 * dep / v_sub)
         leak = float(np.real(_allsum(comm, H_GEL * (res1.temperature - T_INF) * ds))) / dep
         estimate = H_GEL * DT_1 * area / (RHO_C * v_sub)
@@ -300,19 +356,29 @@ def _run_heated(*, return_fields=False):
         out["E"][f"be{k}"] = res1.max_balance_residual
         tmax_imag = max(tmax_imag, _max_imag(res.temperature), _max_imag(res1.temperature))
 
-        _say(f"MAT15 drive k={k} ({by_k[k]}): (B) int_sub q_h = {int_q:.15e}  G*P_k = {dep:.15e}  "
-             f"rel {out['B'][k]:.3e} (bound {B_BAND:.0e});  kappa_s = {kappa:.4f} (predicted 2-5)")
-        _say(f"MAT15   CN N={N_MAIN}: mean theta(t*) = {mean_th:.6f} K (predicted ≈ 1.2)  "
-             f"(E) max_balance = {res.max_balance_residual:.3e}  steps {len(res.balance_residuals)}  "
-             f"solve {t_cn:.1f} s")
-        _say(f"MAT15   (E') stored {stor:.12e} W + surface {conv:.12e} W vs deposited G*P_k "
-             f"{dep:.12e} W: rel {ep:.3e} (bound {E_BAND:.0e})")
-        _say(f"MAT15   (S2) one BE step: rho c mean(theta^1)/(dt_1 G P_k/V) = {ratio:.12f}  "
-             f"|ratio-1| = {abs(ratio - 1.0):.4e} (bound {S2_BAND:.0e}); deficit oint h theta^1/(G P_k) "
-             f"= {leak:.4e}  estimate {estimate:.3e}*kappa_s = {estimate * kappa:.4e}  "
-             f"balance {res1.max_balance_residual:.3e}")
-        _say(f"MAT15   10 g ball means at t*: theta(c_k; k) = {out['th_own'][k]:.9e} K  "
-             f"theta(c_k+2; k) = {out['th_far'][k]:.9e} K;  q_h(c_k; k) = {out['q_own'][k]:.9e} W/m^3")
+        _say(
+            f"MAT15 drive k={k} ({by_k[k]}): (B) int_sub q_h = {int_q:.15e}  G*P_k = {dep:.15e}  "
+            f"rel {out['B'][k]:.3e} (bound {B_BAND:.0e});  kappa_s = {kappa:.4f} (predicted 2-5)"
+        )
+        _say(
+            f"MAT15   CN N={N_MAIN}: mean theta(t*) = {mean_th:.6f} K (predicted ≈ 1.2)  "
+            f"(E) max_balance = {res.max_balance_residual:.3e}  steps {len(res.balance_residuals)}  "
+            f"solve {t_cn:.1f} s"
+        )
+        _say(
+            f"MAT15   (E') stored {stor:.12e} W + surface {conv:.12e} W vs deposited G*P_k "
+            f"{dep:.12e} W: rel {ep:.3e} (bound {E_BAND:.0e})"
+        )
+        _say(
+            f"MAT15   (S2) one BE step: rho c mean(theta^1)/(dt_1 G P_k/V) = {ratio:.12f}  "
+            f"|ratio-1| = {abs(ratio - 1.0):.4e} (bound {S2_BAND:.0e}); deficit oint h theta^1/(G P_k) "
+            f"= {leak:.4e}  estimate {estimate:.3e}*kappa_s = {estimate * kappa:.4e}  "
+            f"balance {res1.max_balance_residual:.3e}"
+        )
+        _say(
+            f"MAT15   10 g ball means at t*: theta(c_k; k) = {out['th_own'][k]:.9e} K  "
+            f"theta(c_k+2; k) = {out['th_far'][k]:.9e} K;  q_h(c_k; k) = {out['q_own'][k]:.9e} W/m^3"
+        )
         if k == 0:
             q_first = q_h
         q_h_by_k[k] = q_h
@@ -326,28 +392,45 @@ def _run_heated(*, return_fields=False):
     ep_d, stor_d, conv_d = _e_prime(sub, ds, res_d, G * P[0])
     out["ctl_d"] = ep_d
     out["ctl_d_E"] = res_d.max_balance_residual
-    _say(f"MAT15 control (d) doubled source, k=0: (E') vs G*P_1 = {ep_d:.6f} (predicted 1.000, "
-         f"asserted > {D_CONTROL_FLOOR:.0e});  its internal (E) = {res_d.max_balance_residual:.3e} "
-         f"(predicted ≤ 1e-12 — blind to a mis-scaled source)")
+    _say(
+        f"MAT15 control (d) doubled source, k=0: (E') vs G*P_1 = {ep_d:.6f} (predicted 1.000, "
+        f"asserted > {D_CONTROL_FLOOR:.0e});  its internal (E) = {res_d.max_balance_residual:.3e} "
+        f"(predicted ≤ 1e-12 — blind to a mis-scaled source)"
+    )
 
-    out["pairs"] = {k: abs(out["th_own"][(k + 1) % 4] - out["th_own"][k]) / out["th_own"][k]
-                    for k in range(4)}
-    out["q_pairs"] = {k: abs(out["q_own"][(k + 1) % 4] - out["q_own"][k]) / out["q_own"][k]
-                      for k in range(4)}
+    out["pairs"] = {
+        k: abs(out["th_own"][(k + 1) % 4] - out["th_own"][k]) / out["th_own"][k] for k in range(4)
+    }
+    out["q_pairs"] = {
+        k: abs(out["q_own"][(k + 1) % 4] - out["q_own"][k]) / out["q_own"][k] for k in range(4)
+    }
     out["far"] = {k: abs(out["th_far"][k] - out["th_own"][k]) / out["th_own"][k] for k in range(4)}
     for k in range(4):
-        _say(f"MAT15 (C4) k={k}->{(k + 1) % 4}: theta 10 g pair {out['pairs'][k] * 100:.4f}% "
-             f"(bound {C4_COVARIANCE_BAND * 100:.1f}%, predicted ≤ 0.1%);  q_h 10 g pair "
-             f"{out['q_pairs'][k] * 100:.4f}% (printed);  control (f) far-side "
-             f"{out['far'][k] * 100:.4f}% (asserted > {F_CONTROL_FLOOR * 100:.1f}%, predicted 40-80%)")
+        _say(
+            f"MAT15 (C4) k={k}->{(k + 1) % 4}: theta 10 g pair {out['pairs'][k] * 100:.4f}% "
+            f"(bound {C4_COVARIANCE_BAND * 100:.1f}%, predicted ≤ 0.1%);  q_h 10 g pair "
+            f"{out['q_pairs'][k] * 100:.4f}% (printed);  control (f) far-side "
+            f"{out['far'][k] * 100:.4f}% (asserted > {F_CONTROL_FLOOR * 100:.1f}%, predicted 40-80%)"
+        )
     worst = max(out["E"], key=out["E"].get)
-    _say(f"MAT15 (E) worst balance over {len(out['E'])} runs = {out['E'][worst]:.3e} on {worst} "
-         f"(bound {E_BAND:.0e}); max|Im theta| = {tmax_imag:.3e} (predicted 0)")
+    _say(
+        f"MAT15 (E) worst balance over {len(out['E'])} runs = {out['E'][worst]:.3e} on {worst} "
+        f"(bound {E_BAND:.0e}); max|Im theta| = {tmax_imag:.3e} (predicted 0)"
+    )
     _say(f"MAT15 elapsed: EM {t_em:.1f} s, total {time.perf_counter() - t0:.1f} s")
     if return_fields:
-        out.update(msh=msh, cell_tags=cell_tags, sub=sub, ft=ft, by_k=by_k,
-                   centres=centres, q_h=q_h_by_k, T_star=t_star_by_k,
-                   sweep=sweep, solves=solves)
+        out.update(
+            msh=msh,
+            cell_tags=cell_tags,
+            sub=sub,
+            ft=ft,
+            by_k=by_k,
+            centres=centres,
+            q_h=q_h_by_k,
+            T_star=t_star_by_k,
+            sweep=sweep,
+            solves=solves,
+        )
     return out
 
 
@@ -394,9 +477,9 @@ def test_c4_ten_gram_theta_follows_the_drive(heated, k):
 
 @complex_only
 def test_control_d_doubled_source_misses_the_balance(heated):
-    assert heated["ctl_d"] > D_CONTROL_FLOOR, (
-        f"control (d) doubled source reads (E') {heated['ctl_d']:.3e} — did not miss"
-    )
+    assert (
+        heated["ctl_d"] > D_CONTROL_FLOOR
+    ), f"control (d) doubled source reads (E') {heated['ctl_d']:.3e} — did not miss"
 
 
 @complex_only

@@ -45,7 +45,6 @@ from fem_em_solver import (
     run_study_file,
 )
 from fem_em_solver.study_yaml import _load, _study_from_mapping
-
 from tests.complex_mode import IS_COMPLEX
 from tests.materials.test_phantom_material_model import _dg0_owned_diff
 from tests.package.test_wf1_study_yaml import (
@@ -73,12 +72,12 @@ from tests.package.test_wf15_study_transient import (
 )
 from tests.validation.test_mat5_em_coupled_sphere import L0_BAND
 from tests.validation.test_mat9_transient_conduction_sphere import (
+    RHO_C,
+    T_INF,
     H,
     K,
     Q,
     R,
-    RHO_C,
-    T_INF,
     _interior_error,
 )
 from tests.validation.test_mat17_duty_cycle_closed_form import CASES
@@ -214,14 +213,21 @@ def test_wf1_s14_parse_and_refusals(monkeypatch, capsys):
         calls["n"] += 1
         raise AssertionError("build must not be called by a parse")
 
-    for cls in (SphereInBoxGeometry, FHumanBirdcageGeometry, FourPortBirdcageGeometry,
-                ThermalBallGeometry):
+    for cls in (
+        SphereInBoxGeometry,
+        FHumanBirdcageGeometry,
+        FourPortBirdcageGeometry,
+        ThermalBallGeometry,
+    ):
         monkeypatch.setattr(cls, "build", stub)
 
     # (K) the Study spec
     py_ball = Study(ThermalBallGeometry(R, RES), None, UniformHeatSource(Q))
-    py_wall = Study(ThermalBallGeometry(A_, RES, wall=ContainerWall(B_ - A_, K2, RC2)), None,
-                    UniformHeatSource(Q1))
+    py_wall = Study(
+        ThermalBallGeometry(A_, RES, wall=ContainerWall(B_ - A_, K2, RC2)),
+        None,
+        UniformHeatSource(Q1),
+    )
     studies = {f: load_study(f) for f in (DUTY_A, DUTY_B, WALL)}
     diffs = {
         DUTY_A.name: _spec_diff(studies[DUTY_A], py_ball),
@@ -235,10 +241,16 @@ def test_wf1_s14_parse_and_refusals(monkeypatch, capsys):
 
     # (K) the fourth element
     want = {
-        DUTY_A: (RobinCooling(K, H, T_INF), TransientSpec(150.0, _n(T_END_A, 150.0), RHO_C),
-                 DutyCycle(*CASES["A"])),
-        DUTY_B: (RobinCooling(K, H, T_INF), TransientSpec(DT_B, _n(T_END_B, DT_B), RHO_C),
-                 DutyCycle(*CASES["B"])),
+        DUTY_A: (
+            RobinCooling(K, H, T_INF),
+            TransientSpec(150.0, _n(T_END_A, 150.0), RHO_C),
+            DutyCycle(*CASES["A"]),
+        ),
+        DUTY_B: (
+            RobinCooling(K, H, T_INF),
+            TransientSpec(DT_B, _n(T_END_B, DT_B), RHO_C),
+            DutyCycle(*CASES["B"]),
+        ),
         WALL: (RobinCooling(K1, H, T_INF), TransientSpec(T_STAR / N_CN, N_CN, RC1), None),
     }
     for f, (cool, tr, du) in want.items():
@@ -247,8 +259,11 @@ def test_wf1_s14_parse_and_refusals(monkeypatch, capsys):
         _cmp(th.cooling, cool, "cooling", out)
         _cmp(th.transient, tr, "transient", out)
         _cmp(th.duty, du, "duty", out)
-        _say(capsys, f"  (K) {f.name}: kind {kind!r}, outputs {outputs!r}, thermal diffs {out}; "
-             f"dt_s {th.transient.dt_s.hex()} n_steps {th.transient.n_steps}")
+        _say(
+            capsys,
+            f"  (K) {f.name}: kind {kind!r}, outputs {outputs!r}, thermal diffs {out}; "
+            f"dt_s {th.transient.dt_s.hex()} n_steps {th.transient.n_steps}",
+        )
         assert kind == "thermal_ball"
         assert outputs == {}
         assert out == [], (f.name, out)
@@ -276,8 +291,11 @@ def test_wf1_s14_parse_and_refusals(monkeypatch, capsys):
     capsys.readouterr()
     run_all, check_all = _rc_all(rc_run, comm), _rc_all(rc_check, comm)
     exists = comm.allreduce(bool(d.exists()), op=MPI.LOR)
-    _say(capsys, f"  (X) malformed rho_c string: run rc {run_all}, check rc {check_all}, "
-         f"out exists {exists}")
+    _say(
+        capsys,
+        f"  (X) malformed rho_c string: run rc {run_all}, check rc {check_all}, "
+        f"out exists {exists}",
+    )
     assert run_all == (2, 2)
     assert check_all == (2, 2)
     assert not exists
@@ -307,17 +325,20 @@ def test_wf1_s14_parse_and_refusals(monkeypatch, capsys):
         (_without(a, "thermal", "transient"), "thermal"),
         (_with(a, 0, "thermal", "transient", "n_steps"), "thermal.transient.n_steps"),
         (_with(a, 1.5, "thermal", "transient", "theta"), "thermal.transient.theta"),
-        (_with(a, 1, "thermal", "transient", "startup_half_steps"),
-         "thermal.transient.startup_half_steps"),
+        (
+            _with(a, 1, "thermal", "transient", "startup_half_steps"),
+            "thermal.transient.startup_half_steps",
+        ),
         (_with(a, 25.0, "thermal", "transient", "t_init_c"), "thermal.transient.t_init_c"),
         (_with(a, 0.0, "thermal", "duty", "duty"), "thermal.duty.duty"),
         (_with(a, 1.5, "thermal", "duty", "duty"), "thermal.duty.duty"),
         (_with(a, -1.0, "thermal", "duty", "period_s"), "thermal.duty.period_s"),
         (_without(a, "thermal", "duty", "duty"), "thermal.duty.duty"),
-        ({**a, "outputs": {"probes": []}},  # §9 item 545 (ruling 2026-10-19 03:00 Q1)
-         "outputs.probes"),
-        ({**a, "outputs": {"sar": {"mass_g": 10.0, "centres": [[0.0, 0.0, 0.0]]}}},
-         "outputs.sar"),
+        (
+            {**a, "outputs": {"probes": []}},  # §9 item 545 (ruling 2026-10-19 03:00 Q1)
+            "outputs.probes",
+        ),
+        ({**a, "outputs": {"sar": {"mass_g": 10.0, "centres": [[0.0, 0.0, 0.0]]}}}, "outputs.sar"),
         (_with(sph, {"period_s": 1200.0, "duty": 0.5}, "thermal", "duty"), "thermal.duty"),
         (_with(sph, copy.deepcopy(tr_a), "thermal", "transient"), "thermal.transient"),
         (_with(sph, "uniform_heat_source", "excitation", "kind"), "excitation.kind"),
@@ -336,8 +357,11 @@ def test_wf1_s14_parse_and_refusals(monkeypatch, capsys):
     ab = []
     _cmp(th_a.transient, th_b.transient, "transient", ab)
     _cmp(th_a.duty, th_b.duty, "duty", ab)
-    _say(capsys, f"  (c0) c1 duty {th_c1.duty!r}; wall dropped diff {d_wall}; A vs B spec diff "
-         f"{d_ab}, thermal diff {ab}; build calls {calls['n']}")
+    _say(
+        capsys,
+        f"  (c0) c1 duty {th_c1.duty!r}; wall dropped diff {d_wall}; A vs B spec diff "
+        f"{d_ab}, thermal diff {ab}; build calls {calls['n']}",
+    )
     assert th_c1.duty is None and th_a.duty == DutyCycle(*CASES["A"])
     assert d_wall == ["geometry.wall"]
     assert d_ab == []
@@ -350,8 +374,10 @@ def test_wf1_s14_parse_and_refusals(monkeypatch, capsys):
 
 def _solve_preamble():
     if not _knob():
-        pytest.skip(f"{S14_ENV} unset: the thermal-ball solve legs are environment-selected "
-                    "(real build, -n 2)")
+        pytest.skip(
+            f"{S14_ENV} unset: the thermal-ball solve legs are environment-selected "
+            "(real build, -n 2)"
+        )
     comm = MPI.COMM_WORLD
     assert not IS_COMPLEX, "the records are real-build records"
     assert comm.size == 2, comm.size
@@ -373,11 +399,14 @@ def _check_summary(run, comm, label):
     # read False on rank 1 by elapsed_s alone (20261017T004010Z_WF-1-s14-W1a-duty.log:108).
     rest = {k: v for k, v in s.items() if k != "elapsed_s"}
     js_rest = {k: v for k, v in js.items() if k != "elapsed_s"}
-    same_json = _all(comm, _hex_tree_equal(js_rest, rest)
-                     and (comm.rank != 0 or _hex_tree_equal(js, s)))
-    _p0(f"  (I=) {label}: theta_max {st['theta_max_k']!r} vs recomputed {tmax!r}; balance "
+    same_json = _all(
+        comm, _hex_tree_equal(js_rest, rest) and (comm.rank != 0 or _hex_tree_equal(js, s))
+    )
+    _p0(
+        f"  (I=) {label}: theta_max {st['theta_max_k']!r} vs recomputed {tmax!r}; balance "
         f"{st['max_balance_residual']!r}; power {st['source_power_w']!r}; JSON == summary "
-        f"{same_json}; keys {sorted(s)}")
+        f"{same_json}; keys {sorted(s)}"
+    )
     assert st["theta_max_k"].hex() == tmax.hex()
     assert st["max_balance_residual"].hex() == float(th.max_balance_residual).hex()
     assert st["source_power_w"].hex() == float(np.real(th.source_power)).hex()
@@ -426,14 +455,20 @@ def test_wf1_s14_duty_reproduces_mat17():
         ex = _exact_duty(th.mesh, t_end, P, D)
         e = _interior_error(th.mesh, th.temperature, ex)
         rows[lab] = (th.mesh, ex)
-        _p0(f"WF1S14 (UT) case {lab}: summary cells {run.summary['cells']}, cells {ca} / {cb} "
+        _p0(
+            f"WF1S14 (UT) case {lab}: summary cells {run.summary['cells']}, cells {ca} / {cb} "
             f"(WF-15 {WF15_CELLS}); geometry equal {geo}; multipliers equal {mult} "
-            f"(summary {mult_s}, {len(th.source_multipliers)} (half-)steps)")
-        _p0(f"WF1S14 (I-Py) case {lab}: owned max|dθ|/max|θ| = {ip:.3e} (band {L0_BAND:.0e}, "
-            f"predicted 0 to 2e-14); owned arrays bitwise equal {hx} (printed, not asserted)")
-        _p0(f"WF1S14 (G) case {lab} dt={dt!r} N={n}: interior_rel_L2={e:.10e} (band "
+            f"(summary {mult_s}, {len(th.source_multipliers)} (half-)steps)"
+        )
+        _p0(
+            f"WF1S14 (I-Py) case {lab}: owned max|dθ|/max|θ| = {ip:.3e} (band {L0_BAND:.0e}, "
+            f"predicted 0 to 2e-14); owned arrays bitwise equal {hx} (printed, not asserted)"
+        )
+        _p0(
+            f"WF1S14 (G) case {lab} dt={dt!r} N={n}: interior_rel_L2={e:.10e} (band "
             f"{INTERIOR_BAND:.0e}) WF-15 read {prior:.10e}; max_balance="
-            f"{run.summary['temperature']['max_balance_residual']:.3e}; file run {t_file:.1f}s")
+            f"{run.summary['temperature']['max_balance_residual']:.3e}; file run {t_file:.1f}s"
+        )
         _p0(f"WF1S14 (R) case {lab}: {e:.4e} vs record {rec}")
         _check_summary(run, comm, f"case {lab}")
         assert run.summary["cells"] == ca == cb, f"(UT) cells case {lab}"
@@ -445,16 +480,19 @@ def test_wf1_s14_duty_reproduces_mat17():
         assert f"{e:.4e}" == rec, f"(R) case {lab} {e:.4e} != {rec}"
 
     # (c1) the schedule dropped through a file, case A.
-    c1f = _write_yaml(_without(_mapping(DUTY_A), "thermal", "duty"), LOGS / "thermal_ball_c1",
-                      "c1.yaml", comm)
+    c1f = _write_yaml(
+        _without(_mapping(DUTY_A), "thermal", "duty"), LOGS / "thermal_ball_c1", "c1.yaml", comm
+    )
     out = LOGS / "thermal_ball_c1" / "out"
     c1 = run_study_file(c1f, output_dir=out, comm=comm)
     msh_a, ex_a = rows["A"]
     e_c1 = _interior_error(msh_a, _on(msh_a, c1.thermal.temperature), ex_a)
-    _p0(f"WF1S14 (c1) duty dropped through a file, case A: interior miss {e_c1:.4e} vs WF-15 "
+    _p0(
+        f"WF1S14 (c1) duty dropped through a file, case A: interior miss {e_c1:.4e} vs WF-15 "
         f"API {WF15_C1_READ:.4e} (asserted > {INTERIOR_BAND:.0e}); summary duty "
         f"{c1.summary['temperature']['duty']!r}, multipliers "
-        f"{c1.summary['temperature']['source_multipliers']!r}")
+        f"{c1.summary['temperature']['source_multipliers']!r}"
+    )
     assert c1.summary["temperature"]["duty"] is None
     assert c1.summary["temperature"]["source_multipliers"] == []
     assert e_c1 > INTERIOR_BAND, f"(c1) did not miss: {e_c1:.4e}"
@@ -479,39 +517,53 @@ def test_wf1_s14_wall_reproduces_mat18_2b():
     dk = _dg0_owned_diff(th.k, k_f, comm)
     drc = _dg0_owned_diff(th.rho_c, rc_f, comm)
     dq = _dg0_owned_diff(th.q, q_f, comm)
-    _p0(f"WF1S14 (UT) wall: summary cells {run.summary['cells']}, cells {ca} / {cb} / fine {cf} "
+    _p0(
+        f"WF1S14 (UT) wall: summary cells {run.summary['cells']}, cells {ca} / {cb} / fine {cf} "
         f"(record {MAT18_T1_CELLS}); geometry equal py {geo} fine {geo_f}; DG0 k max|d| "
-        f"{dk[0]!r}, rho_c {drc[0]!r}, q {dq[0]!r} of {dk[2]} owned")
+        f"{dk[0]!r}, rho_c {drc[0]!r}, q {dq[0]!r} of {dk[2]} owned"
+    )
     # (I-Py)
     T_py = _on(th.mesh, py.temperature)
     ip = _theta_owned_rel(T_py, th.temperature, comm)
     hx = _owned_hex_equal(T_py, th.temperature, comm)
     # (G) + (R)
     e_all, e_in, e_sh = _errors(msh, ct, _on(msh, th.temperature), theta)
-    _p0(f"WF1S14 (I-Py) wall: owned max|dθ|/max|θ| = {ip:.3e} (band {L0_BAND:.0e}); owned arrays "
-        f"bitwise equal {hx} (printed, not asserted)")
-    _p0(f"WF1S14 (G) (T1) N={N_CN} res={RES}: interior_rel_L2={e_in:.10e} (band "
+    _p0(
+        f"WF1S14 (I-Py) wall: owned max|dθ|/max|θ| = {ip:.3e} (band {L0_BAND:.0e}); owned arrays "
+        f"bitwise equal {hx} (printed, not asserted)"
+    )
+    _p0(
+        f"WF1S14 (G) (T1) N={N_CN} res={RES}: interior_rel_L2={e_in:.10e} (band "
         f"{INTERIOR_BAND:.0e}) whole={e_all:.4e} shell={e_sh:.4e}; WF-15 read {WF15_T1_READ:.10e}; "
         f"max_balance={run.summary['temperature']['max_balance_residual']:.3e}; file run "
-        f"{t_file:.1f}s")
+        f"{t_file:.1f}s"
+    )
     _p0(f"WF1S14 (R) (T1): {e_in:.4e} vs record {MAT18_T1_PRINT}")
     _check_summary(run, comm, "wall")
 
     # (c2) the wall's rho_c dropped through a file (RC1 in the wall).
-    c2f = _write_yaml(_with(_mapping(WALL), 4180000.0, "geometry", "wall", "rho_c_j_per_m3_k"),
-                      LOGS / "thermal_ball_c2", "c2.yaml", comm)
+    c2f = _write_yaml(
+        _with(_mapping(WALL), 4180000.0, "geometry", "wall", "rho_c_j_per_m3_k"),
+        LOGS / "thermal_ball_c2",
+        "c2.yaml",
+        comm,
+    )
     c2 = run_study_file(c2f, output_dir=LOGS / "thermal_ball_c2" / "out", comm=comm)
     _, e_c2, _ = _errors(msh, ct, _on(msh, c2.thermal.temperature), theta)
-    _p0(f"WF1S14 (c2) wall rho_c = RC1 through a file: interior miss {e_c2:.4e} vs WF-15 API "
+    _p0(
+        f"WF1S14 (c2) wall rho_c = RC1 through a file: interior miss {e_c2:.4e} vs WF-15 API "
         f"{WF15_C2_READ:.4e} and MAT-18 prior {MAT18_C1_UNIFORM_RHOC:.4e} (asserted > "
-        f"{INTERIOR_BAND:.0e}); max_balance={c2.summary['temperature']['max_balance_residual']:.3e}")
+        f"{INTERIOR_BAND:.0e}); max_balance={c2.summary['temperature']['max_balance_residual']:.3e}"
+    )
     _p0(f"WF1S14 W1b leg {time.perf_counter() - t00:.1f}s")
 
     assert run.summary["cells"] == ca == cb == cf == MAT18_T1_CELLS, "(UT) cells"
     assert geo and geo_f, "(UT) geometry"
     assert dk[0] == 0.0 and drc[0] == 0.0 and dq[0] == 0.0, "(UT) DG0 coefficients"
     assert run.summary["temperature"]["wall"] == {
-        "thickness_m": B_ - A_, "k_w_per_m_k": K2, "rho_c_j_per_m3_k": RC2,
+        "thickness_m": B_ - A_,
+        "k_w_per_m_k": K2,
+        "rho_c_j_per_m3_k": RC2,
     }
     assert run.summary["temperature"]["duty"] is None
     assert ip <= L0_BAND, f"(I-Py) {ip:.3e}"

@@ -77,15 +77,13 @@ def _owned_hits(msh, comm):
     cand = geometry.compute_collisions_points(tree, PTS)
     coll = geometry.compute_colliding_cells(msh, cand, PTS)
     nloc = msh.topology.index_map(msh.topology.dim).size_local
-    local = np.array([int(np.sum(coll.links(i) < nloc)) for i in range(len(PTS))],
-                     dtype=np.int64)
+    local = np.array([int(np.sum(coll.links(i) < nloc)) for i in range(len(PTS))], dtype=np.int64)
     return comm.allreduce(local, op=MPI.SUM)
 
 
 def _readings(res, msh, cell_tags, comm):
     """E (6, 3, 4) and W (4,) for every drive of one sweep."""
-    dx = ufl.Measure("dx", domain=msh, subdomain_data=cell_tags,
-                     metadata={"quadrature_degree": 2})
+    dx = ufl.Measure("dx", domain=msh, subdomain_data=cell_tags, metadata={"quadrature_degree": 2})
     e = np.zeros((len(PTS), 3, len(PORT_IDS)), dtype=complex)
     w = np.zeros(len(PORT_IDS))
     valid = True
@@ -103,8 +101,10 @@ def _readings(res, msh, cell_tags, comm):
 
 def _pal_fields():
     d = json.loads((FP._step3().OUT_DIR / FP.FIELDS_JSON).read_text())
-    e = {a: np.array([[[complex(*z) for z in comp] for comp in pt] for pt in d["E"][a]])
-         for a in ARMS}
+    e = {
+        a: np.array([[[complex(*z) for z in comp] for comp in pt] for pt in d["E"][a]])
+        for a in ARMS
+    }
     w = {a: np.array(d["W_elec"][a]) for a in ARMS}
     assert d["probe_names"] == list(PNAMES)
     assert np.array_equal(np.array(d["points"]), PTS)
@@ -124,26 +124,31 @@ def test_imp3_palace_fields_degree1():
     def check_r(name, s):
         ref = np.array([[complex(*z) for z in row] for row in prior[name]])
         r = float(np.max(np.abs(s - ref)) / np.max(np.abs(ref)))
-        _say(f"[IMP-3 4 W6] (R) {name} S vs ours_imp3x_p1.json entrywise {r:.3e} "
-             f"<= {REUSE_REPRODUCTION_RTOL}")
+        _say(
+            f"[IMP-3 4 W6] (R) {name} S vs ours_imp3x_p1.json entrywise {r:.3e} "
+            f"<= {REUSE_REPRODUCTION_RTOL}"
+        )
         assert r <= REUSE_REPRODUCTION_RTOL, (name, r)
 
     for arm in ("off", "rod"):
         built = s3.build_arm(arm)
-        case = build_four_port_sweep(
-            frequency_hz=STEP2D_FREQUENCY_HZ, built=built, build_only=True
-        )
+        case = build_four_port_sweep(frequency_hz=STEP2D_FREQUENCY_HZ, built=built, build_only=True)
         msh = case["mesh"]
         ncells = int(case["cells"])
         areas = _sheet_areas(msh, case["facet_tags"], comm)
-        _say(f"\n[IMP-3 4 W6] arm {arm}: {ncells} cells (meta {meta[arm]['cells']}); N_i areas "
-             + ", ".join(f"P{i} {a:.12e}" for i, a in areas.items()))
+        _say(
+            f"\n[IMP-3 4 W6] arm {arm}: {ncells} cells (meta {meta[arm]['cells']}); N_i areas "
+            + ", ".join(f"P{i} {a:.12e}" for i, a in areas.items())
+        )
         assert ncells == meta[arm]["cells"], (arm, ncells)  # (F)
         for i, a in areas.items():
             assert abs(a - NOMINAL_STRIP_AREA) <= STRIP_BAND, (arm, i, a)
         hits = _owned_hits(msh, comm)
-        _say(f"[IMP-3 4 W6] (B) {arm} mesh owned-cell hits per point "
-             + "  ".join(f"{n} {int(h)}" for n, h in zip(PNAMES, hits)) + " (predicted 1)")
+        _say(
+            f"[IMP-3 4 W6] (B) {arm} mesh owned-cell hits per point "
+            + "  ".join(f"{n} {int(h)}" for n, h in zip(PNAMES, hits))
+            + " (predicted 1)"
+        )
         labels = ("off",) if arm == "off" else ("rod", "rodnat")
         for lab in labels:
             B[lab] = hits
@@ -152,8 +157,9 @@ def test_imp3_palace_fields_degree1():
                 _say(f"[IMP-3 4 W6] natural-wall census {census}")
                 assert census["tag_collision"] == 0, census
                 assert census["exterior"] == census["outer"] + census["wall_exterior"], census
-                problem = replace(case["problem"], facet_tags=outer,
-                                  pec_facet_tags=(OUTER_BOX_TAG,))
+                problem = replace(
+                    case["problem"], facet_tags=outer, pec_facet_tags=(OUTER_BOX_TAG,)
+                )
                 res = _sweep(case, problem=problem, keep=True)
             else:
                 res = _sweep(case, keep=True)
@@ -170,8 +176,7 @@ def test_imp3_palace_fields_degree1():
                 v_space = res.fields["P1"].e_complex.function_space
                 owned, n_wall = _wall_dofs(msh, built[2], v_space)
                 assert n_wall > 0
-                wall[lab] = {p: _wall_max_e(res.fields[p].e_complex, owned, comm)
-                             for p in PORT_IDS}
+                wall[lab] = {p: _wall_max_e(res.fields[p].e_complex, owned, comm) for p in PORT_IDS}
             del res
             gc.collect()
         del case, built, msh
@@ -185,9 +190,19 @@ def test_imp3_palace_fields_degree1():
 
     if comm.rank == 0:
         with open(s3.OUT_DIR / "ours_imp3p_fields.json", "w") as fh:
-            json.dump({"E": {a: [[[[z.real, z.imag] for z in E[a][k, c, :]] for c in range(3)]
-                                 for k in range(len(PTS))] for a in E},
-                       "W": {a: W[a].tolist() for a in W}}, fh)
+            json.dump(
+                {
+                    "E": {
+                        a: [
+                            [[[z.real, z.imag] for z in E[a][k, c, :]] for c in range(3)]
+                            for k in range(len(PTS))
+                        ]
+                        for a in E
+                    },
+                    "W": {a: W[a].tolist() for a in W},
+                },
+                fh,
+            )
 
     # ---------------------------------------------------------------- printed
     EP, WP = _pal_fields()
@@ -196,11 +211,15 @@ def test_imp3_palace_fields_degree1():
     cstar = int(np.argmax(np.abs(EP["off"][iF1, :, j])))
     g = E["off"][iF1, cstar, j] / EP["off"][iF1, cstar, j]
     gc_ = E["off"][iF1, cstar, j] / np.conj(EP["off"][iF1, cstar, j])
-    _say(f"[IMP-3 4 W6] g = E^ours_{'xyz'[cstar]}(F1)/E^Pal_{'xyz'[cstar]}(F1) (off, P1) = "
-         f"{g.real:+.9e}{g.imag:+.9e}j  |g| {abs(g):.9e}")
+    _say(
+        f"[IMP-3 4 W6] g = E^ours_{'xyz'[cstar]}(F1)/E^Pal_{'xyz'[cstar]}(F1) (off, P1) = "
+        f"{g.real:+.9e}{g.imag:+.9e}j  |g| {abs(g):.9e}"
+    )
     ambiguous = {a: [k for k in range(len(PTS)) if int(B[a][k]) != 1] for a in ARMS}
-    _say(f"[IMP-3 4 W6] (B) face-ambiguous points per arm "
-         + str({a: [PNAMES[k] for k in v] for a, v in ambiguous.items()}))
+    _say(
+        "[IMP-3 4 W6] (B) face-ambiguous points per arm "
+        + str({a: [PNAMES[k] for k in v] for a, v in ambiguous.items()})
+    )
 
     def tie(a, ours, pal, jj=j, conj=False):
         worst, where = 0.0, None
@@ -223,14 +242,18 @@ def test_imp3_palace_fields_degree1():
         te[a], where = tie(a, E[a], EP[a])
         tc, wc = tie(a, E[a], EP[a], conj=True)
         per_drive = [tie(a, E[a], EP[a], jj=jj)[0] for jj in range(len(PORT_IDS))]
-        _say(f"[IMP-3 4 W6] (T_E) {a} P1 max rel {te[a]:.3e} at {where} (predicted <= 1e-6); "
-             f"conj form {tc:.3e} at {wc} (predicted O(1)); P1-P4 "
-             + ", ".join(f"{v:.3e}" for v in per_drive))
+        _say(
+            f"[IMP-3 4 W6] (T_E) {a} P1 max rel {te[a]:.3e} at {where} (predicted <= 1e-6); "
+            f"conj form {tc:.3e} at {wc} (predicted O(1)); P1-P4 "
+            + ", ".join(f"{v:.3e}" for v in per_drive)
+        )
     q = {a: W[a][j] / WP[a][j] for a in ARMS}
     tw = max(abs(q[a] / q["off"] - 1.0) for a in ARMS)
-    _say(f"[IMP-3 4 W6] (T_W) q_a/q_off - 1 " + "  ".join(f"{a} {q[a] / q['off'] - 1:+.3e}"
-                                                         for a in ARMS)
-         + f"; max {tw:.3e} (predicted <= 1e-6); q_off/|g|^2 {q['off'] / abs(g) ** 2:.9e}")
+    _say(
+        "[IMP-3 4 W6] (T_W) q_a/q_off - 1 "
+        + "  ".join(f"{a} {q[a] / q['off'] - 1:+.3e}" for a in ARMS)
+        + f"; max {tw:.3e} (predicted <= 1e-6); q_off/|g|^2 {q['off'] / abs(g) ** 2:.9e}"
+    )
 
     mo = {a: np.linalg.norm(E[a], axis=1) for a in ARMS}
     mp = {a: np.linalg.norm(EP[a], axis=1) for a in ARMS}
@@ -239,45 +262,68 @@ def test_imp3_palace_fields_degree1():
         eo, ep = mo[num] / mo[den], mp[num] / mp[den]
         eta[lab] = (eo, ep)
         for jj in range(len(PORT_IDS)):
-            _say(f"[IMP-3 4 W6] η_{lab} P{jj + 1} ours / Palace / d_η/η: "
-                 + "  ".join(f"{n} {eo[k, jj]:.6f}/{ep[k, jj]:.6f}/"
-                             f"{abs(eo[k, jj] - ep[k, jj]) / ep[k, jj]:.2e}"
-                             for k, n in enumerate(PNAMES)))
-    _say("[IMP-3 4 W6] η_wall predicted (P1): T1 [1.5, 20], T2 [1.2, 8], T3 [1.05, 4], "
-         "S1 [0.2, 1.5], F1/F2 |η-1| in [3e-3, 1e-1]; η_rod F1/F2 |η-1| in [1e-3, 0.3]; "
-         "d_η <= 2e-6·η")
+            _say(
+                f"[IMP-3 4 W6] η_{lab} P{jj + 1} ours / Palace / d_η/η: "
+                + "  ".join(
+                    f"{n} {eo[k, jj]:.6f}/{ep[k, jj]:.6f}/"
+                    f"{abs(eo[k, jj] - ep[k, jj]) / ep[k, jj]:.2e}"
+                    for k, n in enumerate(PNAMES)
+                )
+            )
+    _say(
+        "[IMP-3 4 W6] η_wall predicted (P1): T1 [1.5, 20], T2 [1.2, 8], T3 [1.05, 4], "
+        "S1 [0.2, 1.5], F1/F2 |η-1| in [3e-3, 1e-1]; η_rod F1/F2 |η-1| in [1e-3, 0.3]; "
+        "d_η <= 2e-6·η"
+    )
     for jj in range(len(PORT_IDS)):
         parts = []
         for lab, num, den in (("rod/rodnat", "rod", "rodnat"), ("rod/off", "rod", "off")):
             do = W[num][jj] / W[den][jj] - 1.0
             dp = WP[num][jj] / WP[den][jj] - 1.0
             parts.append(f"{lab} - 1 ours {do:+.6e} Palace {dp:+.6e} gap {abs(do - dp):.2e}")
-        _say(f"[IMP-3 4 W6] ΔW P{jj + 1}: " + "; ".join(parts)
-             + " (predicted |Δ| in [1e-3, 0.1], gap <= 1e-6)")
-    cf = np.linalg.norm(pec_prolate_spheroid_field(
-        PTS - np.array(ROD_CENTRE), semi_major=0.016, semi_minor=0.001, e0=1.0), axis=1)
+        _say(
+            f"[IMP-3 4 W6] ΔW P{jj + 1}: "
+            + "; ".join(parts)
+            + " (predicted |Δ| in [1e-3, 0.1], gap <= 1e-6)"
+        )
+    cf = np.linalg.norm(
+        pec_prolate_spheroid_field(
+            PTS - np.array(ROD_CENTRE), semi_major=0.016, semi_minor=0.001, e0=1.0
+        ),
+        axis=1,
+    )
     eo_rod = eta["rod"][0][:, j]
-    _say("[IMP-3 4 W6] closed form |E_cf|/E0 vs η_rod(p)/η_rod(F1) (ours, P1), ratio "
-         "(predicted [0.3, 3]): "
-         + "  ".join(f"{PNAMES[k]} {cf[k]:.4f}/{eo_rod[k] / eo_rod[iF1]:.4f}="
-                     f"{cf[k] / (eo_rod[k] / eo_rod[iF1]):.3f}"
-                     for k in (0, 1, 2, 3)))
+    _say(
+        "[IMP-3 4 W6] closed form |E_cf|/E0 vs η_rod(p)/η_rod(F1) (ours, P1), ratio "
+        "(predicted [0.3, 3]): "
+        + "  ".join(
+            f"{PNAMES[k]} {cf[k]:.4f}/{eo_rod[k] / eo_rod[iF1]:.4f}="
+            f"{cf[k] / (eo_rod[k] / eo_rod[iF1]):.3f}"
+            for k in (0, 1, 2, 3)
+        )
+    )
 
     iT1 = PNAMES.index("T1")
     eo_w, ep_w = eta["wall"]
     d_eta = abs(eo_w[iT1, j] - ep_w[iT1, j])
     c1 = abs(ep_w[iT1, j] - 1.0) / d_eta if d_eta > 0 else float("inf")
-    _say(f"[IMP-3 4 W6] (C1) |η^Pal_wall(T1)-1| / d_η(T1) = {abs(ep_w[iT1, j] - 1):.6f} / "
-         f"{d_eta:.3e} = {c1:.3e}x (predicted >= 1e5, ceiling ≈ 2.4e9); tie_off floor "
-         f"(T_E off) {te['off']:.3e}")
+    _say(
+        f"[IMP-3 4 W6] (C1) |η^Pal_wall(T1)-1| / d_η(T1) = {abs(ep_w[iT1, j] - 1):.6f} / "
+        f"{d_eta:.3e} = {c1:.3e}x (predicted >= 1e5, ceiling ≈ 2.4e9); tie_off floor "
+        f"(T_E off) {te['off']:.3e}"
+    )
     far = [PNAMES.index("F1"), PNAMES.index("F2")]
     for code, (eo, ep) in (("ours", eta["wall"]), ("Palace", eta["wall"])):
         e_ = eo if code == "ours" else ep
         c2 = abs(e_[iT1, j] - 1) / max(abs(e_[k, j] - 1) for k in far)
-        _say(f"[IMP-3 4 W6] (C2) {code} |η_wall(T1)-1| / max_F|η_wall(F)-1| = {c2:.3f}x "
-             f"(predicted >= 5, ceiling ≈ 6e3)")
+        _say(
+            f"[IMP-3 4 W6] (C2) {code} |η_wall(T1)-1| / max_F|η_wall(F)-1| = {c2:.3f}x "
+            f"(predicted >= 5, ceiling ≈ 6e3)"
+        )
     ref = g * EP["rod"][iT1, :, j]
     c3 = np.linalg.norm(E["off"][iT1, :, j] - ref) / np.linalg.norm(ref)
-    _say(f"[IMP-3 4 W6] (C3) |E^ours_off(T1) - g·E^Pal_rod(T1)| / ‖g·E^Pal_rod(T1)‖ = {c3:.3e} "
-         f"(predicted >= 0.3); separation over (T_E off) "
-         f"{c3 / te['off'] if te['off'] > 0 else float('inf'):.3e}x")
+    _say(
+        f"[IMP-3 4 W6] (C3) |E^ours_off(T1) - g·E^Pal_rod(T1)| / ‖g·E^Pal_rod(T1)‖ = {c3:.3e} "
+        f"(predicted >= 0.3); separation over (T_E off) "
+        f"{c3 / te['off'] if te['off'] > 0 else float('inf'):.3e}x"
+    )

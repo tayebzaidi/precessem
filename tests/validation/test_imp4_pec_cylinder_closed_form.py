@@ -72,8 +72,7 @@ def _bessel_residual(f, fp, fpp, rho, k, n):
 
 
 def _wire_current_from_field(k, hankel_kind=2):
-    _, fp, _ = _pec_cylinder_tm0_radial(np.array([A]), k=k, radius=A,
-                                        hankel_kind=hankel_kind)
+    _, fp, _ = _pec_cylinder_tm0_radial(np.array([A]), k=k, radius=A, hankel_kind=hankel_kind)
     h_phi = E0 * fp[0] / (1j * OMEGA * MU_0)
     return 2.0 * np.pi * A * h_phi
 
@@ -84,7 +83,8 @@ def test_scipy_accepts_complex_arguments():
     for z in (K_FIXTURE * A, K_FIXTURE * C):
         for n in (0, 1):
             series = sum(
-                (-1) ** m / (special.factorial(m) * special.factorial(m + n))
+                (-1) ** m
+                / (special.factorial(m) * special.factorial(m + n))
                 * (z / 2) ** (2 * m + n)
                 for m in range(30)
             )
@@ -97,23 +97,31 @@ def test_scipy_accepts_complex_arguments():
 
 def test_printed_fixture_values():
     k = K_FIXTURE
-    _say(f"[IMP-4 W1] k = {k:.6g} 1/m, |k| = {abs(k):.6g}, |k|a = {abs(k)*A:.6g}, "
-         f"|k|c = {abs(k)*C:.6g}")
+    _say(
+        f"[IMP-4 W1] k = {k:.6g} 1/m, |k| = {abs(k):.6g}, |k|a = {abs(k)*A:.6g}, "
+        f"|k|c = {abs(k)*C:.6g}"
+    )
     coef = special.jv(0, k * A) / special.hankel2(0, k * A)
-    _say(f"[IMP-4 W1] TM n=0 coefficient J0(ka)/H0(ka) = {coef:.6g}, "
-         f"|.| = {abs(coef):.6g} (predicted ~0.37); H0(ka) = "
-         f"{special.hankel2(0, k*A):.6g} (predicted ~0.64+2.64j)")
+    _say(
+        f"[IMP-4 W1] TM n=0 coefficient J0(ka)/H0(ka) = {coef:.6g}, "
+        f"|.| = {abs(coef):.6g} (predicted ~0.37); H0(ka) = "
+        f"{special.hankel2(0, k*A):.6g} (predicted ~0.64+2.64j)"
+    )
     for m in (1.2, 1.5, 2.0):
         pts = np.array([[m * A, 0.0, 0.0]])
         ez = pec_cylinder_tm0_field(pts, k=k, radius=A, e0=E0)[0, 2]
         _say(f"[IMP-4 W1] |E_z|/E0 at rho = {m}a: {abs(ez)/E0:.6g}")
     pts = np.array([[0.0, A, 0.0]])
     e = pec_cylinder_te1_field(pts, k=k, radius=A, omega=OMEGA, e0=E0)[0]
-    _say(f"[IMP-4 W1] TE surface |E_rho(a, pi/2)|/E0 = {abs(e[1])/E0:.6g} "
-         f"(predicted ~2.00, static doubling)")
+    _say(
+        f"[IMP-4 W1] TE surface |E_rho(a, pi/2)|/E0 = {abs(e[1])/E0:.6g} "
+        f"(predicted ~2.00, static doubling)"
+    )
     current = pec_cylinder_tm0_current(k=k, radius=A, omega=OMEGA, e0=E0)
-    _say(f"[IMP-4 W1] |I| = {abs(current):.6g} A per V/m (predicted ~2.9e-3), "
-         f"arg I = {np.angle(current):.6g} rad")
+    _say(
+        f"[IMP-4 W1] |I| = {abs(current):.6g} A per V/m (predicted ~2.9e-3), "
+        f"arg I = {np.angle(current):.6g} rad"
+    )
 
 
 def test_b1_bessel_equation():
@@ -123,17 +131,16 @@ def test_b1_bessel_equation():
     for n in (0, 1):
         z = k * rho
         jn = (special.jv(n, z), k * special.jvp(n, z, 1), k**2 * special.jvp(n, z, 2))
-        hn = (special.hankel2(n, z), k * special.h2vp(n, z, 1),
-              k**2 * special.h2vp(n, z, 2))
+        hn = (special.hankel2(n, z), k * special.h2vp(n, z, 1), k**2 * special.h2vp(n, z, 2))
         worst[f"J{n}"] = _bessel_residual(*jn, rho, k, n)
         worst[f"H{n}"] = _bessel_residual(*hn, rho, k, n)
-    worst["f_TM0"] = _bessel_residual(*_pec_cylinder_tm0_radial(rho, k=k, radius=A),
-                                      rho, k, 0)
-    worst["f_TE1"] = _bessel_residual(*_pec_cylinder_te1_radial(rho, k=k, radius=A),
-                                      rho, k, 1)
-    _say(f"[IMP-4 W1] (B1) max residual / term-sum: "
-         + ", ".join(f"{key} {v:.3e}" for key, v in worst.items())
-         + f" (band {B1_BAND:g})")
+    worst["f_TM0"] = _bessel_residual(*_pec_cylinder_tm0_radial(rho, k=k, radius=A), rho, k, 0)
+    worst["f_TE1"] = _bessel_residual(*_pec_cylinder_te1_radial(rho, k=k, radius=A), rho, k, 1)
+    _say(
+        "[IMP-4 W1] (B1) max residual / term-sum: "
+        + ", ".join(f"{key} {v:.3e}" for key, v in worst.items())
+        + f" (band {B1_BAND:g})"
+    )
     for key, v in worst.items():
         assert v <= B1_BAND, f"(B1) {key}: {v:.3e}"
 
@@ -142,8 +149,9 @@ def test_b2_wronskian():
     worst = 0.0
     for z in (K_FIXTURE * A, K_FIXTURE * C):
         for n in (0, 1, 2):
-            w = (special.jv(n, z) * special.h2vp(n, z, 1)
-                 - special.jvp(n, z, 1) * special.hankel2(n, z))
+            w = special.jv(n, z) * special.h2vp(n, z, 1) - special.jvp(n, z, 1) * special.hankel2(
+                n, z
+            )
             ref = -2j / (np.pi * z)
             worst = max(worst, abs(w - ref) / abs(ref))
     _say(f"[IMP-4 W1] (B2) max Wronskian rel. error: {worst:.3e} (band {B2_BAND:g})")
@@ -158,14 +166,15 @@ def _tangential(e, phi):
 def test_p_pec_traces_cartesian():
     pts, phi = _ring(A, 64, z=0.003)
     tm = pec_cylinder_tm0_field(pts, k=K_FIXTURE, radius=A, e0=E0, interior="continue")
-    te = pec_cylinder_te1_field(pts, k=K_FIXTURE, radius=A, omega=OMEGA, e0=E0,
-                                interior="continue")
+    te = pec_cylinder_te1_field(pts, k=K_FIXTURE, radius=A, omega=OMEGA, e0=E0, interior="continue")
     tm_phi, tm_z = _tangential(tm, phi)
     te_phi, te_z = _tangential(te, phi)
     worst = max(tm_phi.max(), tm_z.max(), te_phi.max(), te_z.max()) / E0
-    _say(f"[IMP-4 W1] (P) max tangential |E|/E0 on rho = a: TM phi {tm_phi.max():.3e} "
-         f"z {tm_z.max():.3e}; TE phi {te_phi.max():.3e} z {te_z.max():.3e} "
-         f"(band {P_BAND:g})")
+    _say(
+        f"[IMP-4 W1] (P) max tangential |E|/E0 on rho = a: TM phi {tm_phi.max():.3e} "
+        f"z {tm_z.max():.3e}; TE phi {te_phi.max():.3e} z {te_z.max():.3e} "
+        f"(band {P_BAND:g})"
+    )
     # Non-vacuity: the normal TE component is O(E0) there.
     e_rho = np.cos(phi) * te[:, 0] + np.sin(phi) * te[:, 1]
     assert np.max(np.abs(e_rho)) > 1.0 * E0
@@ -176,8 +185,10 @@ def test_i_wire_current():
     from_field = _wire_current_from_field(K_FIXTURE)
     closed = pec_cylinder_tm0_current(k=K_FIXTURE, radius=A, omega=OMEGA, e0=E0)
     rel = abs(from_field - closed) / abs(closed)
-    _say(f"[IMP-4 W1] (I) 2*pi*a*H_phi(a) = {from_field:.12g}, closed = {closed:.12g}, "
-         f"ratio = {from_field/closed:.15g}, rel {rel:.3e} (band {I_BAND:g})")
+    _say(
+        f"[IMP-4 W1] (I) 2*pi*a*H_phi(a) = {from_field:.12g}, closed = {closed:.12g}, "
+        f"ratio = {from_field/closed:.15g}, rel {rel:.3e} (band {I_BAND:g})"
+    )
     assert rel <= I_BAND
 
 
@@ -188,16 +199,21 @@ def test_q_te_static_limit():
     rho[0], rho[1] = A, C
     phi = rng.uniform(0.0, 2.0 * np.pi, 200)
     pts = np.column_stack([rho * np.cos(phi), rho * np.sin(phi), np.zeros(200)])
-    e = pec_cylinder_te1_field(pts, k=k, radius=A, omega=OMEGA, e0=E0,
-                               interior="continue")
+    e = pec_cylinder_te1_field(pts, k=k, radius=A, omega=OMEGA, e0=E0, interior="continue")
     e_rho_s = E0 * (1 + A**2 / rho**2) * np.sin(phi)
     e_phi_s = E0 * (1 - A**2 / rho**2) * np.cos(phi)
-    ref = np.column_stack([e_rho_s * np.cos(phi) - e_phi_s * np.sin(phi),
-                           e_rho_s * np.sin(phi) + e_phi_s * np.cos(phi),
-                           np.zeros(200)])
+    ref = np.column_stack(
+        [
+            e_rho_s * np.cos(phi) - e_phi_s * np.sin(phi),
+            e_rho_s * np.sin(phi) + e_phi_s * np.cos(phi),
+            np.zeros(200),
+        ]
+    )
     miss = np.max(np.abs(e - ref)) / E0
-    _say(f"[IMP-4 W1] (Q) s = {S_STATIC:g}: max |E - E_static|/E0 = {miss:.3e} "
-         f"(predicted <~1e-11, band {Q_BAND:g})")
+    _say(
+        f"[IMP-4 W1] (Q) s = {S_STATIC:g}: max |E - E_static|/E0 = {miss:.3e} "
+        f"(predicted <~1e-11, band {Q_BAND:g})"
+    )
     assert miss <= Q_BAND
 
 
@@ -221,27 +237,37 @@ def test_c1_hankel1_misses_current():
     wrong = _wire_current_from_field(K_FIXTURE, hankel_kind=1)
     closed = pec_cylinder_tm0_current(k=K_FIXTURE, radius=A, omega=OMEGA, e0=E0)
     miss = abs(wrong - closed) / abs(closed)
-    _say(f"[IMP-4 W1] (c1) H^(1) in TM vs (I): miss {miss:.4g} (predicted ~0.7, "
-         f"asserted > {CONTROL_MISS:g})")
+    _say(
+        f"[IMP-4 W1] (c1) H^(1) in TM vs (I): miss {miss:.4g} (predicted ~0.7, "
+        f"asserted > {CONTROL_MISS:g})"
+    )
     # (B1) and (P) still pass for the wrong-convention field.
     rho = _radii()
-    b1 = _bessel_residual(*_pec_cylinder_tm0_radial(rho, k=K_FIXTURE, radius=A,
-                                                    hankel_kind=1), rho, K_FIXTURE, 0)
+    b1 = _bessel_residual(
+        *_pec_cylinder_tm0_radial(rho, k=K_FIXTURE, radius=A, hankel_kind=1), rho, K_FIXTURE, 0
+    )
     pts, _ = _ring(A, 64)
-    p = np.max(np.abs(pec_cylinder_tm0_field(pts, k=K_FIXTURE, radius=A, e0=E0,
-                                             interior="continue",
-                                             _hankel_kind=1)[:, 2]))
+    p = np.max(
+        np.abs(
+            pec_cylinder_tm0_field(
+                pts, k=K_FIXTURE, radius=A, e0=E0, interior="continue", _hankel_kind=1
+            )[:, 2]
+        )
+    )
     _say(f"[IMP-4 W1] (c1) wrong-convention field still: (B1) {b1:.3e}, (P) {p:.3e}")
     assert miss > CONTROL_MISS
 
 
 def test_c2_dirichlet_te_misses_pec_trace():
     pts, phi = _ring(A, 64)
-    e = pec_cylinder_te1_field(pts, k=K_FIXTURE, radius=A, omega=OMEGA, e0=E0,
-                               interior="continue", _condition="dirichlet")
+    e = pec_cylinder_te1_field(
+        pts, k=K_FIXTURE, radius=A, omega=OMEGA, e0=E0, interior="continue", _condition="dirichlet"
+    )
     e_phi = np.max(np.abs(-np.sin(phi) * e[:, 0] + np.cos(phi) * e[:, 1])) / E0
-    _say(f"[IMP-4 W1] (c2) Dirichlet TE vs (P): max |E_phi(a)|/E0 = {e_phi:.4g} "
-         f"(predicted O(1), asserted > {CONTROL_MISS:g})")
+    _say(
+        f"[IMP-4 W1] (c2) Dirichlet TE vs (P): max |E_phi(a)|/E0 = {e_phi:.4g} "
+        f"(predicted O(1), asserted > {CONTROL_MISS:g})"
+    )
     assert e_phi > CONTROL_MISS
 
 
@@ -250,6 +276,8 @@ def test_c3_sigma_dropped_misses_current():
     wrong = pec_cylinder_tm0_current(k=k_lossless, radius=A, omega=OMEGA, e0=E0)
     ref = _wire_current_from_field(K_FIXTURE)
     miss = abs(wrong - ref) / abs(ref)
-    _say(f"[IMP-4 W1] (c3) sigma dropped (k = {k_lossless:.6g}) vs (I): miss "
-         f"{miss:.4g} (predicted ~0.15, asserted > {CONTROL_MISS:g})")
+    _say(
+        f"[IMP-4 W1] (c3) sigma dropped (k = {k_lossless:.6g}) vs (I): miss "
+        f"{miss:.4g} (predicted ~0.15, asserted > {CONTROL_MISS:g})"
+    )
     assert miss > CONTROL_MISS

@@ -41,10 +41,16 @@ RADIUS = 0.012
 
 @pytest.fixture(scope="module")
 def msh():
-    m = dmesh.create_box(MPI.COMM_WORLD, [list(BOX_LO), list(BOX_HI)], list(N_CELLS),
-                         cell_type=dmesh.CellType.tetrahedron)
-    _say(f"[ops82] build {'complex' if SCALAR_IS_COMPLEX else 'real'}; cells "
-         f"{m.topology.index_map(3).size_global}")
+    m = dmesh.create_box(
+        MPI.COMM_WORLD,
+        [list(BOX_LO), list(BOX_HI)],
+        list(N_CELLS),
+        cell_type=dmesh.CellType.tetrahedron,
+    )
+    _say(
+        f"[ops82] build {'complex' if SCALAR_IS_COMPLEX else 'real'}; cells "
+        f"{m.topology.index_map(3).size_global}"
+    )
     return m
 
 
@@ -70,16 +76,20 @@ def test_v_owned_volume_sum(msh):
     dofs = np.asarray(W.dofmap.list).reshape(-1)[:n_loc]
     vol = msh.comm.allreduce(float(np.sum(np.real(arr[dofs]))), op=MPI.SUM)
     rel = abs(vol - BOX_VOLUME) / BOX_VOLUME
-    _say(f"[ops82] (V) owned volume sum {vol:.15e} m^3; box {BOX_VOLUME:.15e}; "
-         f"rel {rel:.3e} (band {V_REL_BAND:.0e})")
+    _say(
+        f"[ops82] (V) owned volume sum {vol:.15e} m^3; box {BOX_VOLUME:.15e}; "
+        f"rel {rel:.3e} (band {V_REL_BAND:.0e})"
+    )
     assert rel <= V_REL_BAND, rel
 
 
 def test_s0_rod_source(msh):
     q, n_sel, v_sel = _rod_source(msh, power=POWER, length=LENGTH, radius=RADIUS)
     total = np.real(_allsum(msh.comm, q * ufl.dx))
-    _say(f"[ops82] (S0) rod: n_sel {n_sel}; v_sel {v_sel:.6e} m^3; int q {total:.15e} W; "
-         f"|d| {abs(total - POWER):.3e} (B_BAND {B_BAND:.0e})")
+    _say(
+        f"[ops82] (S0) rod: n_sel {n_sel}; v_sel {v_sel:.6e} m^3; int q {total:.15e} W; "
+        f"|d| {abs(total - POWER):.3e} (B_BAND {B_BAND:.0e})"
+    )
     assert n_sel > 0, n_sel
     assert abs(total - POWER) <= B_BAND, total
 
@@ -87,13 +97,17 @@ def test_s0_rod_source(msh):
 def test_s0_tips_source(msh):
     q, balls = _tips_source(msh, power=POWER, radius=RADIUS, length=LENGTH)
     total = np.real(_allsum(msh.comm, q * ufl.dx))
-    _say(f"[ops82] (S0) tips: int q {total:.15e} W; |d| {abs(total - POWER):.3e} "
-         f"(B_BAND {B_BAND:.0e})")
+    _say(
+        f"[ops82] (S0) tips: int q {total:.15e} W; |d| {abs(total - POWER):.3e} "
+        f"(B_BAND {B_BAND:.0e})"
+    )
     assert abs(total - POWER) <= B_BAND, total
     for i, (n_sel, v_sel, qb) in enumerate(balls):
         tb = np.real(_allsum(msh.comm, qb * ufl.dx))
-        _say(f"[ops82] (S0) ball {i}: n_sel {n_sel}; v_sel {v_sel:.6e} m^3; int q "
-             f"{tb:.15e} W; |d| {abs(tb - 0.5 * POWER):.3e}")
+        _say(
+            f"[ops82] (S0) ball {i}: n_sel {n_sel}; v_sel {v_sel:.6e} m^3; int q "
+            f"{tb:.15e} W; |d| {abs(tb - 0.5 * POWER):.3e}"
+        )
         assert n_sel > 0, (i, n_sel)
         assert abs(tb - 0.5 * POWER) <= B_BAND, (i, tb)
 
@@ -112,8 +126,10 @@ def test_control_complex_prefix_form_refused(msh):
     old = one * w * ufl.dx
     with pytest.raises(ArityMismatch) as exc:
         check_form_arity(old, old.arguments(), complex_mode=True)
-    _say(f"[ops82] control (complex): pre-fix form refused, "
-         f"{type(exc.value).__name__}: {exc.value}")
+    _say(
+        f"[ops82] control (complex): pre-fix form refused, "
+        f"{type(exc.value).__name__}: {exc.value}"
+    )
     new = one * ufl.conj(w) * ufl.dx
     check_form_arity(new, new.arguments(), complex_mode=True)  # the fixed form passes
     _say("[ops82] control (complex): fixed form passes the same arity check")
@@ -126,6 +142,8 @@ def test_control_real_vector_bitwise_unchanged(msh):
     new = _assembled(fem.form(one * ufl.conj(w) * ufl.dx))
     same = bool(np.array_equal(old, new))
     allsame = msh.comm.allreduce(int(same), op=MPI.MIN)
-    _say(f"[ops82] control (real): pre-fix vs fixed vector bitwise equal on every rank: "
-         f"{bool(allsame)} ({old.size} local entries on rank 0)")
+    _say(
+        f"[ops82] control (real): pre-fix vs fixed vector bitwise equal on every rank: "
+        f"{bool(allsame)} ({old.size} local entries on rank 0)"
+    )
     assert allsame == 1

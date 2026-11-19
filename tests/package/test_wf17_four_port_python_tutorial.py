@@ -51,8 +51,8 @@ import pytest
 from mpi4py import MPI
 
 from fem_em_solver import FourPortBirdcageGeometry, LumpedPortDrive, Study
-
 from tests.complex_mode import IS_COMPLEX
+from tests.package.test_wf1_yaml_sar_b1 import SAR, _diag
 from tests.package.test_wf16_study_four_port import _record, _rel
 from tests.package.test_wf16_study_sar import _phantom
 from tests.package.test_wf16_study_sweep import C4_HAND_TABLE, KEYS, _records
@@ -63,7 +63,6 @@ from tests.package.test_wf17_first_study_tutorial import (
 )
 from tests.package.test_wf17_four_port_outputs_tutorial import B1_RECORD, PAIRS_RECORD
 from tests.package.test_wf17_sweep_tutorial import W1A_R
-from tests.package.test_wf1_yaml_sar_b1 import SAR, _diag
 from tests.unit.test_doc_reference_exit_codes import run_checker
 from tests.validation.test_ans4_exact_strip_records import (
     ANS4_EXACT_STRIP_RECORD_RANK_WIDTH,
@@ -213,10 +212,12 @@ def exec_block(monkeypatch, tag):
 
 
 def _assert_gate_inputs(st, label):
-    _p0(f"[WF-17 s17] (In) {label}: geometry == f_small() {st.geometry == FourPortBirdcageGeometry.f_small()}; "
+    _p0(
+        f"[WF-17 s17] (In) {label}: geometry == f_small() {st.geometry == FourPortBirdcageGeometry.f_small()}; "
         f"material {st.material!r}; excitation {st.excitation!r}; frequency "
         f"{float(st.frequency_hz).hex()} (want {FREQUENCY_64_HZ.hex()}); degree {st.degree}; "
-        f"conductor {st.conductor!r}")
+        f"conductor {st.conductor!r}"
+    )
     assert type(st.geometry) is FourPortBirdcageGeometry
     assert st.geometry == FourPortBirdcageGeometry.f_small()
     assert st.material == _phantom()
@@ -248,8 +249,10 @@ def _run_block(tag, monkeypatch, comm):
         mp.setattr(FourPortBirdcageGeometry, "build", _build)
         ns, out = exec_block(monkeypatch, tag)
     t_block = time.perf_counter() - t0
-    _p0(f"[WF-17 s17] build cache: {cache['real']} real build, {cache['hits']} hits; block {tag} "
-        f"{t_block:.1f} s")
+    _p0(
+        f"[WF-17 s17] build cache: {cache['real']} real build, {cache['hits']} hits; block {tag} "
+        f"{t_block:.1f} s"
+    )
     assert cache["real"] == 1, cache["real"]
     _assert_gate_inputs(ns["study"], tag)
     return ns
@@ -279,18 +282,27 @@ def test_wf17_s17_blocks_and_inputs(monkeypatch, tmp_path):
         _p0(f"[WF-17 s17] (X) {tag}: calls {counts}; defect {reason}")
         assert reason is None, reason
         assert block.count("Study(") == 1 and "run_study_file" not in block
-    for link in ("(four_port_outputs_from_yaml.md)", "(sweep_from_yaml.md)",
-                 "(../../tests/package/test_wf17_four_port_python_tutorial.py)"):
+    for link in (
+        "(four_port_outputs_from_yaml.md)",
+        "(sweep_from_yaml.md)",
+        "(../../tests/package/test_wf17_four_port_python_tutorial.py)",
+    ):
         assert link in text, link
 
     # (c-page), by construction: a removed / doubled tag raises; a block without
     # its output call, or with another block's, fails (X) naming the call
     for tag, lang in [(t, "python") for t in OWN_CALLS] + [(BANDS_TAG, "text")]:
         with pytest.raises(LookupError):
-            extract_tagged_block(text.replace(f"```{lang} {tag}\n", f"```{lang} other\n"), tag,
-                                 lang=lang)
-        doubled = (text + "\n" + f"```{lang} {tag}\n"
-                   + extract_tagged_block(text, tag, lang=lang) + "```\n")
+            extract_tagged_block(
+                text.replace(f"```{lang} {tag}\n", f"```{lang} other\n"), tag, lang=lang
+            )
+        doubled = (
+            text
+            + "\n"
+            + f"```{lang} {tag}\n"
+            + extract_tagged_block(text, tag, lang=lang)
+            + "```\n"
+        )
         with pytest.raises(LookupError):
             extract_tagged_block(doubled, tag, lang=lang)
     planted = tmp_path / "page.md"
@@ -298,8 +310,10 @@ def test_wf17_s17_blocks_and_inputs(monkeypatch, tmp_path):
     r_sar = _block_defect(extract_tagged_block(planted.read_text(), SAR_TAG), SAR_TAG)
     planted.write_text(text.replace("study.solve_sweep(", "study.solve(", 1))
     r_sweep = _block_defect(extract_tagged_block(planted.read_text(), SWEEP_TAG), SWEEP_TAG)
-    _p0(f"[WF-17 s17] (c-page) tags removed / doubled raise LookupError for all four blocks; "
-        f"sar -> b1_plus: {r_sar}; solve_sweep -> solve: {r_sweep}")
+    _p0(
+        f"[WF-17 s17] (c-page) tags removed / doubled raise LookupError for all four blocks; "
+        f"sar -> b1_plus: {r_sar}; solve_sweep -> solve: {r_sweep}"
+    )
     assert r_sar is not None and ("sar" in r_sar or "b1_plus" in r_sar)
     assert r_sweep is not None and ("solve" in r_sweep)
     for token in (".json", ".npz", ".s4p", ".xdmf", "AED", "HFSS"):
@@ -313,14 +327,16 @@ def test_wf17_s17_blocks_and_inputs(monkeypatch, tmp_path):
         def f(self, *args, **kwargs):
             calls.append((name, self, args, kwargs))
             return value
+
         return f
 
     sweep_stub = SimpleNamespace(frequencies_hz=(), s_matrices=np.zeros((0, 4, 4)))
     monkeypatch.setattr(Study, "solve", rec("solve", SimpleNamespace(sheets=fake_sheets)))
     monkeypatch.setattr(Study, "sar", rec("sar", {"P1": [{}]}))
     monkeypatch.setattr(Study, "b1_plus", rec("b1_plus", {"P1": None}))
-    monkeypatch.setattr(Study, "b1_plus_at",
-                        rec("b1_plus_at", {"P1": (np.zeros(1), np.ones(1, dtype=bool))}))
+    monkeypatch.setattr(
+        Study, "b1_plus_at", rec("b1_plus_at", {"P1": (np.zeros(1), np.ones(1, dtype=bool))})
+    )
     monkeypatch.setattr(Study, "solve_sweep", rec("solve_sweep", sweep_stub))
     _prepare_scratch()
     for tag in OWN_CALLS:
@@ -350,8 +366,9 @@ def test_wf17_s17_bands_on_the_page():
     block = extract_tagged_block(_text(), BANDS_TAG, lang="text")
     _p0(f"[WF-17 s17] (E) bands block {block.strip().splitlines()} (rendered {_bands_lines()})")
     assert _bands_defect(block) is None, _bands_defect(block)
-    altered = block.replace(f"{LEG_D0_REPRODUCTION_BAND:.0e}",
-                            f"{LEG_D0_REPRODUCTION_BAND * 10:.0e}", 1)
+    altered = block.replace(
+        f"{LEG_D0_REPRODUCTION_BAND:.0e}", f"{LEG_D0_REPRODUCTION_BAND * 10:.0e}", 1
+    )
     reason = _bands_defect(altered)
     _p0(f"[WF-17 s17] (c-page) one exponent altered -> {reason}")
     assert reason is not None and "P1 records" in reason
@@ -363,9 +380,11 @@ def test_wf17_s17_docrefs_zero_dead():
     rc, counts = run_checker("--docs-root", "docs/guide", "--check-links")
     link = LINK_PASS_RE.search(_checker_stdout("--docs-root", "docs/guide", "--check-links"))
     assert link is not None, "(D) no 'Link pass:' line"
-    print(f"[WF-17 s17] (D) dead={counts['dead']} links={link.group(1)} pages={link.group(2)} "
-          f"link-dead={link.group(3)} guide={counts['guide']} stale={counts['stale']} "
-          f"exit={counts['exit']} rc={rc}")
+    print(
+        f"[WF-17 s17] (D) dead={counts['dead']} links={link.group(1)} pages={link.group(2)} "
+        f"link-dead={link.group(3)} guide={counts['guide']} stale={counts['stale']} "
+        f"exit={counts['exit']} rc={rc}"
+    )
     assert counts["dead"] == 0
     assert int(link.group(3)) == 0
     assert int(link.group(2)) >= MIN_GUIDE_PAGES
@@ -382,31 +401,45 @@ def test_wf17_s17_sar_block_reproduces_wf16_s4(monkeypatch):
     res, order, az, by_k = _pairing(study)
 
     # the block's centres = the gate's expression on the solved sheets, by float.hex
-    own = [[float(x).hex() for x in (CENTRE_RADIUS_M * float(np.cos(np.radians(az[pid]))),
-                                     CENTRE_RADIUS_M * float(np.sin(np.radians(az[pid]))), 0.0)]
-           for pid in order]
+    own = [
+        [
+            float(x).hex()
+            for x in (
+                CENTRE_RADIUS_M * float(np.cos(np.radians(az[pid]))),
+                CENTRE_RADIUS_M * float(np.sin(np.radians(az[pid]))),
+                0.0,
+            )
+        ]
+        for pid in order
+    ]
     got = [[float(x).hex() for x in c] for c in centres]
     same_sheets = [s["tag"] for s in result.sheets] == [s["tag"] for s in res.sheets]
 
     # (R) the block's solve() S vs the degree-1 record
     rel = _rel(np.asarray(result.s_matrix, dtype=np.complex128), _record(1))
-    _p0(f"[WF-17 s17] (R) cells {result.cells}; ||S - P1|| / ||P1|| = {rel:.3e} (ASSERTED <= "
+    _p0(
+        f"[WF-17 s17] (R) cells {result.cells}; ||S - P1|| / ||P1|| = {rel:.3e} (ASSERTED <= "
         f"{LEG_D0_REPRODUCTION_BAND:.0e}); centres hex = gate expression {got == own}; sheet "
-        f"order solve() = fields {same_sheets}")
+        f"order solve() = fields {same_sheets}"
+    )
 
     # (ii) the 10 g C4 identity, the YAML module's comparison on the block's table
     case = {"by_k": by_k, "order": order, "summary": {"sar": {"values": sar}}}
     d = {k: _diag(case, k) for k in range(4)}
     pairs = [abs(d[(k + 1) % 4] - d[k]) / d[k] for k in range(4)]
     pairs_s = [f"{100 * p:.4f}" for p in pairs]
-    _p0(f"[WF-17 s17] (ii) sheet order {order}; by_k {by_k}; cyclic pairs (%) {pairs_s} "
+    _p0(
+        f"[WF-17 s17] (ii) sheet order {order}; by_k {by_k}; cyclic pairs (%) {pairs_s} "
         f"(PAIRS_RECORD {PAIRS_RECORD}; ASSERTED <= {C4_COVARIANCE_BAND * 100:.1f}% and digits "
-        f"equal); {SAR} key")
+        f"equal); {SAR} key"
+    )
 
     # (c1) the far-side ball misses each diagonal
     miss = [abs(_diag(case, k, centre_of=lambda j: (j + 2) % 4) - d[k]) / d[k] for k in range(4)]
-    _p0(f"[WF-17 s17] (c1) far-side ball miss (%) {[f'{100 * m:.4f}' for m in miss]} "
-        f"(U73 {U73_C1}; ASSERTED > {C4_COVARIANCE_BAND * 100:.1f}%)")
+    _p0(
+        f"[WF-17 s17] (c1) far-side ball miss (%) {[f'{100 * m:.4f}' for m in miss]} "
+        f"(U73 {U73_C1}; ASSERTED > {C4_COVARIANCE_BAND * 100:.1f}%)"
+    )
     _p0(f"[WF-17 s17] W-sar node {time.perf_counter() - t0:.1f} s")
 
     assert result.cells == ANS4_EXACT_STRIP_CELL_RECORD
@@ -430,8 +463,10 @@ def test_wf17_s17_b1_block_reproduces_wf16_s5(monkeypatch):
     res, order, az, by_k = _pairing(study)
 
     rel = _rel(np.asarray(res.s_matrix, dtype=np.complex128), _record(1))
-    _p0(f"[WF-17 s17] (R) cells {res.cells}; ||S_keep - P1|| / ||P1|| = {rel:.3e} (ASSERTED <= "
-        f"{LEG_D0_REPRODUCTION_BAND:.0e})")
+    _p0(
+        f"[WF-17 s17] (R) cells {res.cells}; ||S_keep - P1|| / ||P1|| = {rel:.3e} (ASSERTED <= "
+        f"{LEG_D0_REPRODUCTION_BAND:.0e})"
+    )
 
     # (B1) the YAML module's images on the block's Study
     delta = np.radians((az["P2"] - az["P1"]) % 360.0)
@@ -442,8 +477,10 @@ def test_wf17_s17_b1_block_reproduces_wf16_s5(monkeypatch):
         "P4@-D": ("P4", _rotate_z(points, -delta)),
         "P3@2D": ("P3", _rotate_z(points, 2.0 * delta)),
     }
-    read = {label: study.b1_plus_at(pts, drives=[pid], comm=comm)[pid]
-            for label, (pid, pts) in images.items()}
+    read = {
+        label: study.b1_plus_at(pts, drives=[pid], comm=comm)[pid]
+        for label, (pid, pts) in images.items()
+    }
     control = study.b1_plus_at(_rotate_z(points, -delta), drives=["P2"], comm=comm)["P2"]
     n = points.shape[0]
     counts = {label: int(v.sum()) for label, (_, v) in read.items()}
@@ -455,13 +492,17 @@ def test_wf17_s17_b1_block_reproduces_wf16_s5(monkeypatch):
     v4 = [_relative_l2(read[label][0], ref, mask4) for label in ("P2@+D", "P4@-D", "P3@2D")]
     vals4_s = [f"{100 * v:.4f}" for v in v4]
     miss = _relative_l2(control[0], ref, mask)
-    _p0(f"[WF-17 s17] (B1) valid per image (of {n}) {counts}, control {int(control[1].sum())}; "
+    _p0(
+        f"[WF-17 s17] (B1) valid per image (of {n}) {counts}, control {int(control[1].sum())}; "
         f"P2@+D / P4@-D / P3@2D (%) {vals4_s} (B1_RECORD {B1_RECORD}; ASSERTED <= "
         f"{C4_COVARIANCE_BAND * 100:.1f}% and digits equal); with the control in the mask "
         f"{vals_s} (printed); Δ {np.degrees(delta):.6f} deg; block maps {sorted(maps)}, centre "
-        f"valid {[bool(v.all()) for _, v in b1.values()]}")
-    _p0(f"[WF-17 s17] (c2) P2@-D vs P1: {miss * 100:.4f}% (item 322 {ITEM322_C2}%; ASSERTED > "
-        f"{C4_COVARIANCE_BAND * 100:.1f}%)")
+        f"valid {[bool(v.all()) for _, v in b1.values()]}"
+    )
+    _p0(
+        f"[WF-17 s17] (c2) P2@-D vs P1: {miss * 100:.4f}% (item 322 {ITEM322_C2}%; ASSERTED > "
+        f"{C4_COVARIANCE_BAND * 100:.1f}%)"
+    )
     _p0(f"[WF-17 s17] W-b1 node {time.perf_counter() - t0:.1f} s")
 
     assert res.cells == ANS4_EXACT_STRIP_CELL_RECORD
@@ -488,22 +529,29 @@ def test_wf17_s17_sweep_block_reproduces_wf16_s2(monkeypatch):
     s_all = np.asarray(sw.s_matrices, dtype=np.complex128)
     rels = {k: _rel(s_all[i], rec[k]) for i, k in enumerate(KEYS)}
     one_mesh = all(r.mesh is sw.results[0].mesh for r in sw.results)
-    hex_ok = [float(f).hex() for f in sw.frequencies_hz] == [float(f).hex()
-                                                            for f in FREQUENCIES.values()]
+    hex_ok = [float(f).hex() for f in sw.frequencies_hz] == [
+        float(f).hex() for f in FREQUENCIES.values()
+    ]
     i10, i128 = KEYS.index("10"), KEYS.index("128")
     sw_10 = _rel(s_all[i10], rec["128"])
     sw_128 = _rel(s_all[i128], rec["10"])
-    _p0(f"[WF-17 s17] (R') ||S_f - P1_f||/||P1_f|| "
+    _p0(
+        "[WF-17 s17] (R') ||S_f - P1_f||/||P1_f|| "
         + " / ".join(f"{k} MHz {v:.3e}" for k, v in rels.items())
         + f" (ASSERTED <= {LEG_D0_REPRODUCTION_BAND:.0e}; digits printed, never asserted; "
         f"YAML route W1a {W1A_R}); cells {sw.results[0].cells} (record "
         f"{ANS4_EXACT_STRIP_CELL_RECORD}); one mesh {one_mesh}; frequencies hex equal {hex_ok}; "
-        f"study.result is None {study.result is None}")
-    _p0(f"[WF-17 s17] (c-swap) S_10 vs P1_128 {sw_10:.4f} (hand {C4_HAND_TABLE[1][('10', '128')]}); "
+        f"study.result is None {study.result is None}"
+    )
+    _p0(
+        f"[WF-17 s17] (c-swap) S_10 vs P1_128 {sw_10:.4f} (hand {C4_HAND_TABLE[1][('10', '128')]}); "
         f"S_128 vs P1_10 {sw_128:.4f} (hand {C4_HAND_TABLE[1][('128', '10')]}) "
-        f"(ASSERTED > {LEG_D0_REPRODUCTION_BAND:.0e}; W1a {W1A_SWAP})")
-    _p0(f"[WF-17 s17] W-sweep mesh {sw.mesh_time:.2f} s; sweeps "
-        f"{[round(t, 2) for t in sw.sweep_times]}; node {time.perf_counter() - t0:.1f} s")
+        f"(ASSERTED > {LEG_D0_REPRODUCTION_BAND:.0e}; W1a {W1A_SWAP})"
+    )
+    _p0(
+        f"[WF-17 s17] W-sweep mesh {sw.mesh_time:.2f} s; sweeps "
+        f"{[round(t, 2) for t in sw.sweep_times]}; node {time.perf_counter() - t0:.1f} s"
+    )
 
     assert len(sw.results) == len(KEYS)
     assert s_all.shape == (len(KEYS), 4, 4)

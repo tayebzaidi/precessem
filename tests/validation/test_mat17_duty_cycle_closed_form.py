@@ -99,10 +99,20 @@ def _duhamel(rr, tt, P, D):
             if D == 1.0 and sgn < 0:
                 continue
             mask = tt > ts
-            step = robin_sphere_transient_temperature(
-                rr, np.maximum(tt - ts, 0.0), radius=R, k=K, rho_c=RHO_C, q=Q,
-                h=H, t_inf=T_INF, t_init=T_INF,
-            ) - T_INF
+            step = (
+                robin_sphere_transient_temperature(
+                    rr,
+                    np.maximum(tt - ts, 0.0),
+                    radius=R,
+                    k=K,
+                    rho_c=RHO_C,
+                    q=Q,
+                    h=H,
+                    t_inf=T_INF,
+                    t_init=T_INF,
+                )
+                - T_INF
+            )
             theta += sgn * np.where(mask, step, 0.0)
         j += 1
     return theta
@@ -169,28 +179,36 @@ def test_p2_modal_vs_fourier_and_controls(case):
     modal = _modal(rr, tt, P, D, periodic=True)
     ref = _fourier(R_EVAL, t, P, D, 2**16)
     err = _rel(modal, ref)
-    _p(f"[MAT-17 P2 case {case}] modal vs Fourier M=2^16: {err:.3e}·θ_ss(0) "
-       f"(band 1e-9, predicted ≲ 5e-11)")
+    _p(
+        f"[MAT-17 P2 case {case}] modal vs Fourier M=2^16: {err:.3e}·θ_ss(0) "
+        f"(band 1e-9, predicted ≲ 5e-11)"
+    )
     # Fourier ladder (printed only)
     sw = np.array([0.0, D * P])
     ref_sw = _fourier(R_EVAL, sw, P, D, 2**16)
     for e in range(10, 17):
         f_e = _fourier(R_EVAL, t, P, D, 2**e)
         f_sw = _fourier(R_EVAL, sw, P, D, 2**e)
-        _p(f"[MAT-17 ladder case {case}] M=2^{e}: eval-set {_rel(f_e, modal):.3e}, "
-           f"switch instants vs M=2^16 {_rel(f_sw, ref_sw):.3e}")
+        _p(
+            f"[MAT-17 ladder case {case}] M=2^{e}: eval-set {_rel(f_e, modal):.3e}, "
+            f"switch instants vs M=2^16 {_rel(f_sw, ref_sw):.3e}"
+        )
     # (c1) Dirichlet roots, B re-projected
     lam_d = np.pi * np.arange(1, 401)
     c1 = _modal(rr, tt, P, D, periodic=True, lam=lam_d)
     e1 = _rel(c1, ref)
     e1c = float(np.max(np.abs(c1[0] - ref[0]))) / TH_SS0
-    _p(f"[MAT-17 c1 case {case}] Dirichlet roots: {e1:.3e} (centre {e1c:.3e}; "
-       f"predicted ≈ 0.27 centre in A; asserted > 1e-3)")
+    _p(
+        f"[MAT-17 c1 case {case}] Dirichlet roots: {e1:.3e} (centre {e1c:.3e}; "
+        f"predicted ≈ 0.27 centre in A; asserted > 1e-3)"
+    )
     # (c3) e^{−iωt} convention
     c3 = _fourier(R_EVAL, t, P, D, 2**16, sign=-1.0)
     e3 = _rel(c3, modal)
-    _p(f"[MAT-17 c3 case {case}] e^(−iωt) convention: {e3:.3e} "
-       f"(predicted ≈ {'1e-2' if case == 'A' else '1e-1'}; asserted > 1e-6)")
+    _p(
+        f"[MAT-17 c3 case {case}] e^(−iωt) convention: {e3:.3e} "
+        f"(predicted ≈ {'1e-2' if case == 'A' else '1e-1'}; asserted > 1e-6)"
+    )
     assert err <= 1e-9
     assert e1 > 1e-3
     assert e3 > 1e-6
@@ -234,14 +252,22 @@ def test_p5_from_rest_reaches_periodic_and_records(case):
     ss0 = TH_SS0
     peak = float(_modal(0.0, D * P * (1 - 1e-12), P, D, periodic=True))
     trough = float(_modal(0.0, P * (1 - 1e-12), P, D, periodic=True))
-    _p(f"[MAT-17 records] θ_ss(0) = {ss0:.6f} K (pred 12.2222), λ₁ = {LAM1:.6f} "
-       f"(pred ≈ 1.91), τ₁ = {TAU1:.6e} s (pred ≈ 1.91e4)")
-    _p(f"[MAT-17 P5 case {case}] j* = {jstar}: from rest vs periodic {err:.3e}·θ_ss(0) (band 1e-12)")
-    _p(f"[MAT-17 c2 case {case}] geometric sum dropped: {e2:.3e} (predicted ≈ 0.49; asserted > 1e-3)")
-    _p(f"[MAT-17 case {case}] centre periodic: mean {D * ss0:.6f} K, peak {peak:.6f} K, "
-       f"trough {trough:.6f} K, ripple p-p {peak - trough:.6f} K, "
-       f"peak/(D θ_ss) − 1 = {100 * (peak / (D * ss0) - 1):+.3f} %"
-       + (" (pred ripple 0.1435 K, +1.2 %)" if case == "A" else ""))
+    _p(
+        f"[MAT-17 records] θ_ss(0) = {ss0:.6f} K (pred 12.2222), λ₁ = {LAM1:.6f} "
+        f"(pred ≈ 1.91), τ₁ = {TAU1:.6e} s (pred ≈ 1.91e4)"
+    )
+    _p(
+        f"[MAT-17 P5 case {case}] j* = {jstar}: from rest vs periodic {err:.3e}·θ_ss(0) (band 1e-12)"
+    )
+    _p(
+        f"[MAT-17 c2 case {case}] geometric sum dropped: {e2:.3e} (predicted ≈ 0.49; asserted > 1e-3)"
+    )
+    _p(
+        f"[MAT-17 case {case}] centre periodic: mean {D * ss0:.6f} K, peak {peak:.6f} K, "
+        f"trough {trough:.6f} K, ripple p-p {peak - trough:.6f} K, "
+        f"peak/(D θ_ss) − 1 = {100 * (peak / (D * ss0) - 1):+.3f} %"
+        + (" (pred ripple 0.1435 K, +1.2 %)" if case == "A" else "")
+    )
     if case == "A":
         rr0, tt0 = _grid(P, D)
         jc = None

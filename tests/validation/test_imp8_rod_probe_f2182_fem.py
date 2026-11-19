@@ -31,20 +31,15 @@ import os
 import time
 
 import numpy as np
-from dolfinx import fem
+import pytest
 from mpi4py import MPI
 
-import pytest
-
 from fem_em_solver.thermal import solve_transient_conduction
-
 from tests.mesh.test_birdcage_implant_rod import ROD_RADIUS
-from tests.validation.test_imp8_composite_cylinder_closed_form import (
-    ROD_K,  # nominal
-    ROD_RHO_C,  # nominal
-)
+from tests.validation.test_imp8_composite_cylinder_closed_form import ROD_K  # nominal
+from tests.validation.test_imp8_composite_cylinder_closed_form import ROD_RHO_C  # nominal
 from tests.validation.test_imp8_rod_conducting_body_fem import EPS_HOLE, _coefficients
-from tests.validation.test_imp8_rod_line_source_closed_form import L, MM, T_PRINT, _phi
+from tests.validation.test_imp8_rod_line_source_closed_form import MM, T_PRINT, L, _phi
 from tests.validation.test_imp8_rod_line_source_duty_closed_form import PERIOD, _duhamel
 from tests.validation.test_imp8_rod_line_source_duty_fem import STEP_T2, T2
 from tests.validation.test_imp8_rod_line_source_fem import (  # noqa: F401  (box: fixture)
@@ -78,8 +73,9 @@ DUTY = 0.5
 #: I73's gel point, K/W (`20261106T103928Z_IMP-8-item856-W2.log:118`).
 GEL_NEW = {(2.0, 15.0): 9.482226e00}
 #: I73's Ti θ at ``READ_PTS``, K/W (`20261106T103149Z_IMP-8-item856-W1.log:113–118`).
-TI_THETA = dict(zip(READ_PTS, (4.583697e00, 1.098572e00, 2.774057e00, 7.112581e-01,
-                               1.735615e01, 1.041661e01)))
+TI_THETA = dict(
+    zip(READ_PTS, (4.583697e00, 1.098572e00, 2.774057e00, 7.112581e-01, 1.735615e01, 1.041661e01))
+)
 #: I60's direct D = 0.5 FEM reads at ``GATE_PTS``, K/W
 #: (`20261104T044429Z_IMP-8-I60-W1-item799.log:112–115`), printed only.
 I60_DIRECT = dict(zip(GATE_PTS, (2.240893e00, 6.683594e-01, 1.366131e00, 4.289727e-01)))
@@ -138,42 +134,68 @@ def probe_run(box):
     body_idx, n_body = _body_cells(msh, q)
     k, rho_c, n_bad = _coefficients(msh, body_idx, arm)
     out.update({"arm": arm, "n": n, "n_body": n_body, "n_bad": n_bad})
-    _say(f"[imp8-i75] arm {arm}; ROD_K {ROD_K:g}, ROD_RHO_C {ROD_RHO_C:.6g} (nominal); K_GEL {K_GEL:g}, "
-         f"RHO_C {RHO_C:.6g}; EPS_HOLE {EPS_HOLE:.0e}; ROD_RADIUS {ROD_RADIUS:g} m, L {L:g} m")
-    _say(f"[imp8-i75] body cells (positive q dofs -> cells, owned, allreduced) {n_body} (BODY_CELLS "
-         f"{BODY_CELLS}); source-selected cells {out['n_sel']}")
+    _say(
+        f"[imp8-i75] arm {arm}; ROD_K {ROD_K:g}, ROD_RHO_C {ROD_RHO_C:.6g} (nominal); K_GEL {K_GEL:g}, "
+        f"RHO_C {RHO_C:.6g}; EPS_HOLE {EPS_HOLE:.0e}; ROD_RADIUS {ROD_RADIUS:g} m, L {L:g} m"
+    )
+    _say(
+        f"[imp8-i75] body cells (positive q dofs -> cells, owned, allreduced) {n_body} (BODY_CELLS "
+        f"{BODY_CELLS}); source-selected cells {out['n_sel']}"
+    )
     dt = T_PRINT / N_MAIN
     out["snap_t"] = [j * dt for j in SNAP_STEPS]
     t1 = time.perf_counter()
     res = solve_transient_conduction(
-        msh, ft, k=k, rho_c=rho_c, q=q, h=H_GEL, t_inf=T_INF, t_init=T_INF,
-        robin_tag=ROBIN_TAG, dt=dt, n_steps=N_MAIN, theta=0.5, startup_half_steps=2,
-        degree=DEGREE, snapshot_steps=SNAP_STEPS)
+        msh,
+        ft,
+        k=k,
+        rho_c=rho_c,
+        q=q,
+        h=H_GEL,
+        t_inf=T_INF,
+        t_init=T_INF,
+        robin_tag=ROBIN_TAG,
+        dt=dt,
+        n_steps=N_MAIN,
+        theta=0.5,
+        startup_half_steps=2,
+        degree=DEGREE,
+        snapshot_steps=SNAP_STEPS,
+    )
     out["t_call"] = time.perf_counter() - t1
     out["E"] = float(res.max_balance_residual)
     out["snap_keys"] = sorted(int(s) for s in res.snapshots)
-    _say(f"[imp8-i75] CN N={N_MAIN} dt={dt:g} s: t_call {out['t_call']:.1f} s; n_factorizations "
-         f"{res.n_factorizations}; ranks {msh.comm.size}; snapshots {out['snap_keys']} at t "
-         f"{out['snap_t']} s (I60 T2 {T2:g} s = step {STEP_T2})")
+    _say(
+        f"[imp8-i75] CN N={N_MAIN} dt={dt:g} s: t_call {out['t_call']:.1f} s; n_factorizations "
+        f"{res.n_factorizations}; ranks {msh.comm.size}; snapshots {out['snap_keys']} at t "
+        f"{out['snap_t']} s (I60 T2 {T2:g} s = step {STEP_T2})"
+    )
 
     # 1. I73's batch, unchanged.
     th = _theta_pts(res.temperature, READ_PTS)
     out["theta"] = dict(zip(READ_PTS, th))
     out["I"] = []
-    ref_tab = ({**I55_THETA, **GEL_NEW} if arm == "gel" else TI_THETA if arm == "ti" else {})
+    ref_tab = {**I55_THETA, **GEL_NEW} if arm == "gel" else TI_THETA if arm == "ti" else {}
     for (r, z), v in zip(READ_PTS, th):
         cf = QP * _phi(r * MM, z * MM, T_PRINT)
         rel = abs(v / cf - 1.0)
         if (r, z) in GATE_PTS:
             out["I"].append(rel)
         ref = ref_tab.get((r, z))
-        cmp = (f"ref {ref:.6e}, |diff| {abs(v - ref):.3e} (6th-digit unit {_sixth(ref):.0e})"
-               if ref is not None else "no reproduction on this arm")
-        _say(f"[imp8-i75] ({r:g}, {z:g}) mm t*={T_PRINT:g} s arm {arm}: theta {v:.6e} K/W; {cmp}; vs "
-             f"q'/(4 pi k) Phi {cf:.6e}: rel {rel:.3e}")
+        cmp = (
+            f"ref {ref:.6e}, |diff| {abs(v - ref):.3e} (6th-digit unit {_sixth(ref):.0e})"
+            if ref is not None
+            else "no reproduction on this arm"
+        )
+        _say(
+            f"[imp8-i75] ({r:g}, {z:g}) mm t*={T_PRINT:g} s arm {arm}: theta {v:.6e} K/W; {cmp}; vs "
+            f"q'/(4 pi k) Phi {cf:.6e}: rel {rel:.3e}"
+        )
     out["move"] = out["theta"][(2.0, 0.0)] / I55_THETA[(2.0, 0.0)] - 1.0
-    _say(f"[imp8-i75] (2, 0) mm theta/theta_55 - 1 = {out['move']:.4e} (control floor "
-         f"{CONTROL_FLOOR:.0e}, asserted on arm hole)")
+    _say(
+        f"[imp8-i75] (2, 0) mm theta/theta_55 - 1 = {out['move']:.4e} (control floor "
+        f"{CONTROL_FLOOR:.0e}, asserted on arm hole)"
+    )
 
     # 2. The probe batch on the final field and on each snapshot.
     fields = {N_MAIN: res.temperature, **{j: res.snapshots[j] for j in SNAP_STEPS}}
@@ -182,16 +204,22 @@ def probe_run(box):
     duty = [_superpose({j: probe[j][i] for j in probe}) for i in range(len(PROBE_PTS))]
     for i, (r, z) in enumerate(PROBE_PTS):
         series = ", ".join(f"{j * dt:g} s {probe[j][i]:.6e}" for j in SNAP_STEPS)
-        _say(f"[imp8-i75] probe ({r:g}, {z:+g}) mm arm {arm}: theta(900 s) {probe[N_MAIN][i]:.6e} K/W; "
-             f"{series}; theta(900)/theta(675) {probe[N_MAIN][i] / probe[30][i]:.6f}; D=0.5 superposed "
-             f"theta(900 s) {duty[i]:.6e} K/W")
+        _say(
+            f"[imp8-i75] probe ({r:g}, {z:+g}) mm arm {arm}: theta(900 s) {probe[N_MAIN][i]:.6e} K/W; "
+            f"{series}; theta(900)/theta(675) {probe[N_MAIN][i] / probe[30][i]:.6f}; D=0.5 superposed "
+            f"theta(900 s) {duty[i]:.6e} K/W"
+        )
     p900 = probe[N_MAIN]
-    _say(f"[imp8-i75] probe arm {arm}: mean {0.5 * (p900[0] + p900[1]):.6e} K/W, |+16 - -16| "
-         f"{abs(p900[0] - p900[1]):.3e} (mesh asymmetry); D=0.5 mean {0.5 * (duty[0] + duty[1]):.6e}")
+    _say(
+        f"[imp8-i75] probe arm {arm}: mean {0.5 * (p900[0] + p900[1]):.6e} K/W, |+16 - -16| "
+        f"{abs(p900[0] - p900[1]):.3e} (mesh asymmetry); D=0.5 mean {0.5 * (duty[0] + duty[1]):.6e}"
+    )
     for z in (Z_P, -Z_P):
-        _say(f"[imp8-i75] infinite medium, line source, no rod: (0, {z:+g}) mm QP*Phi(900 s) "
-             f"{QP * _phi(0.0, z * MM, T_PRINT):.6e} K/W; _duhamel(D=0.5, PERIOD {PERIOD:g} s) "
-             f"{_duhamel(0.0, z * MM, T_PRINT, DUTY):.6e} K/W")
+        _say(
+            f"[imp8-i75] infinite medium, line source, no rod: (0, {z:+g}) mm QP*Phi(900 s) "
+            f"{QP * _phi(0.0, z * MM, T_PRINT):.6e} K/W; _duhamel(D=0.5, PERIOD {PERIOD:g} s) "
+            f"{_duhamel(0.0, z * MM, T_PRINT, DUTY):.6e} K/W"
+        )
 
     # 3. Arm gel: the superposed duty at GATE_PTS beside I59 and I60 (printed only).
     if arm == "gel":
@@ -200,11 +228,15 @@ def probe_run(box):
             sup = _superpose({j: gate[j][i] for j in gate})
             duh = _duhamel(r * MM, z * MM, T_PRINT, DUTY)
             ref = I60_DIRECT[(r, z)]
-            _say(f"[imp8-i75] gel duty ({r:g}, {z:g}) mm: superposed {sup:.6e} K/W; I59 _duhamel "
-                 f"{duh:.6e} (rel {sup / duh - 1.0:+.3e}); I60 direct FEM {ref:.6e} (restart vs no "
-                 f"restart: diff {sup - ref:+.3e}, rel {sup / ref - 1.0:+.3e}; printed, rule (e))")
-    _say(f"[imp8-i75] (E) {out['E']:.3e} (band {E_BAND:.0e}); (S0) {out['S0']:.3e} (band {B_BAND:.0e}); "
-         f"cells {n} (W0C {W0C_CELLS}); non-finite coefficient dofs {n_bad}")
+            _say(
+                f"[imp8-i75] gel duty ({r:g}, {z:g}) mm: superposed {sup:.6e} K/W; I59 _duhamel "
+                f"{duh:.6e} (rel {sup / duh - 1.0:+.3e}); I60 direct FEM {ref:.6e} (restart vs no "
+                f"restart: diff {sup - ref:+.3e}, rel {sup / ref - 1.0:+.3e}; printed, rule (e))"
+            )
+    _say(
+        f"[imp8-i75] (E) {out['E']:.3e} (band {E_BAND:.0e}); (S0) {out['S0']:.3e} (band {B_BAND:.0e}); "
+        f"cells {n} (W0C {W0C_CELLS}); non-finite coefficient dofs {n_bad}"
+    )
     return out
 
 

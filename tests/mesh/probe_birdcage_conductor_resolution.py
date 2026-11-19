@@ -50,7 +50,6 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "src"))
 
 from fem_em_solver.io.mesh import MeshGenerator  # noqa: E402
-
 from tests.mesh.test_birdcage_conductor_sizing import CONDUCTOR_RUNGS  # noqa: E402
 from tests.mesh.test_birdcage_port_tags import (  # noqa: E402
     AIR_PADDING,
@@ -135,8 +134,7 @@ def main():
             f"ring_minor_radius={RING_MINOR_RADIUS} m; {comm.size} rank(s)\n"
         )
         print(
-            f"Leg A -- the fixture's global resolution ({RESOLUTION}), "
-            "conductor sizing swept:"
+            f"Leg A -- the fixture's global resolution ({RESOLUTION}), " "conductor sizing swept:"
         )
 
     for conductor_resolution in CONDUCTOR_LADDER:

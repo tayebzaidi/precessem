@@ -142,8 +142,7 @@ def test_flag_off_phrase_left_the_ungated_path_negative_control():
         # `-c safe.directory` because the container runs as a different uid
         # than the bind-mounted checkout's owner: without it git refuses with
         # "detected dubious ownership" (measured 2026-09-19, `OPS-52`).
-        ["git", "-c", f"safe.directory={REPO_ROOT}", "show",
-         f"{PRE_CHANGE_SHA}:{PROBE_REL}"],
+        ["git", "-c", f"safe.directory={REPO_ROOT}", "show", f"{PRE_CHANGE_SHA}:{PROBE_REL}"],
         cwd=REPO_ROOT,
         capture_output=True,
         text=True,
@@ -153,6 +152,8 @@ def test_flag_off_phrase_left_the_ungated_path_negative_control():
 
     before = _flag_off_outside_degree1(scratch.read_text())
     after = _flag_off_outside_degree1((REPO_ROOT / PROBE_REL).read_text())
-    print(f"[OPS-52] negative control: ungated '{FLAG_OFF_PHRASE}' "
-          f"{before} at {PRE_CHANGE_SHA[:8]} -> {after} in the working tree")
+    print(
+        f"[OPS-52] negative control: ungated '{FLAG_OFF_PHRASE}' "
+        f"{before} at {PRE_CHANGE_SHA[:8]} -> {after} in the working tree"
+    )
     assert (before, after) == (1, 0), (before, after)

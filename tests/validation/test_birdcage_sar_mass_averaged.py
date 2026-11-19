@@ -108,7 +108,6 @@ from fem_em_solver.post.sar import (
     mass_averaged_sar,
     mean_sar,
 )
-
 from tests.complex_mode import complex_only
 from tests.mesh.helpers import global_cell_tag_set
 from tests.mesh.test_birdcage_phantom_resolution import (
@@ -236,13 +235,10 @@ def _build_mass_averaged(phantom_resolution: float = PHANTOM_RESOLUTION_FINE):
     cells = int(sweep["cells"])
     phantom_cells = _global_tag_cell_count(msh, cell_tags, PHANTOM_CELL_TAG, comm)
 
-    azimuths = {
-        f"P{s['tag'] - SHEET_IFACE}": float(s["azimuth_deg"]) for s in sweep["sheets"]
-    }
+    azimuths = {f"P{s['tag'] - SHEET_IFACE}": float(s["azimuth_deg"]) for s in sweep["sheets"]}
     order = sorted(azimuths)
     indices = {
-        pid: _port_index(azimuths[pid], azimuths["P1"], QUADRATURE_STEP_DEG)
-        for pid in order
+        pid: _port_index(azimuths[pid], azimuths["P1"], QUADRATURE_STEP_DEG) for pid in order
     }
     by_k = {indices[pid]: pid for pid in order}
 
@@ -340,10 +336,7 @@ def _build_mass_averaged(phantom_resolution: float = PHANTOM_RESOLUTION_FINE):
         }
         for label in ("1 g", "10 g")
     }
-    peaks = {
-        k: max(ten_gram[(k, j)]["averaged_sar_w_per_kg"] for j in range(4))
-        for k in range(4)
-    }
+    peaks = {k: max(ten_gram[(k, j)]["averaged_sar_w_per_kg"] for j in range(4)) for k in range(4)}
     verdict, verdict_text = _one_gram_verdict(one_pairs, C4_COVARIANCE_BAND)
 
     # The step-4 module asserts the cell counts (anchor (iii)); a caller running
@@ -357,7 +350,7 @@ def _build_mass_averaged(phantom_resolution: float = PHANTOM_RESOLUTION_FINE):
     else:
         mesh_line = (
             "    cell counts NOT asserted here — this is not the "
-            f"PHANTOM_RESOLUTION_FINE rung; the caller owns them\n"
+            "PHANTOM_RESOLUTION_FINE rung; the caller owns them\n"
         )
 
     if comm.rank == 0:
@@ -367,15 +360,14 @@ def _build_mass_averaged(phantom_resolution: float = PHANTOM_RESOLUTION_FINE):
             f"phantom_resolution = {phantom_resolution} m, f = "
             f"{sweep['problem'].frequency_hz:.3e} Hz, degree 1, "
             f"quadrature_degree {QUADRATURE_DEGREE} (imported from MAT-4 step 3)\n"
-            + mesh_line +
-            f"    ball radii a_1g = {radii['1 g'] * 1e3:.4f} mm, a_10g = "
+            + mesh_line
+            + f"    ball radii a_1g = {radii['1 g'] * 1e3:.4f} mm, a_10g = "
             f"{radii['10 g'] * 1e3:.4f} mm at rho = {PHANTOM_RHO_KG_PER_M3:.1f} "
             f"kg/m3; centres at r0 = {CENTRE_RADIUS_M * 1e3:.1f} mm on the four "
             f"port azimuths — containment r0 + a_10g = "
             f"{(CENTRE_RADIUS_M + radii['10 g']) * 1e3:.4f} mm < phantom radius "
             f"{PHANTOM_RADIUS * 1e3:.1f} mm, ASSERTED\n"
-            f"    solve times "
-            + ", ".join(f"{p} {solves[p]['solve_time']:.2f} s" for p in order),
+            f"    solve times " + ", ".join(f"{p} {solves[p]['solve_time']:.2f} s" for p in order),
             flush=True,
         )
         print(
@@ -404,15 +396,13 @@ def _build_mass_averaged(phantom_resolution: float = PHANTOM_RESOLUTION_FINE):
             flush=True,
         )
         print(
-            f"    SAR_10g(c_j; drive k) [W/kg] — rows are drives, columns are "
-            f"centres; the diagonal is the C4 orbit, the (k, k+2) entry is the "
-            f"negative control:",
+            "    SAR_10g(c_j; drive k) [W/kg] — rows are drives, columns are "
+            "centres; the diagonal is the C4 orbit, the (k, k+2) entry is the "
+            "negative control:",
             flush=True,
         )
         for k in range(4):
-            row = "  ".join(
-                f"{ten_gram[(k, j)]['averaged_sar_w_per_kg']:.9e}" for j in range(4)
-            )
+            row = "  ".join(f"{ten_gram[(k, j)]['averaged_sar_w_per_kg']:.9e}" for j in range(4))
             print(
                 f"        k={k} ({by_k[k]})  {row}   peak over centres "
                 f"{peaks[k]:.9e} W/kg  — NOT a C95.3 compliance figure",
@@ -560,9 +550,7 @@ def test_the_whole_phantom_ball_reproduces_the_tagged_integral(mass_averaged):
         f"the tagged integral's {tagged['dissipated_power_w']:.12e} W — relative "
         f"{power_miss:.6e} > {EXACT_IDENTITY_RTOL:.0e}"
     )
-    mass_miss = abs(
-        whole["mass_kg"] / (PHANTOM_RHO_KG_PER_M3 * tagged["volume_m3"]) - 1.0
-    )
+    mass_miss = abs(whole["mass_kg"] / (PHANTOM_RHO_KG_PER_M3 * tagged["volume_m3"]) - 1.0)
     assert mass_miss <= EXACT_IDENTITY_RTOL, (
         f"the ball's mass {whole['mass_kg']:.12e} kg is not rho times the "
         f"phantom's meshed volume {PHANTOM_RHO_KG_PER_M3 * tagged['volume_m3']:.12e} "

@@ -20,7 +20,6 @@ import ufl
 from mpi4py import MPI
 
 from fem_em_solver.core import HomogeneousMaterial, TimeHarmonicProblem, TimeHarmonicSolver
-
 from tests.complex_mode import complex_only
 from tests.solver.test_time_harmonic_smoke import (
     EPSILON_R,
@@ -85,8 +84,11 @@ def test_a_identity_hook_is_bitwise_unset(solved):
     comm = MPI.COMM_WORLD
     same = comm.allreduce(int(same), op=MPI.MIN) == 1
     if comm.rank == 0:
-        print(f"\nMAT5s3 W0 (a) identity hook vs no hook: array_equal = {same}  "
-              f"(owned dofs on rank 0: {a.size})", flush=True)
+        print(
+            f"\nMAT5s3 W0 (a) identity hook vs no hook: array_equal = {same}  "
+            f"(owned dofs on rank 0: {a.size})",
+            flush=True,
+        )
     assert same, "(a) identity hook changed the owned E coefficients"
 
 
@@ -97,8 +99,11 @@ def test_b_doubling_hook_is_the_solved_sigma(solved):
     loc = float(np.max(np.abs(sf.x.array[:n] - 2.0 * SIGMA))) if n else 0.0
     err = MPI.COMM_WORLD.allreduce(loc, op=MPI.MAX)
     if MPI.COMM_WORLD.rank == 0:
-        print(f"\nMAT5s3 W0 (b) max|sigma_field - 2*{SIGMA}| over owned cells = {err:.3e} "
-              f"(exact 0 required)", flush=True)
+        print(
+            f"\nMAT5s3 W0 (b) max|sigma_field - 2*{SIGMA}| over owned cells = {err:.3e} "
+            f"(exact 0 required)",
+            flush=True,
+        )
     assert err == 0.0, f"(b) fields.sigma_field is not the hooked field: {err:.3e}"
 
 
@@ -107,10 +112,19 @@ def test_c_doubling_hook_moves_e(solved):
     n0 = _norm(solved["none"].e_complex)
     diff = solved["double"].e_complex.x.array - solved["none"].e_complex.x.array
     comm = MPI.COMM_WORLD
-    nd = float(np.sqrt(comm.allreduce(
-        float(np.sum(np.abs(diff[:_owned(solved["none"].e_complex).size]) ** 2)), op=MPI.SUM)))
+    nd = float(
+        np.sqrt(
+            comm.allreduce(
+                float(np.sum(np.abs(diff[: _owned(solved["none"].e_complex).size]) ** 2)),
+                op=MPI.SUM,
+            )
+        )
+    )
     rel = nd / n0
     if comm.rank == 0:
-        print(f"\nMAT5s3 W0 (c)/(N3) ||E_2sigma - E||/||E|| = {rel:.6e}  "
-              f"(asserted > {N3_FLOOR:.0e}, predicted O(1e-1))", flush=True)
+        print(
+            f"\nMAT5s3 W0 (c)/(N3) ||E_2sigma - E||/||E|| = {rel:.6e}  "
+            f"(asserted > {N3_FLOOR:.0e}, predicted O(1e-1))",
+            flush=True,
+        )
     assert rel > N3_FLOOR, f"(N3) doubling hook moved E by only {rel:.3e}"

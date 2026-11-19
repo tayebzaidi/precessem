@@ -17,9 +17,9 @@ unrestricted values bitwise.  Runs in both builds.
 
 import numpy as np
 import pytest
+from dolfinx import fem
+from dolfinx import mesh as dmesh
 from mpi4py import MPI
-
-from dolfinx import fem, mesh as dmesh
 
 from fem_em_solver.post.evaluation import (
     evaluate_vector_field_parallel,
@@ -92,9 +92,7 @@ def test_k_one_sided_owner_returns_side_minimum():
     results = {}
     for side in ("left", "right"):
         cells = _side_cells(msh, side)
-        owner_original, owner_local = point_owner_cells(
-            msh, POINT, comm, candidate_cells=cells
-        )
+        owner_original, owner_local = point_owner_cells(msh, POINT, comm, candidate_cells=cells)
         vals, valid = evaluate_vector_field_parallel(
             f_dg, POINT, comm, owner="lowest_original_cell", candidate_cells=cells
         )
@@ -148,11 +146,12 @@ def test_k_all_owned_candidates_equal_unrestricted_and_empty_side_invalid():
     f_dg = _dg0_original(msh)
     n_owned = msh.topology.index_map(3).size_local
     pts = np.array([[0.13, 0.27, 0.61], [0.5, 0.3, 0.6], [0.5, 0.5, 0.5]])
-    ref, ref_valid = evaluate_vector_field_parallel(
-        f_dg, pts, comm, owner="lowest_original_cell"
-    )
+    ref, ref_valid = evaluate_vector_field_parallel(f_dg, pts, comm, owner="lowest_original_cell")
     got, got_valid = evaluate_vector_field_parallel(
-        f_dg, pts, comm, owner="lowest_original_cell",
+        f_dg,
+        pts,
+        comm,
+        owner="lowest_original_cell",
         candidate_cells=np.arange(n_owned, dtype=np.int32),
     )
     assert np.asarray(ref).tobytes() == np.asarray(got).tobytes()

@@ -51,7 +51,9 @@ def _page() -> str:
 def _differing_lines(a: str, b: str) -> list[int]:
     la, lb = a.splitlines(), b.splitlines()
     n = max(len(la), len(lb))
-    return [i for i in range(n) if (la[i] if i < len(la) else None) != (lb[i] if i < len(lb) else None)]
+    return [
+        i for i in range(n) if (la[i] if i < len(la) else None) != (lb[i] if i < len(lb) else None)
+    ]
 
 
 def _expected_command() -> str:
@@ -74,7 +76,8 @@ def test_arch1_u62_x_blocks_and_python_call():
     text = _page()
     blocks = {tag: extract_tagged_block(text, tag, lang) for lang, tag in TAGS}
     calls = [
-        n for n in ast.walk(ast.parse(blocks["palace-backend"]))
+        n
+        for n in ast.walk(ast.parse(blocks["palace-backend"]))
         if isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute) and n.func.attr == "solve"
     ]
     print(f"\n[ARCH-1 U62] (X) tags={len(blocks)}, solve calls={len(calls)}")
@@ -84,7 +87,9 @@ def test_arch1_u62_x_blocks_and_python_call():
     assert "case_dir" in kw
     cli = blocks["palace-backend-cli"]
     runs = [line for line in cli.splitlines() if line.startswith("femem run ")]
-    print(f"[ARCH-1 U62] (X) femem run lines={len(runs)}; with --backend palace={sum('--backend palace' in r for r in runs)}")
+    print(
+        f"[ARCH-1 U62] (X) femem run lines={len(runs)}; with --backend palace={sum('--backend palace' in r for r in runs)}"
+    )
     assert len(runs) == 2
     assert all("--backend palace" in r for r in runs)
     assert cli.count("--backend palace") == 2
@@ -120,7 +125,9 @@ def test_arch1_u62_l_nodes_registered_links_resolve_and_c2():
     nodes = NODE_RE.findall(text)
     registered = _registered_nodes()
     missing = _unregistered(nodes, registered)
-    print(f"\n[ARCH-1 U62] (L) nodes cited={len(nodes)} registered under {REGISTRY_NAMES}; unregistered={missing}")
+    print(
+        f"\n[ARCH-1 U62] (L) nodes cited={len(nodes)} registered under {REGISTRY_NAMES}; unregistered={missing}"
+    )
     assert len(nodes) == 6
     assert len(set(nodes)) == len(nodes)
     assert missing == []
@@ -148,7 +155,10 @@ def test_arch1_u62_l_nodes_registered_links_resolve_and_c2():
         if path == "validation.md" and anchor:
             assert anchor in val_heads, lk
     assert "validation.md#study" in links and "validation.md#run_study_file" in links
-    assert "../../examples/ansys_benchmarks/ans4_birdcage_four_port_10_64_128MHz/COMPARISON.md" in links
+    assert (
+        "../../examples/ansys_benchmarks/ans4_birdcage_four_port_10_64_128MHz/COMPARISON.md"
+        in links
+    )
 
 
 def test_arch1_u62_d_guide_zero_dead(capsys):
@@ -157,7 +167,9 @@ def test_arch1_u62_d_guide_zero_dead(capsys):
     out = capsys.readouterr().out
     m = LINK_PASS_RE.search(out)
     with capsys.disabled():
-        print(f"\n[ARCH-1 U62] (D) rc={rc} {m.group(0) if m else 'no link-pass line'} counts={counts}")
+        print(
+            f"\n[ARCH-1 U62] (D) rc={rc} {m.group(0) if m else 'no link-pass line'} counts={counts}"
+        )
     assert m is not None
     assert int(m.group(3)) == 0
     assert counts["dead"] == 0
@@ -179,6 +191,8 @@ def test_arch1_u62_c3_planted_dead_link(tmp_path, capsys):
     rc1, counts1 = run_checker("--docs-root", str(guide), "--check-links")
     capsys.readouterr()
     with capsys.disabled():
-        print(f"\n[ARCH-1 U62] (c3) rc {rc0}/{rc1}; copy dead={counts0['dead']}; planted copy dead={counts1['dead']}")
+        print(
+            f"\n[ARCH-1 U62] (c3) rc {rc0}/{rc1}; copy dead={counts0['dead']}; planted copy dead={counts1['dead']}"
+        )
     assert counts0["dead"] == 0
     assert counts1["dead"] == 1

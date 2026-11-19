@@ -31,10 +31,17 @@ from mpi4py import MPI
 
 from tests.package.test_wf13_estimate_f_clinical import FC, _study, no_build  # noqa: F401
 
-LOG = (Path(__file__).resolve().parents[2]
-       / "docs/testing/logs/20261031T070008Z_GEO-38-C5a.log")
-FC2_LITERALS = dict(row="FC2", degree=2, ranks=16, cells=1147366, unknowns=7885674,
-                    seconds=2892.1, build_seconds=341.8, peak_gib=472.42)
+LOG = Path(__file__).resolve().parents[2] / "docs/testing/logs/20261031T070008Z_GEO-38-C5a.log"
+FC2_LITERALS = dict(
+    row="FC2",
+    degree=2,
+    ranks=16,
+    cells=1147366,
+    unknowns=7885674,
+    seconds=2892.1,
+    build_seconds=341.8,
+    peak_gib=472.42,
+)
 # 7 885 674 / 1 525 193 to two decimals, the brief's control.
 UNKNOWN_MISS = 5.17
 
@@ -61,7 +68,7 @@ def test_wf13_s13_fc2_estimate_reads_row(no_build):  # noqa: F811
     )
     from tests.validation import test_geo38_f_clinical_build as geo38
 
-    (fc1, row) = PRICE_TABLE_CLINICAL
+    fc1, row = PRICE_TABLE_CLINICAL
     assert row == FC2_LITERALS
     est = _study(degree=2).estimate(MPI.COMM_WORLD)
     _say(f"\n[WF-13 s13] FC2: {est}")
@@ -101,19 +108,22 @@ def test_wf13_s13_negative_controls(no_build, monkeypatch):  # noqa: F811
     base = _study(degree=2).estimate(MPI.COMM_WORLD)
     plant = dict(study_mod.PRICE_TABLE_CLINICAL[1], row="PLANT", peak_gib=99.0)
     with monkeypatch.context() as patch:  # `no_build`'s patches stay in force
-        patch.setattr(study_mod, "PRICE_TABLE_CLINICAL",
-                      study_mod.PRICE_TABLE_CLINICAL + (plant,))
+        patch.setattr(study_mod, "PRICE_TABLE_CLINICAL", study_mod.PRICE_TABLE_CLINICAL + (plant,))
         moved = _study(degree=2).estimate(MPI.COMM_WORLD)
-    _say(f"\n[WF-13 s13] planted row: peak {base.predicted_peak_gib} -> "
-         f"{moved.predicted_peak_gib}, rows {base.rows_used} -> {moved.rows_used}")
+    _say(
+        f"\n[WF-13 s13] planted row: peak {base.predicted_peak_gib} -> "
+        f"{moved.predicted_peak_gib}, rows {base.rows_used} -> {moved.rows_used}"
+    )
     assert moved.predicted_peak_gib == 99.0 != base.predicted_peak_gib
     assert moved.rows_used == ("PLANT",)
 
     # The degree-1 row is not the degree-2 reading.
     d1 = _study().estimate(MPI.COMM_WORLD)
     ratio = base.unknowns / d1.unknowns
-    _say(f"[WF-13 s13] degree-1 row misses unknowns by {ratio:.4f}x; "
-         f"seconds {d1.predicted_seconds} vs {base.predicted_seconds}")
+    _say(
+        f"[WF-13 s13] degree-1 row misses unknowns by {ratio:.4f}x; "
+        f"seconds {d1.predicted_seconds} vs {base.predicted_seconds}"
+    )
     assert round(ratio, 2) == UNKNOWN_MISS
     assert d1.rows_used == ("FC1",) and base.rows_used == ("FC2",)
 

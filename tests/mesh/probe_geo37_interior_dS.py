@@ -25,13 +25,12 @@ import json
 import os
 import time
 
+import dolfinx
 import gmsh
 import numpy as np
 import ufl
-from mpi4py import MPI
-
-import dolfinx
 from dolfinx import fem
+from mpi4py import MPI
 
 from fem_em_solver.io.mesh import (
     _model_to_mesh,
@@ -84,8 +83,11 @@ def main():
     n_gmsh = comm.bcast(n_gmsh, root=0)
     t1 = time.perf_counter()
 
-    mode = (dolfinx.mesh.GhostMode.shared_facet if args.ghost == "shared_facet"
-            else dolfinx.mesh.GhostMode.none)
+    mode = (
+        dolfinx.mesh.GhostMode.shared_facet
+        if args.ghost == "shared_facet"
+        else dolfinx.mesh.GhostMode.none
+    )
     # 0.11: max_facet_to_cell_links is required; 2 for a tet manifold mesh
     # (io/mesh.py OPS-18 step 3 comment).
     partitioner = dolfinx.mesh.create_cell_partitioner(mode, 2)
@@ -105,8 +107,13 @@ def main():
     n_owned_f = mesh.topology.index_map(fdim).size_local
 
     # Globally reduced facet-tag set (for the (D5) validator call in the test).
-    tag_set = sorted({int(t) for part in comm.allgather(
-        sorted({int(v) for v in facet_tags.values})) for t in part})
+    tag_set = sorted(
+        {
+            int(t)
+            for part in comm.allgather(sorted({int(v) for v in facet_tags.values}))
+            for t in part
+        }
+    )
 
     dS = ufl.Measure("dS", domain=mesh, subdomain_data=facet_tags, metadata=QD)
     ds = ufl.Measure("ds", domain=mesh, subdomain_data=facet_tags, metadata=QD)
@@ -155,8 +162,11 @@ def main():
         rec[key] = val
         rec[f"{key}_error"] = e
         if rank == 0:
-            print(f"[GEO-37 s2] ghost={args.ghost} n={comm.size} {key} = {val!r}"
-                  + (f" ERROR {e}" if e else ""), flush=True)
+            print(
+                f"[GEO-37 s2] ghost={args.ghost} n={comm.size} {key} = {val!r}"
+                + (f" ERROR {e}" if e else ""),
+                flush=True,
+            )
 
     # (c2) planted dropped facet: lowest rank owning any 201 facet drops its first.
     owners = comm.allgather(len(owned201) > 0)
@@ -166,7 +176,9 @@ def main():
         first = int(owned201[0])
         keep &= ~((facet_tags.indices == first) & (facet_tags.values == TAG_RECT))
     ft_drop = dolfinx.mesh.meshtags(
-        mesh, fdim, facet_tags.indices[keep].astype(np.int32),
+        mesh,
+        fdim,
+        facet_tags.indices[keep].astype(np.int32),
         facet_tags.values[keep].astype(np.int32),
     )
     dS_drop = ufl.Measure("dS", domain=mesh, subdomain_data=ft_drop, metadata=QD)
@@ -183,8 +195,7 @@ def main():
         rec["completed"] = True
         with open(args.out, "w") as f:
             json.dump(rec, f, indent=1)
-        print(f"[GEO-37 s2] ghost={args.ghost} n={comm.size} record: {json.dumps(rec)}",
-              flush=True)
+        print(f"[GEO-37 s2] ghost={args.ghost} n={comm.size} record: {json.dumps(rec)}", flush=True)
 
 
 if __name__ == "__main__":

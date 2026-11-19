@@ -58,23 +58,29 @@ def test_tip_identity(aspect):
     q, dq, _ = prolate_legendre_q1(xi0)
     tip = 1.0 - xi0 * dq[0] / q[0]
     rel = abs(tip * lz - 1.0)
-    print(f"[IMP-2 T] aspect={aspect}: L_z={lz:.6f} 1/L_z={1/lz:.6f} "
-          f"E_tip/E0={tip:.12f} |E_tip*L_z-1|={rel:.3e}")
+    print(
+        f"[IMP-2 T] aspect={aspect}: L_z={lz:.6f} 1/L_z={1/lz:.6f} "
+        f"E_tip/E0={tip:.12f} |E_tip*L_z-1|={rel:.3e}"
+    )
     assert rel <= 1e-12
     # Same tip field by FD on the potential just outside the tip (printed).
     a = C / aspect
     h = 1e-6 * C
     z = np.array([[0.0, 0.0, C + h], [0.0, 0.0, C + 2 * h]])
     ph = pec_prolate_spheroid_potential(z, semi_major=C, semi_minor=a)
-    print(f"[IMP-2 T] aspect={aspect}: FD tip field {-(ph[1]-ph[0])/h:.6f} "
-          f"(one-sided, O(h) biased)")
+    print(
+        f"[IMP-2 T] aspect={aspect}: FD tip field {-(ph[1]-ph[0])/h:.6f} "
+        f"(one-sided, O(h) biased)"
+    )
 
 
 def test_printed_depolarisation_vs_osborn():
     for aspect, osborn in [(2.0, 0.1736), (5.0, 0.0558)]:
         lz = prolate_spheroid_depolarisation(_ecc(aspect))
-        print(f"[IMP-2 L] aspect={aspect}: L_z={lz:.6f} (Osborn {osborn}) "
-              f"1/L_z={1/lz:.4f} L_x={(1-lz)/2:.6f}")
+        print(
+            f"[IMP-2 L] aspect={aspect}: L_z={lz:.6f} (Osborn {osborn}) "
+            f"1/L_z={1/lz:.4f} L_x={(1-lz)/2:.6f}"
+        )
         assert abs(lz - osborn) < 1e-4  # Osborn's 4-figure table entry
 
 
@@ -101,13 +107,14 @@ def test_legendre_ode_and_branches():
     ddq_rel = np.max(np.abs(dqc - dqs) / np.abs(dqs))
     es = [0.05, 0.049]
     l_rel = max(
-        abs(prolate_spheroid_depolarisation(e, branch="closed")
-            - prolate_spheroid_depolarisation(e, branch="series"))
+        abs(
+            prolate_spheroid_depolarisation(e, branch="closed")
+            - prolate_spheroid_depolarisation(e, branch="series")
+        )
         / prolate_spheroid_depolarisation(e, branch="series")
         for e in es
     )
-    print(f"[IMP-2 Q] branch agreement: Q1 {dq_rel:.3e}, Q1' {ddq_rel:.3e}, "
-          f"L_z {l_rel:.3e}")
+    print(f"[IMP-2 Q] branch agreement: Q1 {dq_rel:.3e}, Q1' {ddq_rel:.3e}, " f"L_z {l_rel:.3e}")
     assert dq_rel <= 1e-13
     assert ddq_rel <= 1e-13
     assert l_rel <= 1e-13
@@ -132,8 +139,10 @@ def test_boundary_and_control_c1(aspect):
     n = pts / np.array([a**2, a**2, C**2])
     n /= np.linalg.norm(n, axis=1)[:, None]
     phi_pub = pec_prolate_spheroid_potential(pts + 1e-9 * C * n, semi_major=C, semi_minor=a)
-    print(f"[IMP-2 Bd] aspect={aspect}: max|phi|/(E0 c) = {bd:.3e}; "
-          f"public fn at +1e-9c: {np.max(np.abs(phi_pub)):.3e}")
+    print(
+        f"[IMP-2 Bd] aspect={aspect}: max|phi|/(E0 c) = {bd:.3e}; "
+        f"public fn at +1e-9c: {np.max(np.abs(phi_pub)):.3e}"
+    )
     assert bd <= 1e-12
     assert np.max(np.abs(phi_pub)) <= 1e-7  # O(1e-9 c · E_tip)
     if aspect == 2.0:
@@ -141,8 +150,10 @@ def test_boundary_and_control_c1(aspect):
         cos_t = pts[:, 2] / r
         sph = -E0 * r * cos_t * (1.0 - C**3 / r**3)
         c1 = np.max(np.abs(sph)) / (E0 * C)
-        print(f"[IMP-2 c1] sphere(radius c) potential on aspect-2 surface: {c1:.4f} "
-              f"(predicted 0.5-1.5)")
+        print(
+            f"[IMP-2 c1] sphere(radius c) potential on aspect-2 surface: {c1:.4f} "
+            f"(predicted 0.5-1.5)"
+        )
         assert c1 > 1e-3
 
 
@@ -175,8 +186,10 @@ def test_fd_laplacian(aspect):
     l1 = lap(d)
     l2 = lap(2 * d)
     res = np.max(l1) * C / E0
-    print(f"[IMP-2 Lap] aspect={aspect}: max|lap| c/E0 = {res:.3e} (delta=1e-4c), "
-          f"{np.max(l2)*C/E0:.3e} (2 delta); ratio {np.max(l2)/np.max(l1):.3f}")
+    print(
+        f"[IMP-2 Lap] aspect={aspect}: max|lap| c/E0 = {res:.3e} (delta=1e-4c), "
+        f"{np.max(l2)*C/E0:.3e} (2 delta); ratio {np.max(l2)/np.max(l1):.3f}"
+    )
     assert res <= 1e-5
     # Ratio pair moved, with measurement (W1 20261001T142458Z, this file's first
     # run): at δ = 1e-4·c the residual is round-off, not truncation — ratio
@@ -187,8 +200,10 @@ def test_fd_laplacian(aspect):
     ladder = {}
     for k in (1e-4, 1e-3, 2e-3, 4e-3, 8e-3):
         ladder[k] = np.max(lap(k * C)) * C / E0
-    print(f"[IMP-2 Lap] aspect={aspect}: ladder " +
-          ", ".join(f"{k:g}c:{v:.3e}" for k, v in ladder.items()))
+    print(
+        f"[IMP-2 Lap] aspect={aspect}: ladder "
+        + ", ".join(f"{k:g}c:{v:.3e}" for k, v in ladder.items())
+    )
     ratio = ladder[4e-3] / ladder[2e-3]
     print(f"[IMP-2 Lap] aspect={aspect}: truncation ratio (4e-3c / 2e-3c) {ratio:.3f}")
     assert 3.8 <= ratio <= 4.2
@@ -205,13 +220,14 @@ def test_far_dipole_and_control_c2(aspect):
     p = E0 * a**2 * C / (3.0 * lz)
 
     def phi_s(pts):
-        return pec_prolate_spheroid_potential(
-            pts, semi_major=C, semi_minor=a, scattered_only=True)
+        return pec_prolate_spheroid_potential(pts, semi_major=C, semi_minor=a, scattered_only=True)
 
     vals = [_p1_projection(phi_s, R * C) for R in (2.0, 4.0)]
     rel = max(abs(v - p) / p for v in vals)
-    print(f"[IMP-2 Far] aspect={aspect}: p={p:.12f}; projections {vals[0]:.12f} "
-          f"{vals[1]:.12f}; max rel {rel:.3e}")
+    print(
+        f"[IMP-2 Far] aspect={aspect}: p={p:.12f}; projections {vals[0]:.12f} "
+        f"{vals[1]:.12f}; max rel {rel:.3e}"
+    )
     assert rel <= 1e-12
 
     q0 = prolate_legendre_q1(xi0)[0][0]

@@ -32,15 +32,15 @@ from __future__ import annotations
 
 import os
 
+import dolfinx
 import numpy as np
 import pytest
 import ufl
+from dolfinx import fem
+from dolfinx import mesh as dmesh
+from dolfinx.fem.petsc import assemble_matrix
 from mpi4py import MPI
 from petsc4py import PETSc
-
-import dolfinx
-from dolfinx import fem, mesh as dmesh
-from dolfinx.fem.petsc import assemble_matrix
 
 IS_COMPLEX = np.issubdtype(np.dtype(PETSc.ScalarType), np.complexfloating)
 REQUIRE_COMPLEX = os.environ.get("FEM_EM_REQUIRE_COMPLEX", "") == "1"
@@ -135,9 +135,7 @@ def test_inner_conjugates_second_argument_but_dot_does_not():
     inner_total = comm.allreduce(
         fem.assemble_scalar(fem.form(ufl.inner(f, g) * ufl.dx)), op=MPI.SUM
     )
-    dot_total = comm.allreduce(
-        fem.assemble_scalar(fem.form(ufl.dot(f, g) * ufl.dx)), op=MPI.SUM
-    )
+    dot_total = comm.allreduce(fem.assemble_scalar(fem.form(ufl.dot(f, g) * ufl.dx)), op=MPI.SUM)
 
     if comm.rank == 0:
         print(f"[TH-1 step 0] inner={inner_total} dot={dot_total}")
@@ -179,10 +177,7 @@ def test_complex_weighted_n1curl_mass_matrix_scales_exactly():
     residual_norm = residual.norm(PETSc.NormType.FROBENIUS)
 
     if comm.rank == 0:
-        print(
-            f"[TH-1 step 0] ||M||_F={mass_norm:.6e} "
-            f"||M_c - eps_c*M||_F={residual_norm:.3e}"
-        )
+        print(f"[TH-1 step 0] ||M||_F={mass_norm:.6e} " f"||M_c - eps_c*M||_F={residual_norm:.3e}")
 
     assert mass_norm > 0.0
     assert residual_norm < 1e-12 * mass_norm, (

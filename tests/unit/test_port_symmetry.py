@@ -3,6 +3,7 @@
 R = Z_p·w/h and E_src = V/h are invariant under either cut (to 1e-15); a cut
 whose kind disagrees with ĥ raises; ``pmc`` then ``pec`` is the quarter.
 """
+
 import pytest
 
 from fem_em_solver.ports.lumped import LumpedSheetPortSpec, sheet_resistivity_ohm_per_square
@@ -15,8 +16,12 @@ INVARIANCE_RTOL = 1e-15
 
 def _spec():
     return LumpedSheetPortSpec(
-        port_id="P1", facet_tag=10, port_impedance_ohm=50.0 + 0.0j,
-        gap_height_m=0.16, sheet_width_m=0.16, drive_direction=(0.0, 1.0, 0.0),
+        port_id="P1",
+        facet_tag=10,
+        port_impedance_ohm=50.0 + 0.0j,
+        gap_height_m=0.16,
+        sheet_width_m=0.16,
+        drive_direction=(0.0, 1.0, 0.0),
         drive_voltage_v=1.0 + 0.0j,
     )
 

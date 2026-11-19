@@ -20,7 +20,6 @@ import pytest
 
 from fem_em_solver.core import HomogeneousMaterial
 from fem_em_solver.core.time_harmonic import TimeHarmonicProblem
-
 from tests.complex_mode import complex_only
 from tests.validation.test_port_drive_superposition import (
     CONDUCTOR_CELL_TAG,

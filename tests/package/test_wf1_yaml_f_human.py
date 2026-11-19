@@ -47,7 +47,6 @@ from fem_em_solver import (
 )
 from fem_em_solver import study as study_mod
 from fem_em_solver.study_yaml import _load, _study_from_mapping, run_study_file
-
 from tests.package.test_wf1_study_yaml import (
     LOGS,
     WF1,
@@ -135,9 +134,13 @@ def test_wf1_f_human_yaml_parse_and_refusals():
     s_yaml, s_py = load_study(FH_FILE), _study()
     diff = _spec_diff(s_yaml, s_py)
     _p0(f"\n[WF-1 s7a] (K) diff {diff}")
-    _p0(f"  c_in_f {s_yaml.excitation.c_in_f.hex()} vs _c_f() {_c_f().hex()}; "
-        f"esr_ohm {s_yaml.excitation.esr_ohm.hex()} vs ESR_OHM {float(ESR_OHM).hex()}")
-    _p0(f"  excitation {s_yaml.excitation!r}; degree {s_yaml.degree}; conductor {s_yaml.conductor!r}")
+    _p0(
+        f"  c_in_f {s_yaml.excitation.c_in_f.hex()} vs _c_f() {_c_f().hex()}; "
+        f"esr_ohm {s_yaml.excitation.esr_ohm.hex()} vs ESR_OHM {float(ESR_OHM).hex()}"
+    )
+    _p0(
+        f"  excitation {s_yaml.excitation!r}; degree {s_yaml.degree}; conductor {s_yaml.conductor!r}"
+    )
     assert type(s_yaml.geometry) is FHumanBirdcageGeometry
     assert type(s_yaml.excitation) is TwoPortQuadratureDrive
     assert isinstance(s_yaml, Study)
@@ -158,11 +161,15 @@ def test_wf1_f_human_yaml_parse_and_refusals():
     exp_p, got_p = _expected_points(), outputs["b1_plus"]["points"]
     for i, e in enumerate(exp_c):
         _p0(f"  (K-c) centre[{i:2d}] expected {[repr(v) for v in e]}")
-    n_eq = sum(
-        1 for e, g in zip(exp_c, got_c) if _hex3(e) == _hex3(g)
-    ) if len(exp_c) == len(got_c) else -1
-    _p0(f"  (K-c) centres equal by hex: {n_eq} of {len(exp_c)} (parsed {len(got_c)}); "
-        f"mass_g {outputs['sar']['mass_g'].hex()}; points {[_hex3(q) for q in got_p]}")
+    n_eq = (
+        sum(1 for e, g in zip(exp_c, got_c) if _hex3(e) == _hex3(g))
+        if len(exp_c) == len(got_c)
+        else -1
+    )
+    _p0(
+        f"  (K-c) centres equal by hex: {n_eq} of {len(exp_c)} (parsed {len(got_c)}); "
+        f"mass_g {outputs['sar']['mass_g'].hex()}; points {[_hex3(q) for q in got_p]}"
+    )
     assert len(exp_c) == 19 and len(got_c) == 19
     assert n_eq == 19
     assert outputs["sar"]["mass_g"].hex() == (10.0).hex()
@@ -179,8 +186,10 @@ def test_wf1_f_human_yaml_parse_and_refusals():
         run_all = _rc_all(cli.main(["run", str(path), "--output-dir", str(out)]), comm)
         check_all = _rc_all(cli.main(["check", str(path)]), comm)
         exists = comm.allreduce(bool(out.exists()), op=MPI.LOR)
-        _p0(f"  (X) {name}: field {exc.field!r} (expected {expected!r}); run rc {run_all}, "
-            f"check rc {check_all}, out exists {exists}; {exc}")
+        _p0(
+            f"  (X) {name}: field {exc.field!r} (expected {expected!r}); run rc {run_all}, "
+            f"check rc {check_all}, out exists {exists}; {exc}"
+        )
         assert type(exc) is StudyConfigError
         assert exc.field == expected
         assert run_all == (2, 2) and check_all == (2, 2)
@@ -197,16 +206,19 @@ def test_wf1_f_human_yaml_parse_and_refusals():
     def _del(sec, key):
         def f(m):
             del m[sec][key]
+
         return f
 
     def _set(sec, key, value):
         def f(m):
             m[sec][key] = value
+
         return f
 
     def _set_out(key, value):
         def f(m):
             m["outputs"][key] = value
+
         return f
 
     def _set_sar_centres(m):
@@ -217,7 +229,11 @@ def test_wf1_f_human_yaml_parse_and_refusals():
 
     cases = [
         ("unknown geometry key", _set("geometry", "ring_raduis", 0.15), "geometry.ring_raduis"),
-        ("emit_leg_ports true", _set("geometry", "emit_leg_ports", True), "geometry.emit_leg_ports"),
+        (
+            "emit_leg_ports true",
+            _set("geometry", "emit_leg_ports", True),
+            "geometry.emit_leg_ports",
+        ),
         ("as_hole false", _set("geometry", "as_hole", False), "geometry.as_hole"),
         ("as_hole 1", _set("geometry", "as_hole", 1), "geometry.as_hole"),
         ("lumped_port_drive", _set("excitation", "kind", "lumped_port_drive"), "excitation.kind"),
@@ -232,8 +248,11 @@ def test_wf1_f_human_yaml_parse_and_refusals():
         ("z0_ohm 0.0", _set("excitation", "z0_ohm", 0.0), "excitation.z0_ohm"),
         ("thermal section", _add_thermal, "thermal"),
         ("ring_radius_m centres", _set_sar_centres, "outputs.sar.centres"),
-        ("probes", _set_out("probes", [{"centre": [0.0, 0.0, 0.0], "radius": 0.01}]),
-         "outputs.probes"),
+        (
+            "probes",
+            _set_out("probes", [{"centre": [0.0, 0.0, 0.0], "radius": 0.01}]),
+            "outputs.probes",
+        ),
     ]
     for label, fn, expected in cases:
         exc = _raises(mut(fn), f"<{label}>")
@@ -247,8 +266,10 @@ def test_wf1_f_human_yaml_parse_and_refusals():
     s1 = _study_from_mapping(m1)
     d1 = _spec_diff(s1, s_py)
     default_esr = TwoPortQuadratureDrive(_c_f()).esr_ohm
-    _p0(f"  (c1) dropped esr_ohm diff {d1}; esr {s1.excitation.esr_ohm.hex()} vs default "
-        f"{float(default_esr).hex()}")
+    _p0(
+        f"  (c1) dropped esr_ohm diff {d1}; esr {s1.excitation.esr_ohm.hex()} vs default "
+        f"{float(default_esr).hex()}"
+    )
     assert d1 == ["excitation.esr_ohm"], d1
     assert s1.excitation.esr_ohm.hex() == float(default_esr).hex()
     ulp = yaml.safe_load(repr(float(np.nextafter(_c_f(), 1.0))))
@@ -265,17 +286,25 @@ def test_wf1_f_human_yaml_run_branch_no_mesh():
 
     comm = MPI.COMM_WORLD
     s_node = np.array([[0.125 + 0.25j, -0.375 + 0.5j], [-0.375 + 0.5j, 0.625 - 0.75j]])
-    y_in = {"ccw": np.array([0.01 + 0.02j, 0.03 - 0.04j]),
-            "cw": np.array([-0.05 + 0.06j, 0.07 + 0.08j])}
+    y_in = {
+        "ccw": np.array([0.01 + 0.02j, 0.03 - 0.04j]),
+        "cw": np.array([-0.05 + 0.06j, 0.07 + 0.08j]),
+    }
     gap, feed, vs = complex(0.2, -21.03), complex(7.6, -17.7), complex(1.02, 2.38)
     calls = []
 
     def fake(study, comm_=MPI.COMM_WORLD):
         calls.append(1)
         study.result = SimpleNamespace(
-            cells=369387, s_node=s_node, y_in=y_in, feeds=("P17", "P21"),
-            az_feeds=(11.25, 101.25), az_mirror=56.25, gap_impedance_ohm=gap,
-            feed_impedance_ohm=feed, source_voltage_v=vs,
+            cells=369387,
+            s_node=s_node,
+            y_in=y_in,
+            feeds=("P17", "P21"),
+            az_feeds=(11.25, 101.25),
+            az_mirror=56.25,
+            gap_impedance_ohm=gap,
+            feed_impedance_ohm=feed,
+            source_voltage_v=vs,
         )
         return study.result
 
@@ -306,9 +335,14 @@ def test_wf1_f_human_yaml_run_branch_no_mesh():
     exp_s = [[[0.125, 0.25], [-0.375, 0.5]], [[-0.375, 0.5], [0.625, -0.75]]]
     exp_y = {"ccw": [[0.01, 0.02], [0.03, -0.04]], "cw": [[-0.05, 0.06], [0.07, 0.08]]}
     exp_exc = {
-        "kind": "two_port_quadrature", "c_in_f": _c_f(), "esr_ohm": float(ESR_OHM),
-        "feeds": ["P17", "P21"], "z0_ohm": 50.0, "gap_impedance_ohm": [0.2, -21.03],
-        "feed_impedance_ohm": [7.6, -17.7], "source_voltage_v": [1.02, 2.38],
+        "kind": "two_port_quadrature",
+        "c_in_f": _c_f(),
+        "esr_ohm": float(ESR_OHM),
+        "feeds": ["P17", "P21"],
+        "z0_ohm": 50.0,
+        "gap_impedance_ohm": [0.2, -21.03],
+        "feed_impedance_ohm": [7.6, -17.7],
+        "source_voltage_v": [1.02, 2.38],
     }
     assert summary["family"] == "f_human_birdcage"
     assert summary["cells"] == 369387

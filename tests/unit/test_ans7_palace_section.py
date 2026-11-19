@@ -38,8 +38,10 @@ OLD_SCRIPT = REPO / "logs" / "t45_pin" / SCRIPT.relative_to(REPO)
 LOGS = REPO / "docs" / "testing" / "logs"
 HEAD128 = "## Tuned with capacitor ESR at 127.74 MHz (§10 T35 / T36)"
 # §9 item 514 (ruling R1 (A), R2 licence, 2026-10-18 03:00 review): the re-pointed closing line.
-TAIL = ("\nNot claimed: any absolute `Z_in`, a match; an absolute Q or R_in (INCONCLUSIVE, T48); "
-        "the tables above are one mesh each — the h-statements are the verdict section's.\n")
+TAIL = (
+    "\nNot claimed: any absolute `Z_in`, a match; an absolute Q or R_in (INCONCLUSIVE, T48); "
+    "the tables above are one mesh each — the h-statements are the verdict section's.\n"
+)
 
 L421 = "20261013T141248Z_OPS-61-item421-W4-read.log"
 L420 = "20261013T140547Z_OPS-61-item420-W6-read.log"
@@ -55,34 +57,68 @@ CMP = "COMPARISON.md"  # the committed file itself (ours, metrics-rendered)
 # "<X> vs <Y>" pair on the Q / R_in line, cell "P / O"; "max" cell is max of the three per-point
 # ties on lines line..line+2, each verbatim.
 TRACE = (
-    ("+6.530e-11", L421, 48, "v"), ("-4.871e-09", L421, 49, "v"), ("-7.456e-10", L421, 50, "v"),
+    ("+6.530e-11", L421, 48, "v"),
+    ("-4.871e-09", L421, 49, "v"),
+    ("-7.456e-10", L421, 50, "v"),
     ("2.580e-10", L421, 38, "max"),
-    ("2.565e-10", L420, 46, "v"), ("1.994e-09", L420, 48, "v"), ("parallel", L420, 49, "v"),
-    ("164.5434 / 164.5434", L421, 49, "q"), ("-2.583046e-06", L421, 48, "v"),
-    ("-2.583111e-06", CMP, 63, "v"), ("3175.979 / 3175.979", L421, 50, "r"),
-    ("+6.073e-11", L436, 51, "v"), ("-2.301744e-06", L436, 51, "v"), ("-2.301805e-06", L436, 51, "v"),
-    ("+5.444e-09", L436, 52, "v"), ("254.4693 / 254.4693", L436, 52, "q"),
-    ("+2.906e-09", L436, 53, "v"), ("9790.704 / 9790.704", L436, 53, "r"),
-    ("2.373e-10", L436, 39, "max"), ("2.308e-10", L436, 42, "v"), ("5.648e-09", L436, 43, "v"),
-    ("+6.437e-11", L444, 51, "v"), ("-2.588508e-06", L444, 51, "v"), ("-2.588573e-06", L444, 51, "v"),
-    ("+1.829e-09", L444, 52, "v"), ("164.2158 / 164.2158", L444, 52, "q"),
-    ("+6.507e-10", L444, 53, "v"), ("3166.748 / 3166.748", L444, 53, "r"),
-    ("2.591e-10", L444, 39, "max"), ("2.499e-10", L444, 42, "v"), ("1.717e-09", L444, 43, "v"),
-    ("-5.462608e-09 / -5.461672e-09", L444, 54, "v"), ("-1.991402e-03 / -1.991409e-03", L444, 54, "v"),
+    ("2.565e-10", L420, 46, "v"),
+    ("1.994e-09", L420, 48, "v"),
+    ("parallel", L420, 49, "v"),
+    ("164.5434 / 164.5434", L421, 49, "q"),
+    ("-2.583046e-06", L421, 48, "v"),
+    ("-2.583111e-06", CMP, 63, "v"),
+    ("3175.979 / 3175.979", L421, 50, "r"),
+    ("+6.073e-11", L436, 51, "v"),
+    ("-2.301744e-06", L436, 51, "v"),
+    ("-2.301805e-06", L436, 51, "v"),
+    ("+5.444e-09", L436, 52, "v"),
+    ("254.4693 / 254.4693", L436, 52, "q"),
+    ("+2.906e-09", L436, 53, "v"),
+    ("9790.704 / 9790.704", L436, 53, "r"),
+    ("2.373e-10", L436, 39, "max"),
+    ("2.308e-10", L436, 42, "v"),
+    ("5.648e-09", L436, 43, "v"),
+    ("+6.437e-11", L444, 51, "v"),
+    ("-2.588508e-06", L444, 51, "v"),
+    ("-2.588573e-06", L444, 51, "v"),
+    ("+1.829e-09", L444, 52, "v"),
+    ("164.2158 / 164.2158", L444, 52, "q"),
+    ("+6.507e-10", L444, 53, "v"),
+    ("3166.748 / 3166.748", L444, 53, "r"),
+    ("2.591e-10", L444, 39, "max"),
+    ("2.499e-10", L444, 42, "v"),
+    ("1.717e-09", L444, 43, "v"),
+    ("-5.462608e-09 / -5.461672e-09", L444, 54, "v"),
+    ("-1.991402e-03 / -1.991409e-03", L444, 54, "v"),
     ("-2.906654e-03 / -2.906656e-03", L444, 54, "v"),
-    ("+5.912e-11", L448, 51, "v"), ("-2.307258e-06", L448, 51, "v"), ("-2.307317e-06", L448, 51, "v"),
-    ("+1.027e-08", L448, 52, "v"), ("252.3012 / 252.3012", L448, 52, "q"),
-    ("+4.872e-09", L448, 53, "v"), ("9698.113 / 9698.113", L448, 53, "r"),
-    ("2.408e-10", L448, 39, "max"), ("2.093e-10", L448, 42, "v"), ("4.356e-09", L448, 43, "v"),
-    ("-5.514397e-09 / -5.512787e-09", L448, 54, "v"), ("-8.519899e-03 / -8.519904e-03", L448, 54, "v"),
+    ("+5.912e-11", L448, 51, "v"),
+    ("-2.307258e-06", L448, 51, "v"),
+    ("-2.307317e-06", L448, 51, "v"),
+    ("+1.027e-08", L448, 52, "v"),
+    ("252.3012 / 252.3012", L448, 52, "q"),
+    ("+4.872e-09", L448, 53, "v"),
+    ("9698.113 / 9698.113", L448, 53, "r"),
+    ("2.408e-10", L448, 39, "max"),
+    ("2.093e-10", L448, 42, "v"),
+    ("4.356e-09", L448, 43, "v"),
+    ("-5.514397e-09 / -5.512787e-09", L448, 54, "v"),
+    ("-8.519899e-03 / -8.519904e-03", L448, 54, "v"),
     ("-9.456957e-03 / -9.456959e-03", L448, 54, "v"),
-    ("v0.18.1", LP64, 45, "v"), ("v0.18.1", LPH, 45, "v"),
-    ("80798", LP64, 68, "v"), ("140270", LPH, 68, "v"),
-    ("ND (p = 2): 570332", LP64, 104, "v"), ("ND (p = 2): 968016", LPH, 104, "v"),
+    ("v0.18.1", LP64, 45, "v"),
+    ("v0.18.1", LPH, 45, "v"),
+    ("80798", LP64, 68, "v"),
+    ("140270", LPH, 68, "v"),
+    ("ND (p = 2): 570332", LP64, 104, "v"),
+    ("ND (p = 2): 968016", LPH, 104, "v"),
 )
 # Cells whose section spelling differs from the log's (thousands spaces, "v" prefix kept).
-SECTION_SPELLING = {"80798": "80 798", "140270": "140 270", "ND (p = 2): 570332": "570 332",
-                    "ND (p = 2): 968016": "968 016", "parallel": "read as parallel"}
+SECTION_SPELLING = {
+    "80798": "80 798",
+    "140270": "140 270",
+    "ND (p = 2): 570332": "570 332",
+    "ND (p = 2): 968016": "968 016",
+    "parallel": "read as parallel",
+}
 PAIR = re.compile(r"(?:Q_Pal|R_in,Pal) ([-+0-9.e]+)(?: ohm)? vs (?:Q_A|R_in,A) ([-+0-9.e]+)")
 TIE = re.compile(r"\|S11_Pal - S11_A\|/\|S11_A\| ([0-9.e+-]+)")
 
@@ -181,7 +217,9 @@ def test_palace_section_rendered(ans7, ans7_old, tmp_path):
     # (R)
     new = _render(ans7, tmp_path, json.loads(metrics_text))
     n_pal = new.decode().count(ans7.PALACE_HEAD)
-    print(f"\n(R) rendered {len(new)} B, committed {len(committed)} B, Palace heading count {n_pal}")
+    print(
+        f"\n(R) rendered {len(new)} B, committed {len(committed)} B, Palace heading count {n_pal}"
+    )
     assert n_pal == 1
     assert new == committed
     assert text.index(HEAD128) < text.index(ans7.PALACE_HEAD) < text.rindex(TAIL)
@@ -203,8 +241,7 @@ def test_palace_section_rendered(ans7, ans7_old, tmp_path):
 
     # (B)
     sec = _section(text, ans7.PALACE_HEAD)
-    stripped = (sec.replace("No AED column: no AED ESR case exists", "")
-                .replace("any AED value", ""))
+    stripped = sec.replace("No AED column: no AED ESR case exists", "").replace("any AED value", "")
     print(f"(B) 'AED' outside the licensed phrases: {stripped.count('AED')}")
     assert "AED" not in stripped
     for bad in ("docs/private", "aed_results", "COMPARISON_private"):
@@ -220,8 +257,10 @@ def test_palace_section_rendered(ans7, ans7_old, tmp_path):
     odir.mkdir()
     old = _render(ans7_old, odir, json.loads(metrics_text))
     n_old = old.decode().count(ans7.PALACE_HEAD)
-    print(f"(N-old) {PIN_SHA} writer: {len(old)} B, Palace heading count {n_old}, "
-          f"differs {old != committed}")
+    print(
+        f"(N-old) {PIN_SHA} writer: {len(old)} B, Palace heading count {n_old}, "
+        f"differs {old != committed}"
+    )
     assert n_old == 0
     assert old != committed
 

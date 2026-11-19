@@ -28,9 +28,8 @@ from __future__ import annotations
 
 import numpy as np
 import ufl
-from mpi4py import MPI
-
 from dolfinx import default_scalar_type, fem
+from mpi4py import MPI
 
 from fem_em_solver.io.mesh import MeshGenerator
 
@@ -100,9 +99,7 @@ def _exterior_facet_group_area(msh, facet_tags, tag, comm):
     tdim = msh.topology.dim
     msh.topology.create_connectivity(tdim - 1, tdim)
 
-    ds_tag = ufl.Measure(
-        "ds", domain=msh, subdomain_data=facet_tags, subdomain_id=(tag,)
-    )
+    ds_tag = ufl.Measure("ds", domain=msh, subdomain_data=facet_tags, subdomain_id=(tag,))
     one = fem.Constant(msh, default_scalar_type(1.0))
     local = fem.assemble_scalar(fem.form(one * ds_tag))
     return float(np.real(comm.allreduce(local, op=MPI.SUM)))
@@ -129,9 +126,9 @@ def _check_outer_boundary(comm, *, port_gap):
     expected = {OUTER_BOUNDARY_TAG}
     if port_gap:
         expected |= set(PORT_FACET_TAGS)
-    assert tags_present == expected, (
-        f"facet tag set is {sorted(tags_present)}, expected {sorted(expected)}"
-    )
+    assert (
+        tags_present == expected
+    ), f"facet tag set is {sorted(tags_present)}, expected {sorted(expected)}"
 
     assert abs(area / analytic - 1.0) < AREA_RTOL, (
         f"tagged outer-boundary area {area:.12e} m^2 differs from the analytic "

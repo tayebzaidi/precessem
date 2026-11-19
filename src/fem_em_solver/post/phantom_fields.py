@@ -32,10 +32,10 @@ gated in ``tests/post/test_tagged_cell_partition_invariance.py`` and
 
 from __future__ import annotations
 
-from pathlib import Path
-from typing import Any
 import csv
 import json
+from pathlib import Path
+from typing import Any
 
 import numpy as np
 from mpi4py import MPI
@@ -146,7 +146,9 @@ def _field_scalar_dtype(field) -> np.dtype:
         return np.dtype(np.float64)
 
 
-def _evaluate_on_cells(field, points: np.ndarray, cells: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray, int]:
+def _evaluate_on_cells(
+    field, points: np.ndarray, cells: np.ndarray
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, int]:
     value_shape = field.function_space.element.value_shape
     value_size = int(np.prod(value_shape)) if value_shape else 1
     scalar_dtype = _field_scalar_dtype(field)
@@ -178,7 +180,9 @@ def _evaluate_on_cells(field, points: np.ndarray, cells: np.ndarray) -> tuple[np
 
         for point, cell in zip(points, cells):
             try:
-                one = field.eval(np.asarray([point], dtype=np.float64), np.asarray([cell], dtype=np.int32))
+                one = field.eval(
+                    np.asarray([point], dtype=np.float64), np.asarray([cell], dtype=np.int32)
+                )
                 one = np.asarray(one).reshape(-1)
                 kept_values.append(one)
                 kept_points.append(np.asarray(point, dtype=np.float64))
@@ -300,7 +304,9 @@ def compute_tagged_vector_magnitude_stats(
         comm=comm,
     )
     points = _cell_centroids(mesh, sampling_cells)
-    values, _valid_points, valid_cells, invalid_samples_local = _evaluate_on_cells(field, points, sampling_cells)
+    values, _valid_points, valid_cells, invalid_samples_local = _evaluate_on_cells(
+        field, points, sampling_cells
+    )
 
     if values.shape[0] > 0:
         # ``norm`` of a complex row is sqrt(Σ|F_i|²) — the phasor magnitude, and
@@ -386,8 +392,12 @@ def export_tagged_field_samples_csv(
     if comm.rank != 0:
         return None
 
-    all_points = np.vstack(gathered_points) if gathered_points else np.zeros((0, 3), dtype=np.float64)
-    all_values = np.vstack(gathered_values) if gathered_values else np.zeros((0, 3), dtype=np.float64)
+    all_points = (
+        np.vstack(gathered_points) if gathered_points else np.zeros((0, 3), dtype=np.float64)
+    )
+    all_values = (
+        np.vstack(gathered_values) if gathered_values else np.zeros((0, 3), dtype=np.float64)
+    )
 
     if all_points.shape[0] == 0:
         raise ValueError(f"No tagged samples available for tag={tag}; cannot export CSV")

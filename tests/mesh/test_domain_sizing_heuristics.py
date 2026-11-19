@@ -94,9 +94,7 @@ def test_coil_phantom_domain_sizing_accounts_for_off_center_phantom_extent():
         ), name
         # Clearance is never below the recommended padding while the coil governs.
         assert diagnostics["phantom_boundary_clearance_m"] == pytest.approx(
-            max(coil_outer, expected_phantom_outer)
-            + recommended_padding
-            - expected_phantom_outer
+            max(coil_outer, expected_phantom_outer) + recommended_padding - expected_phantom_outer
         ), name
         assert diagnostics["phantom_boundary_clearance_m"] > recommended_padding, name
 

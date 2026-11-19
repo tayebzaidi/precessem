@@ -35,11 +35,10 @@ import pytest
 from mpi4py import MPI
 
 from fem_em_solver import StudyConfigError, cli, load_study, run_study_file
-
 from tests.complex_mode import complex_only
+from tests.package.test_wf1_study_yaml import LOGS, WF1, _fresh_dir, _rc_all, _spec_diff
 from tests.package.test_wf16_study_four_port import _record, _rel
 from tests.package.test_wf16_study_sar import _port_study
-from tests.package.test_wf1_study_yaml import LOGS, WF1, _fresh_dir, _rc_all, _spec_diff
 from tests.validation.test_ans4_exact_strip_records import (
     ANS4_EXACT_STRIP_RECORD_RANK_WIDTH,
 )
@@ -82,10 +81,12 @@ def test_wf1_sar_b1_yaml_parse_and_refusals():
     study, kind, outputs, _ = _load(SAR_B1_FILE)
     diff = _spec_diff(study, _port_study(degree=1))
     sar = outputs["sar"]
-    _p0(f"\n[WF-1 s5] (K) spec diff {diff}; mass_g hex {sar['mass_g'].hex()} vs "
+    _p0(
+        f"\n[WF-1 s5] (K) spec diff {diff}; mass_g hex {sar['mass_g'].hex()} vs "
         f"1000*TEN_GRAM_KG {(1000.0 * TEN_GRAM_KG).hex()}; ring_radius_m hex "
         f"{sar['centres']['ring_radius_m'].hex()} vs CENTRE_RADIUS_M {CENTRE_RADIUS_M.hex()}; "
-        f"b1 points {outputs['b1_plus']['points']}")
+        f"b1 points {outputs['b1_plus']['points']}"
+    )
     assert kind == "four_port_birdcage"
     assert diff == [], diff
     assert sar["mass_g"].hex() == (10.0).hex() == (1000.0 * TEN_GRAM_KG).hex()
@@ -119,8 +120,9 @@ def test_wf1_sar_b1_yaml_parse_and_refusals():
 @pytest.fixture(scope="module")
 def case():
     comm = MPI.COMM_WORLD
-    assert comm.size == ANS4_EXACT_STRIP_RECORD_RANK_WIDTH, (
-        f"degree 1 record is asserted at -n {ANS4_EXACT_STRIP_RECORD_RANK_WIDTH}; got -n {comm.size}")
+    assert (
+        comm.size == ANS4_EXACT_STRIP_RECORD_RANK_WIDTH
+    ), f"degree 1 record is asserted at -n {ANS4_EXACT_STRIP_RECORD_RANK_WIDTH}; got -n {comm.size}"
     d = LOGS / SAR_B1_FILE.stem
     _fresh_dir(d, comm)
     t0 = time.perf_counter()
@@ -169,12 +171,23 @@ def case():
     }
     api_b1 = study.b1_plus_at(summary["b1_plus"]["points"], comm=comm)
     t_b1 = time.perf_counter() - t0
-    _p0(f"\n[WF-1 s5] run_study_file {t_run:.1f} s (summary elapsed "
+    _p0(
+        f"\n[WF-1 s5] run_study_file {t_run:.1f} s (summary elapsed "
         f"{summary['elapsed_s']:.1f} s); {res.cells} cells; API sar 4 calls {t_sar:.2f} s; "
         f"b1 evaluations {t_b1:.2f} s; sheet order {order}; Δ {np.degrees(delta):.6f} deg; "
-        f"{points.shape[0]} sample points; ball radius {summary['sar']['radius_m']:.9e} m")
-    return {"run": run, "summary": summary, "order": order, "by_k": by_k, "own": own,
-            "api_sar": api_sar, "read": read, "api_b1": api_b1, "points": points}
+        f"{points.shape[0]} sample points; ball radius {summary['sar']['radius_m']:.9e} m"
+    )
+    return {
+        "run": run,
+        "summary": summary,
+        "order": order,
+        "by_k": by_k,
+        "own": own,
+        "api_sar": api_sar,
+        "read": read,
+        "api_b1": api_b1,
+        "points": points,
+    }
 
 
 def _diag(case, k, centre_of=None):
@@ -203,8 +216,10 @@ def test_wf1_sar_b1_yaml_r_same_fixture(case):
     """(R) the YAML S matrix vs item 192's degree-1 record."""
     s = np.array([[complex(re, im) for re, im in row] for row in case["summary"]["s_matrix"]])
     rel = _rel(s, _record(1))
-    _p0(f"\n[WF-1 s5] (R) ||S_yaml - P1|| / ||P1|| = {rel:.3e} "
-        f"(ASSERTED <= {LEG_D0_REPRODUCTION_BAND:.0e})")
+    _p0(
+        f"\n[WF-1 s5] (R) ||S_yaml - P1|| / ||P1|| = {rel:.3e} "
+        f"(ASSERTED <= {LEG_D0_REPRODUCTION_BAND:.0e})"
+    )
     assert rel <= LEG_D0_REPRODUCTION_BAND
 
 
@@ -213,11 +228,13 @@ def test_wf1_sar_b1_yaml_ii_ten_gram_c4(case):
     """(ii) the 10 g C4 identity, read from the summary."""
     d = {k: _diag(case, k) for k in range(4)}
     pairs = {k: abs(d[(k + 1) % 4] - d[k]) / d[k] for k in range(4)}
-    _p0("\n[WF-1 s5] (ii) diagonal (printed, per 1 V): "
+    _p0(
+        "\n[WF-1 s5] (ii) diagonal (printed, per 1 V): "
         + ", ".join(f"{case['by_k'][k]} {d[k]:.9e} W/kg" for k in range(4))
-        + "\n    cyclic pairs: " + ", ".join(f"{k}->{(k + 1) % 4} {pairs[k] * 100:.4f}%"
-                                         for k in range(4))
-        + f" (ASSERTED <= {C4_COVARIANCE_BAND * 100:.1f}%)")
+        + "\n    cyclic pairs: "
+        + ", ".join(f"{k}->{(k + 1) % 4} {pairs[k] * 100:.4f}%" for k in range(4))
+        + f" (ASSERTED <= {C4_COVARIANCE_BAND * 100:.1f}%)"
+    )
     for k in range(4):
         assert pairs[k] <= C4_COVARIANCE_BAND, (k, pairs[k])
 
@@ -234,8 +251,10 @@ def test_wf1_sar_b1_yaml_iii_yaml_equals_api(case):
         for key, value in api.items():
             if value != 0.0:
                 worst = max(worst, abs(got[key] - value) / abs(value))
-    _p0(f"\n[WF-1 s5] (iii) summary vs Study.sar: max rel {worst:.3e} "
-        f"(ASSERTED <= {EXACT_IDENTITY_RTOL:.0e})")
+    _p0(
+        f"\n[WF-1 s5] (iii) summary vs Study.sar: max rel {worst:.3e} "
+        f"(ASSERTED <= {EXACT_IDENTITY_RTOL:.0e})"
+    )
     assert worst <= EXACT_IDENTITY_RTOL
     mem = case["run"].summary
     assert case["summary"]["sar"] == mem["sar"]
@@ -249,11 +268,16 @@ def test_wf1_sar_b1_yaml_b1_covariance(case):
     counts = {label: int(v.sum()) for label, (_, v) in read.items()}
     mask = np.logical_and.reduce([v for _, v in read.values()])
     ref = read["P1@0"][0]
-    table = {label: _relative_l2(vals, ref, mask) for label, (vals, _) in read.items()
-             if label not in ("P1@0", "P2@-D (control)")}
-    _p0(f"\n[WF-1 s5] (B3) valid per image (of {n}): {counts}\n[WF-1 s5] (B1) "
+    table = {
+        label: _relative_l2(vals, ref, mask)
+        for label, (vals, _) in read.items()
+        if label not in ("P1@0", "P2@-D (control)")
+    }
+    _p0(
+        f"\n[WF-1 s5] (B3) valid per image (of {n}): {counts}\n[WF-1 s5] (B1) "
         + ", ".join(f"{k} {v * 100:.4f}%" for k, v in table.items())
-        + f" (ASSERTED <= {C4_COVARIANCE_BAND * 100:.1f}%)")
+        + f" (ASSERTED <= {C4_COVARIANCE_BAND * 100:.1f}%)"
+    )
     assert n > 0
     for label, c in counts.items():
         assert c == n, (label, c, n)
@@ -270,9 +294,11 @@ def test_wf1_sar_b1_yaml_b2_prime(case):
         got = np.asarray(b1["values"][pid])
         assert all(b1["valid"][pid]) and bool(np.all(ok))
         worst = max(worst, float(np.max(np.abs(got - vals)) / np.max(np.abs(vals))))
-    _p0(f"\n[WF-1 s5] (B2') summary |B1+| at {b1['points']} (printed, per 1 V): "
+    _p0(
+        f"\n[WF-1 s5] (B2') summary |B1+| at {b1['points']} (printed, per 1 V): "
         + ", ".join(f"{p} {v[0]:.9e} T" for p, v in b1["values"].items())
-        + f"; max|Δ| / max|B1+| = {worst:.3e} (ASSERTED <= {EXACT_IDENTITY_RTOL:.0e})")
+        + f"; max|Δ| / max|B1+| = {worst:.3e} (ASSERTED <= {EXACT_IDENTITY_RTOL:.0e})"
+    )
     assert set(b1["values"]) == set(case["order"])
     assert worst <= EXACT_IDENTITY_RTOL
 
@@ -285,10 +311,12 @@ def test_wf1_sar_b1_yaml_c1_mispaired(case):
         diag = _diag(case, k)
         far = _diag(case, k, centre_of=lambda j: (j + 2) % 4)
         miss[k] = abs(far - diag) / diag
-    _p0("\n[WF-1 s5] (c1) |SAR(c_k+2;k) - SAR(c_k;k)| / SAR(c_k;k): "
+    _p0(
+        "\n[WF-1 s5] (c1) |SAR(c_k+2;k) - SAR(c_k;k)| / SAR(c_k;k): "
         + ", ".join(f"k={k} {miss[k] * 100:.4f}%" for k in range(4))
         + f" (sign ASSERTED > {C4_COVARIANCE_BAND * 100:.1f}%; item 321 read 88.12 / 87.94 / "
-        "88.66 / 88.93%)")
+        "88.66 / 88.93%)"
+    )
     for k in range(4):
         assert miss[k] > C4_COVARIANCE_BAND, (k, miss[k])
 
@@ -299,6 +327,8 @@ def test_wf1_sar_b1_yaml_c2_misrotation(case):
     read = case["read"]
     mask = np.logical_and.reduce([v for _, v in read.values()])
     miss = _relative_l2(read["P2@-D (control)"][0], read["P1@0"][0], mask)
-    _p0(f"\n[WF-1 s5] (c2) P2@-D vs P1: {miss * 100:.4f}% (sign ASSERTED > "
-        f"{C4_COVARIANCE_BAND * 100:.1f}%; item 322 read 35.0040%)")
+    _p0(
+        f"\n[WF-1 s5] (c2) P2@-D vs P1: {miss * 100:.4f}% (sign ASSERTED > "
+        f"{C4_COVARIANCE_BAND * 100:.1f}%; item 322 read 35.0040%)"
+    )
     assert miss > C4_COVARIANCE_BAND

@@ -44,7 +44,6 @@ from fem_em_solver.ports.lumped import (
     sheet_terminal_current,
 )
 from fem_em_solver.utils.constants import MU_0
-
 from tests.complex_mode import complex_only
 from tests.mesh.test_birdcage_implant_rod import (
     KEPT_ROD_CELL_GUARD,
@@ -122,6 +121,7 @@ def _degree():
 def _space_degree(space):
     return int(space.ufl_element().degree)
 
+
 # --- predictions (printed, never asserted; brief § item 224) -----------------
 PRED_PF = {"P1": (1e-4, 2e-2), "P3": (1e-4, 2e-2), "P2": (3e-3, 4e-2), "P4": (3e-3, 4e-2)}
 PRED_BF = (1.0, 30.0)
@@ -165,9 +165,7 @@ def _build_case():
     mmap = dict(problem.material_map)
     gel = mmap[PHANTOM_CELL_TAG]
     delta_sigma = float(SIGMA_WIRE_S_PER_M - gel.sigma)
-    lead_mat = HomogeneousMaterial(
-        sigma=SIGMA_WIRE_S_PER_M, epsilon_r=gel.epsilon_r, mu_r=gel.mu_r
-    )
+    lead_mat = HomogeneousMaterial(sigma=SIGMA_WIRE_S_PER_M, epsilon_r=gel.epsilon_r, mu_r=gel.mu_r)
     p_with = replace(problem, material_map={**mmap, BIRDCAGE_IMPLANT_CELL_TAG: lead_mat})
     p_without = replace(problem, material_map={**mmap, BIRDCAGE_IMPLANT_CELL_TAG: gel})
 
@@ -310,8 +308,11 @@ def _arm(fx, problem, *, first, extra_loads):
     specs = sweep["specs"]
     held_sheets = _sheets(specs)
     bil = [
-        (lambda trial, test, _s=s: lumped_port_bilinear_term(
-            msh, tags_f, _s, trial, test, omega_rad_per_s=OMEGA))
+        (
+            lambda trial, test, _s=s: lumped_port_bilinear_term(
+                msh, tags_f, _s, trial, test, omega_rad_per_s=OMEGA
+            )
+        )
         for s in held_sheets
     ]
 
@@ -319,16 +320,19 @@ def _arm(fx, problem, *, first, extra_loads):
         if key == "ell":
             return [extra_loads["ell"]]
         drv = next(s for s in _sheets(specs, key) if s.port_id == key)
-        return [lambda v, _s=drv: lumped_port_linear_term(
-            msh, tags_f, _s, v, omega_rad_per_s=OMEGA)]
+        return [
+            lambda v, _s=drv: lumped_port_linear_term(msh, tags_f, _s, v, omega_rad_per_s=OMEGA)
+        ]
 
     solver = TimeHarmonicSolver(problem, degree=int(sweep["degree"]))
     fx.setdefault("space_degrees", []).append(_space_degree(solver.function_space()))
     fields = {}
     t0 = time.perf_counter()
     fields[first] = solver.solve(
-        current_density=None, project_source=False,
-        extra_bilinear_terms=bil, extra_linear_terms=load_of(first),
+        current_density=None,
+        project_source=False,
+        extra_bilinear_terms=bil,
+        extra_linear_terms=load_of(first),
     ).e_complex
     t_factor = time.perf_counter() - t0
     t0 = time.perf_counter()
@@ -366,8 +370,11 @@ def _symmetry(fx):
     v_space = solver.function_space()
     fx.setdefault("space_degrees", []).append(_space_degree(v_space))
     sigma_f, eps_f = build_material_fields(
-        msh, problem.material, cell_tags=problem.cell_tags,
-        material_map=problem.material_map, phantom_material=problem.phantom_material,
+        msh,
+        problem.material,
+        cell_tags=problem.cell_tags,
+        material_map=problem.material_map,
+        phantom_material=problem.phantom_material,
         phantom_tag=problem.phantom_tag,
     )
     a = solver.bilinear_form(sigma_f, eps_f)
@@ -416,7 +423,9 @@ def _run_step1_identities(fx, degree=1):
     # ---- without arm: factor on P1, held P2..P4 and the tip load (w0) ---------
     t0 = time.perf_counter()
     e_o, y_o, tf_o, th_o = _arm(
-        fx, fx["p_without"], first="P1",
+        fx,
+        fx["p_without"],
+        first="P1",
         extra_loads={"ell": ell, "order": PORT_IDS + ("ell",)},
     )
     w0 = e_o.pop("ell")
@@ -425,7 +434,9 @@ def _run_step1_identities(fx, degree=1):
 
     # ---- with arm: factor on the tip load (w), held P1..P4 --------------------
     e_w, y_w, tf_w, th_w = _arm(
-        fx, fx["p_with"], first="ell",
+        fx,
+        fx["p_with"],
+        first="ell",
         extra_loads={"ell": ell, "order": ("ell",) + PORT_IDS},
     )
     w = e_w.pop("ell")
@@ -476,8 +487,15 @@ def _run_step1_identities(fx, degree=1):
                 al += np.sum(along[sl])
             folds[n_seg] = (qn, al - qn)
         res[d] = dict(
-            q_with=q_with, q_without=q_without, dq=dq, t3=t3, born=born, c1=c1, c2=c2,
-            transverse=transverse, folds=folds,
+            q_with=q_with,
+            q_without=q_without,
+            dq=dq,
+            t3=t3,
+            born=born,
+            c1=c1,
+            c2=c2,
+            transverse=transverse,
+            folds=folds,
             q_held=q_with,
         )
 
@@ -512,12 +530,16 @@ def _run_step1_identities(fx, degree=1):
         f"\n[WF-9 step1 identities] ranks={comm.size} degree={int(degree)} dofs={ndofs} "
         f"V_ball={v_ball:.6e} m^3; space degrees per factor {fx['space_degrees']}"
     )
-    _say(f"  (A1) ||A-A^T||_F/||A||_F = {sym_norm / a_norm:.3e} (bound {SYMMETRY_RTOL:g}; ||A||_F={a_norm:.6e})")
+    _say(
+        f"  (A1) ||A-A^T||_F/||A||_F = {sym_norm / a_norm:.3e} (bound {SYMMETRY_RTOL:g}; ||A||_F={a_norm:.6e})"
+    )
     _say(
         f"  (i') ||Y-Y^T||/||Y||: with {recip['with']:.3e}, without {recip['without']:.3e} "
         f"(band {RECIPROCITY_BAND:g})"
     )
-    _say(f"  (H) |q_fresh - q_held|/|q_held| (P1, with) = {h_dev:.3e} (band {DISCRETE_IDENTITY_RTOL:g})")
+    _say(
+        f"  (H) |q_fresh - q_held|/|q_held| (P1, with) = {h_dev:.3e} (band {DISCRETE_IDENTITY_RTOL:g})"
+    )
     for d in PORT_IDS:
         r = res[d]
         dq = r["dq"]
@@ -544,8 +566,12 @@ def _run_step1_identities(fx, degree=1):
         )
         c1v = abs(r["c1"] - dq) / abs(dq)
         c2v = abs(r["c2"] - dq) / abs(dq)
-        _say(f"    (C1) Hermitian read-back: {c1v:.6%} (predicted [{PRED_C1[0]:.0%}, {PRED_C1[1]:.0%}], {_in(c1v, PRED_C1)})")
-        _say(f"    (C2) total-field fold (E_with): {c2v:.6%} (predicted [{PRED_C2[0]:.0%}, {PRED_C2[1]:.0%}], {_in(c2v, PRED_C2)})")
+        _say(
+            f"    (C1) Hermitian read-back: {c1v:.6%} (predicted [{PRED_C1[0]:.0%}, {PRED_C1[1]:.0%}], {_in(c1v, PRED_C1)})"
+        )
+        _say(
+            f"    (C2) total-field fold (E_with): {c2v:.6%} (predicted [{PRED_C2[0]:.0%}, {PRED_C2[1]:.0%}], {_in(c2v, PRED_C2)})"
+        )
         _say(f"    error split: transverse/|dq| = {abs(r['transverse']) / abs(dq):.6e}")
         for n_seg, (qn, cov) in r["folds"].items():
             _say(
@@ -558,16 +584,19 @@ def _run_step1_identities(fx, degree=1):
             f"    {k:2d} {(SLAB_Z0 + (k + 0.5) * SLAB_DZ) * 1e3:6.1f} {v_k[k]:.4e} "
             f"{abs(tf_k[k]):.6e} {np.degrees(np.angle(tf_k[k])):9.4f}"
         )
-    _say(f"  times: " + ", ".join(f"{k}={v:.2f}s" for k, v in times.items()))
+    _say("  times: " + ", ".join(f"{k}={v:.2f}s" for k, v in times.items()))
     rss_pred = (
-        "predicted <= 3.5 at -n 2" if int(degree) == 1
+        "predicted <= 3.5 at -n 2"
+        if int(degree) == 1
         else f"predicted [{PRED_RSS_P2_N8[0]:g}, {PRED_RSS_P2_N8[1]:g}] at -n 8"
     )
     _say(f"  summed max RSS over ranks = {rss:.3f} GiB ({rss_pred}); elapsed = {elapsed:.2f} s")
     if tf_agreement is None:
         _say("  W1/W2 TF agreement: no other-width TF file yet")
     else:
-        _say(f"  W1/W2 TF agreement vs n={tf_agreement[0]}: max rel = {tf_agreement[1]:.3e} (predicted <= 1e-10)")
+        _say(
+            f"  W1/W2 TF agreement vs n={tf_agreement[0]}: max rel = {tf_agreement[1]:.3e} (predicted <= 1e-10)"
+        )
 
     assert sym_norm <= SYMMETRY_RTOL * a_norm
     assert recip["with"] <= RECIPROCITY_BAND, recip
@@ -583,11 +612,27 @@ def _run_step1_identities(fx, degree=1):
         assert abs(r["c2"] - dq) > DISCRETE_IDENTITY_RTOL * abs(dq), f"C2 {d} not wired"
 
     return {
-        "q": q, "v_ball": v_ball, "e_without": e_o, "e_with": e_w, "w": w, "w0": w0,
-        "res": res, "tf_k": tf_k, "v_k": v_k, "y_with": y_w, "y_without": y_o,
-        "recip": recip, "sym_ratio": sym_norm / a_norm, "ndofs": ndofs, "h_dev": h_dev,
-        "times": times, "rss": rss, "elapsed": elapsed, "tf_agreement": tf_agreement,
-        "degree": int(degree), "space_degrees": list(fx["space_degrees"]),
+        "q": q,
+        "v_ball": v_ball,
+        "e_without": e_o,
+        "e_with": e_w,
+        "w": w,
+        "w0": w0,
+        "res": res,
+        "tf_k": tf_k,
+        "v_k": v_k,
+        "y_with": y_w,
+        "y_without": y_o,
+        "recip": recip,
+        "sym_ratio": sym_norm / a_norm,
+        "ndofs": ndofs,
+        "h_dev": h_dev,
+        "times": times,
+        "rss": rss,
+        "elapsed": elapsed,
+        "tf_agreement": tf_agreement,
+        "degree": int(degree),
+        "space_degrees": list(fx["space_degrees"]),
     }
 
 

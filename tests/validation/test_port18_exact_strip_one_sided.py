@@ -52,9 +52,8 @@ from pathlib import Path
 import numpy as np
 import pytest
 import ufl
-from mpi4py import MPI
-
 from dolfinx import default_scalar_type, fem
+from mpi4py import MPI
 
 from fem_em_solver.ports import lumped
 from tests.complex_mode import complex_only
@@ -113,9 +112,7 @@ class _PerSheet:
 
     def eval(self, builder, q=None):
         metadata = {} if q is None else {"quadrature_degree": int(q)}
-        dS = ufl.Measure(
-            "dS", domain=self.msh, subdomain_data=self.facet_tags, metadata=metadata
-        )
+        dS = ufl.Measure("dS", domain=self.msh, subdomain_data=self.facet_tags, metadata=metadata)
         integrand = None
         for k, i in enumerate(PORTS):
             term = self.w[k] * builder(i) * dS(SHEET_IFACE + i)
@@ -154,12 +151,12 @@ def _jump_ratio(num, den, label):
     """
     out = []
     for i, (a, b) in zip(PORTS, zip(num, den)):
-        assert abs(a.imag) <= 1e-12 * abs(b.real), (
-            f"{label} P{i}: numerator imag {a.imag:.3e} vs real {a.real:.3e}"
-        )
-        assert abs(b.imag) <= 1e-12 * abs(b.real), (
-            f"{label} P{i}: denominator imag {b.imag:.3e} vs real {b.real:.3e}"
-        )
+        assert abs(a.imag) <= 1e-12 * abs(
+            b.real
+        ), f"{label} P{i}: numerator imag {a.imag:.3e} vs real {a.real:.3e}"
+        assert abs(b.imag) <= 1e-12 * abs(
+            b.real
+        ), f"{label} P{i}: denominator imag {b.imag:.3e} vs real {b.real:.3e}"
         out.append(float(np.sqrt(max(a.real, 0.0) / b.real)))
     return np.asarray(out)
 
@@ -194,12 +191,8 @@ def case():
     t2 = time.perf_counter()
     # Production I+ (from _solve_driven), the '+' mirror (B0) and the '-' mirror.
     i_prod = np.asarray([solved["currents"][s.port_id] for s in sheets])
-    i_plus = np.asarray(
-        [_one_sided_current(msh, tags_f, s, E, comm, "+") for s in sheets]
-    )
-    i_minus = np.asarray(
-        [_one_sided_current(msh, tags_f, s, E, comm, "-") for s in sheets]
-    )
+    i_plus = np.asarray([_one_sided_current(msh, tags_f, s, E, comm, "+") for s in sheets])
+    i_minus = np.asarray([_one_sided_current(msh, tags_f, s, E, comm, "-") for s in sheets])
 
     ps = _PerSheet(msh, tags_f, comm)
     x = ufl.SpatialCoordinate(msh)
@@ -242,9 +235,7 @@ def case():
     jS_num, jS_den = _jump(Es)
     rs_plus = ps.eval(lambda i: ufl.dot(Es("+"), h_hat), 2) / area
     El = fem.Function(V)
-    El.interpolate(
-        lambda X: np.vstack((-X[2] / rho0, np.zeros(X.shape[1]), 1.0 + X[0] / rho0))
-    )
+    El.interpolate(lambda X: np.vstack((-X[2] / rho0, np.zeros(X.shape[1]), 1.0 + X[0] / rho0)))
     El.x.scatter_forward()
     lin_plus = ps.eval(lambda i: ufl.dot(El("+"), h_hat), 2) / area
     lin_minus = ps.eval(lambda i: ufl.dot(El("-"), h_hat), 2) / area
@@ -254,7 +245,9 @@ def case():
     Q = fem.functionspace(msh, ("DG", 0))
     chiL = {i: port18_probe._indicator(Q, cell_tags, PORT_LOWER + i, n_owned) for i in PORTS}
     chiU = {i: port18_probe._indicator(Q, cell_tags, PORT_UPPER + i, n_owned) for i in PORTS}
-    ez = ufl.as_vector([default_scalar_type(0.0), default_scalar_type(0.0), default_scalar_type(1.0)])
+    ez = ufl.as_vector(
+        [default_scalar_type(0.0), default_scalar_type(0.0), default_scalar_type(1.0)]
+    )
 
     def _gnum(i):
         d = ufl.dot((chiL[i] - chiU[i])("+") * ez - (chiL[i] - chiU[i])("-") * ez, h_hat)

@@ -40,20 +40,20 @@ from mpi4py import MPI
 
 from fem_em_solver.io.mesh import MeshGenerator, _interface_facet_tags
 from tests.mesh.helpers import global_cell_tag_set
-from tests.mesh.test_coil_phantom_conforming import _tag_volume, _total_volume
 from tests.mesh.test_birdcage_conductor_sizing import CAD_MASS_GATE
+from tests.mesh.test_birdcage_leg_gaps import (
+    LEG_GAP_LENGTH,
+    TERMINAL_AREA_BAND,
+    UNCUT_CAD_RATIO_BAND,
+    UNCUT_CAD_RATIO_RECORD,
+    _analytic_box_volume,
+)
 from tests.mesh.test_birdcage_port_sheet_prerequisite import (
     CELL_COUNT_BAND,
     CONDUCTOR_RESOLUTION,
     STEP3_CELL_COUNT_RECORD,
 )
-from tests.mesh.test_birdcage_port_terminals import (
-    AIR_IFACE,
-    CONDUCTOR_IFACE,
-    PHANTOM_IFACE,
-    _global_facet_count,
-    _interface_area_or_zero,
-)
+from tests.mesh.test_birdcage_port_sheets import PORT_LOWER, PORT_UPPER, SHEET_IFACE
 from tests.mesh.test_birdcage_port_tags import (
     AIR_PADDING,
     COIL_LENGTH,
@@ -67,14 +67,14 @@ from tests.mesh.test_birdcage_port_tags import (
     RING_MINOR_RADIUS,
     RING_RADIUS,
 )
-from tests.mesh.test_birdcage_leg_gaps import (
-    LEG_GAP_LENGTH,
-    TERMINAL_AREA_BAND,
-    UNCUT_CAD_RATIO_BAND,
-    UNCUT_CAD_RATIO_RECORD,
-    _analytic_box_volume,
+from tests.mesh.test_birdcage_port_terminals import (
+    AIR_IFACE,
+    CONDUCTOR_IFACE,
+    PHANTOM_IFACE,
+    _global_facet_count,
+    _interface_area_or_zero,
 )
-from tests.mesh.test_birdcage_port_sheets import PORT_LOWER, PORT_UPPER, SHEET_IFACE
+from tests.mesh.test_coil_phantom_conforming import _tag_volume, _total_volume
 from tests.mesh.test_two_torus_port_sheet import _sheet_extents
 
 # The ring gap. 8 mm of arc on a 70 mm ring is 0.114 rad — a sixth of the 0.785
@@ -84,8 +84,8 @@ from tests.mesh.test_two_torus_port_sheet import _sheet_extents
 RING_GAP_LENGTH = 0.008
 
 # Gate bands, all pre-stated in the `GEO-20` §7 entry.
-EXACT = 1.0e-9              # closure, sheet area, GEO-9 partition
-SYMMETRY = 1.0e-12          # C_N spread and top/bottom mirror on exact forms
+EXACT = 1.0e-9  # closure, sheet area, GEO-9 partition
+SYMMETRY = 1.0e-12  # C_N spread and top/bottom mirror on exact forms
 TERMINAL_EQUALITY = 1.0e-5  # meshed terminal equality across the ring ports
 
 # Records from the `GEO-20` step 1 close (2026-08-24, 0.11 image; logs
@@ -103,9 +103,7 @@ RING_PORTS = list(range(RING_PORT_FIRST, RING_PORT_LAST + 1))
 # Build order is bottom ring then top, `leg_count` gaps each, so port
 # ``RING_PORT_FIRST + j`` and ``RING_PORT_FIRST + LEG_COUNT + j`` are the same
 # gap on the two rings — the mirror pair.
-MIRROR_PAIRS = [
-    (RING_PORT_FIRST + j, RING_PORT_FIRST + LEG_COUNT + j) for j in range(LEG_COUNT)
-]
+MIRROR_PAIRS = [(RING_PORT_FIRST + j, RING_PORT_FIRST + LEG_COUNT + j) for j in range(LEG_COUNT)]
 
 
 def _build(*, ring_gap_length, leg_gap_length=None, emit_port_sheets=False):
@@ -153,12 +151,8 @@ def _port_boundary_partition(mesh, cell_tags, comm, port_cell_tags):
     for base in (CONDUCTOR_IFACE, AIR_IFACE, PHANTOM_IFACE):
         for i, tags in port_cell_tags.items():
             keys = [(base + i) * 10 + j for j in range(len(tags))]
-            counts[base + i] = sum(
-                _global_facet_count(mesh, audit_tags, k, comm) for k in keys
-            )
-            areas[base + i] = sum(
-                _interface_area_or_zero(mesh, audit_tags, k, comm) for k in keys
-            )
+            counts[base + i] = sum(_global_facet_count(mesh, audit_tags, k, comm) for k in keys)
+            areas[base + i] = sum(_interface_area_or_zero(mesh, audit_tags, k, comm) for k in keys)
     return counts, areas
 
 
@@ -175,9 +169,7 @@ def _out_of_plane_spread(msh, facet_tags, tag, normal, point, comm) -> float:
     fdim = msh.topology.dim - 1
     facets = np.asarray(facet_tags.find(tag), dtype=np.int32)
     if facets.size:
-        nodes = dolfinx.cpp.mesh.entities_to_geometry(
-            msh._cpp_object, fdim, facets, False
-        )
+        nodes = dolfinx.cpp.mesh.entities_to_geometry(msh._cpp_object, fdim, facets, False)
         pts = msh.geometry.x[nodes.reshape(-1)]
         local = float(np.abs((pts - np.asarray(point)) @ np.asarray(normal)).max())
     else:
@@ -228,9 +220,7 @@ def test_ring_gaps_give_every_end_ring_port_two_disk_terminals():
     """
     comm = MPI.COMM_WORLD
 
-    mesh, cells, _, diag, elapsed = _build(
-        ring_gap_length=RING_GAP_LENGTH, emit_port_sheets=True
-    )
+    mesh, cells, _, diag, elapsed = _build(ring_gap_length=RING_GAP_LENGTH, emit_port_sheets=True)
     layout = diag["ring_port_layout"]
     # Ring ports are sheeted; the four floating leg boxes are not (no gap in the
     # legs, so no terminals and nothing to split) — that asymmetry is the
@@ -255,20 +245,14 @@ def test_ring_gaps_give_every_end_ring_port_two_disk_terminals():
         mesh, cells, {SHEET_IFACE + i: port_cell_tags[i] for i in RING_PORTS}
     )
     sheet_area = {
-        i: _interface_area_or_zero(mesh, sheet_tags, SHEET_IFACE + i, comm)
-        for i in RING_PORTS
+        i: _interface_area_or_zero(mesh, sheet_tags, SHEET_IFACE + i, comm) for i in RING_PORTS
     }
-    sheet_extent = {
-        i: _sheet_extents(mesh, sheet_tags, SHEET_IFACE + i, comm) for i in RING_PORTS
-    }
+    sheet_extent = {i: _sheet_extents(mesh, sheet_tags, SHEET_IFACE + i, comm) for i in RING_PORTS}
     sheet_count = {
-        i: _global_facet_count(mesh, sheet_tags, SHEET_IFACE + i, comm)
-        for i in RING_PORTS
+        i: _global_facet_count(mesh, sheet_tags, SHEET_IFACE + i, comm) for i in RING_PORTS
     }
     sheet_flatness = {
-        i: _out_of_plane_spread(
-            mesh, sheet_tags, SHEET_IFACE + i, *_ring_gap_frame(i), comm
-        )
+        i: _out_of_plane_spread(mesh, sheet_tags, SHEET_IFACE + i, *_ring_gap_frame(i), comm)
         for i in RING_PORTS
     }
 
@@ -276,9 +260,7 @@ def test_ring_gaps_give_every_end_ring_port_two_disk_terminals():
     port_volume = layout["ring_port_volume_m3"]
     port_surface = layout["ring_port_surface_m2"]
     sheet_analytic = layout["ring_port_sheet_area_m2"]
-    port_total_volume = {
-        i: sum(volumes[t] for t in port_cell_tags[i]) for i in RING_PORTS
-    }
+    port_total_volume = {i: sum(volumes[t] for t in port_cell_tags[i]) for i in RING_PORTS}
 
     # The control. Built second so the gapped rung's numbers are already in hand
     # if gmsh dies on the second build.
@@ -304,9 +286,7 @@ def test_ring_gaps_give_every_end_ring_port_two_disk_terminals():
     # the leg cut and moved its assertion off the difference for the same
     # reason; there the primitive was a cylinder and needed no separate check.
     ring_primitive = diag["ring_cad_mass_m3"] / diag["ring_analytic_mass_m3"]
-    ring_primitive_unc = (
-        unc_diag["ring_cad_mass_m3"] / unc_diag["ring_analytic_mass_m3"]
-    )
+    ring_primitive_unc = unc_diag["ring_cad_mass_m3"] / unc_diag["ring_analytic_mass_m3"]
 
     if comm.rank == 0:
         print(
@@ -489,13 +469,10 @@ def test_leg_and_ring_gaps_coexist_as_a_twelve_port_mesh():
     )
     layout = diag["ring_port_layout"]
     leg_ports = list(range(1, LEG_COUNT + 1))
-    port_cell_tags = {
-        i: (PORT_LOWER + i, PORT_UPPER + i) for i in leg_ports + RING_PORTS
-    }
+    port_cell_tags = {i: (PORT_LOWER + i, PORT_UPPER + i) for i in leg_ports + RING_PORTS}
     expected_tags = {1, 2, 3, *[t for tags in port_cell_tags.values() for t in tags]}
     assert global_cell_tag_set(mesh, cells) == expected_tags, (
-        "the doubly-gapped mesh does not carry all 12 ports as split cell-tag "
-        "pairs"
+        "the doubly-gapped mesh does not carry all 12 ports as split cell-tag " "pairs"
     )
 
     n_cells = mesh.topology.index_map(3).size_global
@@ -547,9 +524,9 @@ def test_leg_and_ring_gaps_coexist_as_a_twelve_port_mesh():
         a_c = areas[CONDUCTOR_IFACE + i]
         total = a_c + areas[AIR_IFACE + i] + areas[PHANTOM_IFACE + i]
         v = sum(volumes[t] for t in port_cell_tags[i])
-        assert abs(total / surface - 1.0) < EXACT, (
-            f"port P{i} closure {total / surface:.12f} on the doubly-gapped mesh"
-        )
+        assert (
+            abs(total / surface - 1.0) < EXACT
+        ), f"port P{i} closure {total / surface:.12f} on the doubly-gapped mesh"
         assert abs(v / volume - 1.0) < EXACT, (
             f"port P{i} volume/analytic {v / volume:.12f} on the doubly-gapped "
             "mesh — the two gap families interact"

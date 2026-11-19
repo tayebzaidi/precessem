@@ -31,6 +31,7 @@ Three gates, all quantitative:
 
 Static by construction: no mesh, no solve, smoke tier.
 """
+
 from __future__ import annotations
 
 import importlib.util
@@ -110,7 +111,8 @@ def negative_control_run(checker, src_tests_report):
         buf = io.StringIO()
         with contextlib.redirect_stdout(buf):
             status = checker.negative_control(
-                REPO_ROOT, ["src", "tests"], baseline=src_tests_report)
+                REPO_ROOT, ["src", "tests"], baseline=src_tests_report
+            )
         return status, buf.getvalue()
 
     return _on_root_then_bcast(run)
@@ -118,10 +120,12 @@ def negative_control_run(checker, src_tests_report):
 
 @pytest.fixture(scope="module")
 def ungated_reports(checker):
-    return _on_root_then_bcast(lambda: (
-        checker.sweep(["examples", "scripts"], REPO_ROOT),
-        checker.sweep([PROBE_ROOT], REPO_ROOT),
-    ))
+    return _on_root_then_bcast(
+        lambda: (
+            checker.sweep(["examples", "scripts"], REPO_ROOT),
+            checker.sweep([PROBE_ROOT], REPO_ROOT),
+        )
+    )
 
 
 def test_no_unmigrated_call_sites(src_tests_report):
@@ -132,17 +136,16 @@ def test_no_unmigrated_call_sites(src_tests_report):
         f"swept only {report.files} files (floor {MIN_FILES}) — the sweep is "
         "not reaching the tree, so 'clean' would mean nothing"
     )
-    assert report.call_sites >= MIN_CALL_SITES, (
-        f"resolved only {report.call_sites} call sites (floor {MIN_CALL_SITES})"
-    )
-    assert len(report.per_api) >= MIN_APIS, (
-        f"resolved only {len(report.per_api)} distinct APIs (floor {MIN_APIS})"
-    )
+    assert (
+        report.call_sites >= MIN_CALL_SITES
+    ), f"resolved only {report.call_sites} call sites (floor {MIN_CALL_SITES})"
+    assert (
+        len(report.per_api) >= MIN_APIS
+    ), f"resolved only {len(report.per_api)} distinct APIs (floor {MIN_APIS})"
 
     violations = report.violations
-    assert violations == [], (
-        "un-migrated DolfinX call site(s):\n  "
-        + "\n  ".join(f.render() for f in violations)
+    assert violations == [], "un-migrated DolfinX call site(s):\n  " + "\n  ".join(
+        f.render() for f in violations
     )
 
 
@@ -194,6 +197,6 @@ def test_filed_survivors_outside_the_gated_roots_are_unchanged(ungated_reports):
     found = {(f.path, f.kind) for f in report.violations}
     assert found == FILED_SURVIVORS, (
         "survivor set outside src/tests moved — expected none since `OPS-30` "
-        f"migrated the two filed probe sites, found:\n  "
+        "migrated the two filed probe sites, found:\n  "
         + "\n  ".join(f.render() for f in report.violations)
     )

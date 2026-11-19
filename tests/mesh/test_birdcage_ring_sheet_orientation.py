@@ -97,11 +97,15 @@ Run (real or complex build; mesh-side only)::
 
 from __future__ import annotations
 
-import numpy as np
 import dolfinx
+import numpy as np
 import pytest
 from mpi4py import MPI
 
+from tests.mesh.test_birdcage_port_scaleup import (
+    SCALED_LEG_COUNT,
+    TERMINAL_INTRA_CLASS_BAND,
+)
 from tests.mesh.test_birdcage_port_sheet_prerequisite import CELL_COUNT_BAND
 from tests.mesh.test_birdcage_port_sheets import PORT_LOWER, PORT_UPPER, SHEET_IFACE
 from tests.mesh.test_birdcage_port_tags import RING_RADIUS
@@ -121,10 +125,6 @@ from tests.mesh.test_birdcage_ring_gaps_scaleup import (
     _report_safely,
     _ring_gap_frame,
     _terminal_classes,
-)
-from tests.mesh.test_birdcage_port_scaleup import (
-    SCALED_LEG_COUNT,
-    TERMINAL_INTRA_CLASS_BAND,
 )
 
 # The lumped-sheet route needs a strictly positive extent along the drive
@@ -284,9 +284,7 @@ def _sheet_extent_along(msh, facet_tags, tag, axis, comm) -> float:
     facets = np.asarray(facet_tags.find(tag), dtype=np.int32)
     axis = np.asarray(axis, dtype=np.float64)
     if facets.size:
-        nodes = dolfinx.cpp.mesh.entities_to_geometry(
-            msh._cpp_object, fdim, facets, False
-        )
+        nodes = dolfinx.cpp.mesh.entities_to_geometry(msh._cpp_object, fdim, facets, False)
         proj = msh.geometry.x[nodes.reshape(-1)] @ axis
         local_hi, local_lo = float(proj.max()), float(proj.min())
     else:
@@ -498,14 +496,8 @@ def test_the_longitudinal_ring_sheets_span_the_gap_chord_and_split_the_box(leg_c
         # assert lives in `_assert_ring_identity_family` below.
         classes = _terminal_classes(m)
         for key, members in classes.items():
-            vals = np.array(
-                [float(m["areas"][CONDUCTOR_IFACE + i]) for i in members]
-            )
-            spread = (
-                float((vals.max() - vals.min()) / vals.mean())
-                if len(members) > 1
-                else 0.0
-            )
+            vals = np.array([float(m["areas"][CONDUCTOR_IFACE + i]) for i in members])
+            spread = float((vals.max() - vals.min()) / vals.mean()) if len(members) > 1 else 0.0
             azimuths = ", ".join("%.3f" % m["azimuth_deg"][i] for i in members)
             print(
                 f"[GEO-26] terminal azimuth class '{key}': {len(members)} ports "
@@ -524,13 +516,9 @@ def test_the_longitudinal_ring_sheets_span_the_gap_chord_and_split_the_box(leg_c
         # Printed, not asserted — a third state, or a low-state count off the
         # record, is a new generator finding, and this line is how it becomes
         # visible in the log.
-        all_terminals = [
-            float(m["areas"][CONDUCTOR_IFACE + i]) for i in m["ring_ports"]
-        ]
+        all_terminals = [float(m["areas"][CONDUCTOR_IFACE + i]) for i in m["ring_ports"]]
         states = _terminal_area_states(all_terminals)
-        census = "  ".join(
-            f"{a:.9e} m^2 x{n}" for a, n in states
-        )
+        census = "  ".join(f"{a:.9e} m^2 x{n}" for a, n in states)
         low_count = states[0][1]
         print(
             f"[GEO-26] terminal-area states at {leg_count} legs "
@@ -574,8 +562,7 @@ def test_the_longitudinal_ring_sheets_span_the_gap_chord_and_split_the_box(leg_c
             "not the planar rectangle in the plane u = R"
         )
         assert r["flat"] < SYMMETRY, (
-            f"longitudinal ring port P{i}'s sheet is {r['flat']:.3e} m out of "
-            "the plane u = R"
+            f"longitudinal ring port P{i}'s sheet is {r['flat']:.3e} m out of " "the plane u = R"
         )
         # (iii) the halves. `100+i` is the inner (u < R) piece and `200+i` the
         # outer, by the sign of (centroid − gap centre)·û in `io/mesh.py`; a

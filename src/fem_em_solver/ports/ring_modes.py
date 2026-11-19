@@ -74,8 +74,10 @@ def _canonical_permutation(port_map, n_slots: int = N_SLOTS) -> np.ndarray:
     n_s = _check_n_slots(n_slots)
     pm = [(int(j), str(r)) for j, r in port_map]
     if len(pm) != 2 * n_s or len(set(pm)) != 2 * n_s:
-        raise ValueError(f"port_map must name each of the {2 * n_s} (slot, ring) pairs once "
-                         f"(n_slots={n_s}): {pm}")
+        raise ValueError(
+            f"port_map must name each of the {2 * n_s} (slot, ring) pairs once "
+            f"(n_slots={n_s}): {pm}"
+        )
     index = {p: i for i, p in enumerate(pm)}
     try:
         return np.array([index[(j, r)] for r in RINGS for j in range(n_s)], dtype=int)
@@ -160,8 +162,7 @@ def _gap_admittance(jwc, n, r_canonical):
     return 1.0 / (np.asarray(r_canonical, dtype=float) + 1.0 / jwc)
 
 
-def terminated_currents(z_canonical, *, freq_hz, c_f, feed_idx, v_feeds, z0=50.0,
-                        esr_ohm=None):
+def terminated_currents(z_canonical, *, freq_hz, c_f, feed_idx, v_feeds, z0=50.0, esr_ohm=None):
     """``(V, I)`` of the Norton-terminated network, canonical order.
 
     ``esr_ohm`` (`PORT-24` step 1, additive): ``None`` / 0 is the lossless
@@ -184,8 +185,9 @@ def terminated_currents(z_canonical, *, freq_hz, c_f, feed_idx, v_feeds, z0=50.0
     return v, y_net @ v
 
 
-def ring_mode_rows(s, *, port_map, freq_hz, c_f, feeds, drives, z0=50.0,
-                   esr_ohm=0.0, n_slots=N_SLOTS) -> dict:
+def ring_mode_rows(
+    s, *, port_map, freq_hz, c_f, feeds, drives, z0=50.0, esr_ohm=0.0, n_slots=N_SLOTS
+) -> dict:
     """SPEC rows 1–3 of a 32-port ring-gap S matrix.
 
     ``s`` — 32×32, in any port order; ``port_map`` — ``(slot j, ring)`` per row
@@ -213,9 +215,12 @@ def ring_mode_rows(s, *, port_map, freq_hz, c_f, feeds, drives, z0=50.0,
     modes = {}
     for k in range(n_s // 2 + 1):
         lam, anti, both = antisymmetric_eigenpair(blocks[k])
-        modes[k] = {"lambda_anti": [lam.real, lam.imag], "anti": anti,
-                    "c_anti_f": 1.0 / (omega * lam.imag),
-                    "eig": [[l.real, l.imag, a] for l, a in both]}
+        modes[k] = {
+            "lambda_anti": [lam.real, lam.imag],
+            "anti": anti,
+            "c_anti_f": 1.0 / (omega * lam.imag),
+            "eig": [[l.real, l.imag, a] for l, a in both],
+        }
     canon = {(j, r): RINGS.index(r) * n_s + j for r in RINGS for j in range(n_s)}
     feed_idx = [canon[(int(j), str(r))] for j, r in feeds]
     jwc = 1j * omega * float(c_f)
@@ -223,20 +228,31 @@ def ring_mode_rows(s, *, port_map, freq_hz, c_f, feeds, drives, z0=50.0,
     for label, v_feeds in drives.items():
         v_feeds = [complex(x) for x in v_feeds]
         if len(v_feeds) != len(feed_idx):
-            raise ValueError(f"drive {label!r} has {len(v_feeds)} voltages for {len(feed_idx)} feeds")
-        v, i = terminated_currents(zc, freq_hz=freq_hz, c_f=c_f, feed_idx=feed_idx,
-                                   v_feeds=v_feeds, z0=z0, esr_ohm=r_c)
-        rings = {r: k_spectrum(i[n * n_s:(n + 1) * n_s], n_s) for n, r in enumerate(RINGS)}
+            raise ValueError(
+                f"drive {label!r} has {len(v_feeds)} voltages for {len(feed_idx)} feeds"
+            )
+        v, i = terminated_currents(
+            zc, freq_hz=freq_hz, c_f=c_f, feed_idx=feed_idx, v_feeds=v_feeds, z0=z0, esr_ohm=r_c
+        )
+        rings = {r: k_spectrum(i[n * n_s : (n + 1) * n_s], n_s) for n, r in enumerate(RINGS)}
         feed_rows = []
         for f in feed_idx:
             zf = v[f] / i[f] if i[f] != 0 else complex("nan")
             y_c = jwc if r_c is None else 1.0 / (r_c[f] + 1.0 / jwc)
             yin = (i[f] + y_c * v[f]) / v[f] if v[f] != 0 else complex("nan")
-            feed_rows.append({"v": [v[f].real, v[f].imag], "i": [i[f].real, i[f].imag],
-                              "z_port_ohm": [zf.real, zf.imag],
-                              "y_in_with_c_s": [yin.real, yin.imag]})
-        out_drives[label] = {"v_feeds": [[x.real, x.imag] for x in v_feeds],
-                             "rings": rings, "feeds": feed_rows}
+            feed_rows.append(
+                {
+                    "v": [v[f].real, v[f].imag],
+                    "i": [i[f].real, i[f].imag],
+                    "z_port_ohm": [zf.real, zf.imag],
+                    "y_in_with_c_s": [yin.real, yin.imag],
+                }
+            )
+        out_drives[label] = {
+            "v_feeds": [[x.real, x.imag] for x in v_feeds],
+            "rings": rings,
+            "feeds": feed_rows,
+        }
     # Feed 2×2: the network admittance at the feeds, every other gap in C.
     y_net = np.linalg.inv(zc)
     others = [n for n in range(2 * n_s) if n not in feed_idx]
@@ -244,22 +260,28 @@ def ring_mode_rows(s, *, port_map, freq_hz, c_f, feeds, drives, z0=50.0,
         y_oo = y_net[np.ix_(others, others)] + jwc * np.eye(len(others))
     else:
         y_oo = y_net[np.ix_(others, others)] + np.diag(
-            _gap_admittance(jwc, len(others), r_c[others]))
-    y_ff = (y_net[np.ix_(feed_idx, feed_idx)]
-            - y_net[np.ix_(feed_idx, others)] @ np.linalg.solve(y_oo, y_net[np.ix_(others, feed_idx)]))
+            _gap_admittance(jwc, len(others), r_c[others])
+        )
+    y_ff = y_net[np.ix_(feed_idx, feed_idx)] - y_net[np.ix_(feed_idx, others)] @ np.linalg.solve(
+        y_oo, y_net[np.ix_(others, feed_idx)]
+    )
     return {
-        "freq_hz": float(freq_hz), "c_f": float(c_f), "z0_ohm": float(z0),
+        "freq_hz": float(freq_hz),
+        "c_f": float(c_f),
+        "z0_ohm": float(z0),
         "feeds": [[int(j), str(r)] for j, r in feeds],
         "off_block": off,
         "modes": {str(k): m for k, m in modes.items()},
-        "c_mode_f": modes[1]["c_anti_f"], "c_k2_f": modes[2]["c_anti_f"],
+        "c_mode_f": modes[1]["c_anti_f"],
+        "c_k2_f": modes[2]["c_anti_f"],
         "drives": out_drives,
         "y_feed_2x2_s": [[[complex(x).real, complex(x).imag] for x in row] for row in y_ff],
     }
 
 
-def ring_mode_rows_v2(s, *, port_map, freq_hz, c_spec_f, feeds, drives, controls,
-                      z0=50.0, esr_ohm=0.0) -> dict:
+def ring_mode_rows_v2(
+    s, *, port_map, freq_hz, c_spec_f, feeds, drives, controls, z0=50.0, esr_ohm=0.0
+) -> dict:
     """SPEC v2 rows 2b / 2c / 4a — composes :func:`ring_mode_rows`, never edits it.
 
     ``fixed_c`` — rows 1–3 at ``c_spec_f`` (v1's rows, bit-identical);
@@ -282,8 +304,9 @@ def ring_mode_rows_v2(s, *, port_map, freq_hz, c_spec_f, feeds, drives, controls
     ctl = {"fixed_c": {}, "own_c_mode": {}}
     for label, (c_feeds, volts) in controls.items():
         for key, c in (("fixed_c", c_spec_f), ("own_c_mode", c_own)):
-            ctl[key][label] = ring_mode_rows(s, c_f=c, feeds=c_feeds, drives={label: volts},
-                                             **common)
+            ctl[key][label] = ring_mode_rows(
+                s, c_f=c, feeds=c_feeds, drives={label: volts}, **common
+            )
     return {
         "fixed_c": fixed,
         "own_c_mode": own,
@@ -295,6 +318,14 @@ def ring_mode_rows_v2(s, *, port_map, freq_hz, c_spec_f, feeds, drives, controls
     }
 
 
-__all__ = ["N_SLOTS", "RINGS", "antisymmetric_eigenpair", "k_blocks", "k_spectrum",
-           "ring_mode_rows", "ring_mode_rows_v2", "ring_port_map_from_names",
-           "terminated_currents"]
+__all__ = [
+    "N_SLOTS",
+    "RINGS",
+    "antisymmetric_eigenpair",
+    "k_blocks",
+    "k_spectrum",
+    "ring_mode_rows",
+    "ring_mode_rows_v2",
+    "ring_port_map_from_names",
+    "terminated_currents",
+]

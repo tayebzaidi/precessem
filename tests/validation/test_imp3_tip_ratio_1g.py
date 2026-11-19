@@ -43,7 +43,6 @@ from fem_em_solver.post.sar import (
     mass_averaged_sar,
 )
 from fem_em_solver.utils.analytical import pec_prolate_spheroid_field
-
 from tests.complex_mode import complex_only
 from tests.mesh.helpers import global_cell_tag_set
 from tests.mesh.test_birdcage_implant_rod import ROD_CENTRE, _build_rod
@@ -131,8 +130,7 @@ def _built(arm):
 def _edge_face_counts(msh):
     msh.topology.create_entities(1)
     msh.topology.create_entities(2)
-    return (int(msh.topology.index_map(1).size_global),
-            int(msh.topology.index_map(2).size_global))
+    return (int(msh.topology.index_map(1).size_global), int(msh.topology.index_map(2).size_global))
 
 
 def _eval_points(e_of, comm):
@@ -158,9 +156,11 @@ def _arm_d(built, label, rod, degree):
     msh = case["mesh"]
     ncells = int(case["cells"])
     areas = _sheet_areas(msh, case["facet_tags"], comm)
-    _say(f"\n{TAG} {label}: {ncells} cells, mesh wall {built[3]['mesh_wall_time_s']:.2f} s, "
-         f"build {built[4]:.2f} s; N_i areas "
-         + ", ".join(f"P{i} {a:.12e}" for i, a in areas.items()))
+    _say(
+        f"\n{TAG} {label}: {ncells} cells, mesh wall {built[3]['mesh_wall_time_s']:.2f} s, "
+        f"build {built[4]:.2f} s; N_i areas "
+        + ", ".join(f"P{i} {a:.12e}" for i, a in areas.items())
+    )
     if rod:
         assert ncells < ROD_CELL_GUARD_W2, (ncells, ROD_CELL_GUARD_W2)  # (G1) before the solve
     comm.Barrier()
@@ -207,8 +207,12 @@ def _arm_d(built, label, rod, degree):
     for tip, centre in TIPS.items():
         for d in DRIVES:
             o = mass_averaged_sar(
-                e_of[d], sigma=sigma_field, rho=rho_field, center=centre,
-                radius=a_1g, quadrature_degree=QUADRATURE_DEGREE,
+                e_of[d],
+                sigma=sigma_field,
+                rho=rho_field,
+                center=centre,
+                radius=a_1g,
+                quadrature_degree=QUADRATURE_DEGREE,
             )
             sar[(tip, d)] = float(o["averaged_sar_w_per_kg"])
             mass[tip] = float(o["mass_kg"])
@@ -219,9 +223,21 @@ def _arm_d(built, label, rod, degree):
     n_e, n_f = _edge_face_counts(msh)
     e_pts, valid = _eval_points(e_of, comm)
     out = {
-        "label": label, "cells": ncells, "areas": areas, "mq": mq, "shares": shares,
-        "sar": sar, "mass": mass, "a_1g": a_1g, "t_sweep": t_sweep, "t_sar": t_sar,
-        "ndofs": ndofs, "edges": n_e, "faces": n_f, "E": e_pts, "valid": valid,
+        "label": label,
+        "cells": ncells,
+        "areas": areas,
+        "mq": mq,
+        "shares": shares,
+        "sar": sar,
+        "mass": mass,
+        "a_1g": a_1g,
+        "t_sweep": t_sweep,
+        "t_sar": t_sar,
+        "ndofs": ndofs,
+        "edges": n_e,
+        "faces": n_f,
+        "E": e_pts,
+        "valid": valid,
         "degree": degree,
     }
     if rod:
@@ -243,8 +259,10 @@ def _identities(a, rod):
     mq, deg = a["mq"], a["degree"]
     _print_arm(a)
     pred_d = 2 * a["edges"] + 2 * a["faces"] if deg == 2 else a["edges"]
-    _say(f"    (D) degree {deg}: global dofs {a['ndofs']} vs "
-         f"{'2E + 2F' if deg == 2 else 'E'} = {pred_d} (E {a['edges']}, F {a['faces']})")
+    _say(
+        f"    (D) degree {deg}: global dofs {a['ndofs']} vs "
+        f"{'2E + 2F' if deg == 2 else 'E'} = {pred_d} (E {a['edges']}, F {a['faces']})"
+    )
     _say(f"    (V) valid_mask all True at {', '.join(PNAMES)}: {a['valid']}")
     fails = []
     if not mq["recip"] <= RECIPROCITY_BAND:
@@ -261,9 +279,11 @@ def _identities(a, rod):
     if rod:
         if not max(mq["mirror"]) <= ADJACENT_SPREAD_BAND:
             fails.append(("M", mq["mirror"]))
-        _say(f"    (E) tag-402 dofs {a['wall_dofs']}; max |E| "
-             + ", ".join(f"{p} {v:.3e}" for p, v in a["wall_max"].items())
-             + f" (bound {PEC_WALL_MAX_E:g})")
+        _say(
+            f"    (E) tag-402 dofs {a['wall_dofs']}; max |E| "
+            + ", ".join(f"{p} {v:.3e}" for p, v in a["wall_max"].items())
+            + f" (bound {PEC_WALL_MAX_E:g})"
+        )
         if not a["wall_dofs"] > 0 or any(v > PEC_WALL_MAX_E for v in a["wall_max"].values()):
             fails.append(("E", a["wall_dofs"], a["wall_max"]))
     else:
@@ -282,10 +302,16 @@ def _identities(a, rod):
 
 def _ser(a):
     return {
-        "label": a["label"], "degree": a["degree"], "cells": a["cells"], "ndofs": a["ndofs"],
-        "edges": a["edges"], "faces": a["faces"], "t_sweep": a["t_sweep"],
-        "E": [[[[z.real, z.imag] for z in a["E"][k, c, :]] for c in range(3)]
-              for k in range(len(PTS))],
+        "label": a["label"],
+        "degree": a["degree"],
+        "cells": a["cells"],
+        "ndofs": a["ndofs"],
+        "edges": a["edges"],
+        "faces": a["faces"],
+        "t_sweep": a["t_sweep"],
+        "E": [
+            [[[z.real, z.imag] for z in a["E"][k, c, :]] for c in range(3)] for k in range(len(PTS))
+        ],
         "sar": {f"{t}|{d}": v for (t, d), v in a["sar"].items()},
         "mass": a["mass"],
         "s": [[[z.real, z.imag] for z in row] for row in a["mq"]["s"]],
@@ -308,17 +334,18 @@ def _census(arm):
     """W1: build serially, print cells, (G1)-(G3)."""
     comm = MPI.COMM_WORLD
     built = _built(arm)
-    case = build_four_port_sweep(
-        frequency_hz=STEP2D_FREQUENCY_HZ, built=built, build_only=True
-    )
+    case = build_four_port_sweep(frequency_hz=STEP2D_FREQUENCY_HZ, built=built, build_only=True)
     msh = case["mesh"]
     ncells = int(case["cells"])
     areas = _sheet_areas(msh, case["facet_tags"], comm)
     _, census = _outer_box_tags(msh, built[2], comm)
-    _say(f"\n{TAG} W1 {arm}: {ncells} cells, mesh wall {built[3]['mesh_wall_time_s']:.2f} s; "
-         f"N_i areas " + ", ".join(f"P{i} {a:.12e}" for i, a in areas.items())
-         + f"; 402 facets {census['wall']} (exterior {census['wall_exterior']}); "
-         f"exterior {census['exterior']}")
+    _say(
+        f"\n{TAG} W1 {arm}: {ncells} cells, mesh wall {built[3]['mesh_wall_time_s']:.2f} s; "
+        f"N_i areas "
+        + ", ".join(f"P{i} {a:.12e}" for i, a in areas.items())
+        + f"; 402 facets {census['wall']} (exterior {census['wall_exterior']}); "
+        f"exterior {census['exterior']}"
+    )
     return {"cells": ncells, "areas": areas, "census": census}
 
 
@@ -328,13 +355,22 @@ def _w1():
     rod = _census("rod")
     a_1g = averaging_ball_radius(mass_kg=ONE_GRAM_KG, rho=PHANTOM_RHO_KG_PER_M3)
     rel = off["cells"] / ONE_GRAM_RUNG_CELL_RECORD - 1
-    _say(f"{TAG} (G0) off cells {off['cells']} vs ragged record {ONE_GRAM_RUNG_CELL_RECORD} "
-         f"({rel:+.4%}; CELL_COUNT_BAND {CELL_COUNT_BAND:.2%} shown, printed not asserted; "
-         f"predicted ≈ 201 000 / ≈ 252 000); rod cells {rod['cells']}")
-    _say(f"{TAG} (G4) a_1g {a_1g * 1e3:.4f} mm; x {ROD_CENTRE[0] + a_1g:.6f} < R "
-         f"{PHANTOM_RADIUS}; z {0.016 + a_1g:.6f} < H/2 {0.5 * PHANTOM_HEIGHT}")
-    _save("build", {"off": {"cells": off["cells"], "census": off["census"]},
-                    "rod": {"cells": rod["cells"], "census": rod["census"]}})
+    _say(
+        f"{TAG} (G0) off cells {off['cells']} vs ragged record {ONE_GRAM_RUNG_CELL_RECORD} "
+        f"({rel:+.4%}; CELL_COUNT_BAND {CELL_COUNT_BAND:.2%} shown, printed not asserted; "
+        f"predicted ≈ 201 000 / ≈ 252 000); rod cells {rod['cells']}"
+    )
+    _say(
+        f"{TAG} (G4) a_1g {a_1g * 1e3:.4f} mm; x {ROD_CENTRE[0] + a_1g:.6f} < R "
+        f"{PHANTOM_RADIUS}; z {0.016 + a_1g:.6f} < H/2 {0.5 * PHANTOM_HEIGHT}"
+    )
+    _save(
+        "build",
+        {
+            "off": {"cells": off["cells"], "census": off["census"]},
+            "rod": {"cells": rod["cells"], "census": rod["census"]},
+        },
+    )
     assert rod["cells"] < ROD_CELL_GUARD_W2, (rod["cells"], ROD_CELL_GUARD_W2)  # (G1)
     for arm in (off, rod):  # (G2)
         for i, a in arm["areas"].items():
@@ -355,9 +391,11 @@ def _w2_w3(knob):
     a = _arm_d(built, f"degree 2 {arm}", rod, 2)
     fails = _identities(a, rod)
     rss = _peak_rss_gib()
-    _say(f"{TAG} {knob}: cells {a['cells']}, dofs {a['ndofs']}, sweep {a['t_sweep']:.2f} s, "
-         f"SARs {a['t_sar']:.2f} s, arm {a['t_arm']:.1f} s, window body "
-         f"{time.perf_counter() - t0:.1f} s, summed peak RSS {rss:.2f} GiB at -n {comm.size}")
+    _say(
+        f"{TAG} {knob}: cells {a['cells']}, dofs {a['ndofs']}, sweep {a['t_sweep']:.2f} s, "
+        f"SARs {a['t_sar']:.2f} s, arm {a['t_arm']:.1f} s, window body "
+        f"{time.perf_counter() - t0:.1f} s, summed peak RSS {rss:.2f} GiB at -n {comm.size}"
+    )
     payload = _ser(a)
     payload["rss_gib"] = rss
     payload["ranks"] = comm.size
@@ -380,17 +418,26 @@ def _w4():
     rod = _arm_d(_built("rod"), "degree 1 rod", True, 1)
     fails += _identities(rod, True)
     kw = _control_c1({"off": off, "rod": rod})
-    _say(f"{TAG} (Kw) natural wall P1 degree 1: max |E| on 402 dofs {kw['wall_max']:.3e} "
-         f"> {PEC_WALL_MAX_E:g}: {kw['wall_max'] > PEC_WALL_MAX_E}; "
-         f"ratio {kw['wall_max'] / PEC_WALL_MAX_E:.3e}x")
+    _say(
+        f"{TAG} (Kw) natural wall P1 degree 1: max |E| on 402 dofs {kw['wall_max']:.3e} "
+        f"> {PEC_WALL_MAX_E:g}: {kw['wall_max'] > PEC_WALL_MAX_E}; "
+        f"ratio {kw['wall_max'] / PEC_WALL_MAX_E:.3e}x"
+    )
     if not kw["wall_max"] > PEC_WALL_MAX_E:
         fails.append(("Kw", kw["wall_max"]))
     rss = _peak_rss_gib()
-    _say(f"{TAG} d1: cells {off['cells']} / {rod['cells']}, dofs {off['ndofs']} / "
-         f"{rod['ndofs']}, sweeps {off['t_sweep']:.2f} / {rod['t_sweep']:.2f} s, summed "
-         f"peak RSS {rss:.2f} GiB at -n {comm.size}")
-    payload = {"off": _ser(off), "rod": _ser(rod), "kw_wall_max": kw["wall_max"],
-               "rss_gib": rss, "ranks": comm.size}
+    _say(
+        f"{TAG} d1: cells {off['cells']} / {rod['cells']}, dofs {off['ndofs']} / "
+        f"{rod['ndofs']}, sweeps {off['t_sweep']:.2f} / {rod['t_sweep']:.2f} s, summed "
+        f"peak RSS {rss:.2f} GiB at -n {comm.size}"
+    )
+    payload = {
+        "off": _ser(off),
+        "rod": _ser(rod),
+        "kw_wall_max": kw["wall_max"],
+        "rss_gib": rss,
+        "ranks": comm.size,
+    }
     _save("d1", payload)
 
     # ------------------------------------------------------------- readout
@@ -403,48 +450,72 @@ def _w4():
     eta1 = m1["rod"] / m1["off"]
     eta2 = m2["rod"] / m2["off"]
     for jj in range(len(PORT_IDS)):
-        _say(f"{TAG} η_rod P{jj + 1} o1 / o2 / o2/o1-1: " + "  ".join(
-            f"{n} {eta1[k, jj]:.6f}/{eta2[k, jj]:.6f}/{eta2[k, jj] / eta1[k, jj] - 1:+.6e}"
-            for k, n in enumerate(PNAMES)))
+        _say(
+            f"{TAG} η_rod P{jj + 1} o1 / o2 / o2/o1-1: "
+            + "  ".join(
+                f"{n} {eta1[k, jj]:.6f}/{eta2[k, jj]:.6f}/{eta2[k, jj] / eta1[k, jj] - 1:+.6e}"
+                for k, n in enumerate(PNAMES)
+            )
+        )
     pmove = eta2[iT1, j] / eta1[iT1, j] - 1
-    _say(f"{TAG} p-move η_rod^o2(T1)/η_rod^o1(T1) - 1 (P1) on the 1 g rung {pmove:+.6e} "
-         f"({pmove:+.4%}) beside record mesh {RECORD_PMOVE_T1:+.6e} ({RECORD_PMOVE_T1:+.4%})")
-    _say(f"{TAG} (C-p) |p-move| {abs(pmove):.6e} (predicted >= {PRED_CP_FLOOR:g}, ceiling ≈ 1): "
-         f"{'IN' if abs(pmove) >= PRED_CP_FLOOR else 'OUT'}")
+    _say(
+        f"{TAG} p-move η_rod^o2(T1)/η_rod^o1(T1) - 1 (P1) on the 1 g rung {pmove:+.6e} "
+        f"({pmove:+.4%}) beside record mesh {RECORD_PMOVE_T1:+.6e} ({RECORD_PMOVE_T1:+.4%})"
+    )
+    _say(
+        f"{TAG} (C-p) |p-move| {abs(pmove):.6e} (predicted >= {PRED_CP_FLOOR:g}, ceiling ≈ 1): "
+        f"{'IN' if abs(pmove) >= PRED_CP_FLOOR else 'OUT'}"
+    )
     for lab, eta in (("o1", eta1), ("o2", eta2)):
         c2 = abs(eta[iT1, j] - 1) / max(abs(eta[iF1, j] - 1), abs(eta[iF2, j] - 1))
-        _say(f"{TAG} (C2) {lab}: |η(T1)-1| / max_F |η(F)-1| = {abs(eta[iT1, j] - 1):.6f} / "
-             f"{max(abs(eta[iF1, j] - 1), abs(eta[iF2, j] - 1)):.6f} = {c2:.3f} "
-             f"(predicted >= {PRED_C2_FLOOR:g}: {'IN' if c2 >= PRED_C2_FLOOR else 'OUT'})")
+        _say(
+            f"{TAG} (C2) {lab}: |η(T1)-1| / max_F |η(F)-1| = {abs(eta[iT1, j] - 1):.6f} / "
+            f"{max(abs(eta[iF1, j] - 1), abs(eta[iF2, j] - 1)):.6f} = {c2:.3f} "
+            f"(predicted >= {PRED_C2_FLOOR:g}: {'IN' if c2 >= PRED_C2_FLOOR else 'OUT'})"
+        )
     rec1 = json.loads((OUT / "ours_imp3p_fields.json").read_text())
     rec2 = json.loads((OUT / "ours_imp3q_fields.json").read_text())
     for lab, rec, eta in (("o1", rec1, eta1), ("o2", rec2, eta2)):
         mr = {a: np.linalg.norm(_cplx(rec["E"][a]), axis=1) for a in ("off", "rod")}
         er = mr["rod"] / mr["off"]
-        _say(f"{TAG} record mesh -> 1 g rung at {lab}, η_rod(T1) P1: {er[iT1, j]:.6f} -> "
-             f"{eta[iT1, j]:.6f}, move {eta[iT1, j] / er[iT1, j] - 1:+.6e} (remesh reading)")
+        _say(
+            f"{TAG} record mesh -> 1 g rung at {lab}, η_rod(T1) P1: {er[iT1, j]:.6f} -> "
+            f"{eta[iT1, j]:.6f}, move {eta[iT1, j] / er[iT1, j] - 1:+.6e} (remesh reading)"
+        )
     _say(f"{TAG} record-mesh η_rod^o2(T1) P1 of record {RECORD_ETA_O2_T1}")
     sar2 = {a: d2[a]["sar"] for a in ("off", "rod")}
     for d in DRIVES:
         for tip in TIPS:
             q1 = rod["sar"][(tip, d)] / off["sar"][(tip, d)]
             q2 = sar2["rod"][f"{tip}|{d}"] / sar2["off"][f"{tip}|{d}"]
-            _say(f"{TAG} Q {d:>3s} {tip:>6s}: o1 {q1:.6f}  o2 {q2:.6f}  Q^o2/Q^o1 - 1 "
-                 f"{q2 / q1 - 1:+.6e}")
+            _say(
+                f"{TAG} Q {d:>3s} {tip:>6s}: o1 {q1:.6f}  o2 {q2:.6f}  Q^o2/Q^o1 - 1 "
+                f"{q2 / q1 - 1:+.6e}"
+            )
     q1top = rod["sar"][("top", "P1")] / off["sar"][("top", "P1")]
     _say(f"{TAG} Q^o1 P1 top {q1top:.6f} beside step 1's ragged {STEP1_RAGGED_Q_P1_TOP}")
     _say(f"{TAG} degree-2 masses off {d2['off']['mass']} rod {d2['rod']['mass']}")
-    cf = np.linalg.norm(pec_prolate_spheroid_field(
-        PTS - np.array(ROD_CENTRE), semi_major=0.016, semi_minor=0.001, e0=1.0), axis=1)
+    cf = np.linalg.norm(
+        pec_prolate_spheroid_field(
+            PTS - np.array(ROD_CENTRE), semi_major=0.016, semi_minor=0.001, e0=1.0
+        ),
+        axis=1,
+    )
     for lab, eta in (("o1", eta1), ("o2", eta2)):
-        _say(f"{TAG} closed form |E_cf|/E0 vs η_rod(p)/η_rod(F1) ({lab}, P1), ratio: "
-             + "  ".join(f"{PNAMES[k]} {cf[k]:.4f}/{eta[k, j] / eta[iF1, j]:.4f}="
-                         f"{cf[k] / (eta[k, j] / eta[iF1, j]):.3f}"
-                         for k in (PNAMES.index(n) for n in ("T1", "T2", "T3", "S1"))))
-    _say(f"{TAG} degree-2 prices: off sweep {d2['off']['t_sweep']:.2f} s "
-         f"({d2['off']['ndofs']} dofs, {d2['off']['rss_gib']:.2f} GiB at -n "
-         f"{d2['off']['ranks']}); rod sweep {d2['rod']['t_sweep']:.2f} s "
-         f"({d2['rod']['ndofs']} dofs, {d2['rod']['rss_gib']:.2f} GiB)")
+        _say(
+            f"{TAG} closed form |E_cf|/E0 vs η_rod(p)/η_rod(F1) ({lab}, P1), ratio: "
+            + "  ".join(
+                f"{PNAMES[k]} {cf[k]:.4f}/{eta[k, j] / eta[iF1, j]:.4f}="
+                f"{cf[k] / (eta[k, j] / eta[iF1, j]):.3f}"
+                for k in (PNAMES.index(n) for n in ("T1", "T2", "T3", "S1"))
+            )
+        )
+    _say(
+        f"{TAG} degree-2 prices: off sweep {d2['off']['t_sweep']:.2f} s "
+        f"({d2['off']['ndofs']} dofs, {d2['off']['rss_gib']:.2f} GiB at -n "
+        f"{d2['off']['ranks']}); rod sweep {d2['rod']['t_sweep']:.2f} s "
+        f"({d2['rod']['ndofs']} dofs, {d2['rod']['rss_gib']:.2f} GiB)"
+    )
     _say(f"{TAG} W4 body {time.perf_counter() - t0:.1f} s")
     assert not fails, fails
 

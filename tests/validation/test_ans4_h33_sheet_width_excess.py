@@ -194,7 +194,7 @@ def test_line_cut_equals_wave_form_on_a_lumped_load():
 
 def test_width_exponent_and_monotone():
     f = np.array(WIDTH_FRACTIONS)
-    assert abs(width_exponent(f, 3.0 * f ** -1.5) + 1.5) <= 1e-12
+    assert abs(width_exponent(f, 3.0 * f**-1.5) + 1.5) <= 1e-12
     assert np.isnan(width_exponent(f, [1.0, -1.0, 2.0]))
     assert is_monotone([1, 2, 3]) and not is_monotone([1, 3, 2])
 
@@ -257,8 +257,11 @@ def _width_case(f, degree, comm):
         sh = exact["sheets"][pid]
         assert sh.interior, pid
         ds_s = ufl.Measure(
-            "dS", domain=msh, subdomain_data=tags_f,
-            subdomain_id=(int(sh.facet_tag),), metadata=qd,
+            "dS",
+            domain=msh,
+            subdomain_data=tags_f,
+            subdomain_id=(int(sh.facet_tag),),
+            metadata=qd,
         )
         h_hat = ufl.as_vector([default_scalar_type(c) for c in sh.unit_drive()])
         e_h = ufl.dot(e_r, h_hat)
@@ -275,9 +278,18 @@ def _width_case(f, degree, comm):
         x = excess_w(p_field, v, z_p)
         x_bad = excess_w(p_field, PLANTED_V_FACTOR * v, z_p)
         per[pid] = {
-            "area": float(np.real(a_s)), "j": complex(j_s), "l": float(np.real(l_s)),
-            "t": float(np.real(t_s)), "cs": cs, "trans": trans, "var": var, "x": x,
-            "x_bad": x_bad, "p_field": p_field, "v": v, "z_p": z_p,
+            "area": float(np.real(a_s)),
+            "j": complex(j_s),
+            "l": float(np.real(l_s)),
+            "t": float(np.real(t_s)),
+            "cs": cs,
+            "trans": trans,
+            "var": var,
+            "x": x,
+            "x_bad": x_bad,
+            "p_field": p_field,
+            "v": v,
+            "z_p": z_p,
             "v_from_j": abs(complex(j_s)) / (float(np.real(a_s)) / float(sh.gap_height_m)),
         }
     v1, i1 = per[DRIVEN]["v"], complex(solved["currents"][DRIVEN])
@@ -288,8 +300,14 @@ def _width_case(f, degree, comm):
     z_p1 = per[DRIVEN]["z_p"]
     p_norton = 0.5 * float(np.real(v1 * np.conj(v_src / z_p1)))
     return {
-        "f": f, "rung": rung, "exact": exact, "per": per, "p_acc_line": p_acc_line,
-        "p_acc_wave": p_wave, "p_norton": p_norton, "v_src": v_src,
+        "f": f,
+        "rung": rung,
+        "exact": exact,
+        "per": per,
+        "p_acc_line": p_acc_line,
+        "p_acc_wave": p_wave,
+        "p_norton": p_norton,
+        "v_src": v_src,
         "time_s": time.perf_counter() - t0,
     }
 
@@ -303,8 +321,11 @@ def h33_cases():
         out[f] = _width_case(f, d, comm)
         if comm.rank == 0:
             c = out[f]
-            print(f"\n[ANS-4 H33] degree {d} f = {f}: {c['rung']['cells']} cells, "
-                  f"{c['time_s']:.1f} s (rung + P1 re-solve + diagnostic)", flush=True)
+            print(
+                f"\n[ANS-4 H33] degree {d} f = {f}: {c['rung']['cells']} cells, "
+                f"{c['time_s']:.1f} s (rung + P1 re-solve + diagnostic)",
+                flush=True,
+            )
     return {"degree": d, "cases": out}
 
 
@@ -319,9 +340,12 @@ def test_wd_sheet_area_is_the_cad_rectangle(h33_cases):
         for s in c["rung"]["sheets"]:
             rel = abs(s["area"] / target - 1.0)
             if MPI.COMM_WORLD.rank == 0:
-                print(f"[ANS-4 H33] (Wd) f={f} sheet {s['tag']}: area {s['area']:.12e} vs "
-                      f"f*dx*g {target:.12e} rel {rel:.3e} (band {STRIP_BAND:g}); "
-                      f"h {s['h']:.9e} w {s['w']:.9e}", flush=True)
+                print(
+                    f"[ANS-4 H33] (Wd) f={f} sheet {s['tag']}: area {s['area']:.12e} vs "
+                    f"f*dx*g {target:.12e} rel {rel:.3e} (band {STRIP_BAND:g}); "
+                    f"h {s['h']:.9e} w {s['w']:.9e}",
+                    flush=True,
+                )
             assert rel <= STRIP_BAND, (f, s["tag"], rel)
 
 
@@ -335,12 +359,15 @@ def test_cs_identity_and_planted_control(h33_cases):
             rel = abs(r["cs"] / r["x"] - 1.0)
             bad = abs(r["cs"] / r["x_bad"] - 1.0)
             if MPI.COMM_WORLD.rank == 0:
-                print(f"[ANS-4 H33] f={f} {pid}: A_s {r['area']:.9e} J_s {r['j']:.9e} "
-                      f"L_s {r['l']:.9e} T_s {r['t']:.9e}; CS_s {r['cs']:.9e} W, X_s "
-                      f"{r['x']:.9e} W, CS/X {r['cs'] / r['x']:.12f} (rel {rel:.3e}, band "
-                      f"{DISCRETE_IDENTITY_RTOL:g}); transverse {r['trans']:.9e} + variance "
-                      f"{r['var']:.9e}; |V| {abs(r['v']):.9e} (|J|/w {r['v_from_j']:.9e}); "
-                      f"NEG x1.01 V miss {bad:.4e}", flush=True)
+                print(
+                    f"[ANS-4 H33] f={f} {pid}: A_s {r['area']:.9e} J_s {r['j']:.9e} "
+                    f"L_s {r['l']:.9e} T_s {r['t']:.9e}; CS_s {r['cs']:.9e} W, X_s "
+                    f"{r['x']:.9e} W, CS/X {r['cs'] / r['x']:.12f} (rel {rel:.3e}, band "
+                    f"{DISCRETE_IDENTITY_RTOL:g}); transverse {r['trans']:.9e} + variance "
+                    f"{r['var']:.9e}; |V| {abs(r['v']):.9e} (|J|/w {r['v_from_j']:.9e}); "
+                    f"NEG x1.01 V miss {bad:.4e}",
+                    flush=True,
+                )
             assert rel <= DISCRETE_IDENTITY_RTOL, (f, pid, rel)
             assert bad >= BLIND_FACTOR * DISCRETE_IDENTITY_RTOL, (f, pid, bad)
 
@@ -357,12 +384,18 @@ def test_power_identities(h33_cases):
         rel_acc = abs(c["p_acc_line"] - c["p_acc_wave"]) / abs(c["p_acc_wave"])
         rel_n = abs(ex["p_src"] / c["p_norton"] - 1.0)
         if MPI.COMM_WORLD.rank == 0:
-            print(f"[ANS-4 H33] f={f} (P_w) P_src {ex['p_src']:.12e} = P_vol {ex['p_vol']:.12e} "
-                  f"+ ΣP_sheet {ex['sheet_field_total']:.12e}: rel {rel_w:.3e}; NEG conductor-"
-                  f"blind miss {blind:.4e}; P_src vs Norton lumped {c['p_norton']:.12e} rel "
-                  f"{rel_n:.3e} (printed)", flush=True)
-            print(f"[ANS-4 H33] f={f} (P_acc-1) line {c['p_acc_line']:.12e} W vs wave "
-                  f"{c['p_acc_wave']:.12e} W: rel {rel_acc:.3e}", flush=True)
+            print(
+                f"[ANS-4 H33] f={f} (P_w) P_src {ex['p_src']:.12e} = P_vol {ex['p_vol']:.12e} "
+                f"+ ΣP_sheet {ex['sheet_field_total']:.12e}: rel {rel_w:.3e}; NEG conductor-"
+                f"blind miss {blind:.4e}; P_src vs Norton lumped {c['p_norton']:.12e} rel "
+                f"{rel_n:.3e} (printed)",
+                flush=True,
+            )
+            print(
+                f"[ANS-4 H33] f={f} (P_acc-1) line {c['p_acc_line']:.12e} W vs wave "
+                f"{c['p_acc_wave']:.12e} W: rel {rel_acc:.3e}",
+                flush=True,
+            )
         assert rel_w <= DISCRETE_IDENTITY_RTOL, (f, rel_w)
         assert blind >= BLIND_FACTOR * DISCRETE_IDENTITY_RTOL, (f, blind)
         assert rel_acc <= DISCRETE_IDENTITY_RTOL, (f, rel_acc)
@@ -386,8 +419,11 @@ def test_r0_record_width_reproduces_the_record(h33_cases):
     rec = np.asarray(ANS4_EXACT_STRIP_S_P1_RECORDS[FREQ_KEY], dtype=np.complex128)
     rel = float(np.linalg.norm(s - rec) / np.linalg.norm(rec))
     if MPI.COMM_WORLD.rank == 0:
-        print(f"[ANS-4 H33] (R0) f={RECORD_FRACTION} ||S - S_rec||/||S_rec|| {rel:.3e} "
-              f"(band {LEG_D0_REPRODUCTION_BAND:g})", flush=True)
+        print(
+            f"[ANS-4 H33] (R0) f={RECORD_FRACTION} ||S - S_rec||/||S_rec|| {rel:.3e} "
+            f"(band {LEG_D0_REPRODUCTION_BAND:g})",
+            flush=True,
+        )
     assert rel <= LEG_D0_REPRODUCTION_BAND
 
 
@@ -403,16 +439,25 @@ def test_print_the_width_table(h33_cases):
         xs = {pid: r["x"] / p_acc for pid, r in c["per"].items()}
         sums.append(sum(xs.values()))
         if MPI.COMM_WORLD.rank == 0:
-            print(f"[ANS-4 H33] TABLE degree {d} f={f}: P_acc {p_acc:.9e} W; "
-                  + " ".join(f"X_{pid}/P_acc {v:+.6e}" for pid, v in xs.items())
-                  + f"; ΣX_s/P_acc {sums[-1]:+.6e}; sigma_max(S) "
-                  f"{float(c['rung']['sigma'][0]):.9f}", flush=True)
+            print(
+                f"[ANS-4 H33] TABLE degree {d} f={f}: P_acc {p_acc:.9e} W; "
+                + " ".join(f"X_{pid}/P_acc {v:+.6e}" for pid, v in xs.items())
+                + f"; ΣX_s/P_acc {sums[-1]:+.6e}; sigma_max(S) "
+                f"{float(c['rung']['sigma'][0]):.9f}",
+                flush=True,
+            )
     if len(fr) < 2:
         if MPI.COMM_WORLD.rank == 0:
-            print(f"[ANS-4 H33] degree {d}: single-width window ({WIDTH_ENV}); exponent "
-                  f"and monotonicity read across windows", flush=True)
+            print(
+                f"[ANS-4 H33] degree {d}: single-width window ({WIDTH_ENV}); exponent "
+                f"and monotonicity read across windows",
+                flush=True,
+            )
         return
     expo = width_exponent(fr, sums)
     if MPI.COMM_WORLD.rank == 0:
-        print(f"[ANS-4 H33] degree {d}: ΣX_s/P_acc monotone in width: {is_monotone(sums)}; "
-              f"LSQ width exponent {expo:+.4f}", flush=True)
+        print(
+            f"[ANS-4 H33] degree {d}: ΣX_s/P_acc monotone in width: {is_monotone(sums)}; "
+            f"LSQ width exponent {expo:+.4f}",
+            flush=True,
+        )

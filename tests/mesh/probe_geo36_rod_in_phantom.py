@@ -84,15 +84,24 @@ def run_rung(arg):
             occ.synchronize()
             vols = [t for d, t in out if d == 3]
             pad = 1e-6
-            rod_bbox = (cx - r - pad, cy - r - pad, z0 - r - pad,
-                        cx + r + pad, cy + r + pad, z1 + r + pad)
+            rod_bbox = (
+                cx - r - pad,
+                cy - r - pad,
+                z0 - r - pad,
+                cx + r + pad,
+                cy + r + pad,
+                z1 + r + pad,
+            )
         else:
             occ.synchronize()
             vols = [phantom]
         masses = [occ.getMass(3, v) for v in vols]
         occ_mass = sum(masses)
-        print(f"  [{label}] census: cut volumes={len(vols)} occ mass={occ_mass:.9e} "
-              f"(closed form {vol_cf:.9e})", flush=True)
+        print(
+            f"  [{label}] census: cut volumes={len(vols)} occ mass={occ_mass:.9e} "
+            f"(closed form {vol_cf:.9e})",
+            flush=True,
+        )
 
         boundary = gmsh.model.getBoundary([(3, v) for v in vols], oriented=False)
         bsurfs = sorted({t for d, t in boundary if d == 2})
@@ -156,28 +165,29 @@ def run_rung(arg):
                 continue
             idx = np.array([lookup[int(n)] for n in ntags]).reshape(-1, 3)
             tri = all_xyz[idx]
-            a = 0.5 * np.linalg.norm(
-                np.cross(tri[:, 1] - tri[:, 0], tri[:, 2] - tri[:, 0]), axis=1
-            )
+            a = 0.5 * np.linalg.norm(np.cross(tri[:, 1] - tri[:, 0], tri[:, 2] - tri[:, 0]), axis=1)
             c = tri.mean(axis=1)
             mesh_area += a.sum()
             cy_acc += (a * c[:, 1]).sum()
             cz_acc += (a * c[:, 2]).sum()
 
-        row = (f"ROW {label:<30s} OK    tets={ntet:>8d}  gmsh={gsec:7.2f} s  "
-               f"SICN min={qmin:.4f} p1={qp1:.4f}  "
-               f"occ mass rel err={(occ_mass - vol_cf) / vol_cf:+.3e}")
+        row = (
+            f"ROW {label:<30s} OK    tets={ntet:>8d}  gmsh={gsec:7.2f} s  "
+            f"SICN min={qmin:.4f} p1={qp1:.4f}  "
+            f"occ mass rel err={(occ_mass - vol_cf) / vol_cf:+.3e}"
+        )
         if r is not None:
-            row += (f"  rod surfs={rod_surfs}"
-                    f"  wall area occ rel err={(occ_area - area_cf) / area_cf:+.3e}"
-                    f"  mesh rel err={(mesh_area - area_cf) / area_cf:+.3e}"
-                    f"  facet centroid y={cy_acc / mesh_area:+.3e} z={cz_acc / mesh_area:+.3e}")
+            row += (
+                f"  rod surfs={rod_surfs}"
+                f"  wall area occ rel err={(occ_area - area_cf) / area_cf:+.3e}"
+                f"  mesh rel err={(mesh_area - area_cf) / area_cf:+.3e}"
+                f"  facet centroid y={cy_acc / mesh_area:+.3e} z={cz_acc / mesh_area:+.3e}"
+            )
         print(row, flush=True)
     except Exception as exc:  # gmsh raises a bare Exception carrying its text
         print(f"ROW {label:<30s} FAIL  {str(exc).strip()}", flush=True)
         for line in gmsh.logger.get():
-            if any(k in line for k in ("overlapping", "MeshAdapt", "equivalent",
-                                       "Error", "rror")):
+            if any(k in line for k in ("overlapping", "MeshAdapt", "equivalent", "Error", "rror")):
                 print(f"  [{label}] gmsh: {line}", flush=True)
     finally:
         try:
@@ -189,14 +199,17 @@ def run_rung(arg):
 
 def main():
     print("GEO-36 step 1: capped rod cut from the F-small phantom, swept over r")
-    print(f"  phantom R={PHANTOM_RADIUS} m H={PHANTOM_HEIGHT} m; RESOLUTION={RESOLUTION} m; "
-          f"rod centre={ROD_CENTRE}, cylindrical length {ROD_LENGTH} m + 2 hemispherical caps")
+    print(
+        f"  phantom R={PHANTOM_RADIUS} m H={PHANTOM_HEIGHT} m; RESOLUTION={RESOLUTION} m; "
+        f"rod centre={ROD_CENTRE}, cylindrical length {ROD_LENGTH} m + 2 hemispherical caps"
+    )
     print("  one fresh python subprocess per rung; measurement only\n", flush=True)
     for arg in [BASELINE] + [f"{r:.2f}" for r in RADII_MM]:
         t0 = time.time()
         proc = subprocess.run(
             [sys.executable, "-u", __file__, "--rung", arg],
-            capture_output=True, text=True,
+            capture_output=True,
+            text=True,
         )
         wall = time.time() - t0
         sys.stdout.write(proc.stdout)

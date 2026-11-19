@@ -35,7 +35,6 @@ from fem_em_solver.post.sar import uniform_sphere_sar_closed_form
 from fem_em_solver.thermal.steady import solve_steady_conduction
 from fem_em_solver.utils.analytical import robin_sphere_steady_temperature
 from fem_em_solver.utils.constants import EPSILON_0
-
 from tests.complex_mode import complex_only
 from tests.validation.test_lossy_sphere_sar import (
     E0,
@@ -168,14 +167,20 @@ def test_mat10_fem_sar_heats_robin_ball():
     t_em = time.perf_counter() - t0
 
     cf = uniform_sphere_sar_closed_form(
-        e0=E0, epsilon_r=EPSILON_R_SPHERE, sigma=SIGMA_HIGH, omega=OMEGA,
-        rho=RHO_KG_M3, epsilon_0=EPSILON_0,
+        e0=E0,
+        epsilon_r=EPSILON_R_SPHERE,
+        sigma=SIGMA_HIGH,
+        omega=OMEGA,
+        rho=RHO_KG_M3,
+        epsilon_0=EPSILON_0,
     )
     q_cf = G * RHO_KG_M3 * cf["sar_w_per_kg"]
     th0 = robin_sphere_steady_temperature(0.0, radius=R, k=K, q=q_cf, h=H, t_inf=T_INF) - T_INF
     thR = robin_sphere_steady_temperature(R, radius=R, k=K, q=q_cf, h=H, t_inf=T_INF) - T_INF
-    _say(f"MAT10 q_cf = {q_cf:.6f} W/m^3  theta(0) = {th0:.6f} K  theta(R) = {thR:.6f} K "
-         f"(predicted 2002.1 / 0.12235 / 0.06674)")
+    _say(
+        f"MAT10 q_cf = {q_cf:.6f} W/m^3  theta(0) = {th0:.6f} K  theta(R) = {thR:.6f} K "
+        f"(predicted 2002.1 / 0.12235 / 0.06674)"
+    )
 
     sub, parent_ids = _sphere_submesh(msh, cell_tags)
     ft = _robin_tags(sub)
@@ -196,35 +201,47 @@ def test_mat10_fem_sar_heats_robin_ball():
     int_q_sub = float(np.real(_allsum(comm, q_h * ufl.dx(domain=sub))))
     p_parent = G * run["dissipated_power_w"]
     err_B = abs(int_q_sub - p_parent) / abs(p_parent)
-    _say(f"MAT10 (B) int_sub q_h = {int_q_sub:.15e}  G*P_diss = {p_parent:.15e}  "
-         f"rel = {err_B:.3e}  (bound {B_BAND:.0e}, predicted ≈ 1e-15)")
+    _say(
+        f"MAT10 (B) int_sub q_h = {int_q_sub:.15e}  G*P_diss = {p_parent:.15e}  "
+        f"rel = {err_B:.3e}  (bound {B_BAND:.0e}, predicted ≈ 1e-15)"
+    )
 
     chi = _interior_indicator(sub)
     theta = _theta_cf(sub, q_cf)
 
     # (P) uniform q_cf on the same submesh — first complex-build thermal solve.
-    res_P = solve_steady_conduction(sub, ft, k=K, q=q_cf, h=H, t_inf=T_INF,
-                                    robin_tag=ROBIN_TAG, degree=1)
+    res_P = solve_steady_conduction(
+        sub, ft, k=K, q=q_cf, h=H, t_inf=T_INF, robin_tag=ROBIN_TAG, degree=1
+    )
     err_P = _interior_rel(sub, chi, (res_P.temperature - T_INF) - theta, theta)
     bal_P = abs(res_P.convected_power - res_P.source_power) / abs(res_P.source_power)
-    _say(f"MAT10 (P) uniform q_cf: interior rel L2 = {err_P:.4e}  balance = {bal_P:.3e}  "
-         f"(bound {P_BAND:.0e}, predicted ≈ 3.2e-3)")
+    _say(
+        f"MAT10 (P) uniform q_cf: interior rel L2 = {err_P:.4e}  balance = {bal_P:.3e}  "
+        f"(bound {P_BAND:.0e}, predicted ≈ 3.2e-3)"
+    )
 
     # (A) FEM SAR as the source.
-    res_A = solve_steady_conduction(sub, ft, k=K, q=q_h, h=H, t_inf=T_INF,
-                                    robin_tag=ROBIN_TAG, degree=1)
+    res_A = solve_steady_conduction(
+        sub, ft, k=K, q=q_h, h=H, t_inf=T_INF, robin_tag=ROBIN_TAG, degree=1
+    )
     err_A = _interior_rel(sub, chi, (res_A.temperature - T_INF) - theta, theta)
     leg_offset = _interior_rel(sub, chi, res_A.temperature - res_P.temperature, theta)
-    _say(f"MAT10 (A) theta_h[q_h] interior rel L2 = {err_A:.4e}  (bound {A_BAND}, "
-         f"predicted ≈ 3.5–3.9e-2)")
-    _say(f"MAT10 (A) legs: offset theta_h[q_h - q_cf]/theta = {leg_offset:.4e}  "
-         f"(mean-SAR offset {run['mean_sar'] / cf['sar_w_per_kg'] - 1.0:+.4e}); "
-         f"(P) leg = {err_P:.4e}")
+    _say(
+        f"MAT10 (A) theta_h[q_h] interior rel L2 = {err_A:.4e}  (bound {A_BAND}, "
+        f"predicted ≈ 3.5–3.9e-2)"
+    )
+    _say(
+        f"MAT10 (A) legs: offset theta_h[q_h - q_cf]/theta = {leg_offset:.4e}  "
+        f"(mean-SAR offset {run['mean_sar'] / cf['sar_w_per_kg'] - 1.0:+.4e}); "
+        f"(P) leg = {err_P:.4e}"
+    )
 
     # (C) discrete balance.
     err_C = abs(res_A.convected_power - res_A.source_power) / abs(res_A.source_power)
-    _say(f"MAT10 (C) conv = {res_A.convected_power:.15e}  src = {res_A.source_power:.15e}  "
-         f"rel = {err_C:.3e}  (bound {C_BAND:.0e})")
+    _say(
+        f"MAT10 (C) conv = {res_A.convected_power:.15e}  src = {res_A.source_power:.15e}  "
+        f"rel = {err_C:.3e}  (bound {C_BAND:.0e})"
+    )
 
     # Surface-mean ratio (record).
     ds = ufl.Measure("ds", domain=sub, subdomain_data=ft)(ROBIN_TAG)
@@ -236,14 +253,16 @@ def test_mat10_fem_sar_heats_robin_ball():
     q_re_expr = G * 0.5 * sigma * ufl.inner(ufl.real(E), ufl.real(E))
     _, q_re_par = _cell_average_dg0(msh, cell_tags, q_re_expr)
     q_re = _to_sub(Wp, q_re_par, sub, parent_ids)
-    res_a = solve_steady_conduction(sub, ft, k=K, q=q_re, h=H, t_inf=T_INF,
-                                    robin_tag=ROBIN_TAG, degree=1)
+    res_a = solve_steady_conduction(
+        sub, ft, k=K, q=q_re, h=H, t_inf=T_INF, robin_tag=ROBIN_TAG, degree=1
+    )
     err_a = _interior_rel(sub, chi, (res_a.temperature - T_INF) - theta, theta)
     q_two = fem.Function(q_h.function_space)
     q_two.x.array[:] = 2.0 * q_h.x.array
     q_two.x.scatter_forward()
-    res_b = solve_steady_conduction(sub, ft, k=K, q=q_two, h=H, t_inf=T_INF,
-                                    robin_tag=ROBIN_TAG, degree=1)
+    res_b = solve_steady_conduction(
+        sub, ft, k=K, q=q_two, h=H, t_inf=T_INF, robin_tag=ROBIN_TAG, degree=1
+    )
     err_b = _interior_rel(sub, chi, (res_b.temperature - T_INF) - theta, theta)
     _say(f"MAT10 control (a) Re-E-only: interior rel L2 = {err_a:.4e}  (predicted ≈ 0.791)")
     _say(f"MAT10 control (b) missing 1/2: interior rel L2 = {err_b:.4e}  (predicted ≈ 1.071)")

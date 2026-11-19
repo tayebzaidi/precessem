@@ -23,9 +23,9 @@ vertex value is a member of the incident set).  Runs in both builds.
 
 import numpy as np
 import pytest
+from dolfinx import fem
+from dolfinx import mesh as dmesh
 from mpi4py import MPI
-
-from dolfinx import fem, mesh as dmesh
 
 from fem_em_solver.post.evaluation import (
     evaluate_vector_field_parallel,
@@ -123,9 +123,7 @@ def test_k1_k2_k3_k4_closed_forms_and_tie_break():
     # K2: N1curl a + b x x
     v_n1 = fem.functionspace(msh, ("N1curl", 1))
     f_n1 = fem.Function(v_n1)
-    f_n1.interpolate(
-        lambda x: A_VEC[:, None] + np.cross(B_VEC, x.T).T
-    )
+    f_n1.interpolate(lambda x: A_VEC[:, None] + np.cross(B_VEC, x.T).T)
     n1_vals, n1_valid = evaluate_vector_field_parallel(
         f_n1, POINTS, comm, owner="lowest_original_cell"
     )

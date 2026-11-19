@@ -55,7 +55,6 @@ import pytest
 from mpi4py import MPI
 
 from fem_em_solver.study import FHumanBirdcageGeometry, ResourceEstimate, Study
-
 from tests.complex_mode import IS_COMPLEX
 from tests.package.test_wf13_cli_estimate import _diff, _parse, _patch_solves
 from tests.package.test_wf13_estimate_f_clinical import FC, no_build  # noqa: F401
@@ -140,8 +139,11 @@ def _x_defect(block: str, tag: str):
     bad = sorted(_names_used(block) & SOLVE_NAMES)
     if n_load != 1 or n_est != 1 or bad:
         return f"{tag}: load_study {n_load}, estimate {n_est}, solve names {bad}"
-    consts = {n.value for n in ast.walk(ast.parse(block))
-              if isinstance(n, ast.Constant) and isinstance(n.value, str)}
+    consts = {
+        n.value
+        for n in ast.walk(ast.parse(block))
+        if isinstance(n, ast.Constant) and isinstance(n.value, str)
+    }
     if tag == D1_TAG:
         arg = _calls_named(block, "load_study")[0].args[0]
         name = ast.literal_eval(arg) if isinstance(arg, ast.Constant) else None
@@ -173,8 +175,11 @@ def _scratch(monkeypatch):
         SCRATCH.mkdir(parents=True)
         data = YAML.read_bytes()
         (SCRATCH / YAML.name).write_bytes(data)
-        print(f"[WF-17 s20a] scratch {SCRATCH.relative_to(REPO)}; copied {YAML.name} "
-              f"sha256 {_sha(data)}", flush=True)
+        print(
+            f"[WF-17 s20a] scratch {SCRATCH.relative_to(REPO)}; copied {YAML.name} "
+            f"sha256 {_sha(data)}",
+            flush=True,
+        )
     comm.Barrier()
     monkeypatch.chdir(SCRATCH)
 
@@ -204,8 +209,12 @@ def _patch_all_solves(monkeypatch):
 
 
 def _resolves_patched(study, solve_obj, boom) -> bool:
-    return (type(study).solve is solve_obj and type(study).solve_sweep is boom
-            and type(study).tune is boom and isinstance(study, Study))
+    return (
+        type(study).solve is solve_obj
+        and type(study).solve_sweep is boom
+        and type(study).tune is boom
+        and isinstance(study, Study)
+    )
 
 
 # ------------------------------------------------------------- W0 (no mesh)
@@ -235,10 +244,16 @@ def test_wf17_s20a_blocks_and_inputs(monkeypatch, tmp_path):
     # (c-page) removed / doubled tags raise
     for tag, lang in ((D1_TAG, "python"), (D2_TAG, "python"), (CLI_TAG, "bash")):
         with pytest.raises(LookupError):
-            extract_tagged_block(text.replace(f"```{lang} {tag}\n", f"```{lang} other\n"), tag,
-                                 lang=lang)
-        doubled = (text + "\n" + f"```{lang} {tag}\n"
-                   + extract_tagged_block(text, tag, lang=lang) + "```\n")
+            extract_tagged_block(
+                text.replace(f"```{lang} {tag}\n", f"```{lang} other\n"), tag, lang=lang
+            )
+        doubled = (
+            text
+            + "\n"
+            + f"```{lang} {tag}\n"
+            + extract_tagged_block(text, tag, lang=lang)
+            + "```\n"
+        )
         with pytest.raises(LookupError):
             extract_tagged_block(doubled, tag, lang=lang)
     # (c-page) d1 naming the tuned file fails (X)
@@ -248,8 +263,18 @@ def test_wf17_s20a_blocks_and_inputs(monkeypatch, tmp_path):
     assert reason is not None and "f_human_tuned_copper.yaml" in reason
 
     # no reading, no artifact-shaped token on the page
-    for token in (".json", ".npz", ".xdmf", ".s4p", "Study(", str(E_RECORD),
-                  str(N_DOFS_D2_RECORD), str(HOLE_CELL_RECORD), "GiB", "--ranks 2"):
+    for token in (
+        ".json",
+        ".npz",
+        ".xdmf",
+        ".s4p",
+        "Study(",
+        str(E_RECORD),
+        str(N_DOFS_D2_RECORD),
+        str(HOLE_CELL_RECORD),
+        "GiB",
+        "--ranks 2",
+    ):
         assert token not in text, token
 
     # (In) with the build patched to raise; (c-solve) the block resolves the patches
@@ -271,13 +296,19 @@ def test_wf17_s20a_blocks_and_inputs(monkeypatch, tmp_path):
         with pytest.raises(_BuildReached):
             _exec_capture(block, tag)
         study = _LAST_NS["study"]
-        ok = (isinstance(study.geometry, FHumanBirdcageGeometry)
-              and study.geometry == ref.geometry and study.material == ref.material
-              and study.excitation == ref.excitation and study.conductor == ref.conductor
-              and study.frequency_hz.hex() == ref.frequency_hz.hex())
-        _p0(f"[WF-17 s20a] (In) {tag}: degree {study.degree} (want {want_deg}); inputs equal "
+        ok = (
+            isinstance(study.geometry, FHumanBirdcageGeometry)
+            and study.geometry == ref.geometry
+            and study.material == ref.material
+            and study.excitation == ref.excitation
+            and study.conductor == ref.conductor
+            and study.frequency_hz.hex() == ref.frequency_hz.hex()
+        )
+        _p0(
+            f"[WF-17 s20a] (In) {tag}: degree {study.degree} (want {want_deg}); inputs equal "
             f"the tracked file's {ok}; result None {study.result is None}; build reached "
-            f"{len(reached)}; resolves patched solves {_resolves_patched(study, solve_obj, boom)}")
+            f"{len(reached)}; resolves patched solves {_resolves_patched(study, solve_obj, boom)}"
+        )
         assert ok
         assert study.result is None
         assert _resolves_patched(study, solve_obj, boom)
@@ -312,9 +343,11 @@ def test_wf17_s20a_docrefs_zero_dead():
     rc, counts = run_checker("--docs-root", "docs/guide", "--check-links")
     link = LINK_RE.search(_checker_stdout("--docs-root", "docs/guide", "--check-links"))
     assert link is not None, "(D) no 'Link pass:' line"
-    print(f"[WF-17 s20a] (D) dead={counts['dead']} links={link.group(1)} pages={link.group(2)} "
-          f"link-dead={link.group(3)} guide={counts['guide']} stale={counts['stale']} "
-          f"exit={counts['exit']} rc={rc}")
+    print(
+        f"[WF-17 s20a] (D) dead={counts['dead']} links={link.group(1)} pages={link.group(2)} "
+        f"link-dead={link.group(3)} guide={counts['guide']} stale={counts['stale']} "
+        f"exit={counts['exit']} rc={rc}"
+    )
     assert counts["dead"] == 0
     assert int(link.group(3)) == 0
     assert int(link.group(2)) >= MIN_GUIDE_PAGES
@@ -332,8 +365,16 @@ def test_wf17_s26_clinical_block_reads_fc2(monkeypatch, capsys, no_build):  # no
     assert f"(../../tests/package/wf13/{FC.name})" in text
     assert sum(ln == "  degree: 1" for ln in FC.read_text().splitlines()) == 1
     assert block.count(D2_LINE) == 1
-    for name in ("cells", "unknowns", "degree", "ranks", "predicted_seconds",
-                 "predicted_peak_gib", "rows_used", "not_priced"):
+    for name in (
+        "cells",
+        "unknowns",
+        "degree",
+        "ranks",
+        "predicted_seconds",
+        "predicted_peak_gib",
+        "rows_used",
+        "not_priced",
+    ):
         assert f"est.{name}" in block, name
     assert not _names_used(block) & SOLVE_NAMES
 
@@ -356,8 +397,10 @@ def test_wf17_s26_clinical_block_reads_fc2(monkeypatch, capsys, no_build):  # no
     ns, printed = _run(block, FC_TAG)
     est, study = ns["est"], ns["study"]
     row = FC2_LITERALS
-    want = (f"{row['cells']} {row['unknowns']} {row['degree']} {row['ranks']} {row['seconds']} "
-            f"{row['peak_gib']} ('FC2',) {NOT_PRICED!r}")
+    want = (
+        f"{row['cells']} {row['unknowns']} {row['degree']} {row['ranks']} {row['seconds']} "
+        f"{row['peak_gib']} ('FC2',) {NOT_PRICED!r}"
+    )
 
     # (Ref) each refusal the page names, on the page's own copy
     with pytest.raises(ValueError, match="xl tier only") as exc:
@@ -384,8 +427,10 @@ def test_wf17_s26_clinical_block_reads_fc2(monkeypatch, capsys, no_build):  # no
     _p0(f"[WF-17 s26] (Ref) solve: {msg}")
     _p0(f"[WF-17 s26] (Ref) femem run: rc {rcs_run}; stderr {err_run.strip()!r}")
     _p0(f"[WF-17 s26] (CLI = API) rc {rcs_est}; differing {diff}")
-    _p0(f"[WF-17 s26] (c-d1) rows {ctrl.rows_used}, unknowns {ctrl.unknowns}; FC2 / it = "
-        f"{ratio:.4f} (UNKNOWN_MISS {UNKNOWN_MISS})")
+    _p0(
+        f"[WF-17 s26] (c-d1) rows {ctrl.rows_used}, unknowns {ctrl.unknowns}; FC2 / it = "
+        f"{ratio:.4f} (UNKNOWN_MISS {UNKNOWN_MISS})"
+    )
 
     assert printed == want
     assert est.rows_used == ("FC2",) and est.not_priced == NOT_PRICED
@@ -407,8 +452,10 @@ def test_wf17_s26_clinical_block_reads_fc2(monkeypatch, capsys, no_build):  # no
 
 def test_wf17_s20a_estimate_blocks_reproduce_fh1_fh2(monkeypatch, capsys):
     if not _knob():
-        pytest.skip(f"{KNOB} unset: the human-scale estimate window is environment-selected "
-                    "(complex build, -n 2)")
+        pytest.skip(
+            f"{KNOB} unset: the human-scale estimate window is environment-selected "
+            "(complex build, -n 2)"
+        )
     comm = MPI.COMM_WORLD
     assert IS_COMPLEX, "the F-human port Study needs the complex build"
     assert comm.size == RANKS, comm.size
@@ -419,8 +466,10 @@ def test_wf17_s20a_estimate_blocks_reproduce_fh1_fh2(monkeypatch, capsys):
     text = raw.decode()
     d1 = extract_tagged_block(text, D1_TAG)
     d2 = extract_tagged_block(text, D2_TAG)
-    _p0(f"[WF-17 s20a] page sha256 {_sha(raw)}; {D1_TAG} sha256 {_sha(d1.encode())}; "
-        f"{D2_TAG} sha256 {_sha(d2.encode())}")
+    _p0(
+        f"[WF-17 s20a] page sha256 {_sha(raw)}; {D1_TAG} sha256 {_sha(d1.encode())}; "
+        f"{D2_TAG} sha256 {_sha(d2.encode())}"
+    )
     _scratch(monkeypatch)
     solve_obj, boom = _patch_all_solves(monkeypatch)
 
@@ -463,39 +512,51 @@ def test_wf17_s20a_estimate_blocks_reproduce_fh1_fh2(monkeypatch, capsys):
         verdict = comm.bcast(verdict, root=0)
         rcs = comm.allgather(rc)
         out_exists = comm.allgather(out_dir.exists())
-        results[tag] = dict(est=est, study=study, rcs=rcs, verdict=verdict,
-                            out_exists=out_exists)
+        results[tag] = dict(est=est, study=study, rcs=rcs, verdict=verdict, out_exists=out_exists)
         _p0(f"[WF-17 s20a] {tag}: API estimate {est!r}")
-        _p0(f"[WF-17 s20a] {tag}: predicted_seconds {est.predicted_seconds:.3f} "
+        _p0(
+            f"[WF-17 s20a] {tag}: predicted_seconds {est.predicted_seconds:.3f} "
             f"predicted_peak_gib {est.predicted_peak_gib:.4f} at -n {est.ranks} "
-            f"(printed only; no -n 2 F-human solve to compare)")
-        _p0(f"[WF-17 s20a] {tag}: (CLI = API) {fname}: rc {rcs}; complete "
+            f"(printed only; no -n 2 F-human solve to compare)"
+        )
+        _p0(
+            f"[WF-17 s20a] {tag}: (CLI = API) {fname}: rc {rcs}; complete "
             f"{verdict['complete']}; differing {verdict['differ']}; output dir exists "
-            f"{out_exists}; block {t_block:.1f} s, CLI {t_cli:.1f} s")
-        _p0(f"[WF-17 s20a] {tag}: (NoSolve) result None {study.result is None}; resolves "
-            f"patched solves {_resolves_patched(study, solve_obj, boom)}")
+            f"{out_exists}; block {t_block:.1f} s, CLI {t_cli:.1f} s"
+        )
+        _p0(
+            f"[WF-17 s20a] {tag}: (NoSolve) result None {study.result is None}; resolves "
+            f"patched solves {_resolves_patched(study, solve_obj, boom)}"
+        )
 
     # (c-page) the d2 block left at degree 1 (runs last: it overwrites the copy)
     left_at_1 = d2.replace(D2_LINE, D2_LEFT_AT_1)
     assert left_at_1 != d2
     ctrl = _exec(left_at_1, "c-page d2@1")["est"]
-    ctrl_fails = (ctrl.degree != 2, ctrl.unknowns != N_DOFS_D2_RECORD,
-                  "FH2" not in ctrl.rows_used)
-    _p0(f"[WF-17 s20a] (c-page) d2 left at degree 1: degree {ctrl.degree}, unknowns "
+    ctrl_fails = (ctrl.degree != 2, ctrl.unknowns != N_DOFS_D2_RECORD, "FH2" not in ctrl.rows_used)
+    _p0(
+        f"[WF-17 s20a] (c-page) d2 left at degree 1: degree {ctrl.degree}, unknowns "
         f"{ctrl.unknowns}, rows {ctrl.rows_used} -> (FH2) fails on degree / unknowns / row "
-        f"{ctrl_fails}")
+        f"{ctrl_fails}"
+    )
 
     builds = comm.allgather(count["builds"])
     hits = comm.allgather(count["hits"])
     e1, e2 = results[D1_TAG]["est"], results[D2_TAG]["est"]
-    _p0(f"[WF-17 s20a] (FH1) cells {e1.cells} (HOLE_CELL_RECORD {HOLE_CELL_RECORD}) unknowns "
+    _p0(
+        f"[WF-17 s20a] (FH1) cells {e1.cells} (HOLE_CELL_RECORD {HOLE_CELL_RECORD}) unknowns "
         f"{e1.unknowns} (E_RECORD {E_RECORD}) degree {e1.degree} rows {e1.rows_used} "
-        f"not_priced {e1.not_priced}")
-    _p0(f"[WF-17 s20a] (FH2) cells {e2.cells} (HOLE_CELL_RECORD {HOLE_CELL_RECORD}) unknowns "
+        f"not_priced {e1.not_priced}"
+    )
+    _p0(
+        f"[WF-17 s20a] (FH2) cells {e2.cells} (HOLE_CELL_RECORD {HOLE_CELL_RECORD}) unknowns "
         f"{e2.unknowns} (N_DOFS_D2_RECORD {N_DOFS_D2_RECORD}) degree {e2.degree} rows "
-        f"{e2.rows_used} not_priced {e2.not_priced}")
-    _p0(f"[WF-17 s20a] (B) real builds per rank {builds}, memo hits {hits}; "
-        f"node {time.perf_counter() - t0:.1f} s")
+        f"{e2.rows_used} not_priced {e2.not_priced}"
+    )
+    _p0(
+        f"[WF-17 s20a] (B) real builds per rank {builds}, memo hits {hits}; "
+        f"node {time.perf_counter() - t0:.1f} s"
+    )
 
     # (FH1)
     assert e1.unknowns == E_RECORD

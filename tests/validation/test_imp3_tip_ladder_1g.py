@@ -55,12 +55,12 @@ import numpy as np
 import pytest
 from mpi4py import MPI
 
+import tests.validation.test_imp3_tip_ratio_1g as _ratio
 from fem_em_solver.post.evaluation import point_owner_cells
 from fem_em_solver.utils.analytical import pec_prolate_spheroid_field
-
 from tests.complex_mode import complex_only
-from tests.mesh.test_birdcage_implant_rod import ROD, ROD_CENTRE, _build_rod
-from tests.mesh.test_birdcage_implant_rod import ROD_RADIUS
+from tests.mesh.test_birdcage_implant_rod import ROD, ROD_CENTRE, ROD_RADIUS, _build_rod
+from tests.mesh.test_birdcage_implant_rod_ball import TIP_BALL_4MM, TOP_CAP, _t1_geometry
 from tests.mesh.test_birdcage_implant_rod_tip import (
     FIXTURE_KW,
     ROD_1G_RUNG_CELL_RECORD,
@@ -73,7 +73,6 @@ from tests.mesh.test_birdcage_implant_rod_tip import (
     _cell_geometry,
     _mean_edge,
 )
-from tests.mesh.test_birdcage_implant_rod_ball import TIP_BALL_4MM, TOP_CAP, _t1_geometry
 from tests.validation.test_imp3_palace_fields import PNAMES, PTS
 from tests.validation.test_imp3_rod_birdcage import (
     DRIVES,
@@ -89,7 +88,6 @@ from tests.validation.test_imp3_tip_ratio_1g import (
     _identities,
     _ser,
 )
-import tests.validation.test_imp3_tip_ratio_1g as _ratio
 
 REPO = Path(__file__).resolve().parents[2]
 OUT = REPO / "logs" / "imp3"
@@ -167,9 +165,11 @@ I17_2MM_T1_VMAX = 3.068100e-03
 # r/8 rung η_rod(T1), P1 (`20261014T070008Z_IMP-3-step7-I15-r8.log:2643`); sizes
 # asserted against GEO36_R8_CELLS / GEO36_R8_D2_DOFS (the same integers).
 R8_ETA_T1_P1 = "3.530461"
-ENTRY33_PRICE = ("build 93.47 s, sweep 278.25 s, SARs 24.57 s, body 402.2 s, 82.47 GiB "
-                 "summed at -n 16 (`…I15-r8.log:2663`); window 511 s, memory.peak "
-                 "86 486 282 240 B = 80.55 GiB (`:3773`, `:3778`)")
+ENTRY33_PRICE = (
+    "build 93.47 s, sweep 278.25 s, SARs 24.57 s, body 402.2 s, 82.47 GiB "
+    "summed at -n 16 (`…I15-r8.log:2663`); window 511 s, memory.peak "
+    "86 486 282 240 B = 80.55 GiB (`:3773`, `:3778`)"
+)
 ENTRY43_PRICE_PRED = "500–700 s, 75–100 GiB"
 # Entry 43's pre-registered decision interval: printed IN / OUT, never asserted,
 # never a band.
@@ -195,25 +195,31 @@ def _r4s2():
 
     built = _build_rod(implant_rod=dict(ROD, tip_size=TIP_R4S2), **FIXTURE_KW)
     cad = built[3]["implant_rod_cad"]
-    _say(f"\n{TAG} build: tip_size_m {cad['tip_size_m']!r} (request {TIP_R4S2!r}), "
-         f"tip_ball_radius_m {cad['tip_ball_radius_m']!r}, build {built[4]:.2f} s")
+    _say(
+        f"\n{TAG} build: tip_size_m {cad['tip_size_m']!r} (request {TIP_R4S2!r}), "
+        f"tip_ball_radius_m {cad['tip_ball_radius_m']!r}, build {built[4]:.2f} s"
+    )
     a = _arm_d(built, "degree 2 rod r/(4√2)", True, 2)
     fails = _identities(a, True)
     msh = a["case"]["mesh"]
 
     # (G3) tag 402 > 0 and all exterior, as I14's `_census`.
     _, census = _outer_box_tags(msh, built[2], comm)
-    _say(f"{TAG} (G3) 402 facets {census['wall']} (exterior {census['wall_exterior']}); "
-         f"exterior {census['exterior']}")
+    _say(
+        f"{TAG} (G3) 402 facets {census['wall']} (exterior {census['wall_exterior']}); "
+        f"exterior {census['exterior']}"
+    )
     if not (census["wall"] > 0 and census["wall_exterior"] == census["wall"]):
         fails.append(("G3", census))
 
     # (Kc) the knob reached gmsh.
     kc_tip = cad["tip_size_m"] == TIP_R4S2
     kc_cells = a["cells"] > ROD_1G_RUNG_CELL_RECORD
-    _say(f"{TAG} (Kc) tip_size_m == TIP_R4S2 bitwise: {kc_tip}; cells {a['cells']} > "
-         f"ROD_1G_RUNG_CELL_RECORD {ROD_1G_RUNG_CELL_RECORD}: {kc_cells} "
-         f"(ratio {a['cells'] / ROD_1G_RUNG_CELL_RECORD:.4f})")
+    _say(
+        f"{TAG} (Kc) tip_size_m == TIP_R4S2 bitwise: {kc_tip}; cells {a['cells']} > "
+        f"ROD_1G_RUNG_CELL_RECORD {ROD_1G_RUNG_CELL_RECORD}: {kc_cells} "
+        f"(ratio {a['cells'] / ROD_1G_RUNG_CELL_RECORD:.4f})"
+    )
     if not (kc_tip and kc_cells):
         fails.append(("Kc", cad["tip_size_m"], a["cells"]))
 
@@ -229,21 +235,29 @@ def _r4s2():
     rss = _peak_rss_gib()
 
     # Mesh identity against GEO-36 W2 (printed, predicted).
-    _say(f"{TAG} mesh identity vs GEO-36 W2: cells {a['cells']} / {GEO36_R4S2_CELLS} "
-         f"({a['cells'] == GEO36_R4S2_CELLS}); 402 facets {census['wall']} / {GEO36_R4S2_N402} "
-         f"({census['wall'] == GEO36_R4S2_N402}); d2 dofs {a['ndofs']} / {GEO36_R4S2_D2_DOFS} "
-         f"({a['ndofs'] == GEO36_R4S2_D2_DOFS}); near-T1 ({T1_RADIUS:.1e} m) {n_t1} cells, mean "
-         f"edge {t1_edge:.6e} m / {GEO36_R4S2_NEAR_T1} "
-         f"({n_t1 == GEO36_R4S2_NEAR_T1[0] and f'{t1_edge:.6e}' == f'{GEO36_R4S2_NEAR_T1[1]:.6e}'})")
-    _say(f"{TAG} near-T1 edge r/4 {GEO36_UNSET_NEAR_T1_EDGE:.6e} -> r/(4√2) {t1_edge:.6e} m "
-         f"({t1_edge / GEO36_UNSET_NEAR_T1_EDGE - 1:+.4%}); local edge ratio h(r/4)/h(r/(4√2)) "
-         f"{GEO36_UNSET_NEAR_T1_EDGE / t1_edge:.4f} beside the requested VIn ratio "
-         f"{np.sqrt(2.0):.4f} (VIn, not the step at T1)")
-    _say(f"{TAG} T1 cell: original index {int(owner_orig[0])}, mean edge {t1_cell_edge:.6e} m "
-         f"(first record at this rung; T1 {T1.tolist()} vs PTS[T1] "
-         f"{PTS[PNAMES.index('T1')].tolist()})")
-    _say(f"{TAG} N_ball {n_ball}, mean ball edge {ball_edge:.6e} m beside GEO-36 W2 "
-         f"{GEO36_R4S2_N_BALL} / {GEO36_R4S2_BALL_EDGE:.3e} m")
+    _say(
+        f"{TAG} mesh identity vs GEO-36 W2: cells {a['cells']} / {GEO36_R4S2_CELLS} "
+        f"({a['cells'] == GEO36_R4S2_CELLS}); 402 facets {census['wall']} / {GEO36_R4S2_N402} "
+        f"({census['wall'] == GEO36_R4S2_N402}); d2 dofs {a['ndofs']} / {GEO36_R4S2_D2_DOFS} "
+        f"({a['ndofs'] == GEO36_R4S2_D2_DOFS}); near-T1 ({T1_RADIUS:.1e} m) {n_t1} cells, mean "
+        f"edge {t1_edge:.6e} m / {GEO36_R4S2_NEAR_T1} "
+        f"({n_t1 == GEO36_R4S2_NEAR_T1[0] and f'{t1_edge:.6e}' == f'{GEO36_R4S2_NEAR_T1[1]:.6e}'})"
+    )
+    _say(
+        f"{TAG} near-T1 edge r/4 {GEO36_UNSET_NEAR_T1_EDGE:.6e} -> r/(4√2) {t1_edge:.6e} m "
+        f"({t1_edge / GEO36_UNSET_NEAR_T1_EDGE - 1:+.4%}); local edge ratio h(r/4)/h(r/(4√2)) "
+        f"{GEO36_UNSET_NEAR_T1_EDGE / t1_edge:.4f} beside the requested VIn ratio "
+        f"{np.sqrt(2.0):.4f} (VIn, not the step at T1)"
+    )
+    _say(
+        f"{TAG} T1 cell: original index {int(owner_orig[0])}, mean edge {t1_cell_edge:.6e} m "
+        f"(first record at this rung; T1 {T1.tolist()} vs PTS[T1] "
+        f"{PTS[PNAMES.index('T1')].tolist()})"
+    )
+    _say(
+        f"{TAG} N_ball {n_ball}, mean ball edge {ball_edge:.6e} m beside GEO-36 W2 "
+        f"{GEO36_R4S2_N_BALL} / {GEO36_R4S2_BALL_EDGE:.3e} m"
+    )
 
     # (Rb) the off-arm reuse is wired.
     iT1, iF1, iF2 = PNAMES.index("T1"), PNAMES.index("F1"), PNAMES.index("F2")
@@ -251,66 +265,101 @@ def _r4s2():
     eta4 = _eta(_cplx(rod4["E"]), e_off)
     rb_str = f"{eta4[iT1, 0]:.6f}"
     rb_sizes = (off["cells"], off["ndofs"], rod4["cells"], rod4["ndofs"]) == (
-        I14_OFF_CELLS, I14_OFF_DOFS, I14_ROD_CELLS, I14_ROD_DOFS)
+        I14_OFF_CELLS,
+        I14_OFF_DOFS,
+        I14_ROD_CELLS,
+        I14_ROD_DOFS,
+    )
     rb = rb_str == I14_ETA_O2_T1_P1 and rb_sizes
-    _say(f"{TAG} (Rb) η_rod^(r/4)(T1) P1 from I14 JSONs {rb_str} vs {I14_ETA_O2_T1_P1}: "
-         f"{rb_str == I14_ETA_O2_T1_P1}; sizes off {off['cells']}/{off['ndofs']} rod "
-         f"{rod4['cells']}/{rod4['ndofs']} vs {I14_OFF_CELLS}/{I14_OFF_DOFS} "
-         f"{I14_ROD_CELLS}/{I14_ROD_DOFS}: {rb_sizes}")
+    _say(
+        f"{TAG} (Rb) η_rod^(r/4)(T1) P1 from I14 JSONs {rb_str} vs {I14_ETA_O2_T1_P1}: "
+        f"{rb_str == I14_ETA_O2_T1_P1}; sizes off {off['cells']}/{off['ndofs']} rod "
+        f"{rod4['cells']}/{rod4['ndofs']} vs {I14_OFF_CELLS}/{I14_OFF_DOFS} "
+        f"{I14_ROD_CELLS}/{I14_ROD_DOFS}: {rb_sizes}"
+    )
     if not rb:
         fails.append(("Rb", rb_str, off["cells"], off["ndofs"], rod4["cells"], rod4["ndofs"]))
 
     if rb and kc_tip and kc_cells:
         eta = _eta(a["E"], e_off)
         for j, pid in enumerate(PORT_IDS):
-            _say(f"{TAG} η_rod {pid} r/4 / r/(4√2) / move: " + "  ".join(
-                f"{n} {eta4[k, j]:.6f}/{eta[k, j]:.6f}/{eta[k, j] / eta4[k, j] - 1:+.6e}"
-                for k, n in enumerate(PNAMES)))
+            _say(
+                f"{TAG} η_rod {pid} r/4 / r/(4√2) / move: "
+                + "  ".join(
+                    f"{n} {eta4[k, j]:.6f}/{eta[k, j]:.6f}/{eta[k, j] / eta4[k, j] - 1:+.6e}"
+                    for k, n in enumerate(PNAMES)
+                )
+            )
         move = eta[iT1, 0] / eta4[iT1, 0] - 1
-        _say(f"{TAG} first ladder step at T1, P1: η_rod(T1) r/4 {eta4[iT1, 0]:.6f} -> "
-             f"r/(4√2) {eta[iT1, 0]:.6f}, move {move:+.6e} ({move:+.4%}); beside I14 p-move "
-             f"{I14_PMOVE_T1:+.3%} and remesh move {I14_REMESH_MOVE_T1:+.3%} (scale only; no "
-             f"step ratio: it needs r/8)")
+        _say(
+            f"{TAG} first ladder step at T1, P1: η_rod(T1) r/4 {eta4[iT1, 0]:.6f} -> "
+            f"r/(4√2) {eta[iT1, 0]:.6f}, move {move:+.6e} ({move:+.4%}); beside I14 p-move "
+            f"{I14_PMOVE_T1:+.3%} and remesh move {I14_REMESH_MOVE_T1:+.3%} (scale only; no "
+            f"step ratio: it needs r/8)"
+        )
         for n in ("F1", "F2"):
             k = PNAMES.index(n)
             _say(f"{TAG} remesh floor {n} P1 move {eta[k, 0] / eta4[k, 0] - 1:+.6e}")
-        _say(f"{TAG} (C-h) |move| {abs(move):.6e} (predicted >= {PRED_CH_FLOOR:g}, ceiling ≈ 1): "
-             f"{'IN' if abs(move) >= PRED_CH_FLOOR else 'OUT'}")
+        _say(
+            f"{TAG} (C-h) |move| {abs(move):.6e} (predicted >= {PRED_CH_FLOOR:g}, ceiling ≈ 1): "
+            f"{'IN' if abs(move) >= PRED_CH_FLOOR else 'OUT'}"
+        )
         for lab, e in (("r/4", eta4), ("r/(4√2)", eta)):
             den = max(abs(e[iF1, 0] - 1), abs(e[iF2, 0] - 1))
             c2 = abs(e[iT1, 0] - 1) / den
-            _say(f"{TAG} (C2) {lab}: |η(T1)-1| / max_F |η(F)-1| = {abs(e[iT1, 0] - 1):.6f} / "
-                 f"{den:.6f} = {c2:.3f} (predicted >= {PRED_C2_FLOOR:g}: "
-                 f"{'IN' if c2 >= PRED_C2_FLOOR else 'OUT'})")
+            _say(
+                f"{TAG} (C2) {lab}: |η(T1)-1| / max_F |η(F)-1| = {abs(e[iT1, 0] - 1):.6f} / "
+                f"{den:.6f} = {c2:.3f} (predicted >= {PRED_C2_FLOOR:g}: "
+                f"{'IN' if c2 >= PRED_C2_FLOOR else 'OUT'})"
+            )
         for d in DRIVES:
             for tip in TIPS:
                 s_off = off["sar"][f"{tip}|{d}"]
                 q4 = rod4["sar"][f"{tip}|{d}"] / s_off
                 qh = a["sar"][(tip, d)] / s_off
-                _say(f"{TAG} Q {d:>3s} {tip:>6s}: r/4 {q4:.6f}  r/(4√2) {qh:.6f}  move "
-                     f"{qh / q4 - 1:+.6e}")
-        _say(f"{TAG} Q r/4 P1 top of record {I14_Q_O2_P1_TOP}; rod-arm 1 g masses r/4 "
-             f"{rod4['mass']} r/(4√2) {a['mass']}")
-        cf = np.linalg.norm(pec_prolate_spheroid_field(
-            PTS - np.array(ROD_CENTRE), semi_major=0.016, semi_minor=0.001, e0=1.0), axis=1)
-        _say(f"{TAG} closed form |E_cf|/E0 vs η_rod(p)/η_rod(F1) (r/(4√2), P1), ratio: "
-             + "  ".join(f"{PNAMES[k]} {cf[k]:.4f}/{eta[k, 0] / eta[iF1, 0]:.4f}="
-                         f"{cf[k] / (eta[k, 0] / eta[iF1, 0]):.3f}"
-                         for k in (PNAMES.index(n) for n in ("T1", "T2", "T3", "S1"))))
+                _say(
+                    f"{TAG} Q {d:>3s} {tip:>6s}: r/4 {q4:.6f}  r/(4√2) {qh:.6f}  move "
+                    f"{qh / q4 - 1:+.6e}"
+                )
+        _say(
+            f"{TAG} Q r/4 P1 top of record {I14_Q_O2_P1_TOP}; rod-arm 1 g masses r/4 "
+            f"{rod4['mass']} r/(4√2) {a['mass']}"
+        )
+        cf = np.linalg.norm(
+            pec_prolate_spheroid_field(
+                PTS - np.array(ROD_CENTRE), semi_major=0.016, semi_minor=0.001, e0=1.0
+            ),
+            axis=1,
+        )
+        _say(
+            f"{TAG} closed form |E_cf|/E0 vs η_rod(p)/η_rod(F1) (r/(4√2), P1), ratio: "
+            + "  ".join(
+                f"{PNAMES[k]} {cf[k]:.4f}/{eta[k, 0] / eta[iF1, 0]:.4f}="
+                f"{cf[k] / (eta[k, 0] / eta[iF1, 0]):.3f}"
+                for k in (PNAMES.index(n) for n in ("T1", "T2", "T3", "S1"))
+            )
+        )
     else:
         _say(f"{TAG} no η / Q reading printed: (Rb) {rb}, (Kc) {kc_tip and kc_cells}")
 
-    _say(f"{TAG} price: cells {a['cells']}, E {a['edges']}, F {a['faces']}, dofs {a['ndofs']}, "
-         f"build {built[4]:.2f} s, sweep {a['t_sweep']:.2f} s, SARs {a['t_sar']:.2f} s, arm "
-         f"{a['t_arm']:.1f} s, window body {time.perf_counter() - t0:.1f} s, summed peak RSS "
-         f"{rss:.2f} GiB at -n {comm.size}; beside GEO-36 price row {GEO36_PRICE}")
+    _say(
+        f"{TAG} price: cells {a['cells']}, E {a['edges']}, F {a['faces']}, dofs {a['ndofs']}, "
+        f"build {built[4]:.2f} s, sweep {a['t_sweep']:.2f} s, SARs {a['t_sar']:.2f} s, arm "
+        f"{a['t_arm']:.1f} s, window body {time.perf_counter() - t0:.1f} s, summed peak RSS "
+        f"{rss:.2f} GiB at -n {comm.size}; beside GEO-36 price row {GEO36_PRICE}"
+    )
 
     payload = _ser(a)
-    payload.update({
-        "rss_gib": rss, "ranks": comm.size, "tip_size_m": cad["tip_size_m"],
-        "near_t1": [n_t1, t1_edge], "t1_cell": [int(owner_orig[0]), t1_cell_edge],
-        "n_ball": [n_ball, ball_edge],
-    })
+    payload.update(
+        {
+            "rss_gib": rss,
+            "ranks": comm.size,
+            "tip_size_m": cad["tip_size_m"],
+            "near_t1": [n_t1, t1_edge],
+            "t1_cell": [int(owner_orig[0]), t1_cell_edge],
+            "n_ball": [n_ball, ball_edge],
+        }
+    )
     if comm.rank == 0:
         with open(target, "x") as fh:
             json.dump(payload, fh)
@@ -335,18 +384,24 @@ def _r8(build_only):
     fails = []
 
     # (Rb8) the r/(4√2) reuse is wired.
-    iT1, iF1, iF2 = PNAMES.index("T1"), PNAMES.index("F1"), PNAMES.index("F2")
+    iT1 = PNAMES.index("T1")
     e_off = _cplx(off["E"])
     eta4 = _eta(_cplx(rod4["E"]), e_off)
     eta4s2 = _eta(_cplx(r4s2["E"]), e_off)
     rb_str = f"{eta4s2[iT1, 0]:.6f}"
     rb_sizes = (r4s2["cells"], r4s2["ndofs"], off["cells"], off["ndofs"]) == (
-        ITEM305_ROD_CELLS, ITEM305_ROD_DOFS, I14_OFF_CELLS, I14_OFF_DOFS)
+        ITEM305_ROD_CELLS,
+        ITEM305_ROD_DOFS,
+        I14_OFF_CELLS,
+        I14_OFF_DOFS,
+    )
     rb = rb_str == ITEM305_ETA_T1_P1 and rb_sizes
-    _say(f"\n{TAG} (Rb8) η_rod^(r/(4√2))(T1) P1 from ours_imp3h_r4s2.json + off {rb_str} vs "
-         f"{ITEM305_ETA_T1_P1}: {rb_str == ITEM305_ETA_T1_P1}; sizes r4s2 {r4s2['cells']}/"
-         f"{r4s2['ndofs']} off {off['cells']}/{off['ndofs']} vs {ITEM305_ROD_CELLS}/"
-         f"{ITEM305_ROD_DOFS} {I14_OFF_CELLS}/{I14_OFF_DOFS}: {rb_sizes}")
+    _say(
+        f"\n{TAG} (Rb8) η_rod^(r/(4√2))(T1) P1 from ours_imp3h_r4s2.json + off {rb_str} vs "
+        f"{ITEM305_ETA_T1_P1}: {rb_str == ITEM305_ETA_T1_P1}; sizes r4s2 {r4s2['cells']}/"
+        f"{r4s2['ndofs']} off {off['cells']}/{off['ndofs']} vs {ITEM305_ROD_CELLS}/"
+        f"{ITEM305_ROD_DOFS} {I14_OFF_CELLS}/{I14_OFF_DOFS}: {rb_sizes}"
+    )
     if not rb:
         fails.append(("Rb8", rb_str, r4s2["cells"], r4s2["ndofs"], off["cells"], off["ndofs"]))
 
@@ -354,28 +409,38 @@ def _r8(build_only):
     cad = built[3]["implant_rod_cad"]
     msh = built[0]
     cells = int(msh.topology.index_map(msh.topology.dim).size_global)
-    _say(f"{TAG} build r/8: tip_size_m {cad['tip_size_m']!r} (request {TIP_R8!r}), "
-         f"tip_ball_radius_m {cad['tip_ball_radius_m']!r}, {cells} cells, build {built[4]:.2f} s")
+    _say(
+        f"{TAG} build r/8: tip_size_m {cad['tip_size_m']!r} (request {TIP_R8!r}), "
+        f"tip_ball_radius_m {cad['tip_ball_radius_m']!r}, {cells} cells, build {built[4]:.2f} s"
+    )
 
     # (Kc8) the knob reached gmsh.
     kc_tip = cad["tip_size_m"] == TIP_R8
     kc_cells = cells > ITEM305_ROD_CELLS
-    _say(f"{TAG} (Kc8) tip_size_m == TIP_R8 bitwise: {kc_tip}; cells {cells} > item 305 "
-         f"{ITEM305_ROD_CELLS}: {kc_cells} (ratio {cells / ITEM305_ROD_CELLS:.4f})")
+    _say(
+        f"{TAG} (Kc8) tip_size_m == TIP_R8 bitwise: {kc_tip}; cells {cells} > item 305 "
+        f"{ITEM305_ROD_CELLS}: {kc_cells} (ratio {cells / ITEM305_ROD_CELLS:.4f})"
+    )
     if not (kc_tip and kc_cells):
         fails.append(("Kc8", cad["tip_size_m"], cells))
     # (G1x) inside the patch; (N1) the unpatched (G1) would trip.
     patched = _ratio.ROD_CELL_GUARD_W2
     g1x = patched == ROD_CELL_GUARD_XL and cells < ROD_CELL_GUARD_XL
     n1 = cells > ROD_CELL_GUARD_W2
-    _say(f"{TAG} DISCLOSURE: test_imp3_tip_ratio_1g.ROD_CELL_GUARD_W2 monkeypatched to "
-         f"{patched} (ROD_CELL_GUARD_XL, an `xl` resource guard, not a band; original "
-         f"{ROD_CELL_GUARD_W2}) on this path only; measured cells {cells}")
-    _say(f"{TAG} (G1x) patched == ROD_CELL_GUARD_XL {ROD_CELL_GUARD_XL}: "
-         f"{patched == ROD_CELL_GUARD_XL}; cells {cells} < it: {cells < ROD_CELL_GUARD_XL} "
-         f"({cells / ROD_CELL_GUARD_XL:.3f} of the guard)")
-    _say(f"{TAG} (N1) cells {cells} > unpatched ROD_CELL_GUARD_W2 {ROD_CELL_GUARD_W2}: {n1} "
-         f"(ratio {cells / ROD_CELL_GUARD_W2:.3f}; predicted 1.069)")
+    _say(
+        f"{TAG} DISCLOSURE: test_imp3_tip_ratio_1g.ROD_CELL_GUARD_W2 monkeypatched to "
+        f"{patched} (ROD_CELL_GUARD_XL, an `xl` resource guard, not a band; original "
+        f"{ROD_CELL_GUARD_W2}) on this path only; measured cells {cells}"
+    )
+    _say(
+        f"{TAG} (G1x) patched == ROD_CELL_GUARD_XL {ROD_CELL_GUARD_XL}: "
+        f"{patched == ROD_CELL_GUARD_XL}; cells {cells} < it: {cells < ROD_CELL_GUARD_XL} "
+        f"({cells / ROD_CELL_GUARD_XL:.3f} of the guard)"
+    )
+    _say(
+        f"{TAG} (N1) cells {cells} > unpatched ROD_CELL_GUARD_W2 {ROD_CELL_GUARD_W2}: {n1} "
+        f"(ratio {cells / ROD_CELL_GUARD_W2:.3f}; predicted 1.069)"
+    )
     if not g1x:
         fails.append(("G1x", patched, cells))
     if not n1:
@@ -395,8 +460,10 @@ def _r8(build_only):
 
     # (G3) tag 402 > 0 and all exterior.
     _, census = _outer_box_tags(msh, built[2], comm)
-    _say(f"{TAG} (G3) 402 facets {census['wall']} (exterior {census['wall_exterior']}); "
-         f"exterior {census['exterior']}")
+    _say(
+        f"{TAG} (G3) 402 facets {census['wall']} (exterior {census['wall_exterior']}); "
+        f"exterior {census['exterior']}"
+    )
     if not (census["wall"] > 0 and census["wall_exterior"] == census["wall"]):
         fails.append(("G3", census))
 
@@ -416,75 +483,104 @@ def _r8(build_only):
         n_e, n_f, ndofs = a["edges"], a["faces"], a["ndofs"]
     rss = _peak_rss_gib()
 
-    _say(f"{TAG} mesh identity vs GEO-36 W2 r/8: cells {cells} / {GEO36_R8_CELLS} "
-         f"({cells == GEO36_R8_CELLS}); 402 facets {census['wall']} / {GEO36_R8_N402} "
-         f"({census['wall'] == GEO36_R8_N402}); d2 dofs {ndofs} (E {n_e}, F {n_f}"
-         f"{', 2E + 2F' if build_only else ''}) / {GEO36_R8_D2_DOFS} "
-         f"({ndofs == GEO36_R8_D2_DOFS}); near-T1 ({T1_RADIUS:.1e} m) {n_t1} cells, mean "
-         f"edge {t1_edge:.6e} m / {GEO36_R8_NEAR_T1} "
-         f"({n_t1 == GEO36_R8_NEAR_T1[0] and f'{t1_edge:.6e}' == f'{GEO36_R8_NEAR_T1[1]:.6e}'})")
+    _say(
+        f"{TAG} mesh identity vs GEO-36 W2 r/8: cells {cells} / {GEO36_R8_CELLS} "
+        f"({cells == GEO36_R8_CELLS}); 402 facets {census['wall']} / {GEO36_R8_N402} "
+        f"({census['wall'] == GEO36_R8_N402}); d2 dofs {ndofs} (E {n_e}, F {n_f}"
+        f"{', 2E + 2F' if build_only else ''}) / {GEO36_R8_D2_DOFS} "
+        f"({ndofs == GEO36_R8_D2_DOFS}); near-T1 ({T1_RADIUS:.1e} m) {n_t1} cells, mean "
+        f"edge {t1_edge:.6e} m / {GEO36_R8_NEAR_T1} "
+        f"({n_t1 == GEO36_R8_NEAR_T1[0] and f'{t1_edge:.6e}' == f'{GEO36_R8_NEAR_T1[1]:.6e}'})"
+    )
     h4s2 = float(r4s2["near_t1"][1])
-    _say(f"{TAG} near-T1 edge r/(4√2) {h4s2:.6e} -> r/8 {t1_edge:.6e} m "
-         f"({t1_edge / h4s2 - 1:+.4%}); local edge ratio h(r/(4√2))/h(r/8) "
-         f"{h4s2 / t1_edge:.4f} beside GEO-36's {PRED_EDGE_RATIO_R4S2_R8} and the requested VIn "
-         f"ratio {np.sqrt(2.0):.4f} (VIn, not the step at T1)")
-    _say(f"{TAG} T1 cell: original index {int(owner_orig[0])}, mean edge {t1_cell_edge:.6e} m "
-         f"(r/(4√2) {r4s2['t1_cell']})")
-    _say(f"{TAG} N_ball {n_ball}, mean ball edge {ball_edge:.6e} m beside GEO-36 W2 "
-         f"{GEO36_R8_N_BALL} / {GEO36_R8_BALL_EDGE:.6e} m")
+    _say(
+        f"{TAG} near-T1 edge r/(4√2) {h4s2:.6e} -> r/8 {t1_edge:.6e} m "
+        f"({t1_edge / h4s2 - 1:+.4%}); local edge ratio h(r/(4√2))/h(r/8) "
+        f"{h4s2 / t1_edge:.4f} beside GEO-36's {PRED_EDGE_RATIO_R4S2_R8} and the requested VIn "
+        f"ratio {np.sqrt(2.0):.4f} (VIn, not the step at T1)"
+    )
+    _say(
+        f"{TAG} T1 cell: original index {int(owner_orig[0])}, mean edge {t1_cell_edge:.6e} m "
+        f"(r/(4√2) {r4s2['t1_cell']})"
+    )
+    _say(
+        f"{TAG} N_ball {n_ball}, mean ball edge {ball_edge:.6e} m beside GEO-36 W2 "
+        f"{GEO36_R8_N_BALL} / {GEO36_R8_BALL_EDGE:.6e} m"
+    )
 
     if a is not None and rb and kc_tip and kc_cells:
         eta = _eta(a["E"], e_off)
         for j, pid in enumerate(PORT_IDS):
-            _say(f"{TAG} η_rod {pid} r/4 / r/(4√2) / r/8: " + "  ".join(
-                f"{n} {eta4[k, j]:.6f}/{eta4s2[k, j]:.6f}/{eta[k, j]:.6f}"
-                for k, n in enumerate(PNAMES)))
+            _say(
+                f"{TAG} η_rod {pid} r/4 / r/(4√2) / r/8: "
+                + "  ".join(
+                    f"{n} {eta4[k, j]:.6f}/{eta4s2[k, j]:.6f}/{eta[k, j]:.6f}"
+                    for k, n in enumerate(PNAMES)
+                )
+            )
         d1 = eta4s2[iT1, 0] - eta4[iT1, 0]
         d2 = eta[iT1, 0] - eta4s2[iT1, 0]
         ratio = abs(d2) / abs(d1)
-        _say(f"{TAG} ladder at T1, P1: η_rod(T1) r/4 {eta4[iT1, 0]:.6f} -> r/(4√2) "
-             f"{eta4s2[iT1, 0]:.6f} -> r/8 {eta[iT1, 0]:.6f}; Δ₁ {d1:+.6f}, Δ₂ {d2:+.6f}; signs "
-             f"{'same' if np.sign(d1) == np.sign(d2) else 'opposite'}; |Δ₂|/|Δ₁| {ratio:.4f} "
-             f"beside entry 33's {LADDER_RATIO_THRESHOLD} (0.7|Δ₁| = "
-             f"{LADDER_RATIO_THRESHOLD * abs(d1):.6f}); printed, never asserted; unequal local "
-             f"steps, so no observed order")
+        _say(
+            f"{TAG} ladder at T1, P1: η_rod(T1) r/4 {eta4[iT1, 0]:.6f} -> r/(4√2) "
+            f"{eta4s2[iT1, 0]:.6f} -> r/8 {eta[iT1, 0]:.6f}; Δ₁ {d1:+.6f}, Δ₂ {d2:+.6f}; signs "
+            f"{'same' if np.sign(d1) == np.sign(d2) else 'opposite'}; |Δ₂|/|Δ₁| {ratio:.4f} "
+            f"beside entry 33's {LADDER_RATIO_THRESHOLD} (0.7|Δ₁| = "
+            f"{LADDER_RATIO_THRESHOLD * abs(d1):.6f}); printed, never asserted; unequal local "
+            f"steps, so no observed order"
+        )
         for n in ("F1", "F2"):
             k = PNAMES.index(n)
-            _say(f"{TAG} remesh floor {n} P1 move r/(4√2) -> r/8 "
-                 f"{eta[k, 0] / eta4s2[k, 0] - 1:+.6e}")
+            _say(
+                f"{TAG} remesh floor {n} P1 move r/(4√2) -> r/8 "
+                f"{eta[k, 0] / eta4s2[k, 0] - 1:+.6e}"
+            )
         for d in DRIVES:
             for tip in TIPS:
                 s_off = off["sar"][f"{tip}|{d}"]
                 q4 = rod4["sar"][f"{tip}|{d}"] / s_off
                 q4s2 = r4s2["sar"][f"{tip}|{d}"] / s_off
                 q8 = a["sar"][(tip, d)] / s_off
-                _say(f"{TAG} Q {d:>3s} {tip:>6s}: r/4 {q4:.6f}  r/(4√2) {q4s2:.6f}  r/8 "
-                     f"{q8:.6f}")
-        _say(f"{TAG} rod-arm 1 g masses r/4 {rod4['mass']} r/(4√2) {r4s2['mass']} r/8 "
-             f"{a['mass']}")
+                _say(
+                    f"{TAG} Q {d:>3s} {tip:>6s}: r/4 {q4:.6f}  r/(4√2) {q4s2:.6f}  r/8 " f"{q8:.6f}"
+                )
+        _say(
+            f"{TAG} rod-arm 1 g masses r/4 {rod4['mass']} r/(4√2) {r4s2['mass']} r/8 "
+            f"{a['mass']}"
+        )
     elif a is not None:
         _say(f"{TAG} no η / Q reading printed: (Rb8) {rb}, (Kc8) {kc_tip and kc_cells}")
 
     if a is not None:
-        _say(f"{TAG} price: cells {a['cells']}, E {a['edges']}, F {a['faces']}, dofs "
-             f"{a['ndofs']}, build {built[4]:.2f} s, sweep {a['t_sweep']:.2f} s, SARs "
-             f"{a['t_sar']:.2f} s, arm {a['t_arm']:.1f} s, window body "
-             f"{time.perf_counter() - t0:.1f} s, summed peak RSS {rss:.2f} GiB at -n "
-             f"{comm.size}; beside item 305 {ITEM305_PRICE}")
+        _say(
+            f"{TAG} price: cells {a['cells']}, E {a['edges']}, F {a['faces']}, dofs "
+            f"{a['ndofs']}, build {built[4]:.2f} s, sweep {a['t_sweep']:.2f} s, SARs "
+            f"{a['t_sar']:.2f} s, arm {a['t_arm']:.1f} s, window body "
+            f"{time.perf_counter() - t0:.1f} s, summed peak RSS {rss:.2f} GiB at -n "
+            f"{comm.size}; beside item 305 {ITEM305_PRICE}"
+        )
         payload = _ser(a)
-        payload.update({
-            "rss_gib": rss, "ranks": comm.size, "tip_size_m": cad["tip_size_m"],
-            "near_t1": [n_t1, t1_edge], "t1_cell": [int(owner_orig[0]), t1_cell_edge],
-            "n_ball": [n_ball, ball_edge], "guard_patched": patched,
-        })
+        payload.update(
+            {
+                "rss_gib": rss,
+                "ranks": comm.size,
+                "tip_size_m": cad["tip_size_m"],
+                "near_t1": [n_t1, t1_edge],
+                "t1_cell": [int(owner_orig[0]), t1_cell_edge],
+                "n_ball": [n_ball, ball_edge],
+                "guard_patched": patched,
+            }
+        )
         if comm.rank == 0:
             with open(target, "x") as fh:
                 json.dump(payload, fh)
         comm.Barrier()
     else:
-        _say(f"{TAG} r8build price: build {built[4]:.2f} s, body "
-             f"{time.perf_counter() - t0:.1f} s, summed peak RSS {rss:.2f} GiB at -n "
-             f"{comm.size}; no solve, no JSON")
+        _say(
+            f"{TAG} r8build price: build {built[4]:.2f} s, body "
+            f"{time.perf_counter() - t0:.1f} s, summed peak RSS {rss:.2f} GiB at -n "
+            f"{comm.size}; no solve, no JSON"
+        )
     _say(f"{TAG} anchors failed (all): {fails if fails else 'none'}")
     del a, built, msh
     gc.collect()
@@ -501,17 +597,23 @@ def _b4_readout(eta_new, sar_new, mass_new, label, refs, h_new, prefix=""):
     eta8 = _eta(_cplx(r8["E"]), e_off)
     p = f"{TAG} {prefix}"
     for j, pid in enumerate(PORT_IDS):
-        _say(f"{p}η_rod {pid} r/4 / r/(4√2) / r/8 / {label}: " + "  ".join(
-            f"{n} {eta4[k, j]:.6f}/{eta4s2[k, j]:.6f}/{eta8[k, j]:.6f}/{eta_new[k, j]:.6f}"
-            for k, n in enumerate(PNAMES)))
+        _say(
+            f"{p}η_rod {pid} r/4 / r/(4√2) / r/8 / {label}: "
+            + "  ".join(
+                f"{n} {eta4[k, j]:.6f}/{eta4s2[k, j]:.6f}/{eta8[k, j]:.6f}/{eta_new[k, j]:.6f}"
+                for k, n in enumerate(PNAMES)
+            )
+        )
     v = eta_new[iT1, 0]
     lo, hi = ENTRY43_READOUT_INTERVAL
     move = v / eta4[iT1, 0] - 1
-    _say(f"{p}η_rod(T1) P1: r/4 {eta4[iT1, 0]:.6f} (record {I14_ETA_O2_T1_P1}), r/(4√2) "
-         f"{eta4s2[iT1, 0]:.6f} (record {ITEM305_ETA_T1_P1}), r/8 {eta8[iT1, 0]:.6f} (record "
-         f"{R8_ETA_T1_P1}), {label} {v:.6f}; move vs r/4 {move:+.6e} ({move:+.4%}); entry 43 "
-         f"decision interval [{lo}, {hi}]: {'IN' if lo <= v <= hi else 'OUT'} (printed, never "
-         f"asserted, not a band)")
+    _say(
+        f"{p}η_rod(T1) P1: r/4 {eta4[iT1, 0]:.6f} (record {I14_ETA_O2_T1_P1}), r/(4√2) "
+        f"{eta4s2[iT1, 0]:.6f} (record {ITEM305_ETA_T1_P1}), r/8 {eta8[iT1, 0]:.6f} (record "
+        f"{R8_ETA_T1_P1}), {label} {v:.6f}; move vs r/4 {move:+.6e} ({move:+.4%}); entry 43 "
+        f"decision interval [{lo}, {hi}]: {'IN' if lo <= v <= hi else 'OUT'} (printed, never "
+        f"asserted, not a band)"
+    )
     for n in ("F1", "F2"):
         k = PNAMES.index(n)
         _say(f"{p}remesh floor {n} P1 move r/4 -> {label} {eta_new[k, 0] / eta4[k, 0] - 1:+.6e}")
@@ -519,13 +621,19 @@ def _b4_readout(eta_new, sar_new, mass_new, label, refs, h_new, prefix=""):
         for tip in TIPS:
             key = f"{tip}|{d}"
             s_off = off["sar"][key]
-            _say(f"{p}Q {d:>3s} {tip:>6s}: r/4 {rod4['sar'][key] / s_off:.6f}  r/(4√2) "
-                 f"{r4s2['sar'][key] / s_off:.6f}  r/8 {r8['sar'][key] / s_off:.6f}  {label} "
-                 f"{sar_new[key] / s_off:.6f}")
-    _say(f"{p}rod-arm 1 g masses r/4 {rod4['mass']} r/(4√2) {r4s2['mass']} r/8 {r8['mass']} "
-         f"{label} {mass_new}")
-    _say(f"{p}near-T1 edge ratio h(r/4 unset) {GEO36_UNSET_NEAR_T1_EDGE:.6e} / h({label} mesh) "
-         f"{h_new:.6e} = {GEO36_UNSET_NEAR_T1_EDGE / h_new:.4f}")
+            _say(
+                f"{p}Q {d:>3s} {tip:>6s}: r/4 {rod4['sar'][key] / s_off:.6f}  r/(4√2) "
+                f"{r4s2['sar'][key] / s_off:.6f}  r/8 {r8['sar'][key] / s_off:.6f}  {label} "
+                f"{sar_new[key] / s_off:.6f}"
+            )
+    _say(
+        f"{p}rod-arm 1 g masses r/4 {rod4['mass']} r/(4√2) {r4s2['mass']} r/8 {r8['mass']} "
+        f"{label} {mass_new}"
+    )
+    _say(
+        f"{p}near-T1 edge ratio h(r/4 unset) {GEO36_UNSET_NEAR_T1_EDGE:.6e} / h({label} mesh) "
+        f"{h_new:.6e} = {GEO36_UNSET_NEAR_T1_EDGE / h_new:.4f}"
+    )
 
 
 def _b4(build_only):
@@ -554,10 +662,15 @@ def _b4(build_only):
         s = f"{_eta(_cplx(js['E']), e_off)[iT1, 0]:.6f}"
         got = (js["cells"], js["ndofs"], off["cells"], off["ndofs"])
         ok_sizes = all(isinstance(x, int) for x in got) and got == (
-            *sizes, I14_OFF_CELLS, I14_OFF_DOFS)
-        _say(f"{TAG} ({lab}) η_rod(T1) P1 {s} vs {want}: {s == want}; sizes "
-             f"{got[0]}/{got[1]} off {got[2]}/{got[3]} vs {sizes[0]}/{sizes[1]} "
-             f"{I14_OFF_CELLS}/{I14_OFF_DOFS}: {ok_sizes}")
+            *sizes,
+            I14_OFF_CELLS,
+            I14_OFF_DOFS,
+        )
+        _say(
+            f"{TAG} ({lab}) η_rod(T1) P1 {s} vs {want}: {s == want}; sizes "
+            f"{got[0]}/{got[1]} off {got[2]}/{got[3]} vs {sizes[0]}/{sizes[1]} "
+            f"{I14_OFF_CELLS}/{I14_OFF_DOFS}: {ok_sizes}"
+        )
         if not (s == want and ok_sizes):
             fails.append((lab, s, got))
     rb_all = not fails
@@ -567,31 +680,41 @@ def _b4(build_only):
     msh = built[0]
     cells = int(msh.topology.index_map(msh.topology.dim).size_global)
     r_ball = cad["tip_ball_radius_m"]
-    _say(f"{TAG} build b4: tip_ball_radius_m {r_ball!r} (request {TIP_BALL_4MM!r}), "
-         f"tip_size_m {cad['tip_size_m']!r} (TIP_R4 {TIP_R4!r}), {cells} cells, build "
-         f"{built[4]:.2f} s beside item 464 {I17_B4_BUILD_S} s")
+    _say(
+        f"{TAG} build b4: tip_ball_radius_m {r_ball!r} (request {TIP_BALL_4MM!r}), "
+        f"tip_size_m {cad['tip_size_m']!r} (TIP_R4 {TIP_R4!r}), {cells} cells, build "
+        f"{built[4]:.2f} s beside item 464 {I17_B4_BUILD_S} s"
+    )
 
     # (Kb4) the knob and the grain reached gmsh; the cell count is item 464's.
     kb_r = r_ball == TIP_BALL_4MM
     kb_g = cad["tip_size_m"] == TIP_R4
     kb_c = cells == I17_B4_CELLS
-    _say(f"{TAG} (Kb4) tip_ball_radius_m == TIP_BALL_4MM bitwise: {kb_r}; tip_size_m == "
-         f"TIP_R4 bitwise: {kb_g}; cells {cells} == I17_B4_CELLS {I17_B4_CELLS}: {kb_c} "
-         f"(Δ {cells - I17_B4_CELLS:+d}; the dict(ROD) blind control builds 252 118)")
+    _say(
+        f"{TAG} (Kb4) tip_ball_radius_m == TIP_BALL_4MM bitwise: {kb_r}; tip_size_m == "
+        f"TIP_R4 bitwise: {kb_g}; cells {cells} == I17_B4_CELLS {I17_B4_CELLS}: {kb_c} "
+        f"(Δ {cells - I17_B4_CELLS:+d}; the dict(ROD) blind control builds 252 118)"
+    )
     if not (kb_r and kb_g and kb_c):
         fails.append(("Kb4", r_ball, cad["tip_size_m"], cells))
     # (G1x) inside the patch; (N1) the unpatched (G1) would trip.
     patched = _ratio.ROD_CELL_GUARD_W2
     g1x = patched == ROD_CELL_GUARD_XL and cells < ROD_CELL_GUARD_XL
     n1 = cells > ROD_CELL_GUARD_W2
-    _say(f"{TAG} DISCLOSURE: test_imp3_tip_ratio_1g.ROD_CELL_GUARD_W2 monkeypatched to "
-         f"{patched} (ROD_CELL_GUARD_XL, an `xl` resource guard, not a band; original "
-         f"{ROD_CELL_GUARD_W2}) on this path only; measured cells {cells}")
-    _say(f"{TAG} (G1x) patched == ROD_CELL_GUARD_XL {ROD_CELL_GUARD_XL}: "
-         f"{patched == ROD_CELL_GUARD_XL}; cells {cells} < it: {cells < ROD_CELL_GUARD_XL} "
-         f"({cells / ROD_CELL_GUARD_XL:.3f} of the guard; predicted 0.879)")
-    _say(f"{TAG} (N1) cells {cells} > unpatched ROD_CELL_GUARD_W2 {ROD_CELL_GUARD_W2}: {n1} "
-         f"(ratio {cells / ROD_CELL_GUARD_W2:.3f}; predicted 1.098)")
+    _say(
+        f"{TAG} DISCLOSURE: test_imp3_tip_ratio_1g.ROD_CELL_GUARD_W2 monkeypatched to "
+        f"{patched} (ROD_CELL_GUARD_XL, an `xl` resource guard, not a band; original "
+        f"{ROD_CELL_GUARD_W2}) on this path only; measured cells {cells}"
+    )
+    _say(
+        f"{TAG} (G1x) patched == ROD_CELL_GUARD_XL {ROD_CELL_GUARD_XL}: "
+        f"{patched == ROD_CELL_GUARD_XL}; cells {cells} < it: {cells < ROD_CELL_GUARD_XL} "
+        f"({cells / ROD_CELL_GUARD_XL:.3f} of the guard; predicted 0.879)"
+    )
+    _say(
+        f"{TAG} (N1) cells {cells} > unpatched ROD_CELL_GUARD_W2 {ROD_CELL_GUARD_W2}: {n1} "
+        f"(ratio {cells / ROD_CELL_GUARD_W2:.3f}; predicted 1.098)"
+    )
     if not g1x:
         fails.append(("G1x", patched, cells))
     if not n1:
@@ -599,13 +722,19 @@ def _b4(build_only):
 
     # (T1in) item 464's predicate (collective; every rank, outside any rank branch).
     tg = _t1_geometry(msh, comm)
-    t1in = (tg["n_t1"] > 0 and tg["t1_vmax"] <= r_ball and tg["owner"] >= 0
-            and tg["owner_vmax"] <= r_ball)
-    _say(f"{TAG} (T1in) near-T1 n {tg['n_t1']} > 0, vertex max {tg['t1_vmax']:.6e} <= "
-         f"{r_ball:.6e}, T1 owner {tg['owner']} >= 0, owner vertex max "
-         f"{tg['owner_vmax']:.6e} <= it: {t1in}; beside item 464 {I17_B4_NEAR_T1[0]} / "
-         f"{I17_B4_T1_VMAX:.6e} / {I17_B4_T1_CELL[0]} / {I17_B4_T1_CELL[2]:.6e}; 2 mm control "
-         f"vertex max {I17_2MM_T1_VMAX:.6e} > 2 mm (T1in-blind); TOP_CAP {TOP_CAP.tolist()}")
+    t1in = (
+        tg["n_t1"] > 0
+        and tg["t1_vmax"] <= r_ball
+        and tg["owner"] >= 0
+        and tg["owner_vmax"] <= r_ball
+    )
+    _say(
+        f"{TAG} (T1in) near-T1 n {tg['n_t1']} > 0, vertex max {tg['t1_vmax']:.6e} <= "
+        f"{r_ball:.6e}, T1 owner {tg['owner']} >= 0, owner vertex max "
+        f"{tg['owner_vmax']:.6e} <= it: {t1in}; beside item 464 {I17_B4_NEAR_T1[0]} / "
+        f"{I17_B4_T1_VMAX:.6e} / {I17_B4_T1_CELL[0]} / {I17_B4_T1_CELL[2]:.6e}; 2 mm control "
+        f"vertex max {I17_2MM_T1_VMAX:.6e} > 2 mm (T1in-blind); TOP_CAP {TOP_CAP.tolist()}"
+    )
     if not t1in:
         fails.append(("T1in", tg))
 
@@ -623,8 +752,10 @@ def _b4(build_only):
 
     # (G3) tag 402 > 0 and all exterior.
     _, census = _outer_box_tags(msh, built[2], comm)
-    _say(f"{TAG} (G3) 402 facets {census['wall']} (exterior {census['wall_exterior']}); "
-         f"exterior {census['exterior']}")
+    _say(
+        f"{TAG} (G3) 402 facets {census['wall']} (exterior {census['wall_exterior']}); "
+        f"exterior {census['exterior']}"
+    )
     if not (census["wall"] > 0 and census["wall_exterior"] == census["wall"]):
         fails.append(("G3", census))
 
@@ -641,55 +772,85 @@ def _b4(build_only):
         n_e, n_f, ndofs = a["edges"], a["faces"], a["ndofs"]
     rss = _peak_rss_gib()
 
-    _say(f"{TAG} mesh identity vs item 464 W2: cells {cells} / {I17_B4_CELLS} "
-         f"({cells == I17_B4_CELLS}); 402 facets {census['wall']} / {I17_B4_N402} "
-         f"({census['wall'] == I17_B4_N402}); d2 dofs {ndofs} (E {n_e}, F {n_f}"
-         f"{', 2E + 2F' if a is None else ''}) / {I17_B4_D2_DOFS} (E {I17_B4_E}, F {I17_B4_F}) "
-         f"({ndofs == I17_B4_D2_DOFS}); near-T1 ({T1_RADIUS:.1e} m) {n_t1} cells, mean edge "
-         f"{t1_edge:.6e} m / {I17_B4_NEAR_T1} "
-         f"({n_t1 == I17_B4_NEAR_T1[0] and f'{t1_edge:.6e}' == f'{I17_B4_NEAR_T1[1]:.6e}'})")
-    _say(f"{TAG} N_ball {n_ball}, mean ball edge {ball_edge:.6e} m / {I17_B4_N_BALL} / "
-         f"{I17_B4_BALL_EDGE:.6e} ({n_ball == I17_B4_N_BALL and f'{ball_edge:.6e}' == f'{I17_B4_BALL_EDGE:.6e}'})")
+    _say(
+        f"{TAG} mesh identity vs item 464 W2: cells {cells} / {I17_B4_CELLS} "
+        f"({cells == I17_B4_CELLS}); 402 facets {census['wall']} / {I17_B4_N402} "
+        f"({census['wall'] == I17_B4_N402}); d2 dofs {ndofs} (E {n_e}, F {n_f}"
+        f"{', 2E + 2F' if a is None else ''}) / {I17_B4_D2_DOFS} (E {I17_B4_E}, F {I17_B4_F}) "
+        f"({ndofs == I17_B4_D2_DOFS}); near-T1 ({T1_RADIUS:.1e} m) {n_t1} cells, mean edge "
+        f"{t1_edge:.6e} m / {I17_B4_NEAR_T1} "
+        f"({n_t1 == I17_B4_NEAR_T1[0] and f'{t1_edge:.6e}' == f'{I17_B4_NEAR_T1[1]:.6e}'})"
+    )
+    _say(
+        f"{TAG} N_ball {n_ball}, mean ball edge {ball_edge:.6e} m / {I17_B4_N_BALL} / "
+        f"{I17_B4_BALL_EDGE:.6e} ({n_ball == I17_B4_N_BALL and f'{ball_edge:.6e}' == f'{I17_B4_BALL_EDGE:.6e}'})"
+    )
     t1c = (tg_post["owner"], tg_post["owner_edge"], tg_post["owner_vmax"])
-    _say(f"{TAG} T1 cell (original index, mean edge, max vertex distance) "
-         f"({t1c[0]}, {t1c[1]:.6e}, {t1c[2]:.6e}) / ({I17_B4_T1_CELL[0]}, "
-         f"{I17_B4_T1_CELL[1]:.6e}, {I17_B4_T1_CELL[2]:.6e}) "
-         f"({t1c[0] == I17_B4_T1_CELL[0] and f'{t1c[1]:.6e}' == f'{I17_B4_T1_CELL[1]:.6e}' and f'{t1c[2]:.6e}' == f'{I17_B4_T1_CELL[2]:.6e}'}); "
-         f"near-T1 vertex max {tg_post['t1_vmax']:.6e} / {I17_B4_T1_VMAX:.6e} "
-         f"({format(tg_post['t1_vmax'], '.6e') == format(I17_B4_T1_VMAX, '.6e')})")
+    _say(
+        f"{TAG} T1 cell (original index, mean edge, max vertex distance) "
+        f"({t1c[0]}, {t1c[1]:.6e}, {t1c[2]:.6e}) / ({I17_B4_T1_CELL[0]}, "
+        f"{I17_B4_T1_CELL[1]:.6e}, {I17_B4_T1_CELL[2]:.6e}) "
+        f"({t1c[0] == I17_B4_T1_CELL[0] and f'{t1c[1]:.6e}' == f'{I17_B4_T1_CELL[1]:.6e}' and f'{t1c[2]:.6e}' == f'{I17_B4_T1_CELL[2]:.6e}'}); "
+        f"near-T1 vertex max {tg_post['t1_vmax']:.6e} / {I17_B4_T1_VMAX:.6e} "
+        f"({format(tg_post['t1_vmax'], '.6e') == format(I17_B4_T1_VMAX, '.6e')})"
+    )
 
     if a is not None:
         payload = _ser(a)
-        payload.update({
-            "rss_gib": rss, "ranks": comm.size, "tip_size_m": cad["tip_size_m"],
-            "tip_ball_radius_m": r_ball, "near_t1": [n_t1, t1_edge],
-            "t1_cell": [t1c[0], t1c[1]], "n_ball": [n_ball, ball_edge],
-            "t1_vmax": tg_post["t1_vmax"], "guard_patched": patched,
-        })
+        payload.update(
+            {
+                "rss_gib": rss,
+                "ranks": comm.size,
+                "tip_size_m": cad["tip_size_m"],
+                "tip_ball_radius_m": r_ball,
+                "near_t1": [n_t1, t1_edge],
+                "t1_cell": [t1c[0], t1c[1]],
+                "n_ball": [n_ball, ball_edge],
+                "t1_vmax": tg_post["t1_vmax"],
+                "guard_patched": patched,
+            }
+        )
         if comm.rank == 0:
             with open(target, "x") as fh:
                 json.dump(payload, fh)
         comm.Barrier()
         if rb_all and not mesh_fails:
-            _b4_readout(_eta(a["E"], e_off), {f"{t}|{d}": v for (t, d), v in a["sar"].items()},
-                        a["mass"], "b4", refs, t1_edge)
+            _b4_readout(
+                _eta(a["E"], e_off),
+                {f"{t}|{d}": v for (t, d), v in a["sar"].items()},
+                a["mass"],
+                "b4",
+                refs,
+                t1_edge,
+            )
         else:
             _say(f"{TAG} no η / Q reading printed: (Rb*) {rb_all}, mesh {mesh_fails}")
-        _say(f"{TAG} price: cells {a['cells']}, E {a['edges']}, F {a['faces']}, dofs "
-             f"{a['ndofs']}, build {built[4]:.2f} s, sweep {a['t_sweep']:.2f} s, SARs "
-             f"{a['t_sar']:.2f} s, arm {a['t_arm']:.1f} s, window body "
-             f"{time.perf_counter() - t0:.1f} s, summed peak RSS {rss:.2f} GiB at -n "
-             f"{comm.size}; beside entry 33 {ENTRY33_PRICE}; entry 43 predicted "
-             f"{ENTRY43_PRICE_PRED}")
+        _say(
+            f"{TAG} price: cells {a['cells']}, E {a['edges']}, F {a['faces']}, dofs "
+            f"{a['ndofs']}, build {built[4]:.2f} s, sweep {a['t_sweep']:.2f} s, SARs "
+            f"{a['t_sar']:.2f} s, arm {a['t_arm']:.1f} s, window body "
+            f"{time.perf_counter() - t0:.1f} s, summed peak RSS {rss:.2f} GiB at -n "
+            f"{comm.size}; beside entry 33 {ENTRY33_PRICE}; entry 43 predicted "
+            f"{ENTRY43_PRICE_PRED}"
+        )
     else:
         if rb_all:
-            _b4_readout(_eta(_cplx(r8["E"]), e_off), r8["sar"], r8["mass"], "stand-in", refs,
-                        t1_edge, prefix="DRY-RUN (r/8 JSON stand-in — not a reading) ")
+            _b4_readout(
+                _eta(_cplx(r8["E"]), e_off),
+                r8["sar"],
+                r8["mass"],
+                "stand-in",
+                refs,
+                t1_edge,
+                prefix="DRY-RUN (r/8 JSON stand-in — not a reading) ",
+            )
         else:
             _say(f"{TAG} no dry-run readout printed: (Rb*) red")
-        _say(f"{TAG} b4build price: build {built[4]:.2f} s (item 464 {I17_B4_BUILD_S} s), body "
-             f"{time.perf_counter() - t0:.1f} s, summed peak RSS {rss:.2f} GiB at -n "
-             f"{comm.size}; no solve, no JSON")
+        _say(
+            f"{TAG} b4build price: build {built[4]:.2f} s (item 464 {I17_B4_BUILD_S} s), body "
+            f"{time.perf_counter() - t0:.1f} s, summed peak RSS {rss:.2f} GiB at -n "
+            f"{comm.size}; no solve, no JSON"
+        )
     _say(f"{TAG} anchors failed (all): {fails if fails else 'none'}")
     del a, built, msh
     gc.collect()
@@ -701,7 +862,9 @@ def test_imp3_tip_ladder_1g(monkeypatch):
     # (N2) the unpatched guard on every call, before dispatch: r4s2 never runs
     # inside the r8 patch (pytest undoes it at teardown).
     assert _ratio.ROD_CELL_GUARD_W2 == ROD_CELL_GUARD_W2 == 320_000, (
-        _ratio.ROD_CELL_GUARD_W2, ROD_CELL_GUARD_W2)
+        _ratio.ROD_CELL_GUARD_W2,
+        ROD_CELL_GUARD_W2,
+    )
     if KNOB not in KNOBS:
         pytest.skip(f"FEM_EM_IMP3_STEP7 must be one of {KNOBS}")
     if KNOB == "r4s2":

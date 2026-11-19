@@ -52,16 +52,24 @@ def _one(label, emit_port_sheets, out):
     theta = np.linspace(0.0, 2.0 * np.pi, LEG_COUNT, endpoint=False)
     if offsets is not None:
         theta = theta + np.asarray(offsets, dtype=float)
-    print(f"[W0a'] {label}: emit_port_sheets={emit_port_sheets} build + STEP export "
-          f"{t_build:.2f} s -> {out} bytes={os.path.getsize(out)}", flush=True)
-    print(f"[W0a'] {label}: port_radius={port_radius!r} port_dx={dx!r} port_dy={dy!r} "
-          f"port_dz={dz!r} offsets={offsets!r} "
-          f"box_angles={[float(t) for t in theta]!r}", flush=True)
+    print(
+        f"[W0a'] {label}: emit_port_sheets={emit_port_sheets} build + STEP export "
+        f"{t_build:.2f} s -> {out} bytes={os.path.getsize(out)}",
+        flush=True,
+    )
+    print(
+        f"[W0a'] {label}: port_radius={port_radius!r} port_dx={dx!r} port_dy={dy!r} "
+        f"port_dz={dz!r} offsets={offsets!r} "
+        f"box_angles={[float(t) for t in theta]!r}",
+        flush=True,
+    )
     masses = diag.get("cad_mass_by_group") or {}
     for name in sorted(masses):
         if name.startswith("port_"):
-            print(f"[W0a'] {label}: cad_mass {name}={masses[name]!r} "
-                  f"(dx*dy*dz={dx * dy * dz!r})", flush=True)
+            print(
+                f"[W0a'] {label}: cad_mass {name}={masses[name]!r} " f"(dx*dy*dz={dx * dy * dz!r})",
+                flush=True,
+            )
     return port_radius, dx, dz, theta
 
 
@@ -72,13 +80,18 @@ def main(out_dir):
     port_radius, dx, dz, theta = whole
     if port_radius is None:
         port_radius = halves[0]
-        print("[W0a'] flag-off diag lacks port_layout: port_radius read from the "
-              "flag-on (halves) build", flush=True)
+        print(
+            "[W0a'] flag-off diag lacks port_layout: port_radius read from the "
+            "flag-on (halves) build",
+            flush=True,
+        )
     w0a = (0.07, 0.014, 0.008)  # W0a :1796
-    print(f"[W0a'] pre-gate: flag-off (port_radius, dx, dz)={(port_radius, dx, dz)!r} "
-          f"W0a :1796={w0a!r} bitwise_equal={(port_radius, dx, dz) == w0a}", flush=True)
-    print(f"[W0a'] strip area 0.5*dx*dz={0.5 * dx * dz!r} full dx*dz={dx * dz!r}",
-          flush=True)
+    print(
+        f"[W0a'] pre-gate: flag-off (port_radius, dx, dz)={(port_radius, dx, dz)!r} "
+        f"W0a :1796={w0a!r} bitwise_equal={(port_radius, dx, dz) == w0a}",
+        flush=True,
+    )
+    print(f"[W0a'] strip area 0.5*dx*dz={0.5 * dx * dz!r} full dx*dz={dx * dz!r}", flush=True)
 
     gmsh.initialize()
     gmsh.option.setNumber("General.Terminal", 0)
@@ -93,8 +106,10 @@ def main(out_dir):
         coords = [tuple(float(v) for v in gmsh.model.getValue(0, p, [])) for _, p in pts]
         area = float(gmsh.model.occ.getMass(2, tag))
         bb = tuple(float(v) for v in gmsh.model.occ.getBoundingBox(2, tag))
-        print(f"[W0a'] leg {idx + 1}: box_angle={float(box_angle)!r} "
-              f"area={area!r} bbox={bb!r}", flush=True)
+        print(
+            f"[W0a'] leg {idx + 1}: box_angle={float(box_angle)!r} " f"area={area!r} bbox={bb!r}",
+            flush=True,
+        )
         for k, c in enumerate(coords):
             print(f"[W0a'] leg {idx + 1} corner {k}: {c!r}", flush=True)
     gmsh.finalize()

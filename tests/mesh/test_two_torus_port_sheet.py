@@ -40,13 +40,11 @@ was blocked on).
 
 from __future__ import annotations
 
+import dolfinx
 import numpy as np
 from mpi4py import MPI
 
-import dolfinx
-
 from fem_em_solver.io.mesh import MeshGenerator
-
 from tests.mesh.test_two_torus_port_facets import (
     AIR_PADDING,
     GAP_ANGLE,
@@ -136,9 +134,7 @@ def _sheet_extents(msh, facet_tags, tag, comm):
     fdim = msh.topology.dim - 1
     facets = np.asarray(facet_tags.find(tag), dtype=np.int32)
     if facets.size:
-        nodes = dolfinx.cpp.mesh.entities_to_geometry(
-            msh._cpp_object, fdim, facets, False
-        )
+        nodes = dolfinx.cpp.mesh.entities_to_geometry(msh._cpp_object, fdim, facets, False)
         pts = msh.geometry.x[nodes.reshape(-1)]
         lo, hi = pts.min(axis=0), pts.max(axis=0)
     else:
@@ -166,17 +162,15 @@ def test_port_sheet_facet_set_is_the_gap_box_mid_plane():
         "the sheet path must split each gap box into two cell groups; found "
         f"{sorted(cell_tags_present)}"
     )
-    assert set(SHEET_FACET_TAGS) <= facet_tags_present, (
-        f"sheet facet tags missing; found {sorted(facet_tags_present)}"
-    )
+    assert (
+        set(SHEET_FACET_TAGS) <= facet_tags_present
+    ), f"sheet facet tags missing; found {sorted(facet_tags_present)}"
     assert set(PORT_FACET_TAGS) <= facet_tags_present, (
-        "the sheet path dropped the port facet groups; found "
-        f"{sorted(facet_tags_present)}"
+        "the sheet path dropped the port facet groups; found " f"{sorted(facet_tags_present)}"
     )
 
     # Non-empty BEFORE the identity: 0 == 0 is not a match.
-    counts = {t: _sheet_facet_count(msh, facet_tags, t, comm)
-              for t in SHEET_FACET_TAGS}
+    counts = {t: _sheet_facet_count(msh, facet_tags, t, comm) for t in SHEET_FACET_TAGS}
     for tag, n in counts.items():
         assert n > 0, (
             f"sheet facet group {tag} is empty; the area identity below would "
@@ -188,12 +182,9 @@ def test_port_sheet_facet_set_is_the_gap_box_mid_plane():
     # prints its value beside this one).
     a_cad = 4.0 * _gap_half_xz() * _gap_half_y()
 
-    areas = {t: _facet_group_area(msh, facet_tags, t, comm)
-             for t in SHEET_FACET_TAGS}
-    extents = {t: _sheet_extents(msh, facet_tags, t, comm)
-               for t in SHEET_FACET_TAGS}
-    port_areas = {t: _facet_group_area(msh, facet_tags, t, comm)
-                  for t in PORT_FACET_TAGS}
+    areas = {t: _facet_group_area(msh, facet_tags, t, comm) for t in SHEET_FACET_TAGS}
+    extents = {t: _sheet_extents(msh, facet_tags, t, comm) for t in SHEET_FACET_TAGS}
+    port_areas = {t: _facet_group_area(msh, facet_tags, t, comm) for t in PORT_FACET_TAGS}
 
     if comm.rank == 0:
         print(
@@ -215,8 +206,10 @@ def test_port_sheet_facet_set_is_the_gap_box_mid_plane():
                 flush=True,
             )
         for tag in PORT_FACET_TAGS:
-            print(f"[GEO-16] port {tag} area (unmoved check) "
-                  f"{port_areas[tag]:.9e} m^2", flush=True)
+            print(
+                f"[GEO-16] port {tag} area (unmoved check) " f"{port_areas[tag]:.9e} m^2",
+                flush=True,
+            )
 
     for tag in SHEET_FACET_TAGS:
         rel = abs(areas[tag] - a_cad) / a_cad
@@ -227,9 +220,9 @@ def test_port_sheet_facet_set_is_the_gap_box_mid_plane():
         )
 
     # Same solid mirrored in z: the two sheets are built identically.
-    assert abs(areas[211] / areas[212] - 1.0) < 1e-12, (
-        f"sheet areas differ: {areas[211]:.12e} vs {areas[212]:.12e}"
-    )
+    assert (
+        abs(areas[211] / areas[212] - 1.0) < 1e-12
+    ), f"sheet areas differ: {areas[211]:.12e} vs {areas[212]:.12e}"
 
 
 def test_kwarg_off_reproduces_the_recorded_mesh():
@@ -249,16 +242,19 @@ def test_kwarg_off_reproduces_the_recorded_mesh():
             flush=True,
         )
 
-    assert cell_tags_present == {1, 2, 3, 101, 102}, (
-        f"the default path changed its cell-tag set: {sorted(cell_tags_present)}"
-    )
+    assert cell_tags_present == {
+        1,
+        2,
+        3,
+        101,
+        102,
+    }, f"the default path changed its cell-tag set: {sorted(cell_tags_present)}"
     assert facet_tags_present == {1, *PORT_FACET_TAGS}, (
-        f"the default path changed its facet-tag set: "
-        f"{sorted(facet_tags_present)}"
+        f"the default path changed its facet-tag set: " f"{sorted(facet_tags_present)}"
     )
-    assert not (set(SHEET_FACET_TAGS) & facet_tags_present), (
-        "the default path emitted sheet facet tags"
-    )
+    assert not (
+        set(SHEET_FACET_TAGS) & facet_tags_present
+    ), "the default path emitted sheet facet tags"
     if NCELLS_UNGATED_RECORD is not None:
         assert ncells == NCELLS_UNGATED_RECORD, (
             f"the default path meshed {ncells} cells against the recorded "

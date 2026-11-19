@@ -109,11 +109,9 @@ def test_cylinder_solver_b_field_matches_the_straight_wire_closed_form():
     err = ErrorMetrics.l2_relative_error(b_num_mag, b_ana_mag)
 
     if comm.rank == 0:
-        print(f"\n[OPS-17] cylindrical-mesh straight-wire cross-check at "
-              f"h={RESOLUTION} m:")
+        print(f"\n[OPS-17] cylindrical-mesh straight-wire cross-check at " f"h={RESOLUTION} m:")
         for r, bn, ba in zip(r_test, b_num_mag, b_ana_mag):
-            print(f"    r = {r:.4f} m: |B| = {bn:.6e} T vs {ba:.6e} T "
-                  f"({bn / ba - 1.0:+.2%})")
+            print(f"    r = {r:.4f} m: |B| = {bn:.6e} T vs {ba:.6e} T " f"({bn / ba - 1.0:+.2%})")
         print(f"    L2 relative error: {err:.4%}", flush=True)
 
     assert err < L2_ERROR_MAX, (

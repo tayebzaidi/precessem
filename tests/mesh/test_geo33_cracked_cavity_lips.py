@@ -23,6 +23,7 @@ boundary 3.76, 630 vertices.
 
 The builder lives in ``fem_em_solver.core.cracked_box`` since step 0b.
 """
+
 import numpy as np
 import pytest
 import ufl
@@ -109,8 +110,9 @@ def test_lips_decoupled_and_conforming(cracked):
     comm = msh.comm
     r, lo, up = _readings(msh, tags)
     if comm.rank == 0:
-        print(f"[GEO-33 0a] cracked -n {comm.size}: " + ", ".join(
-            f"{k}={v!r}" for k, v in r.items()))
+        print(
+            f"[GEO-33 0a] cracked -n {comm.size}: " + ", ".join(f"{k}={v!r}" for k, v in r.items())
+        )
 
     # (L1) each lip a*d.
     for key in ("lip_lower_area", "lip_upper_area"):
@@ -135,8 +137,10 @@ def test_lips_decoupled_and_conforming(cracked):
             return p[np.lexsort((k[:, 2], k[:, 1], k[:, 0]))]
 
         twin = float(np.max(np.linalg.norm(_sorted(glo) - _sorted(gup), axis=1)))
-        print(f"[GEO-33 0a] L2 lip facets {r['lip_lower_facets']}/{r['lip_upper_facets']}, "
-              f"max twin midpoint distance {twin:.3e} m")
+        print(
+            f"[GEO-33 0a] L2 lip facets {r['lip_lower_facets']}/{r['lip_upper_facets']}, "
+            f"max twin midpoint distance {twin:.3e} m"
+        )
     twin = comm.bcast(twin, root=0)
     assert twin < TWIN_TOL, twin
 
@@ -146,8 +150,9 @@ def test_lips_decoupled_and_conforming(cracked):
     msh.topology.create_connectivity(tdim, fdim)
     msh.topology.create_connectivity(fdim, 0)
     f2c = msh.topology.connectivity(fdim, tdim)
-    plane = _owned(msh, dmesh.locate_entities(
-        msh, fdim, lambda p: np.abs(p[1] - Y_PLANE) < PLANE_TOL))
+    plane = _owned(
+        msh, dmesh.locate_entities(msh, fdim, lambda p: np.abs(p[1] - Y_PLANE) < PLANE_TOL)
+    )
     links = np.array([f2c.links(f).size for f in plane], dtype=np.int64)
     n_plane = _allsum(comm, int(plane.size))
     n_bad = _allsum(comm, int(np.sum(links != 1)))
@@ -176,9 +181,11 @@ def test_lips_decoupled_and_conforming(cracked):
     if comm.rank == 0:
         vlo, vup = np.unique(np.concatenate(vlo)), np.unique(np.concatenate(vup))
         shared = int(np.intersect1d(vlo, vup).size)
-        print(f"[GEO-33 0a] L3 owned facets on y=0.4: {n_plane}, with != 1 local cell: "
-              f"{n_bad}; cells touching both lips: {both}; lip vertices "
-              f"{vlo.size}/{vup.size}, shared: {shared}")
+        print(
+            f"[GEO-33 0a] L3 owned facets on y=0.4: {n_plane}, with != 1 local cell: "
+            f"{n_bad}; cells touching both lips: {both}; lip vertices "
+            f"{vlo.size}/{vup.size}, shared: {shared}"
+        )
     shared = comm.bcast(shared, root=0)
     assert n_plane == 2 * EXPECTED_LIP_FACETS, n_plane
     assert n_bad == 0, n_bad
@@ -190,9 +197,11 @@ def test_lips_decoupled_and_conforming(cracked):
     rv = abs(r["volume"] / EXPECTED_VOLUME - 1.0)
     rf = abs(r["faces_area"] / EXPECTED_BOUNDARY_MERGED - 1.0)
     if comm.rank == 0:
-        print(f"[GEO-33 0a] L4 boundary {r['boundary']!r} (rel {rb:.3e} vs 4.96), "
-              f"volume {r['volume']!r} (rel {rv:.3e} vs 0.48), six faces "
-              f"{r['faces_area']!r} (rel {rf:.3e} vs 3.76)")
+        print(
+            f"[GEO-33 0a] L4 boundary {r['boundary']!r} (rel {rb:.3e} vs 4.96), "
+            f"volume {r['volume']!r} (rel {rv:.3e} vs 0.48), six faces "
+            f"{r['faces_area']!r} (rel {rf:.3e} vs 3.76)"
+        )
     assert rb < REL_TOL, r["boundary"]
     assert rv < REL_TOL, r["volume"]
     assert rf < REL_TOL, r["faces_area"]
@@ -211,10 +220,12 @@ def test_merged_control_is_single_valued():
     r, _, _ = _readings(msh, tags)
     short = 1.0 - r["boundary"] / EXPECTED_BOUNDARY_CRACKED
     if comm.rank == 0:
-        print(f"[GEO-33 0a] control merge=True -n {comm.size}: lip facets "
-              f"{r['lip_lower_facets']}/{r['lip_upper_facets']}, boundary "
-              f"{r['boundary']!r} ({100 * short:.2f} % short of 4.96), vertices "
-              f"{r['vertices']}, cells {r['cells']}, volume {r['volume']!r}")
+        print(
+            f"[GEO-33 0a] control merge=True -n {comm.size}: lip facets "
+            f"{r['lip_lower_facets']}/{r['lip_upper_facets']}, boundary "
+            f"{r['boundary']!r} ({100 * short:.2f} % short of 4.96), vertices "
+            f"{r['vertices']}, cells {r['cells']}, volume {r['volume']!r}"
+        )
     assert r["lip_lower_facets"] == 0 and r["lip_upper_facets"] == 0
     assert abs(r["boundary"] / EXPECTED_BOUNDARY_MERGED - 1.0) < REL_TOL, r["boundary"]
     assert r["vertices"] == EXPECTED_VERTICES_MERGED, r["vertices"]

@@ -43,14 +43,22 @@ def _parent_snapshot() -> list[str]:
     out = subprocess.run(
         # safe.directory: the container user does not own the bind mount
         # (first W1, 2026-10-27: "detected dubious ownership").
-        ["git", "-c", f"safe.directory={REPO}", "-C", str(REPO), "show", f"{PARENT_SHA}:{SNAPSHOT_REL}"],
+        [
+            "git",
+            "-c",
+            f"safe.directory={REPO}",
+            "-C",
+            str(REPO),
+            "show",
+            f"{PARENT_SHA}:{SNAPSHOT_REL}",
+        ],
         capture_output=True,
         text=True,
         check=False,
     )
-    assert out.returncode == 0, (
-        f"git show {PARENT_SHA}:{SNAPSHOT_REL} failed ({out.returncode}): {out.stderr.strip()}"
-    )
+    assert (
+        out.returncode == 0
+    ), f"git show {PARENT_SHA}:{SNAPSHOT_REL} failed ({out.returncode}): {out.stderr.strip()}"
     return _names(out.stdout)
 
 
@@ -73,7 +81,10 @@ def test_wf15_s9_import_identity_and_all():
     from fem_em_solver import ColeColeMaterial as top
     from fem_em_solver.materials import ColeColeMaterial as sub
 
-    print(f"\n[WF-15 s9] top is sub: {top is sub}; len(__all__) {len(fem_em_solver.__all__)}", flush=True)
+    print(
+        f"\n[WF-15 s9] top is sub: {top is sub}; len(__all__) {len(fem_em_solver.__all__)}",
+        flush=True,
+    )
     assert top is sub
     assert ADDED_NAME in fem_em_solver.__all__
     assert sorted(fem_em_solver.__all__) == _names(SNAPSHOT_PATH.read_text())

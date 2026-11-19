@@ -127,7 +127,9 @@ def _s_and_r(tag, f, points, comm):
     for i in multi:
         b_c = _b_in_cell(f, points[i], int(owner_local[i]), comm)
         multi_rel.append(float(np.linalg.norm(own[i] - b_c) / np.linalg.norm(b_c)))
-        delta = float(np.linalg.norm(own[i] - leg[i]) / max(np.linalg.norm(leg[i]), FIELD_SCALE_FLOOR))
+        delta = float(
+            np.linalg.norm(own[i] - leg[i]) / max(np.linalg.norm(leg[i]), FIELD_SCALE_FLOOR)
+        )
         r_rows.append(
             f"p{int(i)} n_inc {int(n_inc[i])} owner {int(owner_orig[i])} "
             f"legacy {int(legacy[i])} delta {delta:.3e}"
@@ -308,6 +310,7 @@ def test_sw_s_r():
         for c in cs:
             own_c, ok = evaluate_vector_field_parallel(f, c["points"], comm, owner=RULE)
             assert bool(np.all(ok))
-            assert np.asarray(own_c, dtype=np.float64).tobytes() == np.asarray(
-                c["values"], dtype=np.float64
-            ).tobytes()
+            assert (
+                np.asarray(own_c, dtype=np.float64).tobytes()
+                == np.asarray(c["values"], dtype=np.float64).tobytes()
+            )

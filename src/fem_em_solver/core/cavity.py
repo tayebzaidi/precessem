@@ -38,13 +38,12 @@ from typing import Sequence, Tuple
 
 import numpy as np
 import ufl
+from dolfinx import fem
+from dolfinx import mesh as dmesh
+from dolfinx.fem.petsc import assemble_matrix
 from mpi4py import MPI
 from petsc4py import PETSc
 from slepc4py import SLEPc
-
-import dolfinx
-from dolfinx import fem, mesh as dmesh
-from dolfinx.fem.petsc import assemble_matrix
 
 from ..utils.constants import C_0, EPSILON_0, ETA_0, MU_0
 
@@ -203,9 +202,7 @@ def _solve_pencil(
     eps.solve()
 
     n_converged = eps.getConverged()
-    values = np.array(
-        [np.real(eps.getEigenvalue(i)) for i in range(n_converged)], dtype=float
-    )
+    values = np.array([np.real(eps.getEigenvalue(i)) for i in range(n_converged)], dtype=float)
     order = np.argsort(values)
 
     vectors = None
@@ -369,9 +366,7 @@ def analytic_box_cavity_modes(
     per_axis = []
     for axis, length in enumerate(edges):
         shift = 0.5 if axis in axes else 0.0
-        per_axis.append(
-            [(m + shift) * np.pi / length for m in range(max_index + 1)]
-        )
+        per_axis.append([(m + shift) * np.pi / length for m in range(max_index + 1)])
 
     values = []
     for kx in per_axis[0]:
@@ -384,8 +379,7 @@ def analytic_box_cavity_modes(
     values = np.sort(np.asarray(values))
     if values.size < n_modes:
         raise ValueError(
-            f"max_index={max_index} yields only {values.size} modes; "
-            f"{n_modes} were requested"
+            f"max_index={max_index} yields only {values.size} modes; " f"{n_modes} were requested"
         )
     return values[:n_modes]
 
@@ -523,9 +517,7 @@ def _solve_pencil_nonhermitian(
     eps.setFromOptions()
     eps.solve()
     n_converged = eps.getConverged()
-    values = np.array(
-        [complex(eps.getEigenvalue(i)) for i in range(n_converged)], dtype=complex
-    )
+    values = np.array([complex(eps.getEigenvalue(i)) for i in range(n_converged)], dtype=complex)
     order = np.argsort(np.abs(values - target))
     vectors = None
     if return_vectors:
@@ -558,7 +550,10 @@ def pozar_te10l_q_conductor(edges: Sequence[float], ell: int, sigma_s_per_m: flo
     k = np.pi * np.sqrt((1.0 / a) ** 2 + (ell / d) ** 2)
     r_s = surface_resistance_ohm(k * C_0, sigma_s_per_m)
     return float(
-        (k * a * d) ** 3 * b * ETA_0 / (2.0 * np.pi**2 * r_s)
+        (k * a * d) ** 3
+        * b
+        * ETA_0
+        / (2.0 * np.pi**2 * r_s)
         / (2 * ell**2 * a**3 * b + 2 * b * d**3 + ell**2 * a**3 * d + a * d**3)
     )
 
@@ -627,16 +622,14 @@ def solve_impedance_wall_cavity_mode(
     if sigma_s_per_m is None and surface_impedance_fn is None:
         A, B, n_bc = _cavity_forms(V, 1.0e4 * k0_sq)
     else:
-        omega_lin = omega0 if omega_linearisation_rad_s is None else float(
-            omega_linearisation_rad_s
+        omega_lin = (
+            omega0 if omega_linearisation_rad_s is None else float(omega_linearisation_rad_s)
         )
         if surface_impedance_fn is None:
             z_s = (1.0 + 1.0j) * surface_resistance_ohm(omega_lin, sigma_s_per_m)
         else:
             z_s = complex(surface_impedance_fn(omega_lin))
-        A, B, n_bc = _cavity_forms(
-            V, 0.0, surface_impedance_ohm=z_s, omega_rad_s=omega_lin
-        )
+        A, B, n_bc = _cavity_forms(V, 0.0, surface_impedance_ohm=z_s, omega_rad_s=omega_lin)
 
     if return_mode:
         # `EX-60`: additive — the eigenvalues are read exactly as without the flag.
@@ -761,9 +754,7 @@ def complex_relative_permittivity(
 ) -> complex:
     """``ε_r − jσ/(ω ε₀)`` — the ``e^{+jωt}`` lossy permittivity at one ω."""
 
-    return complex(epsilon_r) - 1.0j * float(sigma_s_per_m) / (
-        float(omega_rad_s) * EPSILON_0
-    )
+    return complex(epsilon_r) - 1.0j * float(sigma_s_per_m) / (float(omega_rad_s) * EPSILON_0)
 
 
 def general_mesh_pencil(
@@ -845,9 +836,7 @@ def solve_general_mesh_modes(
         A.destroy()
         B.destroy()
         return values, int(n_converged), int(n_bc), vectors
-    values, n_converged = _solve_pencil_nonhermitian(
-        A, B, float(target_k0_sq), nev=nev, comm=comm
-    )
+    values, n_converged = _solve_pencil_nonhermitian(A, B, float(target_k0_sq), nev=nev, comm=comm)
     A.destroy()
     B.destroy()
     return values, int(n_converged), int(n_bc)
@@ -924,9 +913,9 @@ def solve_impedance_mesh_mode(
         tags, tag = sheet
         dS = ufl.Measure("dS", domain=msh, subdomain_data=tags)
         for s in ("+", "-"):
-            a_form = a_form + gamma * ufl.inner(
-                ufl.cross(n(s), u(s)), ufl.cross(n(s), v(s))
-            ) * dS(tag)
+            a_form = a_form + gamma * ufl.inner(ufl.cross(n(s), u(s)), ufl.cross(n(s), v(s))) * dS(
+                tag
+            )
     A = assemble_matrix(fem.form(a_form))
     A.assemble()
     B = assemble_matrix(fem.form(ufl.inner(u, v) * ufl.dx))

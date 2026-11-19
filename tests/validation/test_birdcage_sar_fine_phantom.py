@@ -129,7 +129,6 @@ from fem_em_solver.post import (
     project_to_cg1_restricted,
 )
 from fem_em_solver.post.sar import point_sar
-
 from tests.complex_mode import complex_only
 from tests.mesh.test_birdcage_phantom_resolution import (
     DEFAULT_CELL_COUNT,
@@ -153,18 +152,18 @@ from tests.validation.test_birdcage_b1_plus_map import (
     _sample_points,
     _solve_driven,
 )
+from tests.validation.test_birdcage_b1_quadrature import (
+    QUADRATURE_STEP_DEG,
+    _mirror_xy,
+    _port_index,
+    quadrature_phase_weights,
+)
 from tests.validation.test_birdcage_sar_integral import (
     PARTITION_EPS_M,
     PARTITION_RTOL,
     QUADRATURE_DEGREE,
     STEP3G_INTEGRAL_PAIR_RECORDS,
     _quadrant_powers,
-)
-from tests.validation.test_birdcage_b1_quadrature import (
-    QUADRATURE_STEP_DEG,
-    _mirror_xy,
-    _port_index,
-    quadrature_phase_weights,
 )
 from tests.validation.test_birdcage_sar_map import (
     CONTROL_MIN_MISMATCH,
@@ -175,8 +174,8 @@ from tests.validation.test_birdcage_sar_map import (
     STEP1_GATE_I_P1_PHANTOM_POWER_W,
     STEP3D_RESTRICTED_CONTROL_RECORDS,
     STEP3D_RESTRICTED_IDENTITY_RECORDS,
-    STEP3D_RESTRICTED_PHANTOM_RESIDUAL,
     STEP3D_RESTRICTED_PHANTOM_POWER_W,
+    STEP3D_RESTRICTED_PHANTOM_RESIDUAL,
     _affine_field,
     _quadratic_field,
     _relative_l2_over_measure,
@@ -316,47 +315,64 @@ def _fine_mesh_verdict(identities, coarse_records, controls, band):
     """
     controls_survive = all(value > band for value in controls.values())
     deltas_pp = {
-        label: (identities[label] - coarse_records[label]) * 100.0
-        for label in coarse_records
+        label: (identities[label] - coarse_records[label]) * 100.0 for label in coarse_records
     }
-    ratios = {
-        label: identities[label] / coarse_records[label] for label in coarse_records
-    }
+    ratios = {label: identities[label] / coarse_records[label] for label in coarse_records}
     if all(identities[label] <= band for label in coarse_records) and controls_survive:
-        return "(a)", (
-            "all five identities are inside the band on the finer phantom with "
-            "both controls surviving — verdict (c)'s attribution to the "
-            "phantom's h is CONFIRMED, and registering the first coil-driven "
-            "SAR gate on the restricted estimator at this rung is the NEXT "
-            "REVIEW's ruling, never in-slot"
-        ), deltas_pp, ratios
+        return (
+            "(a)",
+            (
+                "all five identities are inside the band on the finer phantom with "
+                "both controls surviving — verdict (c)'s attribution to the "
+                "phantom's h is CONFIRMED, and registering the first coil-driven "
+                "SAR gate on the restricted estimator at this rung is the NEXT "
+                "REVIEW's ruling, never in-slot"
+            ),
+            deltas_pp,
+            ratios,
+        )
     if all(value <= -NULL_MOVE_PP for value in deltas_pp.values()):
         mean_ratio = float(np.mean(list(ratios.values())))
-        return "(b)", (
-            f"all five identities FELL by more than {NULL_MOVE_PP:.1f} pp but "
-            f"stay outside the {band * 100:.1f}% band — mean ratio "
-            f"new/coarse {mean_ratio:.4f} against the {SECOND_ORDER_RATIO:.2f} "
-            "one halving of h would give a second-order residual; a ratio near "
-            "1 says h is not the mechanism either.  Report and stop"
-        ), deltas_pp, ratios
+        return (
+            "(b)",
+            (
+                f"all five identities FELL by more than {NULL_MOVE_PP:.1f} pp but "
+                f"stay outside the {band * 100:.1f}% band — mean ratio "
+                f"new/coarse {mean_ratio:.4f} against the {SECOND_ORDER_RATIO:.2f} "
+                "one halving of h would give a second-order residual; a ratio near "
+                "1 says h is not the mechanism either.  Report and stop"
+            ),
+            deltas_pp,
+            ratios,
+        )
     if all(value >= -NULL_MOVE_PP for value in deltas_pp.values()):
         risen = [label for label, value in deltas_pp.items() if value > NULL_MOVE_PP]
-        return "(c)", (
-            "no identity fell by more than "
-            f"{NULL_MOVE_PP:.1f} pp on a phantom meshed at half the cell size "
-            f"({len(risen)} of {len(deltas_pp)} rose by more than that) — "
-            "NEITHER estimator degree (step 3e′) NOR mesh h is the mechanism.  "
-            "Step 3e′ showed a better-resolved E can RAISE these numbers, so a "
-            "rise here is a reading and not a defect; the construction itself "
-            "(a quadratic identity read from a fitted field at sampled points) "
-            "is what a review must adjudicate"
-        ), deltas_pp, ratios
-    return "(none)", (
-        "the reading pattern matches none of the pre-registered clauses ("
-        + ", ".join(f"{label}={deltas_pp[label]:+.4f} pp" for label in deltas_pp)
-        + f"; controls survive: {controls_survive}) — reported as-is for the "
-        "review, not forced into a clause"
-    ), deltas_pp, ratios
+        return (
+            "(c)",
+            (
+                "no identity fell by more than "
+                f"{NULL_MOVE_PP:.1f} pp on a phantom meshed at half the cell size "
+                f"({len(risen)} of {len(deltas_pp)} rose by more than that) — "
+                "NEITHER estimator degree (step 3e′) NOR mesh h is the mechanism.  "
+                "Step 3e′ showed a better-resolved E can RAISE these numbers, so a "
+                "rise here is a reading and not a defect; the construction itself "
+                "(a quadratic identity read from a fitted field at sampled points) "
+                "is what a review must adjudicate"
+            ),
+            deltas_pp,
+            ratios,
+        )
+    return (
+        "(none)",
+        (
+            "the reading pattern matches none of the pre-registered clauses ("
+            + ", ".join(f"{label}={deltas_pp[label]:+.4f} pp" for label in deltas_pp)
+            + f"; controls survive: {controls_survive}) — reported as-is for the "
+            "review, not forced into a clause"
+        ),
+        deltas_pp,
+        ratios,
+    )
 
 
 @pytest.fixture(scope="module")
@@ -379,9 +395,7 @@ def fine_phantom():
     cells = int(sweep["cells"])
     phantom_cells = _global_tag_cell_count(msh, cell_tags, PHANTOM_CELL_TAG, comm)
 
-    azimuths = {
-        f"P{s['tag'] - SHEET_IFACE}": float(s["azimuth_deg"]) for s in sweep["sheets"]
-    }
+    azimuths = {f"P{s['tag'] - SHEET_IFACE}": float(s["azimuth_deg"]) for s in sweep["sheets"]}
     delta_deg = (azimuths["P2"] - azimuths["P1"]) % 360.0
     delta = np.radians(delta_deg)
 
@@ -391,8 +405,7 @@ def fine_phantom():
     points = _sample_points(sweep)
     order = sorted(solves)
     indices = {
-        pid: _port_index(azimuths[pid], azimuths["P1"], QUADRATURE_STEP_DEG)
-        for pid in order
+        pid: _port_index(azimuths[pid], azimuths["P1"], QUADRATURE_STEP_DEG) for pid in order
     }
     ks = [indices[pid] for pid in order]
 
@@ -407,9 +420,7 @@ def fine_phantom():
     # --- anchor (i): the coil-side |B1+| column, CG1 estimator, gate (ii)'s.
     b_projected = {
         pid: project_to_cg1(
-            magnetic_flux_density_from_e(
-                solves[pid]["fields"].e_complex, solves[pid]["omega"]
-            ),
+            magnetic_flux_density_from_e(solves[pid]["fields"].e_complex, solves[pid]["omega"]),
             name=f"B_cg1_{pid}",
         )
         for pid in order
@@ -426,9 +437,7 @@ def fine_phantom():
 
     # --- anchor (ii): the restricted estimator on the new mesh, with the
     # same-mesh global fit beside it as the asserted comparison.
-    dx_phantom = ufl.Measure("dx", domain=msh, subdomain_data=cell_tags)(
-        PHANTOM_CELL_TAG
-    )
+    dx_phantom = ufl.Measure("dx", domain=msh, subdomain_data=cell_tags)(PHANTOM_CELL_TAG)
     diagnostics = {}
     projected = {}
     for pid in order:
@@ -476,14 +485,8 @@ def fine_phantom():
 
     # --- the five identities and two controls, off the restricted E.
     kwargs = dict(sigma=SALINE_SIGMA, rho=PHANTOM_RHO_KG_PER_M3, comm=comm)
-    split = {
-        pid: _split_complex(projected[pid], f"E_cg1_restricted_fine_{pid}")
-        for pid in order
-    }
-    single = {
-        label: point_sar(*split[pid], pts, **kwargs)
-        for label, (pid, pts) in images.items()
-    }
+    split = {pid: _split_complex(projected[pid], f"E_cg1_restricted_fine_{pid}") for pid in order}
+    single = {label: point_sar(*split[pid], pts, **kwargs) for label, (pid, pts) in images.items()}
     mirrored = _mirror_xy(points, azimuths["P1"])
     rotated = _rotate_z(points, delta)
     superposed = {
@@ -517,9 +520,7 @@ def fine_phantom():
         ),
     }
     controls = {
-        "mis-rotated SAR_P3(Rx) vs SAR_P1(x)": _relative_l2(
-            single["P3@+90deg"], reference, full
-        ),
+        "mis-rotated SAR_P3(Rx) vs SAR_P1(x)": _relative_l2(single["P3@+90deg"], reference, full),
         "quadrature SAR_ccw(x) vs single-drive SAR_P1(x)": _relative_l2(
             quad[("ccw", "x")], reference, full
         ),
@@ -552,30 +553,19 @@ def fine_phantom():
             if label != "P1@0deg"
         }
         sar_single = {
-            label: point_sar(*split[pid], p, **kwargs)
-            for label, (pid, p) in images_pts.items()
+            label: point_sar(*split[pid], p, **kwargs) for label, (pid, p) in images_pts.items()
         }
         sar_quad = {
             ("ccw", "x"): point_sar(*superposed["ccw"], pts, **kwargs),
-            ("ccw", "Rx"): point_sar(
-                *superposed["ccw"], _rotate_z(pts, delta), **kwargs
-            ),
-            ("cw", "Mx"): point_sar(
-                *superposed["cw"], _mirror_xy(pts, azimuths["P1"]), **kwargs
-            ),
+            ("ccw", "Rx"): point_sar(*superposed["ccw"], _rotate_z(pts, delta), **kwargs),
+            ("cw", "Mx"): point_sar(*superposed["cw"], _mirror_xy(pts, azimuths["P1"]), **kwargs),
         }
         every = np.ones(pts.shape[0], dtype=bool)
         ref = sar_single["P1@0deg"]
         ident = {
-            "(i) SAR_P2(Rx) vs SAR_P1(x)": _relative_l2(
-                sar_single["P2@+90deg"], ref, every
-            ),
-            "(i) SAR_P4(-Rx) vs SAR_P1(x)": _relative_l2(
-                sar_single["P4@-90deg"], ref, every
-            ),
-            "(i) SAR_P3(180deg) vs SAR_P1(x)": _relative_l2(
-                sar_single["P3@180deg"], ref, every
-            ),
+            "(i) SAR_P2(Rx) vs SAR_P1(x)": _relative_l2(sar_single["P2@+90deg"], ref, every),
+            "(i) SAR_P4(-Rx) vs SAR_P1(x)": _relative_l2(sar_single["P4@-90deg"], ref, every),
+            "(i) SAR_P3(180deg) vs SAR_P1(x)": _relative_l2(sar_single["P3@180deg"], ref, every),
             "(ii) SAR_ccw(Rx) vs SAR_ccw(x)": _relative_l2(
                 sar_quad[("ccw", "Rx")], sar_quad[("ccw", "x")], every
             ),
@@ -594,9 +584,7 @@ def fine_phantom():
         return b1, int(mask.sum()), ident, ctrl
 
     ring_points = _ring_points()
-    ring_b1_table, ring_b1_valid, ring_identities, ring_controls = _columns_on(
-        ring_points
-    )
+    ring_b1_table, ring_b1_valid, ring_identities, ring_controls = _columns_on(ring_points)
     ring_vs_centroid_pp = {
         f"|B1+| {label}": (ring_b1_table[label] - b1_table[label]) * 100.0
         for label in STEP1B_CG1_RECORDS
@@ -683,8 +671,7 @@ def fine_phantom():
             f"gives more of its own centroids, which is inherent to an h rung; "
             f"step 1c measured the sample set is NOT the mechanism for the |B1+| "
             f"column\n"
-            f"    solve times "
-            + ", ".join(f"{p} {solves[p]['solve_time']:.2f} s" for p in order),
+            f"    solve times " + ", ".join(f"{p} {solves[p]['solve_time']:.2f} s" for p in order),
             flush=True,
         )
         for pid, sh in shares.items():
@@ -751,8 +738,7 @@ def fine_phantom():
                 flush=True,
             )
         print(
-            f"        {'':<36} {'coarse h':>10} {'fine h':>10} {'delta pp':>10} "
-            f"{'ratio':>8}",
+            f"        {'':<36} {'coarse h':>10} {'fine h':>10} {'delta pp':>10} " f"{'ratio':>8}",
             flush=True,
         )
         for label in identities:
@@ -969,9 +955,9 @@ def test_power_accounting_still_closes_on_the_finer_phantom(fine_phantom):
     """
     for pid, sh in fine_phantom["shares"].items():
         supplied = sh["supplied"]
-        assert supplied > 0.0, (
-            f"[{pid}] the driven sheet supplies {supplied:.9e} W on the finer mesh"
-        )
+        assert (
+            supplied > 0.0
+        ), f"[{pid}] the driven sheet supplies {supplied:.9e} W on the finer mesh"
         total = sh["phantom"] + sh["conductor"] + sh["sheet_total"]
         residual = abs(supplied - total) / abs(supplied)
         assert residual <= POWER_BALANCE_BAND, (
@@ -1207,9 +1193,12 @@ def test_the_five_identities_are_printed_with_a_pre_registered_verdict(fine_phan
     and is *not* asserted away; it fails here only if the verdict machinery
     returned something outside the four labels it can produce.
     """
-    assert fine_phantom["verdict"] in {"(a)", "(b)", "(c)", "(none)"}, (
-        f"the verdict machinery returned {fine_phantom['verdict']!r}"
-    )
+    assert fine_phantom["verdict"] in {
+        "(a)",
+        "(b)",
+        "(c)",
+        "(none)",
+    }, f"the verdict machinery returned {fine_phantom['verdict']!r}"
     assert set(fine_phantom["identities"]) == set(STEP3D_RESTRICTED_IDENTITY_RECORDS), (
         "the identity labels have drifted from the coarse-mesh records, so the "
         "delta and ratio columns are not comparing the same five quantities"
@@ -1250,15 +1239,22 @@ def test_the_estimator_diagnostics_reproduce_step_3fs_records(fine_phantom):
     at a fixed mesh, partition and rank count.
     """
     for name, reading, record in (
-        ("restricted residual", fine_phantom["restricted_residual"],
-         STEP3F_FINE_RESTRICTED_RESIDUAL),
-        ("same-mesh global residual", fine_phantom["global_residual"],
-         STEP3F_FINE_GLOBAL_RESIDUAL),
-        ("affine reproduction residual",
-         fine_phantom["control_fields"]["a + b x x"]["residual"],
-         STEP3F_FINE_AFFINE_RESIDUAL),
-        ("primal phantom power [W]", fine_phantom["primal_phantom_power_w"],
-         STEP3F_FINE_PRIMAL_PHANTOM_POWER_W),
+        (
+            "restricted residual",
+            fine_phantom["restricted_residual"],
+            STEP3F_FINE_RESTRICTED_RESIDUAL,
+        ),
+        ("same-mesh global residual", fine_phantom["global_residual"], STEP3F_FINE_GLOBAL_RESIDUAL),
+        (
+            "affine reproduction residual",
+            fine_phantom["control_fields"]["a + b x x"]["residual"],
+            STEP3F_FINE_AFFINE_RESIDUAL,
+        ),
+        (
+            "primal phantom power [W]",
+            fine_phantom["primal_phantom_power_w"],
+            STEP3F_FINE_PRIMAL_PHANTOM_POWER_W,
+        ),
     ):
         assert reading == pytest.approx(record, rel=CG1_RECORD_RTOL), (
             f"the fine rung's {name} reads {reading:.6e}, not step 3f's recorded "
@@ -1323,9 +1319,7 @@ def test_the_negative_controls_survive_on_the_ring_set_too(fine_phantom):
 
 @complex_only
 @pytest.mark.parametrize("k", [0, 1, 2, 3])
-def test_the_integral_partition_recovers_the_phantom_power_on_this_mesh(
-    fine_phantom, k
-):
+def test_the_integral_partition_recovers_the_phantom_power_on_this_mesh(fine_phantom, k):
     """Step 3f′ anchor (iv): ``Σ_j P_j = P_phantom`` on the finer mesh, exactly.
 
     ``Σ_j w_j = 1`` pointwise, so the four weighted integrals and the unweighted
@@ -1361,16 +1355,12 @@ def test_the_integral_p1_total_reproduces_this_meshs_primal_phantom_power(
     quantity.
     """
     p1_total = fine_phantom["integral_totals"][fine_phantom["p1_slot"]]
-    assert p1_total == pytest.approx(
-        fine_phantom["primal_phantom_power_w"], rel=CG1_RECORD_RTOL
-    ), (
+    assert p1_total == pytest.approx(fine_phantom["primal_phantom_power_w"], rel=CG1_RECORD_RTOL), (
         f"the partition's P1 total {p1_total:.9e} W disagrees with mean_sar's "
         f"{fine_phantom['primal_phantom_power_w']:.9e} W on the same primal field "
         f"and the same tag-3 cells, at rtol {CG1_RECORD_RTOL:.0e}"
     )
-    assert p1_total == pytest.approx(
-        STEP3F_FINE_PRIMAL_PHANTOM_POWER_W, rel=CG1_RECORD_RTOL
-    ), (
+    assert p1_total == pytest.approx(STEP3F_FINE_PRIMAL_PHANTOM_POWER_W, rel=CG1_RECORD_RTOL), (
         f"the partition's P1 total {p1_total:.9e} W is not step 3f's recorded "
         f"{STEP3F_FINE_PRIMAL_PHANTOM_POWER_W:.9e} W for this mesh at rtol "
         f"{CG1_RECORD_RTOL:.0e}"
@@ -1399,8 +1389,7 @@ def test_the_integral_pairs_on_this_mesh_are_printed_with_a_pre_registered_verdi
     the twelve pairs it classified are the twelve step 3g recorded.
     """
     assert fine_phantom["integral_verdict"] in {"(a)", "(b)", "(c)"}, (
-        f"the integral verdict machinery returned "
-        f"{fine_phantom['integral_verdict']!r}"
+        f"the integral verdict machinery returned " f"{fine_phantom['integral_verdict']!r}"
     )
     assert set(fine_phantom["integral_pairs"]) == set(STEP3G_INTEGRAL_PAIR_RECORDS), (
         "the (k, j) keys of the fine-mesh integral pairs differ from step 3g's "

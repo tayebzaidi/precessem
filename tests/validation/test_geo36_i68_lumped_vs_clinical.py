@@ -42,7 +42,7 @@ from tests.validation.test_imp8_entry48_lumped import (
     _line,
     _tips,
 )
-from tests.validation.test_imp8_rod_line_source_closed_form import L, T_PRINT
+from tests.validation.test_imp8_rod_line_source_closed_form import T_PRINT, L
 from tests.validation.test_mat21_box_fem import T_STAR as T_STAR_BOX
 
 ENTRY55_LOG = "20261106T080008Z_GEO-36-step10-I32.log"
@@ -86,19 +86,27 @@ _H = r"^\[GEO-36 I32\] "
 _S = r"sense \(1,\+1j\)"
 _BALL = _H + r"\[{arm}\] 1 g ball \(a (\S+) mm\) at {tip}, " + _S + r": theta\(t\*\) (\S+) K,"
 PATTERNS = {
-    "share": (_H + r"rod share of P_vol, " + _S
-              + r": (\S+) \(P_vol (\S+) W, gel (\S+), rod (\S+); printed\)$",
-              ("ROD_SHARE", "P_VOL", "P_GEL_SPLIT", "P_ROD")),
-    "twin_g": (_H + r"\[gel twin\] " + _S + r": P_gel (\S+) W; G (\S+) 1/W; G\*P (\S+) W;",
-               ("TWIN_P_GEL", "G_TWIN", "GP_TWIN")),
+    "share": (
+        _H
+        + r"rod share of P_vol, "
+        + _S
+        + r": (\S+) \(P_vol (\S+) W, gel (\S+), rod (\S+); printed\)$",
+        ("ROD_SHARE", "P_VOL", "P_GEL_SPLIT", "P_ROD"),
+    ),
+    "twin_g": (
+        _H + r"\[gel twin\] " + _S + r": P_gel (\S+) W; G (\S+) 1/W; G\*P (\S+) W;",
+        ("TWIN_P_GEL", "G_TWIN", "GP_TWIN"),
+    ),
     "twin_top": (_BALL.format(arm="gel twin", tip="top"), ("BALL_MM", "TWIN_TOP")),
     "twin_bottom": (_BALL.format(arm="gel twin", tip="bottom"), ("BALL_MM", "TWIN_BOTTOM")),
     "twin_cn": (_H + r"\[gel twin\] CN N=40 to t\* (\S+) s, dt (\S+) s ", ("T_STAR_LOG", "DT_LOG")),
     "rod_g": (_H + r"\[rod\] " + _S + r": P_gel \S+ W; G \S+ 1/W; G\*P (\S+) W;", ("GP_ROD",)),
     "rod_top": (_BALL.format(arm="rod", tip="top"), ("BALL_MM", "ROD_TOP")),
     "rod_bottom": (_BALL.format(arm="rod", tip="bottom"), ("BALL_MM", "ROD_BOTTOM")),
-    "ratio": (_H + r"tip theta\(t\*\) ratio rod / gel twin, " + _S + r": top (\S+), bottom (\S+) ",
-              ("RATIO_TOP", "RATIO_BOTTOM")),
+    "ratio": (
+        _H + r"tip theta\(t\*\) ratio rod / gel twin, " + _S + r": top (\S+), bottom (\S+) ",
+        ("RATIO_TOP", "RATIO_BOTTOM"),
+    ),
 }
 
 
@@ -143,51 +151,70 @@ def _lumped_ball(f, t, sign):
 
 def test_k_record_and_controls():
     rec, failures = _entry55_record()
-    _p(f"[GEO-36 I68'] (K) {ENTRY55_LOG}: {len(PATTERNS)} patterns, {len(rec)} tokens; "
-       f"failures {failures or 'none'} (ASSERTED, string equality)")
+    _p(
+        f"[GEO-36 I68'] (K) {ENTRY55_LOG}: {len(PATTERNS)} patterns, {len(rec)} tokens; "
+        f"failures {failures or 'none'} (ASSERTED, string equality)"
+    )
     assert not failures, failures
     # (K-c): a copy of :12512 with one digit changed, in memory.
     text = _log_text()
-    bad = text.replace(f"at top, sense (1,+1j): theta(t*) {ROD_TOP} K", "at top, sense (1,+1j): "
-                       f"theta(t*) {ROD_TOP[:-5]}7{ROD_TOP[-4:]} K", 1)
+    bad = text.replace(
+        f"at top, sense (1,+1j): theta(t*) {ROD_TOP} K",
+        "at top, sense (1,+1j): " f"theta(t*) {ROD_TOP[:-5]}7{ROD_TOP[-4:]} K",
+        1,
+    )
     assert bad != text
     _, bad_failures = _parse(bad)
-    _p(f"[GEO-36 I68'] (K-c) one digit changed on :12512: failures {bad_failures} (ASSERTED non-empty)")
+    _p(
+        f"[GEO-36 I68'] (K-c) one digit changed on :12512: failures {bad_failures} (ASSERTED non-empty)"
+    )
     assert bad_failures
 
 
 def test_kd_rederived():
     rec, failures = _entry55_record()
     assert not failures, failures
-    for tip, rod, twin, ratio in (("top", ROD_TOP, TWIN_TOP, RATIO_TOP),
-                                  ("bottom", ROD_BOTTOM, TWIN_BOTTOM, RATIO_BOTTOM)):
+    for tip, rod, twin, ratio in (
+        ("top", ROD_TOP, TWIN_TOP, RATIO_TOP),
+        ("bottom", ROD_BOTTOM, TWIN_BOTTOM, RATIO_BOTTOM),
+    ):
         d = abs(float(rod) / float(twin) - float(ratio))
-        _p(f"[GEO-36 I68'] (K-d) {tip}: theta_rod/theta_twin vs {ratio}: |d| {d:.3e} (band 1e-06, ASSERTED)")
+        _p(
+            f"[GEO-36 I68'] (K-d) {tip}: theta_rod/theta_twin vs {ratio}: |d| {d:.3e} (band 1e-06, ASSERTED)"
+        )
         assert d <= 1.0e-6
     d = abs(float(P_ROD) / float(P_VOL) - float(ROD_SHARE))
     _p(f"[GEO-36 I68'] (K-d) rod/P_vol vs {ROD_SHARE}: |d| {d:.3e} (band 5e-12, ASSERTED)")
     assert d <= 5.0e-12
     t_s = f"{T_STAR_BOX:.3f}"
-    _p(f"[GEO-36 I68'] (K-d) MAT-21 T_STAR {t_s} s vs log {T_STAR_LOG} s (ASSERTED string equality)")
+    _p(
+        f"[GEO-36 I68'] (K-d) MAT-21 T_STAR {t_s} s vs log {T_STAR_LOG} s (ASSERTED string equality)"
+    )
     assert t_s == T_STAR_LOG
 
 
 def test_n_lumped_reproduced_and_record():
     a_s = f"{_a_1g() * 1e3:.4f}"
-    _p(f"[GEO-36 I68'] (N) I58 ball radius {a_s} mm vs entry 55 {BALL_MM} mm (ASSERTED string equality)")
+    _p(
+        f"[GEO-36 I68'] (N) I58 ball radius {a_s} mm vs entry 55 {BALL_MM} mm (ASSERTED string equality)"
+    )
     assert a_s == BALL_MM
     lumped = {}
     for tip, sign in (("top", 1.0), ("bottom", -1.0)):
         ln = _lumped_ball(_line, T_PRINT, sign)
         tp = _lumped_ball(_tips, T_PRINT, sign)
-        _p(f"[GEO-36 I68'] (N) {tip} ball at {T_PRINT:g} s: line {ln:.7g} vs {I58_BALL_LINE}, "
-           f"tips {tp:.7g} vs {I58_BALL_TIPS} K/W (ASSERTED string equality)")
+        _p(
+            f"[GEO-36 I68'] (N) {tip} ball at {T_PRINT:g} s: line {ln:.7g} vs {I58_BALL_LINE}, "
+            f"tips {tp:.7g} vs {I58_BALL_TIPS} K/W (ASSERTED string equality)"
+        )
         assert f"{ln:.7g}" == I58_BALL_LINE
         assert f"{tp:.7g}" == I58_BALL_TIPS
         ln_t = _lumped_ball(_line, T_STAR_BOX, sign)
         miss = abs(ln_t - float(I58_BALL_LINE))
-        _p(f"[GEO-36 I68'] (N-c) {tip} ball line read at t* {T_STAR_BOX:.1f} s: {ln_t:.7g} K/W; "
-           f"|miss| vs {I58_BALL_LINE} {miss:.3e} (> {N_BOUND:.0e}, ASSERTED)")
+        _p(
+            f"[GEO-36 I68'] (N-c) {tip} ball line read at t* {T_STAR_BOX:.1f} s: {ln_t:.7g} K/W; "
+            f"|miss| vs {I58_BALL_LINE} {miss:.3e} (> {N_BOUND:.0e}, ASSERTED)"
+        )
         assert miss > N_BOUND
         lumped[tip] = ln_t
 
@@ -195,24 +222,34 @@ def test_n_lumped_reproduced_and_record():
     g = float(G_TWIN)
     gp_rod, gp_vol = g * float(P_ROD), g * float(P_VOL)
     a = f"ball a {BALL_MM} mm"
-    _p(f"[GEO-36 I68'] conversions ({a}): G {G_TWIN} 1/W (:12499); P_rod {P_ROD_LOG} W, P_vol {P_VOL} W "
-       f"(:12497); G*P_rod {gp_rod:.7g} W in the rod per W in the gel; G*P_vol {gp_vol:.7g} W")
+    _p(
+        f"[GEO-36 I68'] conversions ({a}): G {G_TWIN} 1/W (:12499); P_rod {P_ROD_LOG} W, P_vol {P_VOL} W "
+        f"(:12497); G*P_rod {gp_rod:.7g} W in the rod per W in the gel; G*P_vol {gp_vol:.7g} W"
+    )
     _p(f"[GEO-36 I68'] per accepted watt: not in a tracked record ({a})")
-    for arm, gp_gel, vals in (("gel twin", GP_TWIN, (("top", TWIN_TOP), ("bottom", TWIN_BOTTOM))),
-                              ("rod", GP_ROD, (("top", ROD_TOP), ("bottom", ROD_BOTTOM)))):
+    for arm, gp_gel, vals in (
+        ("gel twin", GP_TWIN, (("top", TWIN_TOP), ("bottom", TWIN_BOTTOM))),
+        ("rod", GP_ROD, (("top", ROD_TOP), ("bottom", ROD_BOTTOM))),
+    ):
         for tip, th_s in vals:
             th = float(th_s)
             per_rod, per_vol = th / gp_rod, th / gp_vol
-            _p(f"[GEO-36 I68'] [{arm}] {tip} ({a}): theta_FEM(t*) {th_s} K at G*P {gp_gel} W in the gel "
-               f"(the print); per rod watt {per_rod:.7g} K/W; per P_vol watt {per_vol:.7g} K/W "
-               f"(nearest tracked normalisation)")
-            _p(f"[GEO-36 I68'] [{arm}] {tip} ({a}): lumped per rod watt — 900 s ball line {I58_BALL_LINE}, "
-               f"ball tips {I58_BALL_TIPS}, surface line {I58_SURF_LINE}, surface tips {I58_SURF_TIPS}; "
-               f"t* ball line {lumped[tip]:.7g} K/W")
-            _p(f"[GEO-36 I68'] [{arm}] {tip} ({a}): FEM/lumped per rod watt — vs 900 s ball line "
-               f"{per_rod / float(I58_BALL_LINE):.7g}, ball tips {per_rod / float(I58_BALL_TIPS):.7g}, "
-               f"surface line {per_rod / float(I58_SURF_LINE):.7g}, surface tips "
-               f"{per_rod / float(I58_SURF_TIPS):.7g}; vs t* ball line {per_rod / lumped[tip]:.7g} "
-               f"(differs: FEM SAR in the gel, rod unheated (tag 403 outside the thermal domain); lumped "
-               f"P_rod in the rod's line and tips; {T_STAR_LOG} s against {T_PRINT:g} s except the t* "
-               f"column; walled box against infinite medium)")
+            _p(
+                f"[GEO-36 I68'] [{arm}] {tip} ({a}): theta_FEM(t*) {th_s} K at G*P {gp_gel} W in the gel "
+                f"(the print); per rod watt {per_rod:.7g} K/W; per P_vol watt {per_vol:.7g} K/W "
+                f"(nearest tracked normalisation)"
+            )
+            _p(
+                f"[GEO-36 I68'] [{arm}] {tip} ({a}): lumped per rod watt — 900 s ball line {I58_BALL_LINE}, "
+                f"ball tips {I58_BALL_TIPS}, surface line {I58_SURF_LINE}, surface tips {I58_SURF_TIPS}; "
+                f"t* ball line {lumped[tip]:.7g} K/W"
+            )
+            _p(
+                f"[GEO-36 I68'] [{arm}] {tip} ({a}): FEM/lumped per rod watt — vs 900 s ball line "
+                f"{per_rod / float(I58_BALL_LINE):.7g}, ball tips {per_rod / float(I58_BALL_TIPS):.7g}, "
+                f"surface line {per_rod / float(I58_SURF_LINE):.7g}, surface tips "
+                f"{per_rod / float(I58_SURF_TIPS):.7g}; vs t* ball line {per_rod / lumped[tip]:.7g} "
+                f"(differs: FEM SAR in the gel, rod unheated (tag 403 outside the thermal domain); lumped "
+                f"P_rod in the rod's line and tips; {T_STAR_LOG} s against {T_PRINT:g} s except the t* "
+                f"column; walled box against infinite medium)"
+            )

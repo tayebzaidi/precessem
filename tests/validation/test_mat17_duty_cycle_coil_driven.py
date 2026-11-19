@@ -39,7 +39,6 @@ from mpi4py import MPI
 
 from fem_em_solver.post.sar import averaging_ball_radius
 from fem_em_solver.thermal import solve_transient_conduction
-
 from tests.complex_mode import complex_only
 from tests.validation.test_birdcage_b1_plus_map import PHANTOM_RHO_KG_PER_M3
 from tests.validation.test_mass_averaged_sar_standard_masses import (
@@ -86,9 +85,21 @@ def _heaviside(m):
 def _transient_s(sub, ft, q, schedule, *, snapshot_steps=SNAPS):
     """`MAT-15` step 1's ``_cn`` (``:145–157``) plus ``source_schedule=``."""
     return solve_transient_conduction(
-        sub, ft, k=K_GEL, rho_c=RHO_C, q=q, h=H_GEL, t_inf=T_INF, t_init=T_INF,
-        robin_tag=ROBIN_TAG, dt=DT, n_steps=N_MAIN, theta=0.5,
-        startup_half_steps=2, degree=1, snapshot_steps=snapshot_steps,
+        sub,
+        ft,
+        k=K_GEL,
+        rho_c=RHO_C,
+        q=q,
+        h=H_GEL,
+        t_inf=T_INF,
+        t_init=T_INF,
+        robin_tag=ROBIN_TAG,
+        dt=DT,
+        n_steps=N_MAIN,
+        theta=0.5,
+        startup_half_steps=2,
+        degree=1,
+        snapshot_steps=snapshot_steps,
         source_schedule=schedule,
     )
 
@@ -138,21 +149,27 @@ def _run_duty(*, return_fields=False):
     out["E"]["duty"] = r_duty.max_balance_residual
     tmax_imag = max(tmax_imag, _max_imag(r_duty.temperature))
     th_duty = r_duty.temperature.x.array - T_INF
-    _say(f"\nMAT17s3 schedule: dt = {DT:.4f} s, P/2 = {HALF:.4f} s ({STEPS_PER_HALF} steps), "
-         f"D = {DUTY}; chi per (half-)step ({len(chis)}) = "
-         + "".join(str(int(c)) if c in (0.0, 1.0) else "?" for c in chis)
-         + f"; on-time {sum(c for c in chis[2:]) * DT + 0.5 * DT * sum(chis[:2]):.4f} s "
-         f"of t* = {T_STAR:.4f} s; duty run {t_duty:.1f} s, (E) {r_duty.max_balance_residual:.3e}")
+    _say(
+        f"\nMAT17s3 schedule: dt = {DT:.4f} s, P/2 = {HALF:.4f} s ({STEPS_PER_HALF} steps), "
+        f"D = {DUTY}; chi per (half-)step ({len(chis)}) = "
+        + "".join(str(int(c)) if c in (0.0, 1.0) else "?" for c in chis)
+        + f"; on-time {sum(c for c in chis[2:]) * DT + 0.5 * DT * sum(chis[:2]):.4f} s "
+        f"of t* = {T_STAR:.4f} s; duty run {t_duty:.1f} s, (E) {r_duty.max_balance_residual:.3e}"
+    )
 
     # (E′) on the duty run: last step (off) and last on step.
     out["Ep_N"], stor, conv, chiN = _e_prime_at(sub, ds, r_duty, N_MAIN, dep)
-    _say(f"MAT17s3 (E') step N={N_MAIN} (chi_N = {chiN}): stored {stor:.12e} W + surface "
-         f"{conv:.12e} W vs chi_N*G*P_1 = {chiN * dep:.12e} W, normalised by G*P_1 = {dep:.12e} W: "
-         f"rel {out['Ep_N']:.3e} (bound {E_BAND:.0e})")
+    _say(
+        f"MAT17s3 (E') step N={N_MAIN} (chi_N = {chiN}): stored {stor:.12e} W + surface "
+        f"{conv:.12e} W vs chi_N*G*P_1 = {chiN * dep:.12e} W, normalised by G*P_1 = {dep:.12e} W: "
+        f"rel {out['Ep_N']:.3e} (bound {E_BAND:.0e})"
+    )
     out["Ep_on"], stor, conv, chi36 = _e_prime_at(sub, ds, r_duty, N_ON_LAST, dep)
-    _say(f"MAT17s3 (E') step n={N_ON_LAST} (chi = {chi36}): stored {stor:.12e} W + surface "
-         f"{conv:.12e} W vs chi*G*P_1 = {chi36 * dep:.12e} W: rel {out['Ep_on']:.3e} "
-         f"(bound {E_BAND:.0e})")
+    _say(
+        f"MAT17s3 (E') step n={N_ON_LAST} (chi = {chi36}): stored {stor:.12e} W + surface "
+        f"{conv:.12e} W vs chi*G*P_1 = {chi36 * dep:.12e} W: rel {out['Ep_on']:.3e} "
+        f"(bound {E_BAND:.0e})"
+    )
 
     # (D′) χ ≡ 1 against step 1's T_star[0].
     r_one = _transient_s(sub, ft, q0, lambda t: 1.0)
@@ -160,8 +177,10 @@ def _run_duty(*, return_fields=False):
     tmax_imag = max(tmax_imag, _max_imag(r_one.temperature))
     ref = base["T_star"][0].x.array - T_INF
     out["D"] = np.sqrt(_l2sq(r_one.temperature.x.array - T_INF - ref) / _l2sq(ref))
-    _say(f"MAT17s3 (D') chi=1 vs step 1 T_star[k=0]: whole-submesh rel L2 {out['D']:.3e} "
-         f"(bound {D_BAND:.0e}); (E) {r_one.max_balance_residual:.3e}")
+    _say(
+        f"MAT17s3 (D') chi=1 vs step 1 T_star[k=0]: whole-submesh rel L2 {out['D']:.3e} "
+        f"(bound {D_BAND:.0e}); (E) {r_one.max_balance_residual:.3e}"
+    )
 
     # (Δ) Duhamel superposition over ten full-from-zero Heaviside runs.
     terms = []
@@ -170,9 +189,11 @@ def _run_duty(*, return_fields=False):
         out["E"][f"H{m}"] = r_m.max_balance_residual
         tmax_imag = max(tmax_imag, _max_imag(r_m.temperature))
         terms.append(r_m.temperature.x.array - T_INF)
-        _say(f"MAT17s3   H_{m} (t_m = {m * HALF:.4f} s): <theta>(t*) = "
-             f"{_mean_theta(r_m.temperature):.12e} K  ||theta||^2 = {_l2sq(terms[-1]):.6e}  "
-             f"(E) {r_m.max_balance_residual:.3e}")
+        _say(
+            f"MAT17s3   H_{m} (t_m = {m * HALF:.4f} s): <theta>(t*) = "
+            f"{_mean_theta(r_m.temperature):.12e} K  ||theta||^2 = {_l2sq(terms[-1]):.6e}  "
+            f"(E) {r_m.max_balance_residual:.3e}"
+        )
     signs = [(-1.0) ** m for m in range(N_SWITCH)]
     sup = sum(s * t for s, t in zip(signs, terms))
     nrm = _l2sq(th_duty)
@@ -182,11 +203,15 @@ def _run_duty(*, return_fields=False):
     work.x.array[:] = sup9
     work.x.scatter_forward()
     mean_sup9 = float(np.real(_allsum(comm, work * ufl.dx(domain=sub)))) / v_sub
-    _say(f"MAT17s3 (Delta) theta[chi] - sum_m (-1)^m theta[H_m], m = 0..9: whole-submesh rel L2 "
-         f"{out['Delta']:.3e} (bound {L_BAND:.0e}, predicted <= 1e-13)")
-    _say(f"MAT17s3 control (Delta-ctl) m = 9 dropped: rel L2 {out['Delta_ctl']:.6f} "
-         f"(predicted 0.15-0.3, asserted > {L_BAND:.0e}); mean of the 9-term sum "
-         f"{mean_sup9:.9f} K")
+    _say(
+        f"MAT17s3 (Delta) theta[chi] - sum_m (-1)^m theta[H_m], m = 0..9: whole-submesh rel L2 "
+        f"{out['Delta']:.3e} (bound {L_BAND:.0e}, predicted <= 1e-13)"
+    )
+    _say(
+        f"MAT17s3 control (Delta-ctl) m = 9 dropped: rel L2 {out['Delta_ctl']:.6f} "
+        f"(predicted 0.15-0.3, asserted > {L_BAND:.0e}); mean of the 9-term sum "
+        f"{mean_sup9:.9f} K"
+    )
 
     # (d) doubled source on the duty schedule.
     q_two = fem.Function(q0.function_space)
@@ -195,24 +220,30 @@ def _run_duty(*, return_fields=False):
     r_d = _transient_s(sub, ft, q_two, _chi_duty)
     out["ctl_d"], _, _, _ = _e_prime_at(sub, ds, r_d, N_ON_LAST, dep)
     out["ctl_d_N"], _, _, _ = _e_prime_at(sub, ds, r_d, N_MAIN, dep)
-    _say(f"MAT17s3 control (d) doubled source, duty: (E') vs chi*G*P_1 at n={N_ON_LAST} (on) = "
-         f"{out['ctl_d']:.6f} (prior 1.000000, asserted > {D_CONTROL_FLOOR:.0e}); at N={N_MAIN} "
-         f"(off, blind by linearity, printed) = {out['ctl_d_N']:.3e}; internal (E) "
-         f"{r_d.max_balance_residual:.3e}")
+    _say(
+        f"MAT17s3 control (d) doubled source, duty: (E') vs chi*G*P_1 at n={N_ON_LAST} (on) = "
+        f"{out['ctl_d']:.6f} (prior 1.000000, asserted > {D_CONTROL_FLOOR:.0e}); at N={N_MAIN} "
+        f"(off, blind by linearity, printed) = {out['ctl_d_N']:.3e}; internal (E) "
+        f"{r_d.max_balance_residual:.3e}"
+    )
 
     # Records.
     mean_duty = _mean_theta(r_duty.temperature)
     mean_p1 = _mean_theta(base["T_star"][0])
     out["mean_ratio"] = mean_duty / (DUTY * mean_p1)
-    _say(f"MAT17s3 record <theta>(t*): duty {mean_duty:.9f} K  vs D*P1 = {DUTY} * {mean_p1:.9f} K "
-         f"= {DUTY * mean_p1:.9f} K  ratio {out['mean_ratio']:.6f} (predicted 0.97-1.00)")
+    _say(
+        f"MAT17s3 record <theta>(t*): duty {mean_duty:.9f} K  vs D*P1 = {DUTY} * {mean_p1:.9f} K "
+        f"= {DUTY * mean_p1:.9f} K  ratio {out['mean_ratio']:.6f} (predicted 0.97-1.00)"
+    )
     s_lo, s_hi = SNAPS[0], N_ON_LAST
     m_lo = _mean_theta(r_duty.snapshots[s_lo])
     m_hi = _mean_theta(r_duty.snapshots[s_hi])
-    _say(f"MAT17s3 record ripple, last on/off pair: <theta> n={s_lo} {m_lo:.9f} K -> n={s_hi} (on end) "
-         f"{m_hi:.9f} K -> n={N_MAIN} (off end) {mean_duty:.9f} K;  (peak - end)/end = "
-         f"{(m_hi - mean_duty) / mean_duty * 100:.4f} %, (peak - start)/start = "
-         f"{(m_hi - m_lo) / m_lo * 100:.4f} %")
+    _say(
+        f"MAT17s3 record ripple, last on/off pair: <theta> n={s_lo} {m_lo:.9f} K -> n={s_hi} (on end) "
+        f"{m_hi:.9f} K -> n={N_MAIN} (off end) {mean_duty:.9f} K;  (peak - end)/end = "
+        f"{(m_hi - mean_duty) / mean_duty * 100:.4f} %, (peak - start)/start = "
+        f"{(m_hi - m_lo) / m_lo * 100:.4f} %"
+    )
 
     # 10 g ball mean at c_0 (step 1's forms, centre from the fixture).
     a10 = averaging_ball_radius(mass_kg=TEN_GRAM_KG, rho=PHANTOM_RHO_KG_PER_M3)
@@ -235,17 +266,32 @@ def _run_duty(*, return_fields=False):
     th_ball.x.array[:] = ref
     th_ball.x.scatter_forward()
     b_p1 = _red(f_th) / bv
-    _say(f"MAT17s3 record 10 g ball theta(c_0) at t*: duty {b_duty:.9e} K  P1 {b_p1:.9e} K  "
-         f"duty/(D*P1) = {b_duty / (DUTY * b_p1):.6f}")
+    _say(
+        f"MAT17s3 record 10 g ball theta(c_0) at t*: duty {b_duty:.9e} K  P1 {b_p1:.9e} K  "
+        f"duty/(D*P1) = {b_duty / (DUTY * b_p1):.6f}"
+    )
 
     worst = max(out["E"], key=out["E"].get)
     out["max_imag"] = tmax_imag
-    _say(f"MAT17s3 (E) worst balance over {len(out['E'])} runs = {out['E'][worst]:.3e} on {worst} "
-         f"(bound {E_BAND:.0e}); max|Im theta| = {tmax_imag:.3e} (predicted 0); "
-         f"elapsed after P1 fixture {time.perf_counter() - t0:.1f} s")
+    _say(
+        f"MAT17s3 (E) worst balance over {len(out['E'])} runs = {out['E'][worst]:.3e} on {worst} "
+        f"(bound {E_BAND:.0e}); max|Im theta| = {tmax_imag:.3e} (predicted 0); "
+        f"elapsed after P1 fixture {time.perf_counter() - t0:.1f} s"
+    )
     if return_fields:
-        out.update(base=base, r_duty=r_duty, r_one=r_one, r_d=r_d, q0=q0, dep=dep, sub=sub,
-                   ft=ft, ds=ds, ball10_duty=b_duty, ball10_p1=b_p1)
+        out.update(
+            base=base,
+            r_duty=r_duty,
+            r_one=r_one,
+            r_d=r_d,
+            q0=q0,
+            dep=dep,
+            sub=sub,
+            ft=ft,
+            ds=ds,
+            ball10_duty=b_duty,
+            ball10_p1=b_p1,
+        )
     return out
 
 
@@ -283,13 +329,13 @@ def test_e_prime_duty_balance_from_em_side(duty):
 
 @complex_only
 def test_control_d_doubled_source_misses_the_balance(duty):
-    assert duty["ctl_d"] > D_CONTROL_FLOOR, (
-        f"control (d) doubled source reads (E') {duty['ctl_d']:.3e} — did not miss"
-    )
+    assert (
+        duty["ctl_d"] > D_CONTROL_FLOOR
+    ), f"control (d) doubled source reads (E') {duty['ctl_d']:.3e} — did not miss"
 
 
 @complex_only
 def test_control_delta_dropped_term_misses(duty):
-    assert duty["Delta_ctl"] > L_BAND, (
-        f"(Delta-ctl) m = 9 dropped reads {duty['Delta_ctl']:.3e} — did not miss"
-    )
+    assert (
+        duty["Delta_ctl"] > L_BAND
+    ), f"(Delta-ctl) m = 9 dropped reads {duty['Delta_ctl']:.3e} — did not miss"

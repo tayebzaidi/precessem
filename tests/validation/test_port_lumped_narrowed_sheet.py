@@ -63,12 +63,11 @@ from __future__ import annotations
 
 import time
 
+import dolfinx
 import numpy as np
 import pytest
 import ufl
 from mpi4py import MPI
-
-import dolfinx
 
 from fem_em_solver.core import (
     HomogeneousMaterial,
@@ -81,7 +80,6 @@ from fem_em_solver.ports.lumped import (
     sheet_terminal_current,
 )
 from fem_em_solver.ports.systematics import mutual_systematics_ladder
-
 from tests.complex_mode import complex_only
 from tests.mesh.test_two_torus_port_facets import _facet_group_area
 from tests.mesh.test_two_torus_port_sheet import (
@@ -94,13 +92,13 @@ from tests.validation.test_port_gap_voltage_impedance import (
     FREQUENCY_HZ,
     GAP_TAGS,
     MAJOR_RADIUS,
+    MINOR_RADIUS,
     OMEGA,
     PATH_QUADRATURE_GATE_ORDERS,
     PRODUCTION_LADDER_DRIVEN_COLUMN,
     SEPARATION,
     SIGMA_WIRE_S_PER_M,
     WIRE_TAGS,
-    MINOR_RADIUS,
     _azimuthal_unit,
     _gap_drive,
     _gap_half_extents,
@@ -109,7 +107,6 @@ from tests.validation.test_port_gap_voltage_impedance import (
     _tag_measure,
     _tag_volume,
 )
-from tests.validation.test_port_reaction_impedance import mutual_inductance
 from tests.validation.test_port_lumped_two_torus import (
     AREA_IDENTITY_BAND,
     CROSS_ROUTE_BAND,
@@ -118,11 +115,12 @@ from tests.validation.test_port_lumped_two_torus import (
     PROBE_PORT_IMPEDANCE_OHM,
     QUADRATURE_DRIFT_TOLERANCE,
     REPRODUCTION_BAND,
-    STEP1_GAP_RATIO_RECORD,
     STEP1_CROSS_ROUTE_RECORD,
+    STEP1_GAP_RATIO_RECORD,
     VOLUME_IDENTITY_BAND,
     _build,
 )
+from tests.validation.test_port_reaction_impedance import mutual_inductance
 
 # The ladder the review scoped. ``1.0`` is the negative control (the whole
 # mid-plane, i.e. step 2's own sheet); ``0.735`` is the outermost station step
@@ -179,9 +177,9 @@ def _narrowed_sheet_tags(msh, facet_tags, sheet_tag, fraction, x_centre, half_xz
 def width_ladder():
     """One mesh; one assembly + solve per interior width fraction."""
     comm = MPI.COMM_WORLD
-    col = PRODUCTION_LADDER_DRIVEN_COLUMN          # 0 -> gap 101 driven
+    col = PRODUCTION_LADDER_DRIVEN_COLUMN  # 0 -> gap 101 driven
     driven_tags = GAP_CELL_TAGS_WITH_SHEET[GAP_TAGS[col]]
-    sheet_tag = int(SHEET_FACET_TAGS[1 - col])     # 212 — the undriven port
+    sheet_tag = int(SHEET_FACET_TAGS[1 - col])  # 212 — the undriven port
 
     msh, cell_tags, facet_tags, t_mesh = _build(comm)
     assert facet_tags is not None, "model_to_mesh returned no facet tags"
@@ -207,9 +205,7 @@ def width_ladder():
 
     rungs = []
     for fraction in WIDTH_FRACTIONS:
-        tags_f = _narrowed_sheet_tags(
-            msh, facet_tags, sheet_tag, fraction, MAJOR_RADIUS, half_xz
-        )
+        tags_f = _narrowed_sheet_tags(msh, facet_tags, sheet_tag, fraction, MAJOR_RADIUS, half_xz)
         n_facets = _sheet_facet_count(msh, tags_f, sheet_tag, comm)
         assert n_facets > 0, (
             f"f = {fraction}: the narrowed sheet has no owned facets anywhere — "
@@ -254,9 +250,7 @@ def width_ladder():
             material=HomogeneousMaterial(sigma=0.0, epsilon_r=1.0, mu_r=1.0),
             cell_tags=cell_tags,
             material_map={
-                tag: HomogeneousMaterial(
-                    sigma=SIGMA_WIRE_S_PER_M, epsilon_r=1.0, mu_r=1.0
-                )
+                tag: HomogeneousMaterial(sigma=SIGMA_WIRE_S_PER_M, epsilon_r=1.0, mu_r=1.0)
                 for tag in WIRE_TAGS
             },
             boundary_condition="pec_zero_tangential_a",
@@ -269,8 +263,14 @@ def width_ladder():
             subdomain_ids=list(driven_tags),
             project_source=False,
             extra_bilinear_terms=[
+                # F821: pyflakes sees the `del` at the end of this function; the closure runs before it.
                 lambda trial, test, _t=tags_f, _s=sheet: lumped_port_bilinear_term(
-                    msh, _t, _s, trial, test, omega_rad_per_s=OMEGA
+                    msh,  # noqa: F821
+                    _t,
+                    _s,
+                    trial,
+                    test,
+                    omega_rad_per_s=OMEGA,
                 )
             ],
         )
@@ -295,9 +295,7 @@ def width_ladder():
 
         # The open-limit reduction, assembled independently of ports.lumped so
         # it stays a *checked* identity at every width, not a restatement.
-        ds_sheet = ufl.Measure(
-            "dS", domain=msh, subdomain_data=tags_f, subdomain_id=(sheet_tag,)
-        )
+        ds_sheet = ufl.Measure("dS", domain=msh, subdomain_data=tags_f, subdomain_id=(sheet_tag,))
         h_hat = ufl.as_vector([0.0, 1.0, 0.0])
         int_ey = _reduce(ufl.inner(e("+"), h_hat) * ds_sheet, comm)
         v_sheet_average = -int_ey / w_f
@@ -323,12 +321,10 @@ def width_ladder():
                 "quadrature_drift": abs(v_gap - v_gap_coarse) / abs(v_gap),
                 "ratio_gap": abs(z12_gap.imag) / omega_m,
                 "ratio_lumped": abs(z12_lumped.imag) / omega_m,
-                "corrected_gap": mutual_systematics_ladder(z12_gap.imag, omega_m)[
+                "corrected_gap": mutual_systematics_ladder(z12_gap.imag, omega_m)["corrected"],
+                "corrected_lumped": mutual_systematics_ladder(z12_lumped.imag, omega_m)[
                     "corrected"
                 ],
-                "corrected_lumped": mutual_systematics_ladder(
-                    z12_lumped.imag, omega_m
-                )["corrected"],
                 "cross_route": abs(z12_lumped - z12_gap) / abs(z12_gap),
             }
         )

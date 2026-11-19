@@ -34,13 +34,12 @@ import os
 import time
 
 import numpy as np
-import ufl
 import pytest
+import ufl
 
 from fem_em_solver.thermal import solve_transient_conduction
-
 from tests.mesh.test_birdcage_implant_rod import ROD_RADIUS
-from tests.validation.test_imp8_rod_line_source_closed_form import L, MM, T_PRINT, _phi_tips
+from tests.validation.test_imp8_rod_line_source_closed_form import MM, T_PRINT, L, _phi_tips
 from tests.validation.test_imp8_rod_line_source_duty_fem import (
     DT,
     N_STEPS,
@@ -52,9 +51,9 @@ from tests.validation.test_imp8_rod_line_source_duty_fem import (
 from tests.validation.test_imp8_rod_line_source_fem import (  # noqa: F401  (box: fixture)
     DEGREE,
     GATE_PTS,
-    P,
     T_INF,
     W0C_CELLS,
+    P,
     _theta_pts,
     box,
 )
@@ -112,20 +111,38 @@ def run(box):
     for s, (n_sel, v_sel, qb) in zip(SIGNS, balls):
         pb = float(np.real(_allsum(msh.comm, qb * ufl.dx)))
         out["balls"].append((n_sel, abs(pb / (0.5 * P) - 1.0)))
-        _say(f"[imp8-tdf] ball z={s * 0.5 * L / MM:+g} mm: cells {n_sel}; "
-             f"int q / (P/2) - 1 = {pb / (0.5 * P) - 1.0:.3e}")
+        _say(
+            f"[imp8-tdf] ball z={s * 0.5 * L / MM:+g} mm: cells {n_sel}; "
+            f"int q / (P/2) - 1 = {pb / (0.5 * P) - 1.0:.3e}"
+        )
     out["t_build"] = time.perf_counter() - t0
     t1 = time.perf_counter()
     res = solve_transient_conduction(
-        msh, ft, k=K_GEL, rho_c=RHO_C, q=q, h=H_GEL, t_inf=T_INF, t_init=T_INF,
-        robin_tag=ROBIN_TAG, dt=DT, n_steps=N_STEPS, theta=0.5, startup_half_steps=2,
-        degree=DEGREE, snapshot_steps=(STEP_T2,), source_schedule=_schedule(DUTY))
+        msh,
+        ft,
+        k=K_GEL,
+        rho_c=RHO_C,
+        q=q,
+        h=H_GEL,
+        t_inf=T_INF,
+        t_init=T_INF,
+        robin_tag=ROBIN_TAG,
+        dt=DT,
+        n_steps=N_STEPS,
+        theta=0.5,
+        startup_half_steps=2,
+        degree=DEGREE,
+        snapshot_steps=(STEP_T2,),
+        source_schedule=_schedule(DUTY),
+    )
     out["t_call"] = time.perf_counter() - t1
     out["E"] = float(res.max_balance_residual)
     out["mult"] = list(res.source_multipliers)
-    _say(f"\n[imp8-tdf] D={DUTY:g} CN N={N_STEPS} dt={DT:g} s: t_build {out['t_build']:.1f} s; "
-         f"t_call {out['t_call']:.1f} s; n_factorizations {res.n_factorizations}; ranks "
-         f"{msh.comm.size}; multipliers {len(out['mult'])}; (S0) {out['S0']:.3e}")
+    _say(
+        f"\n[imp8-tdf] D={DUTY:g} CN N={N_STEPS} dt={DT:g} s: t_build {out['t_build']:.1f} s; "
+        f"t_call {out['t_call']:.1f} s; n_factorizations {res.n_factorizations}; ranks "
+        f"{msh.comm.size}; multipliers {len(out['mult'])}; (S0) {out['S0']:.3e}"
+    )
     out["I"], out["ctrl"] = [], None
     pts = GATE_PTS + RECORD_PTS
     for label, t, T in (("t*", T_PRINT, res.temperature), ("t2", T2, res.snapshots[STEP_T2])):
@@ -137,25 +154,33 @@ def run(box):
             a2 = (ROD_RADIUS / np.hypot(r * MM, z * MM - 0.5 * L)) ** 2
             if gated:
                 out["I"].append(rel)
-            _say(f"[imp8-tdf] (I) ({r:g}, {z:g}) mm {label}={t:g} s: theta_FEM {v:.6e} K/W, "
-                 f"Phi_2 Duhamel {ex:.6e}, rel {rel:.3e} "
-                 f"({'gated' if gated else 'printed only'}, band {INTERIOR_BAND:.0e}); "
-                 f"(a/R+)^2 {a2:.3e}")
+            _say(
+                f"[imp8-tdf] (I) ({r:g}, {z:g}) mm {label}={t:g} s: theta_FEM {v:.6e} K/W, "
+                f"Phi_2 Duhamel {ex:.6e}, rel {rel:.3e} "
+                f"({'gated' if gated else 'printed only'}, band {INTERIOR_BAND:.0e}); "
+                f"(a/R+)^2 {a2:.3e}"
+            )
             if label == "t*" and gated:
                 cont = SCALE * _phi_tips(r * MM, z * MM, T_PRINT)
                 miss = abs(v / cont - 1.0)
                 is_ctrl = (r, z) == CTRL_PT
                 if is_ctrl:
                     out["ctrl"] = miss
-                _say(f"[imp8-tdf] (c-cont) ({r:g}, {z:g}) mm t*: continuous Phi_2 {cont:.6e}; "
-                     f"miss |theta_FEM/cmp - 1| {miss:.4e} "
-                     f"({'asserted > INTERIOR_BAND' if is_ctrl else 'printed only'}; item 811 "
-                     f"closed-form control at (10, 0) mm {CTRL_ITEM811:.4e})")
+                _say(
+                    f"[imp8-tdf] (c-cont) ({r:g}, {z:g}) mm t*: continuous Phi_2 {cont:.6e}; "
+                    f"miss |theta_FEM/cmp - 1| {miss:.4e} "
+                    f"({'asserted > INTERIOR_BAND' if is_ctrl else 'printed only'}; item 811 "
+                    f"closed-form control at (10, 0) mm {CTRL_ITEM811:.4e})"
+                )
             if label == "t*" and (r, z) == CTRL_PT:
-                _say(f"[imp8-tdf] record (no band): tips / line at (10, 0) mm t*, FEM/FEM = "
-                     f"{v / LINE_FEM_10_0:.6f} (over item 799's {LINE_FEM_10_0:.6f} K/W)")
-    _say(f"[imp8-tdf] (E) {out['E']:.3e} (band {E_BAND:.0e}); (I) max {max(out['I']):.3e}; "
-         f"(c-cont) {out['ctrl']:.4e}")
+                _say(
+                    f"[imp8-tdf] record (no band): tips / line at (10, 0) mm t*, FEM/FEM = "
+                    f"{v / LINE_FEM_10_0:.6f} (over item 799's {LINE_FEM_10_0:.6f} K/W)"
+                )
+    _say(
+        f"[imp8-tdf] (E) {out['E']:.3e} (band {E_BAND:.0e}); (I) max {max(out['I']):.3e}; "
+        f"(c-cont) {out['ctrl']:.4e}"
+    )
     return out
 
 

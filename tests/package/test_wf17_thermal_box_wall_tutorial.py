@@ -36,21 +36,22 @@ from mpi4py import MPI
 import fem_em_solver
 from fem_em_solver import cli, load_study
 from fem_em_solver.thermal import solve_transient_conduction
-
 from tests.complex_mode import IS_COMPLEX
-from tests.package.test_wf17_first_study_tutorial import LINK_PASS_RE, _checker_stdout, extract_tagged_block
 from tests.package.test_wf1_yaml_thermal_box_wall import (
+    A_BOX,
+    B_BOX,
+    C_BOX,
     CELLS,
     D_WALL,
     DRIFT_BOUND,
     DT,
+    E_BAND,
     G_GRAD,
     H_GEL,
     I_P5,
     IDENTITY_BAND,
     MALFORMED,
     N_MAIN,
-    Q,
     R0_FILE,
     R1_FILE,
     READ_PTS,
@@ -58,16 +59,18 @@ from tests.package.test_wf1_yaml_thermal_box_wall import (
     RUNG,
     T_INF,
     W1B_DRIFT_P5,
-    A_BOX,
-    B_BOX,
-    C_BOX,
-    E_BAND,
+    Q,
     _field,
     _materials,
     _read,
     _rho_c_field,
     _robin_facets,
     _walled_box,
+)
+from tests.package.test_wf17_first_study_tutorial import (
+    LINK_PASS_RE,
+    _checker_stdout,
+    extract_tagged_block,
 )
 from tests.unit.test_doc_reference_exit_codes import run_checker
 
@@ -118,8 +121,10 @@ def test_wf17_s31_block_tags_and_files():
     text = _text()
     block = extract_tagged_block(text, TAG)
     files = _files_of(block)
-    _p0(f"[WF-17 s31] (X) {TAG}: run_study_file( count {block.count('run_study_file(')}; "
-        f"FILES {files}; yaml fences {text.count('```yaml')}")
+    _p0(
+        f"[WF-17 s31] (X) {TAG}: run_study_file( count {block.count('run_study_file(')}; "
+        f"FILES {files}; yaml fences {text.count('```yaml')}"
+    )
     assert block.count("run_study_file(") == 1 and "Study(" not in block
     assert files == WANT_FILES
     for name in files:
@@ -152,9 +157,11 @@ def test_wf17_s31_docrefs_zero_dead():
     rc, counts = run_checker("--docs-root", "docs/guide", "--check-links")
     link = LINK_PASS_RE.search(_checker_stdout("--docs-root", "docs/guide", "--check-links"))
     assert link is not None, "(D) no 'Link pass:' line"
-    print(f"[WF-17 s31] (D) dead={counts['dead']} links={link.group(1)} pages={link.group(2)} "
-          f"link-dead={link.group(3)} guide={counts['guide']} rc={rc} "
-          f"(MIN_GUIDE_PAGES {MIN_GUIDE_PAGES})")
+    print(
+        f"[WF-17 s31] (D) dead={counts['dead']} links={link.group(1)} pages={link.group(2)} "
+        f"link-dead={link.group(3)} guide={counts['guide']} rc={rc} "
+        f"(MIN_GUIDE_PAGES {MIN_GUIDE_PAGES})"
+    )
     assert counts["dead"] == 0
     assert int(link.group(3)) == 0
     assert int(link.group(2)) >= MIN_GUIDE_PAGES
@@ -179,12 +186,27 @@ def test_wf17_s31_block_reproduces_p63_r1(monkeypatch):
     ft = _robin_facets(msh, (A_BOX, B_BOX, C_BOX + D_WALL), (2,))
     grad = lambda x: T_INF + G_GRAD * x[2]  # noqa: E731
     direct = solve_transient_conduction(
-        msh, ft, k=kf, q=Q * chi, h=H_GEL, t_inf=T_INF, t_init=T_INF, robin_tag=ROBIN,
-        theta=0.5, startup_half_steps=2, dt=DT, rho_c=rcf, n_steps=N_MAIN, t_init_expr=grad)
+        msh,
+        ft,
+        k=kf,
+        q=Q * chi,
+        h=H_GEL,
+        t_inf=T_INF,
+        t_init=T_INF,
+        robin_tag=ROBIN,
+        theta=0.5,
+        startup_half_steps=2,
+        dt=DT,
+        rho_c=rcf,
+        n_steps=N_MAIN,
+        t_init_expr=grad,
+    )
     th_d, ok_d = _read(direct.temperature, READ_PTS)
     cells_d = int(msh.topology.index_map(3).size_global)
-    _p0(f"[WF-17 s31] direct R1: cells {cells_d} N_w {nw}; theta(P5) {th_d[I_P5]:+.12e} K; "
-        f"(E) {direct.max_balance_residual:.3e}; {time.perf_counter() - t0:.1f} s")
+    _p0(
+        f"[WF-17 s31] direct R1: cells {cells_d} N_w {nw}; theta(P5) {th_d[I_P5]:+.12e} K; "
+        f"(E) {direct.max_balance_residual:.3e}; {time.perf_counter() - t0:.1f} s"
+    )
 
     # exec the page block from the scratch
     raw = PAGE.read_bytes()
@@ -211,8 +233,10 @@ def test_wf17_s31_block_reproduces_p63_r1(monkeypatch):
     tb = time.perf_counter()
     with contextlib.redirect_stdout(buf):
         exec(compile(block, f"{PAGE_ID}#{TAG}", "exec"), ns_)
-    _p0(f"[WF-17 s31] block stdout (rank 0): {buf.getvalue()!r}; spy calls {calls['n']}; "
-        f"{time.perf_counter() - tb:.1f} s")
+    _p0(
+        f"[WF-17 s31] block stdout (rank 0): {buf.getvalue()!r}; spy calls {calls['n']}; "
+        f"{time.perf_counter() - tb:.1f} s"
+    )
     runs = ns_["runs"]
     r1, r0 = runs[R1_FILE.name], runs[R0_FILE.name]
     th1, ok1 = _read(r1.thermal.temperature, READ_PTS)
@@ -221,10 +245,12 @@ def test_wf17_s31_block_reproduces_p63_r1(monkeypatch):
     rel = abs(th1[I_P5] - ref) / abs(ref)
     drift = ref - th0[I_P5]
     e = {k: v.summary["temperature"]["max_balance_residual"] for k, v in runs.items()}
-    _p0(f"[WF-17 s31] (I) block R1 theta(P5) {th1[I_P5]:+.12e} vs direct rel {rel:.3e} "
+    _p0(
+        f"[WF-17 s31] (I) block R1 theta(P5) {th1[I_P5]:+.12e} vs direct rel {rel:.3e} "
         f"(IDENTITY_BAND {IDENTITY_BAND:.0e}); (E) {e} (E_BAND {E_BAND:.0e}); (Drift) "
         f"R1 - R0 at P5 {drift:+.9e} K vs W1b {W1B_DRIFT_P5:+.6e}, |delta| "
-        f"{abs(drift - W1B_DRIFT_P5):.3e} (bound {DRIFT_BOUND:g})")
+        f"{abs(drift - W1B_DRIFT_P5):.3e} (bound {DRIFT_BOUND:g})"
+    )
     gates = {
         "valid_points": all(ok_d) and all(ok1) and all(ok0),
         "runs": len(runs) == 2 and calls["n"] == 2,

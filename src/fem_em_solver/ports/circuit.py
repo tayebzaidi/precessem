@@ -226,7 +226,9 @@ def _leg_and_ring_arrays(
         if array.size == 1:
             array = np.full(n, float(array.reshape(())[()]))
         if array.shape != (n,):
-            raise ValueError(f"{name} must be a scalar or a length-{n} sequence, got shape {array.shape}")
+            raise ValueError(
+                f"{name} must be a scalar or a length-{n} sequence, got shape {array.shape}"
+            )
         if not np.all(np.isfinite(array)) or np.any(array <= 0.0):
             raise ValueError(f"{name} must be finite and strictly positive, got {value!r}")
         return array

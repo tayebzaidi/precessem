@@ -39,18 +39,18 @@ import pytest
 from mpi4py import MPI
 
 import fem_em_solver.study as study_mod
-from fem_em_solver import LeontovichWall, LumpedPortDrive, Study, StudyConfigError, cli
-from fem_em_solver import load_study, run_study_file
+from fem_em_solver import (
+    LeontovichWall,
+    LumpedPortDrive,
+    Study,
+    StudyConfigError,
+    cli,
+    load_study,
+    run_study_file,
+)
 from fem_em_solver.materials import GelledSalinePhantomMaterial
 from fem_em_solver.study_yaml import _study_from_mapping
-
 from tests.complex_mode import complex_only
-from tests.package.test_wf16_study_copper import (
-    NEGATIVE_CONTROL_FLOOR,
-    _geometry,
-    _identity,
-    _rel_means,
-)
 from tests.package.test_wf1_study_yaml import (
     LOGS,
     WF1,
@@ -58,6 +58,12 @@ from tests.package.test_wf1_study_yaml import (
     _mapping,
     _rc_all,
     _spec_diff,
+)
+from tests.package.test_wf16_study_copper import (
+    NEGATIVE_CONTROL_FLOOR,
+    _geometry,
+    _identity,
+    _rel_means,
 )
 from tests.validation import test_th14_birdcage_copper as th14
 from tests.validation.test_ans6_exact_strip import (
@@ -98,8 +104,14 @@ def _p0(*args):
 def _py_copper(conductor="cu"):
     phantom = GelledSalinePhantomMaterial(SALINE_SIGMA, SALINE_EPSILON_R, FREQUENCY_64_HZ)
     cond = LeontovichWall(sigma_s_per_m=study_mod.COPPER_SIGMA) if conductor == "cu" else None
-    return Study(_geometry(), phantom, LumpedPortDrive(), frequency_hz=FREQUENCY_64_HZ,
-                 degree=1, conductor=cond)
+    return Study(
+        _geometry(),
+        phantom,
+        LumpedPortDrive(),
+        frequency_hz=FREQUENCY_64_HZ,
+        degree=1,
+        conductor=cond,
+    )
 
 
 def _fmt(means):
@@ -113,11 +125,13 @@ def test_wf1_copper_yaml_parse_and_refusals():
     d_cu = _spec_diff(s_yaml, s_py)
     d_ctl = _spec_diff(load_study(PEC_CONTROL_FILE), s_py)
     g = s_yaml.geometry
-    _p0(f"\n[WF-1 s4] (K) copper diff {d_cu}; PEC-control diff {d_ctl}; conductor "
+    _p0(
+        f"\n[WF-1 s4] (K) copper diff {d_cu}; PEC-control diff {d_ctl}; conductor "
         f"{s_yaml.conductor!r} (sigma hex {s_yaml.conductor.sigma_s_per_m.hex()} vs "
         f"COPPER_SIGMA {study_mod.COPPER_SIGMA.hex()}); as_hole {g.as_hole!r}; "
         f"strip_fraction {g.strip_fraction!r} (GATED_WIDTH_FRACTION "
-        f"{study_mod.GATED_WIDTH_FRACTION!r})")
+        f"{study_mod.GATED_WIDTH_FRACTION!r})"
+    )
     assert d_cu == [], d_cu
     assert d_ctl == ["conductor"], d_ctl
     assert g.as_hole is True
@@ -166,8 +180,9 @@ def test_wf1_copper_yaml_parse_and_refusals():
 @pytest.fixture(scope="module")
 def runs():
     comm = MPI.COMM_WORLD
-    assert comm.size == ANS6_EXACT_STRIP_RECORD_RANK_WIDTH, (
-        f"(R) is asserted at -n {ANS6_EXACT_STRIP_RECORD_RANK_WIDTH}; got -n {comm.size}")
+    assert (
+        comm.size == ANS6_EXACT_STRIP_RECORD_RANK_WIDTH
+    ), f"(R) is asserted at -n {ANS6_EXACT_STRIP_RECORD_RANK_WIDTH}; got -n {comm.size}"
     assert th14.FREQUENCIES_HZ[KEY] == FREQUENCY_64_HZ
     out = {}
     for col, path in (("cu", COPPER_FILE), ("pec", PEC_CONTROL_FILE)):
@@ -179,10 +194,17 @@ def runs():
         with open(d / "summary.json") as fh:
             summary = json.load(fh)
         means = _class_means(run.result.s_matrix)
-        out[col] = {"run": run, "summary": summary, "means": means, "t": t,
-                    "rec": th14._sweep_record(run.result.sweep)}
-        _p0(f"\n[WF-1 s4] YAML {col} ({path.name}): cells {run.result.cells}, run_study_file "
-            f"{t:.1f} s, summary conductor {summary.get('conductor', '<absent>')}")
+        out[col] = {
+            "run": run,
+            "summary": summary,
+            "means": means,
+            "t": t,
+            "rec": th14._sweep_record(run.result.sweep),
+        }
+        _p0(
+            f"\n[WF-1 s4] YAML {col} ({path.name}): cells {run.result.cells}, run_study_file "
+            f"{t:.1f} s, summary conductor {summary.get('conductor', '<absent>')}"
+        )
         _p0(f"    {col} class means (10 digits): {_fmt(means)}")
     t0 = time.perf_counter()
     py = _py_copper()
@@ -194,19 +216,29 @@ def runs():
     _p0(f"[WF-1 s4] identity field solve {time.perf_counter() - t0:.1f} s; power {out['power']}")
     for col in ("cu", "pec"):
         rel = _rel_means(out[col]["means"], ANS6_EXACT_STRIP_CLASS_MEANS_P1[KEY][col])
-        _p0(f"[WF-1 s4] (R) YAML {col} vs record {col!r}, relative: " + "  ".join(
-            f"{c} {rel[c]:.3e}" for c in CLASSES) + f" (band {LEG_D0_REPRODUCTION_BAND:.0e})")
+        _p0(
+            f"[WF-1 s4] (R) YAML {col} vs record {col!r}, relative: "
+            + "  ".join(f"{c} {rel[c]:.3e}" for c in CLASSES)
+            + f" (band {LEG_D0_REPRODUCTION_BAND:.0e})"
+        )
     rel_c1 = _rel_means(out["pec"]["means"], ANS6_EXACT_STRIP_CLASS_MEANS_P1[KEY]["cu"])
-    _p0("[WF-1 s4] (c1) PEC control vs Cu record, relative (PREDICTED 6.420e-4 / 2.811e-4 / "
-        f"4.861e-4; floor {NEGATIVE_CONTROL_FLOOR:.0e}): " + "  ".join(
-            f"{c} {rel_c1[c]:.3e}" for c in CLASSES))
+    _p0(
+        "[WF-1 s4] (c1) PEC control vs Cu record, relative (PREDICTED 6.420e-4 / 2.811e-4 / "
+        f"4.861e-4; floor {NEGATIVE_CONTROL_FLOOR:.0e}): "
+        + "  ".join(f"{c} {rel_c1[c]:.3e}" for c in CLASSES)
+    )
     rel_i = _rel_means(out["py"]["means"], out["cu"]["means"])
-    _p0("[WF-1 s4] (I) Python Cu vs YAML Cu, relative: " + "  ".join(
-        f"{c} {rel_i[c]:.3e}" for c in CLASSES) + f" (band {LEG_D0_REPRODUCTION_BAND:.0e})")
+    _p0(
+        "[WF-1 s4] (I) Python Cu vs YAML Cu, relative: "
+        + "  ".join(f"{c} {rel_i[c]:.3e}" for c in CLASSES)
+        + f" (band {LEG_D0_REPRODUCTION_BAND:.0e})"
+    )
     for col in ("cu", "pec"):
         sw = out[col]["rec"]
-        _p0(f"[WF-1 s4] (g) {col}: reciprocity {sw['reciprocity']:.3e}, max sigma "
-            f"{float(np.max(sw['sigma'])):.12f}, spreads {sw['spreads']}")
+        _p0(
+            f"[WF-1 s4] (g) {col}: reciprocity {sw['reciprocity']:.3e}, max sigma "
+            f"{float(np.max(sw['sigma'])):.12f}, spreads {sw['spreads']}"
+        )
     return out
 
 

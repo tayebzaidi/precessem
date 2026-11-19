@@ -100,9 +100,12 @@ def old_bbox_wall_predicate(b, model_bbox):
     x0, y0, z0, x1, y1, z1 = model_bbox
     tol = 1.0e-9 * max(x1 - x0, y1 - y0, z1 - z0)
     return (
-        abs(b[0] - b[3]) < tol and (abs(b[0] - x0) < tol or abs(b[0] - x1) < tol)
-        or abs(b[1] - b[4]) < tol and (abs(b[1] - y0) < tol or abs(b[1] - y1) < tol)
-        or abs(b[2] - b[5]) < tol and (abs(b[2] - z0) < tol or abs(b[2] - z1) < tol)
+        abs(b[0] - b[3]) < tol
+        and (abs(b[0] - x0) < tol or abs(b[0] - x1) < tol)
+        or abs(b[1] - b[4]) < tol
+        and (abs(b[1] - y0) < tol or abs(b[1] - y1) < tol)
+        or abs(b[2] - b[5]) < tol
+        and (abs(b[2] - z0) < tol or abs(b[2] - z1) < tol)
     )
 
 
@@ -118,8 +121,7 @@ def round_trip():
     started = time.perf_counter()
     imported = import_step(step_path, CONFIG_PATH, comm=comm)
     import_elapsed = time.perf_counter() - started
-    return {"step_path": step_path, "gen": gen, "imp": imported,
-            "import_elapsed_s": import_elapsed}
+    return {"step_path": step_path, "gen": gen, "imp": imported, "import_elapsed_s": import_elapsed}
 
 
 def test_config_sizes_are_the_gates():
@@ -142,12 +144,9 @@ def test_step_round_trip_reproduces_the_fixture(round_trip):
     n_cells_gen = g_mesh.topology.index_map(3).size_global
 
     halves = {i: (PORT_LOWER + i, PORT_UPPER + i) for i in ports}
-    sheet_tags = _interface_facet_tags(
-        mesh, cells, {SHEET_IFACE + i: halves[i] for i in ports}
-    )
+    sheet_tags = _interface_facet_tags(mesh, cells, {SHEET_IFACE + i: halves[i] for i in ports})
     sheet_area = {
-        i: _interface_area_or_zero(mesh, sheet_tags, SHEET_IFACE + i, comm)
-        for i in ports
+        i: _interface_area_or_zero(mesh, sheet_tags, SHEET_IFACE + i, comm) for i in ports
     }
     conductor_meshed = _tag_volume(mesh, cells, 1, comm)
     conductor_cad = diag["cad_mass_by_group"]["conductor"]
@@ -191,9 +190,7 @@ def test_step_round_trip_reproduces_the_fixture(round_trip):
         )
 
     # (i) tag census: the generator's set, and every group claimed >= 1 volume.
-    assert tags == g_tags, (
-        f"imported cell tags {sorted(tags)} != generator's {sorted(g_tags)}"
-    )
+    assert tags == g_tags, f"imported cell tags {sorted(tags)} != generator's {sorted(g_tags)}"
     assert all(n >= 1 for n in diag["volumes_by_group"].values())
     # (ii) the four sheets at GEO-18's closed form.
     for i in ports:
@@ -211,9 +208,7 @@ def test_step_round_trip_reproduces_the_fixture(round_trip):
 def test_unmapped_port_group_is_refused(round_trip):
     """Negative control: P1's lower port-box group deleted ⇒ ValueError."""
     config = load_step_config(CONFIG_PATH)
-    config["volume_groups"] = [
-        g for g in config["volume_groups"] if g["name"] != "port_P1_lower"
-    ]
+    config["volume_groups"] = [g for g in config["volume_groups"] if g["name"] != "port_P1_lower"]
     with pytest.raises(ValueError, match=r"claimed by no config group.*centroid=\(") as exc:
         import_step(round_trip["step_path"], config, comm=MPI.COMM_WORLD)
     if MPI.COMM_WORLD.rank == 0:
@@ -224,8 +219,11 @@ def test_selector_matching_nothing_is_refused(round_trip):
     """Negative control: a group whose selector matches nothing ⇒ ValueError."""
     config = load_step_config(CONFIG_PATH)
     config["volume_groups"] = copy.deepcopy(config["volume_groups"]) + [
-        {"name": "port_P9_nowhere", "tag": 109,
-         "selectors": [{"centroid_in_box": [5.0, 5.0, 5.0, 6.0, 6.0, 6.0]}]}
+        {
+            "name": "port_P9_nowhere",
+            "tag": 109,
+            "selectors": [{"centroid_in_box": [5.0, 5.0, 5.0, 6.0, 6.0, 6.0]}],
+        }
     ]
     with pytest.raises(ValueError, match="matched no volume: port_P9_nowhere") as exc:
         import_step(round_trip["step_path"], config, comm=MPI.COMM_WORLD)
@@ -256,8 +254,7 @@ def test_outer_boundary_is_the_exterior(round_trip):
     surfaces = diag["outer_boundary_surfaces"]
     bboxes = diag["outer_boundary_bboxes"]
     model_bbox = diag["model_bbox"]
-    old_accepts = [s for s, b in zip(surfaces, bboxes)
-                   if old_bbox_wall_predicate(b, model_bbox)]
+    old_accepts = [s for s, b in zip(surfaces, bboxes) if old_bbox_wall_predicate(b, model_bbox)]
     x0, y0, z0, x1, y1, z1 = model_bbox
     tol = 1.0e-9 * max(x1 - x0, y1 - y0, z1 - z0)
     if comm.rank == 0:
@@ -286,8 +283,11 @@ def test_outer_boundary_is_the_exterior(round_trip):
                 f"{old_bbox_wall_predicate(b, model_bbox)}",
                 flush=True,
             )
-        print(f"[GEO-34 wall] control: old predicate accepts {len(old_accepts)} "
-              f"wall(s) {old_accepts}; new finds {len(surfaces)}", flush=True)
+        print(
+            f"[GEO-34 wall] control: old predicate accepts {len(old_accepts)} "
+            f"wall(s) {old_accepts}; new finds {len(surfaces)}",
+            flush=True,
+        )
 
     assert n_tag == n_ext, (n_tag, n_ext)
     assert n_bad == 0, n_bad

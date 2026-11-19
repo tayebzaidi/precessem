@@ -36,10 +36,9 @@ from __future__ import annotations
 
 import numpy as np
 import ufl
+from dolfinx import default_scalar_type, fem
 from mpi4py import MPI
 from scipy.integrate import quad
-
-from dolfinx import default_scalar_type, fem
 
 from fem_em_solver.io.mesh import MeshGenerator
 
@@ -70,9 +69,7 @@ def _analytic_cut_area(y0):
     assert y0 < big_r - r, "the cut plane must not reach the hole of the torus"
 
     def integrand(s):
-        return 2.0 * np.sqrt(max(r * r - (s - big_r) ** 2, 0.0)) * s / np.sqrt(
-            s * s - y0 * y0
-        )
+        return 2.0 * np.sqrt(max(r * r - (s - big_r) ** 2, 0.0)) * s / np.sqrt(s * s - y0 * y0)
 
     value, _ = quad(integrand, big_r - r, big_r + r, limit=200)
     return value
@@ -106,9 +103,7 @@ def _facet_group_area(msh, facet_tags, tag, comm):
     """
     msh.topology.create_entity_permutations()
 
-    dS_tag = ufl.Measure(
-        "dS", domain=msh, subdomain_data=facet_tags, subdomain_id=(tag,)
-    )
+    dS_tag = ufl.Measure("dS", domain=msh, subdomain_data=facet_tags, subdomain_id=(tag,))
     one = fem.Constant(msh, default_scalar_type(1.0))
     local = fem.assemble_scalar(fem.form(ufl.avg(one) * dS_tag))
     return float(np.real(comm.allreduce(local, op=MPI.SUM)))
@@ -159,9 +154,9 @@ def test_port_facet_groups_are_the_arc_end_discs():
 
     tags_present = _global_facet_tag_set(msh, facet_tags, comm)
     _mark(comm, f"tag set allgathered: {sorted(tags_present)}")
-    assert set(PORT_FACET_TAGS) <= tags_present, (
-        f"port facet tags missing from the mesh; found {sorted(tags_present)}"
-    )
+    assert (
+        set(PORT_FACET_TAGS) <= tags_present
+    ), f"port facet tags missing from the mesh; found {sorted(tags_present)}"
 
     areas = []
     for t in PORT_FACET_TAGS:
@@ -212,9 +207,9 @@ def test_port_facet_groups_are_the_arc_end_discs():
         )
 
     # Same solid, mirrored in z: the two ports are built identically.
-    assert abs(areas[0] / areas[1] - 1.0) < 1e-9, (
-        f"port facet areas differ: {areas[0]:.12e} vs {areas[1]:.12e}"
-    )
+    assert (
+        abs(areas[0] / areas[1] - 1.0) < 1e-9
+    ), f"port facet areas differ: {areas[0]:.12e} vs {areas[1]:.12e}"
 
 
 def test_ungapped_fixture_emits_no_port_facet_groups():
@@ -233,12 +228,11 @@ def test_ungapped_fixture_emits_no_port_facet_groups():
     tags_present = _global_facet_tag_set(msh, facet_tags, comm)
 
     if comm.rank == 0:
-        print(f"\n[3b-iv ungapped control] facet tags: {sorted(tags_present)}",
-              flush=True)
+        print(f"\n[3b-iv ungapped control] facet tags: {sorted(tags_present)}", flush=True)
 
-    assert not (set(PORT_FACET_TAGS) & tags_present), (
-        f"the ungapped path emitted port facet tags: {sorted(tags_present)}"
-    )
+    assert not (
+        set(PORT_FACET_TAGS) & tags_present
+    ), f"the ungapped path emitted port facet tags: {sorted(tags_present)}"
     # Nothing is asserted about the outer-boundary group (tag 1) here; that is
     # `GEO-10`'s gate, `test_two_torus_outer_boundary.py`. Until 2026-08-06 it
     # did not reach the dolfinx facet tags from *either* path (known-issues 10,

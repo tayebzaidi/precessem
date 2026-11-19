@@ -111,7 +111,9 @@ def plan_frequency_sweep(
     use_refined = bool(refine_centers_hz)
     if use_refined:
         if refine_half_span_hz is None or refine_half_span_hz <= 0.0:
-            raise ValueError("refine_half_span_hz must be positive when refine_centers_hz are provided")
+            raise ValueError(
+                "refine_half_span_hz must be positive when refine_centers_hz are provided"
+            )
         if refined_step_hz is None or refined_step_hz <= 0.0:
             raise ValueError("refined_step_hz must be positive when refine_centers_hz are provided")
         refine_half_span_hz = _require_finite("refine_half_span_hz", refine_half_span_hz)

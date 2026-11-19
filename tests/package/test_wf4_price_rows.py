@@ -24,9 +24,15 @@ import pytest
 from mpi4py import MPI
 
 from tests.complex_mode import complex_only
-from tests.package.test_wf13_cli_estimate import DEG1_MESSAGE, DEG2_FILE, _diff, _parse, _patch_solves
-from tests.package.test_wf16_study_four_port import _record, _rel
 from tests.package.test_wf1_study_yaml import BIRDCAGE_FILE, SPHERE_FILE
+from tests.package.test_wf13_cli_estimate import (
+    DEG1_MESSAGE,
+    DEG2_FILE,
+    _diff,
+    _parse,
+    _patch_solves,
+)
+from tests.package.test_wf16_study_four_port import _record, _rel
 from tests.validation.test_birdcage_sar_mass_averaged import EXACT_IDENTITY_RTOL
 from tests.validation.test_port_birdcage_four_port import LEG_D0_REPRODUCTION_BAND
 
@@ -70,8 +76,12 @@ def _two_row(monkeypatch):
     import fem_em_solver.study as study_mod
 
     orig = study_mod._predict
-    two = tuple(r for r in study_mod.PRICE_TABLE if r["row"] not in ("T49", "FH1"))  # FH1: §9 item 562
-    monkeypatch.setattr(study_mod, "_predict", lambda u, d, r, n_rhs=1: orig(u, d, r, n_rhs, table=two))
+    two = tuple(
+        r for r in study_mod.PRICE_TABLE if r["row"] not in ("T49", "FH1")
+    )  # FH1: §9 item 562
+    monkeypatch.setattr(
+        study_mod, "_predict", lambda u, d, r, n_rhs=1: orig(u, d, r, n_rhs, table=two)
+    )
 
 
 @complex_only
@@ -183,9 +193,11 @@ def test_wf4_d2_degree2_fit_unmoved():
     ds = abs(est.predicted_seconds / rec["predicted_seconds"] - 1.0)
     _p0(f"\n[WF-4 D2] {est!r}; rel peak {dp:.3e}, rel seconds {ds:.3e}")
     old = D2_ESTIMATE_RECORD_NINE_ROW  # FH2: §9 item 585 — the move, printed
-    _p0(f"[WF-4 D2] FH2 move vs nine-row record: rel peak "
+    _p0(
+        f"[WF-4 D2] FH2 move vs nine-row record: rel peak "
         f"{abs(est.predicted_peak_gib / old['predicted_peak_gib'] - 1.0):.3e}, rel seconds "
-        f"{abs(est.predicted_seconds / old['predicted_seconds'] - 1.0):.3e}")
+        f"{abs(est.predicted_seconds / old['predicted_seconds'] - 1.0):.3e}"
+    )
     for k in ("cells", "unknowns", "degree", "ranks"):
         assert getattr(est, k) == rec[k]
     assert est.rows_used[0] == "P2" and "P1" not in est.rows_used and "P3" not in est.rows_used
@@ -200,12 +212,16 @@ def test_wf4_controls():
 
     _width2()
     p3 = _row("P3")
-    bumped = tuple(dict(r, unknowns=int(r["unknowns"] * 1.1)) if r["row"] == "P3" else r for r in PRICE_TABLE)
+    bumped = tuple(
+        dict(r, unknowns=int(r["unknowns"] * 1.1)) if r["row"] == "P3" else r for r in PRICE_TABLE
+    )
     _, sec, _ = _predict(p3["unknowns"], 1, p3["ranks"], table=bumped)
     c1 = abs(sec / p3["seconds"] - 1.0)
     _p0(f"\n[WF-4 c1] P3 unknowns x1.1: F-small seconds {sec!r} vs {p3['seconds']} (rel {c1:.3e})")
     assert c1 > EXACT_IDENTITY_RTOL
-    p1_only = tuple(r for r in PRICE_TABLE if r["row"] not in ("P3", "T49", "FH1"))  # T49: item 479; FH1: §9 item 562
+    p1_only = tuple(
+        r for r in PRICE_TABLE if r["row"] not in ("P3", "T49", "FH1")
+    )  # T49: item 479; FH1: §9 item 562
     with pytest.raises(ValueError) as exc:
         _predict(p3["unknowns"], 1, p3["ranks"], table=p1_only)
     _p0(f"[WF-4 c2] P1-only table: {exc.value}")

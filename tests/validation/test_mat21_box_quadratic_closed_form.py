@@ -31,15 +31,15 @@ from tests.validation.test_mat21_box_closed_form import (
     B_BOX,
     C_BOX,
     FOS,
-    H,
     HALF,
-    K,
-    Q,
     R2_PTS,
     R4_PTS,
     RHO_C,
     SERIES_TERMS,
     T_C,
+    H,
+    K,
+    Q,
     _face_residuals,
 )
 
@@ -57,13 +57,24 @@ def _say(msg):
 
 def _quad(x, y, z, weights=WEIGHTS, n_terms=SERIES_TERMS, **kw):
     return robin_box_quadratic_steady_temperature(
-        x, y, z, half_widths=HALF, weights=weights, n_terms=n_terms, t_inf=T_INF, **KW, **kw)
+        x, y, z, half_widths=HALF, weights=weights, n_terms=n_terms, t_inf=T_INF, **KW, **kw
+    )
 
 
 def _quad_t(x, y, z, t, weights=WEIGHTS, n_terms=SERIES_TERMS, **kw):
     return robin_box_quadratic_transient_temperature(
-        x, y, z, t, half_widths=HALF, weights=weights, n_terms=n_terms, t_inf=T_INF,
-        rho_c=RHO_C, **KW, **kw)
+        x,
+        y,
+        z,
+        t,
+        half_widths=HALF,
+        weights=weights,
+        n_terms=n_terms,
+        t_inf=T_INF,
+        rho_c=RHO_C,
+        **KW,
+        **kw,
+    )
 
 
 def _axis(L, n):
@@ -79,15 +90,21 @@ def _gauss_target(n_terms, weights=WEIGHTS):
         S.append(np.sum(c * np.sin(gam) / gam))
         S2.append(np.sum(e * np.sin(gam) / gam))
     w0, wx, wy, wz = weights
-    return (w0 * S[0] * S[1] * S[2] + wx * S2[0] * S[1] * S[2] + wy * S[0] * S2[1] * S[2]
-            + wz * S[0] * S[1] * S2[2]), S2
+    return (
+        w0 * S[0] * S[1] * S[2]
+        + wx * S2[0] * S[1] * S[2]
+        + wy * S[0] * S2[1] * S[2]
+        + wz * S[0] * S[1] * S2[2]
+    ), S2
 
 
 # ---------------------------------------------------------------- (P0)
 def test_p0_weights_sum_to_three():
     d = abs(WEIGHTS[2] + WEIGHTS[3] - 3.0)
-    _say(f"MAT21-9 (P0) w_y {WEIGHTS[2]:.6f} (drafting 2.868293), w_z {WEIGHTS[3]:.6f} "
-         f"(drafting 0.131707), |w_y + w_z - 3| {d:.3e}")
+    _say(
+        f"MAT21-9 (P0) w_y {WEIGHTS[2]:.6f} (drafting 2.868293), w_z {WEIGHTS[3]:.6f} "
+        f"(drafting 0.131707), |w_y + w_z - 3| {d:.3e}"
+    )
     assert d <= 1e-15
 
 
@@ -112,8 +129,10 @@ def test_q1_projection_vs_quadrature_and_root_identity():
         err_b = np.max(np.abs(e - eb)) / np.max(np.abs(e))
         worst = max(worst, err)
         worst_b = max(worst_b, err_b)
-        _say(f"MAT21-9 (Q1) Bi {bi:.4f}: max|dE|/max|E| {err:.3e} (drafting <= 4.2e-15); "
-             f"(Q1b) root identity {err_b:.3e} (predicted <= 1e-14)")
+        _say(
+            f"MAT21-9 (Q1) Bi {bi:.4f}: max|dE|/max|E| {err:.3e} (drafting <= 4.2e-15); "
+            f"(Q1b) root identity {err_b:.3e} (predicted <= 1e-14)"
+        )
     _say(f"MAT21-9 (Q1) worst {worst:.3e}; (Q1b) worst {worst_b:.3e}")
     assert worst <= 1e-12
     assert worst_b <= 1e-12
@@ -122,19 +141,28 @@ def test_q1_projection_vs_quadrature_and_root_identity():
 # ---------------------------------------------------------------- (Q2)
 def test_q2_unit_weights_bitwise():
     pts = np.array(R2_PTS)
-    g = np.meshgrid(np.linspace(-0.9, 0.9, 7) * A_BOX, np.linspace(-0.9, 0.9, 7) * B_BOX,
-                    np.linspace(-0.9, 0.9, 3) * C_BOX, indexing="ij")
+    g = np.meshgrid(
+        np.linspace(-0.9, 0.9, 7) * A_BOX,
+        np.linspace(-0.9, 0.9, 7) * B_BOX,
+        np.linspace(-0.9, 0.9, 3) * C_BOX,
+        indexing="ij",
+    )
     x = np.concatenate([pts[:, 0], g[0].ravel()])
     y = np.concatenate([pts[:, 1], g[1].ravel()])
     z = np.concatenate([pts[:, 2], g[2].ravel()])
     a = _quad(x, y, z, weights=UNIT)
-    b = robin_box_steady_temperature(x, y, z, half_widths=HALF, n_terms=SERIES_TERMS, t_inf=T_INF, **KW)
+    b = robin_box_steady_temperature(
+        x, y, z, half_widths=HALF, n_terms=SERIES_TERMS, t_inf=T_INF, **KW
+    )
     t = 0.2 * T_C
     at = _quad_t(x, y, z, t, weights=UNIT)
-    bt = robin_box_transient_temperature(x, y, z, t, half_widths=HALF, n_terms=SERIES_TERMS,
-                                         t_inf=T_INF, rho_c=RHO_C, **KW)
-    _say(f"MAT21-9 (Q2) unit weights vs step 0: steady equal {np.array_equal(a, b)}, "
-         f"Fo 0.2 equal {np.array_equal(at, bt)} over {x.size} points")
+    bt = robin_box_transient_temperature(
+        x, y, z, t, half_widths=HALF, n_terms=SERIES_TERMS, t_inf=T_INF, rho_c=RHO_C, **KW
+    )
+    _say(
+        f"MAT21-9 (Q2) unit weights vs step 0: steady equal {np.array_equal(a, b)}, "
+        f"Fo 0.2 equal {np.array_equal(at, bt)} over {x.size} points"
+    )
     assert np.array_equal(a, b)
     assert np.array_equal(at, bt)
 
@@ -169,21 +197,32 @@ def test_q4_gauss_truncated_identity():
     ratio = H * total / (Q * vol)
     tgt, s2 = _gauss_target(SERIES_TERMS)
     err = abs(ratio - tgt)
-    _say(f"MAT21-9 (Q4) h*surface/(QV) {ratio:.15f}, target (40,40,40) {tgt:.15f}, "
-         f"|diff| {err:.3e} (predicted <= 1e-14)")
-    _say("MAT21-9 S'' per axis (40 terms): " + " / ".join(f"{v:.10f}" for v in s2)
-         + " (drafting 0.3333288835 / 0.3333311989 / 0.3333331044)")
-    _say(f"MAT21-9 printed floor 1 - target: (40,40,40) {1 - tgt:.4e} (drafting 9.5217e-6); "
-         f"QUAD_TERMS {1 - _gauss_target(QUAD_TERMS)[0]:.4e} (drafting 1.2484e-6); step 0 uniform "
-         f"{1 - _gauss_target(SERIES_TERMS, UNIT)[0]:.4e} (4.6708e-6)")
+    _say(
+        f"MAT21-9 (Q4) h*surface/(QV) {ratio:.15f}, target (40,40,40) {tgt:.15f}, "
+        f"|diff| {err:.3e} (predicted <= 1e-14)"
+    )
+    _say(
+        "MAT21-9 S'' per axis (40 terms): "
+        + " / ".join(f"{v:.10f}" for v in s2)
+        + " (drafting 0.3333288835 / 0.3333311989 / 0.3333331044)"
+    )
+    _say(
+        f"MAT21-9 printed floor 1 - target: (40,40,40) {1 - tgt:.4e} (drafting 9.5217e-6); "
+        f"QUAD_TERMS {1 - _gauss_target(QUAD_TERMS)[0]:.4e} (drafting 1.2484e-6); step 0 uniform "
+        f"{1 - _gauss_target(SERIES_TERMS, UNIT)[0]:.4e} (4.6708e-6)"
+    )
     assert err <= 1e-10
 
 
 # ---------------------------------------------------------------- (Q5)
 def _hom(gp_b, gp_db, mu, s_abs, L):
     e2 = np.exp(-2.0 * mu * L)
-    return -(K * gp_db + H * gp_b) * np.exp(mu * (s_abs - L)) * (1.0 + np.exp(-2.0 * mu * s_abs)) / (
-        K * mu * (1.0 - e2) + H * (1.0 + e2))
+    return (
+        -(K * gp_db + H * gp_b)
+        * np.exp(mu * (s_abs - L))
+        * (1.0 + np.exp(-2.0 * mu * s_abs))
+        / (K * mu * (1.0 - e2) + H * (1.0 + e2))
+    )
 
 
 def _y_reduced(x, y, z, nl, nn, weights=WEIGHTS):
@@ -231,10 +270,14 @@ def test_q5_reduced_routes():
         az = float(_quad(*p, n_terms=(40, 40, 200)) - T_INF)
         wy_ = max(wy_, abs(ay - by) / th_ref)
         wz_ = max(wz_, abs(az - bz) / th_ref)
-        _say(f"MAT21-9 (Q5) {p}: triple(40,200,40) {ay:.12f} y-red {by:.12f}; "
-             f"triple(40,40,200) {az:.12f} z-red {bz:.12f}")
-    _say(f"MAT21-9 (Q5) theta_ref {th_ref:.6f} K (drafting 8.805072); y-route {wy_:.3e} "
-         f"(drafting 2.48e-9), z-route {wz_:.3e} (drafting 1.46e-11)")
+        _say(
+            f"MAT21-9 (Q5) {p}: triple(40,200,40) {ay:.12f} y-red {by:.12f}; "
+            f"triple(40,40,200) {az:.12f} z-red {bz:.12f}"
+        )
+    _say(
+        f"MAT21-9 (Q5) theta_ref {th_ref:.6f} K (drafting 8.805072); y-route {wy_:.3e} "
+        f"(drafting 2.48e-9), z-route {wz_:.3e} (drafting 1.46e-11)"
+    )
     assert wy_ <= 1e-7
     assert wz_ <= 1e-7
 
@@ -272,8 +315,11 @@ def test_q6_duhamel_and_late_time():
             worst = max(worst, abs(a - b) / th_ref)
             _say(f"MAT21-9 (Q6) Fo {fo} {p}: series {a:.12f}  Duhamel {b:.12f}")
     _say(f"MAT21-9 (Q6) max |series - Duhamel|/theta_ref {worst:.3e} (predicted <= 1e-13)")
-    pts = (np.array([0.0, 0.5 * A_BOX, 0.9 * A_BOX]), np.array([0.0, 0.3 * B_BOX, 0.7 * B_BOX]),
-           np.array([0.0, 0.5 * C_BOX, 0.9 * C_BOX]))
+    pts = (
+        np.array([0.0, 0.5 * A_BOX, 0.9 * A_BOX]),
+        np.array([0.0, 0.3 * B_BOX, 0.7 * B_BOX]),
+        np.array([0.0, 0.5 * C_BOX, 0.9 * C_BOX]),
+    )
     ss = _quad(*pts)
     late = _quad_t(*pts, 100.0 * T_C)
     e_late = np.max(np.abs(late - ss) / np.abs(ss - T_INF))
@@ -286,24 +332,38 @@ def test_q6_duhamel_and_late_time():
 def test_printed_records():
     for L, lab in zip(HALF, "xyz"):
         gam, c, e = _axis(L, 3)
-        _say(f"MAT21-9 printed {lab}: gamma {np.array2string(gam, precision=6)}; C "
-             f"{np.array2string(c, precision=6)}; E {np.array2string(e, precision=6)}")
-    _say("MAT21-9 printed drafting E: x 0.296788/-0.438925/0.219782; y 0.310445/-0.440810/0.195929; "
-         "z 0.334851/-0.425321/0.129260")
-    pts = ((0.0, 0.0, 0.0), (0.0, 0.9 * B_BOX, 0.0), (0.9 * A_BOX, 0.0, 0.0),
-           (0.9 * A_BOX, 0.9 * B_BOX, 0.9 * C_BOX))
+        _say(
+            f"MAT21-9 printed {lab}: gamma {np.array2string(gam, precision=6)}; C "
+            f"{np.array2string(c, precision=6)}; E {np.array2string(e, precision=6)}"
+        )
+    _say(
+        "MAT21-9 printed drafting E: x 0.296788/-0.438925/0.219782; y 0.310445/-0.440810/0.195929; "
+        "z 0.334851/-0.425321/0.129260"
+    )
+    pts = (
+        (0.0, 0.0, 0.0),
+        (0.0, 0.9 * B_BOX, 0.0),
+        (0.9 * A_BOX, 0.0, 0.0),
+        (0.9 * A_BOX, 0.9 * B_BOX, 0.9 * C_BOX),
+    )
     vq = [float(_quad(*p, n_terms=QUAD_TERMS) - T_INF) for p in pts]
     vu = [float(_quad(*p, weights=UNIT) - T_INF) for p in pts[:3]]
-    _say(f"MAT21-9 printed steady quad (80,80,40) {vq[0]:.6f} / {vq[1]:.6f} / {vq[2]:.6f} / "
-         f"{vq[3]:.6f} K (drafting 4.276700 / 13.337014 / 2.682231 / 8.585064); uniform "
-         f"{vu[0]:.6f} / {vu[1]:.6f} / {vu[2]:.6f} (drafting 12.003947 / 8.074905 / 8.706255)")
+    _say(
+        f"MAT21-9 printed steady quad (80,80,40) {vq[0]:.6f} / {vq[1]:.6f} / {vq[2]:.6f} / "
+        f"{vq[3]:.6f} K (drafting 4.276700 / 13.337014 / 2.682231 / 8.585064); uniform "
+        f"{vu[0]:.6f} / {vu[1]:.6f} / {vu[2]:.6f} (drafting 12.003947 / 8.074905 / 8.706255)"
+    )
     ts = 0.2 * T_C
     vt = [float(_quad_t(*p, ts, n_terms=QUAD_TERMS) - T_INF) for p in pts[:3]]
-    _say(f"MAT21-9 printed transient t* quad (80,80,40) {vt[0]:.6f} / {vt[1]:.6f} / {vt[2]:.6f} K "
-         f"(drafting 0.063466 / 2.892661 / 0.061875)")
+    _say(
+        f"MAT21-9 printed transient t* quad (80,80,40) {vt[0]:.6f} / {vt[1]:.6f} / {vt[2]:.6f} K "
+        f"(drafting 0.063466 / 2.892661 / 0.061875)"
+    )
     ref = float(_y_reduced(0.9 * A_BOX, 0.9 * B_BOX, 0.9 * C_BOX, 200, 200))
-    _say(f"MAT21-9 printed QUAD_TERMS truncation at 0.9(A,B,C): |triple - y-red(200,200)| "
-         f"{abs(vq[3] - ref):.3e} K (drafting <= 3.8e-6)")
+    _say(
+        f"MAT21-9 printed QUAD_TERMS truncation at 0.9(A,B,C): |triple - y-red(200,200)| "
+        f"{abs(vq[3] - ref):.3e} K (drafting <= 3.8e-6)"
+    )
 
 
 # ---------------------------------------------------------------- negative control
@@ -314,6 +374,8 @@ def test_q_ctl_z_term_dropped_misses():
     for p, b in zip(R2_PTS, red):
         a = float(_quad(*p, weights=WEIGHTS_NOZ, n_terms=(40, 200, 40)) - T_INF)
         worst = max(worst, abs(a - b) / th_ref)
-    _say(f"MAT21-9 control (Q-ctl) PREDICTED: WEIGHTS_NOZ vs full y-reduced: max miss/theta_ref "
-         f"{worst:.4e} (drafting 0.0516; asserted only > 1e-3)")
+    _say(
+        f"MAT21-9 control (Q-ctl) PREDICTED: WEIGHTS_NOZ vs full y-reduced: max miss/theta_ref "
+        f"{worst:.4e} (drafting 0.0516; asserted only > 1e-3)"
+    )
     assert worst > 1e-3

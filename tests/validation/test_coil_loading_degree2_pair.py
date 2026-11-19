@@ -64,9 +64,8 @@ import os
 import numpy as np
 import pytest
 import ufl
-from mpi4py import MPI
-
 from dolfinx import fem
+from mpi4py import MPI
 
 from fem_em_solver.core.resonance import stored_electric_energy
 from tests.complex_mode import complex_only
@@ -120,9 +119,7 @@ def _half() -> str:
         )
     half = raw.strip().lower()
     if half not in HALF_SIGMA:
-        raise ValueError(
-            f"TH12_DEGREE2_HALF must be 'loaded' or 'free'; got {raw!r}"
-        )
+        raise ValueError(f"TH12_DEGREE2_HALF must be 'loaded' or 'free'; got {raw!r}")
     return half
 
 
@@ -142,9 +139,7 @@ def _project_source():
         return True
     choice = raw.strip().lower()
     if choice != "matched":
-        raise ValueError(
-            f"TH19_PROJECT_SOURCE must be unset or 'matched'; got {raw!r}"
-        )
+        raise ValueError(f"TH19_PROJECT_SOURCE must be unset or 'matched'; got {raw!r}")
     return "matched"
 
 
@@ -161,15 +156,18 @@ def _solve_half(msh, cell_tags, degree: int, comm, half: str) -> dict:
     sigma = HALF_SIGMA[half]
     project_source = _project_source()
     fields, j_prime, t_solve = _solve_projected_at(
-        msh, cell_tags, sigma, FREQUENCY_HZ, comm, degree=degree,
+        msh,
+        cell_tags,
+        sigma,
+        FREQUENCY_HZ,
+        comm,
+        degree=degree,
         project_source=project_source,
     )
 
     x = ufl.SpatialCoordinate(msh)
     phi_hat = _azimuthal_current_density(1.0)(x)
-    dx_wire = ufl.Measure(
-        "dx", domain=msh, subdomain_data=cell_tags, subdomain_id=(WIRE_TAG,)
-    )
+    dx_wire = ufl.Measure("dx", domain=msh, subdomain_data=cell_tags, subdomain_id=(WIRE_TAG,))
     current = _reduced_real(ufl.inner(j_prime, phi_hat) * dx_wire, comm) / (
         2.0 * np.pi * FEM_LOOP_RADIUS
     )
@@ -224,9 +222,7 @@ def half_rows():
     rss_baseline = _rss_peak_bytes(comm)
 
     row1 = _solve_pair(msh, cell_tags, 1, comm)
-    projection = _cost_probe(
-        msh, comm, row1["n_dofs"], row1["rss_peak"], rss_baseline
-    )
+    projection = _cost_probe(msh, comm, row1["n_dofs"], row1["rss_peak"], rss_baseline)
 
     if comm.rank == 0:
         print(
@@ -489,18 +485,16 @@ def test_this_half_dissipates_what_its_sigma_says(half_rows):
     """
     row = _row2_or_skip(half_rows)
     print(
-        f"\n  degree 2, {row['half']} (σ = {row['sigma']:g} S/m): P_loss "
-        f"{row['p_loss']:+.7e} W"
+        f"\n  degree 2, {row['half']} (σ = {row['sigma']:g} S/m): P_loss " f"{row['p_loss']:+.7e} W"
     )
     if row["half"] == "free":
         assert row["p_loss"] == 0.0, (
-            "a σ = 0 slab must dissipate exactly nothing at degree 2, got "
-            f"{row['p_loss']!r}"
+            "a σ = 0 slab must dissipate exactly nothing at degree 2, got " f"{row['p_loss']!r}"
         )
     else:
-        assert row["p_loss"] > 0.0, (
-            f"the loaded slab must dissipate at degree 2, got {row['p_loss']!r}"
-        )
+        assert (
+            row["p_loss"] > 0.0
+        ), f"the loaded slab must dissipate at degree 2, got {row['p_loss']!r}"
 
 
 # ---------------------------------------------------------------------------

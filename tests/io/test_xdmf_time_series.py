@@ -42,7 +42,6 @@ TAG_NAME = "CellTags"
 REL_TOL = 1e-12
 
 
-
 def _box_with_tags(comm, n=4):
     msh = mesh.create_box(
         comm,
@@ -54,9 +53,7 @@ def _box_with_tags(comm, n=4):
     left = mesh.locate_entities(msh, tdim, lambda x: x[0] <= 0.5)
     right = mesh.locate_entities(msh, tdim, lambda x: x[0] > 0.5)
     indices = np.concatenate([left, right]).astype(np.int32)
-    values = np.concatenate(
-        [np.full(left.size, 1), np.full(right.size, 2)]
-    ).astype(np.int32)
+    values = np.concatenate([np.full(left.size, 1), np.full(right.size, 2)]).astype(np.int32)
     order = np.argsort(indices)
     tags = mesh.meshtags(msh, tdim, indices[order], values[order])
     tags.name = "cell_tags"
@@ -127,12 +124,9 @@ def test_time_series_keeps_one_collection_with_every_attribute(tmp_path):
         children = collections[0].findall("Grid") if len(collections) == 1 else []
 
         times = [float(c.find("Time").get("Value")) for c in children]
-        attr_names = [
-            sorted(a.get("Name") for a in c.findall("Attribute")) for c in children
-        ]
+        attr_names = [sorted(a.get("Name") for a in c.findall("Attribute")) for c in children]
         has_topology = [
-            c.find("Topology") is not None and c.find("Geometry") is not None
-            for c in children
+            c.find("Topology") is not None and c.find("Geometry") is not None for c in children
         ]
 
         # (b) round trip through h5py, per step, per field.
@@ -144,9 +138,7 @@ def test_time_series_keeps_one_collection_with_every_attribute(tmp_path):
                 name = attr.get("Name")
                 if name not in FIELDS:
                     continue
-                read = np.sort(
-                    _read_attribute(h5py, xdmf_path, attr.find("DataItem").text)
-                )
+                read = np.sort(_read_attribute(h5py, xdmf_path, attr.find("DataItem").text))
                 ref = expected[key][name]
                 assert read.size == ref.size, (name, key, read.size, ref.size)
                 scale = max(np.max(np.abs(ref)), 1.0)
@@ -203,9 +195,7 @@ def test_existing_single_state_writer_collapses_the_time_axis(tmp_path):
     for i, t in enumerate(TIMES):
         _set_step(phi, sigma, t)
         base = comm.bcast(str(tmp_path / f"single_state_{i}"), root=0)
-        path, _ = write_xdmf_with_tags(
-            base, msh, tags, {"phi": phi, "sigma": sigma}, comm=comm
-        )
+        path, _ = write_xdmf_with_tags(base, msh, tags, {"phi": phi, "sigma": sigma}, comm=comm)
         n_times = None
         if comm.rank == 0:
             tree = ET.parse(path)

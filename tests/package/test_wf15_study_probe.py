@@ -37,7 +37,6 @@ from fem_em_solver import FourPortBirdcageGeometry, LumpedPortDrive, RobinCoolin
 from fem_em_solver.post.sar import uniform_sphere_sar_closed_form
 from fem_em_solver.thermal.probe import ProbeBall, _ball_average_on_cells, ball_average
 from fem_em_solver.utils.constants import EPSILON_0
-
 from tests.complex_mode import complex_only
 from tests.package.test_wf15_study_lossy_sphere import _material_057, _study, _summed_rss_gib
 from tests.package.test_wf15_study_temperature import MAT10_A_PRINT
@@ -50,11 +49,11 @@ from tests.validation.test_lossy_sphere_sar import (
 )
 from tests.validation.test_mat10_sar_to_heat_sphere import (
     B_BAND,
+    T_INF,
     G,
     H,
     K,
     R,
-    T_INF,
     _allsum,
     _interior_indicator,
     _interior_rel,
@@ -84,8 +83,12 @@ def _hashes():
 
 def _q_cf():
     cf = uniform_sphere_sar_closed_form(
-        e0=E0, epsilon_r=EPSILON_R_SPHERE, sigma=SIGMA_HIGH, omega=OMEGA,
-        rho=RHO_KG_M3, epsilon_0=EPSILON_0,
+        e0=E0,
+        epsilon_r=EPSILON_R_SPHERE,
+        sigma=SIGMA_HIGH,
+        omega=OMEGA,
+        rho=RHO_KG_M3,
+        epsilon_0=EPSILON_0,
     )
     return G * RHO_KG_M3 * cf["sar_w_per_kg"]
 
@@ -113,39 +116,49 @@ def _probe_leg(comm):
     rd["volumes"] = np.asarray(pr.volumes, dtype=np.float64)
 
     # (A) P8's identity through the API.
-    v_sub = float(np.real(_allsum(comm, fem.Constant(sub, default_scalar_type(1.0))
-                                  * ufl.dx(domain=sub))))
+    v_sub = float(
+        np.real(_allsum(comm, fem.Constant(sub, default_scalar_type(1.0)) * ufl.dx(domain=sub)))
+    )
     int_th = float(np.real(_allsum(comm, theta * ufl.dx(domain=sub))))
     mean = int_th / v_sub
     rd["A_val"] = abs(pr.values[0] - mean) / abs(mean)
     rd["A_vol"] = abs(pr.volumes[0] / v_sub - 1.0)
-    _say(f"WF15P (A0) sub cells {rd['cells']} (record {N_SUB}); (A) |P - int/V|/|int/V| = "
-         f"{rd['A_val']:.3e}, |V_h/V_sub - 1| = {rd['A_vol']:.3e} (band {B_BAND:.0e}); "
-         f"V_sub {v_sub:.10e}")
+    _say(
+        f"WF15P (A0) sub cells {rd['cells']} (record {N_SUB}); (A) |P - int/V|/|int/V| = "
+        f"{rd['A_val']:.3e}, |V_h/V_sub - 1| = {rd['A_vol']:.3e} (band {B_BAND:.0e}); "
+        f"V_sub {v_sub:.10e}"
+    )
 
     # (U) the API is MAT-19's function, same process.
     direct = np.array([ball_average(theta, p)[0] for p in [WHOLE] + PROBES])
     rd["U_equal"] = bool(np.array_equal(direct, rd["values"]))
-    _say(f"WF15P (U) Study.probe values {rd['values'].tolist()!r}; direct {direct.tolist()!r}; "
-         f"equal {rd['U_equal']}; (Once) {rd['once']}")
+    _say(
+        f"WF15P (U) Study.probe values {rd['values'].tolist()!r}; direct {direct.tolist()!r}; "
+        f"equal {rd['U_equal']}; (Once) {rd['once']}"
+    )
 
     # Item 260's (A) on the same thermal field, imported comparator.
     q_cf = _q_cf()
     th_cf = _theta_cf(sub, q_cf)
-    rd["err_A"] = _interior_rel(sub, _interior_indicator(sub),
-                                (pr.thermal.temperature - T_INF) - th_cf, th_cf)
+    rd["err_A"] = _interior_rel(
+        sub, _interior_indicator(sub), (pr.thermal.temperature - T_INF) - th_cf, th_cf
+    )
     _say(f"WF15P item-260 (A) = {rd['err_A']:.10e} [{rd['err_A']:.4e}] vs {MAT10_A_PRINT}")
 
     # Printed: closed-form steady ball means, max_imag_ratio, (c3).
     for j, p in enumerate(PROBES):
         d = float(np.linalg.norm(p.centre))
         cf = _ss_ball_mean(d, A_PROBE, q_cf)
-        _say(f"WF15P probe c{j} d={d * 1e3:.2f} mm: FEM {rd['values'][j + 1]:.6f} K, closed form "
-             f"{cf:.6f} K, offset {rd['values'][j + 1] / cf - 1.0:+.4%}; volume "
-             f"{rd['volumes'][j + 1]:.6e} / nominal {pr.nominal_volumes[j + 1]:.6e}")
+        _say(
+            f"WF15P probe c{j} d={d * 1e3:.2f} mm: FEM {rd['values'][j + 1]:.6f} K, closed form "
+            f"{cf:.6f} K, offset {rd['values'][j + 1] / cf - 1.0:+.4%}; volume "
+            f"{rd['volumes'][j + 1]:.6e} / nominal {pr.nominal_volumes[j + 1]:.6e}"
+        )
     T_whole = ball_average(pr.thermal.temperature, WHOLE)[0]
-    _say(f"WF15P (c3) whole-ball T / theta = {T_whole / rd['values'][0]:.1f} (printed); "
-         f"max_imag_ratio {pr.max_imag_ratio:.3e}")
+    _say(
+        f"WF15P (c3) whole-ball T / theta = {T_whole / rd['values'][0]:.1f} (printed); "
+        f"max_imag_ratio {pr.max_imag_ratio:.3e}"
+    )
     rd["study"] = study
     rd["pr"] = pr
     return rd
@@ -154,8 +167,9 @@ def _probe_leg(comm):
 def test_wf15_probe_spec_and_refusals():
     """Port Study ⇒ TypeError with no build; empty / non-ProbeBall ⇒ refusal."""
     spec = RobinCooling(K, H, T_INF)
-    port = Study(FourPortBirdcageGeometry.f_small(), _material_057(), LumpedPortDrive(),
-                 frequency_hz=64e6)
+    port = Study(
+        FourPortBirdcageGeometry.f_small(), _material_057(), LumpedPortDrive(), frequency_hz=64e6
+    )
     with pytest.raises(TypeError):
         port.probe(PROBES, spec)
     assert port.result is None
@@ -179,8 +193,10 @@ def test_wf15_probe_identity_n2():
     # (c1) displaced probe.
     v_out = ball_average(theta, C2_OUT)[0]
     rd["c1"] = abs(v_out - rd["values"][3]) / abs(rd["values"][3])
-    _say(f"WF15P (c1) c2 +0.1 mm: |d|/theta = {rd['c1']:.4e} (predicted ≈ 7.4e-3; band "
-         f"{WIDTH_BAND:.0e})")
+    _say(
+        f"WF15P (c1) c2 +0.1 mm: |d|/theta = {rd['c1']:.4e} (predicted ≈ 7.4e-3; band "
+        f"{WIDTH_BAND:.0e})"
+    )
 
     # (c2) ghost-included sum on the whole ball.
     sub = pr.thermal.submesh
@@ -190,18 +206,28 @@ def test_wf15_probe_identity_n2():
     _, vol_g = _ball_average_on_cells(theta, WHOLE, cells_all)
     c2 = abs(vol_g / rd["volumes"][0] - 1.0)
     if g_w > 0:
-        _say(f"WF15P (c2) G_w = {g_w}; ghost-included volume miss {c2:.3e} (predicted ≈ "
-             f"{g_w / N_SUB:.1e}; band {B_BAND:.0e})")
+        _say(
+            f"WF15P (c2) G_w = {g_w}; ghost-included volume miss {c2:.3e} (predicted ≈ "
+            f"{g_w / N_SUB:.1e}; band {B_BAND:.0e})"
+        )
     else:
         _say(f"WF15P (c2) G_w = 0: inapplicable (record); miss {c2:.3e}")
-    _say(f"WF15P EM solve + mesh {rd['t_em']:.1f} s; temperature + probe {rd['t_probe']:.1f} s; "
-         f"summed ru_maxrss {_summed_rss_gib(comm):.2f} GiB; width {comm.size}")
+    _say(
+        f"WF15P EM solve + mesh {rd['t_em']:.1f} s; temperature + probe {rd['t_probe']:.1f} s; "
+        f"summed ru_maxrss {_summed_rss_gib(comm):.2f} GiB; width {comm.size}"
+    )
 
     if comm.rank == 0:
         os.makedirs(os.path.dirname(NPZ), exist_ok=True)
         h_src, h_test = _hashes()
-        np.savez(NPZ, cells=rd["cells"], values=rd["values"], volumes=rd["volumes"],
-                 sha_study=h_src, sha_test=h_test)
+        np.savez(
+            NPZ,
+            cells=rd["cells"],
+            values=rd["values"],
+            volumes=rd["volumes"],
+            sha_study=h_src,
+            sha_test=h_test,
+        )
     comm.Barrier()
 
     assert rd["once"], "(Once) a second EM solve happened"
@@ -227,11 +253,15 @@ def test_wf15_probe_width_n1():
         pytest.fail("(W) study.py or the test module changed since the -n 2 npz was written")
     rd = _probe_leg(comm)
     rel = np.abs(rd["values"] - ref["values"]) / np.abs(ref["values"])
-    _say(f"WF15P (W) width {comm.size} vs 2: cells {rd['cells']} / {int(ref['cells'])}; "
-         f"rel |d| per probe {rel.tolist()!r}; max {float(np.max(rel)):.3e} (band "
-         f"{WIDTH_BAND:.0e})")
-    _say(f"WF15P EM solve + mesh {rd['t_em']:.1f} s; temperature + probe {rd['t_probe']:.1f} s; "
-         f"summed ru_maxrss {_summed_rss_gib(comm):.2f} GiB; width {comm.size}")
+    _say(
+        f"WF15P (W) width {comm.size} vs 2: cells {rd['cells']} / {int(ref['cells'])}; "
+        f"rel |d| per probe {rel.tolist()!r}; max {float(np.max(rel)):.3e} (band "
+        f"{WIDTH_BAND:.0e})"
+    )
+    _say(
+        f"WF15P EM solve + mesh {rd['t_em']:.1f} s; temperature + probe {rd['t_probe']:.1f} s; "
+        f"summed ru_maxrss {_summed_rss_gib(comm):.2f} GiB; width {comm.size}"
+    )
     assert rd["once"], "(Once) a second EM solve happened"
     assert rd["cells"] == N_SUB == int(ref["cells"]), f"(A0) {rd['cells']}"
     assert rd["A_val"] <= B_BAND, f"(A) value {rd['A_val']:.3e}"

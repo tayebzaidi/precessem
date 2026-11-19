@@ -28,7 +28,6 @@ from mpi4py import MPI
 
 from fem_em_solver.materials import ColeColeMaterial
 from fem_em_solver.utils.constants import EPSILON_0, MU_0
-
 from tests.complex_mode import complex_only
 from tests.validation.test_lossy_plane_wave import (
     MU_R,
@@ -83,12 +82,16 @@ def test_debye_plane_wave_matches_k0_sqrt_eps_hat():
     sig_hi, _ = DEBYE.sigma_epsilon_at(F_HIGH)
     sig_lo, _ = DEBYE.sigma_epsilon_at(F_LOW)
     out.append("\n[MAT-3 step 1] Debye eps_inf=50, de=30, tau=1/(2pi 100 MHz), sigma=0.5")
-    out.append(f"  127.74 MHz: eps'={eps_hi.real:.4f} eps''={-eps_hi.imag:.4f} "
-               f"sigma_eff={sig_hi:.5f} alpha={alpha_hi:.4f} beta={beta_hi:.4f} "
-               "(pred 61.399 / 84.919 / 0.6035 / 12.470 / 24.405)")
-    out.append(f"  63.87 MHz:  eps'={eps_lo.real:.4f} eps''={-eps_lo.imag:.4f} "
-               f"sigma_eff={sig_lo:.5f} alpha={alpha_lo:.4f} beta={beta_lo:.4f} "
-               "(pred 71.308 / 154.33 / 0.5484 / 9.404 / 14.704)")
+    out.append(
+        f"  127.74 MHz: eps'={eps_hi.real:.4f} eps''={-eps_hi.imag:.4f} "
+        f"sigma_eff={sig_hi:.5f} alpha={alpha_hi:.4f} beta={beta_hi:.4f} "
+        "(pred 61.399 / 84.919 / 0.6035 / 12.470 / 24.405)"
+    )
+    out.append(
+        f"  63.87 MHz:  eps'={eps_lo.real:.4f} eps''={-eps_lo.imag:.4f} "
+        f"sigma_eff={sig_lo:.5f} alpha={alpha_lo:.4f} beta={beta_lo:.4f} "
+        "(pred 71.308 / 154.33 / 0.5484 / 9.404 / 14.704)"
+    )
     out.append(f"  alpha ratio 128/64 = {alpha_hi / alpha_lo:.4f} (pred 1.3261)")
 
     # (i) 127.74 MHz ladder
@@ -98,31 +101,39 @@ def test_debye_plane_wave_matches_k0_sqrt_eps_hat():
     ea_f = abs(a_f - alpha_hi) / alpha_hi
     eb_f = abs(b_f - beta_hi) / beta_hi
     out.append(f"  (i) 12^3 ({n_c} cells): rel L2 {rel_c:.5e}, alpha {a_c:.5f}, beta {b_c:.5f}")
-    out.append(f"  (i) 24^3 ({n_f} cells): rel L2 {rel_f:.5e}, alpha {a_f:.5f} ({ea_f:.4%}), "
-               f"beta {b_f:.5f} ({eb_f:.4%}); rate {rate:.4f}")
+    out.append(
+        f"  (i) 24^3 ({n_f} cells): rel L2 {rel_f:.5e}, alpha {a_f:.5f} ({ea_f:.4%}), "
+        f"beta {b_f:.5f} ({eb_f:.4%}); rate {rate:.4f}"
+    )
 
     # (ii) 63.87 MHz at 24^3
     rel_l, a_l, b_l, n_l = _solve(24, F_LOW)
     ea_l = abs(a_l - alpha_lo) / alpha_lo
     eb_l = abs(b_l - beta_lo) / beta_lo
-    out.append(f"  (ii) 24^3 @63.87: rel L2 {rel_l:.5e}, alpha {a_l:.5f} ({ea_l:.4%}), "
-               f"beta {b_l:.5f} ({eb_l:.4%})")
+    out.append(
+        f"  (ii) 24^3 @63.87: rel L2 {rel_l:.5e}, alpha {a_l:.5f} ({ea_l:.4%}), "
+        f"beta {b_l:.5f} ({eb_l:.4%})"
+    )
     out.append(f"  measured alpha ratio 128/64 = {a_f / a_l:.4f}")
 
     # (a) wrong frequency: eps_hat(63.87) solved at 127.74 (self-consistent solve)
     _, a_wf, b_wf, _ = _solve(16, F_HIGH, material_f=F_LOW)
     miss_a_wf = abs(a_wf - alpha_hi) / alpha_hi
     miss_b_wf = abs(b_wf - beta_hi) / beta_hi
-    out.append(f"  (a) wrong-f 16^3: alpha {a_wf:.5f} miss {miss_a_wf:.4%} (pred 11.80%), "
-               f"beta miss {miss_b_wf:.4%} (pred 3.02%, printed only)")
+    out.append(
+        f"  (a) wrong-f 16^3: alpha {a_wf:.5f} miss {miss_a_wf:.4%} (pred 11.80%), "
+        f"beta miss {miss_b_wf:.4%} (pred 3.02%, printed only)"
+    )
 
     # (b) dispersion dropped: eps_r = eps_s = 80, sigma = 0.5
     static = ColeColeMaterial.debye(EPS_INF + DELTA_EPS, sigma_ionic=SIGMA_IONIC)
     _, a_nd, b_nd, _ = _solve(16, F_HIGH, hm=static.as_homogeneous(F_HIGH))
     miss_a_nd = abs(a_nd - alpha_hi) / alpha_hi
     miss_b_nd = abs(b_nd - beta_hi) / beta_hi
-    out.append(f"  (b) no-dispersion 16^3: alpha {a_nd:.5f} miss {miss_a_nd:.4%} (pred 21.80%), "
-               f"beta miss {miss_b_nd:.4%} (pred 5.94%, printed only)")
+    out.append(
+        f"  (b) no-dispersion 16^3: alpha {a_nd:.5f} miss {miss_a_nd:.4%} (pred 21.80%), "
+        f"beta miss {miss_b_nd:.4%} (pred 5.94%, printed only)"
+    )
 
     if comm.rank == 0:
         print("\n".join(out))

@@ -28,7 +28,6 @@ from fem_em_solver.core.cavity import (
     solve_box_cavity_modes,
     solve_pec_cavity_modes,
 )
-
 from tests.validation.test_cavity_resonances import (  # TH-9's 1 % band
     FREQUENCY_TOLERANCE_PCT,
 )
@@ -118,9 +117,7 @@ def test_one_pmc_face_matches_closed_form():
     """(i) z+ PMC: lowest 5 within 1 %; 60 owned PMC facets (allreduced)."""
 
     t0 = time.perf_counter()
-    spectrum = solve_box_cavity_modes(
-        EDGES, DIVISIONS, degree=2, n_modes=5, pmc_faces=("z+",)
-    )
+    spectrum = solve_box_cavity_modes(EDGES, DIVISIONS, degree=2, n_modes=5, pmc_faces=("z+",))
     elapsed = time.perf_counter() - t0
     analytic = analytic_box_cavity_modes(EDGES, ("z+",), 5)
     err = _report("(i) z+ PMC", spectrum, analytic, elapsed)
@@ -132,9 +129,7 @@ def test_one_pmc_face_matches_closed_form():
     # Negative control: the all-PEC half against (i)'s closed form.
     pec = solve_pec_cavity_modes(EDGES, DIVISIONS, degree=2, n_modes=4)
     gap = float(_rel_pct(pec.frequencies_hz[0], analytic[0]))
-    closed_gap = float(
-        _rel_pct(analytic_box_cavity_modes(EDGES, (), 1)[0], analytic[0])
-    )
+    closed_gap = float(_rel_pct(analytic_box_cavity_modes(EDGES, (), 1)[0], analytic[0]))
     wrong_face = analytic_box_cavity_modes(EDGES, ("x+",), 1)[0]
     if MPI.COMM_WORLD.rank == 0:
         print(
@@ -176,9 +171,7 @@ def test_two_pmc_faces_match_closed_form():
     """(iii) x+, y+ PMC: lowest 7 within 1 %; 88 owned PMC facets."""
 
     t0 = time.perf_counter()
-    spectrum = solve_box_cavity_modes(
-        EDGES, DIVISIONS, degree=2, n_modes=7, pmc_faces=("x+", "y+")
-    )
+    spectrum = solve_box_cavity_modes(EDGES, DIVISIONS, degree=2, n_modes=7, pmc_faces=("x+", "y+"))
     elapsed = time.perf_counter() - t0
     analytic = analytic_box_cavity_modes(EDGES, ("x+", "y+"), 7)
     err = _report("(iii) x+, y+ PMC", spectrum, analytic, elapsed)

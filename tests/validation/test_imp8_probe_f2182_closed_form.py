@@ -53,8 +53,17 @@ from tests.validation.test_imp8_rod_line_source_closed_form import (
     _phi_tips,
     _point,
 )
-from tests.validation.test_imp8_rod_line_source_duty_closed_form import PERIOD, SCALE, T_STAR, _phi_dot
-from tests.validation.test_imp8_rod_tips_duty_closed_form import _convolution, _duhamel, _phi_tips_dot
+from tests.validation.test_imp8_rod_line_source_duty_closed_form import (
+    PERIOD,
+    SCALE,
+    T_STAR,
+    _phi_dot,
+)
+from tests.validation.test_imp8_rod_tips_duty_closed_form import (
+    _convolution,
+    _duhamel,
+    _phi_tips_dot,
+)
 from tests.validation.test_mat13_transient_perfusion_sphere import INTERIOR_BAND
 
 Z_P = 0.5 * L + 1.0 * MM  # 16 mm, the probe 1 mm beyond each tip (quoted from memory)
@@ -95,11 +104,15 @@ def test_lim_steady_axis_form():
     rel = abs(phi_inf / ax - 1.0)
     tips_rel = abs(_phi_tips(0.0, Z_P, np.inf) / _tips_steady(0.0, Z_P) - 1.0)
     off_rel = abs(_phi_steady(1e-9, Z_P) / ax - 1.0)
-    _p(f"\n[imp8-16] Z_P {Z_P / MM:g} mm, Z_C {Z_C / MM:g} mm, PERIOD {PERIOD:g} s, D {DUTY:g}, "
-       f"t {T_STAR:g} s, KAPPA {KAPPA:.7g} m^2/s, SCALE {SCALE:.7g} K/W per unit Φ")
-    _p(f"[imp8-16] (Lim) Φ(0,Z_P,inf) {phi_inf:.7g} vs ln(31) {ax:.7g}: rel {rel:.3e} (band {B1_BAND:g}); "
-       f"printed: Φ2(0,Z_P,inf)/tips_steady - 1 = {tips_rel:.3e}; _phi_steady(1e-9,Z_P)/axis - 1 = "
-       f"{off_rel:.3e}")
+    _p(
+        f"\n[imp8-16] Z_P {Z_P / MM:g} mm, Z_C {Z_C / MM:g} mm, PERIOD {PERIOD:g} s, D {DUTY:g}, "
+        f"t {T_STAR:g} s, KAPPA {KAPPA:.7g} m^2/s, SCALE {SCALE:.7g} K/W per unit Φ"
+    )
+    _p(
+        f"[imp8-16] (Lim) Φ(0,Z_P,inf) {phi_inf:.7g} vs ln(31) {ax:.7g}: rel {rel:.3e} (band {B1_BAND:g}); "
+        f"printed: Φ2(0,Z_P,inf)/tips_steady - 1 = {tips_rel:.3e}; _phi_steady(1e-9,Z_P)/axis - 1 = "
+        f"{off_rel:.3e}"
+    )
     assert rel <= B1_BAND
 
 
@@ -108,8 +121,10 @@ def test_bq_gauss_legendre_n_vs_2n():
     for t in (T_PRINT, np.inf):
         g_n, g_2n = _gl_line(Z_P, t, N_GL), _gl_line(Z_P, t, 2 * N_GL)
         e = abs(g_n / g_2n - 1.0)
-        _p(f"[imp8-16] (Bq) t={t:g}: GL{N_GL} {g_n:.7g} GL{2 * N_GL} {g_2n:.7g} |n/2n-1| {e:.3e} "
-           f"(band {BQ_BAND:g}); printed |GL2n/_phi-1| {abs(g_2n / _phi(0.0, Z_P, t) - 1.0):.3e}")
+        _p(
+            f"[imp8-16] (Bq) t={t:g}: GL{N_GL} {g_n:.7g} GL{2 * N_GL} {g_2n:.7g} |n/2n-1| {e:.3e} "
+            f"(band {BQ_BAND:g}); printed |GL2n/_phi-1| {abs(g_2n / _phi(0.0, Z_P, t) - 1.0):.3e}"
+        )
         worst = max(worst, e)
     assert worst <= BQ_BAND
 
@@ -121,8 +136,10 @@ def test_dut_step_sum_equals_convolution():
         step = _duhamel(kern, 0.0, Z_P, T_STAR, DUTY)
         conv = _convolution(kern_dot, 0.0, Z_P, T_STAR, DUTY)
         e = abs(step - conv) / (SCALE * steady(Z_P))
-        _p(f"[imp8-16] (Dut) {name}: step sum {step:.7g} conv {conv:.7g} |diff|/θ_ss {e:.3e} "
-           f"(band {B1_BAND:g})")
+        _p(
+            f"[imp8-16] (Dut) {name}: step sum {step:.7g} conv {conv:.7g} |diff|/θ_ss {e:.3e} "
+            f"(band {B1_BAND:g})"
+        )
         worst = max(worst, e)
     _p(f"[imp8-16] (Dut) worst {worst:.3e}; {time.perf_counter() - t0:.1f} s")
     assert worst <= B1_BAND
@@ -139,29 +156,41 @@ def test_control_probe_moved_reads_lower():
         hi = SCALE * kern(0.0, Z_P, T_STAR)
         lo = SCALE * kern(0.0, Z_C, T_STAR)
         drop = 1.0 - lo / hi
-        _p(f"[imp8-16] (ctrl) {name}: θ(Z_C) {lo:.7g} θ(Z_P) {hi:.7g} 1-ratio {drop:.7g} "
-           f"(band > {INTERIOR_BAND:g}, < 1; predicted steady {CTRL_PRED[name]:.7g})")
+        _p(
+            f"[imp8-16] (ctrl) {name}: θ(Z_C) {lo:.7g} θ(Z_P) {hi:.7g} 1-ratio {drop:.7g} "
+            f"(band > {INTERIOR_BAND:g}, < 1; predicted steady {CTRL_PRED[name]:.7g})"
+        )
         assert lo < hi
         assert INTERIOR_BAND < drop < 1.0
 
 
 def test_printed_record():
-    _p("[imp8-16] the F2182-shaped probe (placement and time quoted from memory; W3 confirms or "
-       "corrects) — K per watt per rod, infinite gel")
+    _p(
+        "[imp8-16] the F2182-shaped probe (placement and time quoted from memory; W3 confirms or "
+        "corrects) — K per watt per rod, infinite gel"
+    )
     rec = {}
     for name, (kern, _kd, steady) in SHAPES.items():
         for lab, z in (("Z_P", Z_P), ("Z_C", Z_C)):
             cont, duty, ss = _reads(kern, steady, z)
             rec[(name, lab)] = (cont, duty, ss)
-            _p(f"[imp8-16] {name} at (0, +{lab}={z / MM:g} mm): θ(900 s) cont {cont:.7g}  D=0.5 {duty:.7g}  "
-               f"θ_ss {ss:.7g}  duty/cont {duty / cont:.7g}")
+            _p(
+                f"[imp8-16] {name} at (0, +{lab}={z / MM:g} mm): θ(900 s) cont {cont:.7g}  D=0.5 {duty:.7g}  "
+                f"θ_ss {ss:.7g}  duty/cont {duty / cont:.7g}"
+            )
         sym = abs(SCALE * kern(0.0, Z_P, T_STAR) - SCALE * kern(0.0, -Z_P, T_STAR))
-        sym_d = abs(_duhamel(kern, 0.0, Z_P, T_STAR, DUTY) - _duhamel(kern, 0.0, -Z_P, T_STAR, DUTY))
-        _p(f"[imp8-16] {name}: |θ(+Z_P)-θ(-Z_P)| cont {sym:.3e} D=0.5 {sym_d:.3e} (round-off by symmetry)")
+        sym_d = abs(
+            _duhamel(kern, 0.0, Z_P, T_STAR, DUTY) - _duhamel(kern, 0.0, -Z_P, T_STAR, DUTY)
+        )
+        _p(
+            f"[imp8-16] {name}: |θ(+Z_P)-θ(-Z_P)| cont {sym:.3e} D=0.5 {sym_d:.3e} (round-off by symmetry)"
+        )
     for lab in ("Z_P", "Z_C"):
         tw, ln = rec[("twin", lab)], rec[("line", lab)]
-        _p(f"[imp8-16] twin/line at {lab}: cont {tw[0] / ln[0]:.7g}  D=0.5 {tw[1] / ln[1]:.7g}  "
-           f"ss {tw[2] / ln[2]:.7g}")
+        _p(
+            f"[imp8-16] twin/line at {lab}: cont {tw[0] / ln[0]:.7g}  D=0.5 {tw[1] / ln[1]:.7g}  "
+            f"ss {tw[2] / ln[2]:.7g}"
+        )
     _p(f"[imp8-16] QUAD {QUAD}")
     for v in rec.values():
         assert all(np.isfinite(x) and x > 0.0 for x in v)

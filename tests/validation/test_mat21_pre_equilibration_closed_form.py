@@ -33,9 +33,8 @@ from fem_em_solver.utils.analytical import (
     robin_slab_odd_eigenvalues,
     robin_slab_odd_linear_coefficients,
 )
-
 from tests.validation.test_imp4_pec_cylinder_closed_form import B1_BAND
-from tests.validation.test_mat15_finite_cylinder_closed_form import H, K, RHO_C, T_INF
+from tests.validation.test_mat15_finite_cylinder_closed_form import RHO_C, T_INF, H, K
 from tests.validation.test_mat21_box_closed_form import (
     A_BOX,
     B_BOX,
@@ -84,14 +83,33 @@ def _drift(p, t, **kw):
 
 
 def _sourced(p, t, kw=KW):
-    return float(robin_box_transient_temperature(*p, t, half_widths=HALF, rho_c=RHO_C,
-                                                 t_inf=T_INF, n_terms=SERIES_TERMS, **kw)) - T_INF
+    return (
+        float(
+            robin_box_transient_temperature(
+                *p, t, half_widths=HALF, rho_c=RHO_C, t_inf=T_INF, n_terms=SERIES_TERMS, **kw
+            )
+        )
+        - T_INF
+    )
 
 
 def _combined(p, t, t_w, kw=KW, g=G_GRAD):
-    drift = float(robin_box_initial_gradient_temperature(
-        *p, t + t_w, half_widths=HALF, k=K, h=H, rho_c=RHO_C, g=g, t_inf=T_INF,
-        n_terms=N_TERMS)) - T_INF
+    drift = (
+        float(
+            robin_box_initial_gradient_temperature(
+                *p,
+                t + t_w,
+                half_widths=HALF,
+                k=K,
+                h=H,
+                rho_c=RHO_C,
+                g=g,
+                t_inf=T_INF,
+                n_terms=N_TERMS,
+            )
+        )
+        - T_INF
+    )
     return drift + _sourced(p, t, kw)
 
 
@@ -101,12 +119,23 @@ def _advanced(p, t, t_w):
     gy, cy = _even(B_BOX, N_TERMS)
     gz = robin_slab_odd_eigenvalues(H * C_BOX / K, N_TERMS)
     bz = GC * robin_slab_odd_linear_coefficients(gz)
-    rate = ALPHA * (((gx / A_BOX) ** 2)[:, None, None] + ((gy / B_BOX) ** 2)[None, :, None]
-                    + ((gz / C_BOX) ** 2)[None, None, :])
+    rate = ALPHA * (
+        ((gx / A_BOX) ** 2)[:, None, None]
+        + ((gy / B_BOX) ** 2)[None, :, None]
+        + ((gz / C_BOX) ** 2)[None, None, :]
+    )
     amp = cx[:, None, None] * cy[None, :, None] * bz[None, None, :] * np.exp(-rate * t_w)
     x, y, z = p
-    return float(np.einsum("lmn,lmn,l,m,n->", amp, np.exp(-rate * t), np.cos(gx * x / A_BOX),
-                           np.cos(gy * y / B_BOX), np.sin(gz * z / C_BOX)))
+    return float(
+        np.einsum(
+            "lmn,lmn,l,m,n->",
+            amp,
+            np.exp(-rate * t),
+            np.cos(gx * x / A_BOX),
+            np.cos(gy * y / B_BOX),
+            np.sin(gz * z / C_BOX),
+        )
+    )
 
 
 def _ratio_r(p, w1, w2, **kw):
@@ -115,15 +144,19 @@ def _ratio_r(p, w1, w2, **kw):
 
 
 def test_rates_and_sym0():
-    _say(f"MAT21-24 lambda_1 (odd) {LAM_ODD:.6e} /s, tau {1 / LAM_ODD:.1f} s; lambda (even, "
-         f"step 0's) {LAM_EVEN:.6e} /s; lambda_1/alpha {LAM_ODD / ALPHA:.2f} /m^2; t* "
-         f"{T_STAR:.2f} s; waits {[round(w, 2) for w in WAITS]} s; g {G_GRAD} K/m (fixture)")
+    _say(
+        f"MAT21-24 lambda_1 (odd) {LAM_ODD:.6e} /s, tau {1 / LAM_ODD:.1f} s; lambda (even, "
+        f"step 0's) {LAM_EVEN:.6e} /s; lambda_1/alpha {LAM_ODD / ALPHA:.2f} /m^2; t* "
+        f"{T_STAR:.2f} s; waits {[round(w, 2) for w in WAITS]} s; g {G_GRAD} K/m (fixture)"
+    )
     assert LAM_ODD > LAM_EVEN
     worst = 0.0
     for p in PROBE_PTS[:5]:
         for w in WAITS:
             worst = max(worst, abs(_drift(p, T_STAR + w)) / GC)
-    _say(f"MAT21-24 (Sym0) P0-P4 max |theta_drift|/(g C) {worst:.3e} (bar {SYM0_BAR:.0e}, ASSERTED)")
+    _say(
+        f"MAT21-24 (Sym0) P0-P4 max |theta_drift|/(g C) {worst:.3e} (bar {SYM0_BAR:.0e}, ASSERTED)"
+    )
     assert worst <= SYM0_BAR, worst
 
 
@@ -132,11 +165,16 @@ def test_sup_limits_and_time_shift():
     for _name, p in GATE_PTS:
         for w in WAITS:
             d, s = _drift(p, T_STAR + w), _sourced(p, T_STAR)
-            w_lim = max(w_lim, abs(_combined(p, T_STAR, w, kw=_NO_SOURCE) - d) / abs(d),
-                        abs(_combined(p, T_STAR, w, g=0.0) - s) / abs(s))
+            w_lim = max(
+                w_lim,
+                abs(_combined(p, T_STAR, w, kw=_NO_SOURCE) - d) / abs(d),
+                abs(_combined(p, T_STAR, w, g=0.0) - s) / abs(s),
+            )
             w_shift = max(w_shift, abs(_advanced(p, T_STAR, w) - d) / abs(d))
-    _say(f"MAT21-24 (Sup) limits max rel {w_lim:.3e}; time shift max rel {w_shift:.3e} (band "
-         f"{B1_BAND:g}, ASSERTED)")
+    _say(
+        f"MAT21-24 (Sup) limits max rel {w_lim:.3e}; time shift max rel {w_shift:.3e} (band "
+        f"{B1_BAND:g}, ASSERTED)"
+    )
     assert w_lim <= B1_BAND, w_lim
     assert w_shift <= B1_BAND, w_shift
 
@@ -148,8 +186,10 @@ def test_dec_inf_first_odd_mode_and_wrong_lambda():
     for name, p in GATE_PTS:
         r = abs(_ratio_r(p, w1, w2, n_terms=1) * np.e - 1.0)
         c = abs(_ratio_r(p, e1, e2, n_terms=1) * np.e - 1.0)
-        _say(f"MAT21-24 (Dec-inf) {name}: |R| {r:.3e} (band {B1_BAND:g}, ASSERTED); wrong lambda "
-             f"(even root) miss {c:.4e} (asserted > {B1_BAND:g}; predicted scale {pred:.4e})")
+        _say(
+            f"MAT21-24 (Dec-inf) {name}: |R| {r:.3e} (band {B1_BAND:g}, ASSERTED); wrong lambda "
+            f"(even root) miss {c:.4e} (asserted > {B1_BAND:g}; predicted scale {pred:.4e})"
+        )
         assert r <= B1_BAND, (name, r)
         assert c > B1_BAND, (name, c)
 
@@ -162,13 +202,18 @@ def _dec_full():
 def test_dec_inside_predicted_range():
     """The brief's stop condition: (Dec) outside its range stops the item."""
     for name, r in _dec_full().items():
-        _say(f"MAT21-24 (Dec) {name}: |R| {r:.4e}; PREDICTED RED range [{DEC_RANGE[0]:.0e}, "
-             f"{DEC_RANGE[1]:.0e}] (ASSERTED); band {B1_BAND:g}")
+        _say(
+            f"MAT21-24 (Dec) {name}: |R| {r:.4e}; PREDICTED RED range [{DEC_RANGE[0]:.0e}, "
+            f"{DEC_RANGE[1]:.0e}] (ASSERTED); band {B1_BAND:g}"
+        )
         assert DEC_RANGE[0] <= r <= DEC_RANGE[1], (name, r)
 
 
-@pytest.mark.xfail(strict=True, reason="PREDICTED RED: (Dec) at P5 and ADJ_PT range [1e-4, 3e-1] "
-                                       "(docs/planning/chunks/MAT-21.md, §9 item 712)")
+@pytest.mark.xfail(
+    strict=True,
+    reason="PREDICTED RED: (Dec) at P5 and ADJ_PT range [1e-4, 3e-1] "
+    "(docs/planning/chunks/MAT-21.md, §9 item 712)",
+)
 def test_dec_full_series_as_the_weekly_wrote_it():
     r = _dec_full()
     assert max(r.values()) <= B1_BAND, r
@@ -178,8 +223,10 @@ def test_negative_control_dirichlet_z():
     rz = np.arange(1, N_TERMS + 1) * np.pi
     rob, dz = _drift(P5, T_STAR), _drift(P5, T_STAR, roots_z=rz)
     miss = abs(rob - dz) / GC
-    _say(f"MAT21-24 control (Dz) at P5, t*: Robin {rob:.6f} K, Dirichlet {dz:.3e} K, miss/(g C) "
-         f"{miss:.4e} (asserted > {DZ_FLOOR:.0e})")
+    _say(
+        f"MAT21-24 control (Dz) at P5, t*: Robin {rob:.6f} K, Dirichlet {dz:.3e} K, miss/(g C) "
+        f"{miss:.4e} (asserted > {DZ_FLOOR:.0e})"
+    )
     assert miss > DZ_FLOOR, miss
 
 

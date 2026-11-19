@@ -132,8 +132,7 @@ def main():
     print(f"  {'h':>8}  {'cells':>8}  {'sampled 10-pt':>14}  {'E_Omega':>12}")
     for r in rows:
         print(
-            f"  {r['h']:>8.4f}  {r['cells']:>8}  {r['sampled']:>13.6%}  "
-            f"{r['e_omega']:>11.6%}"
+            f"  {r['h']:>8.4f}  {r['cells']:>8}  {r['sampled']:>13.6%}  " f"{r['e_omega']:>11.6%}"
         )
 
     print("\n  Pairwise rates (in-band = inside the gate's [0.7, 1.5]):")
@@ -145,9 +144,7 @@ def main():
         for key in ("sampled", "e_omega"):
             p = _pairwise_rate(a["h"], a[key], b["h"], b[key])
             in_band = RATE_MIN < p < RATE_MAX
-            verdicts[key].append(
-                {"pair": (a["h"], b["h"]), "rate": p, "in_band": in_band}
-            )
+            verdicts[key].append({"pair": (a["h"], b["h"]), "rate": p, "in_band": in_band})
             cells.append(f"{p:>9.4f} {'ok ' if in_band else 'OUT'}")
         print(f"{line:>18}  " + "  ".join(cells))
 

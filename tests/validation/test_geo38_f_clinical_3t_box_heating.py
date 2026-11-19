@@ -44,8 +44,11 @@ from tests.validation.test_mat10_sar_to_heat_sphere import B_BAND
 C31_ENV = "FEM_EM_GEO38_C31"
 #: Variables a C31 window never reads: P61's list, P61's own knob, C21's knob and
 #: C21's extras (order kept, duplicates dropped).
-FOREIGN_ENVS = tuple(dict.fromkeys(
-    tuple(p61.FOREIGN_ENVS) + (p61.HEAT_ENV, c21.C21_ENV) + tuple(c21.FOREIGN_ENVS_C21_EXTRA)))
+FOREIGN_ENVS = tuple(
+    dict.fromkeys(
+        tuple(p61.FOREIGN_ENVS) + (p61.HEAT_ENV, c21.C21_ENV) + tuple(c21.FOREIGN_ENVS_C21_EXTRA)
+    )
+)
 
 
 def _say(comm, msg):
@@ -89,13 +92,18 @@ def _run_heat_box_3t(comm, monkeypatch, c_pf, senses, *, degree=None):
     `_c21_patches` sets, read by `i36._route_drive` at call time)."""
     m = c21._modules()
     c21._c21_patches(monkeypatch)
-    _say(comm, f"3 T patch set: rung Ø {m['t3'].RUNG_DIAMETER_3T_M} m, f {m['wf7'].FREQUENCY_HZ:.6e} Hz "
-               f"(C4 {m['c4'].FREQUENCY_HZ_C4:.6e}); records cells "
-               f"{m['i35'].F_CLINICAL_ROD_CELL_RECORD}, U {m['i35'].F_CLINICAL_ROD_UNKNOWNS_RECORD}; "
-               f"node {c_pf:.4f} pF; senses {list(senses)}"
-               + (f"; degree {degree}" if degree else ""))
-    _say(comm, "the gel sigma / eps_r and the thermal constants are the 1.5 T values (provisional "
-               "until W3; no 3 T gel claim)")
+    _say(
+        comm,
+        f"3 T patch set: rung Ø {m['t3'].RUNG_DIAMETER_3T_M} m, f {m['wf7'].FREQUENCY_HZ:.6e} Hz "
+        f"(C4 {m['c4'].FREQUENCY_HZ_C4:.6e}); records cells "
+        f"{m['i35'].F_CLINICAL_ROD_CELL_RECORD}, U {m['i35'].F_CLINICAL_ROD_UNKNOWNS_RECORD}; "
+        f"node {c_pf:.4f} pF; senses {list(senses)}" + (f"; degree {degree}" if degree else ""),
+    )
+    _say(
+        comm,
+        "the gel sigma / eps_r and the thermal constants are the 1.5 T values (provisional "
+        "until W3; no 3 T gel claim)",
+    )
     return p61._run_heat_box(comm, monkeypatch, c_pf, senses=senses, degree=degree)
 
 
@@ -112,8 +120,9 @@ def test_geo38_c31_box_heating_3t(monkeypatch):
 # ---------------------------------------------------------------------------
 # Coding tests (no gmsh); skip whenever C31_ENV is set.
 # ---------------------------------------------------------------------------
-_coding = pytest.mark.skipif(os.environ.get(C31_ENV, "").strip() != "",
-                             reason=f"{C31_ENV} set: coding tests skip in windows")
+_coding = pytest.mark.skipif(
+    os.environ.get(C31_ENV, "").strip() != "", reason=f"{C31_ENV} set: coding tests skip in windows"
+)
 
 
 @_coding
@@ -153,8 +162,11 @@ def test_c31_k0_knobs_foreign_sense_and_box_time_base(monkeypatch):
             m.setenv(k, "1")
             with pytest.raises(ValueError, match="C31 never reads"):
                 _knobs()
-    required = {p61.HEAT_ENV, c21.C21_ENV, "FEM_EM_GEO38_C6"} | set(p61.FOREIGN_ENVS) \
+    required = (
+        {p61.HEAT_ENV, c21.C21_ENV, "FEM_EM_GEO38_C6"}
+        | set(p61.FOREIGN_ENVS)
         | set(c21.FOREIGN_ENVS_C21_EXTRA)
+    )
     assert set(FOREIGN_ENVS) == required and len(FOREIGN_ENVS) == len(set(FOREIGN_ENVS))
     assert p61.HEAT_SENSE_ENV not in FOREIGN_ENVS
     monkeypatch.setenv(p61.HEAT_SENSE_ENV, "both")
@@ -164,10 +176,13 @@ def test_c31_k0_knobs_foreign_sense_and_box_time_base(monkeypatch):
         test_geo38_c31_box_heating_3t(monkeypatch)  # a bad sense raises before the skip / body
     monkeypatch.delenv(p61.HEAT_SENSE_ENV)
     i32._box_preconditions()
-    print(f"\n[GEO-38 C31 K0] modes unset/1 accepted, 0/build/x refused; node required under 1 "
-          f"({c21.K_NODE_3T_PF}); degree 2 refused; {len(FOREIGN_ENVS)} foreign variables refused "
-          f"(P61's {len(p61.FOREIGN_ENVS)} + {p61.HEAT_ENV} + {c21.C21_ENV} + C21's extras, deduplicated); "
-          f"sense knob P61b's (both -> ccw, cw; x refused); box time base (ASSERTED)", flush=True)
+    print(
+        f"\n[GEO-38 C31 K0] modes unset/1 accepted, 0/build/x refused; node required under 1 "
+        f"({c21.K_NODE_3T_PF}); degree 2 refused; {len(FOREIGN_ENVS)} foreign variables refused "
+        f"(P61's {len(p61.FOREIGN_ENVS)} + {p61.HEAT_ENV} + {c21.C21_ENV} + C21's extras, deduplicated); "
+        f"sense knob P61b's (both -> ccw, cw; x refused); box time base (ASSERTED)",
+        flush=True,
+    )
 
 
 @_coding
@@ -181,8 +196,11 @@ def test_c31_k10p_point_map_under_the_3t_patches(monkeypatch):
         box3 = c21._modules()["box"]._box()
     box15 = c21._modules()["box"]._box()
     same_box = all(np.array_equal(a, b) for a, b in zip(box15, box3))
-    print(f"\n[GEO-38 C31 K10-p] P37's points 1.5 T {pts15}; under the 3 T patches {pts3}; box "
-          f"centre / half equal {same_box} (ASSERTED)", flush=True)
+    print(
+        f"\n[GEO-38 C31 K10-p] P37's points 1.5 T {pts15}; under the 3 T patches {pts3}; box "
+        f"centre / half equal {same_box} (ASSERTED)",
+        flush=True,
+    )
     assert pts3 == pts15, (pts15, pts3)
     assert same_box, (box15, box3)
 
@@ -224,13 +242,20 @@ def test_c31_k7_one_with_node_reaches_builder_with_3t_kwargs(monkeypatch):
     got, got_neg = seen[0], neg[0]
     rung_d, rung_d_neg = 2.0 * got["kw"]["ring_radius"], 2.0 * got_neg["kw"]["ring_radius"]
     if comm.rank == 0:
-        print(f"\n[GEO-38 C31 K7] C31=1 node {c21.K_NODE_3T_PF}: builder reached with rung Ø {rung_d:.12f} m "
-              f"(3 T {t3.RUNG_DIAMETER_3T_M}); f wf7 {got['f_wf7']:.6e} / C4 {got['f_c4']:.6e} Hz; records "
-              f"cells {got['cells']}, U {got['unknowns']} (ASSERTED)")
-        print(f"[GEO-38 C31 K7] control (P61 without C21's patches): rung Ø {rung_d_neg:.12f} m, f wf7 "
-              f"{got_neg['f_wf7']:.6e} / C4 {got_neg['f_c4']:.6e} Hz, records cells {got_neg['cells']} "
-              f"(ASSERTED: the 1.5 T fixture)", flush=True)
-    assert abs(rung_d / t3.RUNG_DIAMETER_3T_M - 1.0) <= 1e-15 and abs(rung_d - 0.704) <= 1e-12, rung_d
+        print(
+            f"\n[GEO-38 C31 K7] C31=1 node {c21.K_NODE_3T_PF}: builder reached with rung Ø {rung_d:.12f} m "
+            f"(3 T {t3.RUNG_DIAMETER_3T_M}); f wf7 {got['f_wf7']:.6e} / C4 {got['f_c4']:.6e} Hz; records "
+            f"cells {got['cells']}, U {got['unknowns']} (ASSERTED)"
+        )
+        print(
+            f"[GEO-38 C31 K7] control (P61 without C21's patches): rung Ø {rung_d_neg:.12f} m, f wf7 "
+            f"{got_neg['f_wf7']:.6e} / C4 {got_neg['f_c4']:.6e} Hz, records cells {got_neg['cells']} "
+            f"(ASSERTED: the 1.5 T fixture)",
+            flush=True,
+        )
+    assert (
+        abs(rung_d / t3.RUNG_DIAMETER_3T_M - 1.0) <= 1e-15 and abs(rung_d - 0.704) <= 1e-12
+    ), rung_d
     assert got["f_wf7"] == t3.FREQUENCY_3T_HZ == 128e6 and got["f_c4"] == t3.FREQUENCY_3T_HZ
     assert got["cells"] == c20.F_CLINICAL_3T_ROD_CELL_RECORD == 1_128_430
     assert got["unknowns"] == c20.F_CLINICAL_3T_ROD_UNKNOWNS_RECORD == (1_508_256, 7_783_028)
@@ -274,15 +299,24 @@ def test_c31_k10r_run_heat_box_3t_on_stubs(monkeypatch, tmp_path):
     r_scale = float(np.max(np.abs(dose["th_acc"] - out["scale"] * arm["hist"])))
     rec = c21._k8_json_3t(comm, root)
     r_pacc = abs(out["p_acc"]["ccw"] / rec["p_acc"] - 1.0)
-    heads = ("(i) ball radius", "normalisers:", "price:", "(C21) mean |B1+|_ccw", "(C21) mean |B1+|_cw")
+    heads = (
+        "(i) ball radius",
+        "normalisers:",
+        "price:",
+        "(C21) mean |B1+|_ccw",
+        "(C21) mean |B1+|_cw",
+    )
     missing = [h for h in heads if not any(ln.startswith(h) for ln in lines)]
     fails = i32._thermal_failures(arm)
     if comm.rank == 0:
-        print(f"\n[GEO-38 C31 K10-R] f {f_seen:.6e} Hz, node {rec['c_pf']:.4f} pF; P_gel ccw/cw miss from 9 "
-              f"{r9:.3e}; G*P_gel miss {r_gp:.3e} (band {B_BAND:.0e}); P_acc ccw vs the 3 T JSON {r_pacc:.3e} "
-              f"(<= 1e-12); scale {out['scale']:.9e}, applied miss {r_scale:.3e}; cem43 {dose['cem43']:.6e}, "
-              f"running max {dose['ra_max']:.6e} K; thermal failures {fails or 'none'}; heads missing "
-              f"{missing or 'none'} (ASSERTED)", flush=True)
+        print(
+            f"\n[GEO-38 C31 K10-R] f {f_seen:.6e} Hz, node {rec['c_pf']:.4f} pF; P_gel ccw/cw miss from 9 "
+            f"{r9:.3e}; G*P_gel miss {r_gp:.3e} (band {B_BAND:.0e}); P_acc ccw vs the 3 T JSON {r_pacc:.3e} "
+            f"(<= 1e-12); scale {out['scale']:.9e}, applied miss {r_scale:.3e}; cem43 {dose['cem43']:.6e}, "
+            f"running max {dose['ra_max']:.6e} K; thermal failures {fails or 'none'}; heads missing "
+            f"{missing or 'none'} (ASSERTED)",
+            flush=True,
+        )
     assert f_seen == 128e6, f_seen
     assert rec["c_pf"] == c21.K_NODE_3T_PF, rec["c_pf"]
     assert r9 <= B_BAND, r9
@@ -323,8 +357,10 @@ def test_c31_k10r2_both_senses_3t_on_stubs(monkeypatch, tmp_path):
     d_cc, d_cw = bs["ccw"]["dose"], bs["cw"]["dose"]
     r_p = abs(a_cc["P"] / a_cw["P"] / 9.0 - 1.0)
     r_h = float(np.max(np.abs(a_cc["hist"] - a_cw["hist"])) / np.max(np.abs(a_cw["hist"])))
-    applied = {s: float(np.max(np.abs(bs[s]["dose"]["th_acc"] - bs[s]["scale"] * bs[s]["arm"]["hist"])))
-               for s in ("ccw", "cw")}
+    applied = {
+        s: float(np.max(np.abs(bs[s]["dose"]["th_acc"] - bs[s]["scale"] * bs[s]["arm"]["hist"])))
+        for s in ("ccw", "cw")
+    }
     scale_def = {s: abs(bs[s]["scale"] - bs[s]["arm"]["P"] / p_acc[s]) for s in ("ccw", "cw")}
     predicted = 9.0 * p_acc["cw"] / p_acc["ccw"]
     r_s = abs(d_cc["th_acc"][-1] / d_cw["th_acc"][-1] / predicted - 1.0)
@@ -333,19 +369,27 @@ def test_c31_k10r2_both_senses_3t_on_stubs(monkeypatch, tmp_path):
     pred_c = abs(p_acc["ccw"] / p_acc["cw"] - 1.0)
     thermal = [i for i, ln in enumerate(said) if ln.startswith(("hotspot ", "probe "))]
     first = {t: next((i for i in thermal if t in said[i]), None) for t in ("(1,-1j)", "(1,+1j)")}
-    order_ok = first["(1,-1j)"] is not None and first["(1,+1j)"] is not None \
+    order_ok = (
+        first["(1,-1j)"] is not None
+        and first["(1,+1j)"] is not None
         and first["(1,-1j)"] < first["(1,+1j)"]
+    )
     g = {s: i32._thermal_failures(bs[s]["arm"]) for s in ("ccw", "cw")}
     if comm.rank == 0:
-        print(f"\n[GEO-38 C31 K10-R2] (R2-p) P_gel ccw {a_cc['P']:.12e} / cw {a_cw['P']:.12e} W miss from 9 "
-              f"{r_p:.3e}; (R2-h) max|h_ccw - h_cw|/max|h_cw| {r_h:.3e}; (R2-s) applied {applied}, scale "
-              f"defs {scale_def}, theta_acc(t*) ccw {d_cc['th_acc'][-1]:.9e} / cw {d_cw['th_acc'][-1]:.9e} K "
-              f"vs 9 P_acc(cw)/P_acc(ccw) {predicted:.12e}: miss {r_s:.3e} (band {B_BAND:.0e}); (R2-o) first "
-              f"thermal line (1,-1j) {first['(1,-1j)']} < (1,+1j) {first['(1,+1j)']}: {order_ok}; (R2-g) "
-              f"failures {g} (ASSERTED)")
-        print(f"[GEO-38 C31 K10-R2] control (R2-c-3T) ccw on P_acc(cw) at 128 MHz: miss {miss_c:.6e} vs "
-              f"|P_acc(ccw)/P_acc(cw) - 1| {pred_c:.6e} (1.5 T stub: {p61.SENSE_NORMALISER_MISS:.4e}, "
-              f"printed); {miss_c / B_BAND:.4e} x B_BAND (> B_BAND, ASSERTED)", flush=True)
+        print(
+            f"\n[GEO-38 C31 K10-R2] (R2-p) P_gel ccw {a_cc['P']:.12e} / cw {a_cw['P']:.12e} W miss from 9 "
+            f"{r_p:.3e}; (R2-h) max|h_ccw - h_cw|/max|h_cw| {r_h:.3e}; (R2-s) applied {applied}, scale "
+            f"defs {scale_def}, theta_acc(t*) ccw {d_cc['th_acc'][-1]:.9e} / cw {d_cw['th_acc'][-1]:.9e} K "
+            f"vs 9 P_acc(cw)/P_acc(ccw) {predicted:.12e}: miss {r_s:.3e} (band {B_BAND:.0e}); (R2-o) first "
+            f"thermal line (1,-1j) {first['(1,-1j)']} < (1,+1j) {first['(1,+1j)']}: {order_ok}; (R2-g) "
+            f"failures {g} (ASSERTED)"
+        )
+        print(
+            f"[GEO-38 C31 K10-R2] control (R2-c-3T) ccw on P_acc(cw) at 128 MHz: miss {miss_c:.6e} vs "
+            f"|P_acc(ccw)/P_acc(cw) - 1| {pred_c:.6e} (1.5 T stub: {p61.SENSE_NORMALISER_MISS:.4e}, "
+            f"printed); {miss_c / B_BAND:.4e} x B_BAND (> B_BAND, ASSERTED)",
+            flush=True,
+        )
     assert r_p <= B_BAND, r_p
     assert r_h <= B_BAND, r_h
     assert all(v == 0.0 for v in applied.values()), applied
@@ -389,8 +433,11 @@ def test_p87_kdeg_c31_knob_parsing(monkeypatch):
     monkeypatch.setenv(c6_deg, "2")
     with pytest.raises(ValueError, match=c6_deg):
         _c31_degree("1")
-    print(f"\n[GEO-38 P87 K-deg-C31] {c21.C21_DEGREE_ENV}: {got}; refused {refused}; {c6_deg}=2 refused "
-          f"(ASSERTED)", flush=True)
+    print(
+        f"\n[GEO-38 P87 K-deg-C31] {c21.C21_DEGREE_ENV}: {got}; refused {refused}; {c6_deg}=2 refused "
+        f"(ASSERTED)",
+        flush=True,
+    )
     assert got == {"(unset)": None, "''": None, "'2'": 2}, got
 
 
@@ -402,16 +449,25 @@ def test_p87_k70_entry70_environment_shape(monkeypatch):
         S8_DRIVE_DEGREE_ENV,
     )
 
-    for k in (C31_ENV, S8_DRIVE_C_PF_ENV, S8_DRIVE_DEGREE_ENV, p61.HEAT_SENSE_ENV, c21.C21_DEGREE_ENV,
-              p61.c6.C6_DEGREE_ENV) + FOREIGN_ENVS:
+    for k in (
+        C31_ENV,
+        S8_DRIVE_C_PF_ENV,
+        S8_DRIVE_DEGREE_ENV,
+        p61.HEAT_SENSE_ENV,
+        c21.C21_DEGREE_ENV,
+        p61.c6.C6_DEGREE_ENV,
+    ) + FOREIGN_ENVS:
         monkeypatch.delenv(k, raising=False)
     monkeypatch.setenv(C31_ENV, "1")
     monkeypatch.setenv(c21.C21_DEGREE_ENV, "2")
     monkeypatch.setenv(p61.HEAT_SENSE_ENV, "both")
     monkeypatch.setenv(S8_DRIVE_C_PF_ENV, "44.0525")
     got = (_knobs(), p61._sense_knob(), _c31_degree("1"))
-    print(f"\n[GEO-38 P87 K-70] {C31_ENV}=1 {c21.C21_DEGREE_ENV}=2 {p61.HEAT_SENSE_ENV}=both "
-          f"{S8_DRIVE_C_PF_ENV}=44.0525: {got} (ASSERTED)", flush=True)
+    print(
+        f"\n[GEO-38 P87 K-70] {C31_ENV}=1 {c21.C21_DEGREE_ENV}=2 {p61.HEAT_SENSE_ENV}=both "
+        f"{S8_DRIVE_C_PF_ENV}=44.0525: {got} (ASSERTED)",
+        flush=True,
+    )
     assert got == (("1", 44.0525), ("ccw", "cw"), 2), got
 
 
@@ -431,8 +487,11 @@ def test_p87_n_c6deg_refused_under_c31(monkeypatch):
         c21._builder_sentinel(m, seen)
         with pytest.raises(ValueError, match=p61.c6.C6_DEGREE_ENV) as err:
             test_geo38_c31_box_heating_3t(m)
-    print(f"\n[GEO-38 P87 N-C6deg-C31] C31=1 + {p61.c6.C6_DEGREE_ENV}=2: refused ({err.value}); builder "
-          f"reached {len(seen)} (ASSERTED 0)", flush=True)
+    print(
+        f"\n[GEO-38 P87 N-C6deg-C31] C31=1 + {p61.c6.C6_DEGREE_ENV}=2: refused ({err.value}); builder "
+        f"reached {len(seen)} (ASSERTED 0)",
+        flush=True,
+    )
     assert seen == [], seen
 
 
@@ -487,18 +546,24 @@ def test_p87_k10r_3t_d2_on_degree2_stubs(monkeypatch, tmp_path):
     n_neg = int(neg_deg[0].split("global unknowns ")[1].split(" ")[0]) if neg_deg else None
     r_neg = abs(n_neg / u2 - 1.0) if n_neg else None
     if comm.rank == 0:
-        print(f"\n[GEO-38 P87 K10-R-3T-d2] f {f_seen:.6e} Hz; element degree {p61._element_degree(fx2[2])}; C4 "
-              f"variable at the fixture call {env_seen}; solver degrees {degrees}; "
-              f"{deg_lines[0] if deg_lines else '(Deg) line MISSING'}; (Deg-arith) 2*({E_3T} + {F_3T}) = "
-              f"{arith} vs C20's record {u2} (ASSERTED exact)")
-        print(f"[GEO-38 P87 K10-R-3T-d2] JSON -d2 keys == K8_JSON_KEYS {set(rec) == box.K8_JSON_KEYS}; (B) ccw "
-              f"{r2['B']['ccw']:.3e} cw {r2['B']['cw']:.3e} (band {B_BAND:.0e}); failures {r2['g']}; (R2-p) "
-              f"{r2['r_p']:.3e}, (R2-h) {r2['r_h']:.3e}, (R2-s) applied {r2['applied']} miss {r2['r_s']:.3e}, "
-              f"(R2-o) {r2['order_ok']}; (V-acc) {r2['v_acc']}; (V-s) vol_mean ccw {r2['vm']['ccw']:.12e} / "
-              f"cw {r2['vm']['cw']:.12e} miss {r2['r_vs']:.3e}; heads missing {missing or 'none'} (ASSERTED)")
-        print(f"[GEO-38 P87 N-patch-3T] without _c21_patches: {neg_deg[0] if neg_deg else 'MISSING'}; "
-              f"|{n_neg}/{u2} - 1| {r_neg if r_neg is None else f'{r_neg:.3e}'} (> {N_PATCH_BAR:.0e}, ASSERTED)",
-              flush=True)
+        print(
+            f"\n[GEO-38 P87 K10-R-3T-d2] f {f_seen:.6e} Hz; element degree {p61._element_degree(fx2[2])}; C4 "
+            f"variable at the fixture call {env_seen}; solver degrees {degrees}; "
+            f"{deg_lines[0] if deg_lines else '(Deg) line MISSING'}; (Deg-arith) 2*({E_3T} + {F_3T}) = "
+            f"{arith} vs C20's record {u2} (ASSERTED exact)"
+        )
+        print(
+            f"[GEO-38 P87 K10-R-3T-d2] JSON -d2 keys == K8_JSON_KEYS {set(rec) == box.K8_JSON_KEYS}; (B) ccw "
+            f"{r2['B']['ccw']:.3e} cw {r2['B']['cw']:.3e} (band {B_BAND:.0e}); failures {r2['g']}; (R2-p) "
+            f"{r2['r_p']:.3e}, (R2-h) {r2['r_h']:.3e}, (R2-s) applied {r2['applied']} miss {r2['r_s']:.3e}, "
+            f"(R2-o) {r2['order_ok']}; (V-acc) {r2['v_acc']}; (V-s) vol_mean ccw {r2['vm']['ccw']:.12e} / "
+            f"cw {r2['vm']['cw']:.12e} miss {r2['r_vs']:.3e}; heads missing {missing or 'none'} (ASSERTED)"
+        )
+        print(
+            f"[GEO-38 P87 N-patch-3T] without _c21_patches: {neg_deg[0] if neg_deg else 'MISSING'}; "
+            f"|{n_neg}/{u2} - 1| {r_neg if r_neg is None else f'{r_neg:.3e}'} (> {N_PATCH_BAR:.0e}, ASSERTED)",
+            flush=True,
+        )
     assert f_seen == 128e6, f_seen
     assert p61._element_degree(fx2[2]) == 2
     assert env_seen == ["2"], env_seen

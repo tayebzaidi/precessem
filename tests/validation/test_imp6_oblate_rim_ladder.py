@@ -79,7 +79,6 @@ from fem_em_solver.core import (
 )
 from fem_em_solver.io.mesh import MeshGenerator
 from fem_em_solver.post.evaluation import evaluate_vector_field_parallel
-
 from tests.complex_mode import complex_only
 from tests.validation.test_imp1_pec_sphere_lossy_host import (
     CAVITY_TAG,
@@ -145,9 +144,15 @@ if not FAR_DIV > 0:
 K_SCALE = float(os.environ.get("FEM_EM_IMP6_K_SCALE", "1"))
 if not 0.0 < K_SCALE <= 1.0:
     raise ValueError(f"FEM_EM_IMP6_K_SCALE must be in (0, 1], got {K_SCALE!r}")
-_ACTIVE_KNOBS = [n for n, on in (("SURFACE_DIV", SURFACE_DIV != 12.0),
-                                 ("FAR_DIV", FAR_DIV != 4.0),
-                                 ("K_SCALE", K_SCALE != 1.0)) if on]
+_ACTIVE_KNOBS = [
+    n
+    for n, on in (
+        ("SURFACE_DIV", SURFACE_DIV != 12.0),
+        ("FAR_DIV", FAR_DIV != 4.0),
+        ("K_SCALE", K_SCALE != 1.0),
+    )
+    if on
+]
 if len(_ACTIVE_KNOBS) > 1:
     raise ValueError(f"one knob per run (item 441); active: {_ACTIVE_KNOBS}")
 # Item 440's default-path records on rung rho_r/4 (W0r-c):
@@ -177,15 +182,36 @@ ITEM440_PRED_MB = "m_B <~ 0.05 %; (B) fires iff m_B >= 0.6 %"
 # rho_r/4: 20261013T200607Z_IMP-6-step2-a2-W1b.log:177-179;
 # rho_r/5: 20261013T200729Z_IMP-6-step2-a2-W1c.log:190-192.
 ITEM426_RUNGS = {
-    3.0: dict(phi_h=22.971085, phi_cf_h=22.693485, miss=0.012233, beta=1.001961,
-              imag_ratio=8.521e-3, h_max=0.6909, h_median=0.5115,
-              log="20261013T200520Z_IMP-6-step2-a2-W1a.log:170-171"),
-    4.0: dict(phi_h=23.042163, phi_cf_h=22.704740, miss=0.014861, beta=0.992222,
-              imag_ratio=8.523e-3, h_max=0.5103, h_median=0.3873,
-              log="20261013T200607Z_IMP-6-step2-a2-W1b.log:178-179"),
-    5.0: dict(phi_h=23.079024, phi_cf_h=22.712699, miss=0.016129, beta=0.994011,
-              imag_ratio=8.527e-3, h_max=0.3944, h_median=0.3089,
-              log="20261013T200729Z_IMP-6-step2-a2-W1c.log:191-192"),
+    3.0: dict(
+        phi_h=22.971085,
+        phi_cf_h=22.693485,
+        miss=0.012233,
+        beta=1.001961,
+        imag_ratio=8.521e-3,
+        h_max=0.6909,
+        h_median=0.5115,
+        log="20261013T200520Z_IMP-6-step2-a2-W1a.log:170-171",
+    ),
+    4.0: dict(
+        phi_h=23.042163,
+        phi_cf_h=22.704740,
+        miss=0.014861,
+        beta=0.992222,
+        imag_ratio=8.523e-3,
+        h_max=0.5103,
+        h_median=0.3873,
+        log="20261013T200607Z_IMP-6-step2-a2-W1b.log:178-179",
+    ),
+    5.0: dict(
+        phi_h=23.079024,
+        phi_cf_h=22.712699,
+        miss=0.016129,
+        beta=0.994011,
+        imag_ratio=8.527e-3,
+        h_max=0.3944,
+        h_median=0.3089,
+        log="20261013T200729Z_IMP-6-step2-a2-W1c.log:191-192",
+    ),
 }
 # (Wk') / (R4) bar: the 6-decimal print's half-unit 5e-7/22.69 = 2.2e-8, times ~2.
 ITEM450_REPRO_BAR = 5e-8
@@ -310,16 +336,12 @@ def _inside_count(msh, cells, comm):
     a - min rho of the deepest (attempt 1's W0diag computation)."""
     c = _semi_minor(ASPECT)
     mids = (
-        msh.geometry.x[msh.geometry.dofmap[cells]].mean(axis=1)
-        if cells.size
-        else np.zeros((0, 3))
+        msh.geometry.x[msh.geometry.dofmap[cells]].mean(axis=1) if cells.size else np.zeros((0, 3))
     )
     s = (mids[:, 0] ** 2 + mids[:, 1] ** 2) / SEMI_MAJOR**2 + mids[:, 2] ** 2 / c**2
     n_in = int(comm.allreduce(int(np.sum(s < 1.0)), op=MPI.SUM))
     rho_in = np.hypot(mids[:, 0], mids[:, 1])[s < 1.0]
-    depth = comm.allreduce(
-        float(SEMI_MAJOR - np.min(rho_in)) if rho_in.size else 0.0, op=MPI.MAX
-    )
+    depth = comm.allreduce(float(SEMI_MAJOR - np.min(rho_in)) if rho_in.size else 0.0, op=MPI.MAX)
     return n_in, depth
 
 
@@ -334,10 +356,13 @@ def _near_rim_edges(msh, cells):
         axis=0,
     )
     mid = v.mean(axis=1)
-    near = np.minimum(
-        np.linalg.norm(mid - [SEMI_MAJOR, 0, 0], axis=1),
-        np.linalg.norm(mid + [SEMI_MAJOR, 0, 0], axis=1),
-    ) < rho_r
+    near = (
+        np.minimum(
+            np.linalg.norm(mid - [SEMI_MAJOR, 0, 0], axis=1),
+            np.linalg.norm(mid + [SEMI_MAJOR, 0, 0], axis=1),
+        )
+        < rho_r
+    )
     return edges[near], mid[near]
 
 
@@ -579,15 +604,21 @@ def test_surface_census():
     hs = _h_rim_stats(msh, cells, comm)
     n_in, depth = _inside_count(msh, cells, comm)
     deficit = _body_volume_deficit(msh, ASPECT)
-    phi_cf = {q: _numpy_quadrature_mean_q(msh, cells, _field(ASPECT, "inplane", "continue"), q)
-              for q in QDEGS_2B}
+    phi_cf = {
+        q: _numpy_quadrature_mean_q(msh, cells, _field(ASPECT, "inplane", "continue"), q)
+        for q in QDEGS_2B
+    }
     rss = _rss_gib(comm)  # collective: outside the rank-0 branch
     if comm.rank == 0:
         print(
             f"\n[IMP-6 step 2c W0] far divisor {FAR_DIV:g} (resolution_far "
             f"{SEMI_MAJOR / FAR_DIV * 1e3:.4f} mm), surface divisor {SURFACE_DIV:g}"
-            + (f"; item 441 predicted cells {ITEM441_PRED_CELLS_C}; (Kf) asserted cells >= "
-               f"{int(np.ceil(1.05 * ITEM440_R1['cells']))}" if FAR_DIV != 4.0 else ""),
+            + (
+                f"; item 441 predicted cells {ITEM441_PRED_CELLS_C}; (Kf) asserted cells >= "
+                f"{int(np.ceil(1.05 * ITEM440_R1['cells']))}"
+                if FAR_DIV != 4.0
+                else ""
+            ),
             flush=True,
         )
         print(
@@ -741,8 +772,10 @@ def _report_and_gate(divisor, d):
             r_d = ratio - 1.0
             delta_dd = (rec["miss"] - r_d) / (1.0 - s2)
             if K_SCALE == 0.1:
-                rule = (f"I28 prediction {ITEM450_PRED_MISS[divisor]}; beta predicted "
-                        f"~{ITEM450_PRED_BETA[divisor]:.3f}, |beta - 1| <= 1.4 %")
+                rule = (
+                    f"I28 prediction {ITEM450_PRED_MISS[divisor]}; beta predicted "
+                    f"~{ITEM450_PRED_BETA[divisor]:.3f}, |beta - 1| <= 1.4 %"
+                )
             else:
                 rule = "outside the I28 rule (s != 0.1)"
             print(
@@ -796,14 +829,22 @@ def _report_and_gate(divisor, d):
     if K_SCALE != 1.0:
         assert d["imag_ratio"] <= 2.0 * K_SCALE**2 * ITEM426_IMAG_RATIO, ("(K)", d["imag_ratio"])
         if divisor == 4.0:
-            assert abs(d["phi_cf_h"] / ITEM440_R1["phi_cf_h8"] - 1.0) <= 1e-12, ("(Wk)", d["phi_cf_h"])
+            assert abs(d["phi_cf_h"] / ITEM440_R1["phi_cf_h8"] - 1.0) <= 1e-12, (
+                "(Wk)",
+                d["phi_cf_h"],
+            )
             if K_SCALE == 0.1:
                 assert abs(d["phi_h"] / ITEM441_W1K_PHI_H - 1.0) <= ITEM450_REPRO_BAR, (
-                    "(R4)", d["phi_h"])
+                    "(R4)",
+                    d["phi_h"],
+                )
         else:
             rec_cf = ITEM426_RUNGS[divisor]["phi_cf_h"]
             assert abs(d["phi_cf_h"] / rec_cf - 1.0) <= ITEM450_REPRO_BAR, (
-                "(Wk')", divisor, d["phi_cf_h"])
+                "(Wk')",
+                divisor,
+                d["phi_cf_h"],
+            )
     assert d["n_cavity"] > 0
     assert d["cavity_max"] < 1e-12
     assert abs(d["beta"] - 1.0) <= TH15_BETA_BAND, (divisor, d["beta"], d["h_rim_over_rho"])

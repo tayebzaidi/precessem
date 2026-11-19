@@ -81,9 +81,8 @@ from typing import Optional
 import numpy as np
 import pytest
 import ufl
-from mpi4py import MPI
-
 from dolfinx import fem
+from mpi4py import MPI
 
 from fem_em_solver.core import (
     HomogeneousMaterial,
@@ -98,7 +97,6 @@ from fem_em_solver.ports import (
 )
 from fem_em_solver.utils.analytical import AnalyticalSolutions
 from fem_em_solver.utils.constants import EPSILON_0, MU_0
-
 from tests.complex_mode import complex_only
 
 # Geometry and frequency are step 1's, unchanged.  f is a free knob — nothing
@@ -106,9 +104,9 @@ from tests.complex_mode import complex_only
 # k₀·(box diagonal) ≈ 0.086, well inside the quasistatic regime the ωM
 # reference needs.
 FREQUENCY_HZ = 10.0e6
-MAJOR_RADIUS = 0.04   # a
+MAJOR_RADIUS = 0.04  # a
 MINOR_RADIUS = 0.005  # r_wire
-SEPARATION = 0.04     # d, centre to centre along z
+SEPARATION = 0.04  # d, centre to centre along z
 SEPARATION_DOUBLE = 0.08  # 2d, step 2c's doubling control
 CURRENT_A = 1.0
 
@@ -204,24 +202,22 @@ def _azimuthal_current_density(j_magnitude: float):
 
     def current_density(x):
         rho_safe = ufl.sqrt(x[0] ** 2 + x[1] ** 2 + 1e-24)
-        return ufl.as_vector([
-            -x[1] / rho_safe * j_magnitude,
-            x[0] / rho_safe * j_magnitude,
-            0.0,
-        ])
+        return ufl.as_vector(
+            [
+                -x[1] / rho_safe * j_magnitude,
+                x[0] / rho_safe * j_magnitude,
+                0.0,
+            ]
+        )
 
     return current_density
 
 
 def _tag_volume(msh, cell_tags, tag: int, comm) -> float:
-    dx_tag = ufl.Measure(
-        "dx", domain=msh, subdomain_data=cell_tags, subdomain_id=(tag,)
-    )
+    dx_tag = ufl.Measure("dx", domain=msh, subdomain_data=cell_tags, subdomain_id=(tag,))
     one = fem.Constant(msh, np.array(1.0, dtype=np.complex128).item())
     # assemble_scalar is rank-local.
-    return float(
-        np.real(comm.allreduce(fem.assemble_scalar(fem.form(one * dx_tag)), op=MPI.SUM))
-    )
+    return float(np.real(comm.allreduce(fem.assemble_scalar(fem.form(one * dx_tag)), op=MPI.SUM)))
 
 
 def _reaction(msh, cell_tags, e_field, tag, i_driven, i_test, comm) -> complex:
@@ -229,9 +225,7 @@ def _reaction(msh, cell_tags, e_field, tag, i_driven, i_test, comm) -> complex:
     j_magnitude = CURRENT_A / (np.pi * MINOR_RADIUS**2)
     x = ufl.SpatialCoordinate(msh)
     j_vec = _azimuthal_current_density(j_magnitude)(x)
-    dx_tag = ufl.Measure(
-        "dx", domain=msh, subdomain_data=cell_tags, subdomain_id=(tag,)
-    )
+    dx_tag = ufl.Measure("dx", domain=msh, subdomain_data=cell_tags, subdomain_id=(tag,))
     # J is real, so inner()'s conjugation of its second argument is a no-op:
     # this is the reaction integral ∫E·J, not ∫E·J̄.
     local = fem.assemble_scalar(fem.form(ufl.inner(e_field, j_vec) * dx_tag))
@@ -326,8 +320,13 @@ def _solve_reaction_z(
         solve_times.append(time.perf_counter() - t0)
         for row, test_tag in enumerate(TORUS_TAGS):
             z_matrix[row, col] = _reaction(
-                msh, cell_tags, fields.e_complex, test_tag,
-                currents[col], currents[row], comm,
+                msh,
+                cell_tags,
+                fields.e_complex,
+                test_tag,
+                currents[col],
+                currents[row],
+                comm,
             )
 
         # --- Step 2f: the diagonal on the drive that was actually applied. ----
@@ -338,17 +337,13 @@ def _solve_reaction_z(
         projection = solver.projection()
         i_prime = _reduced_real(
             ufl.inner(projection.current, _azimuthal_current_density(1.0)(x_ufl))
-            * ufl.Measure(
-                "dx", domain=msh, subdomain_data=cell_tags, subdomain_id=(driven_tag,)
-            ),
+            * ufl.Measure("dx", domain=msh, subdomain_data=cell_tags, subdomain_id=(driven_tag,)),
             comm,
         ) / (2.0 * np.pi * MAJOR_RADIUS)
         w_e = stored_electric_energy(fields, comm=comm)
         w_m = stored_magnetic_energy(fields.e_complex, comm)
         diagonal[driven_tag] = {
-            "reaction": complex(
-                z_matrix[col, col] * (currents[col] ** 2) / (i_prime**2)
-            ).imag,
+            "reaction": complex(z_matrix[col, col] * (currents[col] ** 2) / (i_prime**2)).imag,
             "energy": 4.0 * OMEGA * (w_m - w_e) / i_prime**2,
             "x_electric": 4.0 * OMEGA * w_e / i_prime**2,
             "current_prime": i_prime,
@@ -661,9 +656,9 @@ def test_scattering_matrix_is_symmetric_and_passive(reaction_z):
         )
     assert asymmetry < 1e-9, f"S asymmetry {asymmetry:.4e} exceeds 1e-9"
     assert spectral_norm <= 1.0 + 1e-9, f"||S||_2 = {spectral_norm:.12f} is not passive"
-    assert abs(spectral_norm - 1.0) < 1e-9, (
-        f"lossless network must have unitary S, got ||S||_2 = {spectral_norm:.12f}"
-    )
+    assert (
+        abs(spectral_norm - 1.0) < 1e-9
+    ), f"lossless network must have unitary S, got ||S||_2 = {spectral_norm:.12f}"
 
 
 @complex_only
@@ -702,9 +697,7 @@ def test_packaged_conversion_and_sanity_metrics_on_a_solved_field(reaction_z):
     the placeholder path, untouched here), or §10 criterion 2 in full — a
     two-loop air fixture is not a coil.
     """
-    s_packaged = sparameters_from_impedance(
-        reaction_z, z0_ohm=REFERENCE_IMPEDANCE_OHM
-    )
+    s_packaged = sparameters_from_impedance(reaction_z, z0_ohm=REFERENCE_IMPEDANCE_OHM)
     s_test_path = scattering_from_impedance(reaction_z, REFERENCE_IMPEDANCE_OHM)
     max_entry_difference = float(np.max(np.abs(s_packaged - s_test_path)))
 
@@ -744,9 +737,7 @@ def test_packaged_conversion_and_sanity_metrics_on_a_solved_field(reaction_z):
     # The cross-run anchor, on the logged *Z* (see STEP2_LOGGED_Z for why it
     # moved there in step 2f): the packaged conversion must still reproduce the
     # S that run printed, from the Z that run printed.
-    s_logged = sparameters_from_impedance(
-        STEP2_LOGGED_Z, z0_ohm=REFERENCE_IMPEDANCE_OHM
-    )
+    s_logged = sparameters_from_impedance(STEP2_LOGGED_Z, z0_ohm=REFERENCE_IMPEDANCE_OHM)
     if MPI.COMM_WORLD.rank == 0:
         print(
             f"[PORT-1 step 3a] logged-Z anchor: S11 = {s_logged[0,0]:+.6e} vs "
@@ -769,14 +760,13 @@ def test_packaged_conversion_and_sanity_metrics_on_a_solved_field(reaction_z):
         f"passivity_max_sigma = {report.passivity_max_sigma:.12f} is not the "
         "unitary 1.0 a lossless 2-port must give"
     )
-    assert np.max(np.abs(column_power_sums - 1.0)) < 1e-9, (
-        f"column power sums {column_power_sums.tolist()} are not unity"
-    )
+    assert (
+        np.max(np.abs(column_power_sums - 1.0)) < 1e-9
+    ), f"column power sums {column_power_sums.tolist()} are not unity"
     # Reciprocity: step 2 measured ||S-S^T||/||S|| = 2.5993e-13 on this fixture,
     # and for a 2x2 with ||S||_F = sqrt(2) that ratio *is* max|Sij-Sji|.  1e-11
     # is two orders of slack on a machine-precision quantity.
     assert report.reciprocity_max_abs_delta < 1e-11, (
-        f"reciprocity max|Sij-Sji| = {report.reciprocity_max_abs_delta:.4e} "
-        "exceeds 1e-11"
+        f"reciprocity max|Sij-Sji| = {report.reciprocity_max_abs_delta:.4e} " "exceeds 1e-11"
     )
     assert report.warnings == (), f"unexpected sanity warnings: {report.warnings}"

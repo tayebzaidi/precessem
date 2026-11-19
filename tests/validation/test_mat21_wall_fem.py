@@ -31,12 +31,11 @@ from __future__ import annotations
 import time
 
 import numpy as np
+import pytest
 import ufl
 from dolfinx import default_scalar_type, fem
 from dolfinx import mesh as dmesh
 from mpi4py import MPI
-
-import pytest
 
 from fem_em_solver.post.evaluation import evaluate_vector_field_parallel
 from fem_em_solver.thermal import solve_steady_conduction
@@ -45,22 +44,21 @@ from fem_em_solver.utils.analytical import (
     two_layer_slab_steady_temperature,
     wall_effective_heat_transfer,
 )
-
 from tests.validation.test_mat10_sar_to_heat_sphere import _allsum, _say
 from tests.validation.test_mat12_transient_sar_heating_sphere import E_BAND
 from tests.validation.test_mat13_transient_perfusion_sphere import INTERIOR_BAND
+from tests.validation.test_mat15_finite_cylinder_closed_form import T_INF
 from tests.validation.test_mat15_finite_cylinder_fem import RATE_BAR, _rel
 from tests.validation.test_mat21_box_closed_form import (
     A_BOX,
     B_BOX,
     C_BOX,
     HALF,
+    SERIES_TERMS,
     H,
     K,
     Q,
-    SERIES_TERMS,
 )
-from tests.validation.test_mat15_finite_cylinder_closed_form import T_INF
 from tests.validation.test_mat21_wall_closed_form import D_WALL, K_W, _bare_series
 
 RUNGS = (2, 4, 6)
@@ -82,9 +80,12 @@ def _remap(s, L, d, n_gel, n_w):
     tot = n_gel + 2 * n_w
     u = (s + (L + d)) / (2.0 * (L + d)) * tot  # grid-index coordinate
     out = np.where(
-        u <= n_w, -(L + d) + u * (d / n_w),
-        np.where(u <= n_w + n_gel, -L + (u - n_w) * (2.0 * L / n_gel),
-                 L + (u - n_w - n_gel) * (d / n_w)))
+        u <= n_w,
+        -(L + d) + u * (d / n_w),
+        np.where(
+            u <= n_w + n_gel, -L + (u - n_w) * (2.0 * L / n_gel), L + (u - n_w - n_gel) * (d / n_w)
+        ),
+    )
     return out
 
 
@@ -95,8 +96,12 @@ def _walled_box(m, walls):
     ng = [b * m for b in BASE]
     ns = [ng[i] + (2 * nw if walls[i] else 0) for i in range(3)]
     outer = [HALF[i] + (D_WALL if walls[i] else 0.0) for i in range(3)]
-    msh = dmesh.create_box(comm, [np.array([-o for o in outer]), np.array(outer)],
-                           ns, cell_type=dmesh.CellType.tetrahedron)
+    msh = dmesh.create_box(
+        comm,
+        [np.array([-o for o in outer]), np.array(outer)],
+        ns,
+        cell_type=dmesh.CellType.tetrahedron,
+    )
     x = msh.geometry.x  # owned + ghost nodes on this rank
     for i in range(3):
         if walls[i]:
@@ -109,8 +114,7 @@ def _materials(msh):
     imap = msh.topology.index_map(tdim)
     n = imap.size_local + imap.num_ghosts
     mids = dmesh.compute_midpoints(msh, tdim, np.arange(n, dtype=np.int32))
-    gel = ((np.abs(mids[:, 0]) < A_BOX) & (np.abs(mids[:, 1]) < B_BOX)
-           & (np.abs(mids[:, 2]) < C_BOX))
+    gel = (np.abs(mids[:, 0]) < A_BOX) & (np.abs(mids[:, 1]) < B_BOX) & (np.abs(mids[:, 2]) < C_BOX)
     D0 = fem.functionspace(msh, ("DG", 0))
     dofs = D0.dofmap.list[:n, 0]
     chi = fem.Function(D0)
@@ -118,8 +122,11 @@ def _materials(msh):
     kf = fem.Function(D0)
     kf.x.array[dofs] = np.where(gel, K, K_W)
     inter = fem.Function(D0)
-    inter.x.array[dofs] = ((np.abs(mids[:, 0]) < 0.9 * A_BOX) & (np.abs(mids[:, 1]) < 0.9 * B_BOX)
-                           & (np.abs(mids[:, 2]) < 0.9 * C_BOX)).astype(float)
+    inter.x.array[dofs] = (
+        (np.abs(mids[:, 0]) < 0.9 * A_BOX)
+        & (np.abs(mids[:, 1]) < 0.9 * B_BOX)
+        & (np.abs(mids[:, 2]) < 0.9 * C_BOX)
+    ).astype(float)
     tags = np.where(gel, GEL, WALL).astype(np.int32)
     ct = dmesh.meshtags(msh, tdim, np.arange(n, dtype=np.int32), tags)
     return chi, kf, inter, ct
@@ -155,8 +162,15 @@ def _centre(T):
 
 def _slab_theta(z):
     return two_layer_slab_steady_temperature(
-        np.asarray(z, dtype=float), half_thickness=C_BOX, wall=D_WALL, k=K, k_w=K_W,
-        q=Q, h=H, t_inf=0.0)
+        np.asarray(z, dtype=float),
+        half_thickness=C_BOX,
+        wall=D_WALL,
+        k=K,
+        k_w=K_W,
+        q=Q,
+        h=H,
+        t_inf=0.0,
+    )
 
 
 def _exact_z(msh):
@@ -171,8 +185,9 @@ def _vol_bar(n):
 
 
 def _solve(msh, ft, kf, chi):
-    return solve_steady_conduction(msh, ft, k=kf, q=Q * chi, h=H, t_inf=0.0,
-                                   robin_tag=ROBIN, degree=1)
+    return solve_steady_conduction(
+        msh, ft, k=kf, q=Q * chi, h=H, t_inf=0.0, robin_tag=ROBIN, degree=1
+    )
 
 
 @pytest.fixture(scope="module")
@@ -181,8 +196,10 @@ def reduced():
     out = {"rungs": []}
     v_gel = 8.0 * A_BOX * B_BOX * C_BOX
     v_wall = 4.0 * A_BOX * B_BOX * 2.0 * D_WALL
-    _say(f"\nMAT21-20F [W1] 1D-reduced: (A, B, C) = {HALF}, d = {D_WALL}, k = {K}, k_w = {K_W}, "
-         f"h = {H}, q = {Q}; Robin on z = +-(C + d) only, side faces Neumann")
+    _say(
+        f"\nMAT21-20F [W1] 1D-reduced: (A, B, C) = {HALF}, d = {D_WALL}, k = {K}, k_w = {K_W}, "
+        f"h = {H}, q = {Q}; Robin on z = +-(C + d) only, side faces Neumann"
+    )
     for m in RUNGS:
         tl = time.perf_counter()
         msh, ns, nw = _walled_box(m, (False, False, True))
@@ -199,13 +216,22 @@ def reduced():
         bal = abs(conv - Q * v_gel) / (Q * v_gel)
         v_tot = vg + vw
         hm = (v_tot / n) ** (1.0 / 3.0)
-        rec = {"m": m, "n": n, "h": hm, "e": e, "bal": bal,
-               "dvg": abs(vg / v_gel - 1.0), "dvw": abs(vw / v_wall - 1.0)}
-        _say(f"MAT21-20F [W1] m = {m} cells {tuple(ns)} N_w = {nw}: n = {n}; V_gel rel dev "
-             f"{rec['dvg']:.3e}, V_wall rel dev {rec['dvw']:.3e} (bar {_vol_bar(n):.3e}); "
-             f"h = {hm:.6e} m; whole rel L2 vs two-layer slab {e:.6e}; balance "
-             f"|oint h theta - qV_gel|/(qV_gel) {bal:.3e} (solver: src {st.source_power:.9e} "
-             f"conv {st.convected_power:.9e}); {time.perf_counter() - tl:.1f} s")
+        rec = {
+            "m": m,
+            "n": n,
+            "h": hm,
+            "e": e,
+            "bal": bal,
+            "dvg": abs(vg / v_gel - 1.0),
+            "dvw": abs(vw / v_wall - 1.0),
+        }
+        _say(
+            f"MAT21-20F [W1] m = {m} cells {tuple(ns)} N_w = {nw}: n = {n}; V_gel rel dev "
+            f"{rec['dvg']:.3e}, V_wall rel dev {rec['dvw']:.3e} (bar {_vol_bar(n):.3e}); "
+            f"h = {hm:.6e} m; whole rel L2 vs two-layer slab {e:.6e}; balance "
+            f"|oint h theta - qV_gel|/(qV_gel) {bal:.3e} (solver: src {st.source_power:.9e} "
+            f"conv {st.convected_power:.9e}); {time.perf_counter() - tl:.1f} s"
+        )
         out["rungs"].append(rec)
         if m == RUNGS[-1]:
             out["interior"] = _rel(msh, th, ex, inter)
@@ -215,11 +241,15 @@ def reduced():
     es = np.array([r["e"] for r in out["rungs"]])
     out["slope"] = float(np.polyfit(np.log(hs), np.log(es), 1)[0])
     pw = [float(np.log(es[i] / es[i + 1]) / np.log(hs[i] / hs[i + 1])) for i in range(len(hs) - 1)]
-    _say(f"MAT21-20F [W1] (S1) LSQ slope {out['slope']:.4f} (bar {RATE_BAR}); pairwise "
-         + ", ".join(f"{p:.4f}" for p in pw))
-    _say(f"MAT21-20F [W1] (S1) finest interior rel L2 {out['interior']:.6e} (bound {INTERIOR_BAND:.0e})"
-         f"; centre theta_h {out['centre']:.9f} K vs two-layer {out['centre_ex']:.9f} K "
-         f"(rel {out['centre'] / out['centre_ex'] - 1.0:+.3e})")
+    _say(
+        f"MAT21-20F [W1] (S1) LSQ slope {out['slope']:.4f} (bar {RATE_BAR}); pairwise "
+        + ", ".join(f"{p:.4f}" for p in pw)
+    )
+    _say(
+        f"MAT21-20F [W1] (S1) finest interior rel L2 {out['interior']:.6e} (bound {INTERIOR_BAND:.0e})"
+        f"; centre theta_h {out['centre']:.9f} K vs two-layer {out['centre_ex']:.9f} K "
+        f"(rel {out['centre'] / out['centre_ex'] - 1.0:+.3e})"
+    )
     _say(f"MAT21-20F [W1] elapsed {time.perf_counter() - t0:.1f} s")
     return out
 
@@ -245,8 +275,10 @@ def test_w1_balance_every_rung(reduced):
 def test_w1_control_bare_slab_at_h_misses(reduced):
     bare = float(_bare_series(0.0, H)[0]) - T_INF  # item 660's eigen-series at h, no wall
     miss = abs(reduced["centre"] - bare) / abs(bare)
-    _say(f"MAT21-20F (control) FEM centre {reduced['centre']:.9f} K vs bare slab at h {bare:.9f} K: "
-         f"rel miss {miss:.4e} (asserted > {INTERIOR_BAND:.0e})")
+    _say(
+        f"MAT21-20F (control) FEM centre {reduced['centre']:.9f} K vs bare slab at h {bare:.9f} K: "
+        f"rel miss {miss:.4e} (asserted > {INTERIOR_BAND:.0e})"
+    )
     assert miss > INTERIOR_BAND, miss
 
 
@@ -270,8 +302,9 @@ def six_wall():
     # Bare gel box at h_eff on the same gel grid (no wall cells).
     h_eff = wall_effective_heat_transfer(H, D_WALL, K_W)
     ng = [b * m for b in BASE]
-    mb = dmesh.create_box(MPI.COMM_WORLD, [-np.array(HALF), np.array(HALF)], ng,
-                          cell_type=dmesh.CellType.tetrahedron)
+    mb = dmesh.create_box(
+        MPI.COMM_WORLD, [-np.array(HALF), np.array(HALF)], ng, cell_type=dmesh.CellType.tetrahedron
+    )
     ftb = _robin_facets(mb, HALF, (0, 1, 2))
     stb = solve_steady_conduction(mb, ftb, k=K, q=Q, h=h_eff, t_inf=0.0, robin_tag=ROBIN, degree=1)
     th_bare = _centre(stb.temperature)
@@ -279,12 +312,16 @@ def six_wall():
     ser_eff = float(np.real(robin_box_steady_temperature(0.0, 0.0, 0.0, h=h_eff, **kw)))
     ser_h = float(np.real(robin_box_steady_temperature(0.0, 0.0, 0.0, h=H, **kw)))
     out = {"n": n, "dvg": abs(vg / v_gel - 1.0), "dvw": abs(vw / v_wall - 1.0), "bal": bal}
-    _say(f"\nMAT21-20F [W2] six-wall box m = {m} cells {tuple(ns)} N_w = {nw}: n = {n}; V_gel rel dev "
-         f"{out['dvg']:.3e}, V_wall rel dev {out['dvw']:.3e} (bar {_vol_bar(n):.3e}); balance {bal:.3e}")
-    _say(f"MAT21-20F [W2] (print) centre rise: six-wall meshed FEM {th_wall:.6f} K; bare gel box FEM at "
-         f"h_eff {h_eff:.6f} (same gel grid {tuple(ng)}) {th_bare:.6f} K (h_eff-only miss "
-         f"{th_bare / th_wall - 1.0:+.4e}); triple series at h_eff {ser_eff:.6f} K, at h {ser_h:.6f} K; "
-         f"six-wall / series(h) {th_wall / ser_h:.6f}; elapsed {time.perf_counter() - t0:.1f} s")
+    _say(
+        f"\nMAT21-20F [W2] six-wall box m = {m} cells {tuple(ns)} N_w = {nw}: n = {n}; V_gel rel dev "
+        f"{out['dvg']:.3e}, V_wall rel dev {out['dvw']:.3e} (bar {_vol_bar(n):.3e}); balance {bal:.3e}"
+    )
+    _say(
+        f"MAT21-20F [W2] (print) centre rise: six-wall meshed FEM {th_wall:.6f} K; bare gel box FEM at "
+        f"h_eff {h_eff:.6f} (same gel grid {tuple(ng)}) {th_bare:.6f} K (h_eff-only miss "
+        f"{th_bare / th_wall - 1.0:+.4e}); triple series at h_eff {ser_eff:.6f} K, at h {ser_h:.6f} K; "
+        f"six-wall / series(h) {th_wall / ser_h:.6f}; elapsed {time.perf_counter() - t0:.1f} s"
+    )
     return out
 
 

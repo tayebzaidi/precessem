@@ -151,8 +151,10 @@ def test_c30_k1_disc_kwargs_on_the_3t_table(monkeypatch):
     # The sentinel and its control: 3 T rung Ø 0.704 passes, 1.5 T's misses.
     dev3 = _t3_devs(2.0 * kw["ring_radius"])["rung"]
     dev15 = _t3_devs(2.0 * kw15["ring_radius"])["rung"]
-    _say(f"(T3-k) rung Ø 3 T {2.0 * kw['ring_radius']:.12f} dev {dev3:.3e}; "
-         f"1.5 T {2.0 * kw15['ring_radius']:.12f} dev {dev15:.3e} (IDENTITY_BAND {IDENTITY_BAND:.0e})")
+    _say(
+        f"(T3-k) rung Ø 3 T {2.0 * kw['ring_radius']:.12f} dev {dev3:.3e}; "
+        f"1.5 T {2.0 * kw15['ring_radius']:.12f} dev {dev15:.3e} (IDENTITY_BAND {IDENTITY_BAND:.0e})"
+    )
     assert dev3 <= IDENTITY_BAND, dev3
     assert dev15 > IDENTITY_BAND, dev15
     # The swap is scoped: I31's `_kwargs()` reads the 1.5 T table again afterwards.
@@ -184,7 +186,8 @@ def test_c30_k3_3t_kwargs_reach_the_builder(monkeypatch):
         expected = dict(expected_exception=RuntimeError, match="generation failed on rank 0")
     with pytest.raises(**expected):
         MeshGenerator.birdcage_port_domain(
-            comm=MPI.COMM_WORLD, return_diagnostics=True, **i31._kwargs())
+            comm=MPI.COMM_WORLD, return_diagnostics=True, **i31._kwargs()
+        )
     assert _t3_devs(2.0 * seen["kw"]["ring_radius"])["rung"] <= IDENTITY_BAND
     assert seen["kw"]["implant_spheroid"]["keep_cells"] is True
 
@@ -206,8 +209,10 @@ def test_geo38_c30_disc_in_3t_box(monkeypatch):
     monkeypatch.setenv(GMSH_STOP_ENV, "1")
     seen = _capture_builder(monkeypatch)
     gap, corner = _bore_gap(i31._kwargs())
-    _say(f"-n {comm.size}; 3 T route on I31's body; (Bore) corner {corner:.9f} m vs rung radius "
-         f"{t3.RUNG_DIAMETER_3T_M / 2} m, gap {gap:.9f} m; /proc/loadavg {t3._loadavg()}")
+    _say(
+        f"-n {comm.size}; 3 T route on I31's body; (Bore) corner {corner:.9f} m vs rung radius "
+        f"{t3.RUNG_DIAMETER_3T_M / 2} m, gap {gap:.9f} m; /proc/loadavg {t3._loadavg()}"
+    )
 
     # I31's (D0)–(D10), unchanged, at the 3 T can.
     i31.test_imp6_step4_disc_in_astm_box(monkeypatch)
@@ -229,21 +234,22 @@ def test_geo38_c30_disc_in_3t_box(monkeypatch):
     V1 = fem.functionspace(msh, ("N1curl", 1))
     U1 = int(V1.dofmap.index_map.size_global * V1.dofmap.index_map_bs)
     U2 = 2 * E + 2 * F
-    rss = comm.allreduce(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024.0**2,
-                         op=MPI.SUM)
+    rss = comm.allreduce(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024.0**2, op=MPI.SUM)
     miss_15t = abs(n_cells / I31_CELLS_15T - 1.0)
-    _say(f"{n_cells} cells; beside F_CLINICAL_3T_BOX_CELL_RECORD "
-         f"{t3.F_CLINICAL_3T_BOX_CELL_RECORD}: disc adds {n_cells - t3.F_CLINICAL_3T_BOX_CELL_RECORD}; "
-         f"I31 1.5 T {I31_CELLS_15T} (|ratio - 1| {miss_15t:.3e}, {miss_15t / CELL_COUNT_BAND:.2f}x "
-         f"CELL_COUNT_BAND, printed); gmsh {diag.get('mesh_wall_time_s', float('nan')):.2f} s; "
-         f"summed peak RSS {rss:.3f} GiB\n"
-         f"[GEO-38 C30] (T3) shield Ø {shield_d:.12f} (vs {t3.SHIELD_DIAMETER_3T_M}), length "
-         f"{shield_l:.12f} (vs {t3.SHIELD_LENGTH_3T_M}), rung Ø {rung_d:.12f} (vs "
-         f"{t3.RUNG_DIAMETER_3T_M}); devs {devs} (IDENTITY_BAND {IDENTITY_BAND:.0e})\n"
-         f"[GEO-38 C30] (Bore) built kwargs corner {corner_b:.9f} m, gap {gap_b:.9f} m\n"
-         f"[GEO-38 C30] unknowns E {E}, F {F}; U1 {U1} (function space), U2 = 2E + 2F = {U2} "
-         f"(I31 1.5 T U2 {I31_U2_15T}); records {F_CLINICAL_3T_DISC_CELL_RECORD}, "
-         f"{F_CLINICAL_3T_DISC_UNKNOWNS_RECORD}")
+    _say(
+        f"{n_cells} cells; beside F_CLINICAL_3T_BOX_CELL_RECORD "
+        f"{t3.F_CLINICAL_3T_BOX_CELL_RECORD}: disc adds {n_cells - t3.F_CLINICAL_3T_BOX_CELL_RECORD}; "
+        f"I31 1.5 T {I31_CELLS_15T} (|ratio - 1| {miss_15t:.3e}, {miss_15t / CELL_COUNT_BAND:.2f}x "
+        f"CELL_COUNT_BAND, printed); gmsh {diag.get('mesh_wall_time_s', float('nan')):.2f} s; "
+        f"summed peak RSS {rss:.3f} GiB\n"
+        f"[GEO-38 C30] (T3) shield Ø {shield_d:.12f} (vs {t3.SHIELD_DIAMETER_3T_M}), length "
+        f"{shield_l:.12f} (vs {t3.SHIELD_LENGTH_3T_M}), rung Ø {rung_d:.12f} (vs "
+        f"{t3.RUNG_DIAMETER_3T_M}); devs {devs} (IDENTITY_BAND {IDENTITY_BAND:.0e})\n"
+        f"[GEO-38 C30] (Bore) built kwargs corner {corner_b:.9f} m, gap {gap_b:.9f} m\n"
+        f"[GEO-38 C30] unknowns E {E}, F {F}; U1 {U1} (function space), U2 = 2E + 2F = {U2} "
+        f"(I31 1.5 T U2 {I31_U2_15T}); records {F_CLINICAL_3T_DISC_CELL_RECORD}, "
+        f"{F_CLINICAL_3T_DISC_UNKNOWNS_RECORD}"
+    )
 
     # (T3): the 3 T sentinel.
     for key, dev in devs.items():

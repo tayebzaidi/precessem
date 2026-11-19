@@ -240,9 +240,7 @@ def _quadrant_powers(e_complex, sigma_field, dx_phantom, comm):
         return float(np.real(comm.allreduce(local, op=MPI.SUM)))
 
     total = integrate(density)
-    parts = [
-        integrate(_quadrant_weight(x, j, PARTITION_EPS_M) * density) for j in range(4)
-    ]
+    parts = [integrate(_quadrant_weight(x, j, PARTITION_EPS_M) * density) for j in range(4)]
     return total, parts
 
 
@@ -296,16 +294,13 @@ def sar_integral():
     comm = msh.comm
     cells = int(sweep["cells"])
 
-    azimuths = {
-        f"P{s['tag'] - SHEET_IFACE}": float(s["azimuth_deg"]) for s in sweep["sheets"]
-    }
+    azimuths = {f"P{s['tag'] - SHEET_IFACE}": float(s["azimuth_deg"]) for s in sweep["sheets"]}
     order = sorted(azimuths)
     solves = {pid: _solve_driven(sweep, pid) for pid in order}
     # ``_port_index`` asserts the sheets sit on the 90° grid; the partition's
     # exact covariance ``w_{j+1}(x) = w_j(R⁻¹x)`` needs precisely that grid.
     indices = {
-        pid: _port_index(azimuths[pid], azimuths["P1"], QUADRATURE_STEP_DEG)
-        for pid in order
+        pid: _port_index(azimuths[pid], azimuths["P1"], QUADRATURE_STEP_DEG) for pid in order
     }
     by_k = {indices[pid]: pid for pid in order}
 
@@ -330,9 +325,7 @@ def sar_integral():
         quadrature_phase_weights(ks, "ccw"),
         name="E_quadrature_ccw",
     )
-    quad_total, quad_parts = _quadrant_powers(
-        e_quadrature, sigma_field, dx_phantom, comm
-    )
+    quad_total, quad_parts = _quadrant_powers(e_quadrature, sigma_field, dx_phantom, comm)
 
     # The twelve C4 pairs.  The rotation sense is step 3's, imported: its
     # ``SAR_P2(Rx) vs SAR_P1(x)`` pairing says drive k+1 at Rx equals drive k at
@@ -344,9 +337,7 @@ def sar_integral():
             pairs[(k, j)] = abs(quadrants[k + 1][(j + 1) % 4] - ref) / ref
             control_pairs[(k, j)] = abs(quadrants[k + 1][(j + 2) % 4] - ref) / ref
     c4_by_k = {k: float(np.mean([pairs[(k, j)] for j in range(4)])) for k in range(3)}
-    control_by_k = {
-        k: float(np.mean([control_pairs[(k, j)] for j in range(4)])) for k in range(3)
-    }
+    control_by_k = {k: float(np.mean([control_pairs[(k, j)] for j in range(4)])) for k in range(3)}
 
     # Step 3i's mirror pairs, one per drive and read from that drive alone.  The
     # mirror through the coil axis and drive k's own azimuth fixes quadrants k
@@ -376,11 +367,11 @@ def sar_integral():
             f"{sweep['problem'].frequency_hz:.3e} Hz, degree 1, "
             f"quadrature_degree {QUADRATURE_DEGREE}, eps = "
             f"{PARTITION_EPS_M:.0e} m\n"
-            f"    port slots " + ", ".join(f"{p} k={indices[p]}" for p in order)
+            f"    port slots "
+            + ", ".join(f"{p} k={indices[p]}" for p in order)
             + f"; P1 azimuth {azimuths['P1']:.3f} deg, quadrant axes at "
             "0/90/180/270 deg about the COIL axis\n"
-            f"    solve times "
-            + ", ".join(f"{p} {solves[p]['solve_time']:.2f} s" for p in order),
+            f"    solve times " + ", ".join(f"{p} {solves[p]['solve_time']:.2f} s" for p in order),
             flush=True,
         )
         print("    P_j^(k) = 1/2 int_tag3 sigma w_j |E^(k)|^2 dV  [W]:", flush=True)
@@ -504,9 +495,7 @@ def test_the_p1_drive_total_reproduces_step_1s_phantom_power_record(sar_integral
     """
     k = sar_integral["indices"]["P1"]
     measured = sar_integral["totals"][k]
-    assert measured == pytest.approx(
-        STEP1_GATE_I_P1_PHANTOM_POWER_W, rel=CG1_RECORD_RTOL
-    ), (
+    assert measured == pytest.approx(STEP1_GATE_I_P1_PHANTOM_POWER_W, rel=CG1_RECORD_RTOL), (
         f"the P1 drive's phantom power integrates to {measured:.9e} W, not step "
         f"1's recorded {STEP1_GATE_I_P1_PHANTOM_POWER_W:.9e} W (rtol "
         f"{CG1_RECORD_RTOL:.0e}) — this module is not integrating step 1's "
@@ -535,9 +524,7 @@ def test_the_c4_integral_pair_is_inside_the_band(sar_integral, pair):
         f"{STEP3G_INTEGRAL_PAIR_RECORDS[(k, j)] * 100:.4f}% here) — this is the "
         "repo's only coil-driven SAR gate; record it and stop, do not widen it"
     )
-    assert reading == pytest.approx(
-        STEP3G_INTEGRAL_PAIR_RECORDS[(k, j)], rel=CG1_RECORD_RTOL
-    ), (
+    assert reading == pytest.approx(STEP3G_INTEGRAL_PAIR_RECORDS[(k, j)], rel=CG1_RECORD_RTOL), (
         f"the C4 integral pair k={k}->{k + 1}, j={j} reads {reading * 100:.4f}% "
         f"against step 3g's recorded "
         f"{STEP3G_INTEGRAL_PAIR_RECORDS[(k, j)] * 100:.4f}% (rtol "
@@ -565,9 +552,7 @@ def test_the_quadrature_four_quadrant_spread_is_inside_the_band(sar_integral):
         "inside the band should superpose to a C4-symmetric power distribution, "
         "so this is a finding about the superposition path"
     )
-    assert reading == pytest.approx(
-        STEP3G_INTEGRAL_QUADRATURE_SPREAD, rel=CG1_RECORD_RTOL
-    ), (
+    assert reading == pytest.approx(STEP3G_INTEGRAL_QUADRATURE_SPREAD, rel=CG1_RECORD_RTOL), (
         f"the quadrature four-quadrant spread reads {reading * 100:.4f}% against "
         f"step 3g's recorded {STEP3G_INTEGRAL_QUADRATURE_SPREAD * 100:.4f}% "
         f"(rtol {CG1_RECORD_RTOL:.0e}) — a fixture finding, not a re-record"
@@ -624,9 +609,7 @@ def test_the_mirror_flanks_of_a_single_drive_carry_equal_power(sar_integral, k):
 
 @complex_only
 @pytest.mark.parametrize("k", [0, 1, 2])
-def test_the_mis_paired_quadrant_control_reads_larger_than_the_c4_pairing(
-    sar_integral, k
-):
+def test_the_mis_paired_quadrant_control_reads_larger_than_the_c4_pairing(sar_integral, k):
     """Anchor (ii): pairing across 180° must be *worse* than pairing across 90°.
 
     If quadrant ``j`` under drive ``k`` matched quadrant ``j+2`` under drive

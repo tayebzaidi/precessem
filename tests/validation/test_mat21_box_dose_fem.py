@@ -26,7 +26,6 @@ from mpi4py import MPI
 
 from fem_em_solver.thermal import solve_transient_conduction
 from fem_em_solver.thermal.dose import cem43, running_average
-
 from tests.complex_mode import complex_only
 from tests.validation.test_mat10_sar_to_heat_sphere import ROBIN_TAG, _say
 from tests.validation.test_mat12_transient_sar_heating_sphere import RHO_C
@@ -39,8 +38,9 @@ from tests.validation.test_mat15_coil_driven_heating_phantom import (
 )
 from tests.validation.test_mat15_finite_cylinder_fem import _max_imag
 from tests.validation.test_mat17_duty_cycle_coil_driven import D_BAND
-from tests.validation.test_mat21_box_closed_form import B_BOX, C_BOX, Q
+from tests.validation.test_mat21_box_closed_form import B_BOX, C_BOX
 from tests.validation.test_mat21_box_closed_form import T_INF as T_INF_0
+from tests.validation.test_mat21_box_closed_form import Q
 from tests.validation.test_mat21_box_dose_closed_form import (
     AVG_BAR,
     DOSE_BAR,
@@ -87,8 +87,10 @@ def dose_m4():
     t0 = time.perf_counter()
     clk = _Clock12("dose")
     out = {"imag": 0.0}
-    _say(f"\nMAT21-12 DEGREE = {DEGREE}; m = {M4}; N_MAIN = {N_MAIN}; ranks {comm.size}; "
-         f"HIST_PTS {HIST_PTS}")
+    _say(
+        f"\nMAT21-12 DEGREE = {DEGREE}; m = {M4}; N_MAIN = {N_MAIN}; ranks {comm.size}; "
+        f"HIST_PTS {HIST_PTS}"
+    )
 
     # 1. Build + uniform solve (serves (Pdeg) only).
     msh, ft, ns, n, v_h, st = _rung_p(M4, clk, DEGREE)
@@ -98,9 +100,22 @@ def dose_m4():
     xs = ufl.SpatialCoordinate(msh)
     q_quad = Q * 3.0 * (xs[1] * xs[1] + xs[2] * xs[2]) / (B_BOX**2 + C_BOX**2)
     res = solve_transient_conduction(
-        msh, ft, k=K_GEL, rho_c=RHO_C, q=q_quad, h=H_GEL, t_inf=T_INF, t_init=T_INF,
-        robin_tag=ROBIN_TAG, dt=T_STAR / N_MAIN, n_steps=N_MAIN, theta=0.5,
-        startup_half_steps=2, degree=DEGREE, snapshot_steps=tuple(range(N_MAIN + 1)))
+        msh,
+        ft,
+        k=K_GEL,
+        rho_c=RHO_C,
+        q=q_quad,
+        h=H_GEL,
+        t_inf=T_INF,
+        t_init=T_INF,
+        robin_tag=ROBIN_TAG,
+        dt=T_STAR / N_MAIN,
+        n_steps=N_MAIN,
+        theta=0.5,
+        startup_half_steps=2,
+        degree=DEGREE,
+        snapshot_steps=tuple(range(N_MAIN + 1)),
+    )
     clk.lap(f"CN N={N_MAIN} (quadratic source, {N_MAIN + 1} snapshots)")
     out["ndof_t"] = int(res.temperature.function_space.dofmap.index_map.size_global)
     out["imag"] = max(out["imag"], _max_imag(res.temperature))
@@ -139,8 +154,10 @@ def _T(th):
 @complex_only
 def test_preconditions(dose_m4):
     pred = _dofs_pred(M4)
-    _say(f"MAT21-12 (Pdeg) P2 dofs uniform {dose_m4['ndof_u']} / CN {dose_m4['ndof_t']} "
-         f"(predicted {pred} = 116025)")
+    _say(
+        f"MAT21-12 (Pdeg) P2 dofs uniform {dose_m4['ndof_u']} / CN {dose_m4['ndof_t']} "
+        f"(predicted {pred} = 116025)"
+    )
     assert pred == 116025
     assert dose_m4["ndof_u"] == pred and dose_m4["ndof_t"] == pred
     assert set(DOSE_PTS) <= set(PROBE_PTS) and HIST_PTS[3] == ADJ_PTS[0]
@@ -149,8 +166,10 @@ def test_preconditions(dose_m4):
     th_h = dose_m4["th_h"]
     r36 = (f"{th_h[40, 2]:.6f}", f"{th_h[40, 3]:.6f}")
     same = bool(np.array_equal(th_h[40], dose_m4["th_fin"]))
-    _say(f"MAT21-12 (R36) theta_h(t*) centre / (0,0.9B,0) {r36} (P36 {R36}); snapshot n=40 "
-         f"array_equal final {same}")
+    _say(
+        f"MAT21-12 (R36) theta_h(t*) centre / (0,0.9B,0) {r36} (P36 {R36}); snapshot n=40 "
+        f"array_equal final {same}"
+    )
     assert r36 == R36, r36
     assert same
     for j in range(len(HIST_PTS)):
@@ -163,10 +182,14 @@ def test_q_h_and_rc_h(dose_m4):
     th_h = dose_m4["th_h"]
     for j, pt in enumerate(DOSE_PTS):
         dose, ref, rel, swap, miss = _q_check(_T(th_h[:, j]))
-        _say(f"MAT21-12 (Q-h) {HIST_LABELS[j]}: FEM CEM43 {dose:.15e} s vs per-segment quad "
-             f"{ref:.15e} s: rel {rel:.3e} (bar {DOSE_BAR:g}, ASSERTED)")
-        _say(f"MAT21-12 (Rc'-h) {HIST_LABELS[j]}: R swap miss {miss:.4e} (asserted > {DOSE_BAR:g}); "
-             f"factor {swap / ref:.4e}")
+        _say(
+            f"MAT21-12 (Q-h) {HIST_LABELS[j]}: FEM CEM43 {dose:.15e} s vs per-segment quad "
+            f"{ref:.15e} s: rel {rel:.3e} (bar {DOSE_BAR:g}, ASSERTED)"
+        )
+        _say(
+            f"MAT21-12 (Rc'-h) {HIST_LABELS[j]}: R swap miss {miss:.4e} (asserted > {DOSE_BAR:g}); "
+            f"factor {swap / ref:.4e}"
+        )
         assert rel <= DOSE_BAR, (pt, rel)
         assert miss > DOSE_BAR, (pt, miss)
 
@@ -176,9 +199,11 @@ def test_win_h(dose_m4):
     th_h = dose_m4["th_h"]
     for j, pt in enumerate(DOSE_PTS):
         mx, t_mx, lo, hi, ref, rel = _win_check(th_h[:, j])
-        _say(f"MAT21-12 (Win-h) {HIST_LABELS[j]}: max six-minute mean {mx:.15e} K at t_max "
-             f"{t_mx:.6f} s; (ii) [{lo:.12e}, {hi:.12e}]; (iii) quad {ref:.15e}, rel {rel:.3e} "
-             f"(bar {AVG_BAR:g}, ASSERTED)")
+        _say(
+            f"MAT21-12 (Win-h) {HIST_LABELS[j]}: max six-minute mean {mx:.15e} K at t_max "
+            f"{t_mx:.6f} s; (ii) [{lo:.12e}, {hi:.12e}]; (iii) quad {ref:.15e}, rel {rel:.3e} "
+            f"(bar {AVG_BAR:g}, ASSERTED)"
+        )
         assert T_GRID[0] + W_B2 <= t_mx <= T_GRID[-1], t_mx
         assert lo <= mx <= hi, (lo, mx, hi)
         assert rel <= AVG_BAR, (pt, rel)
@@ -201,12 +226,14 @@ def test_bd_dose_sensitivity_bound(dose_m4):
         d_h, d_s, m, M, cap = _bd(th_h, th_s, j)
         kind = "centre" if j == 2 else "wall"
         tag = "ASSERTED" if j < 3 else "printed (interior point)"
-        _say(f"MAT21-12 (Bd) {HIST_LABELS[j]} [{tag}]: FEM DOSE {d_h:.10e} s; SERIES DOSE "
-             f"{d_s:.15e} s; m_p {m:.4e} (predicted {PRED_MP.get(kind)}); M_p {M:.4e} K "
-             f"(predicted {PRED_M.get(kind)}); ln4*M_p {LN4 * M:.4e}; exact e^(ln4 M)-1 "
-             f"{math.expm1(LN4 * M):.4e}; ratio m_p/(ln4 M_p) {m / (LN4 * M):.4f} (predicted "
-             f"{PRED_RATIO}); INTERIOR_BAND*max theta_s {cap:.4e} K; headroom M_p/cap "
-             f"{M / cap:.4e} ({cap / M:.1f}x)")
+        _say(
+            f"MAT21-12 (Bd) {HIST_LABELS[j]} [{tag}]: FEM DOSE {d_h:.10e} s; SERIES DOSE "
+            f"{d_s:.15e} s; m_p {m:.4e} (predicted {PRED_MP.get(kind)}); M_p {M:.4e} K "
+            f"(predicted {PRED_M.get(kind)}); ln4*M_p {LN4 * M:.4e}; exact e^(ln4 M)-1 "
+            f"{math.expm1(LN4 * M):.4e}; ratio m_p/(ln4 M_p) {m / (LN4 * M):.4f} (predicted "
+            f"{PRED_RATIO}); INTERIOR_BAND*max theta_s {cap:.4e} K; headroom M_p/cap "
+            f"{M / cap:.4e} ({cap / M:.1f}x)"
+        )
         rows.append((j, m, M, cap))
     for j, m, M, cap in rows[:3]:
         assert m <= LN4 * M, ("(Bd)(i)", HIST_LABELS[j], m, LN4 * M)
@@ -219,9 +246,11 @@ def test_c_u_dose_control(dose_m4):
     for j, pt in enumerate(DOSE_PTS):
         Mu = float(np.max(np.abs(th_h[:, j] - th_u[:, j])))
         r = Mu / float(np.max(th_u[:, j]))
-        _say(f"MAT21-12 control (c-u-dose) PREDICTED {HIST_LABELS[j]}: M_u/max theta_u {r:.4e} "
-             f"(predicted range {PRED_CU}; asserted only > INTERIOR_BAND; ratio to band "
-             f"{r / INTERIOR_BAND:.1f})")
+        _say(
+            f"MAT21-12 control (c-u-dose) PREDICTED {HIST_LABELS[j]}: M_u/max theta_u {r:.4e} "
+            f"(predicted range {PRED_CU}; asserted only > INTERIOR_BAND; ratio to band "
+            f"{r / INTERIOR_BAND:.1f})"
+        )
         assert r > INTERIOR_BAND, (pt, r)
 
 
@@ -232,8 +261,10 @@ def test_printed_records(dose_m4):
     W = float(W_B2)
     dt = float(T_GRID[1] - T_GRID[0])
     d = [cem43(T_GRID, _T(th_h[:, j])) for j in range(len(HIST_PTS))]
-    _say(f"MAT21-12 +y / -y FEM dose asymmetry d(+y)/d(-y) - 1 = {d[0] / d[1] - 1.0:+.4e}; "
-         f"max|theta_h(+y) - theta_h(-y)| {np.max(np.abs(th_h[:, 0] - th_h[:, 1])):.3e} K")
+    _say(
+        f"MAT21-12 +y / -y FEM dose asymmetry d(+y)/d(-y) - 1 = {d[0] / d[1] - 1.0:+.4e}; "
+        f"max|theta_h(+y) - theta_h(-y)| {np.max(np.abs(th_h[:, 0] - th_h[:, 1])):.3e} K"
+    )
     for j in range(len(HIST_PTS)):
         a_h, mx_h, t_h = running_average(T_GRID, th_h[:, j], window=W)
         a_s, mx_s, t_s = running_average(T_GRID, th_s[:, j], window=W)
@@ -242,8 +273,10 @@ def test_printed_records(dose_m4):
         da = float(np.max(np.abs(a_h[good] - a_s[good])))
         dth = float(np.max(np.abs(th_h[:, j] - th_s[:, j])))
         rhs = dth * (1.0 + 1e-12) + D_BAND * float(np.max(np.abs(a_s[good])))
-        _say(f"MAT21-12 {HIST_LABELS[j]}: six-minute peak FEM {mx_h:.9f} K at {t_h:.3f} s vs "
-             f"series {mx_s:.9f} K at {t_s:.3f} s; (Sh) W - dt: {mx_sh:.9f} K at {t_sh:.3f} s; "
-             f"(FEM-c-win) max|a_h - a_s| {da:.4e} vs max|dtheta|(1+1e-12) + D_BAND max|a_s| "
-             f"{rhs:.4e} (printed only; holds {da <= rhs})")
+        _say(
+            f"MAT21-12 {HIST_LABELS[j]}: six-minute peak FEM {mx_h:.9f} K at {t_h:.3f} s vs "
+            f"series {mx_s:.9f} K at {t_s:.3f} s; (Sh) W - dt: {mx_sh:.9f} K at {t_sh:.3f} s; "
+            f"(FEM-c-win) max|a_h - a_s| {da:.4e} vs max|dtheta|(1+1e-12) + D_BAND max|a_s| "
+            f"{rhs:.4e} (printed only; holds {da <= rhs})"
+        )
     assert all(np.isfinite(x) for x in d)

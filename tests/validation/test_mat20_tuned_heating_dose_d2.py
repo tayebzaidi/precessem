@@ -45,7 +45,6 @@ from mpi4py import MPI
 from scipy.integrate import quad
 
 from fem_em_solver.thermal.dose import cem43, running_average
-
 from tests.validation.test_mat20_cem43_closed_form import BAR as DOSE_BAR
 from tests.validation.test_mat20_running_average import BAR as AVG_BAR
 from tests.validation.test_mat20_running_average import W_B2
@@ -62,10 +61,16 @@ SERIES_D2 = SERIES_JSON.with_name("theta-series-ccw-d2.json")
 # Entry 42's printed series (log 20261019T070008Z_MAT-15-step6-P22-d2root.log,
 # :6889 for n = 1 and :6928 for n = N), each the log's ``:.12e``.
 E42_LOG = {
-    1: {"theta_mean_k": "9.408837938992e-04", "theta_ball10g_k": "1.293205450941e-03",
-        "theta_probe_k": "1.287310587223e-03"},
-    -1: {"theta_mean_k": "3.507742275686e-02", "theta_ball10g_k": "4.916453675956e-02",
-         "theta_probe_k": "4.979676417684e-02"},
+    1: {
+        "theta_mean_k": "9.408837938992e-04",
+        "theta_ball10g_k": "1.293205450941e-03",
+        "theta_probe_k": "1.287310587223e-03",
+    },
+    -1: {
+        "theta_mean_k": "3.507742275686e-02",
+        "theta_ball10g_k": "4.916453675956e-02",
+        "theta_probe_k": "4.979676417684e-02",
+    },
 }
 E42_C_IN_PF = 115.5209
 E42_SAMPLES = 41
@@ -102,8 +107,12 @@ def _is_d2_entry42(d) -> bool:
 
 
 def _diff_report(d):
-    out = [f"degree={d.get('degree')!r}", f"node_knob={d.get('node_knob')!r}",
-           f"c_in_pf={d.get('c_in_pf')!r}", f"samples={len(d.get('times_s', []))}"]
+    out = [
+        f"degree={d.get('degree')!r}",
+        f"node_knob={d.get('node_knob')!r}",
+        f"c_in_pf={d.get('c_in_pf')!r}",
+        f"samples={len(d.get('times_s', []))}",
+    ]
     for idx, strs in E42_LOG.items():
         for key, s in strs.items():
             got = f"{d[key][idx]:.12e}" if key in d else "absent"
@@ -115,8 +124,9 @@ def _diff_report(d):
 @pytest.fixture(scope="module")
 def pair():
     if not SERIES_D2.exists():
-        pytest.skip(f"{SERIES_D2} absent (written by xl entry 42, MAT-15 step 6; never "
-                    "re-run in-slot)")
+        pytest.skip(
+            f"{SERIES_D2} absent (written by xl entry 42, MAT-15 step 6; never " "re-run in-slot)"
+        )
     with open(SERIES_D2) as fh:
         d2 = json.load(fh)
     d1 = None
@@ -124,12 +134,16 @@ def pair():
         with open(SERIES_JSON) as fh:
             d1 = json.load(fh)
     t = np.asarray(d2["times_s"], dtype=float)
-    _p(f"[MAT-20 s4] {SERIES_D2.name}: {t.size} samples, dt {d2['dt_s']:.6e} s, t_N "
-       f"{t[-1]:.3f} s; degree {d2.get('degree')}, node_knob {d2.get('node_knob')}, C_in "
-       f"{d2.get('c_in_pf')} pF; ranks at write {d2['ranks']}; cells {d2['cells']}, n_sub "
-       f"{d2['n_sub']}; c* {d2['c_star_label']}; G {d2['G_per_w']:.6f} /W")
-    _p(f"[MAT-20 s4] degree-1 twin {SERIES_JSON.name}: "
-       f"{'present' if d1 is not None else 'ABSENT (d1 -> d2 prints skipped)'}")
+    _p(
+        f"[MAT-20 s4] {SERIES_D2.name}: {t.size} samples, dt {d2['dt_s']:.6e} s, t_N "
+        f"{t[-1]:.3f} s; degree {d2.get('degree')}, node_knob {d2.get('node_knob')}, C_in "
+        f"{d2.get('c_in_pf')} pF; ranks at write {d2['ranks']}; cells {d2['cells']}, n_sub "
+        f"{d2['n_sub']}; c* {d2['c_star_label']}; G {d2['G_per_w']:.6f} /W"
+    )
+    _p(
+        f"[MAT-20 s4] degree-1 twin {SERIES_JSON.name}: "
+        f"{'present' if d1 is not None else 'ABSENT (d1 -> d2 prints skipped)'}"
+    )
     return d1, d2
 
 
@@ -147,8 +161,10 @@ def test_p0_provenance(pair):
     if d1 is not None:
         same_t = d2["times_s"] == d1["times_s"]
         same_inf = d2["t_inf_c"] == d1["t_inf_c"]
-        _p(f"[MAT-20 s4] (P0-d2) times_s equal d1: {same_t}; t_inf_c equal: {same_inf} "
-           f"({d2['t_inf_c']} C) ASSERTED")
+        _p(
+            f"[MAT-20 s4] (P0-d2) times_s equal d1: {same_t}; t_inf_c equal: {same_inf} "
+            f"({d2['t_inf_c']} C) ASSERTED"
+        )
         assert same_t and same_inf
 
 
@@ -157,8 +173,7 @@ def test_p0_control_rejects_d1(pair):
     if d1 is None:
         pytest.skip(f"{SERIES_JSON} absent: (P0-ctl) needs the degree-1 file")
     ok = _is_d2_entry42(d1)
-    _p(f"[MAT-20 s4] (P0-ctl) _is_d2_entry42(d1) = {ok} ASSERTED False; d1: "
-       f"{_diff_report(d1)}")
+    _p(f"[MAT-20 s4] (P0-ctl) _is_d2_entry42(d1) = {ok} ASSERTED False; d1: " f"{_diff_report(d1)}")
     assert not ok
 
 
@@ -173,13 +188,19 @@ def test_q_dose_equals_quadrature_d2(pair, key, label):
     swap = cem43(t, T, r_above=R_BELOW, r_below=0.5)
     miss = abs(swap - ref) / abs(ref)
     rect = _rect(t, T)
-    _p(f"[MAT-20 s4] (Q-d2) {label} [{key}] CEM43 {dose:.15e} s vs per-segment quad "
-       f"{ref:.15e} s: rel {rel:.3e} (bar {DOSE_BAR:g}, ASSERTED; predicted <= {PRED_Q:g}); "
-       f"max T {np.max(T):.9f} C < 43 ASSERTED")
-    _p(f"[MAT-20 s4] (Rc'-d2) {label} [{key}] R swap {swap:.6e} s: miss {miss:.4e} relative "
-       f"(asserted > {DOSE_BAR:g}; predicted factor ~{PRED_RC_FACTOR:.1e}, printed)")
-    _p(f"[MAT-20 s4] (Rect) {label} [{key}] rectangle sum {rect:.15e} s, rel to (Q) "
-       f"{rect / ref - 1.0:+.4e} (printed)")
+    _p(
+        f"[MAT-20 s4] (Q-d2) {label} [{key}] CEM43 {dose:.15e} s vs per-segment quad "
+        f"{ref:.15e} s: rel {rel:.3e} (bar {DOSE_BAR:g}, ASSERTED; predicted <= {PRED_Q:g}); "
+        f"max T {np.max(T):.9f} C < 43 ASSERTED"
+    )
+    _p(
+        f"[MAT-20 s4] (Rc'-d2) {label} [{key}] R swap {swap:.6e} s: miss {miss:.4e} relative "
+        f"(asserted > {DOSE_BAR:g}; predicted factor ~{PRED_RC_FACTOR:.1e}, printed)"
+    )
+    _p(
+        f"[MAT-20 s4] (Rect) {label} [{key}] rectangle sum {rect:.15e} s, rel to (Q) "
+        f"{rect / ref - 1.0:+.4e} (printed)"
+    )
     assert rel <= DOSE_BAR, f"(Q-d2) {key} {rel:.3e}"
     assert miss > DOSE_BAR, f"(Rc'-d2) {key} R swap did not miss: {miss:.3e}"
 
@@ -195,19 +216,30 @@ def test_win_six_minute_max_inside_window_d2(pair, key, label):
     pts = np.concatenate([[np.interp(s, t, th)], np.interp(inside, t, th)])
     lo, hi = float(np.min(pts)), float(np.max(pts))
     brk = [x for x in t if s < x < t_mx]
-    ref, _err = quad(lambda x: np.interp(x, t, th), s, t_mx, points=brk or None,
-                     epsabs=0.0, epsrel=1e-13, limit=200)
+    ref, _err = quad(
+        lambda x: np.interp(x, t, th),
+        s,
+        t_mx,
+        points=brk or None,
+        epsabs=0.0,
+        epsrel=1e-13,
+        limit=200,
+    )
     ref /= W
     rel = abs(mx - ref) / abs(ref)
     dt = float(d2["dt_s"])
     _m2, mx_sh, t_sh = running_average(t, th, window=W - dt)
-    _p(f"[MAT-20 s4] (Win-d2) {label} [{key}] W {W:g} s ({W / dt:.4f} samples): max "
-       f"six-minute mean {mx:.15e} K at t_max {t_mx:.6f} s (predicted t* {t[-1]:.3f}); (i) "
-       f"[{t[0] + W:.3f}, {t[-1]:.3f}] ASSERTED; (ii) interpolant on window [{lo:.12e}, "
-       f"{hi:.12e}] ASSERTED; (iii) quad {ref:.15e}, rel {rel:.3e} (bar {AVG_BAR:g}, "
-       f"ASSERTED; predicted <= {PRED_WIN_III:g})")
-    _p(f"[MAT-20 s4] (Sh) {label} [{key}] window W - dt = {W - dt:.6f} s: max {mx_sh:.12e} K "
-       f"at t {t_sh:.6f} s (printed)")
+    _p(
+        f"[MAT-20 s4] (Win-d2) {label} [{key}] W {W:g} s ({W / dt:.4f} samples): max "
+        f"six-minute mean {mx:.15e} K at t_max {t_mx:.6f} s (predicted t* {t[-1]:.3f}); (i) "
+        f"[{t[0] + W:.3f}, {t[-1]:.3f}] ASSERTED; (ii) interpolant on window [{lo:.12e}, "
+        f"{hi:.12e}] ASSERTED; (iii) quad {ref:.15e}, rel {rel:.3e} (bar {AVG_BAR:g}, "
+        f"ASSERTED; predicted <= {PRED_WIN_III:g})"
+    )
+    _p(
+        f"[MAT-20 s4] (Sh) {label} [{key}] window W - dt = {W - dt:.6f} s: max {mx_sh:.12e} K "
+        f"at t {t_sh:.6f} s (printed)"
+    )
     assert t[0] + W <= t_mx <= t[-1], t_mx
     assert lo <= mx <= hi, (lo, mx, hi)
     assert rel <= AVG_BAR, f"(Win-d2)(iii) {key} {rel:.3e}"
@@ -227,47 +259,59 @@ def test_moves_printed(pair):
     """Printed record (no limit, no compliance); asserts only that it was formed."""
     d1, d2 = pair
     p_acc = d2["p_acc_w"]["ccw"]
-    _p(f"[MAT-20 s4] d2 P_acc,ccw {p_acc:.12e} W, P_VI,ccw {d2['p_vi_w']['ccw']:.12e} W, "
-       f"P_src {d2['p_src_w']:.12e} W; G_per_w d2 {d2['G_per_w']:.6f}"
-       + (f", d1 {d1['G_per_w']:.6f}" if d1 is not None else "")
-       + " (series already per accepted W; G never re-applied)")
+    _p(
+        f"[MAT-20 s4] d2 P_acc,ccw {p_acc:.12e} W, P_VI,ccw {d2['p_vi_w']['ccw']:.12e} W, "
+        f"P_src {d2['p_src_w']:.12e} W; G_per_w d2 {d2['G_per_w']:.6f}"
+        + (f", d1 {d1['G_per_w']:.6f}" if d1 is not None else "")
+        + " (series already per accepted W; G never re-applied)"
+    )
     formed = 0
-    _p("[MAT-20 s4] MOVE TABLE per accepted W (ruling 361-1), d1 -> d2 (printed record; "
-       "predicted moves from the brief beside; not a safety statement)")
+    _p(
+        "[MAT-20 s4] MOVE TABLE per accepted W (ruling 361-1), d1 -> d2 (printed record; "
+        "predicted moves from the brief beside; not a safety statement)"
+    )
     for key, label in ALL_SERIES:
         dose2, ex2, pk2, th2, base = _figures(d2, key)
         if d1 is None:
-            _p(f"[MAT-20 s4] MOVE {label:<14s} [{key}]: d2 CEM43 {dose2:.6e} s = "
-               f"{dose2 / 60:.6e} min, excess {ex2:.6e} s, peak {pk2:.6e} K (d1 absent: "
-               "moves skipped)")
+            _p(
+                f"[MAT-20 s4] MOVE {label:<14s} [{key}]: d2 CEM43 {dose2:.6e} s = "
+                f"{dose2 / 60:.6e} min, excess {ex2:.6e} s, peak {pk2:.6e} K (d1 absent: "
+                "moves skipped)"
+            )
             formed += int(np.isfinite(dose2) and np.isfinite(pk2))
             continue
         dose1, ex1, pk1, th1, _b = _figures(d1, key)
         pr = PRED_TABLE[key]
-        _p(f"[MAT-20 s4] MOVE {label:<14s} [{key}]: CEM43 {dose1:.6e} -> {dose2:.6e} s "
-           f"({dose1 / 60:.6e} -> {dose2 / 60:.6e} min), dose move {dose2 / dose1 - 1:+.3e} "
-           f"(pred {pr[0]:+.2e}); excess over baseline R^23 t* = {base:.6e} s: {ex1:.6e} -> "
-           f"{ex2:.6e} s, move {ex2 / ex1 - 1:+.4e} (pred {pr[1]:+.2e}); six-minute peak "
-           f"{pk1:.6e} -> {pk2:.6e} K, move {pk2 / pk1 - 1:+.4e} (pred {pr[2]:+.3e}); theta(t*) "
-           f"{th1:.6e} -> {th2:.6e} K, move {th2 / th1 - 1:+.4e} (pred {pr[3]:+.4e})")
+        _p(
+            f"[MAT-20 s4] MOVE {label:<14s} [{key}]: CEM43 {dose1:.6e} -> {dose2:.6e} s "
+            f"({dose1 / 60:.6e} -> {dose2 / 60:.6e} min), dose move {dose2 / dose1 - 1:+.3e} "
+            f"(pred {pr[0]:+.2e}); excess over baseline R^23 t* = {base:.6e} s: {ex1:.6e} -> "
+            f"{ex2:.6e} s, move {ex2 / ex1 - 1:+.4e} (pred {pr[1]:+.2e}); six-minute peak "
+            f"{pk1:.6e} -> {pk2:.6e} K, move {pk2 / pk1 - 1:+.4e} (pred {pr[2]:+.3e}); theta(t*) "
+            f"{th1:.6e} -> {th2:.6e} K, move {th2 / th1 - 1:+.4e} (pred {pr[3]:+.4e})"
+        )
         formed += int(all(np.isfinite(x) for x in (dose1, dose2, ex1, ex2, pk1, pk2)))
     norms = {
         "per W of 1/2 Re sum V I*": lambda d: d["p_acc_w"]["ccw"] / d["p_vi_w"]["ccw"],
-        "per W of P_src (not the pre-registered normaliser)":
-            lambda d: d["p_acc_w"]["ccw"] / d["p_src_w"],
+        "per W of P_src (not the pre-registered normaliser)": lambda d: d["p_acc_w"]["ccw"]
+        / d["p_src_w"],
     }
     for norm, fsc in norms.items():
         for key, label in ALL_SERIES:
             sc2 = fsc(d2)
             dose2, ex2, pk2, th2, _b = _figures(d2, key, sc2)
-            line = (f"[MAT-20 s4] READING {label:<14s} [{key}] {norm}: d2 (x {sc2:.6f}) CEM43 "
-                    f"{dose2:.6e} s, peak {pk2:.6e} K, theta(t*) {th2:.6e} K")
+            line = (
+                f"[MAT-20 s4] READING {label:<14s} [{key}] {norm}: d2 (x {sc2:.6f}) CEM43 "
+                f"{dose2:.6e} s, peak {pk2:.6e} K, theta(t*) {th2:.6e} K"
+            )
             if d1 is not None:
                 sc1 = fsc(d1)
                 dose1, ex1, pk1, th1, _b = _figures(d1, key, sc1)
-                line += (f"; d1 (x {sc1:.6f}) CEM43 {dose1:.6e} s, peak {pk1:.6e} K; moves: "
-                         f"dose {dose2 / dose1 - 1:+.3e}, excess {ex2 / ex1 - 1:+.4e}, peak "
-                         f"{pk2 / pk1 - 1:+.4e}, theta(t*) {th2 / th1 - 1:+.4e}")
+                line += (
+                    f"; d1 (x {sc1:.6f}) CEM43 {dose1:.6e} s, peak {pk1:.6e} K; moves: "
+                    f"dose {dose2 / dose1 - 1:+.3e}, excess {ex2 / ex1 - 1:+.4e}, peak "
+                    f"{pk2 / pk1 - 1:+.4e}, theta(t*) {th2 / th1 - 1:+.4e}"
+                )
             _p(line)
             formed += int(np.isfinite(dose2) and np.isfinite(pk2))
     assert formed == 9

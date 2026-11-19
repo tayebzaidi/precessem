@@ -103,7 +103,6 @@ from fem_em_solver.core import (
     TimeHarmonicSolver,
 )
 from fem_em_solver.io.mesh import MeshGenerator
-
 from tests.complex_mode import complex_only
 from tests.validation.test_port_gap_voltage_impedance import (
     AIR_PADDING,
@@ -136,8 +135,8 @@ from tests.validation.test_port_reaction_impedance import mutual_inductance
 
 # The factorial.  ``None`` is "no gap-box size field", i.e. the landed fixture;
 # 6.0e-4 is 3b-xvi's refined arm, the one whose +0.0508 pp is on record.
-BASELINE_AIR_PADDING = AIR_PADDING          # 0.08, the landed fixture
-PADDED_AIR_PADDING = 0.10                   # 3b-xi/3b-xii's next rung
+BASELINE_AIR_PADDING = AIR_PADDING  # 0.08, the landed fixture
+PADDED_AIR_PADDING = 0.10  # 3b-xi/3b-xii's next rung
 BASELINE_GAP_BOX_RESOLUTION = None
 REFINED_GAP_BOX_RESOLUTION = 6.0e-4
 
@@ -256,9 +255,7 @@ def _solve_corner(comm, label, air_padding, gap_box_resolution):
         material=HomogeneousMaterial(sigma=0.0, epsilon_r=1.0, mu_r=1.0),
         cell_tags=cell_tags,
         material_map={
-            tag: HomogeneousMaterial(
-                sigma=SIGMA_WIRE_S_PER_M, epsilon_r=1.0, mu_r=1.0
-            )
+            tag: HomogeneousMaterial(sigma=SIGMA_WIRE_S_PER_M, epsilon_r=1.0, mu_r=1.0)
             for tag in WIRE_TAGS
         },
         boundary_condition="pec_zero_tangential_a",
@@ -277,9 +274,7 @@ def _solve_corner(comm, label, air_padding, gap_box_resolution):
     e = fields.e_complex
     i_conduction = (
         SIGMA_WIRE_S_PER_M
-        * _reduce(
-            ufl.inner(e, phi_hat) * _tag_measure(msh, cell_tags, WIRE_TAGS[col]), comm
-        )
+        * _reduce(ufl.inner(e, phi_hat) * _tag_measure(msh, cell_tags, WIRE_TAGS[col]), comm)
         / arc_length
     )
     v_fine = _path_voltage(e, 1 - col, PATH_QUADRATURE_GATE_ORDERS[-1], comm)
@@ -362,10 +357,7 @@ def factorial():
             f"{CROSS_TERM_BAND:.1e} (+-0.5 pp), pre-stated at scoping.",
             flush=True,
         )
-    return {
-        label: _solve_corner(comm, label, padding, box)
-        for label, padding, box in CORNERS
-    }
+    return {label: _solve_corner(comm, label, padding, box) for label, padding, box in CORNERS}
 
 
 @complex_only
@@ -403,7 +395,7 @@ def test_every_corner_is_the_fixture_it_claims_to_be(factorial):
         total_mesh = sum(factorial[c[0]]["mesh_time"] for c in CORNERS)
         total_solve = sum(factorial[c[0]]["solve_time"] for c in CORNERS)
         print(
-            f"\n[PORT-10] four corners: cells "
+            "\n[PORT-10] four corners: cells "
             + ", ".join(f"{c[0]} {factorial[c[0]]['cells']}" for c in CORNERS)
             + f"; mesh {total_mesh:.1f} s, solve {total_solve:.1f} s total",
             flush=True,

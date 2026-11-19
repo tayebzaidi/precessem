@@ -49,21 +49,18 @@ from __future__ import annotations
 
 from types import SimpleNamespace
 
+import dolfinx.fem as fem
+import dolfinx.mesh as dmesh
 import numpy as np
 import pytest
 from mpi4py import MPI
 
-import dolfinx.fem as fem
-import dolfinx.mesh as dmesh
-
 from fem_em_solver.post.phantom_fields import (
     _interior_tagged_cells,
     _owned_cell_count,
-    _sampling_cells_with_interface_guardrails,
     _tagged_cells,
     compute_tagged_vector_magnitude_stats,
 )
-
 from tests.validation.test_poynting_balance import (
     TAG_HIGH,
     TAG_LOW,
@@ -217,9 +214,7 @@ def _test_interface_adjacent(msh, cell_tags, tag: int) -> set[int]:
     c_to_f = msh.topology.connectivity(tdim, fdim)
     f_to_c = msh.topology.connectivity(fdim, tdim)
 
-    lookup = {
-        int(c): int(v) for c, v in zip(cell_tags.indices, cell_tags.values)
-    }
+    lookup = {int(c): int(v) for c, v in zip(cell_tags.indices, cell_tags.values)}
     n_owned = int(msh.topology.index_map(tdim).size_local)
 
     adjacent: set[int] = set()
@@ -364,9 +359,7 @@ def _regime(msh, cell_tags, tag: int, comm):
 
 @pytest.mark.integration
 @pytest.mark.parametrize("tag", TAGS)
-def test_interior_regime_statistics_equal_the_interior_only_reference(
-    piecewise_sigma_tags, tag
-):
+def test_interior_regime_statistics_equal_the_interior_only_reference(piecewise_sigma_tags, tag):
     """Anchor: with a globally non-empty interior set, production samples the
     interior only — on every rank.
 
@@ -415,9 +408,7 @@ def test_interior_regime_statistics_equal_the_interior_only_reference(
         "partition"
     )
     for key in ("min", "max", "mean"):
-        assert np.isclose(
-            production[key], reference[key], rtol=IDENTITY_RTOL, atol=0.0
-        ), (
+        assert np.isclose(production[key], reference[key], rtol=IDENTITY_RTOL, atol=0.0), (
             f"production '{key}' = {production[key]:.15e} vs interior-only "
             f"{reference[key]:.15e} at -n {comm.size}"
         )
@@ -449,9 +440,7 @@ def test_global_fallback_regime_equals_the_full_owned_tagged_set(thin_tag_mesh):
     msh, cell_tags = thin_tag_mesh
     field = _sentinel_field(msh, cell_tags)
 
-    _n_with_tag, _n_sliver, n_interior, n_tagged = _regime(
-        msh, cell_tags, TAG_HIGH, comm
-    )
+    _n_with_tag, _n_sliver, n_interior, n_tagged = _regime(msh, cell_tags, TAG_HIGH, comm)
     assert n_interior == 0, (
         f"the thin slab has {n_interior} interior cells at -n {comm.size}: it is "
         "not one cell thick, so this fixture does not exercise the global "
@@ -527,9 +516,7 @@ def test_mixed_regime_is_not_contaminated_by_sliver_ranks(mixed_regime_mesh):
 
     field = _sentinel_field(msh, cell_tags)
     interior_ref_cells = np.asarray(
-        sorted(
-            set(int(c) for c in tagged) - _test_interface_adjacent(msh, cell_tags, tag)
-        ),
+        sorted(set(int(c) for c in tagged) - _test_interface_adjacent(msh, cell_tags, tag)),
         dtype=np.int32,
     )
     reference = _stats_over_cells(field, interior_ref_cells, comm)

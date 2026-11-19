@@ -78,12 +78,31 @@ def test_x_extraction(page, parsed, spec):
     assert not _fails(res), _fails(res)
     assert len(parsed["lattice"]) == BRIEF_LATTICE_N
     # The brief's cited lines (docs/planning/chunks/ANS-11.md, §9 item 833 "Code").
-    lines = {k: parsed[k]["line"] for k in
-             ("node", "s2", "y_in_ccw", "y_in_cw", "means", "c_star", "normalisers",
-              "wrote", "price")}
-    assert lines == {"node": 12063, "s2": 12281, "y_in_ccw": 12285, "y_in_cw": 12286,
-                     "means": 12288, "c_star": 12307, "normalisers": 12310,
-                     "wrote": 12311, "price": 12312}, lines
+    lines = {
+        k: parsed[k]["line"]
+        for k in (
+            "node",
+            "s2",
+            "y_in_ccw",
+            "y_in_cw",
+            "means",
+            "c_star",
+            "normalisers",
+            "wrote",
+            "price",
+        )
+    }
+    assert lines == {
+        "node": 12063,
+        "s2": 12281,
+        "y_in_ccw": 12285,
+        "y_in_cw": 12286,
+        "means": 12288,
+        "c_star": 12307,
+        "normalisers": 12310,
+        "wrote": 12311,
+        "price": 12312,
+    }, lines
     assert [r["line"] for r in parsed["lattice"]] == list(range(12289, 12307))
 
 
@@ -93,15 +112,18 @@ def test_d_derived(page, parsed, spec):
     for n, ok, det in res:
         print(f"[ANS-11 D] {'PASS' if ok else 'FAIL'} {n}: {det}")
     # (N-sense), printed only (rule (e)).
-    print(f"[ANS-11 N-sense] P_acc cw {d['p_acc_cw']:.4e} W vs ccw {d['p_acc_ccw']:.4e} W "
-          f"(printed, not asserted)")
+    print(
+        f"[ANS-11 N-sense] P_acc cw {d['p_acc_cw']:.4e} W vs ccw {d['p_acc_ccw']:.4e} W "
+        f"(printed, not asserted)"
+    )
     assert not _fails(res), _fails(res)
 
 
 def test_r_regeneration(page, parsed):
     committed = json.loads(page.METRICS_JSON.read_text())
-    fresh = json.loads(json.dumps(page.build_metrics(parsed, page.derived(parsed)),
-                                  indent=1, sort_keys=True))
+    fresh = json.loads(
+        json.dumps(page.build_metrics(parsed, page.derived(parsed)), indent=1, sort_keys=True)
+    )
     assert fresh == committed
     render = page.render_comparison(committed)
     text = page.COMPARISON_MD.read_text()
@@ -156,6 +178,7 @@ def _bcast_dir(tmp_path, writer):
     """Rank 0 writes the stubs under its ``tmp_path``; every rank reads that dir."""
     try:
         from mpi4py import MPI
+
         comm = MPI.COMM_WORLD
     except ImportError:  # pragma: no cover
         comm = None
@@ -174,15 +197,29 @@ def _c6_stub(page, c_pf=185.7629):
 
     labels = [lab for lab, _ in _lattice()]
     rec = {
-        "c_pf": c_pf, "feeds": ["P33", "P41"], "az_feeds": [0.1, 0.2],
+        "c_pf": c_pf,
+        "feeds": ["P33", "P41"],
+        "az_feeds": [0.1, 0.2],
         "s2": [[[-0.41, 0.012], [0.031, 0.12]], [[0.031, 0.12], [-0.43, -0.021]]],
         "y_in": {"ccw": [[0.041, 0.0013], [0.077, -0.0021]], "cw": [[0.05, 0.001], [0.06, 0.002]]},
         "mean_b_plus": {"ccw": 2.2e-08, "cw": 7.1e-09},
         "mean_b_minus": {"ccw": 7.3e-09, "cw": 2.1e-08},
-        "lattice": [{"label": lb, "c": [0.0, 0.0, 0.0], "b_plus_ccw": 1.0e-08 + 1e-10 * i,
-                     "sar10g": 1.0e-04 + 1e-06 * i} for i, lb in enumerate(labels)],
-        "c_star": [-0.105, 0.0, -0.05], "star_label": labels[2], "sar_star": 1.4e-04,
-        "sar_star_cw": 1.1e-04, "p_box": 3.1e-03, "p_src": 8.2e-02, "p_acc": 6.1e-02,
+        "lattice": [
+            {
+                "label": lb,
+                "c": [0.0, 0.0, 0.0],
+                "b_plus_ccw": 1.0e-08 + 1e-10 * i,
+                "sar10g": 1.0e-04 + 1e-06 * i,
+            }
+            for i, lb in enumerate(labels)
+        ],
+        "c_star": [-0.105, 0.0, -0.05],
+        "star_label": labels[2],
+        "sar_star": 1.4e-04,
+        "sar_star_cw": 1.1e-04,
+        "p_box": 3.1e-03,
+        "p_src": 8.2e-02,
+        "p_acc": 6.1e-02,
         "parts": [],
         "grid": {"star_label": "g017", "sar_star": 1.6e-04},
     }
@@ -204,8 +241,10 @@ def block(page):
 
 def test_c37_custody(page, block):
     c19 = page.read_c19()
-    assert c19["paths"] == ["/workspace/logs/geo38/c6-node-185.7629-d2.json",
-                            "/workspace/logs/geo36/i36-node-185.7629-d2.json"]
+    assert c19["paths"] == [
+        "/workspace/logs/geo38/c6-node-185.7629-d2.json",
+        "/workspace/logs/geo36/i36-node-185.7629-d2.json",
+    ]
     m = json.loads(page.METRICS_JSON.read_text())
     text = page.COMPARISON_MD.read_text()
     # The tracked-log route, always: the committed render is the c19=None render.
@@ -224,12 +263,32 @@ def test_c37_custody(page, block):
 
 def test_c37_lines(page, block):
     p2 = block["parsed"]
-    lines = {k: p2[k]["line"] for k in ("node", "s2", "y_in_ccw", "y_in_cw", "means", "c_star",
-                                        "normalisers", "wrote", "price")}
+    lines = {
+        k: p2[k]["line"]
+        for k in (
+            "node",
+            "s2",
+            "y_in_ccw",
+            "y_in_cw",
+            "means",
+            "c_star",
+            "normalisers",
+            "wrote",
+            "price",
+        )
+    }
     print(f"[ANS-11 C37 lines] {lines}; grid :{block['grid']['line']}")
-    assert lines == {"node": 12160, "s2": 12379, "y_in_ccw": 12383, "y_in_cw": 12384,
-                     "means": 12387, "c_star": 12406, "normalisers": 12410,
-                     "wrote": 12411, "price": 12412}, lines
+    assert lines == {
+        "node": 12160,
+        "s2": 12379,
+        "y_in_ccw": 12383,
+        "y_in_cw": 12384,
+        "means": 12387,
+        "c_star": 12406,
+        "normalisers": 12410,
+        "wrote": 12411,
+        "price": 12412,
+    }, lines
     assert [r["line"] for r in p2["lattice"]] == list(range(12388, 12406))
     assert block["grid"]["line"] == 12407 and block["grid"]["n"] == "90"
     assert p2["node"]["c_pf"] == page.C19_NODE_PF
@@ -254,14 +313,19 @@ def test_c37_x2(page, block):
 
 def test_c37_moves_rule(page, block):
     for mv in block["moves"]:
-        print(f"[ANS-11 C37 move] {mv['row']}: {mv['move']}{' (per-watt)' if mv['per_watt'] else ''}")
+        print(
+            f"[ANS-11 C37 move] {mv['row']}: {mv['move']}{' (per-watt)' if mv['per_watt'] else ''}"
+        )
     rule = block["order_rule"]
     print(f"[ANS-11 C37 order rule] over {rule['rows_over']} => {rule['sentence']}")
     assert len(block["moves"]) == 16
     assert len(rule["per_watt_rows"]) == 4
     # The verdict is printed, not asserted; only its consistency with the moves is.
-    over = [mv["row"] for mv in block["moves"]
-            if mv["per_watt"] and abs(float(mv["move"])) > page.ORDER_RULE_REL]
+    over = [
+        mv["row"]
+        for mv in block["moves"]
+        if mv["per_watt"] and abs(float(mv["move"])) > page.ORDER_RULE_REL
+    ]
     assert rule["rows_over"] == over
     assert rule["sentence"] == (page.ORDER_RULE_FIRES if over else page.ORDER_RULE_QUIET)
     assert rule["sentence"] in page.COMPARISON_MD.read_text().lower()
@@ -299,8 +363,10 @@ def test_c37_n_x2(page, block, tmp_path):
     def edit(src):
         i = block["parsed"]["normalisers"]["line"] - 1
         assert src[i].count(f"P_acc (lumped line cut, ruling 2026-10-12) {tok} W") == 1
-        src[i] = src[i].replace(f"P_acc (lumped line cut, ruling 2026-10-12) {tok} W",
-                                f"P_acc (lumped line cut, ruling 2026-10-12) {new} W")
+        src[i] = src[i].replace(
+            f"P_acc (lumped line cut, ruling 2026-10-12) {tok} W",
+            f"P_acc (lumped line cut, ruling 2026-10-12) {new} W",
+        )
         return src
 
     bad = page.degree2_block(_c19_copy(page, tmp_path, "c19_pacc.log", edit))
@@ -315,7 +381,7 @@ def test_c37_n_grid(page, tmp_path):
     def edit(src):
         i = 12407 - 1
         assert "(C6b) grid n 90 (72 new balls" in src[i]
-        return src[: i + 1] + [src[i]] + src[i + 1:]
+        return src[: i + 1] + [src[i]] + src[i + 1 :]
 
     with pytest.raises(ValueError, match=r"grid result lines: 2 matches"):
         page.parse_c19_grid(_c19_copy(page, tmp_path, "c19_grid2.log", edit))
@@ -351,7 +417,9 @@ def test_c19_stub(page, spec, tmp_path):
     got, ref = page.comparison_cells(stub_render), page.comparison_cells(text)
     assert {k: v[0] for k, v in got["main"].items()} == {k: v[0] for k, v in ref["main"].items()}
     assert got["lattice"] == ref["lattice"]
-    assert {k: v[1] for k, v in got["main"].items() if v[1]} == {q: c for q, c in cells.items() if c}
+    assert {k: v[1] for k, v in got["main"].items() if v[1]} == {
+        q: c for q, c in cells.items() if c
+    }
     kres = page.check_k(spec, stub_render)
     assert not _fails(kres), _fails(kres)
 
@@ -417,8 +485,9 @@ def test_n_stub_node(page, tmp_path):
 
 
 def test_n_stub_deg(page, tmp_path):
-    d = _bcast_dir(tmp_path, lambda p: _write(p, "i36-node-185.7629-d2.json",
-                                              {"c_pf": 185.7629, "degree": 1}))
+    d = _bcast_dir(
+        tmp_path, lambda p: _write(p, "i36-node-185.7629-d2.json", {"c_pf": 185.7629, "degree": 1})
+    )
     with pytest.raises(ValueError, match=r"i36-node-185\.7629-d2\.json: key degree 1"):
         page.read_c19(c6_dir=d, i36_dir=d)
 
@@ -433,6 +502,7 @@ C43_NUM = r"[-+−]?\d+\.\d+(?:e[-+]\d+)?"
 
 def _guide_section4(text: str) -> str:
     import re
+
     assert text.count(C43_HEADING) == 1
     body = text.split(C43_HEADING, 1)[1]
     m = re.search(r"^## ", body, flags=re.M)
@@ -441,6 +511,7 @@ def _guide_section4(text: str) -> str:
 
 def _guide_misses(text: str, lines: list) -> list:
     import re
+
     out = "\n".join(lines)
     return [t for t in re.findall(C43_NUM, _guide_section4(text)) if t not in out]
 
@@ -453,8 +524,14 @@ def test_c43_node_section(page):
     assert len(verdicts) == 7, verdicts  # node line + R_p, Q_C, C_p, -Im Z_RC, Re/-Im Z_th
     assert all(ln.startswith("[PASS]") for ln in verdicts), verdicts
     out = "\n".join(lines)
-    for s in ("896.1 Ω", "66.9 vs", "185.7215 pF", "0.2 − 13.386935347j",
-              "3.505604063 − 12.39875443j", "185.7629 pF"):
+    for s in (
+        "896.1 Ω",
+        "66.9 vs",
+        "185.7215 pF",
+        "0.2 − 13.386935347j",
+        "3.505604063 − 12.39875443j",
+        "185.7629 pF",
+    ):
         assert s in out, s
     text = GUIDE.read_text()
     assert text.count(C43_HEADING) == 1
@@ -477,6 +554,7 @@ def test_c43_n_guide(page, tmp_path):
 
 def test_c43_n_node(page, tmp_path):
     from mpi4py import MPI
+
     comm = MPI.COMM_WORLD
     text = page.SPEC_PATH.read_text()
     bad = Path(comm.bcast(str(tmp_path) if comm.rank == 0 else None, root=0)) / "SPEC.md"
@@ -497,7 +575,9 @@ def test_c43_n_node(page, tmp_path):
 # ---------------------------------------------------------------------------
 import re  # noqa: E402
 
-SPEC_3T = REPO / "examples" / "ansys_benchmarks" / "ans12_f_clinical_3t_box_loaded_128MHz" / "SPEC.md"
+SPEC_3T = (
+    REPO / "examples" / "ansys_benchmarks" / "ans12_f_clinical_3t_box_loaded_128MHz" / "SPEC.md"
+)
 
 
 @pytest.fixture(scope="module")
@@ -506,8 +586,9 @@ def p58(page):
 
 
 def _render_3t(page, parsed, case="ans12"):
-    return page.render_comparison(page.build_metrics(parsed, page.derived(parsed), case=case),
-                                  None, case=case)
+    return page.render_comparison(
+        page.build_metrics(parsed, page.derived(parsed), case=case), None, case=case
+    )
 
 
 def _x3t_misses(page, text, parsed) -> list:
@@ -516,7 +597,8 @@ def _x3t_misses(page, text, parsed) -> list:
     m, d = c["main"], page.derived(parsed)
     s, y, mn, cs, nm = (parsed[k] for k in ("s2", "y_in_ccw", "means", "c_star", "normalisers"))
     want = {
-        page.Q_S11: [s["s11"], f":{s['line']}"], page.Q_S12: [s["s12"], s["s21"]],
+        page.Q_S11: [s["s11"], f":{s['line']}"],
+        page.Q_S12: [s["s12"], s["s21"]],
         page.Q_S22: [s["s22"]],
         page.Q_Y33: [y["p33_re"], y["p33_im"], f":{y['line']}"],
         page.Q_Y41: [y["p41_re"], y["p41_im"]],
@@ -524,16 +606,21 @@ def _x3t_misses(page, text, parsed) -> list:
         page.Q_LAT_P: [f"{d['lattice_mean_b1p_per_sqrt_p_acc']:.4e}"],
         page.Q_CSTAR: [cs["label"], cs["r_m"], cs["dz_m"], cs["az_deg"], f":{cs['line']}"],
         page.Q_SAR: [cs["sar10g"], nm["sar_per_p_acc"], f":{nm['line']}"],
-        page.Q_CW: [cs["sar10g_cw"]], page.Q_GRID: ["entry 58"],
+        page.Q_CW: [cs["sar10g_cw"]],
+        page.Q_GRID: ["entry 58"],
         page.Q_MEAN: [mn["b1p_ccw"], f"{mn['n_used']} / {mn['n_total']}", f":{mn['line']}"],
         page.Q_MEAN_P: [nm["b1_per_sqrt_p_acc"]],
-        page.Q_P: [nm["p_box"], nm["p_src"], nm["p_acc"]], page.Q_GEL: [nm["p_box_over_p_acc"]],
-        page.Q_CU: ["entry 58", ":12229–12231"], page.Q_SENSE: [mn["sense"]],
+        page.Q_P: [nm["p_box"], nm["p_src"], nm["p_acc"]],
+        page.Q_GEL: [nm["p_box_over_p_acc"]],
+        page.Q_CU: ["entry 58", ":12229–12231"],
+        page.Q_SENSE: [mn["sense"]],
     }
     assert len(want) == 17
     miss = [(q, t) for q, toks in want.items() for t in toks if t not in m.get(q, ("",))[0]]
-    lines = {mm.group(1): mm.group(2) for mm in
-             re.finditer(r"^\| (x[+-]\d+mm dz[+-]\d+mm) \| `:(\d+)` \|", text, re.M)}
+    lines = {
+        mm.group(1): mm.group(2)
+        for mm in re.finditer(r"^\| (x[+-]\d+mm dz[+-]\d+mm) \| `:(\d+)` \|", text, re.M)
+    }
     for r in parsed["lattice"]:
         got = c["lattice"].get(r["label"])
         if got != (r["b1p_ccw"], r["sar10g"]) or lines.get(r["label"]) != str(r["line"]):
@@ -548,8 +635,10 @@ def test_c49_k_ans11_default_byte_identical(page, parsed):
     m = page.build_metrics(parsed, page.derived(parsed))
     js = json.dumps(m, indent=1, sort_keys=True) + "\n"
     text = page.COMPARISON_MD.read_text()
-    print(f"[ANS-11 C49 K] metrics {len(js.encode())} B vs {len(page.METRICS_JSON.read_bytes())} B; "
-          f"render {len(page.render_comparison(m).encode())} B vs {len(text.encode())} B")
+    print(
+        f"[ANS-11 C49 K] metrics {len(js.encode())} B vs {len(page.METRICS_JSON.read_bytes())} B; "
+        f"render {len(page.render_comparison(m).encode())} B vs {len(text.encode())} B"
+    )
     assert js == page.METRICS_JSON.read_text()
     assert page.render_comparison(json.loads(js)) == text
     assert page.render_comparison(m, None, case="ans11") == text
@@ -566,28 +655,38 @@ def test_c49_x3t(page, p58):
 def test_c49_tie(page, p58):
     t = page.tie_set(p58)
     spec = SPEC_3T.read_text()
-    sm = re.search(r"Row 3's tie set on this column: x\+105 mm dz\+50 mm \((\S+)\), x\+105 mm\s+"
-                   r"dz−50 mm \((\S+), (−?\d+\.\d+) %\), x−105 mm dz−50 mm \((\S+), (−?\d+\.\d+) %,",
-                   spec)
+    sm = re.search(
+        r"Row 3's tie set on this column: x\+105 mm dz\+50 mm \((\S+)\), x\+105 mm\s+"
+        r"dz−50 mm \((\S+), (−?\d+\.\d+) %\), x−105 mm dz−50 mm \((\S+), (−?\d+\.\d+) %,",
+        spec,
+    )
     assert sm, "SPEC tie sentence"
     pcts = [g.replace("−", "-") for g in (sm.group(3), sm.group(5))]
     print(f"[ANS-12 C49 Tie] members {t['members']}; outsider {t['outsider']}; SPEC {pcts}")
-    assert [(a, c) for a, _, c in t["members"]] == [("x+105mm dz+50mm", "0.00"),
-                                                    ("x+105mm dz-50mm", pcts[0])]
+    assert [(a, c) for a, _, c in t["members"]] == [
+        ("x+105mm dz+50mm", "0.00"),
+        ("x+105mm dz-50mm", pcts[0]),
+    ]
     assert (t["outsider"][0], t["outsider"][2]) == ("x-105mm dz-50mm", pcts[1])
     assert pcts == ["-0.82", "-1.97"]
     text = page.COMPARISON_MD_3T.read_text()
     sec = text.split("## Row 3 tie set", 1)[1].split("## Provenance", 1)[0]
-    rows = re.findall(r"^\| (x[+-]\d+mm dz[+-]\d+mm) \| (\S+) \| (-?\d+\.\d+) \| ([a-z ]+) \|$",
-                      sec, re.M)
-    assert rows == [(a, b, c, r) for (a, b, c), r in
-                    zip(t["members"] + [t["outsider"]], ["maximum", "member", "nearest outsider"])]
+    rows = re.findall(
+        r"^\| (x[+-]\d+mm dz[+-]\d+mm) \| (\S+) \| (-?\d+\.\d+) \| ([a-z ]+) \|$", sec, re.M
+    )
+    assert rows == [
+        (a, b, c, r)
+        for (a, b, c), r in zip(
+            t["members"] + [t["outsider"]], ["maximum", "member", "nearest outsider"]
+        )
+    ]
     assert "## Row 3 tie set" not in page.COMPARISON_MD.read_text()
 
 
 def test_c49_blank(page):
-    rows = [ln for ln in page.COMPARISON_MD_3T.read_text().splitlines()
-            if re.match(r"^\| \d+ \| ", ln)]
+    rows = [
+        ln for ln in page.COMPARISON_MD_3T.read_text().splitlines() if re.match(r"^\| \d+ \| ", ln)
+    ]
     cells = [[c.strip() for c in ln[1:-1].split(" |")] for ln in rows]
     assert len(cells) == 17 and all(len(c) == 5 for c in cells)
     assert all(c[3] == "" and c[4] == "" for c in cells), [c for c in cells if c[3] or c[4]]
@@ -645,8 +744,8 @@ N_ROWS_13 = 13  # row 1, six probes + c* + cw (row 2), rows 3, 4, 5, 6
 
 @pytest.fixture(scope="module")
 def logs13():
-    from tests.validation.test_geo38_c39_thermal_reader import (ENTRY59_GLOB, ENTRY60_GLOB,
-                                                                 find_log)
+    from tests.validation.test_geo38_c39_thermal_reader import ENTRY59_GLOB, ENTRY60_GLOB, find_log
+
     out = {}
     for k, g in (("59", ENTRY59_GLOB), ("60", ENTRY60_GLOB)):
         hit = find_log(g)
@@ -663,6 +762,7 @@ def _x13_misses(page, text, log59, log60) -> list:
     """(X13): every degree-1 cell's token sits on its cited line of entry 59's / 60's
     log (the right sense and quantity); derived cells recomputed from those tokens."""
     from tests.validation.test_mat21_box_closed_form import RHO_C
+
     logs = {"59": page._read_log(log59).splitlines(), "60": page._read_log(log60).splitlines()}
     miss = []
     for (row, q), (c59, c60, _d2, _aed) in page.comparison_cells_thermal(text).items():
@@ -676,32 +776,53 @@ def _x13_misses(page, text, log59, log60) -> list:
                 if row == 1:
                     ok = _on(L, cites[0], f"[gel twin ccw] (B) int_sub q {toks[0]} vs")
                 elif row == 2 and pm:
-                    ok = _on(L, cites[0], f"[gel twin ccw] probe {pm.group(1)} (",
-                             f"sense (1,-1j): theta(t*) {toks[0]} K")
+                    ok = _on(
+                        L,
+                        cites[0],
+                        f"[gel twin ccw] probe {pm.group(1)} (",
+                        f"sense (1,-1j): theta(t*) {toks[0]} K",
+                    )
                 elif row == 2 and q.startswith(("θ(t\\*) at c\\*", "cw ")):
                     word, tup = ("cw", "+1j") if q.startswith("cw ") else ("ccw", "-1j")
                     hot, src = cites[0], cites[1]
-                    th = re.search(r"\[GEO-38 P61\] hotspot c\* .*sense \(1," + re.escape(tup)
-                                   + r"\): theta\(t\*\) per P_acc watt (\S+) K", L[hot - 1]).group(1)
-                    fa = re.search(r"\(" + word + r", heated\): .*factor P_gel/P_acc \(" + word
-                                   + r"\) (\S+)\s*$", L[src - 1]).group(1)
+                    th = re.search(
+                        r"\[GEO-38 P61\] hotspot c\* .*sense \(1,"
+                        + re.escape(tup)
+                        + r"\): theta\(t\*\) per P_acc watt (\S+) K",
+                        L[hot - 1],
+                    ).group(1)
+                    fa = re.search(
+                        r"\("
+                        + word
+                        + r", heated\): .*factor P_gel/P_acc \("
+                        + word
+                        + r"\) (\S+)\s*$",
+                        L[src - 1],
+                    ).group(1)
                     ok = toks[0] == f"{float(th) / float(fa):.6e}"
                     if word == "ccw":
-                        ok = ok and _on(L, cites[2], "[gel twin ccw] 1 g ball",
-                                        f"sense (1,-1j): theta(t*) {toks[1]} K")
+                        ok = ok and _on(
+                            L,
+                            cites[2],
+                            "[gel twin ccw] 1 g ball",
+                            f"sense (1,-1j): theta(t*) {toks[1]} K",
+                        )
                     else:
                         ok = ok and toks[1] == fa
                 elif row == 3:
-                    ok = (_on(L, cites[0], "[gel twin ccw] sense (1,-1j):", f"V_sub {toks[1]} m^3")
-                          and toks[0] == f"{1.0 / (RHO_C * float(toks[1])):.4e}"
-                          and _on(L, cites[1], "[gel twin ccw] CN N=", f"(S2) {toks[2]} (band"))
+                    ok = (
+                        _on(L, cites[0], "[gel twin ccw] sense (1,-1j):", f"V_sub {toks[1]} m^3")
+                        and toks[0] == f"{1.0 / (RHO_C * float(toks[1])):.4e}"
+                        and _on(L, cites[1], "[gel twin ccw] CN N=", f"(S2) {toks[2]} (band")
+                    )
                 elif row == 4:
                     ok = _on(L, cites[0], "[gel twin ccw] CN N=", f"+ surface {toks[0]} W:")
                 elif row == 5:
                     ok = c == "P87 prints it"
                 elif row == 6:
-                    ok = (_on(L, cites[0], "[GEO-38 P61] sources, sense (1,-1j) (ccw, heated)")
-                          and L[cites[0] - 1].rstrip().endswith(f"(ccw) {toks[0]}"))
+                    ok = _on(
+                        L, cites[0], "[GEO-38 P61] sources, sense (1,-1j) (ccw, heated)"
+                    ) and L[cites[0] - 1].rstrip().endswith(f"(ccw) {toks[0]}")
             except (IndexError, AttributeError, ValueError):
                 ok = False
             if not ok:
@@ -721,9 +842,13 @@ def test_c54_x13(page, logs13):
 
 def test_c54_probes(page):
     import tests.validation.test_geo38_f_clinical_box_heating as p61
+
     cells = page.comparison_cells_thermal(page.COMPARISON_MD_13.read_text())
-    labs = [m.group(1) for r, q in cells
-            if r == 2 and (m := re.match(r"θ\(t\\\*\) at (P\d .+?) per deposited watt", q))]
+    labs = [
+        m.group(1)
+        for r, q in cells
+        if r == 2 and (m := re.match(r"θ\(t\\\*\) at (P\d .+?) per deposited watt", q))
+    ]
     print(f"[ANS-13 C54 Probes] {labs} vs {list(p61._probes())}")
     assert labs == list(p61._probes())
 
@@ -761,8 +886,13 @@ def test_c54_lazy_imports(page):
             mods.append(node.module or "")
         elif isinstance(node, ast.Import):
             mods += [a.name for a in node.names]
-    bad = [m for m in mods if any(s in m for s in ("c39_thermal_reader", "box_heating",
-                                                   "mat21_box", "c33_field", "ans13"))]
+    bad = [
+        m
+        for m in mods
+        if any(
+            s in m for s in ("c39_thermal_reader", "box_heating", "mat21_box", "c33_field", "ans13")
+        )
+    ]
     assert bad == []
 
 
@@ -780,7 +910,7 @@ def test_c54_n_digit(page, logs13, tmp_path):
     assert "[gel twin ccw] probe P3 " in ln
     tok = re.search(r"theta\(t\*\) (\S+) K", ln).group(1)
     pos = [i for i, ch in enumerate(tok) if ch.isdigit()][3]
-    new = tok[:pos] + str((int(tok[pos]) + 1) % 10) + tok[pos + 1:]
+    new = tok[:pos] + str((int(tok[pos]) + 1) % 10) + tok[pos + 1 :]
     src[12271 - 1] = ln.replace(f"theta(t*) {tok} K", f"theta(t*) {new} K")
     bad = tmp_path / "p33_3t_digit.log"
     bad.write_text("".join(src))
@@ -795,6 +925,6 @@ def test_c54_n_doc(page, tmp_path):
     i = text.index("| 4 | ")
     j = next(n for n in range(i + 30, len(text)) if text[n].isdigit())
     bad = tmp_path / "COMPARISON.md"
-    bad.write_text(text[:j] + str((int(text[j]) + 1) % 10) + text[j + 1:])
+    bad.write_text(text[:j] + str((int(text[j]) + 1) % 10) + text[j + 1 :])
     assert bad.read_text() != page.render_ans13()
     assert text == page.render_ans13()

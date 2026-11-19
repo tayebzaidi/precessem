@@ -44,14 +44,11 @@ import numpy as np
 from mpi4py import MPI
 
 from fem_em_solver.io.mesh import MeshGenerator
-
-from tests.mesh.test_coil_phantom_conforming import _tag_volume, _total_volume
 from tests.mesh.test_birdcage_conductor_sizing import CAD_MASS_GATE
 from tests.mesh.test_birdcage_port_sheet_prerequisite import (
     CELL_COUNT_BAND,
     CONDUCTOR_RESOLUTION,
 )
-from tests.mesh.test_birdcage_port_terminals import CONDUCTOR_IFACE
 from tests.mesh.test_birdcage_port_sheets import PORT_LOWER, PORT_UPPER
 from tests.mesh.test_birdcage_port_tags import (
     AIR_PADDING,
@@ -65,11 +62,13 @@ from tests.mesh.test_birdcage_port_tags import (
     RING_MINOR_RADIUS,
     RING_RADIUS,
 )
+from tests.mesh.test_birdcage_port_terminals import CONDUCTOR_IFACE
 from tests.mesh.test_birdcage_ring_gaps import (
     EXACT,
     RING_GAP_LENGTH,
     _port_boundary_partition,
 )
+from tests.mesh.test_coil_phantom_conforming import _tag_volume, _total_volume
 
 # `mesh:9` / `EX-35`'s own rung — the base of the `GEO-25` ladder.
 BASE_RING_RADIUS = RING_RADIUS  # 0.07 m
@@ -190,9 +189,7 @@ def _build_rung(
 
     ring_ports = _ring_ports()
     port_cell_tags = (
-        {i: (PORT_LOWER + i,) for i in range(1, LEG_COUNT + 1)}
-        if emit_leg_ports
-        else {}
+        {i: (PORT_LOWER + i,) for i in range(1, LEG_COUNT + 1)} if emit_leg_ports else {}
     )
     port_cell_tags.update({i: (PORT_LOWER + i, PORT_UPPER + i) for i in ring_ports})
     all_tags = sorted({1, 2, 3, *[t for v in port_cell_tags.values() for t in v]})
@@ -202,9 +199,7 @@ def _build_rung(
 
     _counts, areas = _port_boundary_partition(mesh, cells, comm, port_cell_tags)
     terminal_analytic = float(diag["ring_port_layout"]["ring_terminal_area_m2"])
-    ratios = np.array(
-        [areas[CONDUCTOR_IFACE + i] / terminal_analytic for i in ring_ports]
-    )
+    ratios = np.array([areas[CONDUCTOR_IFACE + i] / terminal_analytic for i in ring_ports])
 
     result = {
         "radius": radius,
@@ -235,9 +230,7 @@ _RUNG_CACHE: dict[bool, dict] = {}
 
 def _rung(*, scale_sizing: bool) -> dict:
     if scale_sizing not in _RUNG_CACHE:
-        _RUNG_CACHE[scale_sizing] = _build_rung(
-            F_HUMAN_RING_RADIUS, scale_sizing=scale_sizing
-        )
+        _RUNG_CACHE[scale_sizing] = _build_rung(F_HUMAN_RING_RADIUS, scale_sizing=scale_sizing)
     return _RUNG_CACHE[scale_sizing]
 
 
@@ -275,8 +268,11 @@ def test_f_human_branch_b_rung_reproduces_its_record_and_cad_identities():
 
     fixture = _rung(scale_sizing=False)
     _report(
-        comm, "branch B (fixed absolute sizing)", fixture,
-        F_HUMAN_BRANCH_B_CELL_RECORD_UNBOXED, STEP1_BRANCH_B_CAD_RATIO,
+        comm,
+        "branch B (fixed absolute sizing)",
+        fixture,
+        F_HUMAN_BRANCH_B_CELL_RECORD_UNBOXED,
+        STEP1_BRANCH_B_CAD_RATIO,
     )
     if comm.rank == 0:
         print(
@@ -286,10 +282,7 @@ def test_f_human_branch_b_rung_reproduces_its_record_and_cad_identities():
         )
 
     # (i) the new version-tagged cell record, at the imported band.
-    assert (
-        abs(fixture["n_cells"] / F_HUMAN_BRANCH_B_CELL_RECORD_UNBOXED - 1.0)
-        < CELL_COUNT_BAND
-    ), (
+    assert abs(fixture["n_cells"] / F_HUMAN_BRANCH_B_CELL_RECORD_UNBOXED - 1.0) < CELL_COUNT_BAND, (
         f"branch-B F-human rung meshes {fixture['n_cells']} cells against the "
         f"{F_HUMAN_BRANCH_B_CELL_RECORD_UNBOXED} unboxed record (relative "
         f"{fixture['n_cells'] / F_HUMAN_BRANCH_B_CELL_RECORD_UNBOXED - 1.0:.3e}, band "
@@ -310,8 +303,7 @@ def test_f_human_branch_b_rung_reproduces_its_record_and_cad_identities():
     ratios = fixture["terminal_ratios"]
     lo, hi = TERMINAL_RATIO_BAND
     assert len(ratios) == 2 * LEG_COUNT, (
-        f"expected {2 * LEG_COUNT} ring ports on the high-pass layout, read "
-        f"{len(ratios)}"
+        f"expected {2 * LEG_COUNT} ring ports on the high-pass layout, read " f"{len(ratios)}"
     )
     assert ratios.min() >= lo and ratios.max() <= hi, (
         f"branch-B F-human rung: terminal-area ratios span "
@@ -343,8 +335,11 @@ def test_f_human_branch_a_control_falls_below_the_conductor_mass_gate():
 
     control = _rung(scale_sizing=True)
     _report(
-        comm, "branch A (mesh sizing scaled — CONTROL)", control,
-        F_HUMAN_BRANCH_A_CELL_RECORD_UNBOXED, STEP1_BRANCH_A_CAD_RATIO,
+        comm,
+        "branch A (mesh sizing scaled — CONTROL)",
+        control,
+        F_HUMAN_BRANCH_A_CELL_RECORD_UNBOXED,
+        STEP1_BRANCH_A_CAD_RATIO,
     )
     if comm.rank == 0:
         print(
@@ -368,10 +363,7 @@ def test_f_human_branch_a_control_falls_below_the_conductor_mass_gate():
         )
 
     # The control's own cell record, control-only.
-    assert (
-        abs(control["n_cells"] / F_HUMAN_BRANCH_A_CELL_RECORD_UNBOXED - 1.0)
-        < CELL_COUNT_BAND
-    ), (
+    assert abs(control["n_cells"] / F_HUMAN_BRANCH_A_CELL_RECORD_UNBOXED - 1.0) < CELL_COUNT_BAND, (
         f"branch-A F-human control meshes {control['n_cells']} cells against the "
         f"{F_HUMAN_BRANCH_A_CELL_RECORD_UNBOXED} unboxed record (relative "
         f"{control['n_cells'] / F_HUMAN_BRANCH_A_CELL_RECORD_UNBOXED - 1.0:.3e}, band "

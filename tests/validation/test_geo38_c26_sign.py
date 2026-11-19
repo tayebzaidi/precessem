@@ -133,8 +133,9 @@ def _scan(z64, center_pf, freq_hz, r_ohm, half_rel, n):
     nodes = _grid(center_pf, half_rel, n)
     b = np.array([_y_in_p33(z64, c, freq_hz, r_ohm).imag for c in nodes])
     all_x = h17._sign_change_roots(nodes, b)
-    up = [(a, bb, r) for a, bb, r in all_x
-          if np.interp(a, nodes, b) < 0.0 < np.interp(bb, nodes, b)]
+    up = [
+        (a, bb, r) for a, bb, r in all_x if np.interp(a, nodes, b) < 0.0 < np.interp(bb, nodes, b)
+    ]
     return nodes, b, all_x, up
 
 
@@ -142,20 +143,33 @@ def _root_reading(z64, center_pf, freq_hz, r_ohm, label):
     out = {}
     for half, n in ((0.01, N_GRID_1), (0.03, N_GRID_3)):
         nodes, b, all_x, up = _scan(z64, center_pf, freq_hz, r_ohm, half, n)
-        _say(f"{label} r={r_ohm:g} grid +-{half * 100:g}% ({n} nodes): Im Y_in(P33,(1,+1j)) "
-             + ", ".join(f"{c:.4f}:{v:+.6e}" for c, v in zip(nodes, b)) + " S")
-        _say(f"{label} r={r_ohm:g} +-{half * 100:g}%: sign changes "
-             + (", ".join(f"[{a:.4f}, {bb:.4f}] -> {r:.4f} pF" for a, bb, r in all_x) or "none")
-             + "; - -> + " + (", ".join(f"{r:.4f}" for _a, _b, r in up) or "none"))
-        out = {"half_rel": half, "nodes_pf": nodes.tolist(), "im_y_s": b.tolist(),
-               "sign_changes_pf": [list(x) for x in all_x], "up_roots_pf": [r for *_x, r in up]}
+        _say(
+            f"{label} r={r_ohm:g} grid +-{half * 100:g}% ({n} nodes): Im Y_in(P33,(1,+1j)) "
+            + ", ".join(f"{c:.4f}:{v:+.6e}" for c, v in zip(nodes, b))
+            + " S"
+        )
+        _say(
+            f"{label} r={r_ohm:g} +-{half * 100:g}%: sign changes "
+            + (", ".join(f"[{a:.4f}, {bb:.4f}] -> {r:.4f} pF" for a, bb, r in all_x) or "none")
+            + "; - -> + "
+            + (", ".join(f"{r:.4f}" for _a, _b, r in up) or "none")
+        )
+        out = {
+            "half_rel": half,
+            "nodes_pf": nodes.tolist(),
+            "im_y_s": b.tolist(),
+            "sign_changes_pf": [list(x) for x in all_x],
+            "up_roots_pf": [r for *_x, r in up],
+        }
         if up:
             break
     roots = out["up_roots_pf"]
     if len(roots) > 1:
         roots = [min(roots, key=lambda r: abs(r - center_pf))]
-        _say(f"{label} r={r_ohm:g}: {len(out['up_roots_pf'])} - -> + crossings; nearest C_mode "
-             f"read: {roots[0]:.4f} pF")
+        _say(
+            f"{label} r={r_ohm:g}: {len(out['up_roots_pf'])} - -> + crossings; nearest C_mode "
+            f"read: {roots[0]:.4f} pF"
+        )
     out["root_pf"] = roots[0] if roots else None
     return out
 
@@ -195,9 +209,11 @@ def test_geo38_c26_sign():
         f = tw["freq_hz"]
         ratio = _reciprocity_ratio(s)
         sig = float(np.linalg.norm(s, 2))
-        _say(f"{name}: {full} ({full.stat().st_size} B) at {f / 1e6:g} MHz; reciprocity "
-             f"{ratio:.6e} (band {RECIPROCITY_BAND:.0e}, ASSERTED); sigma_max {sig:.12f} "
-             f"(ceiling {MATRIX_PASSIVITY_CEILING}, ASSERTED)")
+        _say(
+            f"{name}: {full} ({full.stat().st_size} B) at {f / 1e6:g} MHz; reciprocity "
+            f"{ratio:.6e} (band {RECIPROCITY_BAND:.0e}, ASSERTED); sigma_max {sig:.12f} "
+            f"(ceiling {MATRIX_PASSIVITY_CEILING}, ASSERTED)"
+        )
         if not ratio <= RECIPROCITY_BAND:
             fails.append(f"(R) {name} reciprocity {ratio:.3e}")
         if not sig <= MATRIX_PASSIVITY_CEILING:
@@ -206,13 +222,22 @@ def test_geo38_c26_sign():
         r = ring_c_modes(s, geo, freq_hz=f, n_slots=32, z0=z0)
         c_mode_pf = r["c_mode_f"] * 1e12
         ok_a = f"{c_mode_pf:.4f}" == C_MODE_RECORD_STR[name]
-        _say(f"(a) {name} C_mode {r['c_mode_f']:.12e} F = {c_mode_pf:.4f} pF; record "
-             f"{C_MODE_RECORD_STR[name]} ({'reproduced' if ok_a else 'NOT reproduced'} at .4f, ASSERTED)")
+        _say(
+            f"(a) {name} C_mode {r['c_mode_f']:.12e} F = {c_mode_pf:.4f} pF; record "
+            f"{C_MODE_RECORD_STR[name]} ({'reproduced' if ok_a else 'NOT reproduced'} at .4f, ASSERTED)"
+        )
         if not ok_a:
             fails.append(f"(a) {name} C_mode {c_mode_pf:.4f} != {C_MODE_RECORD_STR[name]}")
         # (b)
-        kw = dict(port_map=geo, freq_hz=f, c_f=r["c_mode_f"], feeds=FEEDS_SLOTS,
-                  drives={"(1,+1j)": list(SENSE)}, z0=z0, n_slots=32)
+        kw = dict(
+            port_map=geo,
+            freq_hz=f,
+            c_f=r["c_mode_f"],
+            feeds=FEEDS_SLOTS,
+            drives={"(1,+1j)": list(SENSE)},
+            z0=z0,
+            n_slots=32,
+        )
         rows0 = ring_mode_rows(s, esr_ohm=0.0, **kw)
         rows_r = ring_mode_rows(s, esr_ohm=ESR_OHM, **kw)
         l0, lr = rows0["modes"]["1"]["lambda_anti"], rows_r["modes"]["1"]["lambda_anti"]
@@ -220,10 +245,12 @@ def test_geo38_c26_sign():
         d_re = abs((lr[0] - l0[0]) - ESR_OHM) / ESR_OHM
         c_rows0 = rows0["c_mode_f"] * 1e12
         c_rows_r = rows_r["c_mode_f"] * 1e12
-        _say(f"(b) {name} lambda_1 r=0 {l0[0]:+.9e} {l0[1]:+.9e}j, r={ESR_OHM:g} {lr[0]:+.9e} "
-             f"{lr[1]:+.9e}j Ohm; |dIm|/|Im| {d_im:.3e}, |dRe - r|/r {d_re:.3e} (band "
-             f"{REDUCTION_BAND:g}, ASSERTED); C_mode rows r=0 {c_rows0:.4f}, r={ESR_OHM:g} "
-             f"{c_rows_r:.4f} pF; rows vs ring_c_modes {abs(c_rows0 - c_mode_pf) / c_mode_pf:.3e}")
+        _say(
+            f"(b) {name} lambda_1 r=0 {l0[0]:+.9e} {l0[1]:+.9e}j, r={ESR_OHM:g} {lr[0]:+.9e} "
+            f"{lr[1]:+.9e}j Ohm; |dIm|/|Im| {d_im:.3e}, |dRe - r|/r {d_re:.3e} (band "
+            f"{REDUCTION_BAND:g}, ASSERTED); C_mode rows r=0 {c_rows0:.4f}, r={ESR_OHM:g} "
+            f"{c_rows_r:.4f} pF; rows vs ring_c_modes {abs(c_rows0 - c_mode_pf) / c_mode_pf:.3e}"
+        )
         if not (d_im <= REDUCTION_BAND and d_re <= REDUCTION_BAND):
             fails.append(f"(b) {name} d_im {d_im:.3e} d_re {d_re:.3e}")
         z64 = _z_feeds_first(s, order)
@@ -234,8 +261,10 @@ def test_geo38_c26_sign():
             for r_ohm, y_rec in C4_Y_RECORD.items():
                 y = _y_in_p33(z64, C4_NODE_PF, f, r_ohm)
                 rel = abs(y - y_rec) / abs(y_rec)
-                _say(f"(C4) node {C4_NODE_PF:.4f} pF r={r_ohm:g}: Y_in P33 {y:.9e} S vs C4 log "
-                     f"{y_rec:.9e} S; rel {rel:.3e} (<= {C4_REPRO_RTOL:g}, ASSERTED)")
+                _say(
+                    f"(C4) node {C4_NODE_PF:.4f} pF r={r_ohm:g}: Y_in P33 {y:.9e} S vs C4 log "
+                    f"{y_rec:.9e} S; rel {rel:.3e} (<= {C4_REPRO_RTOL:g}, ASSERTED)"
+                )
                 c4[str(r_ohm)] = rel
                 if not rel <= C4_REPRO_RTOL:
                     fails.append(f"(C4) r={r_ohm:g} rel {rel:.3e}")
@@ -249,33 +278,58 @@ def test_geo38_c26_sign():
         for k, v in readings.items():
             g = _gap_pct(v["root_pf"], c_mode_pf)
             v["gap_pct"] = g
-            line.append(f"circuit r={float(k):g} " + ("no root within +-3 %" if v["root_pf"] is None
-                        else f"{v['root_pf']:.4f} pF ({g:+.3f} %)"))
-        _say(f"(c) {name} C_mode {c_mode_pf:.4f} pF; " + "; ".join(line)
-             + " (signed gap (root - C_mode)/C_mode; RECORD, never asserted)")
+            line.append(
+                f"circuit r={float(k):g} "
+                + (
+                    "no root within +-3 %"
+                    if v["root_pf"] is None
+                    else f"{v['root_pf']:.4f} pF ({g:+.3f} %)"
+                )
+            )
+        _say(
+            f"(c) {name} C_mode {c_mode_pf:.4f} pF; "
+            + "; ".join(line)
+            + " (signed gap (root - C_mode)/C_mode; RECORD, never asserted)"
+        )
         rec["twins"][name] = {
-            "npz": str(full), "freq_hz": f, "reciprocity": ratio, "sigma_max": sig,
-            "c_mode_pf": c_mode_pf, "c_mode_record_reproduced": ok_a,
-            "lambda1_r0": l0, "lambda1_r": lr, "esr_d_im": d_im, "esr_d_re": d_re,
-            "c4_repro_rel": c4, "in_model_root_pf": root_im, "in_model_gap_pct": gap_im,
+            "npz": str(full),
+            "freq_hz": f,
+            "reciprocity": ratio,
+            "sigma_max": sig,
+            "c_mode_pf": c_mode_pf,
+            "c_mode_record_reproduced": ok_a,
+            "lambda1_r0": l0,
+            "lambda1_r": lr,
+            "esr_d_im": d_im,
+            "esr_d_re": d_re,
+            "c4_repro_rel": c4,
+            "in_model_root_pf": root_im,
+            "in_model_gap_pct": gap_im,
             "circuit": readings,
         }
 
     # (c-ctl): the 1.5 T npz at 128 MHz (wrong ω)
     t15 = rec["twins"]["1.5T"]
-    ref = (t15["circuit"][str(ESR_OHM)]["root_pf"] or t15["circuit"]["0.0"]["root_pf"]
-           or t15["c_mode_pf"])
+    ref = (
+        t15["circuit"][str(ESR_OHM)]["root_pf"]
+        or t15["circuit"]["0.0"]["root_pf"]
+        or t15["c_mode_pf"]
+    )
     ctl = {}
     moved_all = True
     for r_ohm in (0.0, ESR_OHM):
-        nodes, b, all_x, up = _scan(z_by["1.5T"], t15["c_mode_pf"], FREQUENCY_3T_HZ, r_ohm, 0.03,
-                                    N_GRID_3)
+        nodes, b, all_x, up = _scan(
+            z_by["1.5T"], t15["c_mode_pf"], FREQUENCY_3T_HZ, r_ohm, 0.03, N_GRID_3
+        )
         near = [x for *_y, x in up if abs(x - ref) / ref <= CTL_MOVE_MIN_REL]
         moved_all &= not near
-        _say(f"(c-ctl) 1.5T npz at {FREQUENCY_3T_HZ / 1e6:g} MHz r={r_ohm:g}, +-3 % grid: - -> + "
-             + (", ".join(f"{x:.4f}" for *_y, x in up) or "none") + f"; within 1 % of the 64 MHz "
-             f"reference {ref:.4f} pF: {len(near)} (ASSERTED 0 ⇒ moved > 1 %); Im Y_in range "
-             f"{b.min():+.6e} .. {b.max():+.6e} S")
+        _say(
+            f"(c-ctl) 1.5T npz at {FREQUENCY_3T_HZ / 1e6:g} MHz r={r_ohm:g}, +-3 % grid: - -> + "
+            + (", ".join(f"{x:.4f}" for *_y, x in up) or "none")
+            + f"; within 1 % of the 64 MHz "
+            f"reference {ref:.4f} pF: {len(near)} (ASSERTED 0 ⇒ moved > 1 %); Im Y_in range "
+            f"{b.min():+.6e} .. {b.max():+.6e} S"
+        )
         ctl[str(r_ohm)] = {"up_roots_pf": [x for *_y, x in up], "near": near}
     if not moved_all:
         fails.append("(c-ctl) the wrong-ω read did not move the root by > 1 %")
@@ -289,8 +343,11 @@ def test_geo38_c26_sign():
             out.append(g is not None and np.sign(g) == np.sign(t["in_model_gap_pct"]))
         return all(out)
 
-    any_root = any(t["circuit"][k]["root_pf"] is not None
-                   for t in rec["twins"].values() for k in ("0.0", str(ESR_OHM)))
+    any_root = any(
+        t["circuit"][k]["root_pf"] is not None
+        for t in rec["twins"].values()
+        for k in ("0.0", str(ESR_OHM))
+    )
     if _reproduces("0.0"):
         reading = "termination's (r = 0 already reproduces both in-model signs)"
     elif _reproduces(str(ESR_OHM)):

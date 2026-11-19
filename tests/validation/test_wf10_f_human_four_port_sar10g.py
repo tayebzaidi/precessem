@@ -53,20 +53,30 @@ STEP5_SAR_ENV = "FEM_EM_WF10_STEP5_SAR"
 #: Item 359's logged ccw SAR10g on the 12 z_c points (W/kg), rows az₁₇ + 0 / 90
 #: / 180 / 270°, columns r = 15 / 30 / 45 mm.  Coding test (L4)(d) only.
 #: Source: docs/testing/logs/20261010T171705Z_WF-10-step2s-W1.log.
-TWO_PORT_ZC_RECORD = np.array([
-    [6.830007305e-04,   # :6354  r=15 az17+0
-     2.230610345e-03,   # :6355  r=30 az17+0
-     4.852895959e-03],  # :6356  r=45 az17+0
-    [5.781188640e-04,   # :6357  r=15 az17+90
-     1.803115212e-03,   # :6358  r=30 az17+90
-     4.026865820e-03],  # :6359  r=45 az17+90
-    [6.587520880e-04,   # :6360  r=15 az17+180
-     2.230637254e-03,   # :6361  r=30 az17+180
-     4.816772104e-03],  # :6362  r=45 az17+180
-    [5.882637672e-04,   # :6363  r=15 az17+270
-     1.879465733e-03,   # :6364  r=30 az17+270
-     4.063626880e-03],  # :6365  r=45 az17+270
-])
+TWO_PORT_ZC_RECORD = np.array(
+    [
+        [
+            6.830007305e-04,  # :6354  r=15 az17+0
+            2.230610345e-03,  # :6355  r=30 az17+0
+            4.852895959e-03,
+        ],  # :6356  r=45 az17+0
+        [
+            5.781188640e-04,  # :6357  r=15 az17+90
+            1.803115212e-03,  # :6358  r=30 az17+90
+            4.026865820e-03,
+        ],  # :6359  r=45 az17+90
+        [
+            6.587520880e-04,  # :6360  r=15 az17+180
+            2.230637254e-03,  # :6361  r=30 az17+180
+            4.816772104e-03,
+        ],  # :6362  r=45 az17+180
+        [
+            5.882637672e-04,  # :6363  r=15 az17+270
+            1.879465733e-03,  # :6364  r=30 az17+270
+            4.063626880e-03,
+        ],  # :6365  r=45 az17+270
+    ]
+)
 #: 359's spreads (`…step2s-W1.log:6375`) and the brief's stdlib C4 misses.
 TWO_PORT_SPREADS = (0.16727, 0.20999, 0.18604)
 TWO_PORT_C4_MISSES = {1: 0.17383, 2: 0.00808, 3: 0.16140}
@@ -136,7 +146,6 @@ def _four_port_drive(out, comm):
         lumped_port_linear_term,
         sheet_terminal_current,
     )
-
     from tests.validation.test_birdcage_power_identity import (
         _sheet_field_dissipation_w,
         _source_power_w,
@@ -165,7 +174,9 @@ def _four_port_drive(out, comm):
     ref_k, ref_sign = slots[order[0]]
     feeds4 = []
     for k in (0, 4, 8, 12):
-        match = [pid for pid, (kk, sg) in slots.items() if sg == ref_sign and kk == (ref_k + k) % 16]
+        match = [
+            pid for pid, (kk, sg) in slots.items() if sg == ref_sign and kk == (ref_k + k) % 16
+        ]
         assert len(match) == 1, (k, match)
         feeds4.append(match[0])
     az_by = {f"P{s['ordinal']}": float(s["azimuth_deg"]) for s in built["sheets"]}
@@ -193,20 +204,30 @@ def _four_port_drive(out, comm):
         held = j > 0
         sheets = [sp.sheet(driven=(sp.port_id == pid_j)) for sp in specs4]
         dsheet = next(s for s in sheets if s.port_id == pid_j)
-        linear = [lambda test, _s=dsheet: lumped_port_linear_term(
-            msh, tags_f, _s, test, omega_rad_per_s=omega)]
+        linear = [
+            lambda test, _s=dsheet: lumped_port_linear_term(
+                msh, tags_f, _s, test, omega_rad_per_s=omega
+            )
+        ]
         comm.Barrier()
         t0 = time.perf_counter()
         if held:
             fields = solver.solve_with_held_factorization(extra_linear_terms=linear)
         else:
             bil = [wall] + [
-                (lambda trial, test, _s=s: lumped_port_bilinear_term(
-                    msh, tags_f, _s, trial, test, omega_rad_per_s=omega))
+                (
+                    lambda trial, test, _s=s: lumped_port_bilinear_term(
+                        msh, tags_f, _s, trial, test, omega_rad_per_s=omega
+                    )
+                )
                 for s in sheets
             ]
-            fields = solver.solve(current_density=None, project_source=False,
-                                  extra_bilinear_terms=bil, extra_linear_terms=linear)
+            fields = solver.solve(
+                current_density=None,
+                project_source=False,
+                extra_bilinear_terms=bil,
+                extra_linear_terms=linear,
+            )
         comm.Barrier()
         t4.append(time.perf_counter() - t0)
         kinds4.append("held" if held else "solve")
@@ -226,12 +247,18 @@ def _four_port_drive(out, comm):
     del e4
     cur4_sup = sum(complex(w4[j]) * cur4[j] for j in range(4))
     wf = {pid: complex(w4[j]) for j, pid in enumerate(feeds4)}
-    sheets_w = {pid: (dataclasses.replace(specs4_by[pid].sheet(driven=True),
-                                          source_voltage_v=wf[pid])
-                      if pid in wf else specs4_by[pid].sheet(driven=False))
-                for pid in order}
-    cur_read = np.array([sheet_terminal_current(msh, tags_f, sheets_w[pid], ef4, comm)
-                         for pid in order], dtype=np.complex128)
+    sheets_w = {
+        pid: (
+            dataclasses.replace(specs4_by[pid].sheet(driven=True), source_voltage_v=wf[pid])
+            if pid in wf
+            else specs4_by[pid].sheet(driven=False)
+        )
+        for pid in order
+    }
+    cur_read = np.array(
+        [sheet_terminal_current(msh, tags_f, sheets_w[pid], ef4, comm) for pid in order],
+        dtype=np.complex128,
+    )
     r_x4l = float(np.max(np.abs(cur_read - cur4_sup)) / np.max(np.abs(cur4_sup)))
     dx = ufl.Measure("dx", domain=msh, subdomain_data=cell_tags)
 
@@ -240,22 +267,47 @@ def _four_port_drive(out, comm):
         return float(np.real(comm.allreduce(fem.assemble_scalar(form), op=MPI.SUM)))
 
     p4_src = float(sum(_source_power_w(acct, sheets_w[pid], ef4, omega) for pid in feeds4))
-    p4_sheets = float(sum(_sheet_field_dissipation_w(acct, sheets_w[pid], ef4, omega)
-                          for pid in order))
+    p4_sheets = float(
+        sum(_sheet_field_dissipation_w(acct, sheets_w[pid], ef4, omega) for pid in order)
+    )
     p4_total = _vol(ef4, dx)
     p4_phantom = _vol(ef4, dx(PHANTOM_CELL_TAG))
     p4_surf = _surface_loss_w(msh, built["facets"], z_s, ef4, comm)
     r_x4p = abs(p4_src - p4_sheets - p4_total - p4_surf) / abs(p4_src)
-    y4 = [complex(1.0 / z_rc + cur_read[order.index(pid)]
-                  / (wf[pid] - z_th * cur_read[order.index(pid)])) for pid in feeds4]
+    y4 = [
+        complex(
+            1.0 / z_rc + cur_read[order.index(pid)] / (wf[pid] - z_th * cur_read[order.index(pid)])
+        )
+        for pid in feeds4
+    ]
     t_sup = comm.allreduce(time.perf_counter() - t_sup, op=MPI.MAX)
-    parts = {"p_src": p4_src, "p_sheets": p4_sheets, "p_total": p4_total,
-             "p_phantom": p4_phantom, "p_rest": p4_total - p4_phantom, "p_surf": p4_surf}
-    return {"ef4": ef4, "parts": parts, "kinds4": kinds4, "r_x4p": r_x4p, "r_x4l": r_x4l,
-            "y4": y4, "feeds4": feeds4, "feeds2": list(feeds2), "az4": az4, "cur4": cur4_sup,
-            "t4": [comm.allreduce(t, op=MPI.MAX) for t in t4], "t_sup": t_sup,
-            "kappa_off": kappa_off, "z_rc": z_rc, "z_th": z_th, "v_s": v_s,
-            "ref_sign": ref_sign}
+    parts = {
+        "p_src": p4_src,
+        "p_sheets": p4_sheets,
+        "p_total": p4_total,
+        "p_phantom": p4_phantom,
+        "p_rest": p4_total - p4_phantom,
+        "p_surf": p4_surf,
+    }
+    return {
+        "ef4": ef4,
+        "parts": parts,
+        "kinds4": kinds4,
+        "r_x4p": r_x4p,
+        "r_x4l": r_x4l,
+        "y4": y4,
+        "feeds4": feeds4,
+        "feeds2": list(feeds2),
+        "az4": az4,
+        "cur4": cur4_sup,
+        "t4": [comm.allreduce(t, op=MPI.MAX) for t in t4],
+        "t_sup": t_sup,
+        "kappa_off": kappa_off,
+        "z_rc": z_rc,
+        "z_th": z_th,
+        "v_s": v_s,
+        "ref_sign": ref_sign,
+    }
 
 
 def test_wf10_step5_c4_lattice_coding():
@@ -264,10 +316,13 @@ def test_wf10_step5_c4_lattice_coding():
     # (a) row m = R(m·90°) row 0.
     for az17 in (11.25, 0.0, 33.7):
         pts = np.array([p for *_x, p in _lattice(az17, 0.0)])[:12].reshape(4, 3, 3)
-        d = max(float(np.max(np.abs(_rotate_z(pts[0], m * np.pi / 2.0) - pts[m])))
-                for m in (1, 2, 3))
-        print(f"[WF-10 step5 L4] (a) az17 {az17}: max |R(m*90) row0 - row m| {d:.3e} m "
-              f"(<= 1e-12 ASSERTED)")
+        d = max(
+            float(np.max(np.abs(_rotate_z(pts[0], m * np.pi / 2.0) - pts[m]))) for m in (1, 2, 3)
+        )
+        print(
+            f"[WF-10 step5 L4] (a) az17 {az17}: max |R(m*90) row0 - row m| {d:.3e} m "
+            f"(<= 1e-12 ASSERTED)"
+        )
         assert d <= 1e-12, d
     # (b) four-port weights.
     w4 = quadrature_phase_weights([0, 1, 2, 3], "ccw")
@@ -276,8 +331,10 @@ def test_wf10_step5_c4_lattice_coding():
     for n, k in enumerate((0, 4, 8, 12)):
         x4[k] = w4[n]
     f4 = np.fft.fft(x4)
-    print(f"[WF-10 step5 L4] (b) four-port FFT bin 0 {abs(f4[0]):.3e}, bin 1 {abs(f4[1]):.3e}, "
-          f"|bin 15| {abs(f4[15]):.12f} (ASSERTED 0 / 0 / 4)")
+    print(
+        f"[WF-10 step5 L4] (b) four-port FFT bin 0 {abs(f4[0]):.3e}, bin 1 {abs(f4[1]):.3e}, "
+        f"|bin 15| {abs(f4[15]):.12f} (ASSERTED 0 / 0 / 4)"
+    )
     assert abs(f4[0]) <= 1e-12 and abs(f4[1]) <= 1e-12 and abs(abs(f4[15]) - 4.0) <= 1e-12
     # (c) planted C4-invariant table.
     planted = np.tile(np.array([1.3e-3, 2.7e-3, 5.1e-3]), (4, 1))
@@ -287,12 +344,16 @@ def test_wf10_step5_c4_lattice_coding():
     # (d) 359's logged two-port table: the coding control.
     c2 = _c4_misses(TWO_PORT_ZC_RECORD)
     s2 = _spreads(TWO_PORT_ZC_RECORD)
-    print(f"[WF-10 step5 L4] (d) 359 two-port C4 misses "
-          + " / ".join(f"m={m} {v:.5f}" for m, v in c2.items())
-          + " (want " + " / ".join(f"{v:.5f}" for v in TWO_PORT_C4_MISSES.values())
-          + "); spreads " + " / ".join(f"{v:.5f}" for v in s2)
-          + f" (want {TWO_PORT_SPREADS}); max_m {max(c2.values()):.5f} > band "
-          f"{C4_COVARIANCE_BAND:g} (ASSERTED)")
+    print(
+        "[WF-10 step5 L4] (d) 359 two-port C4 misses "
+        + " / ".join(f"m={m} {v:.5f}" for m, v in c2.items())
+        + " (want "
+        + " / ".join(f"{v:.5f}" for v in TWO_PORT_C4_MISSES.values())
+        + "); spreads "
+        + " / ".join(f"{v:.5f}" for v in s2)
+        + f" (want {TWO_PORT_SPREADS}); max_m {max(c2.values()):.5f} > band "
+        f"{C4_COVARIANCE_BAND:g} (ASSERTED)"
+    )
     for m, want in TWO_PORT_C4_MISSES.items():
         assert abs(c2[m] / want - 1.0) <= 1e-3, (m, c2[m], want)
     for got, want in zip(s2, TWO_PORT_SPREADS):
@@ -311,7 +372,6 @@ def test_wf10_step5_four_port_sar10g():
         mass_averaged_sar,
         mean_sar,
     )
-
     from tests.mesh.helpers import global_cell_tag_set
     from tests.validation.test_birdcage_b1_plus_map import PHANTOM_RHO_KG_PER_M3
     from tests.validation.test_birdcage_f_human_rung import F_HUMAN_RING_RADIUS
@@ -350,8 +410,9 @@ def test_wf10_step5_four_port_sar10g():
             rec = json.load(fh)
     rec = comm.bcast(rec, root=0)
     assert abs(rec["c_in_pf"] - C_IN_F_HUMAN_PF) == 0.0, rec["c_in_pf"]
-    s_rec = np.array([[complex(a, b) for a, b in row] for row in rec["s_node"]],
-                     dtype=np.complex128)
+    s_rec = np.array(
+        [[complex(a, b) for a, b in row] for row in rec["s_node"]], dtype=np.complex128
+    )
 
     # ---- 3. build + (S_rep) ----------------------------------------------------------
     out = build_tuned_quadrature(comm, with_z50=False)
@@ -359,23 +420,30 @@ def test_wf10_step5_four_port_sar10g():
     msh, cell_tags, sigma = ctx["msh"], ctx["cell_tags"], out["sigma"]
     s_node = np.asarray(out["s_node"], dtype=np.complex128)
     r_srep = _residual(s_node, s_rec)
-    say(f"(S_rep) s_node vs {os.path.basename(NODE_JSON)} at {C_IN_F_HUMAN_PF} pF: residual "
-        f"{r_srep:.6e} (band {REUSE_REPRODUCTION_RTOL:g}, ASSERTED)")
+    say(
+        f"(S_rep) s_node vs {os.path.basename(NODE_JSON)} at {C_IN_F_HUMAN_PF} pF: residual "
+        f"{r_srep:.6e} (band {REUSE_REPRODUCTION_RTOL:g}, ASSERTED)"
+    )
 
     # ---- 4. geometry -----------------------------------------------------------------
     centre, radius, half_height, lo, hi = _phantom_geometry(msh, cell_tags, PHANTOM_CELL_TAG, comm)
     z_c = float(centre[2])
     a10 = averaging_ball_radius(mass_kg=TEN_GRAM_KG, rho=PHANTOM_RHO_KG_PER_M3)
     az17 = float(out["az_feeds"][0])
-    say(f"phantom bbox lo {lo} hi {hi}: centre xy offset from the coil axis "
+    say(
+        f"phantom bbox lo {lo} hi {hi}: centre xy offset from the coil axis "
         f"({centre[0] * 1e3:.6f}, {centre[1] * 1e3:.6f}) mm, |.| "
         f"{np.hypot(centre[0], centre[1]) * 1e3:.6f} mm (printed; the C4 axis is the coil "
         f"axis); z_c {z_c:.6e} m; R {radius * 1e3:.4f} mm, H/2 {half_height * 1e3:.4f} mm; "
-        f"10 g a = {a10 * 1e3:.4f} mm; az17 {az17:.9f} deg")
+        f"10 g a = {a10 * 1e3:.4f} mm; az17 {az17:.9f} deg"
+    )
     all_tags = global_cell_tag_set(msh, cell_tags)
     rho_field = build_density_field(
-        msh, PHANTOM_RHO_KG_PER_M3, cell_tags=cell_tags,
-        density_map={int(t): 0.0 for t in sorted(all_tags) if int(t) != PHANTOM_CELL_TAG})
+        msh,
+        PHANTOM_RHO_KG_PER_M3,
+        cell_tags=cell_tags,
+        density_map={int(t): 0.0 for t in sorted(all_tags) if int(t) != PHANTOM_CELL_TAG},
+    )
 
     # ---- 5. memory: keep only ccw ------------------------------------------------------
     e_ccw = out["e"]["ccw"]
@@ -384,8 +452,14 @@ def test_wf10_step5_four_port_sar10g():
     # ---- 6. four-port drive + (Σ_P)₄ ---------------------------------------------------
     d4 = _four_port_drive(out, comm)
     ef4 = d4["ef4"]
-    tagged4 = mean_sar(ef4, sigma=sigma, rho=PHANTOM_RHO_KG_PER_M3,
-                       cell_tags=cell_tags, subdomain_ids=PHANTOM_CELL_TAG, comm=comm)
+    tagged4 = mean_sar(
+        ef4,
+        sigma=sigma,
+        rho=PHANTOM_RHO_KG_PER_M3,
+        cell_tags=cell_tags,
+        subdomain_ids=PHANTOM_CELL_TAG,
+        comm=comm,
+    )
     p4_ph = d4["parts"]["p_phantom"]
     p4_src = d4["parts"]["p_src"]
     r_sigma4 = abs(tagged4["dissipated_power_w"] - p4_ph) / abs(p4_ph)
@@ -394,8 +468,10 @@ def test_wf10_step5_four_port_sar10g():
     az_ok = all(abs(d - 90.0) < AZIMUTH_MATCH_DEG for d in d_az4)
     feeds_ok = d4["feeds4"][0] == d4["feeds2"][0] and d4["feeds4"][1] == d4["feeds2"][1]
     ref_sign = d4["ref_sign"]
-    spec4 = {s: _spectrum_share(_ring_vector(d4["cur4"], out["order"], out["slots"], s))
-             for s in (1.0, -1.0)}
+    spec4 = {
+        s: _spectrum_share(_ring_vector(d4["cur4"], out["order"], out["slots"], s))
+        for s in (1.0, -1.0)
+    }
     k4 = _signed_k_shares(d4["cur4"], out["order"], out["slots"])
 
     # ---- 7–8. balls -----------------------------------------------------------------------
@@ -407,13 +483,22 @@ def test_wf10_step5_four_port_sar10g():
         c = tuple(float(v) for v in c)
         containment.append((label, c, _containment(c, centre, radius, half_height, a10)))
         t = time.perf_counter()
-        r = mass_averaged_sar(fields[key], sigma=sigma, rho=rho_field, center=c, radius=a10,
-                              comm=comm, quadrature_degree=QUADRATURE_DEGREE)
+        r = mass_averaged_sar(
+            fields[key],
+            sigma=sigma,
+            rho=rho_field,
+            center=c,
+            radius=a10,
+            comm=comm,
+            quadrature_degree=QUADRATURE_DEGREE,
+        )
         r["wall_s"] = comm.allreduce(time.perf_counter() - t, op=MPI.MAX)
         walls.append(r["wall_s"])
-        say(f"  ball {key:<3s} {label:<26s} at ({c[0] * 1e3:8.3f}, {c[1] * 1e3:8.3f}, "
+        say(
+            f"  ball {key:<3s} {label:<26s} at ({c[0] * 1e3:8.3f}, {c[1] * 1e3:8.3f}, "
             f"{c[2] * 1e3:8.3f}) mm: SAR10g {r['averaged_sar_w_per_kg']:.9e} W/kg, mass "
-            f"{r['mass_kg'] * 1e3:.6f} g, {r['wall_s']:.2f} s")
+            f"{r['mass_kg'] * 1e3:.6f} g, {r['wall_s']:.2f} s"
+        )
         return r
 
     comm.Barrier()
@@ -427,8 +512,10 @@ def test_wf10_step5_four_port_sar10g():
         sar4[label] = ball("4p", c, label)["averaged_sar_w_per_kg"]
         if idx == 0 and walls[-1] > FIRST_BALL_STOP_S:
             reduced = True
-            say(f"REDUCED LATTICE: first ball {walls[-1]:.2f} s > {FIRST_BALL_STOP_S:.0f} s — "
-                f"z = z_c rows only (pre-registered, not a red)")
+            say(
+                f"REDUCED LATTICE: first ball {walls[-1]:.2f} s > {FIRST_BALL_STOP_S:.0f} s — "
+                f"z = z_c rows only (pre-registered, not a red)"
+            )
     used4 = [label for label, *_x in lattice if label in sar4]
     key4 = max(used4, key=lambda k: sar4[k])
     coords = {label: np.array(c) for label, *_x, c in lattice}
@@ -441,9 +528,15 @@ def test_wf10_step5_four_port_sar10g():
     coverage_radius = float(np.hypot(radius, half_height) + COVERAGE_BALL_PAD_M)
     conductor_limit = F_HUMAN_RING_RADIUS - CONDUCTOR_CLEARANCE_M
     t = time.perf_counter()
-    whole4 = mass_averaged_sar(ef4, sigma=sigma, rho=rho_field,
-                               center=tuple(float(v) for v in centre), radius=coverage_radius,
-                               comm=comm, quadrature_degree=QUADRATURE_DEGREE)
+    whole4 = mass_averaged_sar(
+        ef4,
+        sigma=sigma,
+        rho=rho_field,
+        center=tuple(float(v) for v in centre),
+        radius=coverage_radius,
+        comm=comm,
+        quadrature_degree=QUADRATURE_DEGREE,
+    )
     t_cov = comm.allreduce(time.perf_counter() - t, op=MPI.MAX)
     t_sar = comm.allreduce(time.perf_counter() - t_sar, op=MPI.MAX)
     power_miss = abs(whole4["dissipated_power_w"] / tagged4["dissipated_power_w"] - 1.0)
@@ -461,8 +554,11 @@ def test_wf10_step5_four_port_sar10g():
     sp359 = np.array(TWO_PORT_SPREADS)
     repro2 = float(np.max(np.abs(rows2 / TWO_PORT_ZC_RECORD - 1.0)))
     below = [bool(sp4[i] <= VERDICT_FRACTION * _spreads(TWO_PORT_ZC_RECORD)[i]) for i in range(3)]
-    verdict = ("drive anisotropy" if all(below)
-               else "lattice resolution next suspect" if not any(below) else "mixed")
+    verdict = (
+        "drive anisotropy"
+        if all(below)
+        else "lattice resolution next suspect" if not any(below) else "mixed"
+    )
     worst_cont = max(x[2] for x in containment)
     mean4 = tagged4["mean_sar_w_per_kg"]
     sar_star4 = sar4[key4]
@@ -470,77 +566,140 @@ def test_wf10_step5_four_port_sar10g():
 
     if rank0:
         p = d4["parts"]
-        print(f"[WF-10 step5] four-port feeds {d4['feeds4']} (two-port {d4['feeds2']}), az "
-              + " / ".join(f"{a:.9f}" for a in az4) + " deg; steps "
-              + " / ".join(f"{d:.9f}" for d in d_az4)
-              + f" (90 within {AZIMUTH_MATCH_DEG:g} ASSERTED); kappa off {d4['kappa_off']} "
-              f"(ASSERTED); Z_RC {d4['z_rc']:.9e}, Z_th {d4['z_th']:.9e} Ohm", flush=True)
-        print(f"[WF-10 step5] (X4-K) kinds {d4['kinds4']} (ASSERTED ['solve','held','held',"
-              f"'held']); solves " + ", ".join(f"{t:.2f}" for t in d4["t4"]) + " s", flush=True)
-        print(f"[WF-10 step5] (X4-P) P_src {p['p_src']:.9e} sumP_sheet {p['p_sheets']:.9e} "
-              f"P_phantom {p['p_phantom']:.9e} P_rest {p['p_rest']:.9e} P_surf {p['p_surf']:.9e} "
-              f"W; rel {d4['r_x4p']:.3e} (band {DISCRETE_IDENTITY_RTOL:g}, ASSERTED; EX-75 "
-              f"3.274e-13)", flush=True)
-        print(f"[WF-10 step5] (X4-L) {d4['r_x4l']:.3e} (band {UNIT_WEIGHT_CONTROL_RTOL:g}, "
-              f"ASSERTED; EX-75 4.161e-16)", flush=True)
-        print("[WF-10 step5] Y_in four feeds (printed): "
-              + "; ".join(f"{pid} {y.real:+.6e} {y.imag:+.6e}j S"
-                          for pid, y in zip(d4["feeds4"], d4["y4"])), flush=True)
-        print(f"[WF-10 step5] four-port feed-ring k shares: k = 0 {spec4[ref_sign][0]:.4e} "
-              f"(EX-75 4.54e-07), k = -1 (bin 15) {spec4[ref_sign][15]:.6f} (EX-75 0.99945); "
-              f"signed lag ring+ {k4[1.0]['lag']:.6f}, ring- {k4[-1.0]['lag']:.6f} (printed)",
-              flush=True)
-        print(f"[WF-10 step5] four-port 10 g table ({len(used4)} points"
-              f"{', REDUCED' if reduced else ''}):", flush=True)
+        print(
+            f"[WF-10 step5] four-port feeds {d4['feeds4']} (two-port {d4['feeds2']}), az "
+            + " / ".join(f"{a:.9f}" for a in az4)
+            + " deg; steps "
+            + " / ".join(f"{d:.9f}" for d in d_az4)
+            + f" (90 within {AZIMUTH_MATCH_DEG:g} ASSERTED); kappa off {d4['kappa_off']} "
+            f"(ASSERTED); Z_RC {d4['z_rc']:.9e}, Z_th {d4['z_th']:.9e} Ohm",
+            flush=True,
+        )
+        print(
+            f"[WF-10 step5] (X4-K) kinds {d4['kinds4']} (ASSERTED ['solve','held','held',"
+            f"'held']); solves " + ", ".join(f"{t:.2f}" for t in d4["t4"]) + " s",
+            flush=True,
+        )
+        print(
+            f"[WF-10 step5] (X4-P) P_src {p['p_src']:.9e} sumP_sheet {p['p_sheets']:.9e} "
+            f"P_phantom {p['p_phantom']:.9e} P_rest {p['p_rest']:.9e} P_surf {p['p_surf']:.9e} "
+            f"W; rel {d4['r_x4p']:.3e} (band {DISCRETE_IDENTITY_RTOL:g}, ASSERTED; EX-75 "
+            f"3.274e-13)",
+            flush=True,
+        )
+        print(
+            f"[WF-10 step5] (X4-L) {d4['r_x4l']:.3e} (band {UNIT_WEIGHT_CONTROL_RTOL:g}, "
+            f"ASSERTED; EX-75 4.161e-16)",
+            flush=True,
+        )
+        print(
+            "[WF-10 step5] Y_in four feeds (printed): "
+            + "; ".join(
+                f"{pid} {y.real:+.6e} {y.imag:+.6e}j S" for pid, y in zip(d4["feeds4"], d4["y4"])
+            ),
+            flush=True,
+        )
+        print(
+            f"[WF-10 step5] four-port feed-ring k shares: k = 0 {spec4[ref_sign][0]:.4e} "
+            f"(EX-75 4.54e-07), k = -1 (bin 15) {spec4[ref_sign][15]:.6f} (EX-75 0.99945); "
+            f"signed lag ring+ {k4[1.0]['lag']:.6f}, ring- {k4[-1.0]['lag']:.6f} (printed)",
+            flush=True,
+        )
+        print(
+            f"[WF-10 step5] four-port 10 g table ({len(used4)} points"
+            f"{', REDUCED' if reduced else ''}):",
+            flush=True,
+        )
         for k in used4:
             extra = f"   two-port ccw {sar2[k]:.9e}" if k in sar2 else ""
-            print(f"[WF-10 step5]   {k:<26s} 4p {sar4[k]:.9e} W/kg{extra}"
-                  f"{'   <- c*4' if k == key4 else ''}", flush=True)
+            print(
+                f"[WF-10 step5]   {k:<26s} 4p {sar4[k]:.9e} W/kg{extra}"
+                f"{'   <- c*4' if k == key4 else ''}",
+                flush=True,
+            )
         c = coords[key4]
-        print(f"[WF-10 step5] c*4 = {key4} ({c[0] * 1e3:.3f}, {c[1] * 1e3:.3f}, {c[2] * 1e3:.3f}) "
-              f"mm, SAR10g(c*4) {sar_star4:.9e} W/kg (PREDICTED r = 45 mm, z_c)", flush=True)
-        print(f"[WF-10 step5] (C4_4) four-port C4 misses (row m vs row 0, rel L2 over 3 radii): "
-              + " / ".join(f"m={m} {v * 100:.4f}%" for m, v in c4_4.items())
-              + f"; max {c4_max4 * 100:.4f}% (band {C4_COVARIANCE_BAND * 100:.1f}%, ASSERTED; "
-              f"PREDICTED {PREDICTED_C4[0] * 100:g}-{PREDICTED_C4[1] * 100:g}% per m)", flush=True)
-        print(f"[WF-10 step5] control: two-port ccw C4 misses "
-              + " / ".join(f"m={m} {v * 100:.4f}%" for m, v in c4_2.items())
-              + f"; max {c4_max2 * 100:.4f}% (> band {C4_COVARIANCE_BAND * 100:.1f}% ASSERTED; "
-              f"359 17.383 / 0.808 / 16.140%)", flush=True)
-        print(f"[WF-10 step5] two-port in-window vs 359's logged values: max rel "
-              f"{repro2:.3e} (printed; PREDICTED <= {PREDICTED_TWO_PORT_REPRO:g})", flush=True)
-        print("[WF-10 step5] spread per radius (the record): "
-              + "; ".join(f"r={r * 1e3:.0f} mm four-port {sp4[i] * 100:.4f}%, two-port in-window "
-                          f"{sp2[i] * 100:.4f}%, 359 {sp359[i] * 100:.1f}% (1/3: "
-                          f"{sp359[i] * 100 / 3:.2f}%)"
-                          for i, r in enumerate(LATTICE_R_M))
-              + f" (PREDICTED four-port {PREDICTED_SPREAD4[0] * 100:g}-"
-              f"{PREDICTED_SPREAD4[1] * 100:g}%)", flush=True)
-        print(f"[WF-10 step5] VERDICT (printed only; PREDICTED drive anisotropy): {verdict} "
-              f"(per radius <= 1/3 of 359: {below})", flush=True)
-        print(f"[WF-10 step5] (i)4 coverage ball {coverage_radius * 1e3:.4f} mm (< conductor "
-              f"limit {conductor_limit * 1e3:.1f} mm ASSERTED): power "
-              f"{whole4['dissipated_power_w']:.12e} vs tagged {tagged4['dissipated_power_w']:.12e}"
-              f" W, rel {power_miss:.3e}; mass rel {mass_miss:.3e} (band {EXACT_IDENTITY_RTOL:g}, "
-              f"ASSERTED); {t_cov:.2f} s", flush=True)
-        print(f"[WF-10 step5] (Sigma_P)4 P_phantom {p4_ph:.12e} vs mean_sar dissipated "
-              f"{tagged4['dissipated_power_w']:.12e} W, rel {r_sigma4:.3e} (band "
-              f"{EXACT_IDENTITY_RTOL:g}, ASSERTED)", flush=True)
+        print(
+            f"[WF-10 step5] c*4 = {key4} ({c[0] * 1e3:.3f}, {c[1] * 1e3:.3f}, {c[2] * 1e3:.3f}) "
+            f"mm, SAR10g(c*4) {sar_star4:.9e} W/kg (PREDICTED r = 45 mm, z_c)",
+            flush=True,
+        )
+        print(
+            "[WF-10 step5] (C4_4) four-port C4 misses (row m vs row 0, rel L2 over 3 radii): "
+            + " / ".join(f"m={m} {v * 100:.4f}%" for m, v in c4_4.items())
+            + f"; max {c4_max4 * 100:.4f}% (band {C4_COVARIANCE_BAND * 100:.1f}%, ASSERTED; "
+            f"PREDICTED {PREDICTED_C4[0] * 100:g}-{PREDICTED_C4[1] * 100:g}% per m)",
+            flush=True,
+        )
+        print(
+            "[WF-10 step5] control: two-port ccw C4 misses "
+            + " / ".join(f"m={m} {v * 100:.4f}%" for m, v in c4_2.items())
+            + f"; max {c4_max2 * 100:.4f}% (> band {C4_COVARIANCE_BAND * 100:.1f}% ASSERTED; "
+            f"359 17.383 / 0.808 / 16.140%)",
+            flush=True,
+        )
+        print(
+            f"[WF-10 step5] two-port in-window vs 359's logged values: max rel "
+            f"{repro2:.3e} (printed; PREDICTED <= {PREDICTED_TWO_PORT_REPRO:g})",
+            flush=True,
+        )
+        print(
+            "[WF-10 step5] spread per radius (the record): "
+            + "; ".join(
+                f"r={r * 1e3:.0f} mm four-port {sp4[i] * 100:.4f}%, two-port in-window "
+                f"{sp2[i] * 100:.4f}%, 359 {sp359[i] * 100:.1f}% (1/3: "
+                f"{sp359[i] * 100 / 3:.2f}%)"
+                for i, r in enumerate(LATTICE_R_M)
+            )
+            + f" (PREDICTED four-port {PREDICTED_SPREAD4[0] * 100:g}-"
+            f"{PREDICTED_SPREAD4[1] * 100:g}%)",
+            flush=True,
+        )
+        print(
+            f"[WF-10 step5] VERDICT (printed only; PREDICTED drive anisotropy): {verdict} "
+            f"(per radius <= 1/3 of 359: {below})",
+            flush=True,
+        )
+        print(
+            f"[WF-10 step5] (i)4 coverage ball {coverage_radius * 1e3:.4f} mm (< conductor "
+            f"limit {conductor_limit * 1e3:.1f} mm ASSERTED): power "
+            f"{whole4['dissipated_power_w']:.12e} vs tagged {tagged4['dissipated_power_w']:.12e}"
+            f" W, rel {power_miss:.3e}; mass rel {mass_miss:.3e} (band {EXACT_IDENTITY_RTOL:g}, "
+            f"ASSERTED); {t_cov:.2f} s",
+            flush=True,
+        )
+        print(
+            f"[WF-10 step5] (Sigma_P)4 P_phantom {p4_ph:.12e} vs mean_sar dissipated "
+            f"{tagged4['dissipated_power_w']:.12e} W, rel {r_sigma4:.3e} (band "
+            f"{EXACT_IDENTITY_RTOL:g}, ASSERTED)",
+            flush=True,
+        )
         rel_w, _b = out["anchors"]["p_w"]["ccw"]
         r_lin, r_y = out["anchors"]["lin"]["ccw"]
-        print(f"[WF-10 step5] two-port [ccw] (P_w) {rel_w:.3e}; (Lin) {r_lin:.3e} / Y {r_y:.3e}; "
-              f"(P_RC) {out['p_rc_node']:.3e} (ASSERTED)", flush=True)
-        print(f"[WF-10 step5] (iv) worst containment {worst_cont * 1e3:.4f} mm over "
-              f"{len(containment)} balls (<= 0 ASSERTED)", flush=True)
-        print(f"[WF-10 step5] four-port per watt: SAR10g(c*4)/P_src,4 {sar_star4 / p4_src:.6e} "
-              f"W/kg/W (two-port 5.607e-02); peak-to-mean {sar_star4 / mean4:.4f} (two-port "
-              f"1.309); P_phantom/P_src,4 {p4_ph / p4_src:.6e} (two-port 0.0947)", flush=True)
-        print(f"[WF-10 step5] PRICE: {len(walls)} 10 g balls + coverage, per ball mean "
-              f"{np.mean(walls):.2f} s max {np.max(walls):.2f} s; SAR phase {t_sar:.1f} s; build "
-              f"{times['build']:.1f} s, node pair {times['node_pair']:.1f} s, superposition "
-              f"{times['superposition']:.1f} s; four-port solves {sum(d4['t4']):.1f} s, "
-              f"partitions {d4['t_sup']:.1f} s; RSS summed {rss_sum:.2f} GiB; window "
-              f"{time.perf_counter() - out['t_window']:.1f} s at -n {comm.size}", flush=True)
+        print(
+            f"[WF-10 step5] two-port [ccw] (P_w) {rel_w:.3e}; (Lin) {r_lin:.3e} / Y {r_y:.3e}; "
+            f"(P_RC) {out['p_rc_node']:.3e} (ASSERTED)",
+            flush=True,
+        )
+        print(
+            f"[WF-10 step5] (iv) worst containment {worst_cont * 1e3:.4f} mm over "
+            f"{len(containment)} balls (<= 0 ASSERTED)",
+            flush=True,
+        )
+        print(
+            f"[WF-10 step5] four-port per watt: SAR10g(c*4)/P_src,4 {sar_star4 / p4_src:.6e} "
+            f"W/kg/W (two-port 5.607e-02); peak-to-mean {sar_star4 / mean4:.4f} (two-port "
+            f"1.309); P_phantom/P_src,4 {p4_ph / p4_src:.6e} (two-port 0.0947)",
+            flush=True,
+        )
+        print(
+            f"[WF-10 step5] PRICE: {len(walls)} 10 g balls + coverage, per ball mean "
+            f"{np.mean(walls):.2f} s max {np.max(walls):.2f} s; SAR phase {t_sar:.1f} s; build "
+            f"{times['build']:.1f} s, node pair {times['node_pair']:.1f} s, superposition "
+            f"{times['superposition']:.1f} s; four-port solves {sum(d4['t4']):.1f} s, "
+            f"partitions {d4['t_sup']:.1f} s; RSS summed {rss_sum:.2f} GiB; window "
+            f"{time.perf_counter() - out['t_window']:.1f} s at -n {comm.size}",
+            flush=True,
+        )
 
     # ---- asserts ---------------------------------------------------------------------------
     assert r_srep <= REUSE_REPRODUCTION_RTOL, f"(S_rep) {r_srep:.6e}"

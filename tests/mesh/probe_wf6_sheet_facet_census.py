@@ -99,7 +99,14 @@ def _tet_quality(x):
     )
     r_circ = np.linalg.norm(num, axis=1) / (2.0 * vol6)
     dihedral = []
-    for i, j, k, m in ((0, 1, 2, 3), (0, 2, 1, 3), (0, 3, 1, 2), (1, 2, 0, 3), (1, 3, 0, 2), (2, 3, 0, 1)):
+    for i, j, k, m in (
+        (0, 1, 2, 3),
+        (0, 2, 1, 3),
+        (0, 3, 1, 2),
+        (1, 2, 0, 3),
+        (1, 3, 0, 2),
+        (2, 3, 0, 1),
+    ):
         e = x[:, j] - x[:, i]
         n1 = np.cross(e, x[:, k] - x[:, i])
         n2 = np.cross(e, x[:, m] - x[:, i])
@@ -119,18 +126,22 @@ def _census(sweep, g, comm):
     spec = {s.port_id: s for s in sweep["specs"]}[f"P{g['tag'] - SHEET_IFACE}"]
     facets = np.asarray(sweep["facet_tags"].find(g["tag"]), dtype=np.int32)
     facets = facets[facets < owned]
-    nodes = np.asarray(
-        dolfinx.cpp.mesh.entities_to_geometry(msh._cpp_object, fdim, facets, False)
-    )[:, :3]
+    nodes = np.asarray(dolfinx.cpp.mesh.entities_to_geometry(msh._cpp_object, fdim, facets, False))[
+        :, :3
+    ]
     tri = msh.geometry.x[nodes]
     mid = np.asarray(dolfinx.mesh.compute_midpoints(msh, fdim, facets), dtype=np.float64)
 
     # --- 4j (u, v) mapping, verbatim from _sheet_profile
     #     (tests/validation/test_birdcage_b1_plus_closed_form.py:687, 715-720);
     #     at -n 1 every facet is evaluated, so mu = mid.
-    d = spec.unit_drive() if hasattr(spec, "unit_drive") else (
-        np.asarray(spec.drive_direction, dtype=float)
-        / float(np.linalg.norm(spec.drive_direction))
+    d = (
+        spec.unit_drive()
+        if hasattr(spec, "unit_drive")
+        else (
+            np.asarray(spec.drive_direction, dtype=float)
+            / float(np.linalg.norm(spec.drive_direction))
+        )
     )
     mu = mid
     axis = int(g["axis"])
@@ -181,9 +192,9 @@ def _census(sweep, g, comm):
         if len(users) != 1:
             continue
         boundary_nodes.update((p, q))
-        on_end = all(
-            abs(zval[k] - zlo) < tol or abs(zval[k] - zhi) < tol for k in (p, q)
-        ) and (abs(zval[p] - zval[q]) < tol)
+        on_end = all(abs(zval[k] - zlo) < tol or abs(zval[k] - zhi) < tol for k in (p, q)) and (
+            abs(zval[p] - zval[q]) < tol
+        )
         if on_end:
             terminal[users[0]] = True
         else:

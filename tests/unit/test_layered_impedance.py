@@ -65,7 +65,9 @@ def test_n5_dielectric_quarter_and_half_wave():
     half = layered_surface_impedance(OMEGA, [DielectricLayer(eps_r, lam_d / 2.0)], ETA_0)
     rq = abs(quarter - ETA_0 / 4.0) / (ETA_0 / 4.0)
     rh = abs(half - ETA_0) / ETA_0
-    print(f"[TH-18] (n5) lambda/4: {quarter} rel={rq:.3e}; lambda/2: {half} rel={rh:.3e} (bound 1e-12)")
+    print(
+        f"[TH-18] (n5) lambda/4: {quarter} rel={rq:.3e}; lambda/2: {half} rel={rh:.3e} (bound 1e-12)"
+    )
     assert rq <= 1e-12
     assert rh <= 1e-12
 

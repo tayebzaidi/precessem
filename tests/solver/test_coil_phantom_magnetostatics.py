@@ -44,7 +44,6 @@ from fem_em_solver.io.mesh import MeshGenerator
 from fem_em_solver.post import evaluate_vector_field_parallel
 from fem_em_solver.utils.analytical import AnalyticalSolutions, ErrorMetrics
 from fem_em_solver.utils.constants import MU_0
-
 from tests.validation.test_circular_loop import azimuthal_current_density
 
 COIL_MAJOR_RADIUS = 0.08
@@ -129,9 +128,7 @@ def test_coil_phantom_magnetostatics_matches_the_two_loop_closed_form():
     points[:, 2] = z_eval
 
     b_num, valid = evaluate_vector_field_parallel(b_field, points, comm=comm)
-    assert valid.all(), (
-        f"{(~valid).sum()}/{N_AXIS_POINTS} on-axis sample points outside mesh"
-    )
+    assert valid.all(), f"{(~valid).sum()}/{N_AXIS_POINTS} on-axis sample points outside mesh"
 
     # z-component. In the complex build the array carries the complex scalar
     # type although this magnetostatic solution is real-valued (OPS-20, the
@@ -149,11 +146,11 @@ def test_coil_phantom_magnetostatics_matches_the_two_loop_closed_form():
 
     if comm.rank == 0:
         n_cells = mesh.topology.index_map(mesh.topology.dim).size_global
-        print(f"\n[OPS-17] coil+phantom on-axis B_z, {n_cells} cells at "
-              f"h={RESOLUTION} m:")
+        print(f"\n[OPS-17] coil+phantom on-axis B_z, {n_cells} cells at " f"h={RESOLUTION} m:")
         for z, bn, ba in zip(z_eval, b_num_z, b_ana_z):
-            print(f"    z = {z:+.4f} m: B_z = {bn:+.6e} T vs {ba:+.6e} T "
-                  f"({bn / ba - 1.0:+.2%})")
+            print(
+                f"    z = {z:+.4f} m: B_z = {bn:+.6e} T vs {ba:+.6e} T " f"({bn / ba - 1.0:+.2%})"
+            )
         print(f"    L2 relative error: {rel_error:.4%}", flush=True)
 
     assert rel_error < ON_AXIS_L2_ERROR_MAX, (

@@ -27,8 +27,9 @@ def _child(code):
     env = dict(os.environ)
     env["PYTHONPATH"] = _REPO
     t0 = time.perf_counter()
-    p = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True,
-                       env=env, cwd=_REPO, timeout=30)
+    p = subprocess.run(
+        [sys.executable, "-c", code], capture_output=True, text=True, env=env, cwd=_REPO, timeout=30
+    )
     return p, time.perf_counter() - t0
 
 

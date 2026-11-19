@@ -40,8 +40,8 @@ import pytest
 from mpi4py import MPI
 
 from fem_em_solver.study import PRICE_TABLE, FHumanBirdcageGeometry, _predict, _refuse_f_human
-from tests.package.test_wf13_cli_estimate import _diff, _parse, _patch_solves
 from tests.package.test_wf1_study_yaml import WF1
+from tests.package.test_wf13_cli_estimate import _diff, _parse, _patch_solves
 
 KNOB = "FEM_EM_WF13_S10"
 FILES = (
@@ -52,8 +52,9 @@ FILES = (
 THERMAL = WF1 / "f_human_tuned_copper_thermal.yaml"
 # FH1 transcribed: 20261015T213534Z_WF-16-s12-W1.log:7343 (seconds), :7344
 # (memory); N 20261011T140313Z_WF-10-step4a-W1.log:6215; cells = the hole record.
-FH1_LITERALS = dict(row="FH1", degree=1, ranks=8, cells=369387, unknowns=500568,
-                    seconds=93.4, peak_gib=9.7652)
+FH1_LITERALS = dict(
+    row="FH1", degree=1, ranks=8, cells=369387, unknowns=500568, seconds=93.4, peak_gib=9.7652
+)
 
 
 class _BuildReached(Exception):
@@ -91,25 +92,33 @@ def test_wf13_s10_fh1_loo_and_controls():
     m_loo, s_loo, used = _predict(n, 1, w, table=loo)
     rt = s_loo / fh1["seconds"]
     rm = m_loo / fh1["peak_gib"]
-    _say(f"\n[WF-13 s10 LOO] FH1 at N={n}, -n {w}: predicted {s_loo:.3f} s vs "
-         f"{fh1['seconds']} s -> ratio {rt:.4f} (asserted in [{1/BRACKET}, {BRACKET}]); "
-         f"rows {used}")
-    _say(f"[WF-13 s10 LOO] memory (printed only): {m_loo:.4f} GiB vs {fh1['peak_gib']} GiB "
-         f"-> ratio {rm:.4f} ({'inside' if 1/BRACKET <= rm <= BRACKET else 'OUTSIDE'} x2)")
+    _say(
+        f"\n[WF-13 s10 LOO] FH1 at N={n}, -n {w}: predicted {s_loo:.3f} s vs "
+        f"{fh1['seconds']} s -> ratio {rt:.4f} (asserted in [{1/BRACKET}, {BRACKET}]); "
+        f"rows {used}"
+    )
+    _say(
+        f"[WF-13 s10 LOO] memory (printed only): {m_loo:.4f} GiB vs {fh1['peak_gib']} GiB "
+        f"-> ratio {rm:.4f} ({'inside' if 1/BRACKET <= rm <= BRACKET else 'OUTSIDE'} x2)"
+    )
     assert used == ("P1", "P3", "T49")
     assert 1.0 / BRACKET <= rt <= BRACKET
 
     # Printed: in-sample with FH1 fitted, and the degree-2 fit at FH1's N / width.
     m_in, s_in, used_in = _predict(n, 1, w)
-    _say(f"[WF-13 s10 in-sample] rows {used_in}: FH1 time {s_in / fh1['seconds']:.4f} "
-         f"memory {m_in / fh1['peak_gib']:.4f}")
+    _say(
+        f"[WF-13 s10 in-sample] rows {used_in}: FH1 time {s_in / fh1['seconds']:.4f} "
+        f"memory {m_in / fh1['peak_gib']:.4f}"
+    )
     t49 = _row("T49")
     _, s49, _ = _predict(t49["unknowns"], 1, t49["ranks"])
     _say(f"[WF-13 s10 in-sample] T49 time {s49 / t49['seconds']:.4f}")
     m2, s2, used2 = _predict(n, 2, w)
-    _say(f"[WF-13 s10 degree-2 fit at FH1 N/width] {s2:.3f} s -> ratio "
-         f"{s2 / fh1['seconds']:.4f} ({'inside' if 1/BRACKET <= s2 / fh1['seconds'] <= BRACKET else 'outside'} x2; "
-         f"degree confusion is not a control here); memory {m2:.3f} GiB; rows {used2}")
+    _say(
+        f"[WF-13 s10 degree-2 fit at FH1 N/width] {s2:.3f} s -> ratio "
+        f"{s2 / fh1['seconds']:.4f} ({'inside' if 1/BRACKET <= s2 / fh1['seconds'] <= BRACKET else 'outside'} x2; "
+        f"degree confusion is not a control here); memory {m2:.3f} GiB; rows {used2}"
+    )
 
     # (c-N) N-blind estimator, the three small rows.
     small = [r for r in loo if r["degree"] == 1]
@@ -119,8 +128,9 @@ def test_wf13_s10_fh1_loo_and_controls():
     assert not (1.0 / BRACKET <= rn <= BRACKET)
 
     # (c-row) FH1 is load-bearing.
-    bumped = tuple(dict(r, unknowns=int(r["unknowns"] * 1.1)) if r["row"] == "FH1" else r
-                   for r in PRICE_TABLE)
+    bumped = tuple(
+        dict(r, unknowns=int(r["unknowns"] * 1.1)) if r["row"] == "FH1" else r for r in PRICE_TABLE
+    )
     _, s_b, _ = _predict(n, 1, w, table=bumped)
     rel = abs(s_b / s_in - 1.0)
     _say(f"[WF-13 s10 c-row] FH1 unknowns x1.1: {s_b!r} vs {s_in!r} (rel {rel:.3e})")
@@ -188,15 +198,23 @@ def test_wf13_s10_f_human_files_priced(monkeypatch, capsys, tmp_path):
         rcs = comm.allgather(rc)
         diff = _diff(_parse(out, names), est) if comm.rank == 0 else set()
         diff = comm.bcast(diff, root=0)
-        has_line = comm.bcast("not_priced: ('thermal transient',)" in out.splitlines()
-                              if comm.rank == 0 else None, root=0)
-        _say(f"\n[WF-13 s10 U7] {f.name}: cells {est.cells} unknowns {est.unknowns} "
-             f"degree {est.degree} ranks {est.ranks} rows {est.rows_used}")
-        _say(f"[WF-13 s10 U7] {f.name}: predicted_seconds {est.predicted_seconds:.3f} "
-             f"predicted_peak_gib {est.predicted_peak_gib:.4f} at -n {est.ranks} "
-             f"(printed only; no -n 2 F-human solve to compare)")
-        _say(f"[WF-13 s10 CLI] {f.name}: rc {rcs} diff {diff} not_priced {est.not_priced} "
-             f"stdout line present {has_line}")
+        has_line = comm.bcast(
+            "not_priced: ('thermal transient',)" in out.splitlines() if comm.rank == 0 else None,
+            root=0,
+        )
+        _say(
+            f"\n[WF-13 s10 U7] {f.name}: cells {est.cells} unknowns {est.unknowns} "
+            f"degree {est.degree} ranks {est.ranks} rows {est.rows_used}"
+        )
+        _say(
+            f"[WF-13 s10 U7] {f.name}: predicted_seconds {est.predicted_seconds:.3f} "
+            f"predicted_peak_gib {est.predicted_peak_gib:.4f} at -n {est.ranks} "
+            f"(printed only; no -n 2 F-human solve to compare)"
+        )
+        _say(
+            f"[WF-13 s10 CLI] {f.name}: rc {rcs} diff {diff} not_priced {est.not_priced} "
+            f"stdout line present {has_line}"
+        )
         assert est.unknowns == E_RECORD
         assert est.cells == HOLE_CELL_RECORD
         assert est.degree == 1
@@ -210,7 +228,9 @@ def test_wf13_s10_f_human_files_priced(monkeypatch, capsys, tmp_path):
             assert has_line
     builds = comm.allgather(count["builds"])
     hits = comm.allgather(count["hits"])
-    _say(f"[WF-13 s10 U7] real builds per rank {builds}, memo hits {hits}; "
-         f"node {time.perf_counter() - t_start:.1f} s")
+    _say(
+        f"[WF-13 s10 U7] real builds per rank {builds}, memo hits {hits}; "
+        f"node {time.perf_counter() - t_start:.1f} s"
+    )
     assert builds == [1] * comm.size
     assert hits == [5] * comm.size

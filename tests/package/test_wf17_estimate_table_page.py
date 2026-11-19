@@ -77,11 +77,23 @@ def test_wf17_s30_tier_rule_synthetic():
     from fem_em_solver.study import ResourceEstimate
 
     def est(ranks, seconds):
-        return ResourceEstimate(cells=1, unknowns=1, degree=2, ranks=ranks,
-                                predicted_peak_gib=1.0, predicted_seconds=seconds, rows_used=())
+        return ResourceEstimate(
+            cells=1,
+            unknowns=1,
+            degree=2,
+            ranks=ranks,
+            predicted_peak_gib=1.0,
+            predicted_seconds=seconds,
+            rows_used=(),
+        )
 
-    got = [gen.tier_for(est(2, 30.0)), gen.tier_for(est(2, 180.5)), gen.tier_for(est(16, 10.0)),
-           gen.tier_for(est(12, 1200.0)), gen.tier_for(est(2, 1200.1))]
+    got = [
+        gen.tier_for(est(2, 30.0)),
+        gen.tier_for(est(2, 180.5)),
+        gen.tier_for(est(16, 10.0)),
+        gen.tier_for(est(12, 1200.0)),
+        gen.tier_for(est(2, 1200.1)),
+    ]
     _p0(f"\n[WF-17 s30] tiers (2,30) (2,180.5) (16,10) (12,1200) (2,1200.1): {got}")
     assert got == ["smoke", "heavy", "xl", "heavy", "xl"]
 
@@ -89,8 +101,10 @@ def test_wf17_s30_tier_rule_synthetic():
 def test_wf17_s30_c_ref_thermal_box_refusal():
     comm = MPI.COMM_WORLD
     row = gen.row_for("c-ref", THERMAL_BOX, comm)
-    _p0(f"\n[WF-17 s30] (c-ref) rc={row['rc']} api_error={row['api_error']!r} "
-        f"stderr={row['stderr']!r}")
+    _p0(
+        f"\n[WF-17 s30] (c-ref) rc={row['rc']} api_error={row['api_error']!r} "
+        f"stderr={row['stderr']!r}"
+    )
     assert row["rc"] == 2
     assert row["est"] is None
     assert row["api_error"] == THERMAL_BOX_MESSAGE
@@ -103,7 +117,9 @@ def test_wf17_s30_c_ref_thermal_box_refusal():
 
 def test_wf17_s30_c_stale_mutated_cell_names_file(tmp_path):
     text = PAGE.read_text(encoding="utf-8")
-    row = next(ln for ln in text.splitlines() if ln.startswith("| `examples/mri/09_study_from_yaml_sphere"))
+    row = next(
+        ln for ln in text.splitlines() if ln.startswith("| `examples/mri/09_study_from_yaml_sphere")
+    )
     mutated = text.replace(row, row.replace("`74020`", "`74021`", 1), 1)
     assert mutated != text
     planted = tmp_path / "estimates.md"
@@ -151,14 +167,19 @@ def test_wf17_s30_cli_equals_api_and_page_fresh(monkeypatch):
             parsed = _parse(r["stdout"], names)
             complete = set(parsed) == set(names) and all(len(v) == 1 for v in parsed.values())
             differ = _diff(parsed, r["est"]) if (complete and r["est"] is not None) else None
-            print(f"[WF-17 s30] (CLI=API) {r['label']}: rc={r['rc']} complete={complete} "
-                  f"differ={differ}", flush=True)
+            print(
+                f"[WF-17 s30] (CLI=API) {r['label']}: rc={r['rc']} complete={complete} "
+                f"differ={differ}",
+                flush=True,
+            )
             if r["rc"] != 0 or not complete or differ != set() or r["stderr"]:
                 bad[r["label"]] = (r["rc"], complete, differ, r["stderr"])
     bad = comm.bcast(bad, root=0)
     diff = gen.diff_against(PAGE, text)
-    _p0(f"[WF-17 s30] (B1) builds={count['builds']} hits={count['hits']} "
-        f"geometries={count['keys']}; (Page) diff lines {len(diff)}; elapsed {elapsed:.1f} s")
+    _p0(
+        f"[WF-17 s30] (B1) builds={count['builds']} hits={count['hits']} "
+        f"geometries={count['keys']}; (Page) diff lines {len(diff)}; elapsed {elapsed:.1f} s"
+    )
     assert len(rows) == N_ENTRIES
     assert bad == {}
     assert diff == []

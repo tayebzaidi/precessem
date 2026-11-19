@@ -116,7 +116,9 @@ def _drive_degree():
         return None
     if raw == "2":
         return 2
-    raise ValueError(f"{S8_DRIVE_DEGREE_ENV}={raw!r}: only unset/empty (degree 1) or '2' are accepted")
+    raise ValueError(
+        f"{S8_DRIVE_DEGREE_ENV}={raw!r}: only unset/empty (degree 1) or '2' are accepted"
+    )
 
 
 def _knobs():
@@ -125,8 +127,10 @@ def _knobs():
     mode = _drive_mode()
     degree = _drive_degree()
     if mode == "build" and degree is not None:
-        raise ValueError(f"{S8_DRIVE_DEGREE_ENV} is refused under {S8_DRIVE_ENV}=build: "
-                         f"the build proof covers both degrees (Deg-2)")
+        raise ValueError(
+            f"{S8_DRIVE_DEGREE_ENV} is refused under {S8_DRIVE_ENV}=build: "
+            f"the build proof covers both degrees (Deg-2)"
+        )
     return mode, degree
 
 
@@ -178,11 +182,15 @@ def _m2_failures(records):
         if rod.sigma != SIGMA_WIRE_S_PER_M:
             fails.append(f"degree {d}: tag 403 sigma {rod.sigma!r} != {SIGMA_WIRE_S_PER_M}")
         if rod.epsilon_r != gel.epsilon_r or rod.mu_r != gel.mu_r:
-            fails.append(f"degree {d}: tag 403 eps/mu {rod.epsilon_r!r}/{rod.mu_r!r} != gel "
-                         f"{gel.epsilon_r!r}/{gel.mu_r!r}")
+            fails.append(
+                f"degree {d}: tag 403 eps/mu {rod.epsilon_r!r}/{rod.mu_r!r} != gel "
+                f"{gel.epsilon_r!r}/{gel.mu_r!r}"
+            )
         if gel.sigma != SALINE_SIGMA or gel.epsilon_r != SALINE_EPSILON_R:
-            fails.append(f"degree {d}: tag 3 sigma/eps {gel.sigma!r}/{gel.epsilon_r!r} != "
-                         f"{SALINE_SIGMA}/{SALINE_EPSILON_R}")
+            fails.append(
+                f"degree {d}: tag 3 sigma/eps {gel.sigma!r}/{gel.epsilon_r!r} != "
+                f"{SALINE_SIGMA}/{SALINE_EPSILON_R}"
+            )
     return fails
 
 
@@ -288,7 +296,9 @@ def _probe_points(centre):
         "top_apex": tuple(c + (0.0, 0.0, half + ROD_RADIUS)),
         "bottom_apex": tuple(c - (0.0, 0.0, half + ROD_RADIUS)),
     }
-    t1 = c + (np.asarray(PTS[PNAMES.index("T1")], dtype=float) - np.asarray(ROD_CENTRE, dtype=float))
+    t1 = c + (
+        np.asarray(PTS[PNAMES.index("T1")], dtype=float) - np.asarray(ROD_CENTRE, dtype=float)
+    )
     return tips, tuple(t1)
 
 
@@ -317,8 +327,13 @@ def _drive_env(fixture, comm):
     msh, tags_f, omega, cell_tags = ctx["msh"], ctx["tags_f"], ctx["omega"], ctx["cell_tags"]
     z_s = (1.0 + 1.0j) * surface_resistance_ohm(omega, c3.COPPER_SIGMA)
     return {
-        "comm": comm, "msh": msh, "tags_f": tags_f, "omega": omega, "cell_tags": cell_tags,
-        "facets": built["facets"], "z_s": z_s,
+        "comm": comm,
+        "msh": msh,
+        "tags_f": tags_f,
+        "omega": omega,
+        "cell_tags": cell_tags,
+        "facets": built["facets"],
+        "z_s": z_s,
         "wall": _leontovich_term(msh, built["facets"], z_s, omega),
         "dx": ufl.Measure("dx", domain=msh, subdomain_data=cell_tags),
         "acct": {"mesh": msh, "facet_tags": tags_f},
@@ -348,20 +363,30 @@ def _drive(env, solver, specs, driven_id, *, held):
     comm, msh, tags_f, omega = env["comm"], env["msh"], env["tags_f"], env["omega"]
     sheets = [sp.sheet(driven=(sp.port_id == driven_id)) for sp in specs]
     dsheet = next(s for s in sheets if s.port_id == driven_id)
-    linear = [lambda test, _s=dsheet: lumped_port_linear_term(
-        msh, tags_f, _s, test, omega_rad_per_s=omega)]
+    linear = [
+        lambda test, _s=dsheet: lumped_port_linear_term(
+            msh, tags_f, _s, test, omega_rad_per_s=omega
+        )
+    ]
     comm.Barrier()
     t0 = time.perf_counter()
     if held:
         fields = solver.solve_with_held_factorization(extra_linear_terms=linear)
     else:
         bil = [env["wall"]] + [
-            (lambda trial, test, _s=s: lumped_port_bilinear_term(
-                msh, tags_f, _s, trial, test, omega_rad_per_s=omega))
+            (
+                lambda trial, test, _s=s: lumped_port_bilinear_term(
+                    msh, tags_f, _s, trial, test, omega_rad_per_s=omega
+                )
+            )
             for s in sheets
         ]
-        fields = solver.solve(current_density=None, project_source=False,
-                              extra_bilinear_terms=bil, extra_linear_terms=linear)
+        fields = solver.solve(
+            current_density=None,
+            project_source=False,
+            extra_bilinear_terms=bil,
+            extra_linear_terms=linear,
+        )
     comm.Barrier()
     t_solve = time.perf_counter() - t0
     t1 = time.perf_counter()
@@ -371,8 +396,9 @@ def _drive(env, solver, specs, driven_id, *, held):
     sigma_f = fields.sigma_field
     dx = env["dx"]
 
+    # F821: pyflakes sees the `del` at the end of this function; the closure runs before it.
     def _vol(measure):
-        form = fem.form(0.5 * sigma_f * ufl.inner(e, e) * measure)
+        form = fem.form(0.5 * sigma_f * ufl.inner(e, e) * measure)  # noqa: F821
         return float(np.real(comm.allreduce(fem.assemble_scalar(form), op=MPI.SUM)))
 
     by_id = {s.port_id: float(_sheet_field_dissipation_w(env["acct"], s, e, omega)) for s in sheets}
@@ -449,8 +475,14 @@ def _arm(env, solver, label, specs, feeds, order, z_th, v_s, z0, rho_field, tips
     a_1g = averaging_ball_radius(mass_kg=ONE_GRAM_KG, rho=PHANTOM_RHO_KG_PER_M3)
     sar, mass = {}, {}
     for name, centre in tips.items():
-        o = mass_averaged_sar(e_sup, sigma=sigma_f, rho=rho_field, center=centre, radius=a_1g,
-                              quadrature_degree=QUADRATURE_DEGREE)
+        o = mass_averaged_sar(
+            e_sup,
+            sigma=sigma_f,
+            rho=rho_field,
+            center=centre,
+            radius=a_1g,
+            quadrature_degree=QUADRATURE_DEGREE,
+        )
         sar[name] = float(o["averaged_sar_w_per_kg"])
         mass[name] = float(o["mass_kg"])
     pts = np.ascontiguousarray(np.array([t1], dtype=np.float64))
@@ -459,9 +491,17 @@ def _arm(env, solver, label, specs, feeds, order, z_th, v_s, z0, rho_field, tips
     mask = comm.bcast(mask if comm.rank == 0 else None, root=0)
     e_t1 = np.asarray(vals).reshape(1, 3)[0]
     out = {
-        "label": label, "s2": s2, "kinds": kinds, "times": times, "parts": parts,
-        "p_sup": {"total": p_tot, "gel": p_gel, "rod": p_rod}, "sar": sar, "mass": mass,
-        "a_1g": a_1g, "e_t1": e_t1, "t1_valid": bool(np.all(mask)),
+        "label": label,
+        "s2": s2,
+        "kinds": kinds,
+        "times": times,
+        "parts": parts,
+        "p_sup": {"total": p_tot, "gel": p_gel, "rod": p_rod},
+        "sar": sar,
+        "mass": mass,
+        "a_1g": a_1g,
+        "e_t1": e_t1,
+        "t1_valid": bool(np.all(mask)),
         "y_in": _y_in_1p1j(s2, z0),
     }
     del es, e_sup, sigma_f
@@ -497,9 +537,12 @@ def _run_drive(comm, monkeypatch, degree, c_pf):
     t_window = time.perf_counter()
     z0 = float(REFERENCE_IMPEDANCE_OHM)
     deg = degree or 1
-    _say(comm, f"\nstart: -n {comm.size}, I36 body; node C {c_pf:.4f} pF, degree {deg}, "
-               f"r = {c4.ESR_OHM} Ohm on all 64 gaps, kappa off; arm M (rod, tag 403 sigma_wire) "
-               f"then arm R (tag 403 -> gel, same mesh)")
+    _say(
+        comm,
+        f"\nstart: -n {comm.size}, I36 body; node C {c_pf:.4f} pF, degree {deg}, "
+        f"r = {c4.ESR_OHM} Ohm on all 64 gaps, kappa off; arm M (rod, tag 403 sigma_wire) "
+        f"then arm R (tag 403 -> gel, same mesh)",
+    )
     records = _route_drive(monkeypatch)
     if deg == 2:
         monkeypatch.setenv(c4.C4_DEGREE_ENV, "2")  # C4a's fixture reads its own name
@@ -525,16 +568,22 @@ def _run_drive(comm, monkeypatch, degree, c_pf):
     specs, z_rc, z_th = c4._esr_specs(base_specs, feeds, c_f, frequency_hz, z0)
     z_fails, im_worst, th_worst = c4._z_failures(specs, base_ids, feeds, c_f, frequency_hz, z0)
     v_s = h17._source_voltage(z_rc, z0)
-    _say(comm, f"(M2) failures {m2_fails or 'none'} (ASSERTED exact); (Z) node {c_pf:.4f} pF: Z_RC "
-               f"{z_rc:.9e} Ohm, Z_th {z_th:.9e} Ohm, V_s {v_s:.9e} V; Im rel {im_worst:.1e}, Z_th "
-               f"rel {th_worst:.1e}; failures {z_fails or 'none'} (ASSERTED)")
+    _say(
+        comm,
+        f"(M2) failures {m2_fails or 'none'} (ASSERTED exact); (Z) node {c_pf:.4f} pF: Z_RC "
+        f"{z_rc:.9e} Ohm, Z_th {z_th:.9e} Ohm, V_s {v_s:.9e} V; Im rel {im_worst:.1e}, Z_th "
+        f"rel {th_worst:.1e}; failures {z_fails or 'none'} (ASSERTED)",
+    )
 
     # ---- shared readers ----------------------------------------------------
     msh, cell_tags = env["msh"], env["cell_tags"]
     all_tags = global_cell_tag_set(msh, cell_tags)
     rho_field = build_density_field(
-        msh, PHANTOM_RHO_KG_PER_M3, cell_tags=cell_tags,
-        density_map={int(t): 0.0 for t in sorted(all_tags) if int(t) != i35.PHANTOM_CELL_TAG})
+        msh,
+        PHANTOM_RHO_KG_PER_M3,
+        cell_tags=cell_tags,
+        density_map={int(t): 0.0 for t in sorted(all_tags) if int(t) != i35.PHANTOM_CELL_TAG},
+    )
     tips, t1 = _probe_points(i35._rod_centre())
 
     # ---- arm M -------------------------------------------------------------
@@ -547,12 +596,15 @@ def _run_drive(comm, monkeypatch, degree, c_pf):
     gc.collect()
 
     # ---- arm R: same mesh, tag 403 -> gel, a second factorisation -----------
-    problem_r = dataclasses.replace(problem_m, material_map=_gel_twin_map(dict(problem_m.material_map)))
+    problem_r = dataclasses.replace(
+        problem_m, material_map=_gel_twin_map(dict(problem_m.material_map))
+    )
     census_r = col._owned_tag_counts(msh, problem_r.cell_tags, comm)
     a0m_fails = _a0m_failures(census_m, census_r)
     solver_r = TimeHarmonicSolver(problem_r, degree=deg)
-    arm_r = _arm(env, solver_r, "R (gel twin)", specs, feeds, order, z_th, v_s, z0, rho_field,
-                 tips, t1)
+    arm_r = _arm(
+        env, solver_r, "R (gel twin)", specs, feeds, order, z_th, v_s, z0, rho_field, tips, t1
+    )
     del solver_r
     gc.collect()
 
@@ -561,20 +613,26 @@ def _run_drive(comm, monkeypatch, degree, c_pf):
     for arm in (arm_m, arm_r):
         recip = _reciprocity_ratio(arm["s2"])
         arm["recip"] = recip
-        _say(comm, f"arm {arm['label']}: kinds {arm['kinds']}, times "
-                   f"{', '.join(f'{t:.2f}' for t in arm['times'])} s; S2 "
-                   + "; ".join(", ".join(f"{complex(v):.10e}" for v in row) for row in arm["s2"])
-                   + f"; (R1) ||S-S^T||_F/||S||_F {recip:.3e} (band {RECIPROCITY_BAND:.0e}, ASSERTED)")
+        _say(
+            comm,
+            f"arm {arm['label']}: kinds {arm['kinds']}, times "
+            f"{', '.join(f'{t:.2f}' for t in arm['times'])} s; S2 "
+            + "; ".join(", ".join(f"{complex(v):.10e}" for v in row) for row in arm["s2"])
+            + f"; (R1) ||S-S^T||_F/||S||_F {recip:.3e} (band {RECIPROCITY_BAND:.0e}, ASSERTED)",
+        )
         if arm["kinds"] != ["solve", "held"]:
             fails.append(f"{arm['label']} kinds {arm['kinds']}")
         if not recip <= RECIPROCITY_BAND:
             fails.append(f"{arm['label']} (R1) {recip:.3e}")
         for j, p in enumerate(arm["parts"]):
             rel, blind = _partition(p)
-            _say(comm, f"  (P) column {feeds[j]}: P_src {p['p_src']:.9e} sumP_sheet {p['p_sheets']:.9e} "
-                       f"P_phantom {p['p_phantom']:.9e} P_rod {p['p_rod']:.9e} P_rest {p['p_rest']:.9e} "
-                       f"P_surf {p['p_surf']:.9e} W; rel {rel:.3e} (band {DISCRETE_IDENTITY_RTOL:g}, "
-                       f"ASSERTED); NEG blind {blind:.4e} (>= {BLIND_FACTOR:g}x band, ASSERTED)")
+            _say(
+                comm,
+                f"  (P) column {feeds[j]}: P_src {p['p_src']:.9e} sumP_sheet {p['p_sheets']:.9e} "
+                f"P_phantom {p['p_phantom']:.9e} P_rod {p['p_rod']:.9e} P_rest {p['p_rest']:.9e} "
+                f"P_surf {p['p_surf']:.9e} W; rel {rel:.3e} (band {DISCRETE_IDENTITY_RTOL:g}, "
+                f"ASSERTED); NEG blind {blind:.4e} (>= {BLIND_FACTOR:g}x band, ASSERTED)",
+            )
             if not rel <= DISCRETE_IDENTITY_RTOL:
                 fails.append(f"{arm['label']} (P) {feeds[j]} {rel:.3e}")
             if not blind >= BLIND_FACTOR * DISCRETE_IDENTITY_RTOL:
@@ -583,46 +641,76 @@ def _run_drive(comm, monkeypatch, degree, c_pf):
                 fails.append(f"{arm['label']} P_surf {p['p_surf']!r}")
         ya, yb = arm["y_in"]
         ps = arm["p_sup"]
-        _say(comm, f"  Y_in (1,+1j): {feeds[0]} {ya.real:+.9e} {ya.imag:+.9e}j S, {feeds[1]} "
-                   f"{yb.real:+.9e} {yb.imag:+.9e}j S (Im printed: the coil was tuned on C4's "
-                   f"cylinder; never a red); (1,+1j) P_vol {ps['total']:.9e} W, gel {ps['gel']:.9e}, "
-                   f"rod {ps['rod']:.9e} (rod share {ps['rod'] / ps['total']:.6e}, printed)")
+        _say(
+            comm,
+            f"  Y_in (1,+1j): {feeds[0]} {ya.real:+.9e} {ya.imag:+.9e}j S, {feeds[1]} "
+            f"{yb.real:+.9e} {yb.imag:+.9e}j S (Im printed: the coil was tuned on C4's "
+            f"cylinder; never a red); (1,+1j) P_vol {ps['total']:.9e} W, gel {ps['gel']:.9e}, "
+            f"rod {ps['rod']:.9e} (rod share {ps['rod'] / ps['total']:.6e}, printed)",
+        )
     pm = arm_m["parts"][0]
     rel_prc, _b = _partition(pm)
     p_rc, p_feeds, dz = _p_rc_split(pm, feeds)
-    _say(comm, f"(P_RC) arm M column {feeds[0]} at the node: rel {rel_prc:.3e} (band "
-               f"{DISCRETE_IDENTITY_RTOL:g}, ASSERTED); 62 RC {p_rc:.9e} W, 2 feeds {p_feeds:.9e} W; "
-               f"(Dz) without the RC sheets {dz:.4e} (printed)")
-    _say(comm, f"(A0m) census M {census_m} vs R {census_r}: failures {a0m_fails or 'none'} (ASSERTED "
-               f"exact)")
+    _say(
+        comm,
+        f"(P_RC) arm M column {feeds[0]} at the node: rel {rel_prc:.3e} (band "
+        f"{DISCRETE_IDENTITY_RTOL:g}, ASSERTED); 62 RC {p_rc:.9e} W, 2 feeds {p_feeds:.9e} W; "
+        f"(Dz) without the RC sheets {dz:.4e} (printed)",
+    )
+    _say(
+        comm,
+        f"(A0m) census M {census_m} vs R {census_r}: failures {a0m_fails or 'none'} (ASSERTED "
+        f"exact)",
+    )
     q = {n: arm_m["sar"][n] / arm_r["sar"][n] for n in tips}
     eta_t1 = float(np.linalg.norm(arm_m["e_t1"]) / np.linalg.norm(arm_r["e_t1"]))
-    _say(comm, "tip 1 g ratio Q = SAR_1g(M)/SAR_1g(R), (1,+1j), degree "
-               f"{deg}: " + ", ".join(f"{n} {q[n]:.6f} (M {arm_m['sar'][n]:.6e}, R "
-                                      f"{arm_r['sar'][n]:.6e} W/kg, mass {arm_m['mass'][n]:.3e} kg)"
-                                      for n in tips)
-               + f" beside ENTRY43_READOUT_INTERVAL {ENTRY43_READOUT_INTERVAL} (printed); "
-               f"eta_rod(T1 = {tuple(round(x, 6) for x in t1)}) = |E_M|/|E_R| {eta_t1:.6f} (valid "
-               f"{arm_m['t1_valid'] and arm_r['t1_valid']}; printed)")
+    _say(
+        comm,
+        "tip 1 g ratio Q = SAR_1g(M)/SAR_1g(R), (1,+1j), degree "
+        f"{deg}: "
+        + ", ".join(
+            f"{n} {q[n]:.6f} (M {arm_m['sar'][n]:.6e}, R "
+            f"{arm_r['sar'][n]:.6e} W/kg, mass {arm_m['mass'][n]:.3e} kg)"
+            for n in tips
+        )
+        + f" beside ENTRY43_READOUT_INTERVAL {ENTRY43_READOUT_INTERVAL} (printed); "
+        f"eta_rod(T1 = {tuple(round(x, 6) for x in t1)}) = |E_M|/|E_R| {eta_t1:.6f} (valid "
+        f"{arm_m['t1_valid'] and arm_r['t1_valid']}; printed)",
+    )
     if comm.rank == 0:
         os.makedirs(I36_JSON_DIR, exist_ok=True)
         path = _i36_json_path(c_pf, deg)
-        rec = {"c_pf": c_pf, "degree": deg, "feeds": list(feeds), "q": q, "eta_t1": eta_t1,
-               "census_m": {str(k): v for k, v in census_m.items()}}
+        rec = {
+            "c_pf": c_pf,
+            "degree": deg,
+            "feeds": list(feeds),
+            "q": q,
+            "eta_t1": eta_t1,
+            "census_m": {str(k): v for k, v in census_m.items()},
+        }
         for arm, key in ((arm_m, "M"), (arm_r, "R")):
-            rec[key] = {"s2": [[[complex(v).real, complex(v).imag] for v in row] for row in arm["s2"]],
-                        "y_in": [[y.real, y.imag] for y in arm["y_in"]], "recip": arm["recip"],
-                        "parts": [{k: v for k, v in p.items() if k != "p_sheet_by_id"}
-                                  for p in arm["parts"]],
-                        "p_sup": arm["p_sup"], "sar": arm["sar"], "times": arm["times"]}
+            rec[key] = {
+                "s2": [[[complex(v).real, complex(v).imag] for v in row] for row in arm["s2"]],
+                "y_in": [[y.real, y.imag] for y in arm["y_in"]],
+                "recip": arm["recip"],
+                "parts": [
+                    {k: v for k, v in p.items() if k != "p_sheet_by_id"} for p in arm["parts"]
+                ],
+                "p_sup": arm["p_sup"],
+                "sar": arm["sar"],
+                "times": arm["times"],
+            }
         with open(path, "w") as fh:
             json.dump(rec, fh, indent=1)
         print(f"[GEO-36 I36a] wrote {path}", flush=True)
     comm.Barrier()
     _m, per, tot = _rss_gib(comm)
-    _say(comm, f"price: build {fixture['t_build']:.1f} s; arm M {sum(arm_m['times']):.1f} s, arm R "
-               f"{sum(arm_r['times']):.1f} s; RSS per rank {', '.join(f'{r:.2f}' for r in (per or []))} "
-               f"GiB, summed {tot:.3f} GiB; window {time.perf_counter() - t_window:.1f} s")
+    _say(
+        comm,
+        f"price: build {fixture['t_build']:.1f} s; arm M {sum(arm_m['times']):.1f} s, arm R "
+        f"{sum(arm_r['times']):.1f} s; RSS per rank {', '.join(f'{r:.2f}' for r in (per or []))} "
+        f"GiB, summed {tot:.3f} GiB; window {time.perf_counter() - t_window:.1f} s",
+    )
     assert not m2_fails, m2_fails
     assert not z_fails, z_fails
     assert not a0m_fails, a0m_fails
@@ -649,37 +737,50 @@ def test_geo36_i36_rod_drive(monkeypatch):
 
     comm = MPI.COMM_WORLD
     t_window = time.perf_counter()
-    _say(comm, f"\nstart: -n {comm.size}, BUILD-ONLY; C4a's _run_build on the rod fixture "
-               f"(records cells {i35.F_CLINICAL_ROD_CELL_RECORD}, U "
-               f"{i35.F_CLINICAL_ROD_UNKNOWNS_RECORD}); PREDICTED t_build "
-               f"{PREDICTED_T_BUILD_S[0]:.0f}-{PREDICTED_T_BUILD_S[1]:.0f} s (printed)")
+    _say(
+        comm,
+        f"\nstart: -n {comm.size}, BUILD-ONLY; C4a's _run_build on the rod fixture "
+        f"(records cells {i35.F_CLINICAL_ROD_CELL_RECORD}, U "
+        f"{i35.F_CLINICAL_ROD_UNKNOWNS_RECORD}); PREDICTED t_build "
+        f"{PREDICTED_T_BUILD_S[0]:.0f}-{PREDICTED_T_BUILD_S[1]:.0f} s (printed)",
+    )
     records = _route_drive(monkeypatch)
     c4._run_build(comm, monkeypatch)
 
     m2_fails = _m2_failures(records)
-    _say(comm, "(M2) recorded _apply_degree_c4 calls: "
-               + "; ".join(f"degree {d}: tag 403 {m.get(403)!r}, tag 3 {m.get(3)!r}"
-                           for d, m in records)
-               + f"; failures {m2_fails or 'none'} (ASSERTED exact)")
+    _say(
+        comm,
+        "(M2) recorded _apply_degree_c4 calls: "
+        + "; ".join(f"degree {d}: tag 403 {m.get(403)!r}, tag 3 {m.get(3)!r}" for d, m in records)
+        + f"; failures {m2_fails or 'none'} (ASSERTED exact)",
+    )
     x, y, _z = i35._rod_centre()
     rod_az = math.degrees(math.atan2(y, x))
-    _say(comm, f"rod azimuth atan2(y, x) of {i35._rod_centre()} = {rod_az:.3f} deg (PREDICTED "
-               f"{PREDICTED_ROD_AZ_DEG}); bisector: see C4a's (F) line above (PREDICTED "
-               f"{PREDICTED_BISECTOR_DEG}); rod - bisector {rod_az - PREDICTED_BISECTOR_DEG:.3f} "
-               f"deg vs the predicted bisector (printed)")
+    _say(
+        comm,
+        f"rod azimuth atan2(y, x) of {i35._rod_centre()} = {rod_az:.3f} deg (PREDICTED "
+        f"{PREDICTED_ROD_AZ_DEG}); bisector: see C4a's (F) line above (PREDICTED "
+        f"{PREDICTED_BISECTOR_DEG}); rod - bisector {rod_az - PREDICTED_BISECTOR_DEG:.3f} "
+        f"deg vs the predicted bisector (printed)",
+    )
     _m, per, tot = _rss_gib(comm)
-    _say(comm, f"BUILD-ONLY return: window {time.perf_counter() - t_window:.1f} s (PREDICTED "
-               f"≈{PREDICTED_WINDOW_S:.0f} s); RSS per rank "
-               f"{', '.join(f'{r:.2f}' for r in (per or []))} GiB, summed {tot:.3f} GiB "
-               f"(PREDICTED ≈{PREDICTED_RSS_GIB}; printed)")
+    _say(
+        comm,
+        f"BUILD-ONLY return: window {time.perf_counter() - t_window:.1f} s (PREDICTED "
+        f"≈{PREDICTED_WINDOW_S:.0f} s); RSS per rank "
+        f"{', '.join(f'{r:.2f}' for r in (per or []))} GiB, summed {tot:.3f} GiB "
+        f"(PREDICTED ≈{PREDICTED_RSS_GIB}; printed)",
+    )
     assert not m2_fails, m2_fails
 
 
 # ---------------------------------------------------------------------------
 # Coding tests (no gmsh); skip whenever S8_DRIVE_ENV is set.
 # ---------------------------------------------------------------------------
-_coding = pytest.mark.skipif(os.environ.get(S8_DRIVE_ENV, "").strip() != "",
-                             reason=f"{S8_DRIVE_ENV} set: coding tests skip in build windows")
+_coding = pytest.mark.skipif(
+    os.environ.get(S8_DRIVE_ENV, "").strip() != "",
+    reason=f"{S8_DRIVE_ENV} set: coding tests skip in build windows",
+)
 
 
 class _Routed(Exception):
@@ -731,9 +832,11 @@ def test_i36a_k0_knob_parsing(monkeypatch):
             m.setenv(k, "1")
             with pytest.raises(ValueError):
                 _knobs()
-    print("\n[GEO-36 I36a K0] drive unset/build/1 accepted, 2/x refused; degree unset/2 "
-          f"accepted, 1/x refused; degree under build refused; {len(FOREIGN_ENVS)} foreign "
-          "variables refused")
+    print(
+        "\n[GEO-36 I36a K0] drive unset/build/1 accepted, 2/x refused; degree unset/2 "
+        f"accepted, 1/x refused; degree under build refused; {len(FOREIGN_ENVS)} foreign "
+        "variables refused"
+    )
 
 
 @_coding
@@ -758,7 +861,9 @@ def test_i36a_k1_routing_tripwire(monkeypatch):
             c4._build_c4_fixture(MPI.COMM_WORLD)
         kw = exc.value.kwargs
     rod = kw.get("implant_rod")
-    print(f"\n[GEO-36 I36a K1] routed kwargs: implant_rod {rod}; phantom_box {kw.get('phantom_box')}")
+    print(
+        f"\n[GEO-36 I36a K1] routed kwargs: implant_rod {rod}; phantom_box {kw.get('phantom_box')}"
+    )
     assert rod is not None and rod["keep_cells"] is True, rod
     assert tuple(rod["centre"]) == tuple(i35._rod_centre()), rod
     assert kw.get("phantom_box") is not None, sorted(kw)
@@ -780,8 +885,10 @@ def test_i36a_k2_stub_stops_before_gmsh(monkeypatch):
         _install_recorder(m)
         with pytest.raises(ValueError, match=S8_DRIVE_C_PF_ENV):
             test_geo36_i36_rod_drive(m)
-    print("\n[GEO-36 I36a K2] S8_DRIVE=1 without the node knob raised ValueError before gmsh "
-          "(ASSERTED)")
+    print(
+        "\n[GEO-36 I36a K2] S8_DRIVE=1 without the node knob raised ValueError before gmsh "
+        "(ASSERTED)"
+    )
 
 
 @_coding
@@ -815,8 +922,10 @@ def test_i36b_k3_node_knob_parsing(monkeypatch):
         _install_recorder(m)
         with pytest.raises(ValueError, match="refused"):
             test_geo36_i36_rod_drive(m)
-    print("\n[GEO-36 I36b K3] node knob: required under 1, refused under build (gated test "
-          "stops before gmsh), unread when unset; 3 accepted, 7 refused (ASSERTED)")
+    print(
+        "\n[GEO-36 I36b K3] node knob: required under 1, refused under build (gated test "
+        "stops before gmsh), unread when unset; 3 accepted, 7 refused (ASSERTED)"
+    )
 
 
 @_coding
@@ -824,8 +933,14 @@ def test_i36b_k4_partition_and_p_rc_arithmetic():
     """(K4): `_partition` / `_p_rc_split` on a synthetic balance with known misses."""
     feeds = ["P33", "P41"]
     by_id = {"P33": 0.5, "P41": 0.25, "P34": 1.0, "P35": 2.0}
-    p = {"p_src": 10.0, "p_sheets": 3.75, "p_sheet_by_id": by_id, "p_phantom": 4.0,
-         "p_rest": 1.25, "p_surf": 1.0}
+    p = {
+        "p_src": 10.0,
+        "p_sheets": 3.75,
+        "p_sheet_by_id": by_id,
+        "p_phantom": 4.0,
+        "p_rest": 1.25,
+        "p_surf": 1.0,
+    }
     rel, blind = _partition(p)
     assert rel == 0.0, rel
     assert abs(blind - 0.1) < 1e-15, blind
@@ -835,8 +950,10 @@ def test_i36b_k4_partition_and_p_rc_arithmetic():
     q = dict(p, p_src=10.0 * (1 + 2e-6))
     rel_q, _ = _partition(q)
     assert abs(rel_q - 2e-6 / (1 + 2e-6)) < 1e-15, rel_q
-    print(f"\n[GEO-36 I36b K4] partition rel 0 / blind {blind:.3e} / dz {dz:.3e} / planted "
-          f"{rel_q:.6e} (ASSERTED)")
+    print(
+        f"\n[GEO-36 I36b K4] partition rel 0 / blind {blind:.3e} / dz {dz:.3e} / planted "
+        f"{rel_q:.6e} (ASSERTED)"
+    )
 
 
 @_coding
@@ -873,8 +990,10 @@ def test_i36b_k5_r1_and_current_route_on_synthetic_2x2():
     z_bad[0, 1] *= 1.5
     r_bad = _reciprocity_ratio(_s(z_bad))
     y = _y_in_1p1j(s_sym, z0)
-    print(f"\n[GEO-36 I36b K5] (R1) reciprocal {r_sym:.3e} <= 1e-12; planted {r_bad:.3e} > "
-          f"{RECIPROCITY_BAND:.0e}; Y_in {y[0]:.6e}, {y[1]:.6e} (ASSERTED)")
+    print(
+        f"\n[GEO-36 I36b K5] (R1) reciprocal {r_sym:.3e} <= 1e-12; planted {r_bad:.3e} > "
+        f"{RECIPROCITY_BAND:.0e}; Y_in {y[0]:.6e}, {y[1]:.6e} (ASSERTED)"
+    )
     assert r_sym <= 1e-12, r_sym
     assert r_bad > RECIPROCITY_BAND, r_bad
     assert len(y) == 2 and all(np.isfinite(complex(v)) for v in y)
@@ -902,8 +1021,10 @@ def test_i36b_k6_probe_points_in_f_clinical_frame():
     d = np.asarray(t1) - c
     assert abs(d[2] - 0.017531) < 1e-12 and abs(d[0] - 0.000023) < 1e-12, d
     assert not np.allclose(np.asarray(tips["top"]), np.asarray(TIPS["top"]))
-    print(f"\n[GEO-36 I36b K6] centre {tuple(c)}; top {tips['top']}; apex {tips['top_apex']}; "
-          f"T1 {t1} (ASSERTED)")
+    print(
+        f"\n[GEO-36 I36b K6] centre {tuple(c)}; top {tips['top']}; apex {tips['top_apex']}; "
+        f"T1 {t1} (ASSERTED)"
+    )
 
 
 @_coding
@@ -922,8 +1043,10 @@ def test_i36b_k7_gel_twin_map_and_a0m():
     assert _a0m_failures(census, dict(census)) == []
     assert _a0m_failures(census, {**census, 403: 11})
     assert _a0m_failures(census, {3: 1000})
-    print("\n[GEO-36 I36b K7] gel twin map 403 -> gel object; (A0m) equal passes, planted "
-          "differences fail (ASSERTED)")
+    print(
+        "\n[GEO-36 I36b K7] gel twin map 403 -> gel object; (A0m) equal passes, planted "
+        "differences fail (ASSERTED)"
+    )
 
 
 @_coding
@@ -951,9 +1074,11 @@ def test_i36a_n_u_15t_unknowns_miss_rod_mesh():
     assert s1a.F_CLINICAL_R1_UNKNOWNS_RECORD == _R1_UNKNOWNS_RECORD_EXPECTED
     rod_u = i35.F_CLINICAL_ROD_UNKNOWNS_RECORD
     miss = abs(rod_u[0] / s1a.F_CLINICAL_R1_UNKNOWNS_RECORD[0] - 1.0)
-    print(f"\n[GEO-36 I36a N-U] |{rod_u[0]}/{s1a.F_CLINICAL_R1_UNKNOWNS_RECORD[0]} - 1| = "
-          f"{miss:.3e} (PREDICTED 5.347e-02); U2 {rod_u[1]} vs "
-          f"{s1a.F_CLINICAL_R1_UNKNOWNS_RECORD[1]}")
+    print(
+        f"\n[GEO-36 I36a N-U] |{rod_u[0]}/{s1a.F_CLINICAL_R1_UNKNOWNS_RECORD[0]} - 1| = "
+        f"{miss:.3e} (PREDICTED 5.347e-02); U2 {rod_u[1]} vs "
+        f"{s1a.F_CLINICAL_R1_UNKNOWNS_RECORD[1]}"
+    )
     assert rod_u[0] != s1a.F_CLINICAL_R1_UNKNOWNS_RECORD[0]
     assert rod_u[1] != s1a.F_CLINICAL_R1_UNKNOWNS_RECORD[1]
 
@@ -974,8 +1099,9 @@ def _k8_arm(monkeypatch, column_fields):
     from tests.validation.test_mass_averaged_sar_standard_masses import ONE_GRAM_KG
 
     comm = MPI.COMM_WORLD
-    msh = dolfinx.mesh.create_box(comm, [[-0.05] * 3, [0.05] * 3], [12, 12, 12],
-                                  dolfinx.mesh.CellType.tetrahedron)
+    msh = dolfinx.mesh.create_box(
+        comm, [[-0.05] * 3, [0.05] * 3], [12, 12, 12], dolfinx.mesh.CellType.tetrahedron
+    )
     tdim = msh.topology.dim
     imap = msh.topology.index_map(tdim)
     cells = np.arange(imap.size_local + imap.num_ghosts, dtype=np.int32)
@@ -1007,9 +1133,15 @@ def _k8_arm(monkeypatch, column_fields):
         v = np.zeros(4, dtype=np.complex128)
         v[j] = 1.0
         cur = h17._parallel_currents(z_sym, loads, v)
-        return {"currents": dict(zip(order, cur)), "kind": "held" if held else "solve",
-                "t_solve": 0.0, "t_post": 0.0, "p_src": 1.0, "e": columns[j].copy(),
-                "sigma": sigma_f}
+        return {
+            "currents": dict(zip(order, cur)),
+            "kind": "held" if held else "solve",
+            "t_solve": 0.0,
+            "t_post": 0.0,
+            "p_src": 1.0,
+            "e": columns[j].copy(),
+            "sigma": sigma_f,
+        }
 
     monkeypatch.setattr(sys.modules[_arm.__module__], "_drive", _stub)
     env = {"comm": comm, "dx": ufl.Measure("dx", domain=msh, subdomain_data=cell_tags)}
@@ -1039,26 +1171,36 @@ def test_i36c_k8_arm_glue_on_small_mesh(monkeypatch):
     from tests.validation.test_port_lumped_sheet_sweep import RECIPROCITY_BAND
 
     arm, msh, cell_tags, e_u, sigma_f, rho, e0, tips, t1, a_1g = _k8_arm(
-        monkeypatch, lambda e: (e, e))
+        monkeypatch, lambda e: (e, e)
+    )
     comm = msh.comm
     sigma = 0.5
 
     def _volume(measure):
         one = fem.Constant(msh, np.complex128(1.0))
-        return float(np.real(comm.allreduce(fem.assemble_scalar(fem.form(one * measure)), op=MPI.SUM)))
+        return float(
+            np.real(comm.allreduce(fem.assemble_scalar(fem.form(one * measure)), op=MPI.SUM))
+        )
 
     dx = ufl.Measure("dx", domain=msh, subdomain_data=cell_tags)
     v_mesh = _volume(dx)
     v_403 = _volume(dx(403))
-    p_expected = 0.5 * sigma * 2.0 * e0 ** 2 * v_mesh
-    sar_expected = sigma * e0 ** 2 / rho
+    p_expected = 0.5 * sigma * 2.0 * e0**2 * v_mesh
+    sar_expected = sigma * e0**2 / rho
     r_total = abs(arm["p_sup"]["total"] / p_expected - 1.0)
     r_rod = abs((arm["p_sup"]["rod"] / arm["p_sup"]["total"]) / (v_403 / v_mesh) - 1.0)
     r_sar = {n: abs(arm["sar"][n] / sar_expected - 1.0) for n in tips}
     r_mass = {}
     for n, c in tips.items():
-        ball = mass_averaged_sar(e_u, sigma=sigma_f, rho=rho, center=c, radius=a_1g, comm=comm,
-                                 quadrature_degree=QUADRATURE_DEGREE)
+        ball = mass_averaged_sar(
+            e_u,
+            sigma=sigma_f,
+            rho=rho,
+            center=c,
+            radius=a_1g,
+            comm=comm,
+            quadrature_degree=QUADRATURE_DEGREE,
+        )
         r_mass[n] = abs(arm["mass"][n] / (rho * ball["volume_m3"]) - 1.0)
     e_ref = np.array([(1.0 + 1.0j) * e0, 0.0, 0.0])
     r_e = float(np.linalg.norm(arm["e_t1"] - e_ref) / np.linalg.norm(e_ref))
@@ -1068,15 +1210,22 @@ def test_i36c_k8_arm_glue_on_small_mesh(monkeypatch):
         control, *_rest = _k8_arm(m, lambda e: (e, fem.Function(e.function_space)))
     miss_c = {n: abs(control["sar"][n] / sar_expected - 1.0) for n in tips}
     if comm.rank == 0:
-        print(f"\n[GEO-36 I36c K8] a_1g {a_1g:.6e} m; V_mesh {v_mesh:.9e}, V403 {v_403:.9e} m^3; "
-              f"(K8-P) total {r_total:.3e}, rod share {r_rod:.3e} (band {EXACT_IDENTITY_RTOL:g}, "
-              f"ASSERTED); (K8-S) {r_sar}, mass {r_mass} (ASSERTED)")
-        print(f"[GEO-36 I36c K8] (K8-E) e_t1 {arm['e_t1']} miss {r_e:.3e} (band "
-              f"{DISCRETE_IDENTITY_RTOL:g}, ASSERTED), valid {arm['t1_valid']}; (K8-k) kinds "
-              f"{arm['kinds']}, (R1) {recip:.3e} (band {RECIPROCITY_BAND:.0e}, ASSERTED); Y_in "
-              f"{arm['y_in'][0]:.6e}, {arm['y_in'][1]:.6e}")
-        print(f"[GEO-36 I36c K8] control e2 = 0: (K8-S) misses {miss_c} (0.5 within 1e-10, > band, "
-              f"ASSERTED)", flush=True)
+        print(
+            f"\n[GEO-36 I36c K8] a_1g {a_1g:.6e} m; V_mesh {v_mesh:.9e}, V403 {v_403:.9e} m^3; "
+            f"(K8-P) total {r_total:.3e}, rod share {r_rod:.3e} (band {EXACT_IDENTITY_RTOL:g}, "
+            f"ASSERTED); (K8-S) {r_sar}, mass {r_mass} (ASSERTED)"
+        )
+        print(
+            f"[GEO-36 I36c K8] (K8-E) e_t1 {arm['e_t1']} miss {r_e:.3e} (band "
+            f"{DISCRETE_IDENTITY_RTOL:g}, ASSERTED), valid {arm['t1_valid']}; (K8-k) kinds "
+            f"{arm['kinds']}, (R1) {recip:.3e} (band {RECIPROCITY_BAND:.0e}, ASSERTED); Y_in "
+            f"{arm['y_in'][0]:.6e}, {arm['y_in'][1]:.6e}"
+        )
+        print(
+            f"[GEO-36 I36c K8] control e2 = 0: (K8-S) misses {miss_c} (0.5 within 1e-10, > band, "
+            f"ASSERTED)",
+            flush=True,
+        )
     assert r_total <= EXACT_IDENTITY_RTOL, r_total
     assert r_rod <= EXACT_IDENTITY_RTOL, r_rod
     assert max(r_sar.values()) <= EXACT_IDENTITY_RTOL, r_sar
@@ -1130,11 +1279,21 @@ def _k9_stubs(m, fx, json_dir, *, p_src_r2=1.0):
     feeds, order = ["P1", "P2"], ["P1", "P2", "P3", "P4"]
     specs = [SimpleNamespace(port_id=pid) for pid in order]
     problem = _Problem(material_map=mmap, cell_tags=cell_tags)
-    ctx = {"specs": specs, "solver": SimpleNamespace(problem=problem), "msh": msh,
-           "cell_tags": cell_tags}
+    ctx = {
+        "specs": specs,
+        "solver": SimpleNamespace(problem=problem),
+        "msh": msh,
+        "cell_tags": cell_tags,
+    }
     fixture = {"degree": 1, "feeds": feeds, "ids": order, "built": {"ctx": ctx}, "t_build": 0.0}
-    env = {"comm": comm, "msh": msh, "cell_tags": cell_tags, "omega": 2.0 * np.pi * 64.0e6,
-           "dx": ufl.Measure("dx", domain=msh, subdomain_data=cell_tags), "acct": {"mesh": msh}}
+    env = {
+        "comm": comm,
+        "msh": msh,
+        "cell_tags": cell_tags,
+        "omega": 2.0 * np.pi * 64.0e6,
+        "dx": ufl.Measure("dx", domain=msh, subdomain_data=cell_tags),
+        "acct": {"mesh": msh},
+    }
 
     # K5's reciprocal synthetic circuit, as `_k8_arm`, at this node.
     z0 = 50.0
@@ -1152,11 +1311,21 @@ def _k9_stubs(m, fx, json_dir, *, p_src_r2=1.0):
         v = np.zeros(4, dtype=np.complex128)
         v[j] = 1.0
         cur = h17._parallel_currents(z_sym, loads, v)
-        return {"currents": dict(zip(order, cur)), "kind": "held" if held else "solve",
-                "t_solve": 0.0, "t_post": 0.0, "e": (e_half if arm_r else e_u).copy(),
-                "sigma": sigma_f, "p_src": p_src_r2 if arm_r and j == 1 else 1.0, "p_sheets": 0.5,
-                "p_phantom": 0.2, "p_rest": 0.2, "p_surf": 0.1, "p_rod": 0.0,
-                "p_sheet_by_id": {"P1": 0.1, "P2": 0.1, "P3": 0.15, "P4": 0.15}}
+        return {
+            "currents": dict(zip(order, cur)),
+            "kind": "held" if held else "solve",
+            "t_solve": 0.0,
+            "t_post": 0.0,
+            "e": (e_half if arm_r else e_u).copy(),
+            "sigma": sigma_f,
+            "p_src": p_src_r2 if arm_r and j == 1 else 1.0,
+            "p_sheets": 0.5,
+            "p_phantom": 0.2,
+            "p_rest": 0.2,
+            "p_surf": 0.1,
+            "p_rod": 0.0,
+            "p_sheet_by_id": {"P1": 0.1, "P2": 0.1, "P3": 0.15, "P4": 0.15},
+        }
 
     lines = []
     module = sys.modules[_arm.__module__]
@@ -1185,8 +1354,9 @@ def _k9_fixture(comm):
     import numpy as np
     from dolfinx import fem
 
-    msh = dolfinx.mesh.create_box(comm, [[-0.05] * 3, [0.05] * 3], [12, 12, 12],
-                                  dolfinx.mesh.CellType.tetrahedron)
+    msh = dolfinx.mesh.create_box(
+        comm, [[-0.05] * 3, [0.05] * 3], [12, 12, 12], dolfinx.mesh.CellType.tetrahedron
+    )
     tdim = msh.topology.dim
     imap = msh.topology.index_map(tdim)
     cells = np.arange(imap.size_local + imap.num_ghosts, dtype=np.int32)
@@ -1258,21 +1428,32 @@ def test_i36d_k9_run_drive_end_to_end_on_stubs(monkeypatch, tmp_path):
     size_local = msh.topology.index_map(3).size_local
     owned = np.asarray(cell_tags.indices) < size_local
     tag_values = np.asarray(cell_tags.values)[owned]
-    census = {str(t): int(comm.allreduce(int(np.count_nonzero(tag_values == t)), op=MPI.SUM))
-              for t in (3, 403)}
-    a0m_clean = any(ln.startswith("(A0m)") and ln.rstrip().endswith("failures none (ASSERTED exact)")
-                    for ln in lines)
+    census = {
+        str(t): int(comm.allreduce(int(np.count_nonzero(tag_values == t)), op=MPI.SUM))
+        for t in (3, 403)
+    }
+    a0m_clean = any(
+        ln.startswith("(A0m)") and ln.rstrip().endswith("failures none (ASSERTED exact)")
+        for ln in lines
+    )
     heads = ("(P_RC)", "(A0m)", "tip 1 g ratio", "price:")
     missing_heads = [h for h in heads if not any(ln.startswith(h) for ln in lines)]
     if comm.rank == 0:
-        print(f"\n[GEO-36 I36d K9] (K9-Q) misses from 4 {r_q} (band {EXACT_IDENTITY_RTOL:g}, ASSERTED); "
-              f"(K9-E) miss from 2 {r_e:.3e} (band {DISCRETE_IDENTITY_RTOL:g}, ASSERTED)")
-        print(f"[GEO-36 I36d K9] (K9-A) census_m {rec['census_m']} vs the mesh's {census}, (A0m) clean "
-              f"{a0m_clean} (ASSERTED); (K9-J) keys {sorted(rec)}; s2 M vs R {r_mr:.3e}, vs the circuit "
-              f"route {r_route:.3e} (band {EXACT_IDENTITY_RTOL:g}, ASSERTED)")
-        print(f"[GEO-36 I36d K9] (K9-L) missing {missing_heads or 'none'}; control: raised "
-              f"{str(neg.value).splitlines()[0]}; JSON still written, R parts[1] p_src "
-              f"{rec_neg['R']['parts'][1]['p_src']!r} (ASSERTED)", flush=True)
+        print(
+            f"\n[GEO-36 I36d K9] (K9-Q) misses from 4 {r_q} (band {EXACT_IDENTITY_RTOL:g}, ASSERTED); "
+            f"(K9-E) miss from 2 {r_e:.3e} (band {DISCRETE_IDENTITY_RTOL:g}, ASSERTED)"
+        )
+        print(
+            f"[GEO-36 I36d K9] (K9-A) census_m {rec['census_m']} vs the mesh's {census}, (A0m) clean "
+            f"{a0m_clean} (ASSERTED); (K9-J) keys {sorted(rec)}; s2 M vs R {r_mr:.3e}, vs the circuit "
+            f"route {r_route:.3e} (band {EXACT_IDENTITY_RTOL:g}, ASSERTED)"
+        )
+        print(
+            f"[GEO-36 I36d K9] (K9-L) missing {missing_heads or 'none'}; control: raised "
+            f"{str(neg.value).splitlines()[0]}; JSON still written, R parts[1] p_src "
+            f"{rec_neg['R']['parts'][1]['p_src']!r} (ASSERTED)",
+            flush=True,
+        )
     assert len(r_q) == len(fx[4]) and max(r_q.values()) <= EXACT_IDENTITY_RTOL, r_q
     assert r_e <= DISCRETE_IDENTITY_RTOL, r_e
     assert rec["census_m"] == census, rec["census_m"]
@@ -1345,13 +1526,20 @@ def test_c34_k9_d2_run_drive_on_stubs(monkeypatch, tmp_path):
     r_q = {n: abs(v / 4.0 - 1.0) for n, v in rec["q"].items()}
     r_e = abs(rec["eta_t1"] / 2.0 - 1.0)
     if comm.rank == 0:
-        print(f"\n[GEO-36 C34 K9-d2] C4 variable at the fixture call {env_seen}, after {env_after!r}; "
-              f"solver degrees {degrees} (arm R's); JSON -d2 degree {rec['degree']!r}, degree-1 name "
-              f"written {d1_exists} (ASSERTED)")
-        print(f"[GEO-36 C34 K9-d2] (K9-Q) misses from 4 {r_q} (band {EXACT_IDENTITY_RTOL:g}); (K9-E) "
-              f"miss from 2 {r_e:.3e} (band {DISCRETE_IDENTITY_RTOL:g}) (ASSERTED)")
-        print(f"[GEO-36 C34 d2-c] degree 1 under degree 2 raised {str(d2c.value).splitlines()[0]}; "
-              f"drives {drives}, solvers {degrees_c}, files {neg_files} (ASSERTED)", flush=True)
+        print(
+            f"\n[GEO-36 C34 K9-d2] C4 variable at the fixture call {env_seen}, after {env_after!r}; "
+            f"solver degrees {degrees} (arm R's); JSON -d2 degree {rec['degree']!r}, degree-1 name "
+            f"written {d1_exists} (ASSERTED)"
+        )
+        print(
+            f"[GEO-36 C34 K9-d2] (K9-Q) misses from 4 {r_q} (band {EXACT_IDENTITY_RTOL:g}); (K9-E) "
+            f"miss from 2 {r_e:.3e} (band {DISCRETE_IDENTITY_RTOL:g}) (ASSERTED)"
+        )
+        print(
+            f"[GEO-36 C34 d2-c] degree 1 under degree 2 raised {str(d2c.value).splitlines()[0]}; "
+            f"drives {drives}, solvers {degrees_c}, files {neg_files} (ASSERTED)",
+            flush=True,
+        )
     assert env_seen == ["2"], env_seen
     assert env_after is None, env_after
     assert degrees == [2], degrees

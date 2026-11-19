@@ -42,7 +42,6 @@ from mpi4py import MPI
 
 from fem_em_solver import Study
 from fem_em_solver import study as study_mod
-
 from tests.complex_mode import IS_COMPLEX
 from tests.package.test_wf16_load_result_f_human import _swap12_n, _write_named
 from tests.package.test_wf16_study_tune_f_human_copper import (
@@ -105,17 +104,22 @@ def _knob() -> bool:
 def _factory_only(block: str) -> str:
     """The block's imports and its ``def f_human_study`` only (no solve)."""
     tree = ast.parse(block)
-    keep = [n for n in tree.body
-            if isinstance(n, (ast.Import, ast.ImportFrom))
-            or (isinstance(n, ast.FunctionDef) and n.name == "f_human_study")]
+    keep = [
+        n
+        for n in tree.body
+        if isinstance(n, (ast.Import, ast.ImportFrom))
+        or (isinstance(n, ast.FunctionDef) and n.name == "f_human_study")
+    ]
     return ast.unparse(ast.Module(body=keep, type_ignores=[]))
 
 
 def _assert_inputs(st, label):
     ref = _f_human_study()
-    _p0(f"[WF-17 s24] (In) {label}: geometry {st.geometry!r}; material {st.material!r}; "
+    _p0(
+        f"[WF-17 s24] (In) {label}: geometry {st.geometry!r}; material {st.material!r}; "
         f"excitation {st.excitation!r}; frequency {float(st.frequency_hz).hex()} (want "
-        f"{float(ref.frequency_hz).hex()}); degree {st.degree}; conductor {st.conductor!r}")
+        f"{float(ref.frequency_hz).hex()}); degree {st.degree}; conductor {st.conductor!r}"
+    )
     assert type(st.geometry) is type(ref.geometry) and st.geometry == ref.geometry
     assert st.material == ref.material
     assert float(st.material.sigma).hex() == float(ref.material.sigma).hex()
@@ -184,10 +188,16 @@ def test_wf17_s24_block_shape_and_inputs(monkeypatch):
     # tag removed / doubled raise
     for tag, lang in ((TAG, "python"), (BANDS_TAG, "text")):
         with pytest.raises(LookupError):
-            extract_tagged_block(text.replace(f"```{lang} {tag}\n", f"```{lang} other\n"), tag,
-                                 lang=lang)
-        doubled = (text + "\n" + f"```{lang} {tag}\n"
-                   + extract_tagged_block(text, tag, lang=lang) + "```\n")
+            extract_tagged_block(
+                text.replace(f"```{lang} {tag}\n", f"```{lang} other\n"), tag, lang=lang
+            )
+        doubled = (
+            text
+            + "\n"
+            + f"```{lang} {tag}\n"
+            + extract_tagged_block(text, tag, lang=lang)
+            + "```\n"
+        )
         with pytest.raises(LookupError):
             extract_tagged_block(doubled, tag, lang=lang)
     _p0("[WF-17 s24] (c-page) tags removed / doubled raise LookupError for both blocks")
@@ -208,9 +218,11 @@ def test_wf17_s24_docrefs_zero_dead():
     rc, counts = run_checker("--docs-root", "docs/guide", "--check-links")
     link = LINK_PASS_RE.search(_checker_stdout("--docs-root", "docs/guide", "--check-links"))
     assert link is not None, "(D) no 'Link pass:' line"
-    print(f"[WF-17 s24] (D) dead={counts['dead']} links={link.group(1)} pages={link.group(2)} "
-          f"link-dead={link.group(3)} guide={counts['guide']} stale={counts['stale']} "
-          f"exit={counts['exit']} rc={rc}")
+    print(
+        f"[WF-17 s24] (D) dead={counts['dead']} links={link.group(1)} pages={link.group(2)} "
+        f"link-dead={link.group(3)} guide={counts['guide']} stale={counts['stale']} "
+        f"exit={counts['exit']} rc={rc}"
+    )
     assert counts["dead"] == 0
     assert int(link.group(3)) == 0
     assert int(link.group(2)) >= MIN_GUIDE_PAGES
@@ -249,8 +261,10 @@ def test_wf17_s24_loaded_tune_human_block(monkeypatch):
     solved, fresh = ns["solved"], ns["fresh"]
     on_solved = [n for n, s in calls if s is solved]
     on_fresh = [n for n, s in calls if s is fresh]
-    _p0(f"[WF-17 s24] (S0) calls {[n for n, _ in calls]}; on solved {on_solved}; on fresh "
-        f"{on_fresh}; fresh.result {type(fresh.result).__name__}; block {t1:.1f} s")
+    _p0(
+        f"[WF-17 s24] (S0) calls {[n for n, _ in calls]}; on solved {on_solved}; on fresh "
+        f"{on_fresh}; fresh.result {type(fresh.result).__name__}; block {t1:.1f} s"
+    )
     # (In)
     _assert_inputs(solved, "solved")
     _assert_inputs(fresh, "fresh")
@@ -261,23 +275,31 @@ def test_wf17_s24_loaded_tune_human_block(monkeypatch):
     rel = abs(c / WF12_STEP3_C_MODE_CU_F - 1.0)
     rel_g = comm.allreduce(rel, op=MPI.MAX)
     printed = f"C_mode = {WF12_STEP3_C_MODE_CU_F:.4e} F"
-    _p0(f"[WF-17 s24] (X) block k {tuned.k}, C_mode {c:.12e} F (hex {c.hex()}) vs "
+    _p0(
+        f"[WF-17 s24] (X) block k {tuned.k}, C_mode {c:.12e} F (hex {c.hex()}) vs "
         f"WF12_STEP3_C_MODE_CU_F {WF12_STEP3_C_MODE_CU_F:.12e}: rel {rel_g:.3e} (ASSERTED <= "
         f"REDUCTION_BAND {REDUCTION_BAND:.0e}); printed '{printed}' in stdout "
-        f"{printed in out}")
+        f"{printed in out}"
+    )
 
     # negative control: the page's file with ports 1 <-> 2 swapped (data permuted, names kept)
     loaded = fresh.result
-    sw = _write_named(scratch / "swap12.s32p", fresh.frequency_hz, _swap12_n(loaded.s_matrix),
-                      list(loaded.port_ids))
+    sw = _write_named(
+        scratch / "swap12.s32p",
+        fresh.frequency_hz,
+        _swap12_n(loaded.s_matrix),
+        list(loaded.port_ids),
+    )
     st_sw = _f_human_study()
     st_sw.load_result(sw)
     try:
         cw = float(st_sw.tune(1, n_slots=16, comm=comm).c_mode_farad)
         miss = abs(cw / WF12_STEP3_C_MODE_CU_F - 1.0)
         miss_g = comm.allreduce(miss, op=MPI.MIN)
-        _p0(f"[WF-17 s24] (c-swap) P1<->P2 swapped: C {cw:.12e} F, miss {miss_g:.7f} "
-            f"(ASSERTED > LEG_D0_REPRODUCTION_BAND {LEG_D0_REPRODUCTION_BAND:.1e})")
+        _p0(
+            f"[WF-17 s24] (c-swap) P1<->P2 swapped: C {cw:.12e} F, miss {miss_g:.7f} "
+            f"(ASSERTED > LEG_D0_REPRODUCTION_BAND {LEG_D0_REPRODUCTION_BAND:.1e})"
+        )
     except ValueError as exc:  # a non-capacitive read is a miss too; printed
         miss_g = float("inf")
         _p0(f"[WF-17 s24] (c-swap) P1<->P2 swapped: tune raised {exc} (miss = inf)")

@@ -34,14 +34,17 @@ from mpi4py import MPI
 
 import fem_em_solver
 from fem_em_solver import cli, load_study
-
 from tests.complex_mode import IS_COMPLEX
-from tests.package.test_wf17_first_study_tutorial import LINK_PASS_RE, _checker_stdout, extract_tagged_block
+from tests.package.test_wf1_yaml_thermal_ball_probes import MALFORMED as MALFORMED_BALL_PROBE
 from tests.package.test_wf1_yaml_thermal_box import MALFORMED_DUTY
 from tests.package.test_wf1_yaml_thermal_box_probes import MALFORMED as MALFORMED_BOX_PROBE
-from tests.package.test_wf1_yaml_thermal_ball_probes import MALFORMED as MALFORMED_BALL_PROBE
 from tests.package.test_wf1_yaml_thermal_box_quadratic import P36_C_SRC, P36_S1, P36_T, _field
 from tests.package.test_wf1_yaml_thermal_box_quadratic_duty import P38_C_STEP, P38_T_QDUTY
+from tests.package.test_wf17_first_study_tutorial import (
+    LINK_PASS_RE,
+    _checker_stdout,
+    extract_tagged_block,
+)
 from tests.unit.test_doc_reference_exit_codes import run_checker
 from tests.validation.test_mat10_sar_to_heat_sphere import ROBIN_TAG, _allsum
 from tests.validation.test_mat12_transient_sar_heating_sphere import E_BAND
@@ -64,8 +67,14 @@ MIN_GUIDE_PAGES = 52
 
 EXAMPLES = {
     "thermal-box-mri29": REPO / "examples" / "mri" / "29_femem_run_f2182_gel_box_files.py",
-    "thermal-box-mri31": REPO / "examples" / "mri" / "31_femem_run_gel_box_source_and_probe_files.py",
-    "thermal-box-mri32": REPO / "examples" / "mri" / "32_femem_run_ball_probes_and_duty_quadratic_files.py",
+    "thermal-box-mri31": REPO
+    / "examples"
+    / "mri"
+    / "31_femem_run_gel_box_source_and_probe_files.py",
+    "thermal-box-mri32": REPO
+    / "examples"
+    / "mri"
+    / "32_femem_run_ball_probes_and_duty_quadratic_files.py",
 }
 CHECK_TAG = "thermal-box-check"
 RECORDS_TAG = "thermal-box-records"
@@ -143,8 +152,10 @@ def _knob() -> bool:
 
 def _solve_preamble():
     if not _knob():
-        pytest.skip(f"{S7_ENV} unset: the tutorial solve windows are environment-selected "
-                    "(complex build, -n 2)")
+        pytest.skip(
+            f"{S7_ENV} unset: the tutorial solve windows are environment-selected "
+            "(complex build, -n 2)"
+        )
     comm = MPI.COMM_WORLD
     assert IS_COMPLEX, "P36 / P38 are complex-build records"
     assert comm.size == 2, comm.size
@@ -162,8 +173,10 @@ def exec_thermal_block(tag: str, monkeypatch):
     files = _files_of(block)
     scratch = SCRATCH_ROOT / tag
     if comm.rank == 0:
-        print(f"[WF-17 s7] page sha256 {_sha(raw)}; block {tag} sha256 {_sha(block.encode())}",
-              flush=True)
+        print(
+            f"[WF-17 s7] page sha256 {_sha(raw)}; block {tag} sha256 {_sha(block.encode())}",
+            flush=True,
+        )
         if scratch.exists():
             shutil.rmtree(scratch)
         scratch.mkdir(parents=True)
@@ -195,8 +208,10 @@ def exec_thermal_block(tag: str, monkeypatch):
 def _check_r_run(namespace, calls, files):
     runs = namespace["runs"]
     fam = {name: runs[name].summary["family"] for name in files}
-    _p0(f"[WF-17 s7] (R-run) runs {len(runs)} / spy calls {calls['n']} / FILES {len(files)}; "
-        f"families {fam}")
+    _p0(
+        f"[WF-17 s7] (R-run) runs {len(runs)} / spy calls {calls['n']} / FILES {len(files)}; "
+        f"families {fam}"
+    )
     assert len(runs) == len(files)
     assert calls["n"] == len(files)
     for name in files:
@@ -217,8 +232,10 @@ def test_wf17_s7_blocks_and_file_sets():
         n_study = _calls_named(block, "Study")
         files = _files_of(block)
         defect = _file_set_defect(files, example)
-        _p0(f"[WF-17 s7] (X/F) {tag}: run_study_file calls {n_run}, Study calls {n_study}; "
-            f"FILES {files}; docstring set {_solve_files(example)}; defect {defect}")
+        _p0(
+            f"[WF-17 s7] (X/F) {tag}: run_study_file calls {n_run}, Study calls {n_study}; "
+            f"FILES {files}; docstring set {_solve_files(example)}; defect {defect}"
+        )
         assert block.count("run_study_file(") == 1
         assert n_run == 1 and n_study == 0 and "Study(" not in block
         assert defect is None, defect
@@ -247,9 +264,11 @@ def test_wf17_s7_blocks_and_file_sets():
 def test_wf17_s7_malformed_files_refuse(capsys):
     comm = MPI.COMM_WORLD
     check = extract_tagged_block(_text(), CHECK_TAG, lang="bash")
-    cases = [(MALFORMED_DUTY, "thermal.duty"),
-             (MALFORMED_BOX_PROBE, "outputs.probes[1].radius"),
-             (MALFORMED_BALL_PROBE, "outputs.probes[1].radius")]
+    cases = [
+        (MALFORMED_DUTY, "thermal.duty"),
+        (MALFORMED_BOX_PROBE, "outputs.probes[1].radius"),
+        (MALFORMED_BALL_PROBE, "outputs.probes[1].radius"),
+    ]
     for path, field in cases:
         assert f"femem check {path.name}" in check, path.name
         got = _field(lambda: load_study(path))
@@ -273,9 +292,11 @@ def test_wf17_s7_docrefs_zero_dead():
     rc, counts = run_checker("--docs-root", "docs/guide", "--check-links")
     link = LINK_PASS_RE.search(_checker_stdout("--docs-root", "docs/guide", "--check-links"))
     assert link is not None, "(D) no 'Link pass:' line"
-    print(f"[WF-17 s7] (D) dead={counts['dead']} links={link.group(1)} pages={link.group(2)} "
-          f"link-dead={link.group(3)} guide={counts['guide']} stale={counts['stale']} "
-          f"exit={counts['exit']} rc={rc}")
+    print(
+        f"[WF-17 s7] (D) dead={counts['dead']} links={link.group(1)} pages={link.group(2)} "
+        f"link-dead={link.group(3)} guide={counts['guide']} stale={counts['stale']} "
+        f"exit={counts['exit']} rc={rc}"
+    )
     assert counts["dead"] == 0
     assert int(link.group(3)) == 0
     assert int(link.group(2)) >= MIN_GUIDE_PAGES
@@ -303,8 +324,10 @@ def test_wf17_s7_mri31_block_reproduces_p36(monkeypatch):
     runs = _check_r_run(ns, calls, files)
     for name in files:
         if "probes" in name:
-            _p0(f"[WF-17 s7] mri:31 {name} probes (real-build records, printed beside only): "
-                f"{runs[name].summary.get('probes')}")
+            _p0(
+                f"[WF-17 s7] mri:31 {name} probes (real-build records, printed beside only): "
+                f"{runs[name].summary.get('probes')}"
+            )
     # steady (the gate's read: the submesh)
     run = runs[QUAD_STEADY]
     th = run.thermal
@@ -326,15 +349,21 @@ def test_wf17_s7_mri31_block_reproduces_p36(monkeypatch):
     ex_t, _ = _exact_p(msh_t, _quad_trans_ex(T_STAR))
     t_int = _rel_p(msh_t, tht.temperature - T_INF, ex_t, _interior_chi(msh_t))
     bal = run_t.summary["temperature"]["max_balance_residual"]
-    _p0(f"[WF-17 s7] (P36 S1-quad) steady interior {s1:.6e} (P36 {P36_S1}; band "
+    _p0(
+        f"[WF-17 s7] (P36 S1-quad) steady interior {s1:.6e} (P36 {P36_S1}; band "
         f"{INTERIOR_BAND:.0e}); {npts} P3 points; source "
-        f"{run.summary['temperature']['source']!r}")
+        f"{run.summary['temperature']['source']!r}"
+    )
     _p0(f"[WF-17 s7] (P36 S2-quad) Gauss {gauss:.3e} (band {S2_GAUSS_BAND:.0e})")
-    _p0(f"[WF-17 s7] (P36 T-quad) CN interior at t* {t_int:.6e} (P36 {P36_T}; band "
-        f"{INTERIOR_BAND:.0e})")
+    _p0(
+        f"[WF-17 s7] (P36 T-quad) CN interior at t* {t_int:.6e} (P36 {P36_T}; band "
+        f"{INTERIOR_BAND:.0e})"
+    )
     _p0(f"[WF-17 s7] (P36 E-quad) CN max balance residual {bal:.3e} (band {E_BAND:.0e})")
-    _p0(f"[WF-17 s7] control (c-src) quadratic run vs uniform series {c_src:.4e} (P36 "
-        f"{P36_C_SRC:.4e}; asserted > {INTERIOR_BAND:.0e})")
+    _p0(
+        f"[WF-17 s7] control (c-src) quadratic run vs uniform series {c_src:.4e} (P36 "
+        f"{P36_C_SRC:.4e}; asserted > {INTERIOR_BAND:.0e})"
+    )
     _p0(f"[WF-17 s7] W31 leg {time.perf_counter() - t0:.1f}s")
     assert run.summary["temperature"]["source"] == "transverse_quadratic"
     assert s1 <= INTERIOR_BAND
@@ -353,8 +382,10 @@ def test_wf17_s7_mri32_block_reproduces_p38(monkeypatch):
     runs = _check_r_run(ns, calls, files)
     for name in files:
         if "probes" in name:
-            _p0(f"[WF-17 s7] mri:32 {name} probes (real-build records, printed beside only): "
-                f"{runs[name].summary.get('probes')}")
+            _p0(
+                f"[WF-17 s7] mri:32 {name} probes (real-build records, printed beside only): "
+                f"{runs[name].summary.get('probes')}"
+            )
     run = runs[QUAD_DUTY]
     th = run.thermal
     msh = th.mesh
@@ -368,11 +399,15 @@ def test_wf17_s7_mri32_block_reproduces_p38(monkeypatch):
     c_step = _rel_p(msh, th_t, ex_s, chi)
     bal = st["max_balance_residual"]
     _p0(f"[WF-17 s7] (P38 S0) schedule {s0} (SCHEDULE {SCHEDULE})")
-    _p0(f"[WF-17 s7] (P38 T-qduty) interior at t* {t_qd:.6e} (P38 {P38_T_QDUTY}; band "
-        f"{INTERIOR_BAND:.0e}); {npts} P3 points")
+    _p0(
+        f"[WF-17 s7] (P38 T-qduty) interior at t* {t_qd:.6e} (P38 {P38_T_QDUTY}; band "
+        f"{INTERIOR_BAND:.0e}); {npts} P3 points"
+    )
     _p0(f"[WF-17 s7] (P38 E-qduty) CN max balance residual {bal:.3e} (band {E_BAND:.0e})")
-    _p0(f"[WF-17 s7] control (c-step) duty run vs unscheduled series {c_step:.4e} (P38 "
-        f"{P38_C_STEP:.4e}; asserted > {INTERIOR_BAND:.0e})")
+    _p0(
+        f"[WF-17 s7] control (c-step) duty run vs unscheduled series {c_step:.4e} (P38 "
+        f"{P38_C_STEP:.4e}; asserted > {INTERIOR_BAND:.0e})"
+    )
     _p0(f"[WF-17 s7] W32 leg {time.perf_counter() - t0:.1f}s")
     assert s0 == SCHEDULE
     assert t_qd <= INTERIOR_BAND

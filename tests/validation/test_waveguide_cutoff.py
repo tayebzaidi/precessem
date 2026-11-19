@@ -45,10 +45,10 @@ from __future__ import annotations
 import numpy as np
 import pytest
 import ufl
+from dolfinx import fem
+from dolfinx import mesh as dmesh
 from mpi4py import MPI
 from petsc4py import PETSc
-
-from dolfinx import fem, mesh as dmesh
 
 from fem_em_solver.core import (
     HomogeneousMaterial,
@@ -59,7 +59,6 @@ from fem_em_solver.core import (
 )
 from fem_em_solver.post.evaluation import evaluate_vector_field_parallel
 from fem_em_solver.utils.constants import EPSILON_0, MU_0
-
 from tests.complex_mode import complex_only
 
 # Guide cross-section and length.  a = 0.05 m puts the TE₁₀ cutoff at
@@ -187,9 +186,7 @@ def _solve_evanescent(n: int, frequency_hz: float, degree: int = 1):
     imag_ratio = float(np.max(np.abs(ey_imag)) / np.max(np.abs(ey_real)))
 
     energy = stored_electric_energy(fields, comm)
-    ncells = comm.allreduce(
-        msh.topology.index_map(msh.topology.dim).size_local, op=MPI.SUM
-    )
+    ncells = comm.allreduce(msh.topology.index_map(msh.topology.dim).size_local, op=MPI.SUM)
     return rel_error, gamma_fit, imag_ratio, energy, int(ncells)
 
 
@@ -233,9 +230,9 @@ def test_evanescent_te10_decay_matches_cutoff_closed_form():
         print(f"  fine-mesh error vs closed form: gamma {gamma_err:.3%}")
         print(f"  residual |Im E_y| / |Re E_y| on the probe line: {imag_ratio:.3e}")
 
-    assert rel_fine < rel_coarse, (
-        f"refinement did not reduce the field error: {rel_coarse:.4e} -> {rel_fine:.4e}"
-    )
+    assert (
+        rel_fine < rel_coarse
+    ), f"refinement did not reduce the field error: {rel_coarse:.4e} -> {rel_fine:.4e}"
     assert rate > 0.9, (
         f"measured L2 convergence rate {rate:.3f} is below the O(h) expectation "
         "for N1curl degree 1 — the solve is not converging to the TE10 mode"
@@ -295,13 +292,9 @@ def test_decay_tracks_frequency_and_the_resonance_guard_stays_quiet():
         print("\n[TH-7] frequency sweep below cutoff (16^3-equivalent mesh):")
         for f, g, ge, err, w in zip(SWEEP_HZ, gammas, gammas_exact, errors, energies):
             print(
-                f"  f = {f:.4g} Hz: gamma = {g:.6f} vs {ge:.6f} Np/m ({err:.3%}), "
-                f"W = {w:.6e} J"
+                f"  f = {f:.4g} Hz: gamma = {g:.6f} vs {ge:.6f} Np/m ({err:.3%}), " f"W = {w:.6e} J"
             )
-        print(
-            f"  gamma ratio {ratio:.4f} vs closed form {ratio_exact:.4f} "
-            f"({ratio_err:.3%})"
-        )
+        print(f"  gamma ratio {ratio:.4f} vs closed form {ratio_exact:.4f} " f"({ratio_err:.3%})")
         print(f"  {report.describe()}")
 
     for f, err in zip(SWEEP_HZ, errors):

@@ -103,10 +103,12 @@ RECORD_RANKS = 4
 # Ragged κ-corrected degree-1 rows (metrics.json "rows", our numbers) -- the
 # printed comparand of the predictions.
 RAGGED_ROWS_P1 = {
-    "cu": {"f0_hz": 63983031.49581605, "r_in_ohm": 16998.7066800671,
-           "q_loaded": 918.440964550853},
-    "pec": {"f0_hz": 63997103.30801084, "r_in_ohm": 28425.152089802326,
-            "q_loaded": 1535.9515756955145},
+    "cu": {"f0_hz": 63983031.49581605, "r_in_ohm": 16998.7066800671, "q_loaded": 918.440964550853},
+    "pec": {
+        "f0_hz": 63997103.30801084,
+        "r_in_ohm": 28425.152089802326,
+        "q_loaded": 1535.9515756955145,
+    },
 }
 
 # (R) record -- Route B rows on the exact-rectangle hole mesh, κ off, degree 1.
@@ -114,10 +116,16 @@ RAGGED_ROWS_P1 = {
 # 80 798 cells).  Version tag: complex 0.11 image, -n 4; (1*) licence --
 # re-record on an image change, never re-band.
 ANS7_EXACT_STRIP_ROUTE_B_ROWS_P1 = {
-    "cu": {"f0_hz": 63971137.8564212, "r_in_ohm": 16907.699520475457,
-           "q_loaded": 912.7173367759675},
-    "pec": {"f0_hz": 63985193.342905395, "r_in_ohm": 28088.54262947128,
-            "q_loaded": 1516.4394852018208},
+    "cu": {
+        "f0_hz": 63971137.8564212,
+        "r_in_ohm": 16907.699520475457,
+        "q_loaded": 912.7173367759675,
+    },
+    "pec": {
+        "f0_hz": 63985193.342905395,
+        "r_in_ohm": 28088.54262947128,
+        "q_loaded": 1516.4394852018208,
+    },
 }
 
 
@@ -132,8 +140,11 @@ HELD_KAPPA_P2_RAGGED = 5.2094420914264195e-02
 # (`20261002T005913Z_ANS-7-step3iii-W2.log:1325-1327`, imported constant's
 # digits); PEC as quoted in item 196's brief.
 ITEM157_P2_RAGGED_ROWS = {
-    "cu": {"f0_hz": 62704215.74044876, "r_in_ohm": 18569.60744330647,
-           "q_loaded": 984.2226364364154},
+    "cu": {
+        "f0_hz": 62704215.74044876,
+        "r_in_ohm": 18569.60744330647,
+        "q_loaded": 984.2226364364154,
+    },
     "pec": {"f0_hz": 62.717977e6, "r_in_ohm": 32545.0, "q_loaded": 1724.8},
 }
 
@@ -149,10 +160,16 @@ BOTH_COLUMNS = ("cu", "pec")
 # cells).  Version tag: complex 0.11 image, -n 8; (1*) licence -- re-record on
 # an image change, never re-band.
 ANS7_EXACT_STRIP_ROUTE_B_ROWS_P2 = {
-    "cu": {"f0_hz": 62701081.93936459, "r_in_ohm": 18441.754600739256,
-           "q_loaded": 977.2613699232847},
-    "pec": {"f0_hz": 62714806.5966287, "r_in_ohm": 32123.932870177392,
-            "q_loaded": 1701.733130785279},
+    "cu": {
+        "f0_hz": 62701081.93936459,
+        "r_in_ohm": 18441.754600739256,
+        "q_loaded": 977.2613699232847,
+    },
+    "pec": {
+        "f0_hz": 62714806.5966287,
+        "r_in_ohm": 32123.932870177392,
+        "q_loaded": 1701.733130785279,
+    },
 }
 
 
@@ -177,8 +194,8 @@ def _ceil_1sf(x):
     if not math.isfinite(x) or x <= 0:
         return x
     e = math.floor(math.log10(x))
-    m = round(x / 10.0 ** e, 9)
-    return math.ceil(m) * 10.0 ** e
+    m = round(x / 10.0**e, 9)
+    return math.ceil(m) * 10.0**e
 
 
 def _nodes_env():
@@ -228,8 +245,9 @@ def _need(route):
 
 
 def _cj(m):
-    return [[[float(complex(v).real), float(complex(v).imag)] for v in row]
-            for row in np.asarray(m)]
+    return [
+        [[float(complex(v).real), float(complex(v).imag)] for v in row] for row in np.asarray(m)
+    ]
 
 
 def _uj(m):
@@ -245,16 +263,22 @@ def _fixture_tie(res=None):
     r = _hole_rung(GATED_WIDTH_FRACTION, resolution=res)
     for i in PORTS:
         p = r["ports"][i]
-        _say(f"[ans7-exact] F P{i}: N={p['N']:.12e} (rel {p['N'] / SPEC_AREA_M2 - 1:+.3e}) "
-             f"w=A/h={p['N'] / p['N_h']:.12e} (rel {p['N'] / p['N_h'] / SPEC_WIDTH_M - 1:+.3e})")
+        _say(
+            f"[ans7-exact] F P{i}: N={p['N']:.12e} (rel {p['N'] / SPEC_AREA_M2 - 1:+.3e}) "
+            f"w=A/h={p['N'] / p['N_h']:.12e} (rel {p['N'] / p['N_h'] / SPEC_WIDTH_M - 1:+.3e})"
+        )
     if res is None:
-        _say(f"[ans7-exact] F cells {r['cells']} (PREDICTED = record "
-             f"{ANS6_EXACT_STRIP_HOLE_CELL_RECORD})")
+        _say(
+            f"[ans7-exact] F cells {r['cells']} (PREDICTED = record "
+            f"{ANS6_EXACT_STRIP_HOLE_CELL_RECORD})"
+        )
     else:
-        _say(f"[ans7-exact] F cells {r['cells']} at h = {res:g} m (record x1 "
-             f"{ANS6_EXACT_STRIP_HOLE_CELL_RECORD}, ratio "
-             f"{r['cells'] / ANS6_EXACT_STRIP_HOLE_CELL_RECORD:.4f}; (N-wire) ASSERTED to differ "
-             f"by > CELL_COUNT_BAND {CELL_COUNT_BAND:g})")
+        _say(
+            f"[ans7-exact] F cells {r['cells']} at h = {res:g} m (record x1 "
+            f"{ANS6_EXACT_STRIP_HOLE_CELL_RECORD}, ratio "
+            f"{r['cells'] / ANS6_EXACT_STRIP_HOLE_CELL_RECORD:.4f}; (N-wire) ASSERTED to differ "
+            f"by > CELL_COUNT_BAND {CELL_COUNT_BAND:g})"
+        )
     return r
 
 
@@ -264,6 +288,7 @@ def _crossings(f_hz, z_in):
 
 
 # -- Route B ------------------------------------------------------------------
+
 
 def _loo(nodes, z_nodes, columns=BOTH_COLUMNS, c_f=C_F, grid_mhz=GRID_MHZ):
     # ``grid_mhz`` (§9 item 228, additive; default ``GRID_MHZ`` byte-identical):
@@ -300,18 +325,32 @@ def route_b():
     nodes = DEFAULT_NODES_MHZ
     tie = _fixture_tie(res)
     t0 = time.perf_counter()
-    lad = th14._build_ladder(deg, sigmas=(th14.COPPER_SIGMA,), resolution=res,
-                             frequencies_hz=[m * 1e6 for m in nodes],
-                             width_correction_kappa=None, measure_kappa=False,
-                             pec_column=True, field_solve=False,
-                             leg_sheet_strip_fraction=GATED_WIDTH_FRACTION)
+    lad = th14._build_ladder(
+        deg,
+        sigmas=(th14.COPPER_SIGMA,),
+        resolution=res,
+        frequencies_hz=[m * 1e6 for m in nodes],
+        width_correction_kappa=None,
+        measure_kappa=False,
+        pec_column=True,
+        field_solve=False,
+        leg_sheet_strip_fraction=GATED_WIDTH_FRACTION,
+    )
     comm.Barrier()
     t_solve = time.perf_counter() - t0
     recs = sorted(lad["freqs"].values(), key=lambda r: r["f_hz"])
     assert len(recs) == len(nodes)
-    data = {"nodes": nodes, "s": {"cu": [], "pec": []}, "z": {"cu": [], "pec": []},
-            "recip": {"cu": [], "pec": []}, "sigma_max": {"cu": [], "pec": []},
-            "cells": int(lad["cells"]), "tie": tie, "deg": deg, "res": res}
+    data = {
+        "nodes": nodes,
+        "s": {"cu": [], "pec": []},
+        "z": {"cu": [], "pec": []},
+        "recip": {"cu": [], "pec": []},
+        "sigma_max": {"cu": [], "pec": []},
+        "cells": int(lad["cells"]),
+        "tie": tie,
+        "deg": deg,
+        "res": res,
+    }
     for mhz, rec in zip(nodes, recs):
         assert abs(rec["f_hz"] - mhz * 1e6) < 1.0
         for c, sw in (("cu", rec["sigma"][th14.COPPER_SIGMA]), ("pec", rec["pec"])):
@@ -324,27 +363,43 @@ def route_b():
     data["full"], data["worst"] = full, worst
     for c in ("cu", "pec"):
         r = full[c]["rows"]
-        _say(f"[ans7-exact] B p{deg} {c} rows: f0 {r.get('f0_hz')!r} Hz, R_in "
-             f"{r.get('r_in_ohm')!r} ohm, Q {r.get('q_loaded')!r}, k-share "
-             f"{r.get('k_share')!r}; up-crossings {r.get('crossings_up_hz')}")
+        _say(
+            f"[ans7-exact] B p{deg} {c} rows: f0 {r.get('f0_hz')!r} Hz, R_in "
+            f"{r.get('r_in_ohm')!r} ohm, Q {r.get('q_loaded')!r}, k-share "
+            f"{r.get('k_share')!r}; up-crossings {r.get('crossings_up_hz')}"
+        )
         for k in ROWS:
             if k in r:
                 rag = RAGGED_ROWS_P1[c][k]
-                _say(f"    {c} {k}: exact {r[k]:.10e} vs ragged κ-corrected p1 {rag:.10e} "
-                     f"(move {r[k] / rag - 1:+.4%})")
+                _say(
+                    f"    {c} {k}: exact {r[k]:.10e} vs ragged κ-corrected p1 {rag:.10e} "
+                    f"(move {r[k] / rag - 1:+.4%})"
+                )
     for k in ROWS:
-        _say(f"[ans7-exact] B Delta_LOO {k} = {worst[k]:.3e} (band {BANDS[k]:.0e}; "
-             f"PREDICTED <= 1e-9)")
-    _say(f"[ans7-exact] B {len(nodes)} nodes in {t_solve:.1f} s, cells {data['cells']}, "
-         f"-n {comm.size}")
+        _say(
+            f"[ans7-exact] B Delta_LOO {k} = {worst[k]:.3e} (band {BANDS[k]:.0e}; "
+            f"PREDICTED <= 1e-9)"
+        )
+    _say(
+        f"[ans7-exact] B {len(nodes)} nodes in {t_solve:.1f} s, cells {data['cells']}, "
+        f"-n {comm.size}"
+    )
     if comm.rank == 0:
         OUT_DIR.mkdir(parents=True, exist_ok=True)
-        _route_b_json(deg).write_text(json.dumps({
-            "degree": deg, "ranks": comm.size, "cells": data["cells"], "nodes_mhz": nodes,
-            "s": {c: [_cj(m) for m in data["s"][c]] for c in data["s"]},
-            "z": {c: [_cj(m) for m in data["z"][c]] for c in data["z"]},
-            "rows": {c: {k: v for k, v in full[c]["rows"].items()} for c in full},
-            "delta_loo": worst}))
+        _route_b_json(deg).write_text(
+            json.dumps(
+                {
+                    "degree": deg,
+                    "ranks": comm.size,
+                    "cells": data["cells"],
+                    "nodes_mhz": nodes,
+                    "s": {c: [_cj(m) for m in data["s"][c]] for c in data["s"]},
+                    "z": {c: [_cj(m) for m in data["z"][c]] for c in data["z"]},
+                    "rows": {c: {k: v for k, v in full[c]["rows"].items()} for c in full},
+                    "delta_loo": worst,
+                }
+            )
+        )
     comm.Barrier()
     return data
 
@@ -360,7 +415,10 @@ def _assert_tie(cells, tie, res=None):
     else:
         assert int(tie["cells"]) == int(cells), (tie["cells"], cells)
         assert abs(cells / ANS6_EXACT_STRIP_HOLE_CELL_RECORD - 1.0) > CELL_COUNT_BAND, (
-            "(N-wire)", res, cells)
+            "(N-wire)",
+            res,
+            cells,
+        )
     for i in PORTS:
         p = tie["ports"][i]
         assert abs(p["N"] / SPEC_AREA_M2 - 1.0) < STRIP_BAND, (i, p["N"])
@@ -378,8 +436,10 @@ def test_b_route_b_per_node(route_b):
     _need("B")
     for i, mhz in enumerate(route_b["nodes"]):
         for c in ("cu", "pec"):
-            _say(f"[ans7-exact] B node {mhz:.1f} {c}: recip {route_b['recip'][c][i]:.3e} "
-                 f"sigma_max {route_b['sigma_max'][c][i]:.12f}")
+            _say(
+                f"[ans7-exact] B node {mhz:.1f} {c}: recip {route_b['recip'][c][i]:.3e} "
+                f"sigma_max {route_b['sigma_max'][c][i]:.12f}"
+            )
             assert route_b["recip"][c][i] <= RECIPROCITY_BAND, (mhz, c)
             assert route_b["sigma_max"][c][i] <= 1.0 + PASSIVITY_SIGMA_TOLERANCE, (mhz, c)
     for c in ("cu", "pec"):
@@ -406,6 +466,7 @@ def test_r_route_b_rows_record(route_b):
 
 # -- Route A ------------------------------------------------------------------
 
+
 def _exact_geo(th14, comm, strip, res=None):
     """The hole mesh + uncorrected ports for Route A (lifted from ``route_a``'s
     inner ``_geo``, unchanged, so §9 item 217's ``tune_inmodel`` reuses it).
@@ -420,8 +481,7 @@ def _exact_geo(th14, comm, strip, res=None):
     msh.topology.create_entity_permutations()
     cells = int(msh.topology.index_map(tdim).size_global)
     outer_tags, _census = th14._outer_box_tags(msh, facet_tags, comm)
-    tags_f, port_defs, specs = th14._build_ports(msh, cell_tags, comm,
-                                                 width_correction_kappa=None)
+    tags_f, port_defs, specs = th14._build_ports(msh, cell_tags, comm, width_correction_kappa=None)
     return (msh, cell_tags, facet_tags, outer_tags, tags_f, port_defs), specs, cells
 
 
@@ -446,8 +506,10 @@ def route_a():
     t0 = time.perf_counter()
     geo, specs, cells = _geo(GATED_WIDTH_FRACTION)
     kappa_exact = _kappa_in_run(th14, geo, specs, comm)
-    _say(f"[ans7-exact] A kappa_exact (64 MHz Cu, uncorrected, printed) = {kappa_exact!r} "
-         f"(PREDICTED [5e-6, 5e-5]: {'met' if 5e-6 <= kappa_exact <= 5e-5 else 'NOT met'})")
+    _say(
+        f"[ans7-exact] A kappa_exact (64 MHz Cu, uncorrected, printed) = {kappa_exact!r} "
+        f"(PREDICTED [5e-6, 5e-5]: {'met' if 5e-6 <= kappa_exact <= 5e-5 else 'NOT met'})"
+    )
     xn = np.asarray(rb["nodes_mhz"], dtype=float) - 64.5
     z_nodes = {c: [_uj(m) for m in rb["z"][c]] for c in ("cu", "pec")}
     res = {"cu": [], "pec": []}
@@ -465,19 +527,26 @@ def route_a():
     for c in ("cu", "pec"):
         for g, r in zip(GRID_MHZ, res[c]):
             _say(f"[ans7-exact] AB {c} {g:.1f} MHz: |S11_A - S11_B|/|S11_B| = {r:.3e}")
-        _say(f"[ans7-exact] AB {c} max {max(res[c]):.3e} min {min(res[c]):.3e} "
-             f"(band {REDUCTION_BAND:.0e}; PREDICTED [5e-6, 3e-4] every point)")
-    rows_a = {c: parallel_rows(np.array(GRID_MHZ) * 1e6, np.array(z_in_a[c]))
-              for c in ("cu", "pec")}
+        _say(
+            f"[ans7-exact] AB {c} max {max(res[c]):.3e} min {min(res[c]):.3e} "
+            f"(band {REDUCTION_BAND:.0e}; PREDICTED [5e-6, 3e-4] every point)"
+        )
+    rows_a = {
+        c: parallel_rows(np.array(GRID_MHZ) * 1e6, np.array(z_in_a[c])) for c in ("cu", "pec")
+    }
     for c in ("cu", "pec"):
         r = rows_a[c]
-        _say(f"[ans7-exact] A {c} rows: f0 {r.get('f0_hz')!r} R_in {r.get('r_in_ohm')!r} "
-             f"Q {r.get('q_loaded')!r}; up-crossings {r['crossings_up_hz']}")
+        _say(
+            f"[ans7-exact] A {c} rows: f0 {r.get('f0_hz')!r} R_in {r.get('r_in_ohm')!r} "
+            f"Q {r.get('q_loaded')!r}; up-crossings {r['crossings_up_hz']}"
+        )
         for k in ROWS:
             if k in r:
                 rag = RAGGED_ROWS_P1[c][k]
-                _say(f"    {c} {k}: exact A {r[k]:.10e} vs ragged p1 {rag:.10e} "
-                     f"(move {r[k] / rag - 1:+.4%})")
+                _say(
+                    f"    {c} {k}: exact A {r[k]:.10e} vs ragged p1 {rag:.10e} "
+                    f"(move {r[k] / rag - 1:+.4%})"
+                )
     # (N) ragged control (ii), verbatim: default hole mesh, uncorrected, 64 MHz Cu.
     geo_r, specs_r, _cells_r = _geo(None)
     s11_unc_a, _ = _route_a_solve(th14, geo_r, specs_r, ANCHOR1_HZ, "cu")
@@ -487,17 +556,29 @@ def route_a():
     s_b_unc = _s11_from_z(zb_unc)
     ctrl = float(abs(s11_unc_a - s_b_unc) / abs(s_b_unc))
     j64 = list(np.round(GRID_MHZ, 6)).index(64.0)
-    _say(f"[ans7-exact] N ragged kappa-off control (ii) = {ctrl:.6e} = "
-         f"{ctrl / REDUCTION_BAND:.2f} x REDUCTION_BAND (ASSERTED > {N_FACTOR:g} x; "
-         f"backing 1.657e-02); exact-sheet 64.0 MHz Cu (AB) = {res['cu'][j64]:.3e}")
-    _say(f"[ans7-exact] A total {time.perf_counter() - t0:.1f} s (sweep+kappa {t_sweep:.1f} s), "
-         f"cells {cells}, -n {comm.size}")
+    _say(
+        f"[ans7-exact] N ragged kappa-off control (ii) = {ctrl:.6e} = "
+        f"{ctrl / REDUCTION_BAND:.2f} x REDUCTION_BAND (ASSERTED > {N_FACTOR:g} x; "
+        f"backing 1.657e-02); exact-sheet 64.0 MHz Cu (AB) = {res['cu'][j64]:.3e}"
+    )
+    _say(
+        f"[ans7-exact] A total {time.perf_counter() - t0:.1f} s (sweep+kappa {t_sweep:.1f} s), "
+        f"cells {cells}, -n {comm.size}"
+    )
     if comm.rank == 0:
         OUT_DIR.mkdir(parents=True, exist_ok=True)
-        (OUT_DIR / "route_a_p1.json").write_text(json.dumps({
-            "ranks": comm.size, "cells": cells, "kappa_exact": kappa_exact,
-            "residual": res, "control_ii": ctrl,
-            "rows_a": rows_a}))
+        (OUT_DIR / "route_a_p1.json").write_text(
+            json.dumps(
+                {
+                    "ranks": comm.size,
+                    "cells": cells,
+                    "kappa_exact": kappa_exact,
+                    "residual": res,
+                    "control_ii": ctrl,
+                    "rows_a": rows_a,
+                }
+            )
+        )
     comm.Barrier()
     return {"cells": cells, "tie": tie, "res": res, "rows_a": rows_a, "ctrl": ctrl}
 
@@ -529,10 +610,15 @@ def test_n_ragged_kappa_off_control(route_a):
 
 # -- §9 item 196: per-node Route B split (degree 2), (L) at 64.5 MHz -----------
 
+
 def _tie_json(tie):
-    return {"cells": int(tie["cells"]),
-            "ports": {str(i): {"N": float(tie["ports"][i]["N"]),
-                               "N_h": float(tie["ports"][i]["N_h"])} for i in PORTS}}
+    return {
+        "cells": int(tie["cells"]),
+        "ports": {
+            str(i): {"N": float(tie["ports"][i]["N"]), "N_h": float(tie["ports"][i]["N_h"])}
+            for i in PORTS
+        },
+    }
 
 
 def _tie_from_json(t):
@@ -567,22 +653,39 @@ def p2_nodes():
         raise ValueError(f"{HELDKAPPA_ENV}=1 needs {LOSS_NODE_MHZ} MHz in {MHZ_ENV}")
     tie = _fixture_tie(res)
     t0 = time.perf_counter()
-    lad = th14._build_ladder(deg, sigmas=(th14.COPPER_SIGMA,), resolution=res,
-                             frequencies_hz=[m * 1e6 for m in nodes],
-                             width_correction_kappa=None, measure_kappa=False,
-                             pec_column=pec_column, field_solve=field,
-                             leg_sheet_strip_fraction=GATED_WIDTH_FRACTION)
+    lad = th14._build_ladder(
+        deg,
+        sigmas=(th14.COPPER_SIGMA,),
+        resolution=res,
+        frequencies_hz=[m * 1e6 for m in nodes],
+        width_correction_kappa=None,
+        measure_kappa=False,
+        pec_column=pec_column,
+        field_solve=field,
+        leg_sheet_strip_fraction=GATED_WIDTH_FRACTION,
+    )
     comm.Barrier()
     t_solve = time.perf_counter() - t0
-    rss_gib = comm.allreduce(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,
-                             op=MPI.SUM) / 1024 ** 2
+    rss_gib = (
+        comm.allreduce(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss, op=MPI.SUM) / 1024**2
+    )
     recs = sorted(lad["freqs"].values(), key=lambda r: r["f_hz"])
     assert len(recs) == len(nodes)
     cells = int(lad["cells"])
     unknowns = int(lad["unknowns"])
-    out = {"nodes": nodes, "deg": deg, "cells": cells, "tie": tie, "field": field,
-           "per": {}, "held": None, "res": res, "cols": cols, "unknowns": unknowns,
-           "rss_gib": rss_gib}
+    out = {
+        "nodes": nodes,
+        "deg": deg,
+        "cells": cells,
+        "tie": tie,
+        "field": field,
+        "per": {},
+        "held": None,
+        "res": res,
+        "cols": cols,
+        "unknowns": unknowns,
+        "rss_gib": rss_gib,
+    }
     if comm.rank == 0:
         OUT_DIR.mkdir(parents=True, exist_ok=True)
     for mhz, rec in zip(nodes, recs):
@@ -593,9 +696,11 @@ def p2_nodes():
             pairs.append(("pec", rec["pec"]))
         per["t_cu_s"] = float(rec["sigma"][th14.COPPER_SIGMA]["t"])
         per["t_pec_s"] = float(rec["t_pec"]) if pec_column else None
-        _say(f"[ans7-exact] p{deg} node {mhz:.1f} MHz: Cu sweep {per['t_cu_s']:.1f} s"
-             + (f", PEC sweep {per['t_pec_s']:.1f} s" if pec_column else "")
-             + f" (h {res if res is not None else 'x1'}, columns {cols}, -n {comm.size})")
+        _say(
+            f"[ans7-exact] p{deg} node {mhz:.1f} MHz: Cu sweep {per['t_cu_s']:.1f} s"
+            + (f", PEC sweep {per['t_pec_s']:.1f} s" if pec_column else "")
+            + f" (h {res if res is not None else 'x1'}, columns {cols}, -n {comm.size})"
+        )
         for c, sw in pairs:
             s4 = np.asarray(sw["s"], dtype=np.complex128)
             per["s"][c], per["z"][c] = s4, z_from_s(s4)
@@ -603,27 +708,47 @@ def p2_nodes():
             per["sigma_max"][c] = float(np.max(sw["sigma"]))
             per["im_y"][c], z_in = _im_y_in(per["z"][c], mhz)
             per["colpow"][c] = _column_power(s4)
-            _say(f"[ans7-exact] p{deg} node {mhz:.1f} MHz {c}: Im Y_in {per['im_y'][c]:+.9e} S "
-                 f"(Z_in {z_in.real:.6e}{z_in.imag:+.6e}j ohm); recip {per['recip'][c]:.3e}; "
-                 f"sigma_max {per['sigma_max'][c]:.12f}; column power {per['colpow'][c]:.9e}")
+            _say(
+                f"[ans7-exact] p{deg} node {mhz:.1f} MHz {c}: Im Y_in {per['im_y'][c]:+.9e} S "
+                f"(Z_in {z_in.real:.6e}{z_in.imag:+.6e}j ohm); recip {per['recip'][c]:.3e}; "
+                f"sigma_max {per['sigma_max'][c]:.12f}; column power {per['colpow'][c]:.9e}"
+            )
         per["power"] = dict(rec["power"]) if field else None
         per["identity"] = float(rec["identity_residual"]) if field else None
         out["per"][mhz] = per
         if comm.rank == 0:
-            _node_json(mhz, deg, res, cols).write_text(json.dumps({
-                "f_hz": rec["f_hz"], "degree": deg, "ranks": comm.size, "cells": cells,
-                "tie": _tie_json(tie), "kappa": None, "field_solve": field,
-                "s": {c: _cj(per["s"][c]) for c in per["s"]},
-                "z": {c: _cj(per["z"][c]) for c in per["z"]},
-                "recip": per["recip"], "sigma_max": per["sigma_max"], "im_y_in": per["im_y"],
-                "power": per["power"], "identity_residual": per["identity"],
-                "resolution": res, "columns": list(cols), "unknowns": unknowns,
-                "t_cu_s": per["t_cu_s"], "t_pec_s": per["t_pec_s"],
-                "summed_ru_maxrss_gib": rss_gib}))
+            _node_json(mhz, deg, res, cols).write_text(
+                json.dumps(
+                    {
+                        "f_hz": rec["f_hz"],
+                        "degree": deg,
+                        "ranks": comm.size,
+                        "cells": cells,
+                        "tie": _tie_json(tie),
+                        "kappa": None,
+                        "field_solve": field,
+                        "s": {c: _cj(per["s"][c]) for c in per["s"]},
+                        "z": {c: _cj(per["z"][c]) for c in per["z"]},
+                        "recip": per["recip"],
+                        "sigma_max": per["sigma_max"],
+                        "im_y_in": per["im_y"],
+                        "power": per["power"],
+                        "identity_residual": per["identity"],
+                        "resolution": res,
+                        "columns": list(cols),
+                        "unknowns": unknowns,
+                        "t_cu_s": per["t_cu_s"],
+                        "t_pec_s": per["t_pec_s"],
+                        "summed_ru_maxrss_gib": rss_gib,
+                    }
+                )
+            )
     comm.Barrier()
-    _say(f"[ans7-exact] p{deg} nodes {nodes} solved in {t_solve:.1f} s (field_solve {field}), "
-         f"cells {cells}, unknowns {unknowns}, h {res if res is not None else 'x1'}, columns "
-         f"{cols}, -n {comm.size}; summed ru_maxrss {rss_gib:.2f} GiB; JSON in {OUT_DIR}")
+    _say(
+        f"[ans7-exact] p{deg} nodes {nodes} solved in {t_solve:.1f} s (field_solve {field}), "
+        f"cells {cells}, unknowns {unknowns}, h {res if res is not None else 'x1'}, columns "
+        f"{cols}, -n {comm.size}; summed ru_maxrss {rss_gib:.2f} GiB; JSON in {OUT_DIR}"
+    )
     if field:
         p = out["per"][LOSS_NODE_MHZ]
         out["L"] = _loss_pair(p["s"]["cu"], p["power"])
@@ -631,18 +756,28 @@ def p2_nodes():
     del lad, recs
     if held:
         import gc
+
         gc.collect()
         t1 = time.perf_counter()
-        hl = th14._build_ladder(deg, sigmas=(th14.COPPER_SIGMA,),
-                                frequencies_hz=[LOSS_NODE_MHZ * 1e6],
-                                width_correction_kappa=HELD_KAPPA_P2_RAGGED,
-                                measure_kappa=False, pec_column=True, field_solve=True,
-                                leg_sheet_strip_fraction=GATED_WIDTH_FRACTION)
+        hl = th14._build_ladder(
+            deg,
+            sigmas=(th14.COPPER_SIGMA,),
+            frequencies_hz=[LOSS_NODE_MHZ * 1e6],
+            width_correction_kappa=HELD_KAPPA_P2_RAGGED,
+            measure_kappa=False,
+            pec_column=True,
+            field_solve=True,
+            leg_sheet_strip_fraction=GATED_WIDTH_FRACTION,
+        )
         comm.Barrier()
         hrec = list(hl["freqs"].values())[0]
         s_h = np.asarray(hrec["sigma"][th14.COPPER_SIGMA]["s"], dtype=np.complex128)
-        out["held"] = {"L": _loss_pair(s_h, dict(hrec["power"])), "colpow": _column_power(s_h),
-                       "power": dict(hrec["power"]), "t_s": time.perf_counter() - t1}
+        out["held"] = {
+            "L": _loss_pair(s_h, dict(hrec["power"])),
+            "colpow": _column_power(s_h),
+            "power": dict(hrec["power"]),
+            "t_s": time.perf_counter() - t1,
+        }
         del hl, hrec
     return out
 
@@ -664,8 +799,10 @@ def test_p2_node_anchors(p2_nodes):
             assert p["recip"][c] <= RECIPROCITY_BAND, (mhz, c, p["recip"][c])
             assert p["sigma_max"][c] <= 1.0 + PASSIVITY_SIGMA_TOLERANCE, (mhz, c)
         if p["identity"] is not None:
-            _say(f"[ans7-exact] p{p2_nodes['deg']} node {mhz:.1f} MHz copper identity residual "
-                 f"{p['identity']:.3e} (ASSERTED <= {th14.DISCRETE_IDENTITY_RTOL:g})")
+            _say(
+                f"[ans7-exact] p{p2_nodes['deg']} node {mhz:.1f} MHz copper identity residual "
+                f"{p['identity']:.3e} (ASSERTED <= {th14.DISCRETE_IDENTITY_RTOL:g})"
+            )
             assert p["identity"] <= th14.DISCRETE_IDENTITY_RTOL, (mhz, p["identity"])
 
 
@@ -677,8 +814,10 @@ def test_p2_window_edge_guard(p2_nodes):
         pytest.skip("62.0 MHz not in this subset")
     for c in p2_nodes["cols"]:
         b = p2_nodes["per"][62.0]["im_y"][c]
-        _say(f"[ans7-exact] window-edge guard {c}: Im Y_in(62.0 MHz) = {b:+.9e} S "
-             f"(stop before W2 if > 0)")
+        _say(
+            f"[ans7-exact] window-edge guard {c}: Im Y_in(62.0 MHz) = {b:+.9e} S "
+            f"(stop before W2 if > 0)"
+        )
         assert b < 0.0, (c, b)
 
 
@@ -693,22 +832,28 @@ def test_p2_loss_identity(p2_nodes):
     l_s, l_f = p2_nodes["L"]
     gap = abs(l_s - l_f)
     cp_cu, cp_pec = p["colpow"]["cu"], p["colpow"]["pec"]
-    _say(f"[ans7-exact] (L) {LOSS_NODE_MHZ} MHz p{deg}, kappa off: column power Cu {cp_cu:.9e}, "
-         f"PEC {cp_pec:.9e}; L_S {l_s:.9e}, L_F {l_f:.9e} (P_inc {p2_nodes['p_inc']:.3e} W; "
-         f"power {p['power']}); |L_S - L_F| = {gap:.6e} (ASSERTED <= {REDUCTION_BAND:.0e})")
-    _say(f"[ans7-exact] PREDICTED (printed): (L) gap in [1e-7, 1e-4] -> {gap:.3e} "
-         f"({'met' if 1e-7 <= gap <= 1e-4 else 'NOT met'}); Cu column power in "
-         f"[0.995, 0.9995] -> {cp_cu:.6f} ({'met' if 0.995 <= cp_cu <= 0.9995 else 'NOT met'})")
+    _say(
+        f"[ans7-exact] (L) {LOSS_NODE_MHZ} MHz p{deg}, kappa off: column power Cu {cp_cu:.9e}, "
+        f"PEC {cp_pec:.9e}; L_S {l_s:.9e}, L_F {l_f:.9e} (P_inc {p2_nodes['p_inc']:.3e} W; "
+        f"power {p['power']}); |L_S - L_F| = {gap:.6e} (ASSERTED <= {REDUCTION_BAND:.0e})"
+    )
+    _say(
+        f"[ans7-exact] PREDICTED (printed): (L) gap in [1e-7, 1e-4] -> {gap:.3e} "
+        f"({'met' if 1e-7 <= gap <= 1e-4 else 'NOT met'}); Cu column power in "
+        f"[0.995, 0.9995] -> {cp_cu:.6f} ({'met' if 0.995 <= cp_cu <= 0.9995 else 'NOT met'})"
+    )
     h = p2_nodes["held"]
     if h is not None:
         hs, hf = h["L"]
         hgap = abs(hs - hf)
-        _say(f"[ans7-exact] control (printed, never asserted) held ragged kappa_deg2 "
-             f"{HELD_KAPPA_P2_RAGGED!r} on exact sheets, {LOSS_NODE_MHZ} MHz p{deg}: column power "
-             f"Cu {h['colpow']:.9e}; L_S {hs:.9e}, L_F {hf:.9e} (power {h['power']}); "
-             f"|L_S - L_F| = {hgap:.6e} (PREDICTED [2e-2, 2e-1]: "
-             f"{'met' if 2e-2 <= hgap <= 2e-1 else 'NOT met'}); separation from (L) "
-             f"{hgap / gap if gap > 0 else float('inf'):.3e} x; {h['t_s']:.1f} s")
+        _say(
+            f"[ans7-exact] control (printed, never asserted) held ragged kappa_deg2 "
+            f"{HELD_KAPPA_P2_RAGGED!r} on exact sheets, {LOSS_NODE_MHZ} MHz p{deg}: column power "
+            f"Cu {h['colpow']:.9e}; L_S {hs:.9e}, L_F {hf:.9e} (power {h['power']}); "
+            f"|L_S - L_F| = {hgap:.6e} (PREDICTED [2e-2, 2e-1]: "
+            f"{'met' if 2e-2 <= hgap <= 2e-1 else 'NOT met'}); separation from (L) "
+            f"{hgap / gap if gap > 0 else float('inf'):.3e} x; {h['t_s']:.1f} s"
+        )
     assert gap <= REDUCTION_BAND, (gap, l_s, l_f, cp_cu, cp_pec)
 
 
@@ -739,16 +884,20 @@ def _control_report(tag, set_nodes, z_nodes, full, cols):
             if k != "f0_hz" and d > BANDS[k]:
                 miss = True
             parts.append(f"{k} {d:.3e}")
-        _say(f"[ans7-exact] {tag} (N3) 3-node control {CONTROL_NODES_MHZ} {c} vs the "
-             f"{len(set_nodes)}-node rows: {', '.join(parts)} (band {BANDS['r_in_ohm']:.0e}; "
-             f"PREDICTED miss on R_in or Q -> {'met' if miss else 'NOT met'}; printed, never "
-             f"asserted)")
+        _say(
+            f"[ans7-exact] {tag} (N3) 3-node control {CONTROL_NODES_MHZ} {c} vs the "
+            f"{len(set_nodes)}-node rows: {', '.join(parts)} (band {BANDS['r_in_ohm']:.0e}; "
+            f"PREDICTED miss on R_in or Q -> {'met' if miss else 'NOT met'}; printed, never "
+            f"asserted)"
+        )
 
 
 def _b5_report(tag, worst):
     for k in ROWS:
-        _say(f"[ans7-exact] {tag} Delta_LOO {k} = {worst[k]:.3e}; B5 = ceil_1sf(max(3*Delta_LOO, "
-             f"1e-6)) = {_ceil_1sf(max(3.0 * worst[k], 1e-6)):.0e} (printed)")
+        _say(
+            f"[ans7-exact] {tag} Delta_LOO {k} = {worst[k]:.3e}; B5 = ceil_1sf(max(3*Delta_LOO, "
+            f"1e-6)) = {_ceil_1sf(max(3.0 * worst[k], 1e-6)):.0e} (printed)"
+        )
 
 
 @pytest.fixture(scope="module")
@@ -761,8 +910,17 @@ def p2_asm(p2_nodes):
         return {"missing": missing}
     z_nodes = {c: [_uj(r["z"][c]) for r in recs] for c in cols}
     full, worst = _loo(list(set_nodes), z_nodes, columns=cols)
-    return {"missing": [], "recs": recs, "nodes": set_nodes, "z": z_nodes, "full": full,
-            "worst": worst, "deg": deg, "res": res, "cols": cols}
+    return {
+        "missing": [],
+        "recs": recs,
+        "nodes": set_nodes,
+        "z": z_nodes,
+        "full": full,
+        "worst": worst,
+        "deg": deg,
+        "res": res,
+        "cols": cols,
+    }
 
 
 def _x1_cu5_rows():
@@ -796,9 +954,11 @@ def test_p2_assembly(p2_asm):
     tag = f"p{deg} h {res if res is not None else 'x1'} {'+'.join(cols)}"
     for c in cols:
         r = full[c]["rows"]
-        _say(f"[ans7-exact] {tag} assembly ({len(p2_asm['nodes'])} nodes) {c} rows: f0 "
-             f"{r.get('f0_hz')!r} Hz, R_in {r.get('r_in_ohm')!r} ohm, Q {r.get('q_loaded')!r}, "
-             f"k-share {r.get('k_share')!r}; up-crossings {r.get('crossings_up_hz')}")
+        _say(
+            f"[ans7-exact] {tag} assembly ({len(p2_asm['nodes'])} nodes) {c} rows: f0 "
+            f"{r.get('f0_hz')!r} Hz, R_in {r.get('r_in_ohm')!r} ohm, Q {r.get('q_loaded')!r}, "
+            f"k-share {r.get('k_share')!r}; up-crossings {r.get('crossings_up_hz')}"
+        )
         if res is not None:
             continue
         for k in ROWS:
@@ -808,21 +968,27 @@ def test_p2_assembly(p2_asm):
             p1 = ANS7_EXACT_STRIP_ROUTE_B_ROWS_P1[c][k]
             lim = 0.01 if k == "f0_hz" else 0.20
             mv = r[k] / rag - 1
-            _say(f"    {c} {k}: exact p{deg} {r[k]:.10e} vs item 157 ragged in-run p2 {rag:.10e} "
-                 f"(move {mv:+.4%}; PREDICTED |move| <= {lim:.0%}: "
-                 f"{'met' if abs(mv) <= lim else 'NOT met'}); vs exact p1 {p1:.10e} "
-                 f"(order move {r[k] / p1 - 1:+.4%})")
+            _say(
+                f"    {c} {k}: exact p{deg} {r[k]:.10e} vs item 157 ragged in-run p2 {rag:.10e} "
+                f"(move {mv:+.4%}; PREDICTED |move| <= {lim:.0%}: "
+                f"{'met' if abs(mv) <= lim else 'NOT met'}); vs exact p1 {p1:.10e} "
+                f"(order move {r[k] / p1 - 1:+.4%})"
+            )
     for m, rec in zip(p2_asm["nodes"], recs):
         ims = ", ".join(f"{c} {rec['im_y_in'][c]:+.9e} S" for c in cols)
         t_cu, t_pec = rec.get("t_cu_s"), rec.get("t_pec_s")
-        _say(f"[ans7-exact] {tag} node {m:.1f} MHz: Im Y_in {ims}; Cu sweep "
-             f"{'n/a' if t_cu is None else f'{t_cu:.1f} s'}, PEC sweep "
-             f"{'n/a' if t_pec is None else f'{t_pec:.1f} s'}, -n {rec['ranks']}; summed "
-             f"ru_maxrss {rec.get('summed_ru_maxrss_gib', 'n/a')} GiB")
+        _say(
+            f"[ans7-exact] {tag} node {m:.1f} MHz: Im Y_in {ims}; Cu sweep "
+            f"{'n/a' if t_cu is None else f'{t_cu:.1f} s'}, PEC sweep "
+            f"{'n/a' if t_pec is None else f'{t_pec:.1f} s'}, -n {rec['ranks']}; summed "
+            f"ru_maxrss {rec.get('summed_ru_maxrss_gib', 'n/a')} GiB"
+        )
     _b5_report(tag, worst)
     for k in ROWS:
-        _say(f"[ans7-exact] {tag} Delta_LOO {k} = {worst[k]:.3e} (ASSERTED <= {BANDS[k]:.0e}; "
-             f"PREDICTED <= {'1e-9' if res is None else '1e-7'})")
+        _say(
+            f"[ans7-exact] {tag} Delta_LOO {k} = {worst[k]:.3e} (ASSERTED <= {BANDS[k]:.0e}; "
+            f"PREDICTED <= {'1e-9' if res is None else '1e-7'})"
+        )
     _control_report(tag, p2_asm["nodes"], p2_asm["z"], full, cols)
     if res is not None and "cu" in cols:
         rung = full["cu"]["rows"]
@@ -833,17 +999,23 @@ def test_p2_assembly(p2_asm):
                 continue
             rec7 = ANS7_EXACT_STRIP_ROUTE_B_ROWS_P2["cu"][k]
             mv7 = rung[k] / rec7 - 1
-            msg = (f"[ans7-exact] h-move (h {res:g} - x1)/x1 Cu {k}: rung {rung[k]:.10e}; vs "
-                   f"ANS7_EXACT_STRIP_ROUTE_B_ROWS_P2 (7-node) {rec7:.10e} -> {mv7:+.4%}")
+            msg = (
+                f"[ans7-exact] h-move (h {res:g} - x1)/x1 Cu {k}: rung {rung[k]:.10e}; vs "
+                f"ANS7_EXACT_STRIP_ROUTE_B_ROWS_P2 (7-node) {rec7:.10e} -> {mv7:+.4%}"
+            )
             if x1_5 is not None and k in x1_5["cu"]["rows"]:
                 v5 = x1_5["cu"]["rows"][k]
                 msg += f"; vs x1 5-node Cu {v5:.10e} -> {rung[k] / v5 - 1:+.4%}"
-            msg += (f" (PREDICTED |move| <= {lim[k]:.1%}: "
-                    f"{'met' if abs(mv7) <= lim[k] else 'NOT met'}; a record, never asserted)")
+            msg += (
+                f" (PREDICTED |move| <= {lim[k]:.1%}: "
+                f"{'met' if abs(mv7) <= lim[k] else 'NOT met'}; a record, never asserted)"
+            )
             _say(msg)
-        _say(f"[ans7-exact] h {res:g} cells {recs[0]['cells']} unknowns {recs[0].get('unknowns')} "
-             f"(PREDICTED at h 0.01: cells [135000, 175000], unknowns ~ 6.6 x cells); k-share "
-             f"{rung.get('k_share')!r} (PREDICTED >= 0.9999)")
+        _say(
+            f"[ans7-exact] h {res:g} cells {recs[0]['cells']} unknowns {recs[0].get('unknowns')} "
+            f"(PREDICTED at h 0.01: cells [135000, 175000], unknowns ~ 6.6 x cells); k-share "
+            f"{rung.get('k_share')!r} (PREDICTED >= 0.9999)"
+        )
     for c in cols:
         r = full[c]["rows"]
         assert len(r["crossings_up_hz"]) == 1, (c, r["crossings_up_hz"])
@@ -867,9 +1039,11 @@ def test_r2_p2_rows_record(p2_asm):
             got = p2_asm["full"][c]["rows"][k]
             want = ANS7_EXACT_STRIP_ROUTE_B_ROWS_P2[c][k]
             d = abs(got / want - 1.0)
-            _say(f"[ans7-exact] (R2) {c} {k}: {got!r} vs record {want!r}: rel {d:.3e} "
-                 f"(ASSERTED <= NODE_S_RTOL {NODE_S_RTOL:.0e}; PREDICTED <= 1e-11: "
-                 f"{'met' if d <= 1e-11 else 'NOT met'})")
+            _say(
+                f"[ans7-exact] (R2) {c} {k}: {got!r} vs record {want!r}: rel {d:.3e} "
+                f"(ASSERTED <= NODE_S_RTOL {NODE_S_RTOL:.0e}; PREDICTED <= 1e-11: "
+                f"{'met' if d <= 1e-11 else 'NOT met'})"
+            )
             if d > NODE_S_RTOL:
                 fails.append((c, k, got, want, d))
     assert not fails, fails
@@ -897,15 +1071,21 @@ def test_p2_cu5_subset_anchor():
     rel = {}
     for k in ROWS:
         rel[k] = abs(rows5[k] - rows7[k]) / abs(rows7[k])
-        _say(f"[ans7-exact] (S5) x1 Cu {k}: 5-node {rows5[k]!r} vs 7-node {rows7[k]!r}: rel "
-             f"{rel[k]:.3e} (ASSERTED <= {BANDS[k]:.0e}; PREDICTED ~ {pred_rel[k]:.0e})")
+        _say(
+            f"[ans7-exact] (S5) x1 Cu {k}: 5-node {rows5[k]!r} vs 7-node {rows7[k]!r}: rel "
+            f"{rel[k]:.3e} (ASSERTED <= {BANDS[k]:.0e}; PREDICTED ~ {pred_rel[k]:.0e})"
+        )
     for k in ROWS:
-        _say(f"[ans7-exact] (S5) x1 Cu 5-node Delta_LOO {k} = {worst5[k]:.3e} (ASSERTED <= "
-             f"{BANDS[k]:.0e}; PREDICTED ~ {pred_loo[k]:.0e})")
+        _say(
+            f"[ans7-exact] (S5) x1 Cu 5-node Delta_LOO {k} = {worst5[k]:.3e} (ASSERTED <= "
+            f"{BANDS[k]:.0e}; PREDICTED ~ {pred_loo[k]:.0e})"
+        )
     _b5_report("(S5) x1 Cu 5-node", worst5)
     _control_report("(S5) x1", ASSEMBLY5_NODES_MHZ, z5, full5, ("cu",))
-    _say(f"[ans7-exact] (S5) x1 Cu 5-node k-share {rows5.get('k_share')!r}, up-crossings "
-         f"{rows5.get('crossings_up_hz')}")
+    _say(
+        f"[ans7-exact] (S5) x1 Cu 5-node k-share {rows5.get('k_share')!r}, up-crossings "
+        f"{rows5.get('crossings_up_hz')}"
+    )
     for k in ROWS:
         assert rel[k] <= BANDS[k], (k, rel[k])
         assert worst5[k] <= BANDS[k], (k, worst5[k])
@@ -960,18 +1140,48 @@ def _active():
     if _tune_mhz() is None:
         if _h_tune():
             # §9 item 310: item 214's five h = 0.01 Cu nodes, outputs suffixed.
-            return {"target_hz": TUNE_TARGET_HZ, "tune": TUNE_MHZ, "nodes": H_NODES_MHZ,
-                    "grid": GRID_MHZ, "out": OUT_DIR, "lab": "T28", "tmhz": "64.0",
-                    "res": H_RES, "sfx": H_SFX}
-        return {"target_hz": TUNE_TARGET_HZ, "tune": TUNE_MHZ, "nodes": DEFAULT_NODES_MHZ,
-                "grid": GRID_MHZ, "out": OUT_DIR, "lab": "T21", "tmhz": "64.0"}
+            return {
+                "target_hz": TUNE_TARGET_HZ,
+                "tune": TUNE_MHZ,
+                "nodes": H_NODES_MHZ,
+                "grid": GRID_MHZ,
+                "out": OUT_DIR,
+                "lab": "T28",
+                "tmhz": "64.0",
+                "res": H_RES,
+                "sfx": H_SFX,
+            }
+        return {
+            "target_hz": TUNE_TARGET_HZ,
+            "tune": TUNE_MHZ,
+            "nodes": DEFAULT_NODES_MHZ,
+            "grid": GRID_MHZ,
+            "out": OUT_DIR,
+            "lab": "T21",
+            "tmhz": "64.0",
+        }
     if _h_tune():
         # §9 item 365 (T34): T22′'s seven-node set on the h = 0.01 rung.
-        return {"target_hz": TUNE128_TARGET_HZ, "tune": TUNE128_MHZ, "nodes": TUNE128_NODES_MHZ,
-                "grid": TUNE128_GRID_MHZ, "out": TUNE128_OUT_DIR, "lab": "T34",
-                "tmhz": "127.74", "res": H_RES, "sfx": H_SFX}
-    return {"target_hz": TUNE128_TARGET_HZ, "tune": TUNE128_MHZ, "nodes": TUNE128_NODES_MHZ,
-            "grid": TUNE128_GRID_MHZ, "out": TUNE128_OUT_DIR, "lab": "T22", "tmhz": "127.74"}
+        return {
+            "target_hz": TUNE128_TARGET_HZ,
+            "tune": TUNE128_MHZ,
+            "nodes": TUNE128_NODES_MHZ,
+            "grid": TUNE128_GRID_MHZ,
+            "out": TUNE128_OUT_DIR,
+            "lab": "T34",
+            "tmhz": "127.74",
+            "res": H_RES,
+            "sfx": H_SFX,
+        }
+    return {
+        "target_hz": TUNE128_TARGET_HZ,
+        "tune": TUNE128_MHZ,
+        "nodes": TUNE128_NODES_MHZ,
+        "grid": TUNE128_GRID_MHZ,
+        "out": TUNE128_OUT_DIR,
+        "lab": "T22",
+        "tmhz": "127.74",
+    }
 
 
 def _node128_json(mhz, cols, res=None):
@@ -998,8 +1208,10 @@ def _tune():
     if raw not in ("cmode", "inmodel", "nodes"):
         raise ValueError(f"{TUNE_ENV}={raw!r}: only 'cmode', 'inmodel' or 'nodes'")
     if raw == "nodes" and _tune_mhz() != 127.74:
-        raise ValueError(f"{TUNE_ENV}=nodes needs {TUNE_MHZ_ENV}=127.74 (item 196's 64 MHz "
-                         f"node files are never re-solved here)")
+        raise ValueError(
+            f"{TUNE_ENV}=nodes needs {TUNE_MHZ_ENV}=127.74 (item 196's 64 MHz "
+            f"node files are never re-solved here)"
+        )
     return raw
 
 
@@ -1038,8 +1250,9 @@ def _tune_c():
         raise ValueError(f"{TUNE_C_ENV}={raw!r}: only unset or 'cin'")
     # §9 item 283: TUNE_MHZ ∈ {unset, 127.74} (``_tune_mhz`` raises on anything else).
     if _tune() != "inmodel" or _tune_mhz() not in (None, 127.74):
-        raise ValueError(f"{TUNE_C_ENV}=cin needs {TUNE_ENV}=inmodel and {TUNE_MHZ_ENV} unset "
-                         f"or '127.74'")
+        raise ValueError(
+            f"{TUNE_C_ENV}=cin needs {TUNE_ENV}=inmodel and {TUNE_MHZ_ENV} unset " f"or '127.74'"
+        )
     return raw
 
 
@@ -1081,9 +1294,11 @@ def _h_tune():
     # (T22′'s seven-node set); the 64 MHz set stays {cmode, inmodel}.
     legal = ("cmode", "inmodel") if _tune_mhz() is None else ("nodes", "cmode", "inmodel")
     if t not in legal or res != H_RES or _cols() != ("cu",):
-        raise ValueError(f"{RESOLUTION_ENV}={res!r} with {TUNE_ENV}={t!r}: only {H_RES:g} with "
-                         f"cmode/inmodel ({TUNE_MHZ_ENV} unset) or nodes/cmode/inmodel "
-                         f"({TUNE_MHZ_ENV}=127.74), and {COLUMNS_ENV}=cu")
+        raise ValueError(
+            f"{RESOLUTION_ENV}={res!r} with {TUNE_ENV}={t!r}: only {H_RES:g} with "
+            f"cmode/inmodel ({TUNE_MHZ_ENV} unset) or nodes/cmode/inmodel "
+            f"({TUNE_MHZ_ENV}=127.74), and {COLUMNS_ENV}=cu"
+        )
     return True
 
 
@@ -1093,12 +1308,16 @@ def _tune_point():
     if not raw:
         # §9 item 395 (T37): under the ESR knob the rung runs in ``tune_esr``, unset point.
         if h_in and _esr_ohm() is None:
-            raise ValueError(f"{TUNE_POINT_ENV} unset on the h = {H_RES:g} rung: one point per "
-                             f"window (63.9 / 64.0 / 64.1) or 'assemble'")
+            raise ValueError(
+                f"{TUNE_POINT_ENV} unset on the h = {H_RES:g} rung: one point per "
+                f"window (63.9 / 64.0 / 64.1) or 'assemble'"
+            )
         return None
     if not h_in or _tune_c() != "cin":
-        raise ValueError(f"{TUNE_POINT_ENV}={raw!r} needs {RESOLUTION_ENV}={H_RES:g}, "
-                         f"{TUNE_ENV}=inmodel, {TUNE_C_ENV}=cin")
+        raise ValueError(
+            f"{TUNE_POINT_ENV}={raw!r} needs {RESOLUTION_ENV}={H_RES:g}, "
+            f"{TUNE_ENV}=inmodel, {TUNE_C_ENV}=cin"
+        )
     if raw == "assemble":
         return raw
     try:
@@ -1135,14 +1354,20 @@ def _stored_x1_p2():
     """Item 196's seven ×1 two-column degree-2 node JSONs, checked (fail if absent)."""
     recs, missing = _load_nodes(DEFAULT_NODES_MHZ, 2, None, BOTH_COLUMNS)
     if recs is None:
-        pytest.fail(f"item 196's x1 p2 node JSONs absent: {missing} (stop; re-running item 196 "
-                    f"costs ~21 min)")
-    bad = [(r["f_hz"], r["degree"], r["cells"], r["kappa"], r.get("resolution"))
-           for r in recs if r["degree"] != 2 or r["kappa"] is not None
-           or r.get("resolution") is not None]
+        pytest.fail(
+            f"item 196's x1 p2 node JSONs absent: {missing} (stop; re-running item 196 "
+            f"costs ~21 min)"
+        )
+    bad = [
+        (r["f_hz"], r["degree"], r["cells"], r["kappa"], r.get("resolution"))
+        for r in recs
+        if r["degree"] != 2 or r["kappa"] is not None or r.get("resolution") is not None
+    ]
     if bad or len({r["cells"] for r in recs}) != 1:
-        pytest.fail(f"item 196's x1 p2 node JSONs inconsistent: {bad} "
-                    f"cells {[r['cells'] for r in recs]}")
+        pytest.fail(
+            f"item 196's x1 p2 node JSONs inconsistent: {bad} "
+            f"cells {[r['cells'] for r in recs]}"
+        )
     for r in recs:
         _assert_tie(r["cells"], _tie_from_json(r["tie"]))
     return recs
@@ -1157,17 +1382,34 @@ def _stored_active():
         paths = [_node128_json(m, ("cu",), H_RES) for m in TUNE128_NODES_MHZ]
         missing = [p.name for p in paths if not p.exists()]
         if missing:
-            pytest.fail(f"T34's h = {H_RES:g} 127.74 MHz Cu node JSONs absent: {missing} "
-                        f"(run TUNE=nodes with {RESOLUTION_ENV}={H_RES:g} first)")
+            pytest.fail(
+                f"T34's h = {H_RES:g} 127.74 MHz Cu node JSONs absent: {missing} "
+                f"(run TUNE=nodes with {RESOLUTION_ENV}={H_RES:g} first)"
+            )
         recs = [json.loads(p.read_text()) for p in paths]
-        bad = [(r["f_hz"], r["degree"], r["cells"], r["kappa"], r.get("resolution"),
-                r.get("field_solve"), r.get("columns"), r.get("target_mhz")) for r in recs
-               if r["degree"] != 2 or r["kappa"] is not None or r.get("resolution") != H_RES
-               or r.get("field_solve") is not False or r.get("columns") != ["cu"]
-               or r.get("target_mhz") != 127.74]
+        bad = [
+            (
+                r["f_hz"],
+                r["degree"],
+                r["cells"],
+                r["kappa"],
+                r.get("resolution"),
+                r.get("field_solve"),
+                r.get("columns"),
+                r.get("target_mhz"),
+            )
+            for r in recs
+            if r["degree"] != 2
+            or r["kappa"] is not None
+            or r.get("resolution") != H_RES
+            or r.get("field_solve") is not False
+            or r.get("columns") != ["cu"]
+            or r.get("target_mhz") != 127.74
+        ]
         if bad or len({r["cells"] for r in recs}) != 1:
-            pytest.fail(f"T34's node JSONs inconsistent: {bad} "
-                        f"cells {[r['cells'] for r in recs]}")
+            pytest.fail(
+                f"T34's node JSONs inconsistent: {bad} " f"cells {[r['cells'] for r in recs]}"
+            )
         for m, r in zip(TUNE128_NODES_MHZ, recs):
             assert abs(r["f_hz"] - m * 1e6) < 1.0, (m, r["f_hz"])
             _assert_tie(r["cells"], _tie_from_json(r["tie"]), res=H_RES)
@@ -1176,13 +1418,27 @@ def _stored_active():
         recs, missing = _load_nodes(H_NODES_MHZ, 2, H_RES, ("cu",))
         if recs is None:
             pytest.fail(f"item 214's h = {H_RES:g} Cu node JSONs absent: {missing}")
-        bad = [(r["f_hz"], r["degree"], r["cells"], r["kappa"], r.get("resolution"),
-                r.get("field_solve"), r.get("columns")) for r in recs
-               if r["degree"] != 2 or r["kappa"] is not None or r.get("resolution") != H_RES
-               or r.get("field_solve") is not False or r.get("columns") != ["cu"]]
+        bad = [
+            (
+                r["f_hz"],
+                r["degree"],
+                r["cells"],
+                r["kappa"],
+                r.get("resolution"),
+                r.get("field_solve"),
+                r.get("columns"),
+            )
+            for r in recs
+            if r["degree"] != 2
+            or r["kappa"] is not None
+            or r.get("resolution") != H_RES
+            or r.get("field_solve") is not False
+            or r.get("columns") != ["cu"]
+        ]
         if bad or len({r["cells"] for r in recs}) != 1:
-            pytest.fail(f"item 214's node JSONs inconsistent: {bad} "
-                        f"cells {[r['cells'] for r in recs]}")
+            pytest.fail(
+                f"item 214's node JSONs inconsistent: {bad} " f"cells {[r['cells'] for r in recs]}"
+            )
         for m, r in zip(H_NODES_MHZ, recs):
             assert abs(r["f_hz"] - m * 1e6) < 1.0, (m, r["f_hz"])
             _assert_tie(r["cells"], _tie_from_json(r["tie"]), res=H_RES)
@@ -1195,10 +1451,14 @@ def _stored_active():
     if missing:
         pytest.fail(f"item 228's 127.74 MHz node JSONs absent: {missing} (run TUNE=nodes first)")
     recs = [json.loads(p.read_text()) for p in paths]
-    bad = [(r["f_hz"], r["degree"], r["cells"], r["kappa"], r.get("resolution"),
-            r.get("target_mhz")) for r in recs
-           if r["degree"] != 2 or r["kappa"] is not None or r.get("resolution") is not None
-           or r.get("target_mhz") != 127.74]
+    bad = [
+        (r["f_hz"], r["degree"], r["cells"], r["kappa"], r.get("resolution"), r.get("target_mhz"))
+        for r in recs
+        if r["degree"] != 2
+        or r["kappa"] is not None
+        or r.get("resolution") is not None
+        or r.get("target_mhz") != 127.74
+    ]
     if bad or len({r["cells"] for r in recs}) != 1:
         pytest.fail(f"item 228's node JSONs inconsistent: {bad} cells {[r['cells'] for r in recs]}")
     for m, r in zip(TUNE128_NODES_MHZ, recs):
@@ -1225,16 +1485,22 @@ def tune_nodes():
     rlab = "x1" if res is None else f"h {res:g}"
     tie = _fixture_tie(res)
     t0 = time.perf_counter()
-    lad = th14._build_ladder(deg, sigmas=(th14.COPPER_SIGMA,),
-                             frequencies_hz=[m * 1e6 for m in nodes],
-                             width_correction_kappa=None, measure_kappa=False,
-                             pec_column=pec_column, field_solve=False,
-                             leg_sheet_strip_fraction=GATED_WIDTH_FRACTION,
-                             resolution=res)
+    lad = th14._build_ladder(
+        deg,
+        sigmas=(th14.COPPER_SIGMA,),
+        frequencies_hz=[m * 1e6 for m in nodes],
+        width_correction_kappa=None,
+        measure_kappa=False,
+        pec_column=pec_column,
+        field_solve=False,
+        leg_sheet_strip_fraction=GATED_WIDTH_FRACTION,
+        resolution=res,
+    )
     comm.Barrier()
     t_solve = time.perf_counter() - t0
-    rss_gib = comm.allreduce(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,
-                             op=MPI.SUM) / 1024 ** 2
+    rss_gib = (
+        comm.allreduce(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss, op=MPI.SUM) / 1024**2
+    )
     recs = sorted(lad["freqs"].values(), key=lambda r: r["f_hz"])
     assert len(recs) == len(nodes)
     cells = int(lad["cells"])
@@ -1250,9 +1516,11 @@ def tune_nodes():
             pairs.append(("pec", rec["pec"]))
         per["t_cu_s"] = float(rec["sigma"][th14.COPPER_SIGMA]["t"])
         per["t_pec_s"] = float(rec["t_pec"]) if pec_column else None
-        _say(f"[ans7-exact] T22 p{deg} node {mhz:.2f} MHz: Cu sweep {per['t_cu_s']:.1f} s"
-             + (f", PEC sweep {per['t_pec_s']:.1f} s" if pec_column else "")
-             + f" ({rlab}, columns {cols}, -n {comm.size})")
+        _say(
+            f"[ans7-exact] T22 p{deg} node {mhz:.2f} MHz: Cu sweep {per['t_cu_s']:.1f} s"
+            + (f", PEC sweep {per['t_pec_s']:.1f} s" if pec_column else "")
+            + f" ({rlab}, columns {cols}, -n {comm.size})"
+        )
         for c, sw in pairs:
             s4 = np.asarray(sw["s"], dtype=np.complex128)
             per["s"][c], per["z"][c] = s4, z_from_s(s4)
@@ -1260,26 +1528,47 @@ def tune_nodes():
             per["sigma_max"][c] = float(np.max(sw["sigma"]))
             per["im_y"][c], z_in = _im_y_in(per["z"][c], mhz)
             per["colpow"][c] = _column_power(s4)
-            _say(f"[ans7-exact] T22 p{deg} node {mhz:.2f} MHz {c}: Im Y_in at C_F "
-                 f"{per['im_y'][c]:+.9e} S (PREDICTED > 0: {_met(per['im_y'][c] > 0)}) (Z_in "
-                 f"{z_in.real:.6e}{z_in.imag:+.6e}j ohm); recip {per['recip'][c]:.3e}; sigma_max "
-                 f"{per['sigma_max'][c]:.12f}; column power {per['colpow'][c]:.9e}")
+            _say(
+                f"[ans7-exact] T22 p{deg} node {mhz:.2f} MHz {c}: Im Y_in at C_F "
+                f"{per['im_y'][c]:+.9e} S (PREDICTED > 0: {_met(per['im_y'][c] > 0)}) (Z_in "
+                f"{z_in.real:.6e}{z_in.imag:+.6e}j ohm); recip {per['recip'][c]:.3e}; sigma_max "
+                f"{per['sigma_max'][c]:.12f}; column power {per['colpow'][c]:.9e}"
+            )
         out["per"][mhz] = per
         if comm.rank == 0:
-            _node128_json(mhz, cols, res).write_text(json.dumps({
-                "f_hz": rec["f_hz"], "degree": deg, "ranks": comm.size, "cells": cells,
-                "tie": _tie_json(tie), "kappa": None, "field_solve": False,
-                "s": {c: _cj(per["s"][c]) for c in per["s"]},
-                "z": {c: _cj(per["z"][c]) for c in per["z"]},
-                "recip": per["recip"], "sigma_max": per["sigma_max"], "im_y_in": per["im_y"],
-                "power": None, "identity_residual": None,
-                "resolution": res, "columns": list(cols), "unknowns": unknowns,
-                "t_cu_s": per["t_cu_s"], "t_pec_s": per["t_pec_s"],
-                "summed_ru_maxrss_gib": rss_gib, "target_mhz": 127.74}))
+            _node128_json(mhz, cols, res).write_text(
+                json.dumps(
+                    {
+                        "f_hz": rec["f_hz"],
+                        "degree": deg,
+                        "ranks": comm.size,
+                        "cells": cells,
+                        "tie": _tie_json(tie),
+                        "kappa": None,
+                        "field_solve": False,
+                        "s": {c: _cj(per["s"][c]) for c in per["s"]},
+                        "z": {c: _cj(per["z"][c]) for c in per["z"]},
+                        "recip": per["recip"],
+                        "sigma_max": per["sigma_max"],
+                        "im_y_in": per["im_y"],
+                        "power": None,
+                        "identity_residual": None,
+                        "resolution": res,
+                        "columns": list(cols),
+                        "unknowns": unknowns,
+                        "t_cu_s": per["t_cu_s"],
+                        "t_pec_s": per["t_pec_s"],
+                        "summed_ru_maxrss_gib": rss_gib,
+                        "target_mhz": 127.74,
+                    }
+                )
+            )
     comm.Barrier()
-    _say(f"[ans7-exact] T22 p{deg} nodes {nodes} solved in {t_solve:.1f} s, cells {cells}, "
-         f"unknowns {unknowns}, columns {cols}, -n {comm.size}; summed ru_maxrss "
-         f"{rss_gib:.2f} GiB; JSON in {TUNE128_OUT_DIR}")
+    _say(
+        f"[ans7-exact] T22 p{deg} nodes {nodes} solved in {t_solve:.1f} s, cells {cells}, "
+        f"unknowns {unknowns}, columns {cols}, -n {comm.size}; summed ru_maxrss "
+        f"{rss_gib:.2f} GiB; JSON in {TUNE128_OUT_DIR}"
+    )
     del lad, recs
     return out
 
@@ -1293,20 +1582,42 @@ def test_t22_node_anchors(tune_nodes):
         for c in per["recip"]:
             assert per["recip"][c] <= RECIPROCITY_BAND, (mhz, c, per["recip"][c])
             assert per["sigma_max"][c] <= 1.0 + PASSIVITY_SIGMA_TOLERANCE, (
-                mhz, c, per["sigma_max"][c])
+                mhz,
+                c,
+                per["sigma_max"][c],
+            )
 
 
 # Printed predictions, keyed by target (64 MHz: T21's text; 127.74: item 228's).
 _PRED = {
-    "64.0": {"cmode": "[63.4, 63.8] pF", "cmode_lo": 63.4e-12, "cmode_hi": 63.8e-12,
-             "pec": "~ +4e-4", "off": 1e-6,
-             "cin": "|.| in [1e-7, 5e-5]", "cin_lo": 1e-7, "cin_hi": 5e-5,
-             "f0b": "[1e-7, 5e-5]", "f0b_lo": 1e-7, "f0b_hi": 5e-5, "ab_gap": "~ -3e-6"},
-    "127.74": {"cmode": "[14.8, 15.6] pF", "cmode_lo": 14.8e-12, "cmode_hi": 15.6e-12,
-               "pec": "in [+1e-4, +1e-3]", "off": None,
-               "cin": "negative, |.| in [3e-6, 1e-4]", "cin_lo": 3e-6, "cin_hi": 1e-4,
-               "f0b": "[3e-6, 5e-5]", "f0b_lo": 3e-6, "f0b_hi": 5e-5,
-               "ab_gap": "in [-1.5e-5, -1e-6]"},
+    "64.0": {
+        "cmode": "[63.4, 63.8] pF",
+        "cmode_lo": 63.4e-12,
+        "cmode_hi": 63.8e-12,
+        "pec": "~ +4e-4",
+        "off": 1e-6,
+        "cin": "|.| in [1e-7, 5e-5]",
+        "cin_lo": 1e-7,
+        "cin_hi": 5e-5,
+        "f0b": "[1e-7, 5e-5]",
+        "f0b_lo": 1e-7,
+        "f0b_hi": 5e-5,
+        "ab_gap": "~ -3e-6",
+    },
+    "127.74": {
+        "cmode": "[14.8, 15.6] pF",
+        "cmode_lo": 14.8e-12,
+        "cmode_hi": 15.6e-12,
+        "pec": "in [+1e-4, +1e-3]",
+        "off": None,
+        "cin": "negative, |.| in [3e-6, 1e-4]",
+        "cin_lo": 3e-6,
+        "cin_hi": 1e-4,
+        "f0b": "[3e-6, 5e-5]",
+        "f0b_lo": 3e-6,
+        "f0b_hi": 5e-5,
+        "ab_gap": "in [-1.5e-5, -1e-6]",
+    },
 }
 
 
@@ -1324,6 +1635,7 @@ def _c_mode(z4, omega):
 def _c_in(z4, f_hz, c0):
     """Root of g(C) = Im[1/Z_in(C)] at ``f_hz`` on the full 4×4, secant from ``c0``
     on the real scalar g, to |g| <= 1e-15 S in <= 20 iterations."""
+
     def g(c):
         return float((1.0 / complex(route_b_z(z4, f_hz, c)[0])).imag)
 
@@ -1357,20 +1669,36 @@ def tune_cmode():
     scols = ("cu",) if h else BOTH_COLUMNS
     tie = _fixture_tie(hres)
     t0 = time.perf_counter()
-    lad = th14._build_ladder(deg, sigmas=(th14.COPPER_SIGMA,), resolution=hres,
-                             frequencies_hz=[tgt],
-                             width_correction_kappa=None, measure_kappa=False,
-                             pec_column=not h, field_solve=False,
-                             leg_sheet_strip_fraction=GATED_WIDTH_FRACTION)
+    lad = th14._build_ladder(
+        deg,
+        sigmas=(th14.COPPER_SIGMA,),
+        resolution=hres,
+        frequencies_hz=[tgt],
+        width_correction_kappa=None,
+        measure_kappa=False,
+        pec_column=not h,
+        field_solve=False,
+        leg_sheet_strip_fraction=GATED_WIDTH_FRACTION,
+    )
     comm.Barrier()
     t_solve = time.perf_counter() - t0
     rec = list(lad["freqs"].values())[0]
     assert abs(rec["f_hz"] - tgt) < 1.0
     cells = int(lad["cells"])
     omega = 2.0 * np.pi * tgt
-    out = {"cells": cells, "tie": tie, "deg": deg, "recip": {}, "sigma_max": {}, "z64": {},
-           "cm": {}, "stored_cells": recs[0]["cells"], "cols": cols, "res": hres,
-           "scols": scols}
+    out = {
+        "cells": cells,
+        "tie": tie,
+        "deg": deg,
+        "recip": {},
+        "sigma_max": {},
+        "z64": {},
+        "cm": {},
+        "stored_cells": recs[0]["cells"],
+        "cols": cols,
+        "res": hres,
+        "scols": scols,
+    }
     xn = np.asarray(act["nodes"], dtype=float) - 64.5
     pairs = [("cu", rec["sigma"][th14.COPPER_SIGMA])]
     if not h:
@@ -1387,41 +1715,53 @@ def tune_cmode():
             off_txt = f"(PREDICTED <= 1e-6: {_met(cm['off'] <= 1e-6)})"
         else:
             off_txt = f"(PREDICTED [5e-6, 3e-5]: {_met(5e-6 <= cm['off'] <= 3e-5)})"
-        _say(f"[ans7-exact] {lab} {tm} MHz p{deg} {c}: recip {out['recip'][c]:.3e}, sigma_max "
-             f"{out['sigma_max'][c]:.12f}; off-diag {cm['off']:.3e} {off_txt}; z_k = "
-             + ", ".join(f"{complex(z):.9e}" for z in cm["zk"])
-             + f"; z1 = {cm['z1']:.12e}, |z1-z3|/|z1| {cm['split']:.3e}; C_mode {cm['c_mode']!r} F")
+        _say(
+            f"[ans7-exact] {lab} {tm} MHz p{deg} {c}: recip {out['recip'][c]:.3e}, sigma_max "
+            f"{out['sigma_max'][c]:.12f}; off-diag {cm['off']:.3e} {off_txt}; z_k = "
+            + ", ".join(f"{complex(z):.9e}" for z in cm["zk"])
+            + f"; z1 = {cm['z1']:.12e}, |z1-z3|/|z1| {cm['split']:.3e}; C_mode {cm['c_mode']!r} F"
+        )
         if c not in z_nodes:
             continue
         zi = bary_interp(xn, z_nodes[c], tgt / 1e6 - 64.5)
         d = np.abs(zi - z64)
         ent = float(np.max(d / np.abs(z64)))
         glob_rel = float(np.max(d) / np.max(np.abs(z64)))
-        _say(f"[ans7-exact] {lab} {c} interpolated-vs-solved Z64: entrywise max rel "
-             f"{ent:.3e}, max|dZ|/max|Z| {glob_rel:.3e} (PREDICTED <= 1e-8: "
-             f"{_met(max(ent, glob_rel) <= 1e-8)})")
+        _say(
+            f"[ans7-exact] {lab} {c} interpolated-vs-solved Z64: entrywise max rel "
+            f"{ent:.3e}, max|dZ|/max|Z| {glob_rel:.3e} (PREDICTED <= 1e-8: "
+            f"{_met(max(ent, glob_rel) <= 1e-8)})"
+        )
     c_cu = out["cm"]["cu"]["c_mode"]
     out["c_mode"] = c_cu
     if h:
-        _say(f"[ans7-exact] {lab} C_mode,Cu(h = {H_RES:g}) = {c_cu!r} F = {c_cu * 1e12:.6f} pF "
-             f"(printed; x1 PREDICTED band {pr['cmode']}: "
-             f"{_met(pr['cmode_lo'] <= c_cu <= pr['cmode_hi'])})")
+        _say(
+            f"[ans7-exact] {lab} C_mode,Cu(h = {H_RES:g}) = {c_cu!r} F = {c_cu * 1e12:.6f} pF "
+            f"(printed; x1 PREDICTED band {pr['cmode']}: "
+            f"{_met(pr['cmode_lo'] <= c_cu <= pr['cmode_hi'])})"
+        )
     c_pec = out["cm"]["pec"]["c_mode"] if not h else float("nan")
-    _say(f"[ans7-exact] {lab} C_mode,Cu = {c_cu!r} F = {c_cu * 1e12:.6f} pF (PREDICTED "
-         f"{pr['cmode']}: {_met(pr['cmode_lo'] <= c_cu <= pr['cmode_hi'])}); C_mode,PEC = "
-         f"{c_pec!r} F; (PEC - Cu)/Cu = {c_pec / c_cu - 1:+.3e} (PREDICTED {pr['pec']}); C_F "
-         f"{C_F!r}, C_F*(62.701082/{'64' if pr['off'] is not None else tm})^2 ={C_F * (62.701082 / (tgt / 1e6)) ** 2:.6e}")
+    _say(
+        f"[ans7-exact] {lab} C_mode,Cu = {c_cu!r} F = {c_cu * 1e12:.6f} pF (PREDICTED "
+        f"{pr['cmode']}: {_met(pr['cmode_lo'] <= c_cu <= pr['cmode_hi'])}); C_mode,PEC = "
+        f"{c_pec!r} F; (PEC - Cu)/Cu = {c_pec / c_cu - 1:+.3e} (PREDICTED {pr['pec']}); C_F "
+        f"{C_F!r}, C_F*(62.701082/{'64' if pr['off'] is not None else tm})^2 ={C_F * (62.701082 / (tgt / 1e6)) ** 2:.6e}"
+    )
     if pr["off"] is None:
-        _say(f"[ans7-exact] {lab} Im z1,Cu = {out['cm']['cu']['z1'].imag:.6f} ohm (PREDICTED "
-             f"[79.8, 84.2])")
+        _say(
+            f"[ans7-exact] {lab} Im z1,Cu = {out['cm']['cu']['z1'].imag:.6f} ohm (PREDICTED "
+            f"[79.8, 84.2])"
+        )
     c_in, g_in, it = _c_in(out["z64"]["cu"], tgt, c_cu)
     out["c_in"], out["g_in"], out["c_in_iter"] = c_in, g_in, it
     off_ci = c_cu / c_in - 1.0
     ci_ok = pr["cin_lo"] <= abs(off_ci) <= pr["cin_hi"] and (pr["off"] is not None or off_ci < 0)
-    _say(f"[ans7-exact] {lab} C_in (root of Im Y_in({tm} MHz) on the solved Cu 4x4) = {c_in!r} F "
-         f"(|g| {abs(g_in):.3e} S after {it} secant iterations; target <= 1e-15 S in <= 20: "
-         f"{_met(abs(g_in) <= 1e-15 and it <= 20)}); (C_mode - C_in)/C_in = {off_ci:+.6e} "
-         f"(PREDICTED {pr['cin']}: {_met(ci_ok)})")
+    _say(
+        f"[ans7-exact] {lab} C_in (root of Im Y_in({tm} MHz) on the solved Cu 4x4) = {c_in!r} F "
+        f"(|g| {abs(g_in):.3e} S after {it} secant iterations; target <= 1e-15 S in <= 20: "
+        f"{_met(abs(g_in) <= 1e-15 and it <= 20)}); (C_mode - C_in)/C_in = {off_ci:+.6e} "
+        f"(PREDICTED {pr['cin']}: {_met(ci_ok)})"
+    )
     if h:
         # §9 item 310: the first h-move of C_in, against the x1 tune_p2.json (read only).
         # §9 item 365: the x1 comparand is the active target's (OUT_DIR at 64 MHz).
@@ -1433,64 +1773,83 @@ def tune_cmode():
         sec_rel = 1e-15 / (omega * c_in)
         out["c_x1"], out["c_h_rel"], out["sec_rel"] = c_x1, c_h_rel, sec_rel
         if _tune_mhz() is None:
-            _say(f"[ans7-exact] T28 C_in(h = {H_RES:g}) = {c_in!r} F; C_in(x1) = {c_x1!r} F (tune_p{deg}"
-                 f".json); C_in(h)/C_in(x1) - 1 = {c_h_rel:+.6e} (PREDICTED [-1.5e-3, -0.3e-3], ~ -8.2e-4 "
-                 f"from f ~ C^-1/2: {_met(-1.5e-3 <= c_h_rel <= -0.3e-3)}); beside step 6's f0 move "
-                 f"{STEP6_RUNG_F0_MOVE:+.4%} at fixed C (-2 x = {-2.0 * STEP6_RUNG_F0_MOVE:+.3e})")
+            _say(
+                f"[ans7-exact] T28 C_in(h = {H_RES:g}) = {c_in!r} F; C_in(x1) = {c_x1!r} F (tune_p{deg}"
+                f".json); C_in(h)/C_in(x1) - 1 = {c_h_rel:+.6e} (PREDICTED [-1.5e-3, -0.3e-3], ~ -8.2e-4 "
+                f"from f ~ C^-1/2: {_met(-1.5e-3 <= c_h_rel <= -0.3e-3)}); beside step 6's f0 move "
+                f"{STEP6_RUNG_F0_MOVE:+.4%} at fixed C (-2 x = {-2.0 * STEP6_RUNG_F0_MOVE:+.3e})"
+            )
         else:
             # §9 item 365b's prediction (T34): positive, as at 64 MHz.
-            _say(f"[ans7-exact] {lab} C_in(h = {H_RES:g}) = {c_in!r} F; C_in(x1) = {c_x1!r} F "
-                 f"(t127.74/tune_p{deg}.json); C_in(h)/C_in(x1) - 1 at {tm} MHz = {c_h_rel:+.6e} "
-                 f"(PREDICTED [+2e-4, +2e-3], sign positive: "
-                 f"{_met(2e-4 <= c_h_rel <= 2e-3)}); beside 64 MHz's record "
-                 f"{T28_C_IN_H_REL_64:+.6e}")
-        _say(f"[ans7-exact] {lab} (N-h) |C_in(h)/C_in(x1) - 1| = {abs(c_h_rel):.3e} vs 10 x secant "
-             f"tolerance 10 x {sec_rel:.3e} = {10 * sec_rel:.3e} (PREDICTED larger: "
-             f"{_met(abs(c_h_rel) >= 10 * sec_rel)}; printed, never asserted)")
-    full, worst = _loo(list(act["nodes"]), z_nodes, columns=cols, c_f=c_cu,
-                       grid_mhz=act["grid"])
+            _say(
+                f"[ans7-exact] {lab} C_in(h = {H_RES:g}) = {c_in!r} F; C_in(x1) = {c_x1!r} F "
+                f"(t127.74/tune_p{deg}.json); C_in(h)/C_in(x1) - 1 at {tm} MHz = {c_h_rel:+.6e} "
+                f"(PREDICTED [+2e-4, +2e-3], sign positive: "
+                f"{_met(2e-4 <= c_h_rel <= 2e-3)}); beside 64 MHz's record "
+                f"{T28_C_IN_H_REL_64:+.6e}"
+            )
+        _say(
+            f"[ans7-exact] {lab} (N-h) |C_in(h)/C_in(x1) - 1| = {abs(c_h_rel):.3e} vs 10 x secant "
+            f"tolerance 10 x {sec_rel:.3e} = {10 * sec_rel:.3e} (PREDICTED larger: "
+            f"{_met(abs(c_h_rel) >= 10 * sec_rel)}; printed, never asserted)"
+        )
+    full, worst = _loo(list(act["nodes"]), z_nodes, columns=cols, c_f=c_cu, grid_mhz=act["grid"])
     out["full"], out["worst"] = full, worst
     rows196 = ANS7_EXACT_STRIP_ROUTE_B_ROWS_P2["cu"]
     for c in cols:
         r = full[c]["rows"]
-        _say(f"[ans7-exact] {lab} (T1) Route B at C_mode,Cu {c} rows: f0 {r.get('f0_hz')!r} Hz, "
-             f"R_in {r.get('r_in_ohm')!r} ohm, Q {r.get('q_loaded')!r}, k-share "
-             f"{r.get('k_share')!r}; up-crossings {r.get('crossings_up_hz')}")
+        _say(
+            f"[ans7-exact] {lab} (T1) Route B at C_mode,Cu {c} rows: f0 {r.get('f0_hz')!r} Hz, "
+            f"R_in {r.get('r_in_ohm')!r} ohm, Q {r.get('q_loaded')!r}, k-share "
+            f"{r.get('k_share')!r}; up-crossings {r.get('crossings_up_hz')}"
+        )
     rc = full["cu"]["rows"]
     if "f0_hz" in rc and pr["off"] is not None:
         df = abs(rc["f0_hz"] / tgt - 1.0)
         dr = rc["r_in_ohm"] / rows196["r_in_ohm"] - 1.0
         dq = rc["q_loaded"] / rows196["q_loaded"] - 1.0
-        _say(f"[ans7-exact] T21 |f0,B/64 MHz - 1| (Cu) = {df:.6e} (printed; PREDICTED [1e-7, "
-             f"5e-5]: {_met(1e-7 <= df <= 5e-5)}); R_in vs item 196 {dr:+.4%}, Q vs item 196 "
-             f"{dq:+.4%} (PREDICTED within +-10%: {_met(abs(dr) <= 0.1 and abs(dq) <= 0.1)}); "
-             f"k-share {rc.get('k_share')!r} (PREDICTED >= 0.9999: "
-             f"{_met(rc.get('k_share', 0.0) >= 0.9999)})")
+        _say(
+            f"[ans7-exact] T21 |f0,B/64 MHz - 1| (Cu) = {df:.6e} (printed; PREDICTED [1e-7, "
+            f"5e-5]: {_met(1e-7 <= df <= 5e-5)}); R_in vs item 196 {dr:+.4%}, Q vs item 196 "
+            f"{dq:+.4%} (PREDICTED within +-10%: {_met(abs(dr) <= 0.1 and abs(dq) <= 0.1)}); "
+            f"k-share {rc.get('k_share')!r} (PREDICTED >= 0.9999: "
+            f"{_met(rc.get('k_share', 0.0) >= 0.9999)})"
+        )
     elif "f0_hz" in rc:
         sf0 = rc["f0_hz"] / tgt - 1.0
         q = rc["q_loaded"]
-        _say(f"[ans7-exact] {lab} f0,B/{tm} MHz - 1 (Cu) = {sf0:+.6e} (printed; PREDICTED |.| "
-             f"{pr['f0b']}: {_met(pr['f0b_lo'] <= abs(sf0) <= pr['f0b_hi'])}); R_in "
-             f"{rc['r_in_ohm']!r} ohm, Q {q!r} (PREDICTED [400, 2500]: "
-             f"{_met(400 <= q <= 2500)}); k-share {rc.get('k_share')!r} (PREDICTED >= 0.9999: "
-             f"{_met(rc.get('k_share', 0.0) >= 0.9999)})")
+        _say(
+            f"[ans7-exact] {lab} f0,B/{tm} MHz - 1 (Cu) = {sf0:+.6e} (printed; PREDICTED |.| "
+            f"{pr['f0b']}: {_met(pr['f0b_lo'] <= abs(sf0) <= pr['f0b_hi'])}); R_in "
+            f"{rc['r_in_ohm']!r} ohm, Q {q!r} (PREDICTED [400, 2500]: "
+            f"{_met(400 <= q <= 2500)}); k-share {rc.get('k_share')!r} (PREDICTED >= 0.9999: "
+            f"{_met(rc.get('k_share', 0.0) >= 0.9999)})"
+        )
         # Sensitivity: the band is resolvable.
-        sens = sparse_rows(act["nodes"], z_nodes, grid_mhz=act["grid"], columns=("cu",),
-                           c_f=c_cu * (1.0 + 1e-5))["cu"]["rows"]
+        sens = sparse_rows(
+            act["nodes"], z_nodes, grid_mhz=act["grid"], columns=("cu",), c_f=c_cu * (1.0 + 1e-5)
+        )["cu"]["rows"]
         if "f0_hz" in sens:
-            _say(f"[ans7-exact] {lab} sensitivity |f0,B(C_mode*(1+1e-5))/f0,B(C_mode) - 1| = "
-                 f"{abs(sens['f0_hz'] / rc['f0_hz'] - 1.0):.6e} (PREDICTED ~ 5e-6; printed)")
+            _say(
+                f"[ans7-exact] {lab} sensitivity |f0,B(C_mode*(1+1e-5))/f0,B(C_mode) - 1| = "
+                f"{abs(sens['f0_hz'] / rc['f0_hz'] - 1.0):.6e} (PREDICTED ~ 5e-6; printed)"
+            )
     for k in ROWS:
-        _say(f"[ans7-exact] {lab} (T1) Delta_LOO {k} at C_mode = {worst[k]:.3e} (ASSERTED <= "
-             f"{BANDS[k]:.0e}" + ("" if pr["off"] is not None else
-                                  f"; PREDICTED <= 1e-9: {_met(worst[k] <= 1e-9)}") + ")")
+        _say(
+            f"[ans7-exact] {lab} (T1) Delta_LOO {k} at C_mode = {worst[k]:.3e} (ASSERTED <= "
+            f"{BANDS[k]:.0e}"
+            + ("" if pr["off"] is not None else f"; PREDICTED <= 1e-9: {_met(worst[k] <= 1e-9)}")
+            + ")"
+        )
     # (N0), predicted / printed, 127.74 only: at C_F no − → + zero on the new grid.
     if pr["off"] is None:
         n0 = sparse_rows(act["nodes"], z_nodes, grid_mhz=act["grid"], columns=("cu",), c_f=C_F)
         n0x = n0["cu"]["rows"].get("crossings_up_hz", [])
         out["n0"] = n0x
-        _say(f"[ans7-exact] {lab} (N0) at C_F on the {tm} MHz Cu grid: up-crossings {n0x} "
-             f"(PREDICTED none: {_met(len(n0x) == 0)}; printed, never asserted)")
+        _say(
+            f"[ans7-exact] {lab} (N0) at C_F on the {tm} MHz Cu grid: up-crossings {n0x} "
+            f"(PREDICTED none: {_met(len(n0x) == 0)}; printed, never asserted)"
+        )
     # (N1): c_f wiring at C_F on item 196's stored 64 MHz nodes (either target).
     recs196 = recs if (_tune_mhz() is None and not h) else _stored_x1_p2()
     z196 = {c: [_uj(r["z"][c]) for r in recs196] for c in BOTH_COLUMNS}
@@ -1499,31 +1858,53 @@ def tune_cmode():
     for c in BOTH_COLUMNS:
         for k in ROWS:
             got, want = n1[c]["rows"][k], ANS7_EXACT_STRIP_ROUTE_B_ROWS_P2[c][k]
-            _say(f"[ans7-exact] {lab} (N1) c_f=C_F {c} {k}: {got!r} vs record {want!r}: rel "
-                 f"{abs(got / want - 1.0):.3e} (ASSERTED <= NODE_S_RTOL {NODE_S_RTOL:.0e})")
+            _say(
+                f"[ans7-exact] {lab} (N1) c_f=C_F {c} {k}: {got!r} vs record {want!r}: rel "
+                f"{abs(got / want - 1.0):.3e} (ASSERTED <= NODE_S_RTOL {NODE_S_RTOL:.0e})"
+            )
     nf0 = abs(n1["cu"]["rows"]["f0_hz"] / tgt - 1.0)
     out["n1_f0_off"] = nf0
-    _say(f"[ans7-exact] {lab} (N1) |f0(C_F)/{tm} MHz - 1| = {nf0:.6e} = "
-         f"{nf0 / BANDS['f0_hz']:.3e} x BANDS (ASSERTED > N_FACTOR {N_FACTOR:g} x "
-         f"{BANDS['f0_hz']:.0e}; backing 2.03e-2)")
-    _say(f"[ans7-exact] {lab} W1 {tm} MHz node solved in {t_solve:.1f} s, cells {cells}, "
-         f"-n {comm.size}")
+    _say(
+        f"[ans7-exact] {lab} (N1) |f0(C_F)/{tm} MHz - 1| = {nf0:.6e} = "
+        f"{nf0 / BANDS['f0_hz']:.3e} x BANDS (ASSERTED > N_FACTOR {N_FACTOR:g} x "
+        f"{BANDS['f0_hz']:.0e}; backing 2.03e-2)"
+    )
+    _say(
+        f"[ans7-exact] {lab} W1 {tm} MHz node solved in {t_solve:.1f} s, cells {cells}, "
+        f"-n {comm.size}"
+    )
     if comm.rank == 0:
         act["out"].mkdir(parents=True, exist_ok=True)
         payload = {
-            "degree": deg, "ranks": comm.size, "cells": cells, "f_hz": tgt,
+            "degree": deg,
+            "ranks": comm.size,
+            "cells": cells,
+            "f_hz": tgt,
             "c_mode": {c: out["cm"][c]["c_mode"] for c in scols},
-            "c_in": c_in, "c_in_g": g_in, "c_in_iter": it,
-            "z_k": {c: [[complex(z).real, complex(z).imag] for z in out["cm"][c]["zk"]]
-                    for c in scols},
+            "c_in": c_in,
+            "c_in_g": g_in,
+            "c_in_iter": it,
+            "z_k": {
+                c: [[complex(z).real, complex(z).imag] for z in out["cm"][c]["zk"]] for c in scols
+            },
             "off_diag": {c: out["cm"][c]["off"] for c in scols},
             "z64": {c: _cj(out["z64"][c]) for c in scols},
-            "recip": out["recip"], "sigma_max": out["sigma_max"],
+            "recip": out["recip"],
+            "sigma_max": out["sigma_max"],
             "rows_at_c_mode": {c: full[c]["rows"] for c in cols},
-            "delta_loo_at_c_mode": worst, "t_solve_s": t_solve}
+            "delta_loo_at_c_mode": worst,
+            "t_solve_s": t_solve,
+        }
         if h:
-            payload.update({"resolution": H_RES, "columns": list(scols), "c_in_x1": out["c_x1"],
-                            "c_in_h_rel": out["c_h_rel"], "tie": _tie_json(tie)})
+            payload.update(
+                {
+                    "resolution": H_RES,
+                    "columns": list(scols),
+                    "c_in_x1": out["c_x1"],
+                    "c_in_h_rel": out["c_h_rel"],
+                    "tie": _tie_json(tie),
+                }
+            )
         _tune_json().write_text(json.dumps(payload))
     comm.Barrier()
     return out
@@ -1536,12 +1917,16 @@ def test_t21_c_construction(tune_cmode):
     _need_tune("cmode")
     _assert_tie(tune_cmode["cells"], tune_cmode["tie"], tune_cmode["res"])
     assert tune_cmode["cells"] == tune_cmode["stored_cells"], (
-        tune_cmode["cells"], tune_cmode["stored_cells"])
+        tune_cmode["cells"],
+        tune_cmode["stored_cells"],
+    )
     for c in tune_cmode["scols"]:
         assert tune_cmode["cm"][c]["z1"].imag > 0.0, (c, tune_cmode["cm"][c]["z1"])
         assert tune_cmode["recip"][c] <= RECIPROCITY_BAND, (c, tune_cmode["recip"][c])
         assert tune_cmode["sigma_max"][c] <= 1.0 + PASSIVITY_SIGMA_TOLERANCE, (
-            c, tune_cmode["sigma_max"][c])
+            c,
+            tune_cmode["sigma_max"][c],
+        )
 
 
 @complex_only
@@ -1588,8 +1973,13 @@ def tune_inmodel():
     comm = MPI.COMM_WORLD
     deg = _degree()
     act = _active()
-    tgt, lab, tm, pr, tune = act["target_hz"], act["lab"], act["tmhz"], _PRED[act["tmhz"]], \
-        act["tune"]
+    tgt, lab, tm, pr, tune = (
+        act["target_hz"],
+        act["lab"],
+        act["tmhz"],
+        _PRED[act["tmhz"]],
+        act["tune"],
+    )
     jt = _tune_json()
     if not jt.exists():
         pytest.fail(f"{jt} absent: run W1 (cmode) first")
@@ -1606,8 +1996,10 @@ def tune_inmodel():
     recs, _ = _stored_active()
     z_nodes_cu = [_uj(r["z"]["cu"]) for r in recs]
     xn = np.asarray(act["nodes"], dtype=float) - 64.5
-    _say(f"[ans7-exact] {lab} W2: C_mode,Cu read from {jt.name if _tune_mhz() is None else jt} ={c_mode!r} F; C_in "
-         f"{tj['c_in']!r} F")
+    _say(
+        f"[ans7-exact] {lab} W2: C_mode,Cu read from {jt.name if _tune_mhz() is None else jt} ={c_mode!r} F; C_in "
+        f"{tj['c_in']!r} F"
+    )
     tie = _fixture_tie()
     t0 = time.perf_counter()
     geo, specs, cells = _exact_geo(th14, comm, GATED_WIDTH_FRACTION)
@@ -1618,17 +2010,20 @@ def tune_inmodel():
     rb = json.loads(_route_b_json(1).read_text())
     ra = json.loads((OUT_DIR / "route_a_p1.json").read_text())
     xn1 = np.asarray(rb["nodes_mhz"], dtype=float) - 64.5
-    zb1 = route_b_z(bary_interp(xn1, [_uj(m) for m in rb["z"]["cu"]], 64.0 - 64.5),
-                    TUNE_TARGET_HZ, C_F)[1]
+    zb1 = route_b_z(
+        bary_interp(xn1, [_uj(m) for m in rb["z"]["cu"]], 64.0 - 64.5), TUNE_TARGET_HZ, C_F
+    )[1]
     s_b1 = _s11_from_z(zb1)
     res_w = float(abs(s_w - s_b1) / abs(s_b1))
     j64 = list(np.round(GRID_MHZ, 6)).index(64.0)
     res_195 = float(ra["residual"]["cu"][j64])
     dw = abs(res_w - res_195)
     t_w = time.perf_counter() - t1
-    _say(f"[ans7-exact] T21 (W) degree-1 default drive 64.0 MHz Cu: residual vs stored Route B "
-         f"{res_w!r}; item 195 stored {res_195!r}; |delta| = {dw:.3e} (ASSERTED <= NODE_S_RTOL "
-         f"{NODE_S_RTOL:.0e}); {t_w:.1f} s")
+    _say(
+        f"[ans7-exact] T21 (W) degree-1 default drive 64.0 MHz Cu: residual vs stored Route B "
+        f"{res_w!r}; item 195 stored {res_195!r}; |delta| = {dw:.3e} (ASSERTED <= NODE_S_RTOL "
+        f"{NODE_S_RTOL:.0e}); {t_w:.1f} s"
+    )
     res, s_as, s_bs, z_in_a, t_drive = [], [], [], [], []
     tfmt = ".1f" if _tune_mhz() is None else ".2f"
     for g in tune:
@@ -1648,31 +2043,39 @@ def tune_inmodel():
         else:
             plo, phi = (1.0e-5, 1.5e-5) if cin else (5e-6, 3e-4)
             ptxt = "[1.0e-5, 1.5e-5]" if cin else "[5e-6, 3e-4]"
-        msg = (f"[ans7-exact] {lab}{chr(8242) if cin else ''} (AB{chr(8242) if cin else ''}) "
-               f"p{deg} Cu {g:{tfmt}} MHz at {cl}: S11_A "
-               f"{complex(s_a):.12e}, "
-               f"S11_B {complex(s_b):.12e}; |S11_A - S11_B|/|S11_B| = {r:.3e} (ASSERTED <= "
-               f"{REDUCTION_BAND:.0e}; PREDICTED {ptxt}: {_met(plo <= r <= phi)}); "
-               f"drive {t_drive[-1]:.1f} s")
+        msg = (
+            f"[ans7-exact] {lab}{chr(8242) if cin else ''} (AB{chr(8242) if cin else ''}) "
+            f"p{deg} Cu {g:{tfmt}} MHz at {cl}: S11_A "
+            f"{complex(s_a):.12e}, "
+            f"S11_B {complex(s_b):.12e}; |S11_A - S11_B|/|S11_B| = {r:.3e} (ASSERTED <= "
+            f"{REDUCTION_BAND:.0e}; PREDICTED {ptxt}: {_met(plo <= r <= phi)}); "
+            f"drive {t_drive[-1]:.1f} s"
+        )
         if abs(f - tgt) < 1.0:
             s_b64 = _s11_from_z(route_b_z(z64_cu, f, c_drv)[1])
-            msg += (f"; comparand from solved Z64 {complex(s_b64):.12e} (residual "
-                    f"{float(abs(s_a - s_b64) / abs(s_b64)):.3e}, printed)")
+            msg += (
+                f"; comparand from solved Z64 {complex(s_b64):.12e} (residual "
+                f"{float(abs(s_a - s_b64) / abs(s_b64)):.3e}, printed)"
+            )
         _say(msg)
     rows_a = parallel_rows(np.array(tune) * 1e6, np.array(z_in_a))
     b = (1.0 / np.asarray(z_in_a)).imag
-    _say(f"[ans7-exact] {lab} (T2) Im Y_in,A at {tune} MHz = "
-         + ", ".join(f"{v:+.9e}" for v in b) + f" S; rows A: f0 {rows_a.get('f0_hz')!r} Hz, R_in "
-         f"{rows_a.get('r_in_ohm')!r} ohm, Q {rows_a.get('q_loaded')!r}; up-crossings "
-         f"{rows_a['crossings_up_hz']}")
+    _say(
+        f"[ans7-exact] {lab} (T2) Im Y_in,A at {tune} MHz = "
+        + ", ".join(f"{v:+.9e}" for v in b)
+        + f" S; rows A: f0 {rows_a.get('f0_hz')!r} Hz, R_in "
+        f"{rows_a.get('r_in_ohm')!r} ohm, Q {rows_a.get('q_loaded')!r}; up-crossings "
+        f"{rows_a['crossings_up_hz']}"
+    )
     f0b = tj["rows_at_c_mode"]["cu"].get("f0_hz")
     t21p = None
     if cin:
         # §9 item 262: c, f0,B(C_in) on the stored nodes, r, (N1') and (N3').
         zc = {"cu": z_nodes_cu}
         c_rel = c_mode / c_drv - 1.0
-        rb_ci = sparse_rows(act["nodes"], zc, grid_mhz=act["grid"], columns=("cu",),
-                            c_f=c_drv)["cu"]["rows"]
+        rb_ci = sparse_rows(act["nodes"], zc, grid_mhz=act["grid"], columns=("cu",), c_f=c_drv)[
+            "cu"
+        ]["rows"]
         f0b_ci = rb_ci.get("f0_hz")
         f0a = rows_a.get("f0_hz")
         sb = (f0b_ci / tgt - 1.0) if f0b_ci else float("nan")
@@ -1686,88 +2089,128 @@ def tune_inmodel():
         c_pred = -1.494697e-5 if is64 else -7.754048e-6
         tp = "T2'" if is64 else "T2''"
         tmc = "64" if is64 else tm
-        _say(f"[ans7-exact] {pt} C_in {c_drv!r} F (read from {jt.name}); c = C_mode/C_in - 1 = "
-             f"{c_rel:+.6e} (PREDICTED {c_pred:+.6e}: {_met(abs(c_rel - c_pred) <= 1e-11)})")
-        _say(f"[ans7-exact] {pt} f0,B(C_in) {f0b_ci!r} Hz on the stored nodes; f0,B/{tmc} MHz - 1 = "
-             f"{sb:+.6e} (PREDICTED within +-1e-9: {_met(abs(sb) <= 1e-9)}); up-crossings "
-             f"{rb_ci.get('crossings_up_hz')}")
-        _say(f"[ans7-exact] {pt} ({tp}) f0,A(C_in) {f0a!r} Hz; f0,A/{tmc} MHz - 1 = {sa:+.6e} "
-             f"(ASSERTED |.| <= {bn} {band:.3e}: "
-             f"{_met(abs(sa) <= band)}; = {abs(sa) / band:.3f} "
-             f"bands); r = f0,A/f0,B(C_in) - 1 = {r_ab:+.6e} (PREDICTED [-4e-6, -1.5e-6]: "
-             f"{_met(-4e-6 <= r_ab <= -1.5e-6)})")
+        _say(
+            f"[ans7-exact] {pt} C_in {c_drv!r} F (read from {jt.name}); c = C_mode/C_in - 1 = "
+            f"{c_rel:+.6e} (PREDICTED {c_pred:+.6e}: {_met(abs(c_rel - c_pred) <= 1e-11)})"
+        )
+        _say(
+            f"[ans7-exact] {pt} f0,B(C_in) {f0b_ci!r} Hz on the stored nodes; f0,B/{tmc} MHz - 1 = "
+            f"{sb:+.6e} (PREDICTED within +-1e-9: {_met(abs(sb) <= 1e-9)}); up-crossings "
+            f"{rb_ci.get('crossings_up_hz')}"
+        )
+        _say(
+            f"[ans7-exact] {pt} ({tp}) f0,A(C_in) {f0a!r} Hz; f0,A/{tmc} MHz - 1 = {sa:+.6e} "
+            f"(ASSERTED |.| <= {bn} {band:.3e}: "
+            f"{_met(abs(sa) <= band)}; = {abs(sa) / band:.3f} "
+            f"bands); r = f0,A/f0,B(C_in) - 1 = {r_ab:+.6e} (PREDICTED [-4e-6, -1.5e-6]: "
+            f"{_met(-4e-6 <= r_ab <= -1.5e-6)})"
+        )
         if is64:
-            prev = json.loads(_tune_inmodel_json().read_text())["rows_a"] \
-                if _tune_inmodel_json().exists() else {}
+            prev = (
+                json.loads(_tune_inmodel_json().read_text())["rows_a"]
+                if _tune_inmodel_json().exists()
+                else {}
+            )
             for k in ("r_in_ohm", "q_loaded"):
                 if k in rows_a and k in prev:
                     d = rows_a[k] / prev[k] - 1.0
-                    _say(f"[ans7-exact] T21' {k} at C_in {rows_a[k]!r} vs T21 Route A at C_mode "
-                         f"{prev[k]!r}: {d:+.4%} (PREDICTED within 0.1%: {_met(abs(d) <= 1e-3)})")
+                    _say(
+                        f"[ans7-exact] T21' {k} at C_in {rows_a[k]!r} vs T21 Route A at C_mode "
+                        f"{prev[k]!r}: {d:+.4%} (PREDICTED within 0.1%: {_met(abs(d) <= 1e-3)})"
+                    )
         else:
             # Item 283's comparand: T22's Route B rows at C_mode (``tune_p2.json``), 0.3 %.
             prev = tj["rows_at_c_mode"]["cu"]
             for k in ("r_in_ohm", "q_loaded"):
                 if k in rows_a and k in prev:
                     d = rows_a[k] / prev[k] - 1.0
-                    _say(f"[ans7-exact] {pt} {k} at C_in {rows_a[k]!r} vs T22 Route B at C_mode "
-                         f"{prev[k]!r}: {d:+.4%} (PREDICTED within 0.3%: {_met(abs(d) <= 3e-3)})")
+                    _say(
+                        f"[ans7-exact] {pt} {k} at C_in {rows_a[k]!r} vs T22 Route B at C_mode "
+                        f"{prev[k]!r}: {d:+.4%} (PREDICTED within 0.3%: {_met(abs(d) <= 3e-3)})"
+                    )
         # (N1'), asserted at 64 MHz: the untuned zero on the stored nodes is >= 10 bands off.
-        n1 = sparse_rows(act["nodes"], zc, grid_mhz=act["grid"], columns=("cu",),
-                         c_f=C_F)["cu"]["rows"]
+        n1 = sparse_rows(act["nodes"], zc, grid_mhz=act["grid"], columns=("cu",), c_f=C_F)["cu"][
+            "rows"
+        ]
         n1_off = abs(n1["f0_hz"] / tgt - 1.0) if "f0_hz" in n1 else float("nan")
         # A missing key is None (fails (N0′)), never a vacuous [].
         n0x = list(n1["crossings_up_hz"]) if "crossings_up_hz" in n1 else None
         if is64:
-            _say(f"[ans7-exact] T21' (N1') |f0,B(C_F)/64 MHz - 1| = {n1_off:.6e} = "
-                 f"{n1_off / T21P_ZERO_RESOLUTION:.1f} x T21P_ZERO_RESOLUTION (ASSERTED >= 10 x; "
-                 f"backing 2.029559e-2)")
+            _say(
+                f"[ans7-exact] T21' (N1') |f0,B(C_F)/64 MHz - 1| = {n1_off:.6e} = "
+                f"{n1_off / T21P_ZERO_RESOLUTION:.1f} x T21P_ZERO_RESOLUTION (ASSERTED >= 10 x; "
+                f"backing 2.029559e-2)"
+            )
         else:
             # (N0'), asserted at 127.74: at C_F the stored Cu grid has no − → + zero.
-            _say(f"[ans7-exact] {pt} (N0') at C_F on the {tm} MHz Cu grid: up-crossings {n0x} "
-                 f"(ASSERTED == []; backing item 228 W3 :2104)")
+            _say(
+                f"[ans7-exact] {pt} (N0') at C_F on the {tm} MHz Cu grid: up-crossings {n0x} "
+                f"(ASSERTED == []; backing item 228 W3 :2104)"
+            )
         # (N3'), predicted, printed: a 1e-4 capacitor error is resolved by the band.
-        n3 = sparse_rows(act["nodes"], zc, grid_mhz=act["grid"], columns=("cu",),
-                         c_f=c_drv * (1.0 + 1e-4))["cu"]["rows"]
+        n3 = sparse_rows(
+            act["nodes"], zc, grid_mhz=act["grid"], columns=("cu",), c_f=c_drv * (1.0 + 1e-4)
+        )["cu"]["rows"]
         n3_d = (n3["f0_hz"] / f0b_ci - 1.0) if ("f0_hz" in n3 and f0b_ci) else float("nan")
         if is64:
-            _say(f"[ans7-exact] T21' (N3') f0,B(C_in*(1+1e-4))/f0,B(C_in) - 1 = {n3_d:+.6e} = "
-                 f"{abs(n3_d) / T21P_ZERO_RESOLUTION:.2f} x T21P_ZERO_RESOLUTION (PREDICTED ~ -5e-5, "
-                 f"~3.9 x: {_met(-7e-5 <= n3_d <= -3e-5)}; printed, never asserted)")
+            _say(
+                f"[ans7-exact] T21' (N3') f0,B(C_in*(1+1e-4))/f0,B(C_in) - 1 = {n3_d:+.6e} = "
+                f"{abs(n3_d) / T21P_ZERO_RESOLUTION:.2f} x T21P_ZERO_RESOLUTION (PREDICTED ~ -5e-5, "
+                f"~3.9 x: {_met(-7e-5 <= n3_d <= -3e-5)}; printed, never asserted)"
+            )
         else:
-            _say(f"[ans7-exact] {pt} (N3'') f0,B(C_in*(1+1e-4))/f0,B(C_in) - 1 = {n3_d:+.6e} = "
-                 f"{abs(n3_d) / band:.2f} x {bn} (PREDICTED ~ -4.7e-5, ~2.9 x: "
-                 f"{_met(-7e-5 <= n3_d <= -3e-5)}; printed, never asserted)")
-        t21p = {"c_in": c_drv, "c_rel": c_rel, "f0b_ci": f0b_ci, "sb": sb, "sa": sa, "r": r_ab,
-                "n1_off": n1_off, "n3": n3_d}
+            _say(
+                f"[ans7-exact] {pt} (N3'') f0,B(C_in*(1+1e-4))/f0,B(C_in) - 1 = {n3_d:+.6e} = "
+                f"{abs(n3_d) / band:.2f} x {bn} (PREDICTED ~ -4.7e-5, ~2.9 x: "
+                f"{_met(-7e-5 <= n3_d <= -3e-5)}; printed, never asserted)"
+            )
+        t21p = {
+            "c_in": c_drv,
+            "c_rel": c_rel,
+            "f0b_ci": f0b_ci,
+            "sb": sb,
+            "sa": sa,
+            "r": r_ab,
+            "n1_off": n1_off,
+            "n3": n3_d,
+        }
         if not is64:
             t21p["n0_crossings_up_hz"] = n0x
             t21p["band"] = band
     elif "f0_hz" in rows_a:
         da = abs(rows_a["f0_hz"] / tgt - 1.0)
-        _say(f"[ans7-exact] {lab} (T2) |f0,A/{tm} MHz - 1| = {da:.6e} (ASSERTED <= "
-             f"{BANDS['f0_hz']:.0e}; PREDICTED RED in [1e-6, 5e-5]: "
-             f"{_met(1e-6 <= da <= 5e-5)}); f0,A - f0,B = "
-             f"{(rows_a['f0_hz'] - f0b) if f0b else float('nan'):+.3f} Hz, relative "
-             f"{(rows_a['f0_hz'] / f0b - 1.0) if f0b else float('nan'):+.3e} (PREDICTED "
-             f"{pr['ab_gap']}); (C_mode - C_in)/C_in = {c_mode / tj['c_in'] - 1.0:+.3e}")
+        _say(
+            f"[ans7-exact] {lab} (T2) |f0,A/{tm} MHz - 1| = {da:.6e} (ASSERTED <= "
+            f"{BANDS['f0_hz']:.0e}; PREDICTED RED in [1e-6, 5e-5]: "
+            f"{_met(1e-6 <= da <= 5e-5)}); f0,A - f0,B = "
+            f"{(rows_a['f0_hz'] - f0b) if f0b else float('nan'):+.3f} Hz, relative "
+            f"{(rows_a['f0_hz'] / f0b - 1.0) if f0b else float('nan'):+.3e} (PREDICTED "
+            f"{pr['ab_gap']}); (C_mode - C_in)/C_in = {c_mode / tj['c_in'] - 1.0:+.3e}"
+        )
         if _tune_mhz() is not None:
             sa = rows_a["f0_hz"] / tgt - 1.0
             sb = (f0b / tgt - 1.0) if f0b else float("nan")
-            hyp = ("c flat" if da < 1e-5 else "c tracks the off-diagonal" if da > 1.2e-5
-                   else "undecided")
-            _say(f"[ans7-exact] {lab} (T2) split: f0,A/{tm} - 1 = {sa:+.6e} = c (f0,B/{tm} - 1 = "
-                 f"{sb:+.6e}) + r (f0,A/f0,B - 1 = "
-                 f"{(rows_a['f0_hz'] / f0b - 1.0) if f0b else float('nan'):+.6e}); hypothesis "
-                 f"readout: {hyp} (|f0,A/{tm} - 1| < 1e-5 c flat; > 1.2e-5 c tracks)")
+            hyp = (
+                "c flat"
+                if da < 1e-5
+                else "c tracks the off-diagonal" if da > 1.2e-5 else "undecided"
+            )
+            _say(
+                f"[ans7-exact] {lab} (T2) split: f0,A/{tm} - 1 = {sa:+.6e} = c (f0,B/{tm} - 1 = "
+                f"{sb:+.6e}) + r (f0,A/f0,B - 1 = "
+                f"{(rows_a['f0_hz'] / f0b - 1.0) if f0b else float('nan'):+.6e}); hypothesis "
+                f"readout: {hyp} (|f0,A/{tm} - 1| < 1e-5 c flat; > 1.2e-5 c tracks)"
+            )
     # (N2) predicted, printed: circuit at 0.5*C_mode vs in-model at C_mode, target, Cu.
     j = [round(g, 6) for g in tune].index(round(tgt / 1e6, 6))
     s_n2 = _s11_from_z(route_b_z(z64_cu, tgt, 0.5 * c_drv)[1])
     n2 = float(abs(s_n2 - s_as[j]) / abs(s_as[j]))
-    _say(f"[ans7-exact] {lab} (N2{chr(8242) if cin else ''}) circuit at 0.5*{cl} vs in-model at "
-         f"{cl}, {tm} MHz Cu: "
-         f"|dS|/|S| = {n2:.6e} = {n2 / REDUCTION_BAND:.2f} x REDUCTION_BAND (PREDICTED >= 10 x: "
-         f"{_met(n2 >= 10.0 * REDUCTION_BAND)}; printed, never asserted)")
+    _say(
+        f"[ans7-exact] {lab} (N2{chr(8242) if cin else ''}) circuit at 0.5*{cl} vs in-model at "
+        f"{cl}, {tm} MHz Cu: "
+        f"|dS|/|S| = {n2:.6e} = {n2 / REDUCTION_BAND:.2f} x REDUCTION_BAND (PREDICTED >= 10 x: "
+        f"{_met(n2 >= 10.0 * REDUCTION_BAND)}; printed, never asserted)"
+    )
     cin_rec = None
     # Item 283: under ``cin`` the three drives above already run at C_in, so item
     # 228's one-drive C_in record is not repeated.
@@ -1782,26 +2225,45 @@ def tune_inmodel():
         dff = (-y_ci.imag / (tgt * dbdf)) if dbdf else float("nan")
         s_b_ci = _s11_from_z(route_b_z(z64_cu, tgt, c_in)[1])
         ab_ci = float(abs(s_ci - s_b_ci) / abs(s_b_ci))
-        cin_rec = {"c_in": c_in, "im_y_a": y_ci.imag, "df_over_f_est": dff, "ab": ab_ci,
-                   "s11_a": [complex(s_ci).real, complex(s_ci).imag], "t_s": t_ci}
-        _say(f"[ans7-exact] {lab} C_in record: drive at C_in {c_in!r} F, {tm} MHz Cu: Im Y_in,A "
-             f"{y_ci.imag:+.9e} S; estimate (one drive + slope) delta f/f = {dff:+.6e} (slope "
-             f"dbdf {dbdf!r} S/Hz from the C_mode rows; PREDICTED |.| in [1e-7, 2e-5]: "
-             f"{_met(1e-7 <= abs(dff) <= 2e-5)}; and outside BANDS {BANDS['f0_hz']:.0e}: "
-             f"{_met(abs(dff) > BANDS['f0_hz'])}); |S11_A(C_in) - S11_B(C_in)|/|S11_B| = "
-             f"{ab_ci:.3e}; drive {t_ci:.1f} s (printed, never asserted, never a target)")
-    _say(f"[ans7-exact] {lab} W2 total {time.perf_counter() - t0:.1f} s (mesh {t_mesh:.1f} s, (W) "
-         f"{t_w:.1f} s, degree-{deg} drives {', '.join(f'{t:.1f}' for t in t_drive)} s), "
-         f"cells {cells}, -n {comm.size}")
+        cin_rec = {
+            "c_in": c_in,
+            "im_y_a": y_ci.imag,
+            "df_over_f_est": dff,
+            "ab": ab_ci,
+            "s11_a": [complex(s_ci).real, complex(s_ci).imag],
+            "t_s": t_ci,
+        }
+        _say(
+            f"[ans7-exact] {lab} C_in record: drive at C_in {c_in!r} F, {tm} MHz Cu: Im Y_in,A "
+            f"{y_ci.imag:+.9e} S; estimate (one drive + slope) delta f/f = {dff:+.6e} (slope "
+            f"dbdf {dbdf!r} S/Hz from the C_mode rows; PREDICTED |.| in [1e-7, 2e-5]: "
+            f"{_met(1e-7 <= abs(dff) <= 2e-5)}; and outside BANDS {BANDS['f0_hz']:.0e}: "
+            f"{_met(abs(dff) > BANDS['f0_hz'])}); |S11_A(C_in) - S11_B(C_in)|/|S11_B| = "
+            f"{ab_ci:.3e}; drive {t_ci:.1f} s (printed, never asserted, never a target)"
+        )
+    _say(
+        f"[ans7-exact] {lab} W2 total {time.perf_counter() - t0:.1f} s (mesh {t_mesh:.1f} s, (W) "
+        f"{t_w:.1f} s, degree-{deg} drives {', '.join(f'{t:.1f}' for t in t_drive)} s), "
+        f"cells {cells}, -n {comm.size}"
+    )
     if comm.rank == 0:
         act["out"].mkdir(parents=True, exist_ok=True)
         payload = {
-            "degree": deg, "ranks": comm.size, "cells": cells, "c_mode": c_mode,
-            "tune_mhz": tune, "residual_ab": res,
-            "s11_a": [[s.real, s.imag] for s in s_as], "s11_b": [[s.real, s.imag] for s in s_bs],
+            "degree": deg,
+            "ranks": comm.size,
+            "cells": cells,
+            "c_mode": c_mode,
+            "tune_mhz": tune,
+            "residual_ab": res,
+            "s11_a": [[s.real, s.imag] for s in s_as],
+            "s11_b": [[s.real, s.imag] for s in s_bs],
             "z_in_a": [[complex(z).real, complex(z).imag] for z in z_in_a],
-            "rows_a": rows_a, "w_residual": res_w, "w_item195": res_195, "n2": n2,
-            "t_drive_s": t_drive}
+            "rows_a": rows_a,
+            "w_residual": res_w,
+            "w_item195": res_195,
+            "n2": n2,
+            "t_drive_s": t_drive,
+        }
         if cin_rec is not None:
             payload["c_in_record"] = cin_rec
             payload["target_hz"] = tgt
@@ -1812,8 +2274,18 @@ def tune_inmodel():
         else:
             _tune_inmodel_json().write_text(json.dumps(payload))
     comm.Barrier()
-    return {"cells": cells, "tie": tie, "res": res, "rows_a": rows_a, "dw": dw, "n2": n2,
-            "stored_cells": recs[0]["cells"], "tune": tune, "tgt": tgt, "t21p": t21p}
+    return {
+        "cells": cells,
+        "tie": tie,
+        "res": res,
+        "rows_a": rows_a,
+        "dw": dw,
+        "n2": n2,
+        "stored_cells": recs[0]["cells"],
+        "tune": tune,
+        "tgt": tgt,
+        "t21p": t21p,
+    }
 
 
 @complex_only
@@ -1900,6 +2372,7 @@ def test_t21p_n1_untuned(tune_inmodel):
 
 # -- §9 item 310 (`ANS-7` step 12, chain T28): the per-point drives + assembly --
 
+
 def _h_point_json(mhz):
     if _tune_mhz() == 127.74:
         # §9 item 365 (T34).
@@ -1942,84 +2415,127 @@ def _h_assemble(tj, c_drv, z64_cu, z_nodes_cu, recs):
     n_up = sum(1 for k in range(len(b) - 1) if b[k] < 0 <= b[k + 1])
     n_dn = sum(1 for k in range(len(b) - 1) if b[k] >= 0 > b[k + 1])
     for g, r in zip(tune, res):
-        _say(f"[ans7-exact] {lab} (AB''') p2 Cu {_pf(g)} MHz at C_in(h): |S11_A - S11_B|/|S11_B| = "
-             f"{r:.3e} (ASSERTED <= REDUCTION_BAND {REDUCTION_BAND:.0e}; PREDICTED [5e-6, 3e-5]: "
-             f"{_met(5e-6 <= r <= 3e-5)})")
-    _say(f"[ans7-exact] {lab} (T2''') Im Y_in,A at {tune} MHz = "
-         + ", ".join(f"{v:+.9e}" for v in b) + f" S; - -> + sign changes {n_up}, + -> - {n_dn} "
-         f"(ASSERTED exactly one - -> +, none + -> -); rows A: f0 {rows_a.get('f0_hz')!r} Hz, "
-         f"R_in {rows_a.get('r_in_ohm')!r} ohm, Q {rows_a.get('q_loaded')!r}; up-crossings "
-         f"{rows_a['crossings_up_hz']}")
+        _say(
+            f"[ans7-exact] {lab} (AB''') p2 Cu {_pf(g)} MHz at C_in(h): |S11_A - S11_B|/|S11_B| = "
+            f"{r:.3e} (ASSERTED <= REDUCTION_BAND {REDUCTION_BAND:.0e}; PREDICTED [5e-6, 3e-5]: "
+            f"{_met(5e-6 <= r <= 3e-5)})"
+        )
+    _say(
+        f"[ans7-exact] {lab} (T2''') Im Y_in,A at {tune} MHz = "
+        + ", ".join(f"{v:+.9e}" for v in b)
+        + f" S; - -> + sign changes {n_up}, + -> - {n_dn} "
+        f"(ASSERTED exactly one - -> +, none + -> -); rows A: f0 {rows_a.get('f0_hz')!r} Hz, "
+        f"R_in {rows_a.get('r_in_ohm')!r} ohm, Q {rows_a.get('q_loaded')!r}; up-crossings "
+        f"{rows_a['crossings_up_hz']}"
+    )
     f0a = rows_a.get("f0_hz")
     sa = (f0a / tgt - 1.0) if f0a else float("nan")
-    _say(f"[ans7-exact] {lab} |f0,A/{tml} MHz - 1| = {abs(sa):.6e} (printed, never asserted; "
-         f"{zres_name} {zres:.3e} beside it for scale only = "
-         f"{abs(sa) / zres:.3f} x)")
+    _say(
+        f"[ans7-exact] {lab} |f0,A/{tml} MHz - 1| = {abs(sa):.6e} (printed, never asserted; "
+        f"{zres_name} {zres:.3e} beside it for scale only = "
+        f"{abs(sa) / zres:.3f} x)"
+    )
     zc = {"cu": z_nodes_cu}
-    rb_ci = sparse_rows(nodes, zc, grid_mhz=grid, columns=("cu",),
-                        c_f=c_drv)["cu"]["rows"]
+    rb_ci = sparse_rows(nodes, zc, grid_mhz=grid, columns=("cu",), c_f=c_drv)["cu"]["rows"]
     f0b_ci = rb_ci.get("f0_hz")
     sb = (f0b_ci / tgt - 1.0) if f0b_ci else float("nan")
     r_ab = (f0a / f0b_ci - 1.0) if (f0a and f0b_ci) else float("nan")
-    _say(f"[ans7-exact] {lab} f0,B(C_in(h)) {f0b_ci!r} Hz on the h nodes; f0,B/{tml} MHz - 1 = "
-         f"{sb:+.6e} (printed); r(h) = f0,A/f0,B(C_in(h)) - 1 = {r_ab:+.6e} (PREDICTED "
-         f"[-5e-6, -1e-6]: {_met(-5e-6 <= r_ab <= -1e-6)}); up-crossings "
-         f"{rb_ci.get('crossings_up_hz')}")
+    _say(
+        f"[ans7-exact] {lab} f0,B(C_in(h)) {f0b_ci!r} Hz on the h nodes; f0,B/{tml} MHz - 1 = "
+        f"{sb:+.6e} (printed); r(h) = f0,A/f0,B(C_in(h)) - 1 = {r_ab:+.6e} (PREDICTED "
+        f"[-5e-6, -1e-6]: {_met(-5e-6 <= r_ab <= -1e-6)}); up-crossings "
+        f"{rb_ci.get('crossings_up_hz')}"
+    )
     if not at128:
         for k in ("r_in_ohm", "q_loaded"):
             if k in rows_a:
                 d = rows_a[k] / STEP6_RUNG_ROWS[k] - 1.0
-                _say(f"[ans7-exact] T28 {k} at C_in(h) {rows_a[k]!r} vs step 6 rung row "
-                     f"{STEP6_RUNG_ROWS[k]!r}: {d:+.4%} (PREDICTED within 1%: {_met(abs(d) <= 1e-2)}; "
-                     f"printed)")
+                _say(
+                    f"[ans7-exact] T28 {k} at C_in(h) {rows_a[k]!r} vs step 6 rung row "
+                    f"{STEP6_RUNG_ROWS[k]!r}: {d:+.4%} (PREDICTED within 1%: {_met(abs(d) <= 1e-2)}; "
+                    f"printed)"
+                )
     else:
         # §9 item 365: the x1 127.74 rows at C_in (item 283), read, never recomputed.
         x1rows = json.loads((TUNE128_OUT_DIR / "tune_inmodel_cin_p2.json").read_text())["rows_a"]
         for k in ("r_in_ohm", "q_loaded"):
             if k in rows_a and k in x1rows:
                 d = rows_a[k] / x1rows[k] - 1.0
-                _say(f"[ans7-exact] {lab} {k} at C_in(h) {rows_a[k]!r} vs x1 127.74 row at C_in "
-                     f"{x1rows[k]!r}: {d:+.4%} (PREDICTED within 2%: {_met(abs(d) <= 2e-2)}; "
-                     f"printed)")
+                _say(
+                    f"[ans7-exact] {lab} {k} at C_in(h) {rows_a[k]!r} vs x1 127.74 row at C_in "
+                    f"{x1rows[k]!r}: {d:+.4%} (PREDICTED within 2%: {_met(abs(d) <= 2e-2)}; "
+                    f"printed)"
+                )
     if not at128:
         n1 = sparse_rows(nodes, zc, grid_mhz=grid, columns=("cu",), c_f=C_F)["cu"]["rows"]
         n1_off = abs(n1["f0_hz"] / tgt - 1.0) if "f0_hz" in n1 else float("nan")
-        _say(f"[ans7-exact] T28 (N1''') |f0,B(C_F)/64 MHz - 1| on the h grid = {n1_off:.6e} = "
-             f"{n1_off / T21P_ZERO_RESOLUTION:.1f} x T21P_ZERO_RESOLUTION (PREDICTED >= 10 x, ~1500 x: "
-             f"{_met(n1_off >= 10.0 * T21P_ZERO_RESOLUTION)}; printed, never asserted); f0,B(C_F) "
-             f"{n1.get('f0_hz')!r} Hz (step 6 {STEP6_RUNG_ROWS['f0_hz']!r})")
+        _say(
+            f"[ans7-exact] T28 (N1''') |f0,B(C_F)/64 MHz - 1| on the h grid = {n1_off:.6e} = "
+            f"{n1_off / T21P_ZERO_RESOLUTION:.1f} x T21P_ZERO_RESOLUTION (PREDICTED >= 10 x, ~1500 x: "
+            f"{_met(n1_off >= 10.0 * T21P_ZERO_RESOLUTION)}; printed, never asserted); f0,B(C_F) "
+            f"{n1.get('f0_hz')!r} Hz (step 6 {STEP6_RUNG_ROWS['f0_hz']!r})"
+        )
     else:
         # (N0⁗): the up-crossings at C_F on the h 127.74 grid, printed, never asserted.
         n0 = sparse_rows(nodes, zc, grid_mhz=grid, columns=("cu",), c_f=C_F)["cu"]["rows"]
         n0x = n0.get("crossings_up_hz", [])
         n1_off = float("nan")
-        _say(f"[ans7-exact] {lab} (N0'''') at C_F on the h {tml} MHz Cu grid: up-crossings {n0x} "
-             f"(PREDICTED none: {_met(len(n0x) == 0)}; printed, never asserted)")
+        _say(
+            f"[ans7-exact] {lab} (N0'''') at C_F on the h {tml} MHz Cu grid: up-crossings {n0x} "
+            f"(PREDICTED none: {_met(len(n0x) == 0)}; printed, never asserted)"
+        )
     mid = tune[1]
     j = list(tune).index(mid)
     s_n2 = _s11_from_z(route_b_z(z64_cu, tgt, 0.5 * c_drv)[1])
     n2 = float(abs(s_n2 - s_as[j]) / abs(s_as[j]))
-    _say(f"[ans7-exact] {lab} (N2''') circuit at 0.5*C_in(h) vs in-model at C_in(h), {tml} MHz Cu: "
-         f"|dS|/|S| = {n2:.6e} = {n2 / REDUCTION_BAND:.2f} x REDUCTION_BAND (PREDICTED >= 10 x: "
-         f"{_met(n2 >= 10.0 * REDUCTION_BAND)}; printed, never asserted)")
+    _say(
+        f"[ans7-exact] {lab} (N2''') circuit at 0.5*C_in(h) vs in-model at C_in(h), {tml} MHz Cu: "
+        f"|dS|/|S| = {n2:.6e} = {n2 / REDUCTION_BAND:.2f} x REDUCTION_BAND (PREDICTED >= 10 x: "
+        f"{_met(n2 >= 10.0 * REDUCTION_BAND)}; printed, never asserted)"
+    )
     c_h_rel = float(tj["c_in_h_rel"])
     if not at128:
-        _say(f"[ans7-exact] T28 C_in(h)/C_in(x1) - 1 = {c_h_rel:+.6e} (from {_tune_json().name}); "
-             f"step 6 f0 move at fixed C {STEP6_RUNG_F0_MOVE:+.4%}")
+        _say(
+            f"[ans7-exact] T28 C_in(h)/C_in(x1) - 1 = {c_h_rel:+.6e} (from {_tune_json().name}); "
+            f"step 6 f0 move at fixed C {STEP6_RUNG_F0_MOVE:+.4%}"
+        )
     else:
-        _say(f"[ans7-exact] {lab} C_in(h)/C_in(x1) - 1 at {tml} MHz = {c_h_rel:+.6e} (from "
-             f"{_tune_json().name}); beside 64 MHz's record {T28_C_IN_H_REL_64:+.6e}")
-    t28 = {"c_in": c_drv, "c_in_x1": float(tj["c_in_x1"]), "c_in_h_rel": c_h_rel,
-           "residual_ab": res, "im_y_a": [float(v) for v in b], "n_up": n_up, "n_dn": n_dn,
-           "rows_a": rows_a, "f0a_rel": sa, "f0b_ci": f0b_ci, "sb": sb, "r": r_ab,
-           "n1_off": n1_off, "n2": n2, "w_residual": pts[j].get("w_residual"),
-           "w_item195": pts[j].get("w_item195"), "cells": recs[0]["cells"],
-           "t_point_s": [p["t_window_s"] for p in pts]}
+        _say(
+            f"[ans7-exact] {lab} C_in(h)/C_in(x1) - 1 at {tml} MHz = {c_h_rel:+.6e} (from "
+            f"{_tune_json().name}); beside 64 MHz's record {T28_C_IN_H_REL_64:+.6e}"
+        )
+    t28 = {
+        "c_in": c_drv,
+        "c_in_x1": float(tj["c_in_x1"]),
+        "c_in_h_rel": c_h_rel,
+        "residual_ab": res,
+        "im_y_a": [float(v) for v in b],
+        "n_up": n_up,
+        "n_dn": n_dn,
+        "rows_a": rows_a,
+        "f0a_rel": sa,
+        "f0b_ci": f0b_ci,
+        "sb": sb,
+        "r": r_ab,
+        "n1_off": n1_off,
+        "n2": n2,
+        "w_residual": pts[j].get("w_residual"),
+        "w_item195": pts[j].get("w_item195"),
+        "cells": recs[0]["cells"],
+        "t_point_s": [p["t_window_s"] for p in pts],
+    }
     if comm.rank == 0:
         (act["out"] / f"tune_inmodel_cin_p2{H_SFX}.json").write_text(json.dumps(t28))
     comm.Barrier()
-    return {"mode": "assemble", "res": res, "b": list(b), "n_up": n_up, "n_dn": n_dn,
-            "rows_a": rows_a, "dw": abs(pts[j]["w_residual"] - pts[j]["w_item195"])}
+    return {
+        "mode": "assemble",
+        "res": res,
+        "b": list(b),
+        "n_up": n_up,
+        "n_dn": n_dn,
+        "rows_a": rows_a,
+        "dw": abs(pts[j]["w_residual"] - pts[j]["w_item195"]),
+    }
 
 
 @pytest.fixture(scope="module")
@@ -2051,7 +2567,11 @@ def tune_h():
     def _pf(g):
         return f"{g:.2f}" if at128 else f"{g:.1f}"
 
-    if tj["degree"] != 2 or abs(tj["f_hz"] - act["target_hz"]) > 1.0 or tj.get("resolution") != H_RES:
+    if (
+        tj["degree"] != 2
+        or abs(tj["f_hz"] - act["target_hz"]) > 1.0
+        or tj.get("resolution") != H_RES
+    ):
         pytest.fail(f"{jt}: degree {tj['degree']} f_hz {tj['f_hz']} res {tj.get('resolution')}")
     c_drv = float(tj["c_in"])
     z64_cu = _uj(tj["z64"]["cu"])
@@ -2059,7 +2579,9 @@ def tune_h():
     z_nodes_cu = [_uj(r["z"]["cu"]) for r in recs]
     if tj["cells"] != recs[0]["cells"]:
         pytest.fail(f"{jt}: cells {tj['cells']} != node cells {recs[0]['cells']}")
-    _say(f"[ans7-exact] {lab} C_in(h) read from {jt.name} = {c_drv!r} F; point {pt!r}; -n {comm.size}")
+    _say(
+        f"[ans7-exact] {lab} C_in(h) read from {jt.name} = {c_drv!r} F; point {pt!r}; -n {comm.size}"
+    )
     if pt == "assemble":
         return _h_assemble(tj, c_drv, z64_cu, z_nodes_cu, recs)
     t0 = time.perf_counter()
@@ -2076,17 +2598,24 @@ def tune_h():
         rb = json.loads(_route_b_json(1).read_text())
         ra = json.loads((OUT_DIR / "route_a_p1.json").read_text())
         xn1 = np.asarray(rb["nodes_mhz"], dtype=float) - 64.5
-        zb1 = route_b_z(bary_interp(xn1, [_uj(m) for m in rb["z"]["cu"]], 64.0 - 64.5),
-                        TUNE_TARGET_HZ, C_F)[1]
+        zb1 = route_b_z(
+            bary_interp(xn1, [_uj(m) for m in rb["z"]["cu"]], 64.0 - 64.5), TUNE_TARGET_HZ, C_F
+        )[1]
         s_b1 = _s11_from_z(zb1)
         res_w = float(abs(s_w - s_b1) / abs(s_b1))
         j64 = list(np.round(GRID_MHZ, 6)).index(64.0)
         res_195 = float(ra["residual"]["cu"][j64])
-        w = {"res_w": res_w, "res_195": res_195, "dw": abs(res_w - res_195),
-             "t": time.perf_counter() - t1}
-        _say(f"[ans7-exact] {lab} (W) degree-1 default drive 64.0 MHz Cu (x1 mesh): residual vs "
-             f"stored Route B {res_w!r}; item 195 stored {res_195!r}; |delta| = {w['dw']:.3e} "
-             f"(ASSERTED <= NODE_S_RTOL {NODE_S_RTOL:.0e}); {w['t']:.1f} s")
+        w = {
+            "res_w": res_w,
+            "res_195": res_195,
+            "dw": abs(res_w - res_195),
+            "t": time.perf_counter() - t1,
+        }
+        _say(
+            f"[ans7-exact] {lab} (W) degree-1 default drive 64.0 MHz Cu (x1 mesh): residual vs "
+            f"stored Route B {res_w!r}; item 195 stored {res_195!r}; |delta| = {w['dw']:.3e} "
+            f"(ASSERTED <= NODE_S_RTOL {NODE_S_RTOL:.0e}); {w['t']:.1f} s"
+        )
     t2 = time.perf_counter()
     geo, specs, cells = _exact_geo(th14, comm, GATED_WIDTH_FRACTION, res=H_RES)
     t_mesh = time.perf_counter() - t2
@@ -2098,29 +2627,50 @@ def tune_h():
     r = float(abs(s_a - s_b) / abs(s_b))
     z_in = _ANS7.add_c1(_ANS7._z_from_s11(s_a), omega, c_drv)
     im_y = float((1.0 / complex(z_in)).imag)
-    msg = (f"[ans7-exact] {lab} (AB''') p{deg} Cu {_pf(pt)} MHz at C_in(h): S11_A {complex(s_a):.12e}, "
-           f"S11_B {complex(s_b):.12e}; |S11_A - S11_B|/|S11_B| = {r:.3e} (ASSERTED <= "
-           f"{REDUCTION_BAND:.0e}; PREDICTED [5e-6, 3e-5]: {_met(5e-6 <= r <= 3e-5)}); Im Y_in,A "
-           f"{im_y:+.9e} S; mesh {t_mesh:.1f} s, drive {t_drive:.1f} s, cells {cells}")
+    msg = (
+        f"[ans7-exact] {lab} (AB''') p{deg} Cu {_pf(pt)} MHz at C_in(h): S11_A {complex(s_a):.12e}, "
+        f"S11_B {complex(s_b):.12e}; |S11_A - S11_B|/|S11_B| = {r:.3e} (ASSERTED <= "
+        f"{REDUCTION_BAND:.0e}; PREDICTED [5e-6, 3e-5]: {_met(5e-6 <= r <= 3e-5)}); Im Y_in,A "
+        f"{im_y:+.9e} S; mesh {t_mesh:.1f} s, drive {t_drive:.1f} s, cells {cells}"
+    )
     if abs(pt - mid) < 1e-9:
         s_b64 = _s11_from_z(route_b_z(z64_cu, f, c_drv)[1])
-        msg += (f"; comparand from solved Z64(h) {complex(s_b64):.12e} (residual "
-                f"{float(abs(s_a - s_b64) / abs(s_b64)):.3e}, printed)")
+        msg += (
+            f"; comparand from solved Z64(h) {complex(s_b64):.12e} (residual "
+            f"{float(abs(s_a - s_b64) / abs(s_b64)):.3e}, printed)"
+        )
     _say(msg)
     t_win = time.perf_counter() - t0
     if comm.rank == 0:
-        p = {"f_hz": f, "degree": deg, "ranks": comm.size, "cells": cells, "resolution": H_RES,
-             "c_in": c_drv, "residual_ab": r, "s11_a": [complex(s_a).real, complex(s_a).imag],
-             "s11_b": [complex(s_b).real, complex(s_b).imag],
-             "z_in_a": [complex(z_in).real, complex(z_in).imag], "im_y_a": im_y,
-             "t_mesh_s": t_mesh, "t_drive_s": t_drive, "t_window_s": t_win}
+        p = {
+            "f_hz": f,
+            "degree": deg,
+            "ranks": comm.size,
+            "cells": cells,
+            "resolution": H_RES,
+            "c_in": c_drv,
+            "residual_ab": r,
+            "s11_a": [complex(s_a).real, complex(s_a).imag],
+            "s11_b": [complex(s_b).real, complex(s_b).imag],
+            "z_in_a": [complex(z_in).real, complex(z_in).imag],
+            "im_y_a": im_y,
+            "t_mesh_s": t_mesh,
+            "t_drive_s": t_drive,
+            "t_window_s": t_win,
+        }
         if w is not None:
             p.update({"w_residual": w["res_w"], "w_item195": w["res_195"], "t_w_s": w["t"]})
         _h_point_json(pt).write_text(json.dumps(p))
     comm.Barrier()
     _say(f"[ans7-exact] {lab} point {_pf(pt)} MHz window {t_win:.1f} s, -n {comm.size}")
-    return {"mode": "point", "pt": pt, "cells": cells, "stored_cells": recs[0]["cells"],
-            "res": [r], "dw": None if w is None else w["dw"]}
+    return {
+        "mode": "point",
+        "pt": pt,
+        "cells": cells,
+        "stored_cells": recs[0]["cells"],
+        "res": [r],
+        "dw": None if w is None else w["dw"],
+    }
 
 
 @complex_only
@@ -2227,17 +2777,23 @@ def _esr_ohm():
     # §9 item 419 (T38): the fourth legal set is the h = 0.01 rung at 127.74 MHz, Cu only
     # (T34's h nodes are ``_cu``-suffixed).
     h38 = bool(res_raw) and _tune_mhz() == 127.74 and _resolution() == H_RES and _cols() == ("cu",)
-    if (_tune() != "inmodel" or _tune_c() != "cin" or _tune_mhz() not in (None, 127.74)
-            or (_tune_mhz() == 127.74 and _cols() != ("cu",))
-            or (res_raw and not (h37 or h38))
-            or os.environ.get(TUNE_POINT_ENV, "").strip()):
-        raise ValueError(f"{ESR_ENV}={raw!r} needs {TUNE_ENV}=inmodel, {TUNE_C_ENV}=cin, "
-                         f"{TUNE_POINT_ENV} unset, and one of: {RESOLUTION_ENV} and "
-                         f"{TUNE_MHZ_ENV} unset (64 MHz, T26); {RESOLUTION_ENV} unset and "
-                         f"{TUNE_MHZ_ENV}=127.74 with {COLUMNS_ENV}=cu (T35); "
-                         f"{RESOLUTION_ENV}={H_RES:g}, {TUNE_MHZ_ENV} unset, {COLUMNS_ENV}=cu "
-                         f"(64 MHz on the h rung, T37); or {RESOLUTION_ENV}={H_RES:g}, "
-                         f"{TUNE_MHZ_ENV}=127.74, {COLUMNS_ENV}=cu (127.74 MHz on the h rung, T38)")
+    if (
+        _tune() != "inmodel"
+        or _tune_c() != "cin"
+        or _tune_mhz() not in (None, 127.74)
+        or (_tune_mhz() == 127.74 and _cols() != ("cu",))
+        or (res_raw and not (h37 or h38))
+        or os.environ.get(TUNE_POINT_ENV, "").strip()
+    ):
+        raise ValueError(
+            f"{ESR_ENV}={raw!r} needs {TUNE_ENV}=inmodel, {TUNE_C_ENV}=cin, "
+            f"{TUNE_POINT_ENV} unset, and one of: {RESOLUTION_ENV} and "
+            f"{TUNE_MHZ_ENV} unset (64 MHz, T26); {RESOLUTION_ENV} unset and "
+            f"{TUNE_MHZ_ENV}=127.74 with {COLUMNS_ENV}=cu (T35); "
+            f"{RESOLUTION_ENV}={H_RES:g}, {TUNE_MHZ_ENV} unset, {COLUMNS_ENV}=cu "
+            f"(64 MHz on the h rung, T37); or {RESOLUTION_ENV}={H_RES:g}, "
+            f"{TUNE_MHZ_ENV}=127.74, {COLUMNS_ENV}=cu (127.74 MHz on the h rung, T38)"
+        )
     return float(raw)
 
 
@@ -2262,6 +2818,7 @@ def _route_b_z_esr(z4, f_hz, c_f, r):
 def _c_in_esr(z4, f_hz, c0, r):
     """``_c_in`` (above) on the ESR Route B: the root of Im[1/Z_in(C; r)] at
     ``f_hz``, real-scalar secant from ``c0``, to |g| <= 1e-15 S in <= 20 iterations."""
+
     def g(c):
         return float((1.0 / complex(_route_b_z_esr(z4, f_hz, c, r)[0])).imag)
 
@@ -2291,18 +2848,30 @@ def _route_a_solve_esr(th14, geo, specs, f_hz, c_f, r, degree):
     msh, cell_tags, facet_tags, outer_tags, tags_f, port_defs = geo
     omega = 2.0 * np.pi * f_hz
     z_c = series_rlc_impedance(f_hz, r_ohm=r, l_h=0.0, c_f=c_f)
-    sp = [dataclasses.replace(s, port_impedance_ohm=z_c)
-          if i in _ANS7.TUNING_TERMINATED_INDICES else s for i, s in enumerate(specs)]
+    sp = [
+        (
+            dataclasses.replace(s, port_impedance_ohm=z_c)
+            if i in _ANS7.TUNING_TERMINATED_INDICES
+            else s
+        )
+        for i, s in enumerate(specs)
+    ]
     problem = th14._problem(msh, cell_tags, f_hz, outer_tags, (th14.OUTER_BOX_TAG,))
     z_s = (1.0 + 1.0j) * surface_resistance_ohm(omega, th14.COPPER_SIGMA)
     extra = [th14._leontovich_term(msh, facet_tags, z_s, omega)]
-    result = run_lumped_sheet_port_case(problem, port_defs, sp, facet_tags=tags_f,
-                                        driven_port_id=th14.DRIVEN, verbose=False,
-                                        return_fields=False, extra_bilinear_terms=extra,
-                                        degree=degree)
+    result = run_lumped_sheet_port_case(
+        problem,
+        port_defs,
+        sp,
+        facet_tags=tags_f,
+        driven_port_id=th14.DRIVEN,
+        verbose=False,
+        return_fields=False,
+        extra_bilinear_terms=extra,
+        degree=degree,
+    )
     drive = result.responses[th14.DRIVEN]
-    a1, b1 = _power_waves(drive.voltage_v, drive.current_a,
-                          float(_ANS7.REFERENCE_IMPEDANCE_OHM))
+    a1, b1 = _power_waves(drive.voltage_v, drive.current_a, float(_ANS7.REFERENCE_IMPEDANCE_OHM))
     assert abs(a1) > 0.0, "incident wave at P1 vanished"
     return complex(b1 / a1)
 
@@ -2350,54 +2919,70 @@ def tune_esr():
     tag = "T38" if h38 else ("T35" if t35 else ("T37" if h37 else "T26"))
     if h38:
         hm = c_in_r / T35_C_IN_R_X1 - 1.0
-        _say(f"[ans7-exact] T38 C_in(r = {r_ohm:g} ohm, h {H_RES:g}) {c_in_r!r} F (secant from "
-             f"C_in(0, h) {c_in0!r} F read from {jt.parent.name}/{jt.name}; g {g_r:+.3e} S, "
-             f"{it_r} iterations); C_in(r, h)/C_in(0, h) - 1 = {c_rel:+.6e} (PREDICTED in "
-             f"[+0.8e-5, +2.0e-5], central +1.351e-5: {_met(0.8e-5 <= c_rel <= 2.0e-5)}; x1 "
-             f"127.74 record +1.344645e-05 (item 387 W2); printed)")
-        _say(f"[ans7-exact] T38 C_in(r, h)/C_in(r, x1) - 1 = {hm:+.6e} vs T35_C_IN_R_X1 "
-             f"{T35_C_IN_R_X1!r} F (PREDICTED in [+8.6e-4, +9.3e-4], central +8.9685e-4: "
-             f"{_met(8.6e-4 <= hm <= 9.3e-4)}); lossless h-move T34_C_IN_H_REL_128 "
-             f"{T34_C_IN_H_REL_128:+.6e}; difference {hm - T34_C_IN_H_REL_128:+.3e}; (N-h') "
-             f"|.| >= 10 x secant tol (1e-11): {_met(abs(hm) >= 1e-11)} (PREDICTED met; "
-             f"printed, never asserted)")
+        _say(
+            f"[ans7-exact] T38 C_in(r = {r_ohm:g} ohm, h {H_RES:g}) {c_in_r!r} F (secant from "
+            f"C_in(0, h) {c_in0!r} F read from {jt.parent.name}/{jt.name}; g {g_r:+.3e} S, "
+            f"{it_r} iterations); C_in(r, h)/C_in(0, h) - 1 = {c_rel:+.6e} (PREDICTED in "
+            f"[+0.8e-5, +2.0e-5], central +1.351e-5: {_met(0.8e-5 <= c_rel <= 2.0e-5)}; x1 "
+            f"127.74 record +1.344645e-05 (item 387 W2); printed)"
+        )
+        _say(
+            f"[ans7-exact] T38 C_in(r, h)/C_in(r, x1) - 1 = {hm:+.6e} vs T35_C_IN_R_X1 "
+            f"{T35_C_IN_R_X1!r} F (PREDICTED in [+8.6e-4, +9.3e-4], central +8.9685e-4: "
+            f"{_met(8.6e-4 <= hm <= 9.3e-4)}); lossless h-move T34_C_IN_H_REL_128 "
+            f"{T34_C_IN_H_REL_128:+.6e}; difference {hm - T34_C_IN_H_REL_128:+.3e}; (N-h') "
+            f"|.| >= 10 x secant tol (1e-11): {_met(abs(hm) >= 1e-11)} (PREDICTED met; "
+            f"printed, never asserted)"
+        )
     elif h37:
         hm = c_in_r / T26_C_IN_R_X1 - 1.0
-        _say(f"[ans7-exact] T37 C_in(r = {r_ohm:g} ohm, h {H_RES:g}) {c_in_r!r} F (secant from "
-             f"C_in(0, h) {c_in0!r} F read from {jt.name}; g {g_r:+.3e} S, {it_r} iterations); "
-             f"C_in(r, h)/C_in(0, h) - 1 = {c_rel:+.6e} (PREDICTED in [+3e-5, +6e-5], central "
-             f"+4.610e-5: {_met(3e-5 <= c_rel <= 6e-5)}; x1 record {T26_C_IN_R_REL_64:+.6e}; "
-             f"printed)")
-        _say(f"[ans7-exact] T37 C_in(r, h)/C_in(r, x1) - 1 = {hm:+.6e} vs T26_C_IN_R_X1 "
-             f"{T26_C_IN_R_X1!r} F (PREDICTED in [+8.0e-4, +8.7e-4], central +8.3473e-4: "
-             f"{_met(8.0e-4 <= hm <= 8.7e-4)}); lossless h-move T28_C_IN_H_REL_64 "
-             f"{T28_C_IN_H_REL_64:+.6e}; (N-h) |.| >= 10 x secant tol (1e-11): "
-             f"{_met(abs(hm) >= 1e-11)} (PREDICTED met; printed, never asserted)")
+        _say(
+            f"[ans7-exact] T37 C_in(r = {r_ohm:g} ohm, h {H_RES:g}) {c_in_r!r} F (secant from "
+            f"C_in(0, h) {c_in0!r} F read from {jt.name}; g {g_r:+.3e} S, {it_r} iterations); "
+            f"C_in(r, h)/C_in(0, h) - 1 = {c_rel:+.6e} (PREDICTED in [+3e-5, +6e-5], central "
+            f"+4.610e-5: {_met(3e-5 <= c_rel <= 6e-5)}; x1 record {T26_C_IN_R_REL_64:+.6e}; "
+            f"printed)"
+        )
+        _say(
+            f"[ans7-exact] T37 C_in(r, h)/C_in(r, x1) - 1 = {hm:+.6e} vs T26_C_IN_R_X1 "
+            f"{T26_C_IN_R_X1!r} F (PREDICTED in [+8.0e-4, +8.7e-4], central +8.3473e-4: "
+            f"{_met(8.0e-4 <= hm <= 8.7e-4)}); lossless h-move T28_C_IN_H_REL_64 "
+            f"{T28_C_IN_H_REL_64:+.6e}; (N-h) |.| >= 10 x secant tol (1e-11): "
+            f"{_met(abs(hm) >= 1e-11)} (PREDICTED met; printed, never asserted)"
+        )
     elif t35:
-        _say(f"[ans7-exact] T35 C_in(r = {r_ohm:g} ohm) {c_in_r!r} F (secant from C_in(0) "
-             f"{c_in0!r} F read from {jt.parent.name}/{jt.name}; g {g_r:+.3e} S, {it_r} "
-             f"iterations); C_in(r)/C_in(0) - 1 = {c_rel:+.6e} (PREDICTED in [+2e-6, +5e-5], "
-             f"central ~+1.06e-5: {_met(2e-6 <= c_rel <= 5e-5)}; printed); 64 MHz record "
-             f"T26_C_IN_R_REL_64 {T26_C_IN_R_REL_64:+.6e} (item 311 W2; ratio 127.74/64 = "
-             f"{c_rel / T26_C_IN_R_REL_64:.4f}; printed, never asserted)")
+        _say(
+            f"[ans7-exact] T35 C_in(r = {r_ohm:g} ohm) {c_in_r!r} F (secant from C_in(0) "
+            f"{c_in0!r} F read from {jt.parent.name}/{jt.name}; g {g_r:+.3e} S, {it_r} "
+            f"iterations); C_in(r)/C_in(0) - 1 = {c_rel:+.6e} (PREDICTED in [+2e-6, +5e-5], "
+            f"central ~+1.06e-5: {_met(2e-6 <= c_rel <= 5e-5)}; printed); 64 MHz record "
+            f"T26_C_IN_R_REL_64 {T26_C_IN_R_REL_64:+.6e} (item 311 W2; ratio 127.74/64 = "
+            f"{c_rel / T26_C_IN_R_REL_64:.4f}; printed, never asserted)"
+        )
     else:
-        _say(f"[ans7-exact] T26 C_in(r = {r_ohm:g} ohm) {c_in_r!r} F (secant from C_in(0) {c_in0!r} F "
-             f"read from {jt.name}; g {g_r:+.3e} S, {it_r} iterations); C_in(r)/C_in(0) - 1 = "
-             f"{c_rel:+.6e} (PREDICTED in [-1e-3, +1e-3]: {_met(abs(c_rel) <= 1e-3)}; printed)")
+        _say(
+            f"[ans7-exact] T26 C_in(r = {r_ohm:g} ohm) {c_in_r!r} F (secant from C_in(0) {c_in0!r} F "
+            f"read from {jt.name}; g {g_r:+.3e} S, {it_r} iterations); C_in(r)/C_in(0) - 1 = "
+            f"{c_rel:+.6e} (PREDICTED in [-1e-3, +1e-3]: {_met(abs(c_rel) <= 1e-3)}; printed)"
+        )
     # (N-r0), predicted, printed: r = 0 through the ESR path from _c_in's start (C_mode).
     c_r0, _, _ = _c_in_esr(z64_cu, tgt, c_mode, 0.0)
-    _say(f"[ans7-exact] {tag} (N-r0) ESR-path root at r = 0 from C_mode: {c_r0!r} F vs "
-         f"tune_p2.json c_in {c_in0!r} F; bit-equal {c_r0 == c_in0}, rel "
-         f"{c_r0 / c_in0 - 1.0:+.3e} (PREDICTED bit-equal: {_met(c_r0 == c_in0)}; printed)")
+    _say(
+        f"[ans7-exact] {tag} (N-r0) ESR-path root at r = 0 from C_mode: {c_r0!r} F vs "
+        f"tune_p2.json c_in {c_in0!r} F; bit-equal {c_r0 == c_in0}, rel "
+        f"{c_r0 / c_in0 - 1.0:+.3e} (PREDICTED bit-equal: {_met(c_r0 == c_in0)}; printed)"
+    )
     recs, _ = _stored_active()
     z_nodes_cu = [_uj(rc["z"]["cu"]) for rc in recs]
     xn = np.asarray(act["nodes"], dtype=float) - 64.5
     if h37:
         # §9 item 395: (F-Q0) -- the lossless comparand is the rung's, not x1's.
         q0_ok = lossless["c_in"] == tj["c_in"] and lossless["cells"] == recs[0]["cells"]
-        _say(f"[ans7-exact] {tag} (F-Q0) {jl.name}: c_in {lossless['c_in']!r} vs {jt.name} "
-             f"{tj['c_in']!r}; cells {lossless['cells']} vs node cells {recs[0]['cells']} "
-             f"(ASSERTED equal: {_met(q0_ok)})")
+        _say(
+            f"[ans7-exact] {tag} (F-Q0) {jl.name}: c_in {lossless['c_in']!r} vs {jt.name} "
+            f"{tj['c_in']!r}; cells {lossless['cells']} vs node cells {recs[0]['cells']} "
+            f"(ASSERTED equal: {_met(q0_ok)})"
+        )
         # The rung's tie from tune_p2_h0.01.json (no x1 mesh, no x1 record assert).
         tie = _tie_from_json(tj["tie"])
     else:
@@ -2418,23 +3003,28 @@ def tune_esr():
     rb = json.loads(_route_b_json(1).read_text())
     ra = json.loads((OUT_DIR / "route_a_p1.json").read_text())
     xn1 = np.asarray(rb["nodes_mhz"], dtype=float) - 64.5
-    zb1 = route_b_z(bary_interp(xn1, [_uj(m) for m in rb["z"]["cu"]], 64.0 - 64.5),
-                    TUNE_TARGET_HZ, C_F)[1]
+    zb1 = route_b_z(
+        bary_interp(xn1, [_uj(m) for m in rb["z"]["cu"]], 64.0 - 64.5), TUNE_TARGET_HZ, C_F
+    )[1]
     s_b1 = _s11_from_z(zb1)
     res_w = float(abs(s_w - s_b1) / abs(s_b1))
     j64 = list(np.round(GRID_MHZ, 6)).index(64.0)
     res_195 = float(ra["residual"]["cu"][j64])
     dw = abs(res_w - res_195)
     t_w = time.perf_counter() - t1
-    _say(f"[ans7-exact] {tag} (W) degree-1 default drive 64.0 MHz Cu: residual {res_w!r}; item 195 "
-         f"stored {res_195!r}; |delta| = {dw:.3e} (ASSERTED <= NODE_S_RTOL {NODE_S_RTOL:.0e}); "
-         f"{t_w:.1f} s")
+    _say(
+        f"[ans7-exact] {tag} (W) degree-1 default drive 64.0 MHz Cu: residual {res_w!r}; item 195 "
+        f"stored {res_195!r}; |delta| = {dw:.3e} (ASSERTED <= NODE_S_RTOL {NODE_S_RTOL:.0e}); "
+        f"{t_w:.1f} s"
+    )
     if h37:
         t4 = time.perf_counter()
         geo, specs, cells = _exact_geo(th14, comm, GATED_WIDTH_FRACTION, res=H_RES)
         t_mesh = time.perf_counter() - t4
-        _say(f"[ans7-exact] {tag} rung mesh h {H_RES:g}: cells {cells} (node cells "
-             f"{recs[0]['cells']}, {jt.name} {tj['cells']}); {t_mesh:.1f} s")
+        _say(
+            f"[ans7-exact] {tag} rung mesh h {H_RES:g}: cells {cells} (node cells "
+            f"{recs[0]['cells']}, {jt.name} {tj['cells']}); {t_mesh:.1f} s"
+        )
     res, s_as, s_bs, z_in_a, z_in_b, t_drive = [], [], [], [], [], []
     for g in tune:
         f = g * 1e6
@@ -2442,8 +3032,7 @@ def tune_esr():
         t2 = time.perf_counter()
         s_a = _route_a_solve_esr(th14, geo, specs, f, c_in_r, r_ohm, deg)
         t_drive.append(time.perf_counter() - t2)
-        zin_b, zbare_b, _ = _route_b_z_esr(bary_interp(xn, z_nodes_cu, g - 64.5), f, c_in_r,
-                                           r_ohm)
+        zin_b, zbare_b, _ = _route_b_z_esr(bary_interp(xn, z_nodes_cu, g - 64.5), f, c_in_r, r_ohm)
         s_b = _s11_from_z(zbare_b)
         rr = float(abs(s_a - s_b) / abs(s_b))
         res.append(rr)
@@ -2453,89 +3042,116 @@ def tune_esr():
         z_in_a.append(1.0 / (1.0 / _ANS7._z_from_s11(s_a) + 1.0 / zbr))
         z_in_b.append(complex(zin_b))
         if h38:
-            _say(f"[ans7-exact] T38 (AB-rh') p{deg} Cu {g:.2f} MHz at (r, C_in(r, h)), h "
-                 f"{H_RES:g}: S11_A {complex(s_a):.12e}, S11_B {complex(s_b):.12e}; |S11_A - "
-                 f"S11_B|/|S11_B| = {rr:.3e} (ASSERTED <= REDUCTION_BAND {REDUCTION_BAND:.0e}; "
-                 f"PREDICTED [8e-6, 4e-5]: {_met(8e-6 <= rr <= 4e-5)}; lossless h 1.593 / "
-                 f"1.605 / 1.619e-5, x1 ESR 1.587 / 1.600 / 1.614e-5); drive "
-                 f"{t_drive[-1]:.1f} s")
+            _say(
+                f"[ans7-exact] T38 (AB-rh') p{deg} Cu {g:.2f} MHz at (r, C_in(r, h)), h "
+                f"{H_RES:g}: S11_A {complex(s_a):.12e}, S11_B {complex(s_b):.12e}; |S11_A - "
+                f"S11_B|/|S11_B| = {rr:.3e} (ASSERTED <= REDUCTION_BAND {REDUCTION_BAND:.0e}; "
+                f"PREDICTED [8e-6, 4e-5]: {_met(8e-6 <= rr <= 4e-5)}; lossless h 1.593 / "
+                f"1.605 / 1.619e-5, x1 ESR 1.587 / 1.600 / 1.614e-5); drive "
+                f"{t_drive[-1]:.1f} s"
+            )
         elif t35:
-            _say(f"[ans7-exact] T35 (AB-r') p{deg} Cu {g:.2f} MHz at (r, C_in(r)): S11_A "
-                 f"{complex(s_a):.12e}, S11_B {complex(s_b):.12e}; |S11_A - S11_B|/|S11_B| = "
-                 f"{rr:.3e} (ASSERTED <= REDUCTION_BAND {REDUCTION_BAND:.0e}; PREDICTED "
-                 f"[1.0e-5, 3e-5]: {_met(1.0e-5 <= rr <= 3e-5)}; lossless 1.590 / 1.601 / "
-                 f"1.616e-5); drive {t_drive[-1]:.1f} s")
+            _say(
+                f"[ans7-exact] T35 (AB-r') p{deg} Cu {g:.2f} MHz at (r, C_in(r)): S11_A "
+                f"{complex(s_a):.12e}, S11_B {complex(s_b):.12e}; |S11_A - S11_B|/|S11_B| = "
+                f"{rr:.3e} (ASSERTED <= REDUCTION_BAND {REDUCTION_BAND:.0e}; PREDICTED "
+                f"[1.0e-5, 3e-5]: {_met(1.0e-5 <= rr <= 3e-5)}; lossless 1.590 / 1.601 / "
+                f"1.616e-5); drive {t_drive[-1]:.1f} s"
+            )
         elif h37:
-            _say(f"[ans7-exact] T37 (AB-rh) p{deg} Cu {g:.1f} MHz at (r, C_in(r, h)), h {H_RES:g}: "
-                 f"S11_A {complex(s_a):.12e}, S11_B {complex(s_b):.12e}; |S11_A - S11_B|/|S11_B| = "
-                 f"{rr:.3e} (ASSERTED <= REDUCTION_BAND {REDUCTION_BAND:.0e}; PREDICTED "
-                 f"[5e-6, 3e-5]: {_met(5e-6 <= rr <= 3e-5)}; lossless h 1.239 / 1.262 / "
-                 f"1.289e-5); drive {t_drive[-1]:.1f} s")
+            _say(
+                f"[ans7-exact] T37 (AB-rh) p{deg} Cu {g:.1f} MHz at (r, C_in(r, h)), h {H_RES:g}: "
+                f"S11_A {complex(s_a):.12e}, S11_B {complex(s_b):.12e}; |S11_A - S11_B|/|S11_B| = "
+                f"{rr:.3e} (ASSERTED <= REDUCTION_BAND {REDUCTION_BAND:.0e}; PREDICTED "
+                f"[5e-6, 3e-5]: {_met(5e-6 <= rr <= 3e-5)}; lossless h 1.239 / 1.262 / "
+                f"1.289e-5); drive {t_drive[-1]:.1f} s"
+            )
         else:
-            _say(f"[ans7-exact] T26 (AB-r) p{deg} Cu {g:.1f} MHz at (r, C_in(r)): S11_A "
-                 f"{complex(s_a):.12e}, S11_B {complex(s_b):.12e}; |S11_A - S11_B|/|S11_B| = "
-                 f"{rr:.3e} (ASSERTED <= {REDUCTION_BAND:.0e}; PREDICTED [5e-6, 3e-5]: "
-                 f"{_met(5e-6 <= rr <= 3e-5)}); drive {t_drive[-1]:.1f} s")
+            _say(
+                f"[ans7-exact] T26 (AB-r) p{deg} Cu {g:.1f} MHz at (r, C_in(r)): S11_A "
+                f"{complex(s_a):.12e}, S11_B {complex(s_b):.12e}; |S11_A - S11_B|/|S11_B| = "
+                f"{rr:.3e} (ASSERTED <= {REDUCTION_BAND:.0e}; PREDICTED [5e-6, 3e-5]: "
+                f"{_met(5e-6 <= rr <= 3e-5)}); drive {t_drive[-1]:.1f} s"
+            )
     rows_a = parallel_rows(np.array(tune) * 1e6, np.array(z_in_a))
     rows_b = parallel_rows(np.array(tune) * 1e6, np.array(z_in_b))
     b = (1.0 / np.asarray(z_in_a)).imag
     n_up = sum(1 for k in range(len(b) - 1) if b[k] < 0 <= b[k + 1])
     n_dn = sum(1 for k in range(len(b) - 1) if b[k] >= 0 > b[k + 1])
-    _say(f"[ans7-exact] {tag} (T2-r) Im Y_in,A at {tune} MHz = "
-         + ", ".join(f"{v:+.9e}" for v in b) + f" S; rows A: f0 {rows_a.get('f0_hz')!r} Hz, R_in "
-         f"{rows_a.get('r_in_ohm')!r} ohm, Q {rows_a.get('q_loaded')!r}; up-crossings "
-         f"{rows_a['crossings_up_hz']}")
+    _say(
+        f"[ans7-exact] {tag} (T2-r) Im Y_in,A at {tune} MHz = "
+        + ", ".join(f"{v:+.9e}" for v in b)
+        + f" S; rows A: f0 {rows_a.get('f0_hz')!r} Hz, R_in "
+        f"{rows_a.get('r_in_ohm')!r} ohm, Q {rows_a.get('q_loaded')!r}; up-crossings "
+        f"{rows_a['crossings_up_hz']}"
+    )
     f0a, f0b = rows_a.get("f0_hz"), rows_b.get("f0_hz")
     sa = (f0a / tgt - 1.0) if f0a else float("nan")
     sb = (f0b / tgt - 1.0) if f0b else float("nan")
     r_ab = (f0a / f0b - 1.0) if (f0a and f0b) else float("nan")
     if h38:
         zr = T22P_ZERO_RESOLUTION
-        _say(f"[ans7-exact] T38 (T2-rh') crossings up {rows_a['crossings_up_hz']}; Im Y_in,A sign "
-             f"changes - -> + {n_up}, + -> - {n_dn} (ASSERTED exactly one up, none down, f0,A in "
-             f"(127.64, 127.84) MHz); f0,A(C_in(r, h))/127.74 MHz - 1 = {sa:+.6e} (PRINTED for "
-             f"scale only beside T22P_ZERO_RESOLUTION {zr:.3e}, = {abs(sa) / zr:.3f} x, never "
-             f"asserted: rulings 310-Q1 / 365-Q1 / 395-Q3; PREDICTED ~2.29e-6, ~0.142 x, in "
-             f"[1e-6, 5e-6]: {_met(1e-6 <= abs(sa) <= 5e-6)}; lossless h 2.271224e-6, x1 ESR "
-             f"2.301805e-6)")
-        _say(f"[ans7-exact] T38 f0,B(C_in(r, h)) {f0b!r} Hz (Route B on the three interpolated "
-             f"tune points); f0,B/127.74 MHz - 1 = {sb:+.6e} (PREDICTED within +-1e-9: "
-             f"{_met(abs(sb) <= 1e-9)}); r_AB = f0,A/f0,B - 1 = {r_ab:+.6e} (PREDICTED "
-             f"[-5e-6, -1e-6]: {_met(-5e-6 <= r_ab <= -1e-6)}; lossless h -2.271224e-6); R_in,B "
-             f"{rows_b.get('r_in_ohm')!r} ohm, Q_B {rows_b.get('q_loaded')!r}")
+        _say(
+            f"[ans7-exact] T38 (T2-rh') crossings up {rows_a['crossings_up_hz']}; Im Y_in,A sign "
+            f"changes - -> + {n_up}, + -> - {n_dn} (ASSERTED exactly one up, none down, f0,A in "
+            f"(127.64, 127.84) MHz); f0,A(C_in(r, h))/127.74 MHz - 1 = {sa:+.6e} (PRINTED for "
+            f"scale only beside T22P_ZERO_RESOLUTION {zr:.3e}, = {abs(sa) / zr:.3f} x, never "
+            f"asserted: rulings 310-Q1 / 365-Q1 / 395-Q3; PREDICTED ~2.29e-6, ~0.142 x, in "
+            f"[1e-6, 5e-6]: {_met(1e-6 <= abs(sa) <= 5e-6)}; lossless h 2.271224e-6, x1 ESR "
+            f"2.301805e-6)"
+        )
+        _say(
+            f"[ans7-exact] T38 f0,B(C_in(r, h)) {f0b!r} Hz (Route B on the three interpolated "
+            f"tune points); f0,B/127.74 MHz - 1 = {sb:+.6e} (PREDICTED within +-1e-9: "
+            f"{_met(abs(sb) <= 1e-9)}); r_AB = f0,A/f0,B - 1 = {r_ab:+.6e} (PREDICTED "
+            f"[-5e-6, -1e-6]: {_met(-5e-6 <= r_ab <= -1e-6)}; lossless h -2.271224e-6); R_in,B "
+            f"{rows_b.get('r_in_ohm')!r} ohm, Q_B {rows_b.get('q_loaded')!r}"
+        )
     elif t35:
         zr = _zero_resolution()
-        _say(f"[ans7-exact] T35 (T2-r') f0,A(C_in(r))/127.74 MHz - 1 = {sa:+.6e} (ASSERTED |.| "
-             f"<= T22P_ZERO_RESOLUTION {zr:.3e}: {_met(abs(sa) <= zr)}; = {abs(sa) / zr:.3f} "
-             f"bands; PREDICTED ~2.3e-6, ~0.14 bands: {_met(1e-6 <= abs(sa) <= 5e-6)})")
-        _say(f"[ans7-exact] T35 f0,B(C_in(r)) {f0b!r} Hz (Route B on the three interpolated tune "
-             f"points); f0,B/127.74 MHz - 1 = {sb:+.6e} (PREDICTED within +-1e-9: "
-             f"{_met(abs(sb) <= 1e-9)}); r_AB = f0,A/f0,B - 1 = {r_ab:+.6e} (PREDICTED "
-             f"[-5e-6, -1e-6]: {_met(-5e-6 <= r_ab <= -1e-6)}; lossless -2.265e-6); R_in,B "
-             f"{rows_b.get('r_in_ohm')!r} ohm, Q_B {rows_b.get('q_loaded')!r}")
+        _say(
+            f"[ans7-exact] T35 (T2-r') f0,A(C_in(r))/127.74 MHz - 1 = {sa:+.6e} (ASSERTED |.| "
+            f"<= T22P_ZERO_RESOLUTION {zr:.3e}: {_met(abs(sa) <= zr)}; = {abs(sa) / zr:.3f} "
+            f"bands; PREDICTED ~2.3e-6, ~0.14 bands: {_met(1e-6 <= abs(sa) <= 5e-6)})"
+        )
+        _say(
+            f"[ans7-exact] T35 f0,B(C_in(r)) {f0b!r} Hz (Route B on the three interpolated tune "
+            f"points); f0,B/127.74 MHz - 1 = {sb:+.6e} (PREDICTED within +-1e-9: "
+            f"{_met(abs(sb) <= 1e-9)}); r_AB = f0,A/f0,B - 1 = {r_ab:+.6e} (PREDICTED "
+            f"[-5e-6, -1e-6]: {_met(-5e-6 <= r_ab <= -1e-6)}; lossless -2.265e-6); R_in,B "
+            f"{rows_b.get('r_in_ohm')!r} ohm, Q_B {rows_b.get('q_loaded')!r}"
+        )
     elif h37:
         zr = T21P_ZERO_RESOLUTION
-        _say(f"[ans7-exact] T37 (T2-rh) crossings up {rows_a['crossings_up_hz']}; Im Y_in,A sign "
-             f"changes - -> + {n_up}, + -> - {n_dn} (ASSERTED exactly one up, none down, f0,A in "
-             f"(63.9, 64.1) MHz); f0,A(C_in(r, h))/64 MHz - 1 = {sa:+.6e} (PRINTED for scale "
-             f"only beside T21P_ZERO_RESOLUTION {zr:.3e}, = {abs(sa) / zr:.3f} x, never "
-             f"asserted: ruling 310-Q1; PREDICTED ~2.59e-6, ~0.20 x: "
-             f"{_met(1e-6 <= abs(sa) <= 5e-6)})")
-        _say(f"[ans7-exact] T37 f0,B(C_in(r, h)) {f0b!r} Hz (Route B on the three interpolated "
-             f"tune points); f0,B/64 MHz - 1 = {sb:+.6e} (PREDICTED within +-1e-9: "
-             f"{_met(abs(sb) <= 1e-9)}); r_AB = f0,A/f0,B - 1 = {r_ab:+.6e} (PREDICTED "
-             f"[-5e-6, -1e-6]: {_met(-5e-6 <= r_ab <= -1e-6)}; lossless h -2.545621e-6); R_in,B "
-             f"{rows_b.get('r_in_ohm')!r} ohm, Q_B {rows_b.get('q_loaded')!r}")
+        _say(
+            f"[ans7-exact] T37 (T2-rh) crossings up {rows_a['crossings_up_hz']}; Im Y_in,A sign "
+            f"changes - -> + {n_up}, + -> - {n_dn} (ASSERTED exactly one up, none down, f0,A in "
+            f"(63.9, 64.1) MHz); f0,A(C_in(r, h))/64 MHz - 1 = {sa:+.6e} (PRINTED for scale "
+            f"only beside T21P_ZERO_RESOLUTION {zr:.3e}, = {abs(sa) / zr:.3f} x, never "
+            f"asserted: ruling 310-Q1; PREDICTED ~2.59e-6, ~0.20 x: "
+            f"{_met(1e-6 <= abs(sa) <= 5e-6)})"
+        )
+        _say(
+            f"[ans7-exact] T37 f0,B(C_in(r, h)) {f0b!r} Hz (Route B on the three interpolated "
+            f"tune points); f0,B/64 MHz - 1 = {sb:+.6e} (PREDICTED within +-1e-9: "
+            f"{_met(abs(sb) <= 1e-9)}); r_AB = f0,A/f0,B - 1 = {r_ab:+.6e} (PREDICTED "
+            f"[-5e-6, -1e-6]: {_met(-5e-6 <= r_ab <= -1e-6)}; lossless h -2.545621e-6); R_in,B "
+            f"{rows_b.get('r_in_ohm')!r} ohm, Q_B {rows_b.get('q_loaded')!r}"
+        )
     else:
-        _say(f"[ans7-exact] T26 (T2-r) f0,A(C_in(r))/64 MHz - 1 = {sa:+.6e} (ASSERTED |.| <= "
-             f"T21P_ZERO_RESOLUTION {T21P_ZERO_RESOLUTION:.3e}: "
-             f"{_met(abs(sa) <= T21P_ZERO_RESOLUTION)}; = {abs(sa) / T21P_ZERO_RESOLUTION:.3f} bands; "
-             f"PREDICTED ~2.5e-6)")
-        _say(f"[ans7-exact] T26 f0,B(C_in(r)) {f0b!r} Hz (Route B on the three interpolated tune "
-             f"points); f0,B/64 MHz - 1 = {sb:+.6e} (PREDICTED within +-1e-9: "
-             f"{_met(abs(sb) <= 1e-9)}); r_AB = f0,A/f0,B - 1 = {r_ab:+.6e} (PREDICTED [-5e-6, -1e-6]: "
-             f"{_met(-5e-6 <= r_ab <= -1e-6)}; lossless -2.536e-6); R_in,B {rows_b.get('r_in_ohm')!r} "
-             f"ohm, Q_B {rows_b.get('q_loaded')!r}")
+        _say(
+            f"[ans7-exact] T26 (T2-r) f0,A(C_in(r))/64 MHz - 1 = {sa:+.6e} (ASSERTED |.| <= "
+            f"T21P_ZERO_RESOLUTION {T21P_ZERO_RESOLUTION:.3e}: "
+            f"{_met(abs(sa) <= T21P_ZERO_RESOLUTION)}; = {abs(sa) / T21P_ZERO_RESOLUTION:.3f} bands; "
+            f"PREDICTED ~2.5e-6)"
+        )
+        _say(
+            f"[ans7-exact] T26 f0,B(C_in(r)) {f0b!r} Hz (Route B on the three interpolated tune "
+            f"points); f0,B/64 MHz - 1 = {sb:+.6e} (PREDICTED within +-1e-9: "
+            f"{_met(abs(sb) <= 1e-9)}); r_AB = f0,A/f0,B - 1 = {r_ab:+.6e} (PREDICTED [-5e-6, -1e-6]: "
+            f"{_met(-5e-6 <= r_ab <= -1e-6)}; lossless -2.536e-6); R_in,B {rows_b.get('r_in_ohm')!r} "
+            f"ohm, Q_B {rows_b.get('q_loaded')!r}"
+        )
     # Q(r)/Q(0) beside the closed form 1/Q = 1/Q_0 + 1/Q_C, Q_C = 1/(omega C_in r).
     q0 = lossless["rows_a"].get("q_loaded") if lossless else None
     r0 = lossless["rows_a"].get("r_in_ohm") if lossless else None
@@ -2547,75 +3163,95 @@ def tune_esr():
             ex = qr / q_cf - 1.0
             q0m = q0 / T22P_Q0_X1 - 1.0
             qm = qr / T35_Q_R_X1 - 1.0
-            _say(f"[ans7-exact] T38 Q(r, h) {qr!r} vs Q(0, h) = Q_0(h) {q0!r} ({jl.parent.name}/"
-                 f"{jl.name}, item 365b A): Q(r, h)/Q_0(h) = {qr / q0:.6f} (PREDICTED in "
-                 f"[0.405, 0.425]: {_met(0.405 <= qr / q0 <= 0.425)}); closed form Q_C(h) = "
-                 f"1/(omega C_in r) = {q_c:.4f} (PREDICTED ~407.47, x1 407.83), 1/Q = 1/Q_0 + "
-                 f"1/Q_C -> Q {q_cf:.4f}, ratio {q_cf / q0:.6f} (PREDICTED ~243.756, ~0.40178); "
-                 f"Q(r, h) PREDICTED in [246, 258], central 252.41: {_met(246.0 <= qr <= 258.0)}; "
-                 f"Q(r, h)/closed form - 1 = {ex:+.4%} (PREDICTED in [+2.5 %, +4.5 %]: "
-                 f"{_met(0.025 <= ex <= 0.045)}; x1 T35_Q_CLOSED_EXCESS_X1 "
-                 f"{T35_Q_CLOSED_EXCESS_X1:+.4%}; printed, never asserted)")
-            _say(f"[ans7-exact] T38 step reading: Q(r, h)/Q(r, x1) - 1 = {qm:+.6e} vs "
-                 f"T35_Q_R_X1 {T35_Q_R_X1!r} (PREDICTED in [-1.2e-2, -4e-3], central -8.10e-3: "
-                 f"{_met(-1.2e-2 <= qm <= -4e-3)}); Q_0's h-move at C_in Q_0(h)/Q_0(x1) - 1 = "
-                 f"{q0m:+.6e} (T22P_Q0_X1 {T22P_Q0_X1!r}; brief -1.8827e-2); ratio Q(r) move / "
-                 f"Q_0 move = {qm / q0m:.4f} (PREDICTED ~0.43, in [0.2, 0.7]: "
-                 f"{_met(0.2 <= qm / q0m <= 0.7)}; 64 MHz rung 0.2915, item 395); |Q(r) move| < "
-                 f"|Q_0 move|: {_met(abs(qm) < abs(q0m))} (printed, never asserted)")
+            _say(
+                f"[ans7-exact] T38 Q(r, h) {qr!r} vs Q(0, h) = Q_0(h) {q0!r} ({jl.parent.name}/"
+                f"{jl.name}, item 365b A): Q(r, h)/Q_0(h) = {qr / q0:.6f} (PREDICTED in "
+                f"[0.405, 0.425]: {_met(0.405 <= qr / q0 <= 0.425)}); closed form Q_C(h) = "
+                f"1/(omega C_in r) = {q_c:.4f} (PREDICTED ~407.47, x1 407.83), 1/Q = 1/Q_0 + "
+                f"1/Q_C -> Q {q_cf:.4f}, ratio {q_cf / q0:.6f} (PREDICTED ~243.756, ~0.40178); "
+                f"Q(r, h) PREDICTED in [246, 258], central 252.41: {_met(246.0 <= qr <= 258.0)}; "
+                f"Q(r, h)/closed form - 1 = {ex:+.4%} (PREDICTED in [+2.5 %, +4.5 %]: "
+                f"{_met(0.025 <= ex <= 0.045)}; x1 T35_Q_CLOSED_EXCESS_X1 "
+                f"{T35_Q_CLOSED_EXCESS_X1:+.4%}; printed, never asserted)"
+            )
+            _say(
+                f"[ans7-exact] T38 step reading: Q(r, h)/Q(r, x1) - 1 = {qm:+.6e} vs "
+                f"T35_Q_R_X1 {T35_Q_R_X1!r} (PREDICTED in [-1.2e-2, -4e-3], central -8.10e-3: "
+                f"{_met(-1.2e-2 <= qm <= -4e-3)}); Q_0's h-move at C_in Q_0(h)/Q_0(x1) - 1 = "
+                f"{q0m:+.6e} (T22P_Q0_X1 {T22P_Q0_X1!r}; brief -1.8827e-2); ratio Q(r) move / "
+                f"Q_0 move = {qm / q0m:.4f} (PREDICTED ~0.43, in [0.2, 0.7]: "
+                f"{_met(0.2 <= qm / q0m <= 0.7)}; 64 MHz rung 0.2915, item 395); |Q(r) move| < "
+                f"|Q_0 move|: {_met(abs(qm) < abs(q0m))} (printed, never asserted)"
+            )
         elif t35:
-            _say(f"[ans7-exact] T35 Q(r) {qr!r} vs Q(0) = Q_0 {q0!r} ({jl.parent.name}/{jl.name}, "
-                 f"item 283): Q(r)/Q(0) = {qr / q0:.6f}; closed form Q_C = 1/(omega C_in r) = "
-                 f"{q_c:.4f}, 1/Q = 1/Q_0 + 1/Q_C -> Q {q_cf:.4f}, ratio {q_cf / q0:.6f} "
-                 f"(PREDICTED Q(r) in [240, 255]: {_met(240.0 <= qr <= 255.0)}; ratio in "
-                 f"[0.38, 0.42]: {_met(0.38 <= qr / q0 <= 0.42)}); Q(r)/closed form - 1 = "
-                 f"{qr / q_cf - 1.0:+.4%} (PREDICTED in [0, +3 %]: "
-                 f"{_met(0.0 <= qr / q_cf - 1.0 <= 0.03)}; printed, never asserted)")
+            _say(
+                f"[ans7-exact] T35 Q(r) {qr!r} vs Q(0) = Q_0 {q0!r} ({jl.parent.name}/{jl.name}, "
+                f"item 283): Q(r)/Q(0) = {qr / q0:.6f}; closed form Q_C = 1/(omega C_in r) = "
+                f"{q_c:.4f}, 1/Q = 1/Q_0 + 1/Q_C -> Q {q_cf:.4f}, ratio {q_cf / q0:.6f} "
+                f"(PREDICTED Q(r) in [240, 255]: {_met(240.0 <= qr <= 255.0)}; ratio in "
+                f"[0.38, 0.42]: {_met(0.38 <= qr / q0 <= 0.42)}); Q(r)/closed form - 1 = "
+                f"{qr / q_cf - 1.0:+.4%} (PREDICTED in [0, +3 %]: "
+                f"{_met(0.0 <= qr / q_cf - 1.0 <= 0.03)}; printed, never asserted)"
+            )
         elif h37:
             ex = qr / q_cf - 1.0
             q0m = q0 / T21P_Q0_X1 - 1.0
             qm = qr / T26_Q_R_X1 - 1.0
-            _say(f"[ans7-exact] T37 Q(r, h) {qr!r} vs Q(0, h) = Q_0(h) {q0!r} ({jl.name}, item "
-                 f"310 W5): Q(r, h)/Q_0(h) = {qr / q0:.6f} (PREDICTED in [0.166, 0.174]: "
-                 f"{_met(0.166 <= qr / q0 <= 0.174)}); closed form Q_C(h) = 1/(omega C_in r) = "
-                 f"{q_c:.4f} (PREDICTED ~195.36), 1/Q = 1/Q_0 + 1/Q_C -> Q {q_cf:.4f}, ratio "
-                 f"{q_cf / q0:.6f} (PREDICTED ~162.454, ~0.16844); Q(r, h) PREDICTED in [161, 167], "
-                 f"central 164.24: {_met(161.0 <= qr <= 167.0)}; Q(r, h)/closed form - 1 = "
-                 f"{ex:+.4%} (PREDICTED in [+0.7 %, +1.5 %]: {_met(0.007 <= ex <= 0.015)}; x1 "
-                 f"T26_Q_CLOSED_EXCESS_X1 {T26_Q_CLOSED_EXCESS_X1:+.4%}; printed, never asserted)")
-            _say(f"[ans7-exact] T37 step reading: Q(r, h)/Q(r, x1) - 1 = {qm:+.6e} vs "
-                 f"T26_Q_R_X1 {T26_Q_R_X1!r} (PREDICTED in [-4e-3, 0], central -1.84e-3: "
-                 f"{_met(-4e-3 <= qm <= 0.0)}); Q_0's h-move at C_in Q_0(h)/Q_0(x1) - 1 = "
-                 f"{q0m:+.6e} (T21P_Q0_X1 {T21P_Q0_X1!r}; brief -6.832e-3); T30's move at C_F "
-                 f"T30_Q_H_REL_CF {T30_Q_H_REL_CF:+.4e}; ratio Q(r) move / Q_0 move = "
-                 f"{qm / q0m:.4f} (PREDICTED ~0.27, in [0, 0.6]: {_met(0.0 <= qm / q0m <= 0.6)}); "
-                 f"|Q(r) move| < |Q_0 move|: {_met(abs(qm) < abs(q0m))} (printed, never asserted)")
+            _say(
+                f"[ans7-exact] T37 Q(r, h) {qr!r} vs Q(0, h) = Q_0(h) {q0!r} ({jl.name}, item "
+                f"310 W5): Q(r, h)/Q_0(h) = {qr / q0:.6f} (PREDICTED in [0.166, 0.174]: "
+                f"{_met(0.166 <= qr / q0 <= 0.174)}); closed form Q_C(h) = 1/(omega C_in r) = "
+                f"{q_c:.4f} (PREDICTED ~195.36), 1/Q = 1/Q_0 + 1/Q_C -> Q {q_cf:.4f}, ratio "
+                f"{q_cf / q0:.6f} (PREDICTED ~162.454, ~0.16844); Q(r, h) PREDICTED in [161, 167], "
+                f"central 164.24: {_met(161.0 <= qr <= 167.0)}; Q(r, h)/closed form - 1 = "
+                f"{ex:+.4%} (PREDICTED in [+0.7 %, +1.5 %]: {_met(0.007 <= ex <= 0.015)}; x1 "
+                f"T26_Q_CLOSED_EXCESS_X1 {T26_Q_CLOSED_EXCESS_X1:+.4%}; printed, never asserted)"
+            )
+            _say(
+                f"[ans7-exact] T37 step reading: Q(r, h)/Q(r, x1) - 1 = {qm:+.6e} vs "
+                f"T26_Q_R_X1 {T26_Q_R_X1!r} (PREDICTED in [-4e-3, 0], central -1.84e-3: "
+                f"{_met(-4e-3 <= qm <= 0.0)}); Q_0's h-move at C_in Q_0(h)/Q_0(x1) - 1 = "
+                f"{q0m:+.6e} (T21P_Q0_X1 {T21P_Q0_X1!r}; brief -6.832e-3); T30's move at C_F "
+                f"T30_Q_H_REL_CF {T30_Q_H_REL_CF:+.4e}; ratio Q(r) move / Q_0 move = "
+                f"{qm / q0m:.4f} (PREDICTED ~0.27, in [0, 0.6]: {_met(0.0 <= qm / q0m <= 0.6)}); "
+                f"|Q(r) move| < |Q_0 move|: {_met(abs(qm) < abs(q0m))} (printed, never asserted)"
+            )
         else:
-            _say(f"[ans7-exact] T26 Q(r) {qr!r} vs Q(0) = Q_0 {q0!r} ({jl.name}, item 262): "
-                 f"Q(r)/Q(0) = {qr / q0:.6f}; closed form Q_C = 1/(omega C_in r) = {q_c:.4f}, "
-                 f"1/Q = 1/Q_0 + 1/Q_C -> Q {q_cf:.4f}, ratio {q_cf / q0:.6f} (PREDICTED Q(r) ~163, "
-                 f"ratio ~0.168: {_met(0.1 <= qr / q0 <= 0.25)}); Q(r)/closed form - 1 = "
-                 f"{qr / q_cf - 1.0:+.4%} (printed, never asserted)")
+            _say(
+                f"[ans7-exact] T26 Q(r) {qr!r} vs Q(0) = Q_0 {q0!r} ({jl.name}, item 262): "
+                f"Q(r)/Q(0) = {qr / q0:.6f}; closed form Q_C = 1/(omega C_in r) = {q_c:.4f}, "
+                f"1/Q = 1/Q_0 + 1/Q_C -> Q {q_cf:.4f}, ratio {q_cf / q0:.6f} (PREDICTED Q(r) ~163, "
+                f"ratio ~0.168: {_met(0.1 <= qr / q0 <= 0.25)}); Q(r)/closed form - 1 = "
+                f"{qr / q_cf - 1.0:+.4%} (printed, never asserted)"
+            )
     if r0 and rows_a.get("r_in_ohm"):
         if h38:
             rh = rows_a["r_in_ohm"] / T35_R_IN_R_X1 - 1.0
-            _say(f"[ans7-exact] T38 R_in(r, h) {rows_a['r_in_ohm']!r} ohm (PREDICTED ~9703) vs "
-                 f"R_in(0, h) {r0!r} ohm: ratio {rows_a['r_in_ohm'] / r0:.6f}; R_in(r, h)/R_in(r, "
-                 f"x1) - 1 = {rh:+.6e} vs T35_R_IN_R_X1 {T35_R_IN_R_X1!r} (PREDICTED in "
-                 f"[-1.4e-2, -4e-3], central -9.0e-3: {_met(-1.4e-2 <= rh <= -4e-3)}; printed)")
+            _say(
+                f"[ans7-exact] T38 R_in(r, h) {rows_a['r_in_ohm']!r} ohm (PREDICTED ~9703) vs "
+                f"R_in(0, h) {r0!r} ohm: ratio {rows_a['r_in_ohm'] / r0:.6f}; R_in(r, h)/R_in(r, "
+                f"x1) - 1 = {rh:+.6e} vs T35_R_IN_R_X1 {T35_R_IN_R_X1!r} (PREDICTED in "
+                f"[-1.4e-2, -4e-3], central -9.0e-3: {_met(-1.4e-2 <= rh <= -4e-3)}; printed)"
+            )
         elif t35:
             rq = rows_a["r_in_ohm"] / r0
-            _say(f"[ans7-exact] T35 R_in(r) {rows_a['r_in_ohm']!r} ohm vs R_in(0) {r0!r} ohm: "
-                 f"ratio {rq:.6f} (PREDICTED in [0.37, 0.43]: {_met(0.37 <= rq <= 0.43)}; printed)")
+            _say(
+                f"[ans7-exact] T35 R_in(r) {rows_a['r_in_ohm']!r} ohm vs R_in(0) {r0!r} ohm: "
+                f"ratio {rq:.6f} (PREDICTED in [0.37, 0.43]: {_met(0.37 <= rq <= 0.43)}; printed)"
+            )
         elif h37:
             rh = rows_a["r_in_ohm"] / T26_R_IN_R_X1 - 1.0
-            _say(f"[ans7-exact] T37 R_in(r, h) {rows_a['r_in_ohm']!r} ohm (PREDICTED ~3166) vs "
-                 f"R_in(0, h) {r0!r} ohm: ratio {rows_a['r_in_ohm'] / r0:.6f}; R_in(r, h)/R_in(r, "
-                 f"x1) - 1 = {rh:+.6e} vs T26_R_IN_R_X1 {T26_R_IN_R_X1!r} (PREDICTED in [-6e-3, "
-                 f"-1e-3]: {_met(-6e-3 <= rh <= -1e-3)}; printed)")
+            _say(
+                f"[ans7-exact] T37 R_in(r, h) {rows_a['r_in_ohm']!r} ohm (PREDICTED ~3166) vs "
+                f"R_in(0, h) {r0!r} ohm: ratio {rows_a['r_in_ohm'] / r0:.6f}; R_in(r, h)/R_in(r, "
+                f"x1) - 1 = {rh:+.6e} vs T26_R_IN_R_X1 {T26_R_IN_R_X1!r} (PREDICTED in [-6e-3, "
+                f"-1e-3]: {_met(-6e-3 <= rh <= -1e-3)}; printed)"
+            )
         else:
-            _say(f"[ans7-exact] T26 R_in(r) {rows_a['r_in_ohm']!r} ohm vs R_in(0) {r0!r} ohm: ratio "
-                 f"{rows_a['r_in_ohm'] / r0:.6f} (printed)")
+            _say(
+                f"[ans7-exact] T26 R_in(r) {rows_a['r_in_ohm']!r} ohm vs R_in(0) {r0!r} ohm: ratio "
+                f"{rows_a['r_in_ohm'] / r0:.6f} (printed)"
+            )
     j = [round(g, 6) for g in tune].index(round(tgt / 1e6, 6))
     # (N-L), predicted, printed: lossless circuit (r = 0 at C_in(0)) vs in-model at (r, C_in(r)).
     s_nl = _s11_from_z(route_b_z(z64_cu, tgt, c_in0)[1])
@@ -2623,87 +3259,144 @@ def tune_esr():
     zin_nl = complex(route_b_z(z64_cu, tgt, c_in0)[0])
     n_l_zin = float(abs(zin_nl - z_in_a[j]) / abs(z_in_a[j]))
     if h38:
-        _say(f"[ans7-exact] T38 (N-Lh') lossless circuit at C_in(0, h) vs in-model at (r, "
-             f"C_in(r, h)), 127.74 MHz Cu: |dS11_bare|/|S11| = {n_l:.6e} = "
-             f"{n_l / REDUCTION_BAND:.2f} x REDUCTION_BAND (PREDICTED in [1, 4] x, i.e. NOT "
-             f"separating at 10 x: {_met(1.0 * REDUCTION_BAND <= n_l <= 4.0 * REDUCTION_BAND)}; "
-             f">= 10 x: {_met(n_l >= 10.0 * REDUCTION_BAND)}; x1 2.17 x; printed, never "
-             f"asserted); on Z_in |dZ|/|Z| = {n_l_zin:.6e} (PREDICTED ~Q_0(h)/Q_closed - 1 "
-             f"~1.489, in [1.3, 1.7]: {_met(1.3 <= n_l_zin <= 1.7)}; x1 1.419; printed)")
+        _say(
+            f"[ans7-exact] T38 (N-Lh') lossless circuit at C_in(0, h) vs in-model at (r, "
+            f"C_in(r, h)), 127.74 MHz Cu: |dS11_bare|/|S11| = {n_l:.6e} = "
+            f"{n_l / REDUCTION_BAND:.2f} x REDUCTION_BAND (PREDICTED in [1, 4] x, i.e. NOT "
+            f"separating at 10 x: {_met(1.0 * REDUCTION_BAND <= n_l <= 4.0 * REDUCTION_BAND)}; "
+            f">= 10 x: {_met(n_l >= 10.0 * REDUCTION_BAND)}; x1 2.17 x; printed, never "
+            f"asserted); on Z_in |dZ|/|Z| = {n_l_zin:.6e} (PREDICTED ~Q_0(h)/Q_closed - 1 "
+            f"~1.489, in [1.3, 1.7]: {_met(1.3 <= n_l_zin <= 1.7)}; x1 1.419; printed)"
+        )
     elif t35:
-        _say(f"[ans7-exact] T35 (N-L') lossless circuit at C_in(0) vs in-model at (r, C_in(r)), "
-             f"127.74 MHz Cu: |dS11_bare|/|S11| = {n_l:.6e} = {n_l / REDUCTION_BAND:.2f} x "
-             f"REDUCTION_BAND (PREDICTED in [0.5, 5] x, i.e. NOT separating at 10 x: "
-             f"{_met(0.5 * REDUCTION_BAND <= n_l <= 5.0 * REDUCTION_BAND)}; >= 10 x: "
-             f"{_met(n_l >= 10.0 * REDUCTION_BAND)}; printed, never asserted); on Z_in |dZ|/|Z| "
-             f"= {n_l_zin:.6e} (PREDICTED ~Q_0/Q_closed - 1 ~1.52, in [1.3, 1.8]: "
-             f"{_met(1.3 <= n_l_zin <= 1.8)}; printed)")
+        _say(
+            f"[ans7-exact] T35 (N-L') lossless circuit at C_in(0) vs in-model at (r, C_in(r)), "
+            f"127.74 MHz Cu: |dS11_bare|/|S11| = {n_l:.6e} = {n_l / REDUCTION_BAND:.2f} x "
+            f"REDUCTION_BAND (PREDICTED in [0.5, 5] x, i.e. NOT separating at 10 x: "
+            f"{_met(0.5 * REDUCTION_BAND <= n_l <= 5.0 * REDUCTION_BAND)}; >= 10 x: "
+            f"{_met(n_l >= 10.0 * REDUCTION_BAND)}; printed, never asserted); on Z_in |dZ|/|Z| "
+            f"= {n_l_zin:.6e} (PREDICTED ~Q_0/Q_closed - 1 ~1.52, in [1.3, 1.8]: "
+            f"{_met(1.3 <= n_l_zin <= 1.8)}; printed)"
+        )
     elif h37:
-        _say(f"[ans7-exact] T37 (N-Lh) lossless circuit at C_in(0, h) vs in-model at (r, C_in(r, h)), "
-             f"64.0 MHz Cu: |dS11_bare|/|S11| = {n_l:.6e} = {n_l / REDUCTION_BAND:.2f} x "
-             f"REDUCTION_BAND (PREDICTED in [3, 7] x, i.e. NOT separating at 10 x: "
-             f"{_met(3.0 * REDUCTION_BAND <= n_l <= 7.0 * REDUCTION_BAND)}; >= 10 x: "
-             f"{_met(n_l >= 10.0 * REDUCTION_BAND)}; x1 4.97 x; printed, never asserted); on Z_in "
-             f"|dZ|/|Z| = {n_l_zin:.6e} (PREDICTED ~4.94, in [4.6, 5.2]: "
-             f"{_met(4.6 <= n_l_zin <= 5.2)}; x1 4.878; printed)")
+        _say(
+            f"[ans7-exact] T37 (N-Lh) lossless circuit at C_in(0, h) vs in-model at (r, C_in(r, h)), "
+            f"64.0 MHz Cu: |dS11_bare|/|S11| = {n_l:.6e} = {n_l / REDUCTION_BAND:.2f} x "
+            f"REDUCTION_BAND (PREDICTED in [3, 7] x, i.e. NOT separating at 10 x: "
+            f"{_met(3.0 * REDUCTION_BAND <= n_l <= 7.0 * REDUCTION_BAND)}; >= 10 x: "
+            f"{_met(n_l >= 10.0 * REDUCTION_BAND)}; x1 4.97 x; printed, never asserted); on Z_in "
+            f"|dZ|/|Z| = {n_l_zin:.6e} (PREDICTED ~4.94, in [4.6, 5.2]: "
+            f"{_met(4.6 <= n_l_zin <= 5.2)}; x1 4.878; printed)"
+        )
     else:
-        _say(f"[ans7-exact] T26 (N-L) lossless circuit at C_in(0) vs in-model at (r, C_in(r)), "
-             f"64.0 MHz Cu: |dS11_bare|/|S11| = {n_l:.6e} = {n_l / REDUCTION_BAND:.2f} x "
-             f"REDUCTION_BAND (PREDICTED >= 10 x: {_met(n_l >= 10.0 * REDUCTION_BAND)}; printed, "
-             f"never asserted); on Z_in |dZ|/|Z| = {n_l_zin:.6e}")
+        _say(
+            f"[ans7-exact] T26 (N-L) lossless circuit at C_in(0) vs in-model at (r, C_in(r)), "
+            f"64.0 MHz Cu: |dS11_bare|/|S11| = {n_l:.6e} = {n_l / REDUCTION_BAND:.2f} x "
+            f"REDUCTION_BAND (PREDICTED >= 10 x: {_met(n_l >= 10.0 * REDUCTION_BAND)}; printed, "
+            f"never asserted); on Z_in |dZ|/|Z| = {n_l_zin:.6e}"
+        )
     # (N2-r), predicted, printed: circuit at 0.5*C_in(r) (with r) vs in-model at C_in(r).
     s_n2 = _s11_from_z(_route_b_z_esr(z64_cu, tgt, 0.5 * c_in_r, r_ohm)[1])
     n2 = float(abs(s_n2 - s_as[j]) / abs(s_as[j]))
     if h38:
-        _say(f"[ans7-exact] T38 (N2-rh') circuit at 0.5*C_in(r, h) vs in-model at C_in(r, h), "
-             f"127.74 MHz Cu: |dS|/|S| = {n2:.6e} = {n2 / REDUCTION_BAND:.2f} x REDUCTION_BAND "
-             f"(PREDICTED >= 10 x: {_met(n2 >= 10.0 * REDUCTION_BAND)}; lossless h 494.00 x, x1 "
-             f"ESR 494.07 x; printed, never asserted)")
+        _say(
+            f"[ans7-exact] T38 (N2-rh') circuit at 0.5*C_in(r, h) vs in-model at C_in(r, h), "
+            f"127.74 MHz Cu: |dS|/|S| = {n2:.6e} = {n2 / REDUCTION_BAND:.2f} x REDUCTION_BAND "
+            f"(PREDICTED >= 10 x: {_met(n2 >= 10.0 * REDUCTION_BAND)}; lossless h 494.00 x, x1 "
+            f"ESR 494.07 x; printed, never asserted)"
+        )
     elif t35:
-        _say(f"[ans7-exact] T35 (N2-r') circuit at 0.5*C_in(r) vs in-model at C_in(r), 127.74 MHz "
-             f"Cu: |dS|/|S| = {n2:.6e} = {n2 / REDUCTION_BAND:.2f} x REDUCTION_BAND (PREDICTED "
-             f">= 10 x: {_met(n2 >= 10.0 * REDUCTION_BAND)}; lossless 493.82 x; printed, never "
-             f"asserted)")
+        _say(
+            f"[ans7-exact] T35 (N2-r') circuit at 0.5*C_in(r) vs in-model at C_in(r), 127.74 MHz "
+            f"Cu: |dS|/|S| = {n2:.6e} = {n2 / REDUCTION_BAND:.2f} x REDUCTION_BAND (PREDICTED "
+            f">= 10 x: {_met(n2 >= 10.0 * REDUCTION_BAND)}; lossless 493.82 x; printed, never "
+            f"asserted)"
+        )
     elif h37:
-        _say(f"[ans7-exact] T37 (N2-rh) circuit at 0.5*C_in(r, h) vs in-model at C_in(r, h), 64.0 "
-             f"MHz Cu: |dS|/|S| = {n2:.6e} = {n2 / REDUCTION_BAND:.2f} x REDUCTION_BAND (PREDICTED "
-             f">= 10 x: {_met(n2 >= 10.0 * REDUCTION_BAND)}; lossless h 493.62 x, x1 ESR 494.39 x; "
-             f"printed, never asserted)")
+        _say(
+            f"[ans7-exact] T37 (N2-rh) circuit at 0.5*C_in(r, h) vs in-model at C_in(r, h), 64.0 "
+            f"MHz Cu: |dS|/|S| = {n2:.6e} = {n2 / REDUCTION_BAND:.2f} x REDUCTION_BAND (PREDICTED "
+            f">= 10 x: {_met(n2 >= 10.0 * REDUCTION_BAND)}; lossless h 493.62 x, x1 ESR 494.39 x; "
+            f"printed, never asserted)"
+        )
     else:
-        _say(f"[ans7-exact] T26 (N2-r) circuit at 0.5*C_in(r) vs in-model at C_in(r), 64.0 MHz Cu: "
-             f"|dS|/|S| = {n2:.6e} = {n2 / REDUCTION_BAND:.2f} x REDUCTION_BAND (PREDICTED >= 10 x: "
-             f"{_met(n2 >= 10.0 * REDUCTION_BAND)}; lossless 493.78 x; printed, never asserted)")
-    _say(f"[ans7-exact] {tag} W2 total {time.perf_counter() - t0:.1f} s (mesh {t_mesh:.1f} s, (W) "
-         f"{t_w:.1f} s, degree-{deg} drives {', '.join(f'{t:.1f}' for t in t_drive)} s), "
-         f"cells {cells}, -n {comm.size}")
+        _say(
+            f"[ans7-exact] T26 (N2-r) circuit at 0.5*C_in(r) vs in-model at C_in(r), 64.0 MHz Cu: "
+            f"|dS|/|S| = {n2:.6e} = {n2 / REDUCTION_BAND:.2f} x REDUCTION_BAND (PREDICTED >= 10 x: "
+            f"{_met(n2 >= 10.0 * REDUCTION_BAND)}; lossless 493.78 x; printed, never asserted)"
+        )
+    _say(
+        f"[ans7-exact] {tag} W2 total {time.perf_counter() - t0:.1f} s (mesh {t_mesh:.1f} s, (W) "
+        f"{t_w:.1f} s, degree-{deg} drives {', '.join(f'{t:.1f}' for t in t_drive)} s), "
+        f"cells {cells}, -n {comm.size}"
+    )
     if comm.rank == 0:
         act["out"].mkdir(parents=True, exist_ok=True)
-        p_tune = {"c_in_r": c_in_r, "c_in_0": c_in0, "esr_ohm": r_ohm, "f_hz": tgt, "g": g_r,
-                  "iterations": it_r, "c_r0": c_r0}
+        p_tune = {
+            "c_in_r": c_in_r,
+            "c_in_0": c_in0,
+            "esr_ohm": r_ohm,
+            "f_hz": tgt,
+            "g": g_r,
+            "iterations": it_r,
+            "c_r0": c_r0,
+        }
         p_inm = {
-            "degree": deg, "ranks": comm.size, "cells": cells, "esr_ohm": r_ohm,
-            "c_in_r": c_in_r, "c_in_0": c_in0, "tune_mhz": list(tune), "residual_ab": res,
-            "s11_a": [[s.real, s.imag] for s in s_as], "s11_b": [[s.real, s.imag] for s in s_bs],
-            "z_in_a": [[z.real, z.imag] for z in z_in_a], "rows_a": rows_a, "rows_b": rows_b,
-            "w_residual": res_w, "w_item195": res_195, "n_l": n_l, "n2": n2, "q_c": q_c,
-            "t_drive_s": t_drive}
+            "degree": deg,
+            "ranks": comm.size,
+            "cells": cells,
+            "esr_ohm": r_ohm,
+            "c_in_r": c_in_r,
+            "c_in_0": c_in0,
+            "tune_mhz": list(tune),
+            "residual_ab": res,
+            "s11_a": [[s.real, s.imag] for s in s_as],
+            "s11_b": [[s.real, s.imag] for s in s_bs],
+            "z_in_a": [[z.real, z.imag] for z in z_in_a],
+            "rows_a": rows_a,
+            "rows_b": rows_b,
+            "w_residual": res_w,
+            "w_item195": res_195,
+            "n_l": n_l,
+            "n2": n2,
+            "q_c": q_c,
+            "t_drive_s": t_drive,
+        }
         if h37:
             # §9 item 395: the rung's own names; item 311's x1 ESR files are never written here.
             p_tune["resolution"] = H_RES
             p_inm["resolution"] = H_RES
             (act["out"] / f"tune_p{deg}{H_SFX}_esr{r_ohm:g}.json").write_text(json.dumps(p_tune))
             (act["out"] / f"tune_inmodel_cin_esr{r_ohm:g}_p{deg}{H_SFX}.json").write_text(
-                json.dumps(p_inm))
+                json.dumps(p_inm)
+            )
         else:
             (act["out"] / f"tune_p{deg}_esr{r_ohm:g}.json").write_text(json.dumps(p_tune))
             (act["out"] / f"tune_inmodel_cin_esr{r_ohm:g}_p{deg}.json").write_text(
-                json.dumps(p_inm))
+                json.dumps(p_inm)
+            )
     comm.Barrier()
-    return {"cells": cells, "tie": tie, "res": res, "rows_a": rows_a, "dw": dw, "n_l": n_l,
-            "stored_cells": recs[0]["cells"], "tune": tune, "tgt": tgt, "h": h37,
-            "hres": H_RES if h37 else None, "n_up": n_up, "n_dn": n_dn,
-            "q0_ok": (lossless["c_in"] == tj["c_in"] and lossless["cells"] == recs[0]["cells"])
-            if h37 else None, "tj_cells": tj.get("cells")}
+    return {
+        "cells": cells,
+        "tie": tie,
+        "res": res,
+        "rows_a": rows_a,
+        "dw": dw,
+        "n_l": n_l,
+        "stored_cells": recs[0]["cells"],
+        "tune": tune,
+        "tgt": tgt,
+        "h": h37,
+        "hres": H_RES if h37 else None,
+        "n_up": n_up,
+        "n_dn": n_dn,
+        "q0_ok": (
+            (lossless["c_in"] == tj["c_in"] and lossless["cells"] == recs[0]["cells"])
+            if h37
+            else None
+        ),
+        "tj_cells": tj.get("cells"),
+    }
 
 
 @complex_only

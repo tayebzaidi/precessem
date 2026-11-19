@@ -95,7 +95,9 @@ def solves():
     )
     out = {}
     t0 = time.perf_counter()
-    _say(f"[TH-18] omega0={omega0:.9e} rad/s delta0={delta0:.9e} m t5={t5:.9e} m t_half={t_half:.9e} m")
+    _say(
+        f"[TH-18] omega0={omega0:.9e} rad/s delta0={delta0:.9e} m t5={t5:.9e} m t_half={t_half:.9e} m"
+    )
     for key, kw in cases:
         t = time.perf_counter()
         out[key] = solve_impedance_wall_cavity_mode(
@@ -123,7 +125,9 @@ def solves():
 def test_premise_leo_reproduces_th14_record(solves):
     q = solves["leo"].q
     rel = abs(q / Q_LEO_RECORD - 1.0)
-    _say(f"[TH-18] (P) Q_leo={q:.7e} vs record {Q_LEO_RECORD:.6e} rel={rel:.3e} (bound {PREMISE_TOLERANCE:.0e})")
+    _say(
+        f"[TH-18] (P) Q_leo={q:.7e} vs record {Q_LEO_RECORD:.6e} rel={rel:.3e} (bound {PREMISE_TOLERANCE:.0e})"
+    )
     assert rel <= PREMISE_TOLERANCE
 
 
@@ -175,6 +179,7 @@ def test_iii_half_skin_depth_frequency_shift(solves):
 @pytest.mark.validation
 def test_negative_control_bulk_leontovich_misses_thin_layer(solves):
     gap = 1.0 - solves["leo"].q / Q_THIN_PREDICTED
-    _say(f"[TH-18] negative control: 1 - Q_leo/{Q_THIN_PREDICTED} = {gap:.4f} (expected 0.8398; floor {NEGATIVE_CONTROL_FLOOR})")
+    _say(
+        f"[TH-18] negative control: 1 - Q_leo/{Q_THIN_PREDICTED} = {gap:.4f} (expected 0.8398; floor {NEGATIVE_CONTROL_FLOOR})"
+    )
     assert gap > NEGATIVE_CONTROL_FLOOR
-

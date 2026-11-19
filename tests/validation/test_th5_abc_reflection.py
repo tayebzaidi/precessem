@@ -35,11 +35,11 @@ import os
 import numpy as np
 import pytest
 import ufl
+from dolfinx import fem
+from dolfinx import mesh as dmesh
+from dolfinx.fem.petsc import LinearProblem
 from mpi4py import MPI
 from petsc4py import PETSc
-
-from dolfinx import fem, mesh as dmesh
-from dolfinx.fem.petsc import LinearProblem
 
 from fem_em_solver.core.boundary_terms import (
     abc_first_order_reflection_te,
@@ -96,8 +96,10 @@ def test_numpy_reflection_anchors():
     z_te = eta0 / np.cos(theta)
     gamma_mode = (eta0 - z_te) / (eta0 + z_te)
     worst = float(np.max(np.abs(gamma_mode - abc_first_order_reflection_te(np.cos(theta)))))
-    print(f"\n[TH-5 1a numpy] R(0.5) = {abc_first_order_reflection_te(0.5):.17f}; "
-          f"R(cos 89.9deg) = {r_near_grazing:.6f}; mode-impedance max diff = {worst:.3e}")
+    print(
+        f"\n[TH-5 1a numpy] R(0.5) = {abc_first_order_reflection_te(0.5):.17f}; "
+        f"R(cos 89.9deg) = {r_near_grazing:.6f}; mode-impedance max diff = {worst:.3e}"
+    )
     assert worst <= 1e-15
 
 
@@ -106,7 +108,9 @@ def test_numpy_reflection_anchors():
 
 def _box(comm, length, wy, wz, nx, ny, nz):
     msh = dmesh.create_box(
-        comm, [np.zeros(3), np.array([length, wy, wz])], [nx, ny, nz],
+        comm,
+        [np.zeros(3), np.array([length, wy, wz])],
+        [nx, ny, nz],
         cell_type=dmesh.CellType.tetrahedron,
     )
     fdim = msh.topology.dim - 1
@@ -159,9 +163,14 @@ def _solve(msh, tags, degree, drive, pec_tags, termination, cos_theta=1.0):
     # z-faces is normal; sin(πy/a) vanishes on y-faces), so the order is moot.
     bcs.append(fem.dirichletbc(zero, fem.locate_dofs_topological(V, fdim, wall_facets)))
     problem = LinearProblem(
-        a, L, bcs=bcs,
-        petsc_options={"ksp_type": "preonly", "pc_type": "lu",
-                       "pc_factor_mat_solver_type": "mumps"},
+        a,
+        L,
+        bcs=bcs,
+        petsc_options={
+            "ksp_type": "preonly",
+            "pc_type": "lu",
+            "pc_factor_mat_solver_type": "mumps",
+        },
         petsc_options_prefix=f"fem_em_th5_{termination}_{degree}_",
     )
     e_h = problem.solve()
@@ -208,8 +217,9 @@ class _Projection:
         c, s = ufl.cos(self.kc * x[0]), ufl.sin(self.kc * x[0])
         phi = (w * (c - j * s), w * (c + j * s))
         dx = ufl.Measure("dx", domain=msh, metadata={"quadrature_degree": 6})
-        self._m = [[fem.form(chi * ufl.inner(phi[q], phi[p]) * dx) for q in range(2)]
-                   for p in range(2)]
+        self._m = [
+            [fem.form(chi * ufl.inner(phi[q], phi[p]) * dx) for q in range(2)] for p in range(2)
+        ]
         self._b = [fem.form(chi * ufl.inner(ez, phi[p]) * dx) for p in range(2)]
         self._e2 = fem.form(chi * ufl.inner(ez, ez) * dx)
         self._vol = fem.form(chi * dx)
@@ -220,8 +230,9 @@ class _Projection:
     def solve(self, beta):
         """(A, B) and the squared residual ∫χ|ez − Aφ₀ − Bφ₁|² at ``beta``."""
         self.kc.value = PETSc.ScalarType(beta)
-        M = np.array([[_assemble_complex(self._m[p][q], self.comm) for q in range(2)]
-                      for p in range(2)])
+        M = np.array(
+            [[_assemble_complex(self._m[p][q], self.comm) for q in range(2)] for p in range(2)]
+        )
         b = np.array([_assemble_complex(self._b[p], self.comm) for p in range(2)])
         ab = np.linalg.solve(M, b)
         e2 = _assemble_complex(self._e2, self.comm).real
@@ -236,7 +247,7 @@ class _Projection:
         ks = k0 * (1.0 + np.linspace(-half_width, half_width, n))
         res = np.array([self.solve(k)[1] for k in ks])
         i = int(np.clip(np.argmin(res), 1, n - 2))
-        a2, a1, _ = np.polyfit(ks[i - 1:i + 2] - ks[i], res[i - 1:i + 2], 2)
+        a2, a1, _ = np.polyfit(ks[i - 1 : i + 2] - ks[i], res[i - 1 : i + 2], 2)
         k = float(ks[i] - a1 / (2.0 * a2))
         return k, self.gamma(k, length), bool(0 < int(np.argmin(res)) < n - 1)
 
@@ -254,11 +265,11 @@ def _tem_box(comm, h):
 def _tem(comm, h, degree, termination, scan=False):
     """One solve, both readings: the 41-point fit and the volume projection."""
     msh, tags, ncells, w = _tem_box(comm, h)
-    drive = lambda x: np.vstack([np.zeros(x.shape[1]), np.zeros(x.shape[1]),
-                                 np.ones(x.shape[1])]).astype(PETSc.ScalarType)
+    drive = lambda x: np.vstack(
+        [np.zeros(x.shape[1]), np.zeros(x.shape[1]), np.ones(x.shape[1])]
+    ).astype(PETSc.ScalarType)
     e_h = _solve(msh, tags, degree, drive, [TAG_Z], termination)
-    out = {"cells": ncells,
-           "fit": _fit_gamma(e_h, comm, FIT_N, 0.37 * w, 0.41 * w, K0, L_N)}
+    out = {"cells": ncells, "fit": _fit_gamma(e_h, comm, FIT_N, 0.37 * w, 0.41 * w, K0, L_N)}
     proj = _Projection(e_h[2], msh, PROJ_N[0], PROJ_N[1], K0)
     out["proj"] = proj.gamma(K0, L_N)
     if scan:
@@ -272,15 +283,16 @@ def _te10(comm, n_per_lambda, degree, termination, cos_theta=1.0, return_fields=
     ny = int(A_O / h)
     wz = 2.0 * h
     msh, tags, ncells = _box(comm, L_O, A_O, wz, nx, ny, 2)
-    drive = lambda x: np.vstack([np.zeros(x.shape[1]), np.zeros(x.shape[1]),
-                                 np.sin(np.pi * x[1] / A_O)]).astype(PETSc.ScalarType)
+    drive = lambda x: np.vstack(
+        [np.zeros(x.shape[1]), np.zeros(x.shape[1]), np.sin(np.pi * x[1] / A_O)]
+    ).astype(PETSc.ScalarType)
     e_h = _solve(msh, tags, degree, drive, [TAG_Y, TAG_Z], termination, cos_theta)
     y0 = 0.437 * A_O
-    gamma = _fit_gamma(e_h, comm, FIT_O, y0, 0.41 * wz, BETA_O, L_O,
-                       scale=np.sin(np.pi * y0 / A_O))
+    gamma = _fit_gamma(e_h, comm, FIT_O, y0, 0.41 * wz, BETA_O, L_O, scale=np.sin(np.pi * y0 / A_O))
     x = ufl.SpatialCoordinate(msh)
-    gamma_proj = _project_gamma(e_h[2], msh, FIT_O[0], FIT_O[1], BETA_O, L_O,
-                                w=ufl.sin(ufl.pi * x[1] / A_O))
+    gamma_proj = _project_gamma(
+        e_h[2], msh, FIT_O[0], FIT_O[1], BETA_O, L_O, w=ufl.sin(ufl.pi * x[1] / A_O)
+    )
     if return_fields:
         return gamma, ncells, (nx, ny, 2), gamma_proj, e_h, msh, tags
     return gamma, ncells, (nx, ny, 2), gamma_proj
@@ -306,14 +318,18 @@ def test_projection_premises():
         rel = abs(vol / (0.60 * w * w) - 1.0)
         worst_vol = max(worst_vol, rel)
         if comm.rank == 0:
-            print(f"\n[TH-5 1a2 (P)] lambda0/{n}: int chi dV = {vol:.15e}, "
-                  f"|./(0.60 (2h)^2) - 1| = {rel:.3e}")
+            print(
+                f"\n[TH-5 1a2 (P)] lambda0/{n}: int chi dV = {vol:.15e}, "
+                f"|./(0.60 (2h)^2) - 1| = {rel:.3e}"
+            )
         assert rel <= 1e-12, (n, rel)
         if n == 20:
             g = proj.gamma(K0, L_N)
             if comm.rank == 0:
-                print(f"[TH-5 1a2 (P)] planted Gamma = {PLANTED_GAMMA}, recovered {g:.12e}, "
-                      f"|diff| = {abs(g - PLANTED_GAMMA):.3e}")
+                print(
+                    f"[TH-5 1a2 (P)] planted Gamma = {PLANTED_GAMMA}, recovered {g:.12e}, "
+                    f"|diff| = {abs(g - PLANTED_GAMMA):.3e}"
+                )
             assert abs(g - PLANTED_GAMMA) <= 1e-10, g
 
 
@@ -333,9 +349,11 @@ def test_tem_line_abc_ladder():
         gammas.append(abs(r["proj"]))
         points.append(abs(r["fit"]))
         if comm.rank == 0:
-            print(f"\n[TH-5 1a2 (N)] h = lambda0/{n} ({r['cells']} cells): projection Gamma = "
-                  f"{r['proj']:.6e}, |Gamma| = {abs(r['proj']):.6e}; 41-point fit |Gamma| = "
-                  f"{abs(r['fit']):.6e} (attempt 1: {POINT_FIT_RECORD[ns.index(n)]:.3e})")
+            print(
+                f"\n[TH-5 1a2 (N)] h = lambda0/{n} ({r['cells']} cells): projection Gamma = "
+                f"{r['proj']:.6e}, |Gamma| = {abs(r['proj']):.6e}; 41-point fit |Gamma| = "
+                f"{abs(r['fit']):.6e} (attempt 1: {POINT_FIT_RECORD[ns.index(n)]:.3e})"
+            )
     rate = float(np.polyfit(np.log(hs), np.log(gammas), 1)[0])
     rate_pts = float(np.polyfit(np.log(hs), np.log(points), 1)[0])
     d2 = _tem(comm, LAMBDA0 / 40, 2, "abc")
@@ -343,25 +361,37 @@ def test_tem_line_abc_ladder():
     pec = _tem(comm, LAMBDA0 / 80, 1, "pec", scan=True)
     pmc = _tem(comm, LAMBDA0 / 80, 1, "pmc")
     if comm.rank == 0:
-        print(f"[TH-5 1a2 (N)] LSQ rate of |Gamma| in h: projection {rate:.4f} "
-              f"(predicted ~2), 41-point fit {rate_pts:.4f} (attempt 1: 0.617)")
-        print("[TH-5 1a2 (N)] predicted projection ladder 2.3e-3 / 5.7e-4 / 1.4e-4 / 3.5e-5 "
-              "(x/ 3); sampling hypothesis refuted if >= 9.1e-4 at lambda0/160, confirmed if "
-              "<= 4.3e-4 / <= 1.1e-4 at lambda0/80 / /160")
-        print(f"[TH-5 1a2 (N)] degree 2 at lambda0/40 ({d2['cells']} cells): projection |Gamma| = "
-              f"{abs(d2['proj']):.6e}, 41-point fit {abs(d2['fit']):.6e} (printed)")
+        print(
+            f"[TH-5 1a2 (N)] LSQ rate of |Gamma| in h: projection {rate:.4f} "
+            f"(predicted ~2), 41-point fit {rate_pts:.4f} (attempt 1: 0.617)"
+        )
+        print(
+            "[TH-5 1a2 (N)] predicted projection ladder 2.3e-3 / 5.7e-4 / 1.4e-4 / 3.5e-5 "
+            "(x/ 3); sampling hypothesis refuted if >= 9.1e-4 at lambda0/160, confirmed if "
+            "<= 4.3e-4 / <= 1.1e-4 at lambda0/80 / /160"
+        )
+        print(
+            f"[TH-5 1a2 (N)] degree 2 at lambda0/40 ({d2['cells']} cells): projection |Gamma| = "
+            f"{abs(d2['proj']):.6e}, 41-point fit {abs(d2['fit']):.6e} (printed)"
+        )
         for name, c in (("PEC", pec), ("PMC", pmc)):
             g0 = c["proj"] * np.exp(-2j * K0 * L_N)
-            print(f"[TH-5 1a2 (N) control {name} @ lambda0/80] projection Gamma = {c['proj']:.6f}, "
-                  f"|1+Gamma(0)| = {abs(1 + g0):.4f}, "
-                  f"factor |Gamma_{name}|/|Gamma_ABC| = {abs(c['proj']) / gammas[2]:.1f}; "
-                  f"41-point fit Gamma = {c['fit']:.6f}")
-        print(f"[TH-5 1a2 (N) control PEC] Im Gamma by projection = {pec['proj'].imag:.4e} "
-              f"(predicted 3.2e-3 x/ 3 if dispersion; point fit read 0.0272)")
+            print(
+                f"[TH-5 1a2 (N) control {name} @ lambda0/80] projection Gamma = {c['proj']:.6f}, "
+                f"|1+Gamma(0)| = {abs(1 + g0):.4f}, "
+                f"factor |Gamma_{name}|/|Gamma_ABC| = {abs(c['proj']) / gammas[2]:.1f}; "
+                f"41-point fit Gamma = {c['fit']:.6f}"
+            )
+        print(
+            f"[TH-5 1a2 (N) control PEC] Im Gamma by projection = {pec['proj'].imag:.4e} "
+            f"(predicted 3.2e-3 x/ 3 if dispersion; point fit read 0.0272)"
+        )
         for name, c in (("ABC", abc80), ("PEC", pec)):
-            print(f"[TH-5 1a2 (N) k_fit {name} @ lambda0/80] k_fit - k0 = {c['k_fit'] - K0:+.4e} rad/m "
-                  f"(predicted +1.8e-3; vertex interior: {c['scan_interior']}), "
-                  f"|Gamma| at k_fit = {abs(c['gamma_k_fit']):.6e} (printed, never the gate)")
+            print(
+                f"[TH-5 1a2 (N) k_fit {name} @ lambda0/80] k_fit - k0 = {c['k_fit'] - K0:+.4e} rad/m "
+                f"(predicted +1.8e-3; vertex interior: {c['scan_interior']}), "
+                f"|Gamma| at k_fit = {abs(c['gamma_k_fit']):.6e} (printed, never the gate)"
+            )
     assert gammas[2] <= 1e-3 and gammas[3] <= 1e-3, gammas
     assert all(gammas[i + 1] < gammas[i] for i in range(3)), gammas
     assert rate >= 1.5, rate
@@ -381,16 +411,26 @@ def test_te10_sixty_degrees():
     if comm.rank == 0:
         print(f"\n[TH-5 1a2 (O)] mesh {shape}, {nc} cells, a = {A_O:.5f} m, beta = {BETA_O:.6f}")
         print(f"[TH-5 1a2 (O1)] exact-angle Gamma = {g_exact:.6e}, |Gamma| = {abs(g_exact):.6e}")
-        print(f"[TH-5 1a2 (O2)] ABC Gamma = {g_abc:.6e}, |Gamma - (-1/3)| = {abs(g_abc - r_ref):.6e}")
-        print(f"[TH-5 1a2 (O2)] by projection: Gamma = {p_abc:.6e}, |Gamma - (-1/3)| = "
-              f"{abs(p_abc - r_ref):.6e} (printed; predicted 2.6e-4 x/ 3)")
-        print(f"[TH-5 1a2 (O2)] lambda0/40 deg 1: |Gamma - (-1/3)| = {abs(g_abc40 - r_ref):.6e}, "
-              f"projection {abs(p_abc40 - r_ref):.6e} (printed)")
-        print(f"[TH-5 1a2 (O2)] lambda0/40 deg 2: |Gamma - (-1/3)| = {abs(g_abc40_d2 - r_ref):.6e}, "
-              f"projection {abs(p_abc40_d2 - r_ref):.6e} (printed)")
+        print(
+            f"[TH-5 1a2 (O2)] ABC Gamma = {g_abc:.6e}, |Gamma - (-1/3)| = {abs(g_abc - r_ref):.6e}"
+        )
+        print(
+            f"[TH-5 1a2 (O2)] by projection: Gamma = {p_abc:.6e}, |Gamma - (-1/3)| = "
+            f"{abs(p_abc - r_ref):.6e} (printed; predicted 2.6e-4 x/ 3)"
+        )
+        print(
+            f"[TH-5 1a2 (O2)] lambda0/40 deg 1: |Gamma - (-1/3)| = {abs(g_abc40 - r_ref):.6e}, "
+            f"projection {abs(p_abc40 - r_ref):.6e} (printed)"
+        )
+        print(
+            f"[TH-5 1a2 (O2)] lambda0/40 deg 2: |Gamma - (-1/3)| = {abs(g_abc40_d2 - r_ref):.6e}, "
+            f"projection {abs(p_abc40_d2 - r_ref):.6e} (printed)"
+        )
         g0 = g_pec * np.exp(-2j * BETA_O * L_O)
-        print(f"[TH-5 1a2 (O) control PEC @ lambda0/80] Gamma = {g_pec:.6f}, "
-              f"|1+Gamma(0)| = {abs(1 + g0):.4f}, "
-              f"factor |Gamma_PEC - R|/|Gamma_ABC - R| = {abs(g_pec - r_ref) / abs(g_abc - r_ref):.1f}")
+        print(
+            f"[TH-5 1a2 (O) control PEC @ lambda0/80] Gamma = {g_pec:.6f}, "
+            f"|1+Gamma(0)| = {abs(1 + g0):.4f}, "
+            f"factor |Gamma_PEC - R|/|Gamma_ABC - R| = {abs(g_pec - r_ref) / abs(g_abc - r_ref):.1f}"
+        )
     assert abs(g_exact) <= O_BAND, g_exact
     assert abs(g_abc - r_ref) <= O_BAND, (g_abc, r_ref)

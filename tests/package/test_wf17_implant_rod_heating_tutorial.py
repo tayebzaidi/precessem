@@ -39,7 +39,6 @@ import yaml
 from mpi4py import MPI
 
 from fem_em_solver import FourPortBirdcageGeometry, RobinCooling, Study, TransientSpec
-
 from tests.complex_mode import IS_COMPLEX
 from tests.mesh.test_birdcage_implant_rod import ROD
 from tests.mesh.test_birdcage_leg_offset import IDENTITY_BAND
@@ -106,8 +105,12 @@ def _is_call(node, attr: str, owner: str | None = None) -> bool:
     f = node.func
     if owner is None:
         return isinstance(f, ast.Name) and f.id == attr
-    return (isinstance(f, ast.Attribute) and f.attr == attr
-            and isinstance(f.value, ast.Name) and f.value.id == owner)
+    return (
+        isinstance(f, ast.Attribute)
+        and f.attr == attr
+        and isinstance(f.value, ast.Name)
+        and f.value.id == owner
+    )
 
 
 def _em_free(block: str, through_heat: bool = False) -> ast.Module:
@@ -117,16 +120,25 @@ def _em_free(block: str, through_heat: bool = False) -> ast.Module:
     that one statement (the (c-off) control).  No EM solve, so no mesh.
     """
     body = ast.parse(block).body
-    i_sar = [i for i, n in enumerate(body)
-             if isinstance(n, ast.Expr) and _is_call(n.value, "sar", "study")]
-    i_p = [i for i, n in enumerate(body)
-           if isinstance(n, ast.Assign) and getattr(n.targets[0], "id", "") == "P"]
-    i_heat = [i for i, n in enumerate(body)
-              if isinstance(n, ast.Assign) and getattr(n.targets[0], "id", "") == "heat"]
+    i_sar = [
+        i
+        for i, n in enumerate(body)
+        if isinstance(n, ast.Expr) and _is_call(n.value, "sar", "study")
+    ]
+    i_p = [
+        i
+        for i, n in enumerate(body)
+        if isinstance(n, ast.Assign) and getattr(n.targets[0], "id", "") == "P"
+    ]
+    i_heat = [
+        i
+        for i, n in enumerate(body)
+        if isinstance(n, ast.Assign) and getattr(n.targets[0], "id", "") == "heat"
+    ]
     assert len(i_sar) == 1 and len(i_p) == 1 and len(i_heat) == 1, (i_sar, i_p, i_heat)
     assert i_sar[0] < i_p[0] < i_heat[0], (i_sar, i_p, i_heat)
     stop = i_heat[0] + 1 if through_heat else i_heat[0]
-    new = body[:i_sar[0]] + ast.parse("P = 1.0").body + body[i_p[0] + 1:stop]
+    new = body[: i_sar[0]] + ast.parse("P = 1.0").body + body[i_p[0] + 1 : stop]
     return ast.fix_missing_locations(ast.Module(body=new, type_ignores=[]))
 
 
@@ -138,9 +150,11 @@ def _head(block: str, through_heat: bool = False) -> dict:
 
 
 def _bands_text() -> str:
-    return (f"Python vs the study file, tip temperature at t*: {IDENTITY_BAND:.0e}\n"
-            f"energy balance (E): {E_BAND:.0e}\n"
-            f"volume slope (S2): {S2_BAND:.0e}")
+    return (
+        f"Python vs the study file, tip temperature at t*: {IDENTITY_BAND:.0e}\n"
+        f"energy balance (E): {E_BAND:.0e}\n"
+        f"volume slope (S2): {S2_BAND:.0e}"
+    )
 
 
 # ------------------------------------------------------------- W0 (no mesh)
@@ -173,10 +187,14 @@ def test_wf17_s32_heating_blocks_and_control(monkeypatch):
     drives = {k.arg: k.value for k in sar_calls[0].keywords}["drives"]
     assert ast.literal_eval(drives) == [DRIVE], ast.unparse(drives)
     p_val = _assigned(block, "P")
-    assert isinstance(p_val, ast.Subscript) and ast.literal_eval(p_val.slice) == "dissipated_power_w"
+    assert (
+        isinstance(p_val, ast.Subscript) and ast.literal_eval(p_val.slice) == "dissipated_power_w"
+    )
     assert _is_call(p_val.value, "mean_sar")
     kw = {k.arg: k.value for k in p_val.value.keywords}
-    assert ast.unparse(kw["subdomain_ids"]) == "study.geometry.phantom_tag", ast.unparse(kw["subdomain_ids"])
+    assert ast.unparse(kw["subdomain_ids"]) == "study.geometry.phantom_tag", ast.unparse(
+        kw["subdomain_ids"]
+    )
     cool = _assigned(block, "cooling")
     assert _is_call(cool, "RobinCooling")
     assert ast.unparse({k.arg: k.value for k in cool.keywords}["source_scale"]) == "1.0 / P"
@@ -187,13 +205,22 @@ def test_wf17_s32_heating_blocks_and_control(monkeypatch):
     assert st.material == _phantom() and st.degree == 1
     assert float(st.frequency_hz) == STEP2D_FREQUENCY_HZ
     assert isinstance(cooling, RobinCooling)
-    assert (cooling.k_w_per_m_k, cooling.h_w_per_m2_k, cooling.t_inf_c, cooling.degree,
-            cooling.source_scale) == (K_GEL, H_GEL, T_INF, 1, 1.0)
+    assert (
+        cooling.k_w_per_m_k,
+        cooling.h_w_per_m2_k,
+        cooling.t_inf_c,
+        cooling.degree,
+        cooling.source_scale,
+    ) == (K_GEL, H_GEL, T_INF, 1, 1.0)
     cn = _cn()
     assert isinstance(tr, TransientSpec)
     assert abs(tr.dt_s / cn.dt_s - 1.0) <= IDENTITY_BAND, (tr.dt_s, cn.dt_s)
     assert (tr.n_steps, tr.rho_c_j_per_m3_k, tr.theta, tr.startup_half_steps) == (
-        cn.n_steps, cn.rho_c_j_per_m3_k, cn.theta, cn.startup_half_steps)
+        cn.n_steps,
+        cn.rho_c_j_per_m3_k,
+        cn.theta,
+        cn.startup_half_steps,
+    )
     assert [tuple(t) for t in ns["tips"]] == list(TIPS.values())
     assert 'drive="P1"' in block and '"mass_g": 1.0' in block
     assert 'run_study_file("rod_heating.yaml")' in file_block
@@ -202,8 +229,10 @@ def test_wf17_s32_heating_blocks_and_control(monkeypatch):
     # No YAML fence in the heating section (the file is linked, not inlined).
     section = text.split("## Heating the phantom around the rod")[1].split("## What this")[0]
     assert "```yaml" not in section
-    _p0(f"\n[WF-17 s32] (In) rod {ROD}; dt {tr.dt_s!r} x {tr.n_steps}; tips {ns['tips']}; "
-        f"bands {bands!r}")
+    _p0(
+        f"\n[WF-17 s32] (In) rod {ROD}; dt {tr.dt_s!r} x {tr.n_steps}; tips {ns['tips']}; "
+        f"bands {bands!r}"
+    )
 
     # Control (asserted, ruling 2026-11-09 03:00): the EM-free head with the rod
     # removed, run through the `heat = study.temperature(` statement, is refused
@@ -221,8 +250,10 @@ def test_wf17_s32_heating_blocks_and_control(monkeypatch):
         full = "no exception"
     except Exception as exc:  # noqa: BLE001 - a reading, printed
         full = f"{type(exc).__name__}: {exc}"
-    _p0(f"[WF-17 s32] (c-off full, printed) rod-free full block: {full}; build spy calls "
-        f"{len(calls)}")
+    _p0(
+        f"[WF-17 s32] (c-off full, printed) rod-free full block: {full}; build spy calls "
+        f"{len(calls)}"
+    )
     calls.clear()
 
     # (N) the page's limits stay; no external tool named.
@@ -270,13 +301,19 @@ def test_wf17_s32_heating_blocks(monkeypatch):
 
     # (S2) one BE step at DT_1 on the block's Study (fields cached: no second EM solve).
     t0 = time.perf_counter()
-    be = st.temperature(ns["cooling"], transient=_be(), balls={"mass_g": 1.0, "centres": ns["tips"]},
-                        drive=DRIVE, comm=comm)
+    be = st.temperature(
+        ns["cooling"],
+        transient=_be(),
+        balls={"mass_g": 1.0, "centres": ns["tips"]},
+        drive=DRIVE,
+        comm=comm,
+    )
     res = st.fields_result
     sub, _pid = study_module._tag_submesh(res.mesh, res.cell_tags, PHANTOM_CELL_TAG)
     one = fem.Constant(sub, default_scalar_type(1.0))
-    v_sub = float(np.real(comm.allreduce(fem.assemble_scalar(fem.form(one * ufl.dx(domain=sub))),
-                                         op=MPI.SUM)))
+    v_sub = float(
+        np.real(comm.allreduce(fem.assemble_scalar(fem.form(one * ufl.dx(domain=sub))), op=MPI.SUM))
+    )
     s2 = abs(RHO_C * be.volume_mean_k[1] / (DT_1 * be.source_power_w / v_sub) - 1.0)
     t_be = time.perf_counter() - t0
 
@@ -294,51 +331,79 @@ def test_wf17_s32_heating_blocks(monkeypatch):
     comm.Barrier()
     file_block = extract_tagged_block(text, HEAT_FILE_TAG)
     ns_f, out_f = _exec_block(
-        monkeypatch, file_block.replace('"rod_heating.yaml"', repr(str(scratch / "rod_heating.yaml")), 1),
-        "heating-file")
+        monkeypatch,
+        file_block.replace('"rod_heating.yaml"', repr(str(scratch / "rod_heating.yaml")), 1),
+        "heating-file",
+    )
     assert file_block.count('"rod_heating.yaml"') == 1
     t_file = time.perf_counter() - t0
     summ = ns_f["run"].summary["temperature"]
     # (Scale) precondition: the file ran at exactly the block's scale.
-    scale_ok = comm.allreduce(int(summ["source_scale"] != ns["cooling"].source_scale), op=MPI.SUM) == 0
-    _p0(f"[WF-17 s32] (Scale) file {summ['source_scale']!r} vs block {ns['cooling'].source_scale!r}: "
-        f"{'equal' if scale_ok else 'DIFFERENT'} (precondition, ASSERTED)")
+    scale_ok = (
+        comm.allreduce(int(summ["source_scale"] != ns["cooling"].source_scale), op=MPI.SUM) == 0
+    )
+    _p0(
+        f"[WF-17 s32] (Scale) file {summ['source_scale']!r} vs block {ns['cooling'].source_scale!r}: "
+        f"{'equal' if scale_ok else 'DIFFERENT'} (precondition, ASSERTED)"
+    )
     assert scale_ok, (summ["source_scale"], ns["cooling"].source_scale)
-    _p0(f"[WF-17 s32] block P {float(ns['P']):.12e} W vs item 884 1.646387247816e-06 W "
+    _p0(
+        f"[WF-17 s32] block P {float(ns['P']):.12e} W vs item 884 1.646387247816e-06 W "
         f"(`20261108T223537Z_WF-15-s14p-W1.log:5674`); heat.source_power_w "
-        f"{float(heat.source_power_w):.15e} (884 (B) read 9.999999999999829e-01)")
-    _p0("[WF-17 s32] predictions (item 884, same scale, same mesh; printed, never asserted): "
+        f"{float(heat.source_power_w):.15e} (884 (B) read 9.999999999999829e-01)"
+    )
+    _p0(
+        "[WF-17 s32] predictions (item 884, same scale, same mesh; printed, never asserted): "
         "(E) CN ~4.4e-14, BE ~1.5e-11, file CN same order as CN; (Y) ~1e-14; "
-        "(R) raw 3.85e-10 / 2.72e-10; (S2) ~4.8353e-06")
+        "(R) raw 3.85e-10 / 2.72e-10; (S2) ~4.8353e-06"
+    )
 
     th_py = _tips(heat.balls)
     th_file = _tips(summ["balls"])
     rel_y = {n: abs(th_file[n] / th_py[n] - 1.0) for n in TIPS}
     per_w = {n: th_py[n] / float(heat.source_power_w) for n in TIPS}
     per_w_file = {n: th_file[n] / float(summ["source_power_w"]) for n in TIPS}
-    unit = {n: PRINT_LAST_DIGIT * 10.0 ** math.floor(math.log10(abs(float(RECORD_9E[n])))) for n in TIPS}
+    unit = {
+        n: PRINT_LAST_DIGIT * 10.0 ** math.floor(math.log10(abs(float(RECORD_9E[n])))) for n in TIPS
+    }
     dev = {n: abs(float(f"{per_w[n]:.9e}") - float(RECORD_9E[n])) for n in TIPS}
     dev_raw = {n: abs(per_w[n] - float(RECORD_9E[n])) for n in TIPS}
 
-    _p0(f"[WF-17 s32] -n {comm.size}: heating block {t_py:.1f} s, BE step {t_be:.1f} s, "
-        f"file block {t_file:.1f} s")
-    _p0(f"[WF-17 s32] (Cells) block {heat.cells}, file {ns_f['run'].summary['cells']}, record "
-        f"{ROD_EXACT_CELL_RECORD}")
-    _p0(f"[WF-17 s32] P_phantom block {float(heat.source_power_w):.12e} W, file "
-        f"{float(summ['source_power_w']):.12e} W")
+    _p0(
+        f"[WF-17 s32] -n {comm.size}: heating block {t_py:.1f} s, BE step {t_be:.1f} s, "
+        f"file block {t_file:.1f} s"
+    )
+    _p0(
+        f"[WF-17 s32] (Cells) block {heat.cells}, file {ns_f['run'].summary['cells']}, record "
+        f"{ROD_EXACT_CELL_RECORD}"
+    )
+    _p0(
+        f"[WF-17 s32] P_phantom block {float(heat.source_power_w):.12e} W, file "
+        f"{float(summ['source_power_w']):.12e} W"
+    )
     for n in TIPS:
-        _p0(f"[WF-17 s32] (Y) {n}: block theta(t*) {th_py[n]:.15e} K vs file {th_file[n]:.15e} K: "
-            f"rel {rel_y[n]:.3e} (IDENTITY_BAND {IDENTITY_BAND:.0e}, ASSERTED)")
-        _p0(f"[WF-17 s32] (R) {n}: per W {per_w[n]:.12e} -> {per_w[n]:.9e} vs item 884 "
+        _p0(
+            f"[WF-17 s32] (Y) {n}: block theta(t*) {th_py[n]:.15e} K vs file {th_file[n]:.15e} K: "
+            f"rel {rel_y[n]:.3e} (IDENTITY_BAND {IDENTITY_BAND:.0e}, ASSERTED)"
+        )
+        _p0(
+            f"[WF-17 s32] (R) {n}: per W {per_w[n]:.12e} -> {per_w[n]:.9e} vs item 884 "
             f"{RECORD_9E[n]}: |.9e - rec| {dev[n]:.1e}, raw {dev_raw[n]:.3e} (one last-digit unit "
-            f"{unit[n]:.0e}, ASSERTED); file per W {per_w_file[n]:.12e}")
-    _p0(f"[WF-17 s32] (E) CN {heat.max_balance_residual:.3e}, file {summ['max_balance_residual']:.3e}, "
-        f"BE {be.max_balance_residual:.3e} (E_BAND {E_BAND:.0e}, ASSERTED)")
-    _p0(f"[WF-17 s32] (S2) volume slope |r-1| {s2:.4e} (S2_BAND {S2_BAND:.0e}, ASSERTED; item 884 "
-        f"read 4.8353e-06); V_sub {v_sub:.12e}")
+            f"{unit[n]:.0e}, ASSERTED); file per W {per_w_file[n]:.12e}"
+        )
+    _p0(
+        f"[WF-17 s32] (E) CN {heat.max_balance_residual:.3e}, file {summ['max_balance_residual']:.3e}, "
+        f"BE {be.max_balance_residual:.3e} (E_BAND {E_BAND:.0e}, ASSERTED)"
+    )
+    _p0(
+        f"[WF-17 s32] (S2) volume slope |r-1| {s2:.4e} (S2_BAND {S2_BAND:.0e}, ASSERTED; item 884 "
+        f"read 4.8353e-06); V_sub {v_sub:.12e}"
+    )
     gates = {
         "cells": int(heat.cells) == ROD_EXACT_CELL_RECORD,
-        "stdout": (f"cells = {ROD_EXACT_CELL_RECORD}" in out.splitlines()) if comm.rank == 0 else True,
+        "stdout": (
+            (f"cells = {ROD_EXACT_CELL_RECORD}" in out.splitlines()) if comm.rank == 0 else True
+        ),
         "E cn": heat.max_balance_residual <= E_BAND,
         "E file": summ["max_balance_residual"] <= E_BAND,
         "E be": be.max_balance_residual <= E_BAND,

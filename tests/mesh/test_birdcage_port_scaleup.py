@@ -47,15 +47,23 @@ from mpi4py import MPI
 
 from fem_em_solver.io.mesh import MeshGenerator, _interface_facet_tags
 from tests.mesh.helpers import global_cell_tag_set
-from tests.mesh.test_coil_phantom_conforming import _tag_volume, _total_volume
 from tests.mesh.test_birdcage_conductor_sizing import CAD_MASS_GATE
+from tests.mesh.test_birdcage_leg_gaps import (
+    LEG_GAP_LENGTH,
+    TERMINAL_AREA_BAND,
+    _analytic_box_volume,
+    _analytic_terminal_area,
+)
+from tests.mesh.test_birdcage_leg_offset import (
+    _projected_extents,
+    _sheet_azimuth_deg,
+)
 from tests.mesh.test_birdcage_port_sheet_prerequisite import CONDUCTOR_RESOLUTION
-from tests.mesh.test_birdcage_port_terminals import (
-    AIR_IFACE,
-    CONDUCTOR_IFACE,
-    PHANTOM_IFACE,
-    _global_facet_count,
-    _interface_area_or_zero,
+from tests.mesh.test_birdcage_port_sheets import (
+    PORT_LOWER,
+    PORT_UPPER,
+    SHEET_IFACE,
+    _port_boundary_partition,
 )
 from tests.mesh.test_birdcage_port_tags import (
     AIR_PADDING,
@@ -68,22 +76,14 @@ from tests.mesh.test_birdcage_port_tags import (
     RING_MINOR_RADIUS,
     RING_RADIUS,
 )
-from tests.mesh.test_birdcage_leg_gaps import (
-    LEG_GAP_LENGTH,
-    TERMINAL_AREA_BAND,
-    _analytic_box_volume,
-    _analytic_terminal_area,
+from tests.mesh.test_birdcage_port_terminals import (
+    AIR_IFACE,
+    CONDUCTOR_IFACE,
+    PHANTOM_IFACE,
+    _global_facet_count,
+    _interface_area_or_zero,
 )
-from tests.mesh.test_birdcage_port_sheets import (
-    PORT_LOWER,
-    PORT_UPPER,
-    SHEET_IFACE,
-    _port_boundary_partition,
-)
-from tests.mesh.test_birdcage_leg_offset import (
-    _projected_extents,
-    _sheet_azimuth_deg,
-)
+from tests.mesh.test_coil_phantom_conforming import _tag_volume, _total_volume
 
 # The production count the 32-port directive asks the pricing for.
 SCALED_LEG_COUNT = 16
@@ -246,22 +246,17 @@ def _measure(leg_count):
     v_total = _total_volume(mesh, comm)
     counts, areas = _port_boundary_partition(mesh, cells, comm, halves)
 
-    sheet_tags = _interface_facet_tags(
-        mesh, cells, {SHEET_IFACE + i: halves[i] for i in ports}
-    )
+    sheet_tags = _interface_facet_tags(mesh, cells, {SHEET_IFACE + i: halves[i] for i in ports})
     # Collective calls: every rank enters them here, never inside a rank-0
     # print (`GEO-18` step 2 attempt 1, 2026-08-22 — rank 0 blocked in the
     # allreduce and the command timed out at exit 124 with both tests green).
     sheet_area = {
-        i: _interface_area_or_zero(mesh, sheet_tags, SHEET_IFACE + i, comm)
-        for i in ports
+        i: _interface_area_or_zero(mesh, sheet_tags, SHEET_IFACE + i, comm) for i in ports
     }
     # The port's own frame, read off the sheet rather than assumed: at 16 legs
     # only four of the sixteen sit on a coordinate axis. `_projected_extents`
     # returns the spans along (radial, azimuthal, axial) = (w, out-of-plane, h).
-    azimuth_deg = {
-        i: _sheet_azimuth_deg(mesh, sheet_tags, SHEET_IFACE + i, comm) for i in ports
-    }
+    azimuth_deg = {i: _sheet_azimuth_deg(mesh, sheet_tags, SHEET_IFACE + i, comm) for i in ports}
     sheet_frame = {}
     for i in ports:
         beta = np.radians(azimuth_deg[i])
@@ -276,9 +271,7 @@ def _measure(leg_count):
                 [0.0, 0.0, 1.0],
             ],
         )
-    sheet_count = {
-        i: _global_facet_count(mesh, sheet_tags, SHEET_IFACE + i, comm) for i in ports
-    }
+    sheet_count = {i: _global_facet_count(mesh, sheet_tags, SHEET_IFACE + i, comm) for i in ports}
     return {
         "leg_count": leg_count,
         "ports": ports,
@@ -591,9 +584,7 @@ def test_sixteen_leg_identity_family_and_cost_rung():
     _assert_identity_family(control, "4 legs (control)")
     assert not [p for p in problems if p], [p for p in problems if p]
 
-    assert (
-        abs(control["n_cells"] / CONTROL_CELL_COUNT - 1.0) < CONTROL_CELL_COUNT_BAND
-    ), (
+    assert abs(control["n_cells"] / CONTROL_CELL_COUNT - 1.0) < CONTROL_CELL_COUNT_BAND, (
         f"the control meshed {control['n_cells']} cells against `GEO-18` step 2's "
         f"0.11 re-record {CONTROL_CELL_COUNT}; the tag-encoding change moved the "
         "geometry, which it must not"
@@ -633,11 +624,7 @@ def test_sheet_encoding_admits_the_production_leg_count():
     # directive's own count is on the wrong side of it.
     box_width = 2.0 * (0.5 * LEG_WIDTH) + 2.0 * PORT_CLEARANCE
     required = max(5.0e-4, 1.25 * box_width)
-    fits = [
-        n
-        for n in range(3, 65)
-        if 2.0 * RING_RADIUS * np.sin(np.pi / n) >= required
-    ]
+    fits = [n for n in range(3, 65) if 2.0 * RING_RADIUS * np.sin(np.pi / n) >= required]
     assert max(fits) == SEPARATION_LEG_COUNT_CEILING, (
         f"the clearance floor {required:.6e} m on ring_radius={RING_RADIUS} m "
         f"admits up to {max(fits)} legs, not the recorded "

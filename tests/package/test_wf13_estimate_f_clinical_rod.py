@@ -98,8 +98,10 @@ def test_wf13_s16_fc_rod1(no_build):
     assert "price: build 461.7 s; arm M 263.5 s, arm R 262.3 s" in price
     assert lines[12626 - 1].strip() == "[XL] memory.peak bytes:"
     peak_bytes = int(lines[12627 - 1].strip())
-    _say(f"[WF-13 s16] log :12503 {price!r}; :12627 memory.peak {peak_bytes} B "
-         f"= {peak_bytes / 2**30:.4f} GiB")
+    _say(
+        f"[WF-13 s16] log :12503 {price!r}; :12627 memory.peak {peak_bytes} B "
+        f"= {peak_bytes / 2**30:.4f} GiB"
+    )
     assert round(peak_bytes / 2**30, 2) == row["peak_gib"]
 
     assert all(r["row"] != "FC-ROD1" and r["unknowns"] != 1_606_744 for r in PRICE_TABLE)
@@ -115,9 +117,11 @@ def test_wf13_s16_refusals_and_cli(no_build, capsys, tmp_path):
     comm = MPI.COMM_WORLD
     study = _study()
     refused = []
-    for name, call in (("solve", lambda: study.solve(comm)),
-                       ("solve_sweep", lambda: study.solve_sweep([64.0e6], comm)),
-                       ("field route", lambda: _study_solve_port_fields(study, comm))):
+    for name, call in (
+        ("solve", lambda: study.solve(comm)),
+        ("solve_sweep", lambda: study.solve_sweep([64.0e6], comm)),
+        ("field route", lambda: _study_solve_port_fields(study, comm)),
+    ):
         with pytest.raises(ValueError, match="xl tier only") as exc:
             call()
         refused.append(f"[WF-13 s16] (Ref) {name}: {exc.value}")
@@ -155,8 +159,12 @@ def test_wf13_s16_only_this_rod(tmp_path):
     good = yaml.safe_load(ROD_YAML.read_text())
     rod = good["implant"]["rod"]
     disc = {"radius_m": 0.01, "thickness_m": 0.002, "centre_m": [0.105, 0.0, 0.0]}
-    four_port = {"radius_m": FOUR_PORT_ROD["radius"], "length_m": FOUR_PORT_ROD["length"],
-                 "centre_m": list(FOUR_PORT_ROD["centre"]), "axis": list(FOUR_PORT_ROD["axis"])}
+    four_port = {
+        "radius_m": FOUR_PORT_ROD["radius"],
+        "length_m": FOUR_PORT_ROD["length"],
+        "centre_m": list(FOUR_PORT_ROD["centre"]),
+        "axis": list(FOUR_PORT_ROD["axis"]),
+    }
     cases = {
         "disc_beside": dict(good, implant={"rod": rod, "disc": disc}),
         "disc_alone": dict(good, implant={"disc": disc}),
@@ -172,9 +180,11 @@ def test_wf13_s16_only_this_rod(tmp_path):
         assert err.value.field == "implant", name
         assert err.value.reason == UNCHANGED, name
 
-    for name, kw in (("disc", dict(implant_rod={"radius": 0.01, "thickness": 0.002})),
-                     ("four_port_rod", dict(implant_rod=dict(FOUR_PORT_ROD))),
-                     ("at_3t", dict(implant_rod=F_CLINICAL_ROD_ENTRY48, field_strength_t=3.0))):
+    for name, kw in (
+        ("disc", dict(implant_rod={"radius": 0.01, "thickness": 0.002})),
+        ("four_port_rod", dict(implant_rod=dict(FOUR_PORT_ROD))),
+        ("at_3t", dict(implant_rod=F_CLINICAL_ROD_ENTRY48, field_strength_t=3.0)),
+    ):
         with pytest.raises(ValueError, match="entry 48's rod"):
             FClinicalBirdcageGeometry(**kw)
         _say(f"[WF-13 s16] (Only) Python {name}: refused")
@@ -185,18 +195,23 @@ def test_wf13_s16_controls(no_build, monkeypatch):
 
     fc1 = _study(FC15).estimate(MPI.COMM_WORLD)
     rod = _study().estimate(MPI.COMM_WORLD)
-    _say(f"\n[WF-13 s16] control FC1: rows {fc1.rows_used} {fc1.predicted_seconds} s "
-         f"{fc1.predicted_peak_gib} GiB, U {fc1.unknowns}; rod: rows {rod.rows_used}")
+    _say(
+        f"\n[WF-13 s16] control FC1: rows {fc1.rows_used} {fc1.predicted_seconds} s "
+        f"{fc1.predicted_peak_gib} GiB, U {fc1.unknowns}; rod: rows {rod.rows_used}"
+    )
     assert fc1.rows_used == ("FC1",) and fc1.unknowns == 1_525_193 and fc1.cells == 1_147_366
     assert fc1.predicted_seconds == 203.3 and fc1.predicted_peak_gib == 49.07
 
     plant = dict(study_mod.PRICE_TABLE_CLINICAL_ROD[0], row="PLANT", peak_gib=99.0)
-    monkeypatch.setattr(study_mod, "PRICE_TABLE_CLINICAL_ROD",
-                        study_mod.PRICE_TABLE_CLINICAL_ROD + (plant,))
+    monkeypatch.setattr(
+        study_mod, "PRICE_TABLE_CLINICAL_ROD", study_mod.PRICE_TABLE_CLINICAL_ROD + (plant,)
+    )
     moved = _study().estimate(MPI.COMM_WORLD)
     fc1_after = _study(FC15).estimate(MPI.COMM_WORLD)
-    _say(f"[WF-13 s16] planted rod row: peak {rod.predicted_peak_gib} -> "
-         f"{moved.predicted_peak_gib}; FC1 peak {fc1_after.predicted_peak_gib}")
+    _say(
+        f"[WF-13 s16] planted rod row: peak {rod.predicted_peak_gib} -> "
+        f"{moved.predicted_peak_gib}; FC1 peak {fc1_after.predicted_peak_gib}"
+    )
     assert moved.predicted_peak_gib == 99.0 and moved.rows_used == ("PLANT",)
     assert fc1_after == fc1
     assert no_build == []

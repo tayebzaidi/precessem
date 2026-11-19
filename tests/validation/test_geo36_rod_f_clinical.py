@@ -114,15 +114,19 @@ def test_n3r_y_misreading_cylinder_accepts_box_refuses(monkeypatch):
     )
     margin = R - (float(np.hypot(*Y_MISREAD_CENTRE[:2])) + ROD_RADIUS)
     breach = abs(Y_MISREAD_CENTRE[1] - off) + ROD_RADIUS - 0.5 * Ly
-    _say(f"\n[GEO-36 s8] (N3r) R {R:.6f} m, H {Lz} m: cylinder test accepts with margin "
-         f"{margin:.6f} m; box breach |c_y - off| + r - Ly/2 = {breach:.6e} m")
+    _say(
+        f"\n[GEO-36 s8] (N3r) R {R:.6f} m, H {Lz} m: cylinder test accepts with margin "
+        f"{margin:.6f} m; box breach |c_y - off| + r - Ly/2 = {breach:.6e} m"
+    )
     assert out["keep_cells"] is True
     assert margin > 0.0
     assert breach > 0.06  # 0.106 - 0.045 = 0.061 m
     # Box test: refused before gmsh, through the public path.
     kw = _box_kwargs()
     kw["implant_rod"] = dict(req)
-    with pytest.raises(ValueError, match="implant_rod is not strictly inside the phantom_box") as exc:
+    with pytest.raises(
+        ValueError, match="implant_rod is not strictly inside the phantom_box"
+    ) as exc:
         _refuse_before_gmsh(monkeypatch, **kw)
     _say(f"[GEO-36 s8] (N3r) box refusal: {exc.value}")
 
@@ -130,9 +134,12 @@ def test_n3r_y_misreading_cylinder_accepts_box_refuses(monkeypatch):
 def test_g10_coated_rod_with_box_under_as_hole_refused(monkeypatch):
     kw = _box_kwargs()
     assert kw.get("as_hole") is True
-    kw["implant_rod"] = dict(ROD, keep_cells=True, centre=_rod_centre(),
-                             coat_radius=2.0 * ROD_RADIUS)
-    with pytest.raises(ValueError, match="with as_hole unless keep_cells is True and no coat_radius"):
+    kw["implant_rod"] = dict(
+        ROD, keep_cells=True, centre=_rod_centre(), coat_radius=2.0 * ROD_RADIUS
+    )
+    with pytest.raises(
+        ValueError, match="with as_hole unless keep_cells is True and no coat_radius"
+    ):
         _refuse_before_gmsh(monkeypatch, **kw)
 
 
@@ -140,7 +147,9 @@ def test_g10_hole_rod_with_box_under_as_hole_refused(monkeypatch):
     kw = _box_kwargs()
     assert kw.get("as_hole") is True
     kw["implant_rod"] = dict(ROD, keep_cells=False, centre=_rod_centre())
-    with pytest.raises(ValueError, match="with as_hole unless keep_cells is True and no coat_radius"):
+    with pytest.raises(
+        ValueError, match="with as_hole unless keep_cells is True and no coat_radius"
+    ):
         _refuse_before_gmsh(monkeypatch, **kw)
 
 
@@ -151,8 +160,11 @@ def test_g10_kept_rod_with_box_accepted():
     Lx, Ly, Lz = box["size_m"]
     R = float(np.hypot(0.5 * Lx, 0.5 * Ly + abs(box["table_offset_m"])))
     out = MeshGenerator._normalise_implant_rod(
-        dict(ROD, keep_cells=True, centre=_rod_centre()), phantom_radius=R,
-        phantom_height=Lz, as_hole=True, phantom_box=dict(box),
+        dict(ROD, keep_cells=True, centre=_rod_centre()),
+        phantom_radius=R,
+        phantom_height=Lz,
+        as_hole=True,
+        phantom_box=dict(box),
     )
     assert out["keep_cells"] is True
     assert out["centre"] == _rod_centre()
@@ -188,8 +200,10 @@ def test_geo36_step8_rod_in_astm_box(monkeypatch):
     V = _rod_volume()
     A = _rod_area()
     centre = _rod_centre()
-    _say(f"\n[GEO-36 s8] rod centre {centre} (Lx/4 toward +x), axis {ROD['axis']}; "
-         f"V_rod {V:.12e}, A_rod {A:.12e}, L^3 {L3:.15e}")
+    _say(
+        f"\n[GEO-36 s8] rod centre {centre} (Lx/4 toward +x), axis {ROD['axis']}; "
+        f"V_rod {V:.12e}, A_rod {A:.12e}, L^3 {L3:.15e}"
+    )
 
     armed = gmsh_stop_armed()
     _say(f"[GEO-36 s8] gmsh stop rule armed: {armed}")
@@ -197,7 +211,8 @@ def test_geo36_step8_rod_in_astm_box(monkeypatch):
         arm_gmsh_stop_rule(monkeypatch, comm, "GEO-36 s8")
     t0 = time.perf_counter()
     msh, cells, facets, diag = MeshGenerator.birdcage_port_domain(
-        comm=comm, return_diagnostics=True, **kw)
+        comm=comm, return_diagnostics=True, **kw
+    )
     t_build = time.perf_counter() - t0
     _say(f"\n[GEO-36 s8] build done {t_build:.1f} s at -n {comm.size}")
     tdim = msh.topology.dim
@@ -235,15 +250,21 @@ def test_geo36_step8_rod_in_astm_box(monkeypatch):
         if len(sel) == 0:
             return np.zeros((0, 4, 3))
         g = dolfinx.cpp.mesh.entities_to_geometry(
-            msh._cpp_object, tdim, np.asarray(sel, dtype=np.int32), False)
+            msh._cpp_object, tdim, np.asarray(sel, dtype=np.int32), False
+        )
         return msh.geometry.x[g[:, :4]]
 
     def _vol(X):
         if len(X) == 0:
             return 0.0
-        return float(np.abs(np.einsum(
-            "ij,ij->i", X[:, 1] - X[:, 0],
-            np.cross(X[:, 2] - X[:, 0], X[:, 3] - X[:, 0]))).sum() / 6.0)
+        return float(
+            np.abs(
+                np.einsum(
+                    "ij,ij->i", X[:, 1] - X[:, 0], np.cross(X[:, 2] - X[:, 0], X[:, 3] - X[:, 0])
+                )
+            ).sum()
+            / 6.0
+        )
 
     X3 = _tets(PHANTOM_CELL_TAG)
     X403 = _tets(BIRDCAGE_IMPLANT_CELL_TAG)
@@ -259,8 +280,12 @@ def test_geo36_step8_rod_in_astm_box(monkeypatch):
     g3_vol = abs((vol3 + vol403) / L3 - 1.0)
     lo_ref = np.array([-0.5 * Lx, -0.5 * Ly + off, -0.5 * Lz])
     hi_ref = np.array([0.5 * Lx, 0.5 * Ly + off, 0.5 * Lz])
-    g3_ext = float(max(np.max(np.abs(lo - lo_ref) / np.abs(lo_ref)),
-                       np.max(np.abs(hi - hi_ref) / np.abs(hi_ref))))
+    g3_ext = float(
+        max(
+            np.max(np.abs(lo - lo_ref) / np.abs(lo_ref)),
+            np.max(np.abs(hi - hi_ref) / np.abs(hi_ref)),
+        )
+    )
 
     # --- (G4), (N2r): the can partition with the rod.
     cad_sum = float(sum(cad.values()))
@@ -272,7 +297,8 @@ def test_geo36_step8_rod_in_astm_box(monkeypatch):
 
     # --- (G5): the 402 interface (ghosted mesh, dS licensed).
     n402, n402_ext, n402_int, n402_pair, area402, moments = _interior_facet_check(
-        msh, cells, facets, BIRDCAGE_IMPLANT_SURFACE_TAG, comm)
+        msh, cells, facets, BIRDCAGE_IMPLANT_SURFACE_TAG, comm
+    )
     g5_ratio = area402 / A
 
     # --- (G6) centroid.
@@ -289,7 +315,8 @@ def test_geo36_step8_rod_in_astm_box(monkeypatch):
     sheet_ref = chord * width
     n_gmsh = {int(k): int(v) for k, v in diag["ring_sheet_gmsh_triangles"].items()}
     sheet_tags = _interface_facet_tags(
-        msh, cells, {SHEET_IFACE + i: (PORT_LOWER + i, PORT_UPPER + i) for i in ring_ports})
+        msh, cells, {SHEET_IFACE + i: (PORT_LOWER + i, PORT_UPPER + i) for i in ring_ports}
+    )
     sv = np.asarray(sheet_tags.values)
     si = np.asarray(sheet_tags.indices)
     local = {i: _facet_coords(msh, _owned(msh, si[sv == SHEET_IFACE + i])) for i in ring_ports}
@@ -304,15 +331,22 @@ def test_geo36_step8_rod_in_astm_box(monkeypatch):
     msh.topology.create_entities(2)
     E = comm.allreduce(msh.topology.index_map(1).size_local, op=MPI.SUM)
     F = comm.allreduce(msh.topology.index_map(2).size_local, op=MPI.SUM)
-    rss = comm.allreduce(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024.0**2,
-                         op=MPI.SUM)
+    rss = comm.allreduce(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024.0**2, op=MPI.SUM)
 
     if comm.rank == 0:
         wa = max(g8_area, key=g8_area.get)
-        g9_ints = (n_cells, n402, n402_ext, n402_int, n402_pair,
-                   int(census.get(PHANTOM_CELL_TAG, 0)),
-                   int(census.get(BIRDCAGE_IMPLANT_CELL_TAG, 0)),
-                   sum(n_owned.values()), E, F)
+        g9_ints = (
+            n_cells,
+            n402,
+            n402_ext,
+            n402_int,
+            n402_pair,
+            int(census.get(PHANTOM_CELL_TAG, 0)),
+            int(census.get(BIRDCAGE_IMPLANT_CELL_TAG, 0)),
+            sum(n_owned.values()),
+            E,
+            F,
+        )
         print(
             f"[GEO-36 s8] -n {comm.size}: {n_cells} cells (predicted 1 149 150 + [50 k, 100 k], "
             f"point 1 216 304; +{n_cells - 1149150} over C2); build {t_build:.1f} s (gmsh "
@@ -433,9 +467,13 @@ def _rod_material_minmax(msh, cell_tags, problem, comm, tag):
     tagv = _cell_values_with_ghosts(msh, cell_tags)
     owned = np.flatnonzero(tagv[:n_owned] == tag)
     sigma_f, eps_f = build_material_fields(
-        msh, problem.material, cell_tags=problem.cell_tags,
-        material_map=problem.material_map, phantom_material=problem.phantom_material,
-        phantom_tag=problem.phantom_tag)
+        msh,
+        problem.material,
+        cell_tags=problem.cell_tags,
+        material_map=problem.material_map,
+        phantom_material=problem.phantom_material,
+        phantom_tag=problem.phantom_tag,
+    )
     res = {"n": comm.allreduce(int(len(owned)), op=MPI.SUM)}
     for name, f in (("sigma", sigma_f), ("eps", eps_f)):
         dofs = f.function_space.dofmap.list[:, 0]
@@ -464,12 +502,15 @@ def _build_rod_f_clinical(comm):
     kw = _kwargs()
     t0 = time.perf_counter()
     msh, cell_tags, facets, diag = MeshGenerator.birdcage_port_domain(
-        comm=comm, return_diagnostics=True, **kw)
+        comm=comm, return_diagnostics=True, **kw
+    )
     t_build = time.perf_counter() - t0
     n_cells = int(msh.topology.index_map(3).size_global)
-    _say(f"\n[GEO-36 I35] build {t_build:.1f} s at -n {comm.size} (gmsh "
-         f"{diag.get('mesh_wall_time_s', float('nan')):.2f} s; PREDICTED ≈ 445 s [410, 560]); "
-         f"cells {n_cells}")
+    _say(
+        f"\n[GEO-36 I35] build {t_build:.1f} s at -n {comm.size} (gmsh "
+        f"{diag.get('mesh_wall_time_s', float('nan')):.2f} s; PREDICTED ≈ 445 s [410, 560]); "
+        f"cells {n_cells}"
+    )
     t1 = time.perf_counter()
     chord = float(diag["ring_port_layout"]["ring_port_gap_chord_m"])
     ctx, outer_census, _w = col._context_from_mesh(msh, cell_tags, facets, chord, comm)
@@ -478,9 +519,15 @@ def _build_rod_f_clinical(comm):
     problem_gel_only = ctx["solver"].problem
     mmap = dict(problem_gel_only.material_map)
     gel = mmap[PHANTOM_CELL_TAG]
-    problem_rod = dataclasses.replace(problem_gel_only, material_map={
-        **mmap, BIRDCAGE_IMPLANT_CELL_TAG: HomogeneousMaterial(
-            sigma=SIGMA_WIRE_S_PER_M, epsilon_r=gel.epsilon_r, mu_r=gel.mu_r)})
+    problem_rod = dataclasses.replace(
+        problem_gel_only,
+        material_map={
+            **mmap,
+            BIRDCAGE_IMPLANT_CELL_TAG: HomogeneousMaterial(
+                sigma=SIGMA_WIRE_S_PER_M, epsilon_r=gel.epsilon_r, mu_r=gel.mu_r
+            ),
+        },
+    )
     del ctx["solver"]
     ctx["solver"] = TimeHarmonicSolver(problem_rod, degree=DEGREE)
 
@@ -491,12 +538,21 @@ def _build_rod_f_clinical(comm):
     A = _rod_area()
     rod = diag["implant_rod_cad"]
     cad = dict(diag["cad_mass_by_group"])
-    g1 = max(abs(float(rod["rod_mass_m3"]) / V - 1.0), abs(float(rod["kept_mass_m3"]) / V - 1.0),
-             abs(float(rod["wall_area_m2"]) / A - 1.0))
-    g2 = max(abs(cad["implant"] / V - 1.0), abs(cad["phantom"] / (L3 - V) - 1.0),
-             abs((cad["phantom"] + cad["implant"]) / L3 - 1.0))
-    g4 = abs((float(sum(cad.values())) + float(diag["conductor_cad_mass_m3"]))
-             / float(diag["air_domain_cad_mass_m3"]) - 1.0)
+    g1 = max(
+        abs(float(rod["rod_mass_m3"]) / V - 1.0),
+        abs(float(rod["kept_mass_m3"]) / V - 1.0),
+        abs(float(rod["wall_area_m2"]) / A - 1.0),
+    )
+    g2 = max(
+        abs(cad["implant"] / V - 1.0),
+        abs(cad["phantom"] / (L3 - V) - 1.0),
+        abs((cad["phantom"] + cad["implant"]) / L3 - 1.0),
+    )
+    g4 = abs(
+        (float(sum(cad.values())) + float(diag["conductor_cad_mass_m3"]))
+        / float(diag["air_domain_cad_mass_m3"])
+        - 1.0
+    )
     census = _owned_census(msh, cell_tags, comm)
     g7_fails = _census_checks(census, n_cells, _ring_ports())
 
@@ -515,20 +571,22 @@ def _build_rod_f_clinical(comm):
     u1 = int(V_h.dofmap.index_map.size_global * V_h.dofmap.index_map_bs)
     t_ctx = time.perf_counter() - t1
 
-    _say(f"[GEO-36 I35] (D-rod) (G1) {g1:.3e}, (G2) {g2:.3e}, (G4) {g4:.3e} (band "
-         f"{STRIP_BAND:.0e}, ASSERTED; PREDICTED ≤ 4.4e-16 / ≤ 4.4e-16 / 6.457e-11); (G7) "
-         f"census failures {g7_fails or 'none'}, census {census}, implant_spheroid_cad "
-         f"{diag.get('implant_spheroid_cad')}\n"
-         f"[GEO-36 I35] (M) tag 403 ({m_rod['n']} cells): sigma {m_rod['sigma']} eps_r "
-         f"{m_rod['eps']} vs ({SIGMA_WIRE_S_PER_M}, gel eps_r {gel.epsilon_r}); tag 3 "
-         f"({m_gel['n']} cells): sigma {m_gel['sigma']} vs SALINE_SIGMA {SALINE_SIGMA} (ASSERTED "
-         f"exact)\n"
-         f"[GEO-36 I35] (N-M) unpatched problem, tag 403: sigma {n_m['sigma']} (air default "
-         f"0.0, ASSERTED)\n"
-         f"[GEO-36 I35] (C) {len(ids)} specs, owned facets "
-         f"{min(g[0] for g in geo.values())}..{max(g[0] for g in geo.values())}, failures "
-         f"{c_fails or 'none'}; (U1) dofs {u1} vs E {F_CLINICAL_ROD_UNKNOWNS_RECORD[0]} "
-         f"(ASSERTED exact); context + checks {t_ctx:.1f} s (PREDICTED ≈ 10–20 s)")
+    _say(
+        f"[GEO-36 I35] (D-rod) (G1) {g1:.3e}, (G2) {g2:.3e}, (G4) {g4:.3e} (band "
+        f"{STRIP_BAND:.0e}, ASSERTED; PREDICTED ≤ 4.4e-16 / ≤ 4.4e-16 / 6.457e-11); (G7) "
+        f"census failures {g7_fails or 'none'}, census {census}, implant_spheroid_cad "
+        f"{diag.get('implant_spheroid_cad')}\n"
+        f"[GEO-36 I35] (M) tag 403 ({m_rod['n']} cells): sigma {m_rod['sigma']} eps_r "
+        f"{m_rod['eps']} vs ({SIGMA_WIRE_S_PER_M}, gel eps_r {gel.epsilon_r}); tag 3 "
+        f"({m_gel['n']} cells): sigma {m_gel['sigma']} vs SALINE_SIGMA {SALINE_SIGMA} (ASSERTED "
+        f"exact)\n"
+        f"[GEO-36 I35] (N-M) unpatched problem, tag 403: sigma {n_m['sigma']} (air default "
+        f"0.0, ASSERTED)\n"
+        f"[GEO-36 I35] (C) {len(ids)} specs, owned facets "
+        f"{min(g[0] for g in geo.values())}..{max(g[0] for g in geo.values())}, failures "
+        f"{c_fails or 'none'}; (U1) dofs {u1} vs E {F_CLINICAL_ROD_UNKNOWNS_RECORD[0]} "
+        f"(ASSERTED exact); context + checks {t_ctx:.1f} s (PREDICTED ≈ 10–20 s)"
+    )
     assert g1 < STRIP_BAND, g1
     assert g2 < STRIP_BAND, g2
     assert g4 <= STRIP_BAND, g4
@@ -543,9 +601,15 @@ def _build_rod_f_clinical(comm):
     assert n_m["sigma"] == (0.0, 0.0), n_m
     assert not c_fails, c_fails
     assert u1 == F_CLINICAL_ROD_UNKNOWNS_RECORD[0], u1
-    return {"ctx": ctx, "cells": n_cells, "facets": facets,
-            "shield_radius_m": float(diag["shield_radius_m"]), "outer_census": outer_census,
-            "problem_gel_only": problem_gel_only, "t_build": t_build}
+    return {
+        "ctx": ctx,
+        "cells": n_cells,
+        "facets": facets,
+        "shield_radius_m": float(diag["shield_radius_m"]),
+        "outer_census": outer_census,
+        "problem_gel_only": problem_gel_only,
+        "t_build": t_build,
+    }
 
 
 def _route_column(monkeypatch):
@@ -592,28 +656,39 @@ def test_geo36_i35_rod_column(monkeypatch):
     fi = np.asarray(facets.indices)
     cav_p = _facet_coords(msh, _owned(msh, fi[fv == BIRDCAGE_CONDUCTOR_SURFACE_TAG])).reshape(-1, 3)
     cav_hmax = comm.allreduce(
-        float(np.hypot(cav_p[:, 0], cav_p[:, 1]).max()) if len(cav_p) else 0.0, op=MPI.MAX)
+        float(np.hypot(cav_p[:, 0], cav_p[:, 1]).max()) if len(cav_p) else 0.0, op=MPI.MAX
+    )
     _mine, per, tot = _rss_gib(comm)
-    _say(f"[GEO-36 I35] (A0) cells {n_cells} vs record {F_CLINICAL_ROD_CELL_RECORD}, rel "
-         f"{cell_rel:.3e} (band {CELL_COUNT_BAND}, ASSERTED; PREDICTED 0); (iv) census failures "
-         f"{census_fails or 'none'}; outer census {oc}; (S) cavity max hypot {cav_hmax:.9f} m < "
-         f"R_s {R_s} (ASSERTED)")
-    _say(f"[GEO-36 I35] BUILD-ONLY return: t_build {built['t_build']:.1f} s; RSS per rank "
-         f"{', '.join(f'{r:.2f}' for r in (per or []))} GiB, summed {tot:.3f} GiB (PREDICTED ≈ "
-         f"2.2); window {time.perf_counter() - t_window:.1f} s (PREDICTED ≈ 465 s)")
-    _say(f"[GEO-36 I35] for entry 45 (printed): rho = {n_cells}/369 387 = {n_cells / 369_387:.4f}; "
-         f"conservative column 39.2*(E/500 568)^2 = "
-         f"{39.2 * (F_CLINICAL_ROD_UNKNOWNS_RECORD[0] / 500_568) ** 2:.0f} s (entry 40: 364 s)")
+    _say(
+        f"[GEO-36 I35] (A0) cells {n_cells} vs record {F_CLINICAL_ROD_CELL_RECORD}, rel "
+        f"{cell_rel:.3e} (band {CELL_COUNT_BAND}, ASSERTED; PREDICTED 0); (iv) census failures "
+        f"{census_fails or 'none'}; outer census {oc}; (S) cavity max hypot {cav_hmax:.9f} m < "
+        f"R_s {R_s} (ASSERTED)"
+    )
+    _say(
+        f"[GEO-36 I35] BUILD-ONLY return: t_build {built['t_build']:.1f} s; RSS per rank "
+        f"{', '.join(f'{r:.2f}' for r in (per or []))} GiB, summed {tot:.3f} GiB (PREDICTED ≈ "
+        f"2.2); window {time.perf_counter() - t_window:.1f} s (PREDICTED ≈ 465 s)"
+    )
+    _say(
+        f"[GEO-36 I35] for entry 45 (printed): rho = {n_cells}/369 387 = {n_cells / 369_387:.4f}; "
+        f"conservative column 39.2*(E/500 568)^2 = "
+        f"{39.2 * (F_CLINICAL_ROD_UNKNOWNS_RECORD[0] / 500_568) ** 2:.0f} s (entry 40: 364 s)"
+    )
     assert abs(cell_rel) <= CELL_COUNT_BAND, cell_rel
     assert not census_fails, census_fails
     assert oc["tag_collision"] == 0 and oc["cavity"] > 0, oc
-    assert oc["cavity_exterior"] == oc["cavity"] and oc["outer"] + oc["cavity"] == oc["exterior"], oc
+    assert (
+        oc["cavity_exterior"] == oc["cavity"] and oc["outer"] + oc["cavity"] == oc["exterior"]
+    ), oc
     assert cav_hmax < R_s, (cav_hmax, R_s)
 
 
 # --- I35 coding tests (no gmsh); skip whenever the knob is set. -------------
-_s8_coding = pytest.mark.skipif(os.environ.get(S8_COLUMN_ENV, "").strip() != "",
-                                reason=f"{S8_COLUMN_ENV} set: coding tests skip in build windows")
+_s8_coding = pytest.mark.skipif(
+    os.environ.get(S8_COLUMN_ENV, "").strip() != "",
+    reason=f"{S8_COLUMN_ENV} set: coding tests skip in build windows",
+)
 
 
 class _Routed(Exception):
@@ -660,8 +735,10 @@ def test_i35_k1_routing_tripwire(monkeypatch):
         kw = _call_column_into_recorder(m)
         assert s1a.F_CLINICAL_R1_CELL_RECORD == F_CLINICAL_ROD_CELL_RECORD
     rod = kw.get("implant_rod")
-    _say(f"\n[GEO-36 I35] (K1) routed kwargs: implant_rod {rod}; phantom_box "
-         f"{kw.get('phantom_box')}")
+    _say(
+        f"\n[GEO-36 I35] (K1) routed kwargs: implant_rod {rod}; phantom_box "
+        f"{kw.get('phantom_box')}"
+    )
     assert rod is not None and rod["keep_cells"] is True, rod
     assert tuple(rod["centre"]) == _rod_centre(), rod
     assert kw.get("phantom_box") is not None, sorted(kw)
@@ -688,6 +765,8 @@ def test_i35_n_a0_15t_record_misses_rod_mesh():
     from tests.mesh.test_birdcage_port_sheet_prerequisite import CELL_COUNT_BAND
 
     miss = abs(F_CLINICAL_ROD_CELL_RECORD / _R1_CELL_RECORD_EXPECTED - 1.0)
-    _say(f"\n[GEO-36 I35] (N-A0) |{F_CLINICAL_ROD_CELL_RECORD}/{_R1_CELL_RECORD_EXPECTED} - 1| = "
-         f"{miss:.3e} = {miss / CELL_COUNT_BAND:.2f}x CELL_COUNT_BAND (PREDICTED 6.07e-2, 6.1x)")
+    _say(
+        f"\n[GEO-36 I35] (N-A0) |{F_CLINICAL_ROD_CELL_RECORD}/{_R1_CELL_RECORD_EXPECTED} - 1| = "
+        f"{miss:.3e} = {miss / CELL_COUNT_BAND:.2f}x CELL_COUNT_BAND (PREDICTED 6.07e-2, 6.1x)"
+    )
     assert miss > CELL_COUNT_BAND, miss

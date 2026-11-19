@@ -33,7 +33,6 @@ from mpi4py import MPI
 
 from fem_em_solver.post.evaluation import evaluate_vector_field_parallel
 from fem_em_solver.thermal import solve_steady_conduction, solve_transient_conduction
-
 from tests.validation.test_imp8_composite_cylinder_closed_form import (
     A_ROD,
     B_WALL,
@@ -56,8 +55,6 @@ from tests.validation.test_imp8_composite_cylinder_fem import (
     MM,
     N_STEPS,
     READ_PTS,
-    RA,
-    RM,
     SNAP,
     T_INF,
     WIT_PTS,
@@ -114,20 +111,27 @@ def run():
     gidx = dmesh.entities_to_geometry(msh, fdim, facets)
     x = msh.geometry.x
     rr = np.hypot(x[gidx.ravel(), 0], x[gidx.ravel(), 1]) if facets.size else np.zeros(0)
-    out["dev"] = comm.allreduce(float(np.max(np.abs(rr - B_WALL))) if rr.size else 0.0,
-                                op=MPI.MAX)
-    out["n_fac"] = comm.allreduce(int(np.count_nonzero(
-        facets < msh.topology.index_map(fdim).size_local)), op=MPI.SUM)
+    out["dev"] = comm.allreduce(float(np.max(np.abs(rr - B_WALL))) if rr.size else 0.0, op=MPI.MAX)
+    out["n_fac"] = comm.allreduce(
+        int(np.count_nonzero(facets < msh.topology.index_map(fdim).size_local)), op=MPI.SUM
+    )
     mid = dmesh.compute_midpoints(msh, fdim, facets) if facets.size else np.zeros((0, 3))
-    out["zmax"] = comm.allreduce(float(np.max(np.abs(mid[:, 2]))) if facets.size else 0.0,
-                                 op=MPI.MAX)
+    out["zmax"] = comm.allreduce(
+        float(np.max(np.abs(mid[:, 2]))) if facets.size else 0.0, op=MPI.MAX
+    )
     V = fem.functionspace(msh, ("Lagrange", DEGREE))
     f = fem.Function(V)
     f.interpolate(lambda X: X[0] + 2.0 * X[1] + 3.0 * X[2])
     pts = np.array([[r * MM, 0.0, z * MM] for r, z in READ_PTS], dtype=float)
     vals, ok = evaluate_vector_field_parallel(f, pts)
-    out["werr"] = max(abs(float(np.real(np.ravel(vals[i])[0])) - (p[0] + 2 * p[1] + 3 * p[2]))
-                      if bool(ok[i]) else np.inf for i, p in enumerate(pts))
+    out["werr"] = max(
+        (
+            abs(float(np.real(np.ravel(vals[i])[0])) - (p[0] + 2 * p[1] + 3 * p[2]))
+            if bool(ok[i])
+            else np.inf
+        )
+        for i, p in enumerate(pts)
+    )
     # Coefficients: item 837's, the source moved to the core.
     k = _dg0(msh, ct, ROD_K, K_GEL)
     rc = _dg0(msh, ct, ROD_RHO_C, RHO_C)
@@ -138,27 +142,47 @@ def run():
     v_core = _allsum(comm, fem.Constant(msh, 1.0) * dx(1))
     out["S0"] = abs(_allsum(comm, q * dx) / (Q_CORE * v_core) - 1.0)
     out["S0shell"] = abs(_allsum(comm, q * dx(2)))
-    _say(f"\n[imp8-i71] composite cylinder, core source: cells {n} (I65 {I65_CELLS}, cap "
-         f"{CELL_CAP}); coordinate degree {out['deg']}; ranks {comm.size}; t_build {t_build:.1f} s; "
-         f"tag-{ROBIN_TAG} owned facets {out['n_fac']}, max |r - b| {out['dev']:.3e} m, max |z| "
-         f"{out['zmax'] / MM:.4f} mm; P2 wiring max err {out['werr']:.3e}")
-    _say(f"[imp8-i71] V_core,h/(pi a^2 L) - 1 = {v_core / (np.pi * A_ROD**2 * LEN) - 1:.4e}; "
-         f"Q_CORE {Q_CORE:.6e} W/m^3")
+    _say(
+        f"\n[imp8-i71] composite cylinder, core source: cells {n} (I65 {I65_CELLS}, cap "
+        f"{CELL_CAP}); coordinate degree {out['deg']}; ranks {comm.size}; t_build {t_build:.1f} s; "
+        f"tag-{ROBIN_TAG} owned facets {out['n_fac']}, max |r - b| {out['dev']:.3e} m, max |z| "
+        f"{out['zmax'] / MM:.4f} mm; P2 wiring max err {out['werr']:.3e}"
+    )
+    _say(
+        f"[imp8-i71] V_core,h/(pi a^2 L) - 1 = {v_core / (np.pi * A_ROD**2 * LEN) - 1:.4e}; "
+        f"Q_CORE {Q_CORE:.6e} W/m^3"
+    )
     dt = T_STAR / N_STEPS
     t1 = time.perf_counter()
     res = solve_transient_conduction(
-        msh, ft, k=k, rho_c=rc, q=q, h=H_DIR, t_inf=T_INF, t_init=T_INF,
-        robin_tag=ROBIN_TAG, dt=dt, n_steps=N_STEPS, theta=0.5, startup_half_steps=2,
-        degree=DEGREE, snapshot_steps=(SNAP,))
+        msh,
+        ft,
+        k=k,
+        rho_c=rc,
+        q=q,
+        h=H_DIR,
+        t_inf=T_INF,
+        t_init=T_INF,
+        robin_tag=ROBIN_TAG,
+        dt=dt,
+        n_steps=N_STEPS,
+        theta=0.5,
+        startup_half_steps=2,
+        degree=DEGREE,
+        snapshot_steps=(SNAP,),
+    )
     t_tr = time.perf_counter() - t1
     out["E"] = float(res.max_balance_residual)
     t2 = time.perf_counter()
-    st = solve_steady_conduction(msh, ft, k=k, q=q, h=H_DIR, t_inf=T_INF,
-                                 robin_tag=ROBIN_TAG, degree=DEGREE)
+    st = solve_steady_conduction(
+        msh, ft, k=k, q=q, h=H_DIR, t_inf=T_INF, robin_tag=ROBIN_TAG, degree=DEGREE
+    )
     t_st = time.perf_counter() - t2
-    _say(f"[imp8-i71] t_call transient {t_tr:.1f} s (CN N={N_STEPS}, dt={dt:.6g} s, snapshot "
-         f"{SNAP} -> t = {SNAP * dt:.6g} s = t_c {T_C:.6g}), n_factorizations "
-         f"{res.n_factorizations}; t_call steady {t_st:.1f} s; NaN left {out['nan']}")
+    _say(
+        f"[imp8-i71] t_call transient {t_tr:.1f} s (CN N={N_STEPS}, dt={dt:.6g} s, snapshot "
+        f"{SNAP} -> t = {SNAP * dt:.6g} s = t_c {T_C:.6g}), n_factorizations "
+        f"{res.n_factorizations}; t_call steady {t_st:.1f} s; NaN left {out['nan']}"
+    )
     th_c = _theta_pts(res.snapshots[SNAP], READ_PTS)
     th_s = _theta_pts(res.temperature, READ_PTS + WIT_PTS)
     th_ss = _theta_pts(st.temperature, READ_PTS)
@@ -176,23 +200,31 @@ def run():
             tag = "(I0)" if r == 0.0 else "(I)"
             if gated:
                 out["I0" if r == 0.0 else "I"].append(rel)
-            _say(f"[imp8-i71] {tag} ({r:g}, {z:g}) mm {key}: theta_FEM {v:.6e}, composite "
-                 f"{e:.6e} K per W/m, rel {rel:.3e} "
-                 f"({'gated' if gated else 'printed only'}, band {INTERIOR_BAND:.0e})")
-    _say(f"[imp8-i71] z-invariance at t*: theta_FEM(a, 0) {th_s[0]:.6e}, (a, +L/4) "
-         f"{th_s[3]:.6e}, (a, -L/4) {th_s[4]:.6e}")
+            _say(
+                f"[imp8-i71] {tag} ({r:g}, {z:g}) mm {key}: theta_FEM {v:.6e}, composite "
+                f"{e:.6e} K per W/m, rel {rel:.3e} "
+                f"({'gated' if gated else 'printed only'}, band {INTERIOR_BAND:.0e})"
+            )
+    _say(
+        f"[imp8-i71] z-invariance at t*: theta_FEM(a, 0) {th_s[0]:.6e}, (a, +L/4) "
+        f"{th_s[3]:.6e}, (a, -L/4) {th_s[4]:.6e}"
+    )
     c0 = float(_theta_ss(0.0, k_r=K_GEL))
     out["ctrl"] = abs(th_ss[2] / c0 - 1.0)
-    _say(f"[imp8-i71] control (k_r = K_GEL) at (0, steady): comparand {c0:.6e}, miss "
-         f"{out['ctrl']:.4e} (asserted > {INTERIOR_BAND:.0e}; predicted approx {PRED_CTRL}, "
-         f"not asserted)")
+    _say(
+        f"[imp8-i71] control (k_r = K_GEL) at (0, steady): comparand {c0:.6e}, miss "
+        f"{out['ctrl']:.4e} (asserted > {INTERIOR_BAND:.0e}; predicted approx {PRED_CTRL}, "
+        f"not asserted)"
+    )
     ds = ufl.Measure("ds", domain=msh, subdomain_data=ft)
     area = _allsum(comm, fem.Constant(msh, 1.0) * ds(ROBIN_TAG))
     t_wall = _allsum(comm, st.temperature * ds(ROBIN_TAG)) / area
-    _say(f"[imp8-i71] Robin offset: mean wall theta / theta_ss(a) = "
-         f"{t_wall / float(_theta_ss(A_ROD)):.4e}; steady convected / source "
-         f"{st.convected_power / st.source_power - 1:.3e}; (E) {out['E']:.3e} (band "
-         f"{E_BAND:.0e}); (S0) {out['S0']:.3e} (band {B_BAND:.0e}), shell {out['S0shell']:.3e}")
+    _say(
+        f"[imp8-i71] Robin offset: mean wall theta / theta_ss(a) = "
+        f"{t_wall / float(_theta_ss(A_ROD)):.4e}; steady convected / source "
+        f"{st.convected_power / st.source_power - 1:.3e}; (E) {out['E']:.3e} (band "
+        f"{E_BAND:.0e}); (S0) {out['S0']:.3e} (band {B_BAND:.0e}), shell {out['S0shell']:.3e}"
+    )
     return out
 
 

@@ -157,9 +157,7 @@ def rung():
         tag = SHEET_IFACE + i
         azimuth = _sheet_azimuth_deg(msh, tags_f, tag, comm)
         radial, azimuthal, axial = _port_frame(azimuth)
-        spans, centres = _projected_extents(
-            msh, tags_f, tag, comm, [radial, azimuthal, axial]
-        )
+        spans, centres = _projected_extents(msh, tags_f, tag, comm, [radial, azimuthal, axial])
         geometry[i] = {
             "tag": tag,
             "azimuth_deg": float(azimuth),
@@ -184,9 +182,7 @@ def rung():
         g = geometry[i]
         area = float(_interface_area_or_zero(msh, tags_f, g["tag"], comm))
         radial, azimuthal, axial = _port_frame(g["azimuth_deg"])
-        spans, _c = _projected_extents(
-            msh, tags_f, g["tag"], comm, [radial, azimuthal, axial]
-        )
+        spans, _c = _projected_extents(msh, tags_f, g["tag"], comm, [radial, azimuthal, axial])
         h = float(spans[2])
         sheets.append({**g, "area": area, "h": h, "w": area / h if h > 0 else 0.0})
 
@@ -216,9 +212,7 @@ def rung():
     ]
 
     owned = {i: _owned_facet_count(msh, tags_f, SHEET_IFACE + i, comm) for i in PORTS}
-    union = {
-        i: _global_facet_union_size(msh, tags_f, SHEET_IFACE + i, comm) for i in PORTS
-    }
+    union = {i: _global_facet_union_size(msh, tags_f, SHEET_IFACE + i, comm) for i in PORTS}
     facet_set = _reduced_tag_set(tags_f.values, comm)
     cell_set = _reduced_tag_set(cell_tags.values, comm)
 
@@ -331,12 +325,8 @@ def test_c1_missing_tag_raises(rung):
     tags_c1 = _relabel(msh, rung["tags"], drop=dropped)
     facet_set = _reduced_tag_set(tags_c1.values, comm)
     assert dropped not in facet_set
-    with pytest.raises(
-        ValueError, match=re.escape(f"missing required port tags: [{dropped}]")
-    ):
-        validate_required_port_tags_exist(
-            rung["port_defs"], set(facet_set) | set(rung["cell_set"])
-        )
+    with pytest.raises(ValueError, match=re.escape(f"missing required port tags: [{dropped}]")):
+        validate_required_port_tags_exist(rung["port_defs"], set(facet_set) | set(rung["cell_set"]))
 
 
 @complex_only
@@ -345,9 +335,7 @@ def test_c2_swap_passes_existence_fails_roundtrip(rung):
     a, b = SHEET_IFACE + 2, SHEET_IFACE + 4
     tags_c2 = _relabel(msh, rung["tags"], mapping={a: b, b: a})
     facet_set = _reduced_tag_set(tags_c2.values, comm)
-    validate_required_port_tags_exist(
-        rung["port_defs"], set(facet_set) | set(rung["cell_set"])
-    )
+    validate_required_port_tags_exist(rung["port_defs"], set(facet_set) | set(rung["cell_set"]))
     areas = {i: float(_interface_area_or_zero(msh, tags_c2, SHEET_IFACE + i, comm)) for i in PORTS}
     for i in PORTS:
         assert abs(areas[i] / SPEC_AREA_M2 - 1.0) <= STRIP_BAND, (i, areas[i])

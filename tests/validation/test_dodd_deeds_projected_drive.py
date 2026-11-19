@@ -39,9 +39,8 @@ import time
 import numpy as np
 import pytest
 import ufl
-from mpi4py import MPI
-
 from dolfinx import fem
+from mpi4py import MPI
 
 from fem_em_solver.core import (
     HomogeneousMaterial,
@@ -82,9 +81,7 @@ def _solve_projected(msh, cell_tags, sigma_slab, comm):
         frequency_hz=FEM_FREQUENCY_HZ,
         material=HomogeneousMaterial(sigma=0.0, epsilon_r=1.0, mu_r=1.0),
         cell_tags=cell_tags,
-        material_map={
-            SLAB_TAG: HomogeneousMaterial(sigma=sigma_slab, epsilon_r=1.0, mu_r=1.0)
-        },
+        material_map={SLAB_TAG: HomogeneousMaterial(sigma=sigma_slab, epsilon_r=1.0, mu_r=1.0)},
         boundary_condition="pec_zero_tangential_a",
     )
     solver = TimeHarmonicSolver(problem, degree=1)
@@ -135,11 +132,8 @@ def projected_impedance_change():
 
     j_magnitude = FEM_CURRENT_A / (np.pi * FEM_WIRE_RADIUS**2)
     x = ufl.SpatialCoordinate(msh)
-    j_vec = _azimuthal_current_density(j_magnitude)(x)
     phi_hat = _azimuthal_current_density(1.0)(x)
-    dx_wire = ufl.Measure(
-        "dx", domain=msh, subdomain_data=cell_tags, subdomain_id=(WIRE_TAG,)
-    )
+    dx_wire = ufl.Measure("dx", domain=msh, subdomain_data=cell_tags, subdomain_id=(WIRE_TAG,))
 
     # The unprojected meshed current, exactly as step 2b computes it: the
     # discretised torus carries less than the nominal 1 A because its volume is
@@ -149,9 +143,7 @@ def projected_impedance_change():
     )
     current_unprojected = j_magnitude * v_wire / (2.0 * np.pi * FEM_LOOP_RADIUS)
 
-    e_loaded, j_prime_loaded, t_loaded = _solve_projected(
-        msh, cell_tags, FEM_SIGMA_SLAB, comm
-    )
+    e_loaded, j_prime_loaded, t_loaded = _solve_projected(msh, cell_tags, FEM_SIGMA_SLAB, comm)
     e_free, j_prime_free, t_free = _solve_projected(msh, cell_tags, 0.0, comm)
 
     # I': the same cross-section integral as step 2b (azimuthal current averaged
@@ -176,15 +168,11 @@ def projected_impedance_change():
     # conjugation of its second argument is a no-op: this is the reaction
     # integral, not a power.
     reaction = comm.allreduce(
-        fem.assemble_scalar(
-            fem.form(ufl.inner(e_loaded - e_free, j_prime_loaded) * ufl.dx)
-        ),
+        fem.assemble_scalar(fem.form(ufl.inner(e_loaded - e_free, j_prime_loaded) * ufl.dx)),
         op=MPI.SUM,
     )
     dz = complex(-reaction / current**2)
-    dz_ref = coil_impedance_change(
-        FEM_FREQUENCY_HZ, FEM_LOOP_RADIUS, FEM_LIFTOFF, FEM_SIGMA_SLAB
-    )
+    dz_ref = coil_impedance_change(FEM_FREQUENCY_HZ, FEM_LOOP_RADIUS, FEM_LIFTOFF, FEM_SIGMA_SLAB)
 
     if comm.rank == 0:
         print(

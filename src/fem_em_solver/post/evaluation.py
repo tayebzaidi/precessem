@@ -5,8 +5,8 @@ from __future__ import annotations
 import hashlib
 
 import numpy as np
-from mpi4py import MPI
 from dolfinx import geometry
+from mpi4py import MPI
 
 #: The accepted values of ``evaluate_vector_field_parallel``'s ``owner``
 #: keyword.  ``None`` is the legacy path (first colliding cell on every rank
@@ -105,8 +105,7 @@ def _owner_keys(mesh, parent, comm) -> np.ndarray:
             "parent-local index of every local sub cell (POST-10)."
         ) from cause
     raise ValueError(
-        f"point_owner_cells: malformed parent= on ranks {ranks}: "
-        f"{detail or 'see another rank'}"
+        f"point_owner_cells: malformed parent= on ranks {ranks}: " f"{detail or 'see another rank'}"
     )
 
 
@@ -286,9 +285,7 @@ def evaluate_vector_field_parallel(
     n_points = points.shape[0]
 
     if owner not in OWNER_RULES:
-        raise ValueError(
-            f"unknown owner rule {owner!r}; accepted: {OWNER_RULES}"
-        )
+        raise ValueError(f"unknown owner rule {owner!r}; accepted: {OWNER_RULES}")
     if candidate_cells is not None and owner != "lowest_original_cell":
         raise ValueError(
             "candidate_cells is valid only with owner='lowest_original_cell' "
@@ -296,8 +293,7 @@ def evaluate_vector_field_parallel(
         )
     if parent is not None and owner != "lowest_original_cell":
         raise ValueError(
-            "parent is valid only with owner='lowest_original_cell' "
-            f"(got owner={owner!r})"
+            "parent is valid only with owner='lowest_original_cell' " f"(got owner={owner!r})"
         )
 
     # OPS-40: this routine is collective — rank 0's output buffer is sized by

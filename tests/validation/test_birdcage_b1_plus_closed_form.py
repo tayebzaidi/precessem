@@ -164,14 +164,13 @@ import pytest
 from mpi4py import MPI
 
 from fem_em_solver.core import HomogeneousMaterial
-from fem_em_solver.utils.analytical import birdcage_filament_field
-from fem_em_solver.utils.instrumentation import report_peak_rss
 from fem_em_solver.post import (
     evaluate_vector_field_parallel,
     magnetic_flux_density_from_e,
     project_to_cg1,
 )
-
+from fem_em_solver.utils.analytical import birdcage_filament_field
+from fem_em_solver.utils.instrumentation import report_peak_rss
 from tests.complex_mode import complex_only
 from tests.mesh.test_birdcage_port_sheet_prerequisite import CELL_COUNT_BAND
 from tests.mesh.test_birdcage_port_sheets import SHEET_IFACE
@@ -188,12 +187,13 @@ from tests.validation.test_birdcage_b1_quadrature import (
     _superpose_dg0,
     quadrature_phase_weights,
 )
-from tests.validation.test_port_birdcage_four_port import build_four_port_sweep
+
 # `WF-6` step 4i: names only, never that module's fixtures.
 from tests.validation.test_birdcage_power_identity import (
     DISCRETE_IDENTITY_RTOL,
     _exact_shares,
 )
+from tests.validation.test_port_birdcage_four_port import build_four_port_sweep
 
 # The two trustworthy rungs of the fixture's **global** ``resolution`` (the
 # conductor grading is untouched — `ANS-4` step 2a's negative result is that
@@ -435,6 +435,7 @@ def _filament_interior_cv():
             best = b1
     return _interior_cv(best)
 
+
 # Filled in as the ladder runs (identically on every rank, from
 # already-reduced quantities), so a later rung can print its ratio to the ×1
 # value and the point-to-point drift against its predecessor.
@@ -498,9 +499,7 @@ def _radial_spreads(values):
     return np.asarray(out, dtype=float)
 
 
-@pytest.fixture(
-    scope="module", params=ACTIVE_LADDER, ids=[r["key"] for r in ACTIVE_LADDER]
-)
+@pytest.fixture(scope="module", params=ACTIVE_LADDER, ids=[r["key"] for r in ACTIVE_LADDER])
 def rung(request):
     """One ``h`` rung: one mesh, four single drives, the two superpositions.
 
@@ -517,24 +516,22 @@ def rung(request):
     )
     comm = sweep["mesh"].comm
 
-    azimuths = {
-        f"P{s['tag'] - SHEET_IFACE}": float(s["azimuth_deg"]) for s in sweep["sheets"]
-    }
+    azimuths = {f"P{s['tag'] - SHEET_IFACE}": float(s["azimuth_deg"]) for s in sweep["sheets"]}
     order = sorted(azimuths)
     indices = {
-        pid: _port_index(azimuths[pid], azimuths["P1"], QUADRATURE_STEP_DEG)
-        for pid in order
+        pid: _port_index(azimuths[pid], azimuths["P1"], QUADRATURE_STEP_DEG) for pid in order
     }
-    assert sorted(indices.values()) == [0, 1, 2, 3], (
-        f"the four sheets do not occupy the four quadrature slots: {indices}"
-    )
+    assert sorted(indices.values()) == [
+        0,
+        1,
+        2,
+        3,
+    ], f"the four sheets do not occupy the four quadrature slots: {indices}"
     delta_deg = (azimuths["P2"] - azimuths["P1"]) % 360.0
 
     solves = {pid: _solve_driven(sweep, pid) for pid in order}
     b_dg0 = [
-        magnetic_flux_density_from_e(
-            solves[pid]["fields"].e_complex, solves[pid]["omega"]
-        )
+        magnetic_flux_density_from_e(solves[pid]["fields"].e_complex, solves[pid]["omega"])
         for pid in order
     ]
     ks = np.array([indices[pid] for pid in order], dtype=float)
@@ -580,9 +577,7 @@ def rung(request):
     # Step 4i (opt-in): every term MPI-reduced inside the helpers, so the
     # dict is identical on every rank.  Collective — every rank calls it.
     exact = (
-        {pid: _exact_shares(sweep, solves[pid]) for pid in ("P1", "P2")}
-        if EXACT_SHARES
-        else None
+        {pid: _exact_shares(sweep, solves[pid]) for pid in ("P1", "P2")} if EXACT_SHARES else None
     )
     # Step 4j (opt-in): collective, identical on every rank.
     profile = _sheet_profile(sweep, solves["P1"]) if SHEET_PROFILE else None
@@ -631,9 +626,7 @@ def _residual(sh):
 
 def _exact_readings(sh, ex):
     """Step 4i's derived numbers for one drive, from reduced scalars only."""
-    identity = abs(ex["p_src"] - ex["p_vol"] - ex["sheet_field_total"]) / abs(
-        ex["p_src"]
-    )
+    identity = abs(ex["p_src"] - ex["p_vol"] - ex["sheet_field_total"]) / abs(ex["p_src"])
     c_total = ex["sheet_ceiling_total"]
     cs_corrected = abs(sh["supplied"] - (ex["p_vol"] + c_total)) / abs(sh["supplied"])
     return {
@@ -680,7 +673,7 @@ def _print_exact(reading):
             flush=True,
         )
         print(
-            f"        per sheet: "
+            "        per sheet: "
             + "   ".join(
                 f"{o} ceiling {ex['sheet_ceiling'][o]:.6e} / terminal "
                 f"{sh['sheets'][o]:.6e} = "
@@ -721,13 +714,9 @@ def _sheet_profile(sweep, solved):
         facets = np.asarray(sweep["facet_tags"].find(g["tag"]), dtype=np.int32)
         facets = facets[facets < owned]
         if facets.size:
-            nodes = dolfinx.cpp.mesh.entities_to_geometry(
-                msh._cpp_object, fdim, facets, False
-            )
+            nodes = dolfinx.cpp.mesh.entities_to_geometry(msh._cpp_object, fdim, facets, False)
             tri = msh.geometry.x[np.asarray(nodes)[:, :3]]
-            mid = np.asarray(
-                dolfinx.mesh.compute_midpoints(msh, fdim, facets), dtype=np.float64
-            )
+            mid = np.asarray(dolfinx.mesh.compute_midpoints(msh, fdim, facets), dtype=np.float64)
         else:
             tri = np.zeros((0, 3, 3))
             mid = np.zeros((0, 3))
@@ -788,12 +777,12 @@ def _sheet_profile(sweep, solved):
                     {
                         "n": int(sel.sum()),
                         "area_share": ak / total_area,
-                        "mean_abs_f": float(np.sum(a[sel] * np.abs(fm[sel])) / ak)
-                        if ak > 0
-                        else float("nan"),
-                        "mean_abs_w": float(np.sum(a[sel] * np.abs(ew[sel])) / ak)
-                        if ak > 0
-                        else float("nan"),
+                        "mean_abs_f": (
+                            float(np.sum(a[sel] * np.abs(fm[sel])) / ak) if ak > 0 else float("nan")
+                        ),
+                        "mean_abs_w": (
+                            float(np.sum(a[sel] * np.abs(ew[sel])) / ak) if ak > 0 else float("nan")
+                        ),
                         "dev_share": float(dev[sel].sum()) / dev_total,
                     }
                 )
@@ -885,9 +874,7 @@ def _print_profile(reading):
             )
         print(
             "      var share grid (rows = gap bin 0..4, cols = width bin 0..4, %): "
-            + " / ".join(
-                " ".join(f"{x * 100:5.2f}" for x in row) for row in p["grid"]
-            ),
+            + " / ".join(" ".join(f"{x * 100:5.2f}" for x in row) for row in p["grid"]),
             flush=True,
         )
         print(
@@ -916,13 +903,11 @@ def _print_rung(reading, previous, x1, delta_deg, azimuths, sweep):
         )
     elif spec["record"]:
         record_clause = (
-            f", ASSERTED inside the imported {CELL_COUNT_BAND * 100:.0f}% "
-            "CELL_COUNT_BAND)"
+            f", ASSERTED inside the imported {CELL_COUNT_BAND * 100:.0f}% " "CELL_COUNT_BAND)"
         )
     else:
         record_clause = (
-            ", PRINTED NOT ASSERTED — GEO-29's finer rungs are single "
-            "readings, not records)"
+            ", PRINTED NOT ASSERTED — GEO-29's finer rungs are single " "readings, not records)"
         )
     print(
         f"\n[WF-6 step4g] rung {spec['key']}: c4_congruent_sheets="
@@ -931,7 +916,7 @@ def _print_rung(reading, previous, x1, delta_deg, azimuths, sweep):
         f"{cells} cells (GEO-29 {spec['cells']}, ratio "
         f"{cells / spec['cells']:.6f}"
         + record_clause
-        + f"\n    unloaded (vacuum on tag 3), 10 MHz, degree 1, CG1 |B1+|; sheet "
+        + "\n    unloaded (vacuum on tag 3), 10 MHz, degree 1, CG1 |B1+|; sheet "
         "azimuths "
         + ", ".join(f"{p} {azimuths[p]:.3f}" for p in sorted(azimuths))
         + f" deg; P1->P2 = {delta_deg:.6f} deg; mesh "
@@ -1023,8 +1008,7 @@ def _print_rung(reading, previous, x1, delta_deg, azimuths, sweep):
             else "   (first rung: no drift)"
         )
         print(
-            f"    [{n:2d}] {axis} {tag:>14s}  |B1+| {reading['ccw'][idx]:.9e} T"
-            f"{drift}",
+            f"    [{n:2d}] {axis} {tag:>14s}  |B1+| {reading['ccw'][idx]:.9e} T" f"{drift}",
             flush=True,
         )
     if previous is not None:
@@ -1205,9 +1189,7 @@ def test_c_over_terminal_reproduces_step_4i_on_every_rung(rung):
     if not C4_CONGRUENT or key not in STEP4I_C_OVER_TERMINAL:
         pytest.skip("4i's C/terminal records are flag-on readings only")
     for pid in ("P1", "P2"):
-        measured = _exact_readings(rung["shares"][pid], rung["exact"][pid])[
-            "c_over_terminal"
-        ]
+        measured = _exact_readings(rung["shares"][pid], rung["exact"][pid])["c_over_terminal"]
         record = STEP4I_C_OVER_TERMINAL[key][pid]
         rel = abs(measured - record) / record
         assert rel <= C_OVER_TERMINAL_RTOL, (

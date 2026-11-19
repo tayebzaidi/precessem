@@ -68,8 +68,11 @@ def _printed_vs_repr(row):
 
 
 def test_wf17_s54_ledger_strings_and_custody():
-    hits = [i + 1 for i, ln in enumerate(gen.LEDGER.read_text(encoding="utf-8").splitlines())
-            if ln.startswith(PREFIX_64)]
+    hits = [
+        i + 1
+        for i, ln in enumerate(gen.LEDGER.read_text(encoding="utf-8").splitlines())
+        if ln.startswith(PREFIX_64)
+    ]
     prices = gen.ledger_prices(gen.LEDGER, entries=gen.MEASURED_3T_D2)
     got = {p["entry"]: (p["ranks"], p["cells"], p["gib"], p["seconds"]) for p in prices}
     custody = _custody(prices)
@@ -77,10 +80,12 @@ def test_wf17_s54_ledger_strings_and_custody():
     n_elapsed = sum(ln.startswith("- Elapsed (s):") for ln in lines)
     n_peak = sum(ln.strip() == "[XL] memory.peak bytes:" for ln in lines)
     for p in prices:
-        _p0(f"\n[WF-17 s54] (X-ledger-3d2) entry {p['entry']} {p['chunk']} `{p['log']}`: ranks "
+        _p0(
+            f"\n[WF-17 s54] (X-ledger-3d2) entry {p['entry']} {p['chunk']} `{p['log']}`: ranks "
             f"{p['ranks']!r} cells {p['cells']!r} GiB {p['gib']!r} seconds {p['seconds']!r}; "
             f"prefix hits {len(hits)} at {hits}; Elapsed lines {n_elapsed}; memory.peak lines "
-            f"{n_peak}; custody failures {custody[p['entry']]}")
+            f"{n_peak}; custody failures {custody[p['entry']]}"
+        )
     assert len(hits) == 1
     assert [p["entry"] for p in prices] == ["64"]
     assert got == EXPECTED_3T_D2
@@ -92,8 +97,10 @@ def test_wf17_s54_cells_record():
     from fem_em_solver.study import F_CLINICAL_3T_R1_CELL_RECORD
 
     cells = gen.ledger_prices(gen.LEDGER, entries=gen.MEASURED_3T_D2)[0]["cells"]
-    _p0(f"\n[WF-17 s54] (Cells) ledger {cells!r} vs F_CLINICAL_3T_R1_CELL_RECORD "
-        f"{F_CLINICAL_3T_R1_CELL_RECORD!r}")
+    _p0(
+        f"\n[WF-17 s54] (Cells) ledger {cells!r} vs F_CLINICAL_3T_R1_CELL_RECORD "
+        f"{F_CLINICAL_3T_R1_CELL_RECORD!r}"
+    )
     assert float(cells.replace(" ", "")) == float(F_CLINICAL_3T_R1_CELL_RECORD)
 
 
@@ -111,15 +118,21 @@ def test_wf17_s54_fc4_and_fc3_rows():
     d4, d3 = _printed_vs_repr(fc4), _printed_vs_repr(fc3)
     pin = PRICE_TABLE_CLINICAL_3T[-1]
     pr3 = fc3["printed"]
-    _p0(f"\n[WF-17 s54] (K-4) {fc4['label']}: rc per rank {rc4}; printed-vs-repr differ {d4}; "
-        f"{e4!r}")
-    _p0(f"[WF-17 s54] (K-3) {fc3['label']}: rc per rank {rc3}; printed-vs-repr differ {d3}; "
-        f"{e3!r}")
+    _p0(
+        f"\n[WF-17 s54] (K-4) {fc4['label']}: rc per rank {rc4}; printed-vs-repr differ {d4}; "
+        f"{e4!r}"
+    )
+    _p0(
+        f"[WF-17 s54] (K-3) {fc3['label']}: rc per rank {rc3}; printed-vs-repr differ {d3}; "
+        f"{e3!r}"
+    )
     for name, mm in (("FC4", m["fc4"]), ("FC3", m["fc3"])):
         r = mm["ratios"][0]
-        _p0(f"[WF-17 s54] ratio {name} / entry {r['entry']}: GiB {r['gib']} seconds "
+        _p0(
+            f"[WF-17 s54] ratio {name} / entry {r['entry']}: GiB {r['gib']} seconds "
             f"{r['seconds']} (estimator / measured; a record; predicted "
-            f"{ {'FC4': 'nan / nan', 'FC3': '0.1044 / 0.0166'}[name] })")
+            f"{ {'FC4': 'nan / nan', 'FC3': '0.1044 / 0.0166'}[name] })"
+        )
     gates = {
         "K-4 rc": rc4 == [0] * comm.size,
         "K-4 rows_used": e4.rows_used == (),
@@ -143,8 +156,10 @@ def test_wf17_s54_fixture_two_lines():
     a = FC3T.read_text(encoding="utf-8").splitlines()
     b = gen.FC4_FILE.read_text(encoding="utf-8").splitlines()
     diff = [i for i, (x, y) in enumerate(zip(a, b)) if x != y]
-    _p0(f"\n[WF-17 s54] (Fix-3) {len(a)} / {len(b)} lines; differing indices {diff}: "
-        f"{[(a[i], b[i]) for i in diff]}")
+    _p0(
+        f"\n[WF-17 s54] (Fix-3) {len(a)} / {len(b)} lines; differing indices {diff}: "
+        f"{[(a[i], b[i]) for i in diff]}"
+    )
     assert len(a) == len(b)
     assert len(diff) == 2 and diff[0] == 0
     assert (a[diff[1]], b[diff[1]]) == ("  degree: 1", "  degree: 2")
@@ -154,8 +169,10 @@ def test_wf17_s54_tag403():
     keys = set(gen.TAG403_3T_D2)
     hits = [(i + 1, ln) for i, ln in enumerate(_log_lines()) if TAG_RE.match(ln)]
     distinct = {ln for _, ln in hits}
-    _p0(f"\n[WF-17 s54] (Tag-3d2) TAG403_3T_D2 {gen.TAG403_3T_D2!r}; regex matches {len(hits)} "
-        f"at {[i for i, _ in hits]}, distinct {len(distinct)}")
+    _p0(
+        f"\n[WF-17 s54] (Tag-3d2) TAG403_3T_D2 {gen.TAG403_3T_D2!r}; regex matches {len(hits)} "
+        f"at {[i for i, _ in hits]}, distinct {len(distinct)}"
+    )
     for i, ln in hits:
         _p0(f"[WF-17 s54] tag line :{i}: {ln[:160]!r}...")
     assert keys == {"64"}
@@ -173,18 +190,25 @@ def test_wf17_s54_section_and_order():
     pos = tracked.find(gen.MEASURED_3T_D2_HEADING)
     end = tracked.find("\n## ", pos + 1) if pos >= 0 else -1
     section = (tracked[pos:end] if end >= 0 else tracked[pos:]) if pos >= 0 else ""
-    _p0(f"\n[WF-17 s54] (Sec-3d2) heading at {pos}; section {len(section)} chars vs fresh "
-        f"{len(fresh)}; equal={section == fresh}")
-    heads = (gen.MEASURED_15T_HEADING, gen.MEASURED_HEADING, gen.MEASURED_3T_D2_HEADING,
-             gen.MEASURED_D2_HEADING)
+    _p0(
+        f"\n[WF-17 s54] (Sec-3d2) heading at {pos}; section {len(section)} chars vs fresh "
+        f"{len(fresh)}; equal={section == fresh}"
+    )
+    heads = (
+        gen.MEASURED_15T_HEADING,
+        gen.MEASURED_HEADING,
+        gen.MEASURED_3T_D2_HEADING,
+        gen.MEASURED_D2_HEADING,
+    )
     idx = [lines.index(h) if h in lines else -1 for h in heads]
     h2 = [i for i, ln in enumerate(lines) if ln.startswith("## ")]
-    _p0(f"[WF-17 s54] (Order-3d2) heading lines 1.5 T / 3 T / 3 T-d2 / d2 {idx}; "
-        f"`## ` lines {h2}")
+    _p0(
+        f"[WF-17 s54] (Order-3d2) heading lines 1.5 T / 3 T / 3 T-d2 / d2 {idx}; "
+        f"`## ` lines {h2}"
+    )
     gates = {
         "Sec-3d2": tracked.count(gen.MEASURED_3T_D2_HEADING) == 1 and section == fresh,
-        "Order-3d2": 0 <= idx[0] < idx[1] < idx[2] < idx[3] and len(h2) == 4
-        and h2[-1] == idx[3],
+        "Order-3d2": 0 <= idx[0] < idx[1] < idx[2] < idx[3] and len(h2) == 4 and h2[-1] == idx[3],
     }
     _p0(f"[WF-17 s54] gates {gates}")
     assert all(gates.values()), {k: v for k, v in gates.items() if not v}
@@ -207,14 +231,18 @@ def test_wf17_s54_c64_custody_fails(tmp_path):
 def test_wf17_s54_c_plant_prices_fc4(monkeypatch):
     import fem_em_solver.study as study_mod
 
-    plant = dict(study_mod.PRICE_TABLE_CLINICAL_3T[-1], row="PLANT4", degree=2,
-                 peak_gib=99.0, seconds=99.0)
-    monkeypatch.setattr(study_mod, "PRICE_TABLE_CLINICAL_3T",
-                        study_mod.PRICE_TABLE_CLINICAL_3T + (plant,))
+    plant = dict(
+        study_mod.PRICE_TABLE_CLINICAL_3T[-1], row="PLANT4", degree=2, peak_gib=99.0, seconds=99.0
+    )
+    monkeypatch.setattr(
+        study_mod, "PRICE_TABLE_CLINICAL_3T", study_mod.PRICE_TABLE_CLINICAL_3T + (plant,)
+    )
     fc4 = gen.measured_3t_d2(MPI.COMM_WORLD)["fc4"]
     r = fc4["ratios"][0]
-    _p0(f"\n[WF-17 s54] (c-plant) rows_used={fc4['row']['est'].rows_used!r}; ratios GiB "
-        f"{r['gib']} seconds {r['seconds']} (unplanted: nan / nan)")
+    _p0(
+        f"\n[WF-17 s54] (c-plant) rows_used={fc4['row']['est'].rows_used!r}; ratios GiB "
+        f"{r['gib']} seconds {r['seconds']} (unplanted: nan / nan)"
+    )
     assert fc4["row"]["est"].rows_used == ("PLANT4",)
     assert (r["gib"], r["seconds"]) == ("0.2625", "0.0121")
 

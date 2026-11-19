@@ -25,9 +25,8 @@ from typing import Sequence
 
 import numpy as np
 import ufl
-from mpi4py import MPI
-
 from dolfinx import default_scalar_type, fem
+from mpi4py import MPI
 
 from .lumped import LumpedPortSheet, _sheet_measure, sheet_terminal_current
 

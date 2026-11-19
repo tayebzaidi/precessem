@@ -39,7 +39,6 @@ from fem_em_solver.utils.analytical import (
 from tests.validation.test_mat18_two_layer_sphere_closed_form import (
     A_,
     B_,
-    H,
     K1,
     K2,
     Q1,
@@ -48,6 +47,7 @@ from tests.validation.test_mat18_two_layer_sphere_closed_form import (
     RC2,
     T_INF,
     T_R,
+    H,
 )
 from tests.validation.test_mat18_two_layer_sphere_fem import (
     _allsum,
@@ -76,14 +76,33 @@ def _say(msg):
 
 def _two_layer(r, t):
     return two_layer_sphere_transient_temperature(
-        r, t, a=A_, b=B_, k1=K1, k2=K2, rho_c1=RC1, rho_c2=RC2, q1=Q1, q2=Q2,
-        h=H, t_inf=T_INF, t_init=T_INF,
+        r,
+        t,
+        a=A_,
+        b=B_,
+        k1=K1,
+        k2=K2,
+        rho_c1=RC1,
+        rho_c2=RC2,
+        q1=Q1,
+        q2=Q2,
+        h=H,
+        t_inf=T_INF,
+        t_init=T_INF,
     )
 
 
 def _homog(r, t):
     return robin_sphere_transient_temperature(
-        r, t, radius=B_, k=K1, rho_c=RC1, q=Q1, h=H, t_inf=T_INF, t_init=T_INF,
+        r,
+        t,
+        radius=B_,
+        k=K1,
+        rho_c=RC1,
+        q=Q1,
+        h=H,
+        t_inf=T_INF,
+        t_init=T_INF,
     )
 
 
@@ -104,7 +123,7 @@ def _exact_theta(msh, fn, t):
     t0 = time.perf_counter()
     for s in range(0, r.size, CHUNK):
         tc = time.perf_counter()
-        out[s:s + CHUNK] = fn(r[s:s + CHUNK], t) - T_INF
+        out[s : s + CHUNK] = fn(r[s : s + CHUNK], t) - T_INF
         times.append(time.perf_counter() - tc)
     f.x.array[:] = out
     f.x.scatter_forward()
@@ -149,9 +168,20 @@ def _census(res):
 def _run(msh, ft, *, k, rho_c, q, n, theta, startup, dt=None, snapshot_steps=()):
     t0 = time.perf_counter()
     s = solve_transient_conduction(
-        msh, ft, k=k, rho_c=rho_c, q=q, h=H, t_inf=T_INF, t_init=T_INF,
-        robin_tag=ROBIN_TAG, dt=T_STAR / n if dt is None else dt, n_steps=n,
-        theta=theta, startup_half_steps=startup, degree=1,
+        msh,
+        ft,
+        k=k,
+        rho_c=rho_c,
+        q=q,
+        h=H,
+        t_inf=T_INF,
+        t_init=T_INF,
+        robin_tag=ROBIN_TAG,
+        dt=T_STAR / n if dt is None else dt,
+        n_steps=n,
+        theta=theta,
+        startup_half_steps=startup,
+        degree=1,
         snapshot_steps=snapshot_steps,
     )
     return s, time.perf_counter() - t0
@@ -167,8 +197,10 @@ def _fine():
         rc_f = _dg0(msh, ct, RC1, RC2)
         q_f = _dg0(msh, ct, Q1, Q2)
         theta, t_cmp, t_chunk = _exact_theta(msh, _two_layer, T_STAR)
-        _say(f"MAT18T two-layer comparand at t*={T_STAR:.1f}s: {t_cmp:.1f}s "
-             f"(max chunk call {t_chunk:.2f}s, predicted ≈ 0.5s)")
+        _say(
+            f"MAT18T two-layer comparand at t*={T_STAR:.1f}s: {t_cmp:.1f}s "
+            f"(max chunk call {t_chunk:.2f}s, predicted ≈ 0.5s)"
+        )
         _CACHE["fine"] = (msh, ct, ft, nglob, k_f, rc_f, q_f, theta)
     return _CACHE["fine"]
 
@@ -179,8 +211,9 @@ def test_t1_cn_two_layer_t2_balance_controls():
     dt = T_STAR / N_CN
 
     # (T1) CN + Rannacher, DG0 k and ρc.
-    s, t_solve = _run(msh, ft, k=k_f, rho_c=rc_f, q=q_f, n=N_CN, theta=0.5,
-                      startup=2, snapshot_steps=(39, 40))
+    s, t_solve = _run(
+        msh, ft, k=k_f, rho_c=rc_f, q=q_f, n=N_CN, theta=0.5, startup=2, snapshot_steps=(39, 40)
+    )
     e_all, e_in, e_sh = _errors(msh, ct, s.temperature, theta)
     vc = _vcore(msh, ct)
     _say(
@@ -201,8 +234,11 @@ def test_t1_cn_two_layer_t2_balance_controls():
         ref = _two_layer(np.array([0.0, A_, 0.999 * B_]), T_STAR) - T_INF
         for lab, v, o, rv in zip(("0", "a", "0.999b"), vv, ok, ref):
             th = float(np.real(v)) - T_INF if o else float("nan")
-            print(f"MAT18T theta_h(r={lab}, t*) = {th:.4f} K (valid={bool(o)}); "
-                  f"comparand {rv:.4f} K", flush=True)
+            print(
+                f"MAT18T theta_h(r={lab}, t*) = {th:.4f} K (valid={bool(o)}); "
+                f"comparand {rv:.4f} K",
+                flush=True,
+            )
 
     # (c2) ρc₁ storage weight everywhere in the balance, CN step 39 → 40.
     T39, T40 = s.snapshots[39], s.snapshots[40]
@@ -210,21 +246,27 @@ def test_t1_cn_two_layer_t2_balance_controls():
     stor1 = _allsum(comm, RC1 * (T40 - T39) / dt * ufl.dx(domain=msh))
     conv = _allsum(comm, H * (0.5 * T40 + 0.5 * T39 - T_INF) * ds(ROBIN_TAG))
     bal_c2 = abs(stor1 + conv - s.source_power) / s.source_power
-    _say(f"MAT18T (c2) uniform ρc in the balance: miss measured {bal_c2:.4e} vs "
-         f"predicted ≈ 0.07 (0.03..0.15) (asserted > 1e-3)")
+    _say(
+        f"MAT18T (c2) uniform ρc in the balance: miss measured {bal_c2:.4e} vs "
+        f"predicted ≈ 0.07 (0.03..0.15) (asserted > 1e-3)"
+    )
 
     # (c1) uniform ρc = RC1 everywhere, DG0 k, same piecewise q.
     s1, t1 = _run(msh, ft, k=k_f, rho_c=RC1, q=q_f, n=N_CN, theta=0.5, startup=2)
     _, e1_in, _ = _errors(msh, ct, s1.temperature, theta)
-    _say(f"MAT18T (c1) uniform ρc: interior miss measured {e1_in:.4e} vs predicted "
-         f"≈ 0.05 (0.02..0.10) (asserted > 1e-2); max_balance={s1.max_balance_residual:.3e} "
-         f"solve={t1:.1f}s")
+    _say(
+        f"MAT18T (c1) uniform ρc: interior miss measured {e1_in:.4e} vs predicted "
+        f"≈ 0.05 (0.02..0.10) (asserted > 1e-2); max_balance={s1.max_balance_residual:.3e} "
+        f"solve={t1:.1f}s"
+    )
 
     # Printed only: CN without the Rannacher start.
     s0, t0 = _run(msh, ft, k=k_f, rho_c=rc_f, q=q_f, n=N_CN, theta=0.5, startup=0)
     _, e0_in, _ = _errors(msh, ct, s0.temperature, theta)
-    _say(f"MAT18T CN no-startup N={N_CN} (printed only): interior={e0_in:.4e} "
-         f"max_balance={s0.max_balance_residual:.3e} solve={t0:.1f}s")
+    _say(
+        f"MAT18T CN no-startup N={N_CN} (printed only): interior={e0_in:.4e} "
+        f"max_balance={s0.max_balance_residual:.3e} solve={t0:.1f}s"
+    )
 
     assert s.max_balance_residual <= 1e-9, "(T2) on the (T1) run"
     assert s1.max_balance_residual <= 1e-9, "(T2) on the (c1) run"
@@ -261,9 +303,11 @@ def test_d_coefficient_path():
     s_f, _ = _run(msh, ft, k=k_f, rho_c=rc_f, q=q_f, n=10, theta=1.0, startup=0)
     s_c, _ = _run(msh, ft, k=K1, rho_c=RC1, q=q_f, n=10, theta=1.0, startup=0)
     d = _rel_diff(msh, s_f.temperature, s_c.temperature)
-    _say(f"MAT18T (D) DG0-vs-scalar BE N=10 whole rel diff = {d:.3e} "
-         f"(predicted ≤ 1e-15, band ≤ 1e-13); balances {s_f.max_balance_residual:.3e} / "
-         f"{s_c.max_balance_residual:.3e}")
+    _say(
+        f"MAT18T (D) DG0-vs-scalar BE N=10 whole rel diff = {d:.3e} "
+        f"(predicted ≤ 1e-15, band ≤ 1e-13); balances {s_f.max_balance_residual:.3e} / "
+        f"{s_c.max_balance_residual:.3e}"
+    )
     assert s_f.max_balance_residual <= 1e-9 and s_c.max_balance_residual <= 1e-9, "(T2) on (D)"
     assert d <= 1e-13, f"(D) {d:.3e} > 1e-13"
 
@@ -274,13 +318,15 @@ def test_t3_long_be_equals_steady():
     k_f = _dg0(msh, ct, K1, K2)
     rc_f = _dg0(msh, ct, RC1, RC2)
     q_f = _dg0(msh, ct, Q1, Q2)
-    s, _ = _run(msh, ft, k=k_f, rho_c=rc_f, q=q_f, n=20, theta=1.0, startup=0,
-                dt=5.0 * T_R)
-    st = solve_steady_conduction(msh, ft, k=k_f, q=q_f, h=H, t_inf=T_INF,
-                                 robin_tag=ROBIN_TAG, degree=1)
+    s, _ = _run(msh, ft, k=k_f, rho_c=rc_f, q=q_f, n=20, theta=1.0, startup=0, dt=5.0 * T_R)
+    st = solve_steady_conduction(
+        msh, ft, k=k_f, q=q_f, h=H, t_inf=T_INF, robin_tag=ROBIN_TAG, degree=1
+    )
     diff = _rel_diff(msh, s.temperature, st.temperature)
-    _say(f"MAT18T (T3) BE 20 x 5 t_R vs steady: rel diff={diff:.3e} "
-         f"(predicted ≈ 1e-14, band ≤ 1e-8) max_balance={s.max_balance_residual:.3e}")
+    _say(
+        f"MAT18T (T3) BE 20 x 5 t_R vs steady: rel diff={diff:.3e} "
+        f"(predicted ≈ 1e-14, band ≤ 1e-8) max_balance={s.max_balance_residual:.3e}"
+    )
     assert s.max_balance_residual <= 1e-9, "(T2) on (T3)"
     assert diff <= 1e-8, f"(T3) {diff:.3e} > 1e-8"
 
@@ -298,7 +344,9 @@ def test_cn_self_difference_printed():
         sols.append(s.temperature)
     d1 = _rel_diff(msh, sols[0], sols[1])
     d2 = _rel_diff(msh, sols[1], sols[2])
-    _say(f"MAT18T CN+Rannacher self-difference res=0.01: d(20,40)={d1:.4e} "
-         f"d(40,80)={d2:.4e} rate={np.log(d1 / d2) / np.log(2.0):.3f} "
-         f"(printed; predicted ≈ 2.0) worst balance={worst:.3e}")
+    _say(
+        f"MAT18T CN+Rannacher self-difference res=0.01: d(20,40)={d1:.4e} "
+        f"d(40,80)={d2:.4e} rate={np.log(d1 / d2) / np.log(2.0):.3f} "
+        f"(printed; predicted ≈ 2.0) worst balance={worst:.3e}"
+    )
     assert worst <= 1e-9, "(T2) on the CN ladder"

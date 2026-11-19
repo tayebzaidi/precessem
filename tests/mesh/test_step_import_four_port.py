@@ -134,7 +134,8 @@ def _sheet_azimuths(msh, cell_tags):
     msh.topology.create_connectivity(tdim - 1, tdim)
     ports = list(range(1, LEG_COUNT + 1))
     tags_f = _interface_facet_tags(
-        msh, cell_tags,
+        msh,
+        cell_tags,
         {SHEET_IFACE + i: (PORT_LOWER + i, PORT_UPPER + i) for i in ports},
     )
     out = {}
@@ -206,14 +207,10 @@ def imported_sweep(step_file):
     azimuths = _sheet_azimuths(msh, cell_tags)
     congruence = _congruence(msh, cell_tags, comm)
 
-    sweep = build_four_port_sweep(
-        built=(msh, cell_tags, facet_tags, diag, t_import)
-    )
+    sweep = build_four_port_sweep(built=(msh, cell_tags, facet_tags, diag, t_import))
 
     t0 = time.perf_counter()
-    s_msh, s_cells, _s_facets, _s_diag = import_step(
-        step_path, _swapped_config(), comm=comm
-    )
+    s_msh, s_cells, _s_facets, _s_diag = import_step(step_path, _swapped_config(), comm=comm)
     swapped_azimuths = _sheet_azimuths(s_msh, s_cells)
     t_swapped = time.perf_counter() - t0
 
@@ -288,14 +285,15 @@ def test_negative_control_swapped_p2_p3_fails_the_pre_gate(imported_sweep):
     misses = _cyclic_misses(az)
     if MPI.COMM_WORLD.rank == 0:
         print(
-            f"[GEO-34 1b] control (P2<->P3 swapped): azimuths "
+            "[GEO-34 1b] control (P2<->P3 swapped): azimuths "
             + ", ".join(f"P{i}={v:.6f}" for i, v in sorted(az.items()))
             + f"; pre-gate misses {sorted(misses)}",
             flush=True,
         )
-    assert set(misses) == {2, 3}, (
-        f"the swapped config should fail (iv) at P2 and P3 exactly; misses {misses}"
-    )
+    assert set(misses) == {
+        2,
+        3,
+    }, f"the swapped config should fail (iv) at P2 and P3 exactly; misses {misses}"
 
 
 @complex_only

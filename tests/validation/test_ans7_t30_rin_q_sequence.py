@@ -12,8 +12,6 @@ and their ratio ρ = Δ₂/Δ₁ against the §10 T30 rule (|Δ₂| ≤ ½|Δ₁
 target is set here.  Brief: docs/planning/chunks/ANS-7.md "### §9 item 364".
 """
 
-import math
-
 import pytest
 
 from tests.complex_mode import complex_only
@@ -44,12 +42,21 @@ RUNG_RES = {"x1": None, "h0.01": 0.01, "h0.005": 0.005}
 #   h0.01:  20261004T112945Z_ANS-7-item214-W3-rung.log:2218
 #   h0.005: 20261008T070008Z_ANS-7-step4p.log:4128 (xl entry, T12')
 T30_LOGGED_ROWS = {
-    "x1": {"f0_hz": 62701081.939501435, "r_in_ohm": 18441.75458382276,
-           "q_loaded": 977.2613692833095},
-    "h0.01": {"f0_hz": 62726846.66023456, "r_in_ohm": 18313.602153804146,
-              "q_loaded": 970.4389973340836},
-    "h0.005": {"f0_hz": 62751784.313079365, "r_in_ohm": 18223.232609192608,
-               "q_loaded": 965.5456118046693},
+    "x1": {
+        "f0_hz": 62701081.939501435,
+        "r_in_ohm": 18441.75458382276,
+        "q_loaded": 977.2613692833095,
+    },
+    "h0.01": {
+        "f0_hz": 62726846.66023456,
+        "r_in_ohm": 18313.602153804146,
+        "q_loaded": 970.4389973340836,
+    },
+    "h0.005": {
+        "f0_hz": 62751784.313079365,
+        "r_in_ohm": 18223.232609192608,
+        "q_loaded": 965.5456118046693,
+    },
 }
 # Cell counts: x1 item 196 (80 798); h0.01 item 214 W3 log; h0.005 step4p.log
 # and docs/testing/xl-ledger.md row "ANS-7-step4p".
@@ -84,8 +91,9 @@ def t30():
     rows = {"x1": rows_x1["cu"]["rows"]}
     for rung in RUNGS[1:]:
         recs = inputs[rung][0]
-        rows[rung] = sparse_rows(ASSEMBLY5_NODES_MHZ, {"cu": [_uj(r["z"]["cu"]) for r in recs]},
-                                 columns=("cu",))["cu"]["rows"]
+        rows[rung] = sparse_rows(
+            ASSEMBLY5_NODES_MHZ, {"cu": [_uj(r["z"]["cu"]) for r in recs]}, columns=("cu",)
+        )["cu"]["rows"]
     return {"missing": [], "inputs": inputs, "rows": rows}
 
 
@@ -105,16 +113,24 @@ def test_t30_inputs(t30):
         assert len(recs) == len(nodes), (rung, len(recs))
         assert all(r["degree"] == 2 for r in recs), (rung, [r["degree"] for r in recs])
         assert all(r["kappa"] is None for r in recs), rung
-        assert {r.get("resolution") for r in recs} == {res}, (rung, [r.get("resolution") for r in recs])
+        assert {r.get("resolution") for r in recs} == {res}, (
+            rung,
+            [r.get("resolution") for r in recs],
+        )
         if res is not None:
-            assert all(list(r["columns"]) == ["cu"] for r in recs), (rung, [r["columns"] for r in recs])
+            assert all(list(r["columns"]) == ["cu"] for r in recs), (
+                rung,
+                [r["columns"] for r in recs],
+            )
         cells = {r["cells"] for r in recs}
         assert cells == {T30_CELLS[rung]}, (rung, cells)
         for m, r in zip(nodes, recs):
             _assert_tie(r["cells"], _tie_from_json(r["tie"]), res)
             assert abs(r["f_hz"] - m * 1e6) <= 1.0, (rung, m, r["f_hz"])
-        _say(f"[t30] (F) {rung}: {len(recs)} JSONs, degree 2, kappa None, resolution {res}, "
-             f"cells {T30_CELLS[rung]}, nodes {tuple(nodes)} MHz -- ok")
+        _say(
+            f"[t30] (F) {rung}: {len(recs)} JSONs, degree 2, kappa None, resolution {res}, "
+            f"cells {T30_CELLS[rung]}, nodes {tuple(nodes)} MHz -- ok"
+        )
 
 
 @complex_only
@@ -128,16 +144,20 @@ def test_t30_reproduces_logged_rows(t30):
             got = t30["rows"][rung][k]
             want = T30_LOGGED_ROWS[rung][k]
             d = abs(got / want - 1.0)
-            _say(f"[t30] (R-rep) {rung} {k}: {got!r} vs logged {want!r}: rel {d:.3e} "
-                 f"(ASSERTED <= NODE_S_RTOL {NODE_S_RTOL:.0e}; PREDICTED 0: "
-                 f"{'met' if d == 0.0 else 'NOT met'})")
+            _say(
+                f"[t30] (R-rep) {rung} {k}: {got!r} vs logged {want!r}: rel {d:.3e} "
+                f"(ASSERTED <= NODE_S_RTOL {NODE_S_RTOL:.0e}; PREDICTED 0: "
+                f"{'met' if d == 0.0 else 'NOT met'})"
+            )
             if d > NODE_S_RTOL:
                 fails.append((rung, k, got, want, d))
     for k in ROWS:
         rec7 = ANS7_EXACT_STRIP_ROUTE_B_ROWS_P2["cu"][k]
         v5 = t30["rows"]["x1"][k]
-        _say(f"[t30] printed only: x1 7-node record {k} {rec7!r} vs 5-node {v5!r}: rel "
-             f"{abs(rec7 / v5 - 1.0):.3e} (PREDICTED 9.2e-10 R_in / 6.6e-10 Q, as (S5))")
+        _say(
+            f"[t30] printed only: x1 7-node record {k} {rec7!r} vs 5-node {v5!r}: rel "
+            f"{abs(rec7 / v5 - 1.0):.3e} (PREDICTED 9.2e-10 R_in / 6.6e-10 Q, as (S5))"
+        )
         s6 = STEP6_RUNG_ROWS[k]
         _say(f"[t30] printed only: STEP6_RUNG_ROWS {k} {s6!r} vs h0.01 {t30['rows']['h0.01'][k]!r}")
     assert not fails, fails
@@ -156,8 +176,10 @@ def test_t30_rung_swap_control(t30):
                 continue
             for k in ("r_in_ohm", "q_loaded"):
                 d = abs(t30["rows"][rung][k] / T30_LOGGED_ROWS[other][k] - 1.0)
-                _say(f"[t30] (N-swap) recomputed {rung} {k} vs logged {other}: rel {d:.4e} "
-                     f"(ASSERTED > {floor:.0e})")
+                _say(
+                    f"[t30] (N-swap) recomputed {rung} {k} vs logged {other}: rel {d:.4e} "
+                    f"(ASSERTED > {floor:.0e})"
+                )
                 if not d > floor:
                     fails.append((rung, other, k, d))
     assert not fails, fails
@@ -166,8 +188,10 @@ def test_t30_rung_swap_control(t30):
 def _order(rho, h=T30_H_M, lo=0.1, hi=6.0):
     """p with (h1^p - h2^p)/(h0^p - h1^p) = rho, bisection on [lo, hi]; None if
     no sign change."""
+
     def g(p):
         return (h[1] ** p - h[2] ** p) / (h[0] ** p - h[1] ** p) - rho
+
     a, b = lo, hi
     ga, gb = g(a), g(b)
     if ga * gb > 0:
@@ -187,9 +211,11 @@ def test_t30_sequence_record(t30):
     """(A) asserted: Δ₁ + Δ₂ = v(0.005) − v(×1) within NODE_S_RTOL relative
     (bookkeeping).  Printed record: Δ₁, Δ₂, ρ, the §10 branch, the order."""
     _need_inputs(t30)
-    preds = {"r_in_ohm": (-128.152430, -90.369545, 0.70517, 1.68),
-             "q_loaded": (-6.822372, -4.893386, 0.71726, 1.64),
-             "f0_hz": (25764.72, 24937.65, 0.96790, 1.06)}
+    preds = {
+        "r_in_ohm": (-128.152430, -90.369545, 0.70517, 1.68),
+        "q_loaded": (-6.822372, -4.893386, 0.71726, 1.64),
+        "f0_hz": (25764.72, 24937.65, 0.96790, 1.06),
+    }
     fails = []
     for k in ("r_in_ohm", "q_loaded", "f0_hz"):
         v0, v1, v2 = (t30["rows"][r][k] for r in RUNGS)
@@ -199,23 +225,33 @@ def test_t30_sequence_record(t30):
         rho = d2 / d1
         p = _order(rho)
         pd1, pd2, prho, pp = preds[k]
-        _say(f"[t30] (A) {k}: Delta1 + Delta2 - (v(0.005) - v(x1)) rel {ident:.3e} "
-             f"(ASSERTED <= NODE_S_RTOL {NODE_S_RTOL:.0e})")
-        _say(f"[t30] RECORD {k}: v(x1) {v0!r}, v(0.01) {v1!r}, v(0.005) {v2!r}; "
-             f"Delta1 {d1!r}, Delta2 {d2!r}, rho = Delta2/Delta1 {rho!r} "
-             f"(PREDICTED Delta1 {pd1}, Delta2 {pd2}, rho {prho}); relative steps "
-             f"{d1 / v0:+.4%}, {d2 / v1:+.4%}")
-        _say(f"[t30] order p (printed; not the §10 rule) on h {T30_H_M}: "
-             f"{'n/a (no root in [0.1, 6])' if p is None else f'{p:.4f}'} (PREDICTED ~{pp})")
+        _say(
+            f"[t30] (A) {k}: Delta1 + Delta2 - (v(0.005) - v(x1)) rel {ident:.3e} "
+            f"(ASSERTED <= NODE_S_RTOL {NODE_S_RTOL:.0e})"
+        )
+        _say(
+            f"[t30] RECORD {k}: v(x1) {v0!r}, v(0.01) {v1!r}, v(0.005) {v2!r}; "
+            f"Delta1 {d1!r}, Delta2 {d2!r}, rho = Delta2/Delta1 {rho!r} "
+            f"(PREDICTED Delta1 {pd1}, Delta2 {pd2}, rho {prho}); relative steps "
+            f"{d1 / v0:+.4%}, {d2 / v1:+.4%}"
+        )
+        _say(
+            f"[t30] order p (printed; not the §10 rule) on h {T30_H_M}: "
+            f"{'n/a (no root in [0.1, 6])' if p is None else f'{p:.4f}'} (PREDICTED ~{pp})"
+        )
         if k == "f0_hz":
             _say("[t30] f0 rho printed for comparison with the T13 ruling (first order in h)")
         elif abs(d2) <= 0.5 * abs(d1):
-            _say(f"[t30] BRANCH {k}: |Delta2| <= 0.5 |Delta1| -> bracket (entry 34's form, "
-                 f"364-Q1) [{v2 - abs(d2)!r}, {v2 + abs(d2)!r}] (PREDICTED branch: unconverged "
-                 f"-> NOT met)")
+            _say(
+                f"[t30] BRANCH {k}: |Delta2| <= 0.5 |Delta1| -> bracket (entry 34's form, "
+                f"364-Q1) [{v2 - abs(d2)!r}, {v2 + abs(d2)!r}] (PREDICTED branch: unconverged "
+                f"-> NOT met)"
+            )
         else:
-            _say(f"[t30] BRANCH {k}: |Delta2|/|Delta1| = {abs(d2) / abs(d1):.5f} > 0.5 -> "
-                 f"unconverged at h = 0.005 -- F31 is the next rung (PREDICTED branch: met)")
+            _say(
+                f"[t30] BRANCH {k}: |Delta2|/|Delta1| = {abs(d2) / abs(d1):.5f} > 0.5 -> "
+                f"unconverged at h = 0.005 -- F31 is the next rung (PREDICTED branch: met)"
+            )
         if ident > NODE_S_RTOL:
             fails.append((k, ident))
     assert not fails, fails

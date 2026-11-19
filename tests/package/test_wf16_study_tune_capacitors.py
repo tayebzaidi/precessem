@@ -41,7 +41,6 @@ from fem_em_solver import (
 )
 from fem_em_solver.materials import GelledSalinePhantomMaterial
 from fem_em_solver.ports.circuit import reduce_terminated_ports, s_to_z
-
 from tests.complex_mode import complex_only
 from tests.package.test_wf16_study_copper import _geometry
 from tests.package.test_wf16_study_tune import TH17_STEP3_C_MODE_RECORD_F
@@ -94,8 +93,9 @@ def _relf(a, b):
 @pytest.fixture(scope="module")
 def s6b():
     comm = MPI.COMM_WORLD
-    assert comm.size == ANS6_EXACT_STRIP_RECORD_RANK_WIDTH, (
-        f"asserted at -n {ANS6_EXACT_STRIP_RECORD_RANK_WIDTH}; got -n {comm.size}")
+    assert (
+        comm.size == ANS6_EXACT_STRIP_RECORD_RANK_WIDTH
+    ), f"asserted at -n {ANS6_EXACT_STRIP_RECORD_RANK_WIDTH}; got -n {comm.size}"
     real_build = FourPortBirdcageGeometry.build
     cache = {"key": None, "built": None, "hits": 0, "real": 0}
 
@@ -120,12 +120,15 @@ def s6b():
         t2 = s0.tune(k=2, comm=comm)
         assert s0.result is res0
         out["t1"], out["t2"] = t1, t2
-        _p0(f"\n[WF-16 s6b] S0: cells {res0.cells}, {out['S0']['t']:.1f} s; z_k = " + ", ".join(
-            f"{z.real:+.9e}{z.imag:+.9e}j" for z in t1.z_k))
+        _p0(
+            f"\n[WF-16 s6b] S0: cells {res0.cells}, {out['S0']['t']:.1f} s; z_k = "
+            + ", ".join(f"{z.real:+.9e}{z.imag:+.9e}j" for z in t1.z_k)
+        )
         _p0(f"[WF-16 s6b] C_1 = {t1.c_mode_farad:.9e} F, C_2 = {t2.c_mode_farad:.9e} F")
         plan = [("S_A", CapacitorSheets(t1.c_mode_farad, 0.0, on=("P2", "P3", "P4")))]
-        plan += [(f"S{i + 1}", CapacitorSheets(t1.c_mode_farad, 0.0, on=(PORTS[i],)))
-                 for i in range(4)]
+        plan += [
+            (f"S{i + 1}", CapacitorSheets(t1.c_mode_farad, 0.0, on=(PORTS[i],))) for i in range(4)
+        ]
         plan += [("S_A2", CapacitorSheets(t2.c_mode_farad, 0.0, on=("P2", "P3", "P4")))]
         for name, exc in plan:
             st = _study(exc)
@@ -133,11 +136,15 @@ def s6b():
             t0 = time.perf_counter()
             res = st.solve(comm)
             out[name] = {"study": st, "res": res, "exc": exc, "t": time.perf_counter() - t0}
-            _p0(f"[WF-16 s6b] {name}: cells {res.cells}, S {res.s_matrix.shape}, "
-                f"{out[name]['t']:.1f} s")
+            _p0(
+                f"[WF-16 s6b] {name}: cells {res.cells}, S {res.s_matrix.shape}, "
+                f"{out[name]['t']:.1f} s"
+            )
     n_studies = 1 + len(plan)
-    _p0(f"[WF-16 s6b] build cache: {cache['real']} real build, {cache['hits']} hits "
-        f"({n_studies} Studies)")
+    _p0(
+        f"[WF-16 s6b] build cache: {cache['real']} real build, {cache['hits']} hits "
+        f"({n_studies} Studies)"
+    )
     assert cache["real"] == 1 and cache["hits"] == n_studies - 1 == 6
     out["omega"] = s0.omega
     return out
@@ -153,12 +160,16 @@ def test_wf16_s6b_r0_fixture_tie(s6b):
     rel = {c: abs(means[c] - want[c]) / abs(want[c]) for c in CLASSES}
     c1 = s6b["t1"].c_mode_farad
     a = c1 / TH17_STEP3_C_MODE_RECORD_F - 1.0
-    _p0("\n[WF-16 s6b R0] class means vs 'pec' record: " + ", ".join(
-        f"{c} {rel[c]:.3e}" for c in CLASSES)
-        + f" (band {LEG_D0_REPRODUCTION_BAND:.0e}; item 429 5.052e-11 / 3.878e-11 / 5.875e-11)")
-    _p0(f"[WF-16 s6b a'] C_mode {c1:.9e} F vs TH-17 record {a:+.6e} (band {REDUCTION_BAND:.0e}; "
+    _p0(
+        "\n[WF-16 s6b R0] class means vs 'pec' record: "
+        + ", ".join(f"{c} {rel[c]:.3e}" for c in CLASSES)
+        + f" (band {LEG_D0_REPRODUCTION_BAND:.0e}; item 429 5.052e-11 / 3.878e-11 / 5.875e-11)"
+    )
+    _p0(
+        f"[WF-16 s6b a'] C_mode {c1:.9e} F vs TH-17 record {a:+.6e} (band {REDUCTION_BAND:.0e}; "
         f"item 429 -2.976552e-4); vs item 429's C_mode {ITEM429_C_MODE_F:.9e} F: "
-        f"{c1 / ITEM429_C_MODE_F - 1:+.3e} (printed)")
+        f"{c1 / ITEM429_C_MODE_F - 1:+.3e} (printed)"
+    )
     assert max(rel.values()) <= LEG_D0_REPRODUCTION_BAND
     assert abs(a) <= REDUCTION_BAND
 
@@ -175,10 +186,12 @@ def test_wf16_s6b_route_a_identity(s6b):
     assert sa["res"].s_matrix.shape == (1, 1)
     pa = reduce_terminated_ports(s0, z0, {1: zc, 2: zc, 3: zc})
     r = abs(sa["res"].s_matrix[0, 0] - pa[0, 0]) / abs(pa[0, 0])
-    _p0(f"\n[WF-16 s6b I-A] S_A S11 {complex(sa['res'].s_matrix[0, 0]):.9e} vs reduction "
+    _p0(
+        f"\n[WF-16 s6b I-A] S_A S11 {complex(sa['res'].s_matrix[0, 0]):.9e} vs reduction "
         f"{complex(pa[0, 0]):.9e}: rel {r:.6e} ({r / REDUCTION_BAND:.4f} x REDUCTION_BAND "
         f"{REDUCTION_BAND:.0e}); copper prior {PRIOR_ROUTE_A_COPPER:.3e}, "
-        f"S11 {PRIOR_ROUTE_A_S11_COPPER} (printed)")
+        f"S11 {PRIOR_ROUTE_A_S11_COPPER} (printed)"
+    )
     assert r <= REDUCTION_BAND
 
 
@@ -192,13 +205,16 @@ def test_wf16_s6b_per_sheet_identity(s6b):
         d = s6b[f"S{i + 1}"]
         zc = d["exc"].impedance_ohm(FREQUENCY_64_HZ)
         assert [p.port_id for p in d["res"].port_definitions] == [
-            p for j, p in enumerate(PORTS) if j != i]
+            p for j, p in enumerate(PORTS) if j != i
+        ]
         assert d["res"].capacitor_impedance_ohm == zc
         pred = reduce_terminated_ports(s0, z0, {i: zc})
         r = _relf(d["res"].s_matrix, pred)
         worst = max(worst, r)
-        _p0(f"[WF-16 s6b I-4] sheet P{i + 1}: {r:.6e} ({r / REDUCTION_BAND:.4f} x "
-            f"REDUCTION_BAND {REDUCTION_BAND:.0e}); copper r=0 prior {PRIOR_I4_COPPER_R0[i]:.6e}")
+        _p0(
+            f"[WF-16 s6b I-4] sheet P{i + 1}: {r:.6e} ({r / REDUCTION_BAND:.4f} x "
+            f"REDUCTION_BAND {REDUCTION_BAND:.0e}); copper r=0 prior {PRIOR_I4_COPPER_R0[i]:.6e}"
+        )
     assert worst <= REDUCTION_BAND
 
 
@@ -220,12 +236,16 @@ def test_wf16_s6b_tuned_modal_by_construction(s6b):
     loop = _loop_z(z1, FREQUENCY_64_HZ, t1.c_mode_farad)
     d_loop = abs(zt[1] - loop) / abs(z1)
     im_rel = abs(zt[1].imag) / abs(z1)
-    _p0(f"\n[WF-16 s6b T] tuned z_1 = {zt[1].real:+.9e}{zt[1].imag:+.9e}j; |Im|/|z_1| = "
+    _p0(
+        f"\n[WF-16 s6b T] tuned z_1 = {zt[1].real:+.9e}{zt[1].imag:+.9e}j; |Im|/|z_1| = "
         f"{im_rel:.3e} (by construction, record; {im_rel / REDUCTION_BAND:.2e} x REDUCTION_BAND); "
         f"Re z_1 {z1.real:.8e} (item 429 {ITEM429_RE_Z1_OHM}); |z_1 - z_3|/|z_1| = "
-        f"{abs(t1.z_k[1] - t1.z_k[3]) / abs(z1):.3e} (reciprocity, printed)")
-    _p0(f"[WF-16 s6b T] |zt_1 - _loop_z|/|z_1| = {d_loop:.3e} (band EXACT_IDENTITY_RTOL "
-        f"{EXACT_IDENTITY_RTOL:.0e})")
+        f"{abs(t1.z_k[1] - t1.z_k[3]) / abs(z1):.3e} (reciprocity, printed)"
+    )
+    _p0(
+        f"[WF-16 s6b T] |zt_1 - _loop_z|/|z_1| = {d_loop:.3e} (band EXACT_IDENTITY_RTOL "
+        f"{EXACT_IDENTITY_RTOL:.0e})"
+    )
     assert d_loop <= EXACT_IDENTITY_RTOL
 
 
@@ -238,8 +258,10 @@ def test_wf16_s6b_k2_controls(s6b):
     zc = s6b["S_A"]["exc"].impedance_ohm(FREQUENCY_64_HZ)
     zc2 = s6b["S_A2"]["exc"].impedance_ohm(FREQUENCY_64_HZ)
     omega = s6b["omega"]
-    _p0(f"\n[WF-16 s6b c] zc2 {complex(zc2):.9e} vs 1/(j w C_2) "
-        f"{1.0 / (1j * omega * t2.c_mode_farad):.9e} (printed)")
+    _p0(
+        f"\n[WF-16 s6b c] zc2 {complex(zc2):.9e} vs 1/(j w C_2) "
+        f"{1.0 / (1j * omega * t2.c_mode_farad):.9e} (printed)"
+    )
     z1 = complex(t1.z_k[1])
     zt2 = _modal_z(s_to_z(s0, z0) + zc2 * np.eye(4))[0]
     c1 = abs(zt2[1].imag) / abs(z1)
@@ -248,18 +270,26 @@ def test_wf16_s6b_k2_controls(s6b):
     c2 = abs(sa - pa2[0, 0]) / abs(pa2[0, 0])
     sa2 = s6b["S_A2"]["res"].s_matrix[0, 0]
     own2 = abs(sa2 - pa2[0, 0]) / abs(pa2[0, 0])
-    _p0(f"[WF-16 s6b c1] |Im z_1(C_2)|/|z_1| = {c1:.4e} ({c1 / REDUCTION_BAND:.1f} x band; "
-        f"predicted 0.3288)")
-    _p0(f"[WF-16 s6b c2] S_A(C_mode) vs reduction at C_2: {c2:.4e} "
+    _p0(
+        f"[WF-16 s6b c1] |Im z_1(C_2)|/|z_1| = {c1:.4e} ({c1 / REDUCTION_BAND:.1f} x band; "
+        f"predicted 0.3288)"
+    )
+    _p0(
+        f"[WF-16 s6b c2] S_A(C_mode) vs reduction at C_2: {c2:.4e} "
         f"({c2 / REDUCTION_BAND:.1f} x band; predicted 0.352); reduction at C_2 S11 "
-        f"{complex(pa2[0, 0]):.6e} (predicted -0.5950+0.8033j)")
-    _p0(f"[WF-16 s6b c] S_A2 vs its own reduction at C_2: {own2:.3e} "
-        f"(the identity at the wrong C, printed; predicted approx 1e-5)")
+        f"{complex(pa2[0, 0]):.6e} (predicted -0.5950+0.8033j)"
+    )
+    _p0(
+        f"[WF-16 s6b c] S_A2 vs its own reduction at C_2: {own2:.3e} "
+        f"(the identity at the wrong C, printed; predicted approx 1e-5)"
+    )
     zin = {}
     for name, z in (("S_A", zc), ("S_A2", zc2)):
         s11 = complex(s6b[name]["res"].s_matrix[0, 0])
         zin[name] = z0 * (1 + s11) / (1 - s11) + z
-    _p0(f"[WF-16 s6b c] field-side Z_in(P1)+zc at C_mode {zin['S_A']:.6e} ohm, "
-        f"at C_2 {zin['S_A2']:.6e} ohm (printed; neither separates the modes)")
+    _p0(
+        f"[WF-16 s6b c] field-side Z_in(P1)+zc at C_mode {zin['S_A']:.6e} ohm, "
+        f"at C_2 {zin['S_A2']:.6e} ohm (printed; neither separates the modes)"
+    )
     assert c1 > REDUCTION_BAND
     assert c2 > REDUCTION_BAND

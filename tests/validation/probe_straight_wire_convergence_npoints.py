@@ -76,8 +76,10 @@ def main():
 
         print(f"  ranks {comm.size}  rungs {rungs}  n_points {NPOINTS}")
         print(f"  dolfinx {dolfinx.__version__}  gmsh {gmsh.__version__}")
-        print(f"  gate band [{RATE_MIN}, {RATE_MAX}]  window r in "
-              f"[{R_MIN}, {R_MAX}] (the test's default, 0.4 R)")
+        print(
+            f"  gate band [{RATE_MIN}, {RATE_MAX}]  window r in "
+            f"[{R_MIN}, {R_MAX}] (the test's default, 0.4 R)"
+        )
         sys.stdout.flush()
 
     # errors[n_points] -> list over rungs, in the same order as `rungs`.
@@ -100,8 +102,10 @@ def main():
     if comm.rank != 0:
         return
 
-    print(f"\n  MAG-20 step 1 -- {len(rungs)}x{len(NPOINTS)} sampled-error table "
-          f"(one solve per rung):")
+    print(
+        f"\n  MAG-20 step 1 -- {len(rungs)}x{len(NPOINTS)} sampled-error table "
+        f"(one solve per rung):"
+    )
     header = "  ".join(f"{'n=' + str(n):>13}" for n in NPOINTS)
     print(f"  {'h':>8}  {'cells':>8}  {header}")
     for i, res in enumerate(rungs):
@@ -111,8 +115,10 @@ def main():
     print("\n  Sampler swing at fixed h (max/min - 1 across n_points):")
     for i, res in enumerate(rungs):
         vals = [errors[n][i] for n in NPOINTS]
-        print(f"    h={res:.4f}  {min(vals):.6%} .. {max(vals):.6%}  "
-              f"swing {max(vals) / min(vals) - 1:+.2%}")
+        print(
+            f"    h={res:.4f}  {min(vals):.6%} .. {max(vals):.6%}  "
+            f"swing {max(vals) / min(vals) - 1:+.2%}"
+        )
 
     print("\n  Fitted two-rung rate per n_points (the gate's own statistic):")
     fits = {}
@@ -123,36 +129,45 @@ def main():
         verdict = "in band" if RATE_MIN < p < RATE_MAX else "OUT OF BAND"
         margin_lo = p - RATE_MIN
         margin_hi = RATE_MAX - p
-        print(f"    n_points {n:>3}: rate {p:.4f}  {verdict:>11}  "
-              f"(margin to {RATE_MIN}: {margin_lo:+.4f}; to {RATE_MAX}: {margin_hi:+.4f})")
+        print(
+            f"    n_points {n:>3}: rate {p:.4f}  {verdict:>11}  "
+            f"(margin to {RATE_MIN}: {margin_lo:+.4f}; to {RATE_MAX}: {margin_hi:+.4f})"
+        )
 
     crossed = [n for n in NPOINTS if not (RATE_MIN < fits[n] < RATE_MAX)]
     spread = max(fits.values()) - min(fits.values())
     print("\n  Decision-rule input (PROJECT_PLAN MAG-20 step 1):")
-    print(f"    counts crossing an edge of [{RATE_MIN}, {RATE_MAX}]: "
-          f"{crossed if crossed else 'none'}")
-    print(f"    rate spread over the sweep: {min(fits.values()):.4f} .. "
-          f"{max(fits.values()):.4f}  (absolute {spread:.4f}, "
-          f"relative {spread / min(fits.values()):+.2%})")
-    print(f"    RULE: any crossing => retire the two-sided band under the "
-          f"MAG-19 ruling-(i) pattern; none => the band is validated.")
+    print(
+        f"    counts crossing an edge of [{RATE_MIN}, {RATE_MAX}]: "
+        f"{crossed if crossed else 'none'}"
+    )
+    print(
+        f"    rate spread over the sweep: {min(fits.values()):.4f} .. "
+        f"{max(fits.values()):.4f}  (absolute {spread:.4f}, "
+        f"relative {spread / min(fits.values()):+.2%})"
+    )
+    print(
+        "    RULE: any crossing => retire the two-sided band under the "
+        "MAG-19 ruling-(i) pattern; none => the band is validated."
+    )
     print(f"    => {'RETIRE' if crossed else 'VALIDATED'}")
 
-    print("\n  Pairwise-rate check (identical to the fit at two rungs; a third "
-          "rung would separate them):")
+    print(
+        "\n  Pairwise-rate check (identical to the fit at two rungs; a third "
+        "rung would separate them):"
+    )
     for a, b in itertools.combinations(range(len(rungs)), 2):
         for n in NPOINTS:
-            p = float(
-                np.log(errors[n][a] / errors[n][b])
-                / np.log(rungs[a] / rungs[b])
-            )
+            p = float(np.log(errors[n][a] / errors[n][b]) / np.log(rungs[a] / rungs[b]))
             print(f"    {rungs[a]:.4f}->{rungs[b]:.4f}  n={n:<3} {p:.4f}")
 
     print("\n  Negative control -- the gate's recorded reading on `main`:")
     dev = abs(fits[8] - GATE_RATE_RECORD_8)
-    print(f"    n_points 8 fit {fits[8]:.4f} vs MAG-19 step 2 record "
-          f"{GATE_RATE_RECORD_8:.4f}  |delta| {dev:.4f}  "
-          f"{'ok' if dev < GATE_RATE_RECORD_BAND else 'DOES NOT REPRODUCE'}")
+    print(
+        f"    n_points 8 fit {fits[8]:.4f} vs MAG-19 step 2 record "
+        f"{GATE_RATE_RECORD_8:.4f}  |delta| {dev:.4f}  "
+        f"{'ok' if dev < GATE_RATE_RECORD_BAND else 'DOES NOT REPRODUCE'}"
+    )
     sys.stdout.flush()
 
 

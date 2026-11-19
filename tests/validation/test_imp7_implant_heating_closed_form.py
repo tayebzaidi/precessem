@@ -124,10 +124,14 @@ def test_imp7_0_src_source_vs_imp1_field():
     u = (A / np.linalg.norm(pts, axis=1)) ** 3
     q_iso = Q_FAR * (1.0 + 2.0 * u**2)
     c1 = float(np.max(np.abs(q_iso - q)) / np.max(q))
-    _p(f"\n[IMP7-0 Src] beta=1 vs IMP-1 _pec_exterior_numpy: {e1:.3e}; beta=-1/2 (eps 0): "
-       f"{errs[-0.5]:.3e}; beta=1/2 (eps 4): {errs[0.5]:.3e} (band B1_BAND {B1_BAND:.0e} x max q)")
-    _p(f"[IMP7-0 c1] isotropic source vs (Src): {c1:.4f} (predicted 0.6667 ceiling; "
-       f"asserted > CONTROL_MISS {CONTROL_MISS:.0e})")
+    _p(
+        f"\n[IMP7-0 Src] beta=1 vs IMP-1 _pec_exterior_numpy: {e1:.3e}; beta=-1/2 (eps 0): "
+        f"{errs[-0.5]:.3e}; beta=1/2 (eps 4): {errs[0.5]:.3e} (band B1_BAND {B1_BAND:.0e} x max q)"
+    )
+    _p(
+        f"[IMP7-0 c1] isotropic source vs (Src): {c1:.4f} (predicted 0.6667 ceiling; "
+        f"asserted > CONTROL_MISS {CONTROL_MISS:.0e})"
+    )
     assert e1 <= B1_BAND
     assert errs[-0.5] <= B1_BAND and errs[0.5] <= B1_BAND
     assert c1 > CONTROL_MISS
@@ -144,8 +148,11 @@ def test_imp7_0_pde_radial_residual():
             R2 = pec_sphere_implant_radial(r, c, l, derivative=2)
             ql = _q_l(r, l)
             res = -K_GEL * (R2 + 2.0 * R1 / r - l * (l + 1) * R / r**2) - ql
-            scale = K_GEL * (_term_scale(c, l, r, 2) + 2.0 * _term_scale(c, l, r, 1) / r
-                             + l * (l + 1) * _term_scale(c, l, r, 0) / r**2) + np.abs(ql)
+            scale = K_GEL * (
+                _term_scale(c, l, r, 2)
+                + 2.0 * _term_scale(c, l, r, 1) / r
+                + l * (l + 1) * _term_scale(c, l, r, 0) / r**2
+            ) + np.abs(ql)
             e = float(np.max(np.abs(res) / scale))
             worst = max(worst, e)
             _p(f"[IMP7-0 PDE] {name:10s} l={l}: max residual / term sum {e:.3e}")
@@ -163,18 +170,32 @@ def test_imp7_0_interface_robin_and_c3():
         jumps = [("l=0 flux", e_f0)]
         if k1 != 0.0:
             t0 = c["theta0_core"] - pec_sphere_implant_radial(A, c, 0)
-            jumps.append(("l=0 theta", abs(float(t0)) / float(abs(c["theta0_core"]) + _term_scale(c, 0, A, 0))))
+            jumps.append(
+                (
+                    "l=0 theta",
+                    abs(float(t0)) / float(abs(c["theta0_core"]) + _term_scale(c, 0, A, 0)),
+                )
+            )
             t2 = c["F"] * A**2 - pec_sphere_implant_radial(A, c, 2)
-            jumps.append(("l=2 theta", abs(float(t2)) / float(abs(c["F"] * A**2) + _term_scale(c, 2, A, 0))))
+            jumps.append(
+                ("l=2 theta", abs(float(t2)) / float(abs(c["F"] * A**2) + _term_scale(c, 2, A, 0)))
+            )
         if np.isfinite(k1):
             core_flux = 0.0 if k1 == 0.0 else k1 * 2.0 * c["F"] * A
             f2 = core_flux - K_GEL * pec_sphere_implant_radial(A, c, 2, derivative=1)
-            jumps.append(("l=2 flux", abs(float(f2)) / float(abs(core_flux) + K_GEL * _term_scale(c, 2, A, 1))))
+            jumps.append(
+                (
+                    "l=2 flux",
+                    abs(float(f2)) / float(abs(core_flux) + K_GEL * _term_scale(c, 2, A, 1)),
+                )
+            )
         for lab, e in jumps:
             worst_i = max(worst_i, e)
             _p(f"[IMP7-0 I] {name:10s} {lab}: {e:.3e}")
         for l in (0, 2):
-            res = K_GEL * pec_sphere_implant_radial(B, c, l, derivative=1) + H * pec_sphere_implant_radial(B, c, l)
+            res = K_GEL * pec_sphere_implant_radial(
+                B, c, l, derivative=1
+            ) + H * pec_sphere_implant_radial(B, c, l)
             sc = K_GEL * _term_scale(c, l, B, 1) + H * _term_scale(c, l, B, 0)
             e = abs(float(res)) / float(sc)
             worst_b = max(worst_b, e)
@@ -185,10 +206,14 @@ def test_imp7_0_interface_robin_and_c3():
     core_flux = 2.0 * K_CORE * r2a / A
     shell_flux = float(K_GEL * pec_sphere_implant_radial(A, ca, 2, derivative=1))
     c3 = abs(core_flux - shell_flux) / (abs(core_flux) + K_GEL * float(_term_scale(ca, 2, A, 1)))
-    _p(f"[IMP7-0 I] worst {worst_i:.3e}; [IMP7-0 Rb] worst {worst_b:.3e} (band B1_BAND {B1_BAND:.0e})")
-    _p(f"[IMP7-0 c3] adiabatic R2 at k1 = {K_CORE}: flux jump {c3:.4f} (predicted 1.0; "
-       f"note: the term-sum scale includes the shell's pre-cancellation terms, so the "
-       f"reading may sit below 1; asserted > CONTROL_MISS {CONTROL_MISS:.0e})")
+    _p(
+        f"[IMP7-0 I] worst {worst_i:.3e}; [IMP7-0 Rb] worst {worst_b:.3e} (band B1_BAND {B1_BAND:.0e})"
+    )
+    _p(
+        f"[IMP7-0 c3] adiabatic R2 at k1 = {K_CORE}: flux jump {c3:.4f} (predicted 1.0; "
+        f"note: the term-sum scale includes the shell's pre-cancellation terms, so the "
+        f"reading may sit below 1; asserted > CONTROL_MISS {CONTROL_MISS:.0e})"
+    )
     assert worst_i <= B1_BAND
     assert worst_b <= B1_BAND
     assert c3 > CONTROL_MISS
@@ -214,10 +239,12 @@ def test_imp7_0_fd_cartesian_laplacian():
     e1 = _fd_residual(pts, DELTA)
     e2 = _fd_residual(pts, 2.0 * DELTA)
     ratio = e2 / e1
-    _p(f"\n[IMP7-0 FD] max|-k2 Lap_h T - q|/(9 q_far), 32 shell points: delta = 1e-2 a "
-       f"{e1:.3e} (predicted ~1.1e-5; IMP-1 (H) level {FD_LEVEL_PRINTED:.0e} printed only); "
-       f"2 delta {e2:.3e}; ratio {ratio:.3f} (predicted 4.00, asserted in "
-       f"[{FD_RATIO_LO}, {FD_RATIO_HI}])")
+    _p(
+        f"\n[IMP7-0 FD] max|-k2 Lap_h T - q|/(9 q_far), 32 shell points: delta = 1e-2 a "
+        f"{e1:.3e} (predicted ~1.1e-5; IMP-1 (H) level {FD_LEVEL_PRINTED:.0e} printed only); "
+        f"2 delta {e2:.3e}; ratio {ratio:.3f} (predicted 4.00, asserted in "
+        f"[{FD_RATIO_LO}, {FD_RATIO_HI}])"
+    )
     assert FD_RATIO_LO <= ratio <= FD_RATIO_HI
 
 
@@ -233,17 +260,26 @@ def test_imp7_0_balance_phi_and_c2():
     }
     for k, v in pairs.items():
         _p(f"[IMP7-0 Bal] {k}: {v:.3e}")
-    _p(f"[IMP7-0 Bal] P(beta=1) GL {p_gl:.9e} W (predicted 6.803512e-2); band B1_BAND {B1_BAND:.0e}")
+    _p(
+        f"[IMP7-0 Bal] P(beta=1) GL {p_gl:.9e} W (predicted 6.803512e-2); band B1_BAND {B1_BAND:.0e}"
+    )
     c_out = SHELL_OUTER_FACTOR * A
     vol = 4.0 * np.pi * (c_out**3 - A**3) / 3.0
-    phi = _gl_power(lambda x: pec_sphere_implant_source(x, radius=A, q_far=1.0, beta=1.0), A, c_out) / vol
+    phi = (
+        _gl_power(lambda x: pec_sphere_implant_source(x, radius=A, q_far=1.0, beta=1.0), A, c_out)
+        / vol
+    )
     e_phi = abs(phi - PHI_CLOSED_FORM_PEC)
-    _p(f"[IMP7-0 Phi] shell mean q/q_far over a<r<1.5a {phi:.15f} vs PHI_CLOSED_FORM_PEC "
-       f"{PHI_CLOSED_FORM_PEC:.15f}: {e_phi:.3e} (predicted ~1e-15, band {PHI_BAND:.0e})")
+    _p(
+        f"[IMP7-0 Phi] shell mean q/q_far over a<r<1.5a {phi:.15f} vs PHI_CLOSED_FORM_PEC "
+        f"{PHI_CLOSED_FORM_PEC:.15f}: {e_phi:.3e} (predicted ~1e-15, band {PHI_BAND:.0e})"
+    )
     p0 = _gl_power(lambda x: pec_sphere_implant_source(x, radius=A, q_far=Q_FAR, beta=0.0), A, B)
     c2 = 1.0 - p0 / p_gl
-    _p(f"[IMP7-0 c2] beta=0 source vs (Bal) power: 1 - P(0)/P(1) = {c2:.6f} (P(0) {p0:.6e}, "
-       f"predicted 6.597345e-2; predicted 0.030303; asserted > CONTROL_MISS {CONTROL_MISS:.0e})")
+    _p(
+        f"[IMP7-0 c2] beta=0 source vs (Bal) power: 1 - P(0)/P(1) = {c2:.6f} (P(0) {p0:.6e}, "
+        f"predicted 6.597345e-2; predicted 0.030303; asserted > CONTROL_MISS {CONTROL_MISS:.0e})"
+    )
     assert max(pairs.values()) <= B1_BAND
     assert e_phi <= PHI_BAND
     assert c2 > CONTROL_MISS
@@ -255,17 +291,26 @@ def test_imp7_0_r0_beta0_reduces_to_mat18():
     mu = rng.uniform(-1.0, 1.0, r.size)
     s = np.sqrt(1.0 - mu * mu)
     pts = np.column_stack([r * s, np.zeros_like(r), r * mu])
-    ref = two_layer_sphere_steady_temperature(r, a=A, b=B, k1=K_CORE, k2=K_GEL, q1=0.0,
-                                              q2=Q_FAR, h=H, t_inf=T_INF) - T_INF
+    ref = (
+        two_layer_sphere_steady_temperature(
+            r, a=A, b=B, k1=K_CORE, k2=K_GEL, q1=0.0, q2=Q_FAR, h=H, t_inf=T_INF
+        )
+        - T_INF
+    )
     worst = 0.0
     for name, k1 in BRANCHES.items():
-        th = pec_sphere_implant_steady_temperature(pts, k_core=k1, t_inf=T_INF, beta=0.0, **FIX) - T_INF
+        th = (
+            pec_sphere_implant_steady_temperature(pts, k_core=k1, t_inf=T_INF, beta=0.0, **FIX)
+            - T_INF
+        )
         m = r >= A if k1 == 0.0 else np.ones_like(r, dtype=bool)
         e = float(np.max(np.abs(th[m] - ref[m])) / np.max(np.abs(ref[m])))
         worst = max(worst, e)
         _p(f"[IMP7-0 R0] beta=0 {name:10s} vs MAT-18 two_layer_sphere_steady_temperature: {e:.3e}")
-    _p(f"[IMP7-0 R0] worst {worst:.3e} (band {R0_BAND:.0e}); theta(a)|beta=0 = "
-       f"{float(ref[np.argmin(np.abs(r - A))]):.6f} K (predicted 0.318750)")
+    _p(
+        f"[IMP7-0 R0] worst {worst:.3e} (band {R0_BAND:.0e}); theta(a)|beta=0 = "
+        f"{float(ref[np.argmin(np.abs(r - A))]):.6f} K (predicted 0.318750)"
+    )
     assert worst <= R0_BAND
 
 
@@ -280,28 +325,75 @@ def test_imp7_0_rk_and_predictions_printed():
     for eps in (1e-2, 1e-3, 1e-4):
         ea, ea2 = e_to(ad, eps * K_GEL), e_to(ad, 0.5 * eps * K_GEL)
         ei, ei2 = e_to(iso, K_GEL / eps), e_to(iso, 2.0 * K_GEL / eps)
-        _p(f"[IMP7-0 Rk] eps {eps:.0e}: |dR2(a)| toward adiabatic {ea:.3e}/{ea2:.3e} ratio "
-           f"{ea / ea2:.4f}; toward isothermal {ei:.3e}/{ei2:.3e} ratio {ei / ei2:.4f} "
-           f"(predicted 2; [1.9, 2.1] a reading aid, not asserted)")
+        _p(
+            f"[IMP7-0 Rk] eps {eps:.0e}: |dR2(a)| toward adiabatic {ea:.3e}/{ea2:.3e} ratio "
+            f"{ea / ea2:.4f}; toward isothermal {ei:.3e}/{ei2:.3e} ratio {ei / ei2:.4f} "
+            f"(predicted 2; [1.9, 2.1] a reading aid, not asserted)"
+        )
     c20 = _coeffs(K_CORE)
-    _p(f"[IMP7-0 rec] theta0(a) {c20['theta0_core']:.6f} K (pred 0.350684); theta0(b) "
-       f"{c20['theta0_b']:.6f} K (pred 0.135352); P {c20['power']:.6e} W (pred 6.803512e-2)")
-    preds = {"adiabatic": (0.045660, 0.396344, 0.327854), "k1=20": (0.001966, 0.352650, 0.349700),
-             "isothermal": (0.0, 0.350684, 0.350684)}
+    _p(
+        f"[IMP7-0 rec] theta0(a) {c20['theta0_core']:.6f} K (pred 0.350684); theta0(b) "
+        f"{c20['theta0_b']:.6f} K (pred 0.135352); P {c20['power']:.6e} W (pred 6.803512e-2)"
+    )
+    preds = {
+        "adiabatic": (0.045660, 0.396344, 0.327854),
+        "k1=20": (0.001966, 0.352650, 0.349700),
+        "isothermal": (0.0, 0.350684, 0.350684),
+    }
     for name, k1 in BRANCHES.items():
         c = _coeffs(k1)
         r2a = float(pec_sphere_implant_radial(A, c, 2))
-        pole = float(pec_sphere_implant_steady_temperature(np.array([[0, 0, A]]), k_core=k1, t_inf=T_INF, **FIX)[0]) - T_INF
-        eq = float(pec_sphere_implant_steady_temperature(np.array([[A, 0, 0]]), k_core=k1, t_inf=T_INF, **FIX)[0]) - T_INF
+        pole = (
+            float(
+                pec_sphere_implant_steady_temperature(
+                    np.array([[0, 0, A]]), k_core=k1, t_inf=T_INF, **FIX
+                )[0]
+            )
+            - T_INF
+        )
+        eq = (
+            float(
+                pec_sphere_implant_steady_temperature(
+                    np.array([[A, 0, 0]]), k_core=k1, t_inf=T_INF, **FIX
+                )[0]
+            )
+            - T_INF
+        )
         pr = preds[name]
-        _p(f"[IMP7-0 rec] {name:10s} R2(a) {r2a:.6f} (pred {pr[0]:.6f}); pole/equator at r=a "
-           f"{pole:.6f}/{eq:.6f} (pred {pr[1]:.6f}/{pr[2]:.6f}), ratio {pole / eq:.4f}")
-    t_b0 = float(two_layer_sphere_steady_temperature(A, a=A, b=B, k1=K_CORE, k2=K_GEL, q1=0.0,
-                                                     q2=Q_FAR, h=H, t_inf=T_INF)) - T_INF
-    _p(f"[IMP7-0 rec] heating factor theta0(a)|b=1 / theta(a)|b=0 = {c20['theta0_core']:.6f}/"
-       f"{t_b0:.6f} = {c20['theta0_core'] / t_b0:.4f} (pred 0.350684/0.318750 = 1.1002)")
+        _p(
+            f"[IMP7-0 rec] {name:10s} R2(a) {r2a:.6f} (pred {pr[0]:.6f}); pole/equator at r=a "
+            f"{pole:.6f}/{eq:.6f} (pred {pr[1]:.6f}/{pr[2]:.6f}), ratio {pole / eq:.4f}"
+        )
+    t_b0 = (
+        float(
+            two_layer_sphere_steady_temperature(
+                A, a=A, b=B, k1=K_CORE, k2=K_GEL, q1=0.0, q2=Q_FAR, h=H, t_inf=T_INF
+            )
+        )
+        - T_INF
+    )
+    _p(
+        f"[IMP7-0 rec] heating factor theta0(a)|b=1 / theta(a)|b=0 = {c20['theta0_core']:.6f}/"
+        f"{t_b0:.6f} = {c20['theta0_core'] / t_b0:.4f} (pred 0.350684/0.318750 = 1.1002)"
+    )
     cv = _coeffs(0.0, beta=-0.5)
-    pv = float(pec_sphere_implant_steady_temperature(np.array([[0, 0, A]]), k_core=0.0, t_inf=T_INF, beta=-0.5, **FIX)[0]) - T_INF
-    ev = float(pec_sphere_implant_steady_temperature(np.array([[A, 0, 0]]), k_core=0.0, t_inf=T_INF, beta=-0.5, **FIX)[0]) - T_INF
-    _p(f"[IMP7-0 rec] void beta=-1/2 adiabatic pole/equator {pv:.6f}/{ev:.6f} (pred 0.310844/0.334678); "
-       f"R2(a) {float(pec_sphere_implant_radial(A, cv, 2)):.6f}")
+    pv = (
+        float(
+            pec_sphere_implant_steady_temperature(
+                np.array([[0, 0, A]]), k_core=0.0, t_inf=T_INF, beta=-0.5, **FIX
+            )[0]
+        )
+        - T_INF
+    )
+    ev = (
+        float(
+            pec_sphere_implant_steady_temperature(
+                np.array([[A, 0, 0]]), k_core=0.0, t_inf=T_INF, beta=-0.5, **FIX
+            )[0]
+        )
+        - T_INF
+    )
+    _p(
+        f"[IMP7-0 rec] void beta=-1/2 adiabatic pole/equator {pv:.6f}/{ev:.6f} (pred 0.310844/0.334678); "
+        f"R2(a) {float(pec_sphere_implant_radial(A, cv, 2)):.6f}"
+    )

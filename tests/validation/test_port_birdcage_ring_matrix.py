@@ -102,8 +102,8 @@ import pytest
 from mpi4py import MPI
 
 from tests.complex_mode import complex_only
-from tests.mesh.test_birdcage_port_sheet_prerequisite import CELL_COUNT_BAND
 from tests.mesh.test_birdcage_port_scaleup import SCALED_LEG_COUNT
+from tests.mesh.test_birdcage_port_sheet_prerequisite import CELL_COUNT_BAND
 from tests.mesh.test_birdcage_ring_sheet_orientation import (
     RING_LONGITUDINAL_SCALED_CELL_RECORD,
 )
@@ -141,6 +141,7 @@ def _reuse_on():
 def _cache_dir():
     """The directory this window reads and writes: the reuse one iff the env is on."""
     return REUSE_CACHE_DIR if _reuse_on() else CACHE_DIR
+
 
 # Anchor (ii).  Not a tolerance: a passive network's scattering matrix is a
 # contraction, so the ceiling is exactly 1 and `1 − sigma_max` is a measurement
@@ -233,9 +234,7 @@ def test_the_sweep_half_solves_and_caches_its_sixteen_columns():
     """
     half = os.environ.get(SWEEP_ENV)
     if half is None:
-        pytest.skip(
-            f"{SWEEP_ENV} unset: this is the assembly window, which runs no solve"
-        )
+        pytest.skip(f"{SWEEP_ENV} unset: this is the assembly window, which runs no solve")
     assert half in SWEEP_HALVES, (
         f"{SWEEP_ENV}={half!r} is not one of {SWEEP_HALVES}; the half is selected "
         "by this variable alone, never by a -k expression"
@@ -279,9 +278,7 @@ def test_the_sweep_half_solves_and_caches_its_sixteen_columns():
     reuse = _reuse_on()
     columns = {}
     for ordinal in ordinals:
-        columns[ordinal] = _solve_one_drive(
-            built["ctx"], f"P{ordinal}", reuse_factorization=reuse
-        )
+        columns[ordinal] = _solve_one_drive(built["ctx"], f"P{ordinal}", reuse_factorization=reuse)
         if comm.rank == 0:
             col = columns[ordinal]
             print(
@@ -311,10 +308,7 @@ def test_the_sweep_half_solves_and_caches_its_sixteen_columns():
 
     for ordinal, col in columns.items():
         assert len(col["s_column"]) == 2 * SCALED_LEG_COUNT
-        assert all(
-            np.isfinite(s.real) and np.isfinite(s.imag)
-            for s in col["s_column"].values()
-        )
+        assert all(np.isfinite(s.real) and np.isfinite(s.imag) for s in col["s_column"].values())
         assert col["supplied"] > 0.0, (
             f"driving P{ordinal} the sheet supplies {col['supplied']:.9e} W — a "
             "passive load cannot absorb negative real power"
@@ -344,16 +338,13 @@ def test_the_sweep_half_solves_and_caches_its_sixteen_columns():
             port_ordinals=np.array(port_ordinals, dtype=np.int64),
             drive_ordinals=np.array(ordinals, dtype=np.int64),
             s_columns=np.array(
-                [[columns[o]["s_column"][f"P{p}"] for p in port_ordinals]
-                 for o in ordinals],
+                [[columns[o]["s_column"][f"P{p}"] for p in port_ordinals] for o in ordinals],
                 dtype=complex,
             ),
             residuals=np.array([columns[o]["residual"] for o in ordinals]),
             blind=np.array([columns[o]["blind"] for o in ordinals]),
             solve_times=np.array([columns[o]["solve_time"] for o in ordinals]),
-            azimuth_deg=np.array(
-                [built["azimuth_deg"][p] for p in port_ordinals], dtype=float
-            ),
+            azimuth_deg=np.array([built["azimuth_deg"][p] for p in port_ordinals], dtype=float),
             z=np.array(
                 [s["z"] for s in sorted(sheets, key=lambda s: s["ordinal"])],
                 dtype=float,
@@ -374,10 +365,12 @@ def test_the_sweep_half_solves_and_caches_its_sixteen_columns():
         )
         if reuse:
             times = [columns[o]["solve_time"] for o in ordinals]
-            held = [columns[o]["solve_time"] for o in ordinals
-                    if columns[o]["solve_kind"] == "held"]
-            factor = [columns[o]["solve_time"] for o in ordinals
-                      if columns[o]["solve_kind"] == "solve"]
+            held = [
+                columns[o]["solve_time"] for o in ordinals if columns[o]["solve_kind"] == "held"
+            ]
+            factor = [
+                columns[o]["solve_time"] for o in ordinals if columns[o]["solve_kind"] == "solve"
+            ]
             comparand = _half_file(half, CACHE_DIR)
             if comparand.exists():
                 with np.load(comparand, allow_pickle=False) as ref:
@@ -395,8 +388,7 @@ def test_the_sweep_half_solves_and_caches_its_sixteen_columns():
                 f"[PORT-19 step3] window {half.upper()} REUSE: {n_solve} solve + "
                 f"{n_held} held calls; factorising drive {sum(factor):.2f} s, "
                 f"back-substitution drives mean {np.mean(held):.2f} s (min "
-                f"{min(held):.2f}, max {max(held):.2f}), solve sum {sum(times):.2f} s; "
-                + ref_text,
+                f"{min(held):.2f}, max {max(held):.2f}), solve sum {sum(times):.2f} s; " + ref_text,
                 flush=True,
             )
     comm.Barrier()
@@ -429,9 +421,7 @@ def ring_matrix():
 
 def _load_ring_matrix(cache_dir):
     """Assemble the 32x32 from the two half caches in ``cache_dir``."""
-    data = {
-        h: np.load(_half_file(h, cache_dir), allow_pickle=False) for h in SWEEP_HALVES
-    }
+    data = {h: np.load(_half_file(h, cache_dir), allow_pickle=False) for h in SWEEP_HALVES}
 
     port_ordinals = data["bottom"]["port_ordinals"]
     index = {int(p): k for k, p in enumerate(port_ordinals)}
@@ -481,18 +471,12 @@ def test_the_two_halves_came_off_one_fixture(ring_matrix):
     )
 
     assert list(d["bottom"]["port_ordinals"]) == list(d["top"]["port_ordinals"])
-    az_gap = float(
-        np.max(np.abs(d["bottom"]["azimuth_deg"] - d["top"]["azimuth_deg"]))
-    )
+    az_gap = float(np.max(np.abs(d["bottom"]["azimuth_deg"] - d["top"]["azimuth_deg"])))
     z_gap = float(np.max(np.abs(d["bottom"]["z"] - d["top"]["z"])))
-    assert az_gap < 1.0e-9, (
-        f"the two windows' measured azimuth tables differ by {az_gap:.3e} deg"
-    )
+    assert az_gap < 1.0e-9, f"the two windows' measured azimuth tables differ by {az_gap:.3e} deg"
     assert z_gap < 1.0e-12
 
-    drives = sorted(
-        int(o) for h in SWEEP_HALVES for o in d[h]["drive_ordinals"]
-    )
+    drives = sorted(int(o) for h in SWEEP_HALVES for o in d[h]["drive_ordinals"])
     assert drives == ring_matrix["port_ordinals"], (
         f"the two halves drove {len(drives)} ports, which are not the "
         f"{len(ring_matrix['port_ordinals'])} ring ports of the layout"
@@ -516,8 +500,7 @@ def test_the_two_halves_came_off_one_fixture(ring_matrix):
             f"{RING_LONGITUDINAL_SCALED_CELL_RECORD}), azimuth tables agree to "
             f"{az_gap:.3e} deg, all {len(drives)} columns driven; window solve "
             + ", ".join(
-                f"{h} {float(np.sum(d[h]['solve_times'])):.2f} s at -n "
-                f"{int(d[h]['ranks'])}"
+                f"{h} {float(np.sum(d[h]['solve_times'])):.2f} s at -n " f"{int(d[h]['ranks'])}"
                 for h in SWEEP_HALVES
             ),
             flush=True,
@@ -672,9 +655,7 @@ def test_the_matrix_carries_the_c16_and_mirror_symmetry(ring_matrix):
             )
             assert 0 <= steps <= SCALED_LEG_COUNT // 2
             same_ring = bool(z[i] * z[j] > 0.0)
-            classes.setdefault((same_ring, steps), []).append(
-                (i, j, float(abs(s[i, j])))
-            )
+            classes.setdefault((same_ring, steps), []).append((i, j, float(abs(s[i, j]))))
 
     assert len(classes) == N_SYMMETRY_CLASSES, (
         f"the measured geometry produced {len(classes)} symmetry classes, not the "
@@ -748,10 +729,7 @@ def test_the_sweep_reproduces_step_twos_audited_columns(ring_matrix):
     """
     s = ring_matrix["S"]
     index = ring_matrix["index"]
-    measured = {
-        o: float(np.sum(np.abs(s[:, index[o]]) ** 2))
-        for o in STEP2_COLUMN_POWER_SUMS
-    }
+    measured = {o: float(np.sum(np.abs(s[:, index[o]]) ** 2)) for o in STEP2_COLUMN_POWER_SUMS}
 
     if MPI.COMM_WORLD.rank == 0:
         print(

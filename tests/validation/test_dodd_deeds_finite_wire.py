@@ -57,9 +57,7 @@ def test_zero_wire_radius_is_the_filament_form_identically():
     prefactor, which no tolerance on the finite-``r`` cases would catch.
     """
     z_filament = coil_impedance_change(FREQUENCY_HZ, COIL_RADIUS, LIFTOFF, SIGMA)
-    z_zero = coil_impedance_change_finite_wire(
-        FREQUENCY_HZ, COIL_RADIUS, LIFTOFF, SIGMA, 0.0
-    )
+    z_zero = coil_impedance_change_finite_wire(FREQUENCY_HZ, COIL_RADIUS, LIFTOFF, SIGMA, 0.0)
     rel = abs(z_zero - z_filament) / abs(z_filament)
     print(f"\n  ΔZ filament   = {z_filament!r}")
     print(f"  ΔZ r_wire = 0 = {z_zero!r}")
@@ -93,23 +91,21 @@ def test_shrinking_wire_recovers_the_filament_at_second_order():
     residuals = []
     print()
     for r in radii:
-        z = coil_impedance_change_finite_wire(
-            FREQUENCY_HZ, COIL_RADIUS, LIFTOFF, SIGMA, r
-        )
+        z = coil_impedance_change_finite_wire(FREQUENCY_HZ, COIL_RADIUS, LIFTOFF, SIGMA, r)
         rel = abs(z - z_filament) / abs(z_filament)
         residuals.append(rel)
         print(f"  r_wire = {r:.0e} m   |ΔZ_wire − ΔZ_fil|/|ΔZ_fil| = {rel:.4e}")
 
-    assert residuals[-1] < 1e-8, (
-        f"r_wire = 1e-6 m did not recover the filament value: {residuals[-1]:.3e}"
-    )
+    assert (
+        residuals[-1] < 1e-8
+    ), f"r_wire = 1e-6 m did not recover the filament value: {residuals[-1]:.3e}"
 
     ratios = [a / b for a, b in zip(residuals, residuals[1:])]
     print(f"  decade ratios (second order ⇒ 100) = {[f'{q:.4f}' for q in ratios]}")
     for q in ratios:
-        assert abs(q - 100.0) / 100.0 < 1e-3, (
-            f"residual is not second order in r_wire: decade ratio {q:.4f}"
-        )
+        assert (
+            abs(q - 100.0) / 100.0 < 1e-3
+        ), f"residual is not second order in r_wire: decade ratio {q:.4f}"
 
 
 def test_two_gauss_legendre_rule_orders_agree():
@@ -147,14 +143,10 @@ def test_perfect_conductor_limit_matches_disc_averaged_image_mutual():
     how close Γ is to −1.
     """
     omega = 2.0 * np.pi * FREQUENCY_HZ
-    delta_l_image = image_limit_inductance_change_finite_wire(
-        COIL_RADIUS, LIFTOFF, WIRE_RADIUS
-    )
+    delta_l_image = image_limit_inductance_change_finite_wire(COIL_RADIUS, LIFTOFF, WIRE_RADIUS)
     assert delta_l_image < 0.0, "image theory must *reduce* the inductance"
 
-    dz = coil_impedance_change_finite_wire(
-        FREQUENCY_HZ, COIL_RADIUS, LIFTOFF, 1.0e16, WIRE_RADIUS
-    )
+    dz = coil_impedance_change_finite_wire(FREQUENCY_HZ, COIL_RADIUS, LIFTOFF, 1.0e16, WIRE_RADIUS)
     delta_l_hankel = dz.imag / omega
     rel = abs(delta_l_hankel - delta_l_image) / abs(delta_l_image)
     print(
@@ -249,9 +241,7 @@ def test_correction_approaches_the_mean_square_radius_limit_with_liftoff():
     print(f"\n  closed-form h→∞ limit r_wire²/(2a²) = {limit:.6e}")
     for h in liftoffs:
         z_fil = coil_impedance_change(FREQUENCY_HZ, COIL_RADIUS, h, SIGMA)
-        z_wire = coil_impedance_change_finite_wire(
-            FREQUENCY_HZ, COIL_RADIUS, h, SIGMA, WIRE_RADIUS
-        )
+        z_wire = coil_impedance_change_finite_wire(FREQUENCY_HZ, COIL_RADIUS, h, SIGMA, WIRE_RADIUS)
         d_r = (z_wire.real - z_fil.real) / z_fil.real
         corrections.append(d_r)
         print(
@@ -270,6 +260,4 @@ def test_correction_approaches_the_mean_square_radius_limit_with_liftoff():
     assert all(
         b < a for a, b in zip(gaps, gaps[1:])
     ), f"gap to the mean-square-radius limit not closing: {gaps}"
-    assert gaps[-1] / limit < 0.01, (
-        f"h = 640 mm still {gaps[-1] / limit:.3%} from r_wire²/(2a²)"
-    )
+    assert gaps[-1] / limit < 0.01, f"h = 640 mm still {gaps[-1] / limit:.3%} from r_wire²/(2a²)"

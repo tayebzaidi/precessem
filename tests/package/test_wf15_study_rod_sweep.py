@@ -27,7 +27,6 @@ from mpi4py import MPI
 
 from fem_em_solver import FourPortBirdcageGeometry, LumpedPortDrive, Study
 from fem_em_solver.study_yaml import _load as _yaml_load
-
 from tests.complex_mode import complex_only
 from tests.mesh.test_birdcage_implant_rod import ROD
 from tests.mesh.test_birdcage_leg_offset import IDENTITY_BAND
@@ -83,8 +82,10 @@ def test_s11_yaml_rod_sweep_parses(tmp_path):
     assert study.geometry.implant_rod is not None
     assert [float(f).hex() for f in outputs["sweep_hz"]] == [float(f).hex() for f in FREQS]
     assert set(outputs) == {"sweep_hz"}, sorted(outputs)
-    _p0(f"\n[WF-15 s11] YAML admits the rod sweep: sweep_hz {outputs['sweep_hz']}, "
-        f"implant_rod keys {sorted(study.geometry.implant_rod)}")
+    _p0(
+        f"\n[WF-15 s11] YAML admits the rod sweep: sweep_hz {outputs['sweep_hz']}, "
+        f"implant_rod keys {sorted(study.geometry.implant_rod)}"
+    )
 
 
 @pytest.fixture(scope="module")
@@ -101,8 +102,10 @@ def s11():
         material = dataclasses.replace(_phantom(), frequency_hz=f)
         points[f] = Study(geom, material, LumpedPortDrive(), frequency_hz=f, degree=1).solve(comm)
     t_points = time.perf_counter() - t0
-    _p0(f"\n[WF-15 s11] -n {comm.size}: sweep {t_sweep:.1f} s (mesh {sweep.mesh_time:.1f}, solves "
-        f"{[round(t, 1) for t in sweep.sweep_times]}); two point Studies {t_points:.1f} s")
+    _p0(
+        f"\n[WF-15 s11] -n {comm.size}: sweep {t_sweep:.1f} s (mesh {sweep.mesh_time:.1f}, solves "
+        f"{[round(t, 1) for t in sweep.sweep_times]}); two point Studies {t_points:.1f} s"
+    )
     return {"sweep": sweep, "points": points}
 
 
@@ -118,27 +121,37 @@ def test_s11_all_gates(s11):
         mq = _matrix_quantities(res)
         sigma = float(mq["sigma"][0])
         rel = _rel(res.s_matrix, point.s_matrix)
-        entry = float(np.max(np.abs(np.asarray(res.s_matrix) - np.asarray(point.s_matrix))
-                             / np.abs(np.asarray(point.s_matrix))))
+        entry = float(
+            np.max(
+                np.abs(np.asarray(res.s_matrix) - np.asarray(point.s_matrix))
+                / np.abs(np.asarray(point.s_matrix))
+            )
+        )
         gates[f"{mhz:g} S"] = rel <= IDENTITY_BAND and entry <= IDENTITY_BAND
         gates[f"{mhz:g} i"] = mq["recip"] <= RECIPROCITY_BAND
         gates[f"{mhz:g} ii_sigma"] = sigma <= 1.0 + PASSIVITY_SIGMA_TOLERANCE
         gates[f"{mhz:g} ii_colpow"] = bool(np.all(mq["colpow"] <= 1.0))
         gates[f"{mhz:g} cells sweep"] = res.cells == ROD_EXACT_CELL_RECORD
         gates[f"{mhz:g} cells point"] = point.cells == ROD_EXACT_CELL_RECORD
-        _p0(f"[WF-15 s11] {mhz:g} MHz: S sweep vs point rel {rel:.3e}, worst entry {entry:.3e} "
+        _p0(
+            f"[WF-15 s11] {mhz:g} MHz: S sweep vs point rel {rel:.3e}, worst entry {entry:.3e} "
             f"(IDENTITY_BAND {IDENTITY_BAND:.0e}, ASSERTED); (i) {mq['recip']:.3e} (band "
             f"{RECIPROCITY_BAND:.0e}); (ii) sigma_max {sigma:.12f}, colpow "
-            f"{np.array2string(mq['colpow'], precision=7)}; cells {res.cells} / {point.cells}")
+            f"{np.array2string(mq['colpow'], precision=7)}; cells {res.cells} / {point.cells}"
+        )
     sig64 = float(_matrix_quantities(sweep.results[0])["sigma"][0])
     gates["sigma 64 record"] = abs(sig64 - ITEM_709_SIGMA) <= SIGMA_PRINT_BOUND
-    _p0(f"[WF-15 s11] 64 MHz sigma_max vs item 709 {ITEM_709_SIGMA:.12f}: |diff| "
-        f"{abs(sig64 - ITEM_709_SIGMA):.3e} (bound {SIGMA_PRINT_BOUND:g}, ASSERTED)")
+    _p0(
+        f"[WF-15 s11] 64 MHz sigma_max vs item 709 {ITEM_709_SIGMA:.12f}: |diff| "
+        f"{abs(sig64 - ITEM_709_SIGMA):.3e} (bound {SIGMA_PRINT_BOUND:g}, ASSERTED)"
+    )
     miss = _rel(sweep.results[0].s_matrix, points[FREQS[1]].s_matrix)
     gates["control"] = miss > IDENTITY_BAND
-    _p0(f"[WF-15 s11] control: sweep 64 MHz vs 128 MHz point miss {miss:.4e} (asserted > "
+    _p0(
+        f"[WF-15 s11] control: sweep 64 MHz vs 128 MHz point miss {miss:.4e} (asserted > "
         f"{IDENTITY_BAND:.0e}), {miss / IDENTITY_BAND:.3e} x the band (POOLED_SEPARATION_FLOOR "
-        f"{POOLED_SEPARATION_FLOOR:.0f}x, printed)")
+        f"{POOLED_SEPARATION_FLOOR:.0f}x, printed)"
+    )
     red = [k for k, v in gates.items() if not v]
     _p0(f"[WF-15 s11] gates red: {red or 'none'} of {len(gates)}")
     assert not red, red

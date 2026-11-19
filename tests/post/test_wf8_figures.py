@@ -62,10 +62,15 @@ def outdir(tmp_path_factory):
 @pytest.fixture(scope="module", autouse=True)
 def sources():
     present = all(p.is_file() for p in (S4P, XDMF, H5, CSV))
-    assert _all(present), "a WF-8 source record is absent: regenerate it with its example (ruling (1))"
+    assert _all(
+        present
+    ), "a WF-8 source record is absent: regenerate it with its example (ruling (1))"
     if comm.rank == 0:
         for p in (S4P, XDMF, H5, CSV):
-            print(f"[wf8] source {p.relative_to(REPO)} sha256={_sha(p)} bytes={p.stat().st_size}", flush=True)
+            print(
+                f"[wf8] source {p.relative_to(REPO)} sha256={_sha(p)} bytes={p.stat().st_size}",
+                flush=True,
+            )
 
 
 def _source_s(path=S4P):
@@ -125,7 +130,12 @@ def test_sparameters_bitwise(outdir):
             for j in range(n):
                 xm, ym = _line_xy(res.lines[(i, j, "mag")])
                 xp, yp = _line_xy(res.lines[(i, j, "deg")])
-                good = _exact(xm, f) and _exact(ym, mag[:, i, j]) and _exact(xp, f) and _exact(yp, deg[:, i, j])
+                good = (
+                    _exact(xm, f)
+                    and _exact(ym, mag[:, i, j])
+                    and _exact(xp, f)
+                    and _exact(yp, deg[:, i, j])
+                )
                 ok = ok and good
                 count += int(good)
         print(f"[wf8] (S) bitwise-equal (i,j) pairs: {count}/16", flush=True)
@@ -165,7 +175,10 @@ def test_slice_bitwise(outdir):
     if comm.rank == 0:
         cent, val = _source_slice()
         idx = res.indices
-        print(f"[wf8] (X) cells={val.shape[0]} selected len(idx)={len(idx)} first={idx[:5].tolist()}", flush=True)
+        print(
+            f"[wf8] (X) cells={val.shape[0]} selected len(idx)={len(idx)} first={idx[:5].tolist()}",
+            flush=True,
+        )
         ok = len(idx) > 0
         ok = ok and _exact(_coll_values(res.collection), val[idx])
         ok = ok and _exact(_coll_xy(res.collection), cent[idx][:, :2])
@@ -245,7 +258,9 @@ def test_files_written_by_rank0_only(outdir):
         names = sorted(os.listdir(outdir))
         sizes = {n: os.path.getsize(outdir / n) for n in names}
         print(f"[wf8] (F) files={sizes}", flush=True)
-        ok = names == ["wf8_probe.png", "wf8_slice.png", "wf8_sparams.png"] and all(s > 0 for s in sizes.values())
+        ok = names == ["wf8_probe.png", "wf8_slice.png", "wf8_sparams.png"] and all(
+            s > 0 for s in sizes.values()
+        )
     assert _all(ok)
 
 
@@ -256,8 +271,15 @@ def test_femem_figure_cli(tmp_path_factory):
 
     local = str(tmp_path_factory.mktemp("wf8cli")) if comm.rank == 0 else None
     d = Path(comm.bcast(local, root=0))
-    cases = [("sparams", S4P, []), ("slice", XDMF, ["--name", FIELD]), ("probe", CSV, ["--column", COLUMN])]
-    rcs = [main(["figure", kind, str(src), str(d / f"cli_{kind}.png"), *extra]) for kind, src, extra in cases]
+    cases = [
+        ("sparams", S4P, []),
+        ("slice", XDMF, ["--name", FIELD]),
+        ("probe", CSV, ["--column", COLUMN]),
+    ]
+    rcs = [
+        main(["figure", kind, str(src), str(d / f"cli_{kind}.png"), *extra])
+        for kind, src, extra in cases
+    ]
     assert rcs == [0, 0, 0]
     ok = True
     if comm.rank == 0:

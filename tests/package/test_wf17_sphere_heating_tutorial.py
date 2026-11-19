@@ -44,17 +44,20 @@ from fem_em_solver.post.sar import uniform_sphere_sar_closed_form
 from fem_em_solver.thermal.probe import ball_average
 from fem_em_solver.thermal.steady import solve_steady_conduction
 from fem_em_solver.utils.constants import EPSILON_0
-
 from tests.complex_mode import IS_COMPLEX
+from tests.package.test_wf1_yaml_probes import PROBES_FILE
+from tests.package.test_wf1_yaml_thermal import CONTROL_2G_FILE, THERMAL_FILE, _cooling
 from tests.package.test_wf15_study_probe import C2_OUT
 from tests.package.test_wf15_study_temperature import (
     MAT10_A_PRINT,
     MAT10_P_PRINT,
     MAT10_SUB_CELLS,
 )
-from tests.package.test_wf17_first_study_tutorial import LINK_PASS_RE, _checker_stdout, extract_tagged_block
-from tests.package.test_wf1_yaml_probes import PROBES_FILE
-from tests.package.test_wf1_yaml_thermal import CONTROL_2G_FILE, THERMAL_FILE, _cooling
+from tests.package.test_wf17_first_study_tutorial import (
+    LINK_PASS_RE,
+    _checker_stdout,
+    extract_tagged_block,
+)
 from tests.unit.test_doc_reference_exit_codes import run_checker
 from tests.validation.test_lossy_sphere_sar import (
     E0,
@@ -67,12 +70,12 @@ from tests.validation.test_mat10_sar_to_heat_sphere import (
     A_BAND,
     B_BAND,
     C_BAND,
-    G,
-    H,
-    K,
     P_BAND,
     ROBIN_TAG,
     T_INF,
+    G,
+    H,
+    K,
     _allsum,
     _interior_indicator,
     _interior_rel,
@@ -93,8 +96,13 @@ PROBES_TAG = "sphere-probes"
 CLI_TAG = "sphere-heating-cli"
 KEYS_TAG = "sphere-heating-keys"
 BANDS_TAG = "sphere-heating-bands"
-CLI_TOKENS = ["femem", "run", "sphere_mat10_thermal.yaml", "--output-dir",
-              "femem_out/sphere_mat10_thermal"]
+CLI_TOKENS = [
+    "femem",
+    "run",
+    "sphere_mat10_thermal.yaml",
+    "--output-dir",
+    "femem_out/sphere_mat10_thermal",
+]
 KEYS = ["source_power_w", "convected_power_w", "theta_max_k"]
 BLOCK_FILES = {HEAT_TAG: THERMAL_FILE, PROBES_TAG: PROBES_FILE}
 
@@ -171,8 +179,10 @@ def _knob():
 def _solve_preamble(which: str):
     knob = _knob()
     if knob != which:
-        pytest.skip(f"{S13_ENV}={knob!r}: the {which!r} tutorial solve window is "
-                    "environment-selected (complex build, -n 2)")
+        pytest.skip(
+            f"{S13_ENV}={knob!r}: the {which!r} tutorial solve window is "
+            "environment-selected (complex build, -n 2)"
+        )
     comm = MPI.COMM_WORLD
     assert IS_COMPLEX, "the gel-sphere EM solve needs the complex build"
     assert comm.size == 2, comm.size
@@ -191,15 +201,19 @@ def exec_sphere_block(tag: str, monkeypatch):
     src = BLOCK_FILES[tag]
     scratch = SCRATCH_ROOT / tag
     if comm.rank == 0:
-        print(f"[WF-17 s13] page sha256 {_sha(raw)}; block {tag} sha256 {_sha(block.encode())}",
-              flush=True)
+        print(
+            f"[WF-17 s13] page sha256 {_sha(raw)}; block {tag} sha256 {_sha(block.encode())}",
+            flush=True,
+        )
         if scratch.exists():
             shutil.rmtree(scratch)
         scratch.mkdir(parents=True)
         data = (src.parent / name).read_bytes()
         (scratch / name).write_bytes(data)
-        print(f"[WF-17 s13] copied {name} sha256 {_sha(data)} (tracked "
-              f"{_sha(src.read_bytes())})", flush=True)
+        print(
+            f"[WF-17 s13] copied {name} sha256 {_sha(data)} (tracked " f"{_sha(src.read_bytes())})",
+            flush=True,
+        )
     comm.Barrier()
     monkeypatch.chdir(scratch)
     calls = {"n": 0, "paths": []}
@@ -231,8 +245,10 @@ def test_wf17_s13_blocks_and_files():
         n_run = len(_calls_named(block, "run_study_file"))
         n_study = len(_calls_named(block, "Study"))
         name = _file_arg(block)
-        _p0(f"[WF-17 s13] (X) {tag}: run_study_file calls {n_run}, Study calls {n_study}; "
-            f"file {name!r} (want {path.name!r})")
+        _p0(
+            f"[WF-17 s13] (X) {tag}: run_study_file calls {n_run}, Study calls {n_study}; "
+            f"file {name!r} (want {path.name!r})"
+        )
         assert block.count("run_study_file(") == 1
         assert n_run == 1 and n_study == 0 and "Study(" not in block
         assert name == path.name
@@ -247,14 +263,25 @@ def test_wf17_s13_blocks_and_files():
     extract_tagged_block(text, KEYS_TAG, lang="text")
     extract_tagged_block(text, BANDS_TAG, lang="text")
     # (c-page), by construction: a removed / doubled tag raises
-    tags = ((HEAT_TAG, "python"), (PROBES_TAG, "python"), (CLI_TAG, "bash"),
-            (KEYS_TAG, "text"), (BANDS_TAG, "text"))
+    tags = (
+        (HEAT_TAG, "python"),
+        (PROBES_TAG, "python"),
+        (CLI_TAG, "bash"),
+        (KEYS_TAG, "text"),
+        (BANDS_TAG, "text"),
+    )
     for tag, lang in tags:
         with pytest.raises(LookupError):
-            extract_tagged_block(text.replace(f"```{lang} {tag}\n", f"```{lang} other\n"), tag,
-                                 lang=lang)
-        doubled = (text + "\n" + f"```{lang} {tag}\n"
-                   + extract_tagged_block(text, tag, lang=lang) + "```\n")
+            extract_tagged_block(
+                text.replace(f"```{lang} {tag}\n", f"```{lang} other\n"), tag, lang=lang
+            )
+        doubled = (
+            text
+            + "\n"
+            + f"```{lang} {tag}\n"
+            + extract_tagged_block(text, tag, lang=lang)
+            + "```\n"
+        )
         with pytest.raises(LookupError):
             extract_tagged_block(doubled, tag, lang=lang)
     _p0(f"[WF-17 s13] (c-page) removed / doubled tags raise LookupError for all {len(tags)} blocks")
@@ -287,9 +314,11 @@ def test_wf17_s13_docrefs_zero_dead():
     rc, counts = run_checker("--docs-root", "docs/guide", "--check-links")
     link = LINK_PASS_RE.search(_checker_stdout("--docs-root", "docs/guide", "--check-links"))
     assert link is not None, "(D) no 'Link pass:' line"
-    print(f"[WF-17 s13] (D) dead={counts['dead']} links={link.group(1)} pages={link.group(2)} "
-          f"link-dead={link.group(3)} guide={counts['guide']} stale={counts['stale']} "
-          f"exit={counts['exit']} rc={rc}")
+    print(
+        f"[WF-17 s13] (D) dead={counts['dead']} links={link.group(1)} pages={link.group(2)} "
+        f"link-dead={link.group(3)} guide={counts['guide']} stale={counts['stale']} "
+        f"exit={counts['exit']} rc={rc}"
+    )
     assert counts["dead"] == 0
     assert int(link.group(3)) == 0
     assert int(link.group(2)) >= MIN_GUIDE_PAGES
@@ -313,8 +342,12 @@ def test_wf17_s13_heating_block_reproduces_mat10(monkeypatch):
     # (H) MAT-10's gates on the block's θ, computed as test_wf1_yaml_thermal.py does.
     T = th.temperature
     cf = uniform_sphere_sar_closed_form(
-        e0=E0, epsilon_r=EPSILON_R_SPHERE, sigma=SIGMA_HIGH, omega=OMEGA,
-        rho=RHO_KG_M3, epsilon_0=EPSILON_0,
+        e0=E0,
+        epsilon_r=EPSILON_R_SPHERE,
+        sigma=SIGMA_HIGH,
+        omega=OMEGA,
+        rho=RHO_KG_M3,
+        epsilon_0=EPSILON_0,
     )
     q_cf = G * RHO_KG_M3 * cf["sar_w_per_kg"]
     sub, ft = th.submesh, th.facet_tags
@@ -322,8 +355,9 @@ def test_wf17_s13_heating_block_reproduces_mat10(monkeypatch):
     chi = _interior_indicator(sub)
     theta = _theta_cf(sub, q_cf)
     err_A = _interior_rel(sub, chi, (T - T_INF) - theta, theta)
-    res_P = solve_steady_conduction(sub, ft, k=K, q=q_cf, h=H, t_inf=T_INF,
-                                    robin_tag=ROBIN_TAG, degree=1)
+    res_P = solve_steady_conduction(
+        sub, ft, k=K, q=q_cf, h=H, t_inf=T_INF, robin_tag=ROBIN_TAG, degree=1
+    )
     err_P = _interior_rel(sub, chi, (res_P.temperature - T_INF) - theta, theta)
     int_q = float(np.real(_allsum(comm, th.heat_source * ufl.dx(domain=sub))))
     p_parent = th.cooling.source_scale * study.mean_sar()["dissipated_power_w"]
@@ -336,28 +370,39 @@ def test_wf17_s13_heating_block_reproduces_mat10(monkeypatch):
     once_c = run.study.result is run.result
     sub2 = th2.submesh
     theta2 = _theta_cf(sub2, q_cf)
-    c_2g = _interior_rel(sub2, _interior_indicator(sub2), (th2.temperature - T_INF) - theta2,
-                         theta2)
+    c_2g = _interior_rel(
+        sub2, _interior_indicator(sub2), (th2.temperature - T_INF) - theta2, theta2
+    )
 
-    _p0(f"[WF-17 s13] (H-run) block spy calls {n_calls} {paths}; family {s['family']!r}; "
+    _p0(
+        f"[WF-17 s13] (H-run) block spy calls {n_calls} {paths}; family {s['family']!r}; "
         f"degree {s['degree']!r}; temperature keys {list(s['temperature'])}; "
-        f"summary['temperature'] {s['temperature']}")
-    _p0(f"[WF-17 s13] (H) sub cells {n_sub} (record {MAT10_SUB_CELLS}); (A) = {err_A:.10e} "
+        f"summary['temperature'] {s['temperature']}"
+    )
+    _p0(
+        f"[WF-17 s13] (H) sub cells {n_sub} (record {MAT10_SUB_CELLS}); (A) = {err_A:.10e} "
         f"[{err_A:.4e}] vs {MAT10_A_PRINT} (band {A_BAND}); (P) = {err_P:.10e} [{err_P:.4e}] vs "
         f"{MAT10_P_PRINT} (band {P_BAND:.0e}); (B) = {err_B:.3e} (band {B_BAND:.0e}); "
-        f"(C) = {err_C:.3e} (band {C_BAND:.0e}); RG3:149 {RG3_R}")
-    _p0(f"[WF-17 s13] (c-2G) control source_scale {c2.source_scale!r} (2G {2.0 * G!r}): (A) "
+        f"(C) = {err_C:.3e} (band {C_BAND:.0e}); RG3:149 {RG3_R}"
+    )
+    _p0(
+        f"[WF-17 s13] (c-2G) control source_scale {c2.source_scale!r} (2G {2.0 * G!r}): (A) "
         f"comparator {c_2g:.4e} (ASSERTED > {A_BAND}; RG3:150 {RG3_C1}); {c_2g / A_BAND:.1f}x "
-        f"the band; no re-solve {once_c}")
-    _p0(f"[WF-17 s13] W-heat block (run_study_file) {t_block:.1f} s; node "
-        f"{time.perf_counter() - t0:.1f} s")
+        f"the band; no re-solve {once_c}"
+    )
+    _p0(
+        f"[WF-17 s13] W-heat block (run_study_file) {t_block:.1f} s; node "
+        f"{time.perf_counter() - t0:.1f} s"
+    )
 
     assert n_calls == 1
     assert paths == [THERMAL_FILE.name]
     assert s["family"] == "sphere_in_box" and s["degree"] == 1
     assert list(s["temperature"]) == KEYS
-    assert list(s["temperature"]) == extract_tagged_block(
-        _text(), KEYS_TAG, lang="text").strip("\n").splitlines()
+    assert (
+        list(s["temperature"])
+        == extract_tagged_block(_text(), KEYS_TAG, lang="text").strip("\n").splitlines()
+    )
     assert n_sub == MAT10_SUB_CELLS, f"(H) sub cells {n_sub}"
     assert f"{err_A:.4e}" == MAT10_A_PRINT, f"(H) (A) {err_A:.4e}"
     assert f"{err_P:.4e}" == MAT10_P_PRINT, f"(H) (P) {err_P:.4e}"
@@ -383,8 +428,9 @@ def test_wf17_s13_probes_block_reproduces_mat19(monkeypatch):
     # (Pr) on run.probes' θ, as test_wf1_yaml_probes.py does (never run.thermal's).
     sub, theta = pr.thermal.submesh, pr.theta
     cells = int(sub.topology.index_map(3).size_global)
-    v_sub = float(np.real(_allsum(comm, fem.Constant(sub, default_scalar_type(1.0))
-                                  * ufl.dx(domain=sub))))
+    v_sub = float(
+        np.real(_allsum(comm, fem.Constant(sub, default_scalar_type(1.0)) * ufl.dx(domain=sub)))
+    )
     mean = float(np.real(_allsum(comm, theta * ufl.dx(domain=sub)))) / v_sub
     a_val = abs(s["probes"]["values_k"][0] - mean) / abs(mean)
     a_vol = abs(s["probes"]["volumes_m3"][0] / v_sub - 1.0)
@@ -397,17 +443,27 @@ def test_wf17_s13_probes_block_reproduces_mat19(monkeypatch):
     c2v = s["probes"]["values_k"][3]
     c_c2 = abs(v_out - c2v) / abs(c2v)
 
-    _p0(f"[WF-17 s13] (Pr-run) block spy calls {n_calls} {paths}; family {s['family']!r}; "
-        f"degree {s['degree']!r}; summary['probes'] {s['probes']}")
-    _p0(f"[WF-17 s13] (Pr) sub cells {cells} (N_SUB {N_SUB}); |P - int/V|/|int/V| = {a_val:.3e}, "
+    _p0(
+        f"[WF-17 s13] (Pr-run) block spy calls {n_calls} {paths}; family {s['family']!r}; "
+        f"degree {s['degree']!r}; summary['probes'] {s['probes']}"
+    )
+    _p0(
+        f"[WF-17 s13] (Pr) sub cells {cells} (N_SUB {N_SUB}); |P - int/V|/|int/V| = {a_val:.3e}, "
         f"|V_h/V_sub - 1| = {a_vol:.3e} (band {B_BAND:.0e}; RGP:153 {RGP_A}); V_sub "
-        f"{v_sub:.10e}; whole-ball mean {mean:.10e} K")
-    _p0(f"[WF-17 s13] (Pr) summary values {s['probes']['values_k']!r}; ball_average direct "
-        f"{direct!r}; equal {equal}; == run.probes.values {mem_equal}")
-    _p0(f"[WF-17 s13] (c-c2) c2 +0.1 mm: |d|/theta = {c_c2:.4e} (ASSERTED > {WIDTH_BAND:.0e}; "
-        f"RGP:235 {RGP_C1})")
-    _p0(f"[WF-17 s13] W-probes block (run_study_file) {t_block:.1f} s; node "
-        f"{time.perf_counter() - t0:.1f} s")
+        f"{v_sub:.10e}; whole-ball mean {mean:.10e} K"
+    )
+    _p0(
+        f"[WF-17 s13] (Pr) summary values {s['probes']['values_k']!r}; ball_average direct "
+        f"{direct!r}; equal {equal}; == run.probes.values {mem_equal}"
+    )
+    _p0(
+        f"[WF-17 s13] (c-c2) c2 +0.1 mm: |d|/theta = {c_c2:.4e} (ASSERTED > {WIDTH_BAND:.0e}; "
+        f"RGP:235 {RGP_C1})"
+    )
+    _p0(
+        f"[WF-17 s13] W-probes block (run_study_file) {t_block:.1f} s; node "
+        f"{time.perf_counter() - t0:.1f} s"
+    )
 
     assert n_calls == 1
     assert paths == [PROBES_FILE.name]

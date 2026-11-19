@@ -103,9 +103,10 @@ def test_wf13_s5_installed_location_version_surface():
     toml_file = rdir / "pyproject.toml"
     assert surface_file.is_file() and toml_file.is_file(), (surface_file, toml_file)
 
-    import fem_em_solver
     import numpy as np
     from petsc4py import PETSc
+
+    import fem_em_solver
 
     # (L)
     pkg_file = fem_em_solver.__file__

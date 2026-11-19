@@ -89,20 +89,20 @@ from mpi4py import MPI
 from tests.complex_mode import complex_only
 from tests.mesh.test_birdcage_leg_offset import LEG_OFFSET_RAD, SHEET_AREA_BAND
 from tests.mesh.test_birdcage_port_tags import LEG_COUNT
+from tests.validation.test_ans4_resolution_ladder import PORT11_S_64MHZ_RECORD
 from tests.validation.test_lossy_sphere_fullwave import FREQUENCY_64_HZ
+from tests.validation.test_port21_feed_sensitivity import (
+    KNOB_REACHES_THE_SOLVE,
+    _class_means,
+    _relative_move,
+)
 from tests.validation.test_port_birdcage_four_port import (
     LEG_D0_REPRODUCTION_BAND,
     LEG_D0_Z_COLUMN,
     PASSIVITY_SIGMA_TOLERANCE,
     POOLED_SEPARATION_FLOOR,
 )
-from tests.validation.test_ans4_resolution_ladder import PORT11_S_64MHZ_RECORD
 from tests.validation.test_port_birdcage_leg_offset_sweep import _four_port_rung
-from tests.validation.test_port21_feed_sensitivity import (
-    KNOB_REACHES_THE_SOLVE,
-    _class_means,
-    _relative_move,
-)
 from tests.validation.test_port_birdcage_lumped_column import (
     ADJACENT_SPREAD_BAND,
     STEP2_CELL_COUNT,
@@ -192,9 +192,7 @@ def _print_kappa_on_record(rungs):
     disp = rungs["displaced_64mhz"]
     koff = rungs["larmor_64mhz_kappa_off"]
     on_sheets = ", ".join(f"{k} {v:.6e}" for k, v in on["kappa_per_sheet"].items())
-    disp_sheets = ", ".join(
-        f"{k} {v:.6e}" for k, v in disp["kappa_per_sheet"].items()
-    )
+    disp_sheets = ", ".join(f"{k} {v:.6e}" for k, v in disp["kappa_per_sheet"].items())
     print(
         f"\n[PORT-21 step5] {WIDTH_CORRECTION_ENV}=in_run: in-run kappa (pooled) "
         f"at 64 MHz on `_four_port_rung` = {on['kappa']:.10e}   `PORT-22`'s on "
@@ -216,9 +214,7 @@ def _print_kappa_on_record(rungs):
         entries = "  ".join(f"{z:+.9e}" for z in off[row])
         devs = "  ".join(f"{d:.3e}" for d in dev[row])
         print(f"    S_{row + 1}k kappa-off {entries}   rel.dev {devs}", flush=True)
-    spreads = "/".join(
-        f"{koff['spreads'][c] * 100:.4f}%" for c in ("self", "adjacent", "opposite")
-    )
+    spreads = "/".join(f"{koff['spreads'][c] * 100:.4f}%" for c in ("self", "adjacent", "opposite"))
     print(
         f"    kappa-off gated rung, same window: ||S-S^T||/||S|| "
         f"{koff['reciprocity']:.3e}  sigma_max {float(np.max(koff['sigma'])):.9f}  "
@@ -255,9 +251,7 @@ def larmor_rungs():
     rungs = {
         "control_10mhz": _four_port_rung("control 10 MHz", zeros, FREQUENCY_HZ),
         "larmor_64mhz": _four_port_rung("larmor 64 MHz", zeros, FREQUENCY_64_HZ),
-        "displaced_64mhz": _four_port_rung(
-            "displaced 64 MHz", displaced, FREQUENCY_64_HZ
-        ),
+        "displaced_64mhz": _four_port_rung("displaced 64 MHz", displaced, FREQUENCY_64_HZ),
     }
 
     if _width_correction() == "in_run":
@@ -349,12 +343,8 @@ def test_all_three_rungs_drove_four_solved_field_ports(larmor_rungs):
             )
 
     assert larmor_rungs["control_10mhz"]["frequency_hz"] == pytest.approx(FREQUENCY_HZ)
-    assert larmor_rungs["larmor_64mhz"]["frequency_hz"] == pytest.approx(
-        FREQUENCY_64_HZ
-    )
-    assert larmor_rungs["displaced_64mhz"]["frequency_hz"] == pytest.approx(
-        FREQUENCY_64_HZ
-    )
+    assert larmor_rungs["larmor_64mhz"]["frequency_hz"] == pytest.approx(FREQUENCY_64_HZ)
+    assert larmor_rungs["displaced_64mhz"]["frequency_hz"] == pytest.approx(FREQUENCY_64_HZ)
     for name in ("control_10mhz", "larmor_64mhz"):
         ratio = larmor_rungs[name]["cells"] / STEP2_CELL_COUNT
         assert abs(ratio - 1.0) < STEP2_CELL_COUNT_BAND, (
@@ -393,8 +383,7 @@ def test_the_ten_megahertz_rung_reproduces_leg_d(larmor_rungs):
         )
         for row in range(LEG_COUNT):
             print(
-                f"    S_{row + 1}k rel. deviation  "
-                + "  ".join(f"{d:.3e}" for d in s_dev[row]),
+                f"    S_{row + 1}k rel. deviation  " + "  ".join(f"{d:.3e}" for d in s_dev[row]),
                 flush=True,
             )
         print(
@@ -623,11 +612,7 @@ def test_gate_iii_still_detects_the_broken_c4_at_64_mhz(larmor_rungs):
         )
         for cls in ("self", "adjacent", "opposite"):
             role = "gated" if cls in ("self", "adjacent") else "reported"
-            verdict = (
-                "EXCEEDS (detected)"
-                if disp[cls] > ADJACENT_SPREAD_BAND
-                else "inside (blind)"
-            )
+            verdict = "EXCEEDS (detected)" if disp[cls] > ADJACENT_SPREAD_BAND else "inside (blind)"
             print(
                 f"    {cls:9s} [{role:8s}]  undisplaced {gated[cls] * 100:9.4f}%   "
                 f"displaced {disp[cls] * 100:9.4f}%   amplification "

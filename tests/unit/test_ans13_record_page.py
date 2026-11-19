@@ -63,14 +63,19 @@ def test_x_extraction(page, ctx):
     # The brief's lines (docs/planning/chunks/ANS-13.md, §9 item 958, "Reads").
     assert (b["59"]["head"]["line"], b["59"]["end"]) == (139, 12356)
     assert (b["60"]["head"]["line"], b["60"]["end"]) == (141, 12307)
-    assert [x["59"]["senses"]["ccw"]["vsub"]["line"], x["60"]["senses"]["ccw"]["vsub"]["line"]] \
-        == [12315, 12265]
-    assert {k: (x[k]["elapsed"]["line"], x[k]["peak"]["line"], x[k]["cmd"]["line"])
-            for k in ("59", "60")} == {"59": (12457, 12452, 12), "60": (12375, 12370, 12)}
+    assert [x["59"]["senses"]["ccw"]["vsub"]["line"], x["60"]["senses"]["ccw"]["vsub"]["line"]] == [
+        12315,
+        12265,
+    ]
+    assert {
+        k: (x[k]["elapsed"]["line"], x[k]["peak"]["line"], x[k]["cmd"]["line"])
+        for k in ("59", "60")
+    } == {"59": (12457, 12452, 12), "60": (12375, 12370, 12)}
     assert [x["59"]["norm"]["line"], x["60"]["norm"]["line"]] == [12312, 12262]
     # Entry 60's cw probes sit after the cut at :12298–12303 (item 955's note).
-    assert [p["line"] for p in b["60"]["senses"]["cw"]["p61"]["probes"].values()] \
-        == list(range(12298, 12304))
+    assert [p["line"] for p in b["60"]["senses"]["cw"]["p61"]["probes"].values()] == list(
+        range(12298, 12304)
+    )
     # C46's checks are all in, both blocks, both senses.
     names = [n for n, _, _ in res]
     for want in ("(Node)", "(D-f)", "(P_gel)", "(D-scale)", "(Cem)", "(RA)", "(T*)", "(Probes)"):
@@ -85,8 +90,11 @@ def test_x_raw_multiplicity(page, ctx):
     sp = ctx["spec"]
     for k in ("59", "60"):
         text = page._read_log(ctx["paths"][k])
-        for name, tok in (("factor", sp["factor"][f"f{k}"]), ("c*", sp["cstar"][f"t{k}"]),
-                          ("ball", sp["ball"][f"b{k}"])):
+        for name, tok in (
+            ("factor", sp["factor"][f"f{k}"]),
+            ("c*", sp["cstar"][f"t{k}"]),
+            ("ball", sp["ball"][f"b{k}"]),
+        ):
             print(f"[ANS-13 X-mult] entry {k} {name} {tok}: {text.count(tok)} occurrences")
             assert text.count(tok) >= 1
     print(f"[ANS-13 X-mult] C39 table copies: {[t['head'] for t in ctx['c39']['tables']]}")
@@ -136,7 +144,8 @@ def test_n_digit_log(page, tmp_path):
     r_f = [n for n, _ in _fails(page.check_r(c))]
     print(f"[ANS-13 N-digit-log] (D) {d_f}; (X) {x_f}; (R) {r_f}")
     assert [n for n in d_f if n.startswith("(D-dep)")] == [
-        "(D-dep) 3 T ccw P3 +x wall: θ per P_acc / factor == I32 per-deposited-watt"]
+        "(D-dep) 3 T ccw P3 +x wall: θ per P_acc / factor == I32 per-deposited-watt"
+    ]
     assert "(X) probes.p60[3]" in x_f
     assert any("(D-scale) probe P3 +x wall" in n for n in x_f)
     assert r_f == ["(R) record table rendered from the logs == SPEC bytes"]

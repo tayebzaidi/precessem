@@ -133,11 +133,15 @@ def test_schedule_on_grid():
     for duty in DUTIES:
         for te, _s in _edges(duty):
             assert np.min(np.abs(T_GRID - te)) <= 1e-9 * dt, (duty, te)
-    _p(f"[imp8-4] grid {T_GRID.size} pts, dt {dt:g} s, P {PERIOD:g} s; switches "
-       + "; ".join(f"D={d:g}: " + ",".join(f"{te:g}{'+' if s > 0 else '-'}" for te, s in _edges(d))
-                   for d in DUTIES)
-       + f"; scale q'/(4πk) {SCALE:.9e} K per unit Φ at {P_W:g} W; bands D1 {D1_BAND:g} "
-       f"DUH {DUH_BAND:g} DOSE {DOSE_BAR:g} AVG {AVG_BAR:g}")
+    _p(
+        f"[imp8-4] grid {T_GRID.size} pts, dt {dt:g} s, P {PERIOD:g} s; switches "
+        + "; ".join(
+            f"D={d:g}: " + ",".join(f"{te:g}{'+' if s > 0 else '-'}" for te, s in _edges(d))
+            for d in DUTIES
+        )
+        + f"; scale q'/(4πk) {SCALE:.9e} K per unit Φ at {P_W:g} W; bands D1 {D1_BAND:g} "
+        f"DUH {DUH_BAND:g} DOSE {DOSE_BAR:g} AVG {AVG_BAR:g}"
+    )
     assert T_GRID[-1] == T_STAR and W_B2 == 360.0
 
 
@@ -160,8 +164,10 @@ def test_duh_step_sum_equals_convolution():
             r, z = pt[0] * MM, pt[1] * MM
             conv = np.array([_convolution(r, z, t, duty) for t in T_GRID])
             e = float(np.max(np.abs(_hist(duty, pt) - conv))) / _theta_ss(pt)
-            _p(f"[imp8-4] (Duh) D={duty:g} {pt} mm: max |step sum - convolution| / θ_ss = "
-               f"{e:.3e} (band {DUH_BAND:g}); θ(t*) {_hist(duty, pt)[-1]:.9e} vs {conv[-1]:.9e}")
+            _p(
+                f"[imp8-4] (Duh) D={duty:g} {pt} mm: max |step sum - convolution| / θ_ss = "
+                f"{e:.3e} (band {DUH_BAND:g}); θ(t*) {_hist(duty, pt)[-1]:.9e} vs {conv[-1]:.9e}"
+            )
             worst = max(worst, e)
     _p(f"[imp8-4] (Duh) worst {worst:.3e}; {time.perf_counter() - t0:.1f} s")
     assert worst <= DUH_BAND
@@ -175,13 +181,19 @@ def test_q_d_win_d_and_printed_record():
             assert float(np.max(T)) < 43.0, (duty, pt, float(np.max(T)))
             dose, ref, rel, _swap, _miss = _q_check_g(T, T_GRID)
             mx, t_mx, lo, hi, wref, wrel = _win_check_g(th, T_GRID)
-            _p(f"[imp8-4] (Q-d) D={duty:g} {pt} mm: CEM43 {dose:.9e} s vs quad {ref:.9e} s rel "
-               f"{rel:.3e} (bar {DOSE_BAR:g}); max T {np.max(T):.6f} C < 43")
-            _p(f"[imp8-4] (Win-d) D={duty:g} {pt} mm: six-minute max {mx:.9e} K at {t_mx:g} s, "
-               f"in [{lo:.6e}, {hi:.6e}]; quad {wref:.9e} rel {wrel:.3e} (bar {AVG_BAR:g})")
-            _p(f"[imp8-4] (record) D={duty:g} {pt} mm: θ(t*) {th[-1]:.7g} K/W; θ_ss "
-               f"{_theta_ss(pt):.7g} K/W; six-minute max {mx:.7g} K/W; CEM43 {dose:.7g} s "
-               f"at T = {T_INF_0:g} C + θ(1 W)")
+            _p(
+                f"[imp8-4] (Q-d) D={duty:g} {pt} mm: CEM43 {dose:.9e} s vs quad {ref:.9e} s rel "
+                f"{rel:.3e} (bar {DOSE_BAR:g}); max T {np.max(T):.6f} C < 43"
+            )
+            _p(
+                f"[imp8-4] (Win-d) D={duty:g} {pt} mm: six-minute max {mx:.9e} K at {t_mx:g} s, "
+                f"in [{lo:.6e}, {hi:.6e}]; quad {wref:.9e} rel {wrel:.3e} (bar {AVG_BAR:g})"
+            )
+            _p(
+                f"[imp8-4] (record) D={duty:g} {pt} mm: θ(t*) {th[-1]:.7g} K/W; θ_ss "
+                f"{_theta_ss(pt):.7g} K/W; six-minute max {mx:.7g} K/W; CEM43 {dose:.7g} s "
+                f"at T = {T_INF_0:g} C + θ(1 W)"
+            )
             assert rel <= DOSE_BAR, (duty, pt, rel)
             assert lo <= mx <= hi and T_GRID[0] + W_B2 <= t_mx <= T_GRID[-1], (duty, pt, t_mx)
             assert wrel <= AVG_BAR, (duty, pt, wrel)
@@ -192,7 +204,9 @@ def test_control_continuous_for_half_duty():
     for pt in POINTS:
         d1, d5 = _hist(1.0, pt)[-1], _hist(0.5, pt)[-1]
         miss = abs(d1 / d5 - 1.0)
-        _p(f"[imp8-4] (c-cont) {pt} mm: θ_D1(t*) {d1:.7g} vs θ_D0.5(t*) {d5:.7g} K/W, miss "
-           f"{miss:.4e} (asserted > {CTRL_MIN:g})")
+        _p(
+            f"[imp8-4] (c-cont) {pt} mm: θ_D1(t*) {d1:.7g} vs θ_D0.5(t*) {d5:.7g} K/W, miss "
+            f"{miss:.4e} (asserted > {CTRL_MIN:g})"
+        )
         least = min(least, miss)
     assert least > CTRL_MIN

@@ -39,8 +39,7 @@ import pytest
 from mpi4py import MPI
 
 from fem_em_solver import FHumanBirdcageGeometry, TwoPortQuadratureDrive
-from fem_em_solver.study import SAR_QUADRATURE_DEGREE, _TUNED_SENSES
-
+from fem_em_solver.study import _TUNED_SENSES, SAR_QUADRATURE_DEGREE
 from tests.complex_mode import complex_only
 from tests.package.test_wf16_study_tuned_f_human import _c_f, _study
 from tests.validation.test_birdcage_b1_plus_map import (
@@ -123,8 +122,12 @@ def test_wf16_s9b_hooks_and_records_no_mesh():
     study = _study()
     assert study.density_kg_m3 == PHANTOM_RHO_KG_PER_M3
     assert int(study.geometry.phantom_tag) == PHANTOM_CELL_TAG
-    for bad in ({"mass_g": 0}, {"mass_g": 10.0, "radius_m": 0.01}, {"mass_g": None},
-                {"mass_g": 10.0, "drives": ("P17",)}):
+    for bad in (
+        {"mass_g": 0},
+        {"mass_g": 10.0, "radius_m": 0.01},
+        {"mass_g": None},
+        {"mass_g": 10.0, "drives": ("P17",)},
+    ):
         with pytest.raises(ValueError):
             study.sar(centres=[(0.0, 0.0, 0.0)], **bad)
     with pytest.raises(ValueError):
@@ -152,8 +155,10 @@ def test_wf16_s9b_hooks_and_records_no_mesh():
     sar_m = np.array([row[2] for row in H9P_SAR10G_TABLE_RECORD])
     l2 = _relative_l2(sar_m, sar_c, np.ones(sar_c.size, dtype=bool))
     star = abs(best[2] - best[1]) / best[1]
-    _p0(f"(R0) table re-reduced: (iii-a) {star:.4e} vs record {H9P_MIRROR_CSTAR_RECORD:.4e}; "
-        f"(iii-b) {l2:.4e} vs record {H9P_MIRROR_L2_RECORD:.4e}")
+    _p0(
+        f"(R0) table re-reduced: (iii-a) {star:.4e} vs record {H9P_MIRROR_CSTAR_RECORD:.4e}; "
+        f"(iii-b) {l2:.4e} vs record {H9P_MIRROR_L2_RECORD:.4e}"
+    )
     assert abs(star - H9P_MIRROR_CSTAR_RECORD) <= 5e-7
     assert abs(l2 - H9P_MIRROR_L2_RECORD) <= 5e-7
     assert isinstance(study.excitation, TwoPortQuadratureDrive)
@@ -192,23 +197,34 @@ def test_wf16_s9b_tuned_b1_sar():
     sense_ratio = float(np.mean(plus_x[mask]) / np.mean(minus_x[mask]))
     mirror = _relative_l2(cw_mx[1], plus_x, mask)
     mispaired = _relative_l2(cw_mx[0], plus_x, mask)
-    _p0(f"B: solve + two CG1 projections {t_b:.1f} s (build {res.times.get('build', 0.0):.1f} s, "
+    _p0(
+        f"B: solve + two CG1 projections {t_b:.1f} s (build {res.times.get('build', 0.0):.1f} s, "
         f"node pair {res.times.get('node_pair', 0.0):.1f} s); {res.cells} cells; {n_pts} sample "
         f"points, {n_mask} valid on every image; b1_plus_at vs _read_senses max |d| "
-        f"{api_vs_read:.3e} T")
-    _p0(f"(B) mean|B1+|_ccw {mean_b:.9e} T vs record {H9P_MEAN_B1_PLUS_CCW_RECORD_T:.6e} T: rel "
-        f"{r_b:.3e} (band {REUSE_REPRODUCTION_RTOL:g}, ASSERTED)")
-    _p0(f"(Sense) mean|B1+|_ccw / mean|B1-|_ccw {sense_ratio:.4f} (> 1 ASSERTED; record "
-        f"{H9P_SENSE_RATIO_RECORD})")
-    _p0(f"(M_B) feed-bisector mirror (az {az_m:.6f} deg) rel L2 {mirror:.4e} (band "
-        f"{C4_COVARIANCE_BAND:g}, ASSERTED; record {H9P_M_B_RECORD:.4e})")
-    _p0(f"(N1) mis-paired |B1+|_cw(Mx) vs |B1+|_ccw(x) {mispaired:.4e} = "
+        f"{api_vs_read:.3e} T"
+    )
+    _p0(
+        f"(B) mean|B1+|_ccw {mean_b:.9e} T vs record {H9P_MEAN_B1_PLUS_CCW_RECORD_T:.6e} T: rel "
+        f"{r_b:.3e} (band {REUSE_REPRODUCTION_RTOL:g}, ASSERTED)"
+    )
+    _p0(
+        f"(Sense) mean|B1+|_ccw / mean|B1-|_ccw {sense_ratio:.4f} (> 1 ASSERTED; record "
+        f"{H9P_SENSE_RATIO_RECORD})"
+    )
+    _p0(
+        f"(M_B) feed-bisector mirror (az {az_m:.6f} deg) rel L2 {mirror:.4e} (band "
+        f"{C4_COVARIANCE_BAND:g}, ASSERTED; record {H9P_M_B_RECORD:.4e})"
+    )
+    _p0(
+        f"(N1) mis-paired |B1+|_cw(Mx) vs |B1+|_ccw(x) {mispaired:.4e} = "
         f"{mispaired / C4_COVARIANCE_BAND:.1f}x band (> band ASSERTED; factor printed; record "
-        f"{H9P_N1_RECORD:.4e})")
+        f"{H9P_N1_RECORD:.4e})"
+    )
 
     # ---- SAR, 10 g lattice ------------------------------------------------------------
-    centre, _radius, _hh, _lo, _hi = _phantom_geometry(res.mesh, res.cell_tags,
-                                                       PHANTOM_CELL_TAG, comm)
+    centre, _radius, _hh, _lo, _hi = _phantom_geometry(
+        res.mesh, res.cell_tags, PHANTOM_CELL_TAG, comm
+    )
     z_c = float(centre[2])
     az17 = float(res.az_feeds[0])
     lattice = _lattice(az17, z_c)
@@ -233,17 +249,25 @@ def test_wf16_s9b_tuned_b1_sar():
     mirror_star = abs(sar_m[i_star] - sar_star) / sar_star
     mirror_l2 = _relative_l2(sar_m, sar_c, np.ones(sar_c.size, dtype=bool))
     for i, lab in enumerate(labels):
-        _p0(f"  {lab:<22s} ccw {sar_c[i]:.9e} (rec {rec[lab][0]:.9e}, rel {r_ccw[i]:.2e}) cw(M) "
+        _p0(
+            f"  {lab:<22s} ccw {sar_c[i]:.9e} (rec {rec[lab][0]:.9e}, rel {r_ccw[i]:.2e}) cw(M) "
             f"{sar_m[i]:.9e} (rec {rec[lab][1]:.9e}, rel {r_cw[i]:.2e}) mass "
-            f"{ccw[i]['mass_kg'] * 1e3:.6f} g{'   <- c*' if i == i_star else ''}")
-    _p0(f"(S10) max rel vs records: ccw {r_ccw.max():.3e}, cw(M) {r_cw.max():.3e} (band "
+            f"{ccw[i]['mass_kg'] * 1e3:.6f} g{'   <- c*' if i == i_star else ''}"
+        )
+    _p0(
+        f"(S10) max rel vs records: ccw {r_ccw.max():.3e}, cw(M) {r_cw.max():.3e} (band "
         f"{REUSE_REPRODUCTION_RTOL:g}, ASSERTED); c* = {key_star} (record {H9P_CSTAR_LABEL}), "
-        f"SAR10g(c*) {sar_star:.9e} W/kg, rel {r_star:.3e}; z_c {z_c:.6e} m, az17 {az17:.9f} deg")
-    _p0(f"(iii-a) mirror at c* {mirror_star * 100:.4f}% (record {H9P_MIRROR_CSTAR_RECORD * 100:.4f}%); "
+        f"SAR10g(c*) {sar_star:.9e} W/kg, rel {r_star:.3e}; z_c {z_c:.6e} m, az17 {az17:.9f} deg"
+    )
+    _p0(
+        f"(iii-a) mirror at c* {mirror_star * 100:.4f}% (record {H9P_MIRROR_CSTAR_RECORD * 100:.4f}%); "
         f"(iii-b) lattice rel L2 {mirror_l2 * 100:.4f}% (record {H9P_MIRROR_L2_RECORD * 100:.4f}%) "
-        f"(band {C4_COVARIANCE_BAND * 100:.1f}%, ASSERTED)")
-    _p0(f"price: B {t_b:.1f} s, 36 balls {t_sar:.1f} s; window "
-        f"{time.perf_counter() - t_window:.1f} s at -n {comm.size}")
+        f"(band {C4_COVARIANCE_BAND * 100:.1f}%, ASSERTED)"
+    )
+    _p0(
+        f"price: B {t_b:.1f} s, 36 balls {t_sar:.1f} s; window "
+        f"{time.perf_counter() - t_window:.1f} s at -n {comm.size}"
+    )
 
     assert n_pts == H9P_N_SAMPLE_POINTS and n_mask == n_pts, (n_pts, n_mask)
     assert r_b <= REUSE_REPRODUCTION_RTOL, f"(B) {r_b:.3e}"

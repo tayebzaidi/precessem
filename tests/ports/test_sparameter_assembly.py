@@ -58,8 +58,11 @@ METRIC_ATOL = 1.0e-12
 def _ports(n: int) -> list[PortDefinition]:
     return [
         PortDefinition(
-            port_id=f"P{k + 1}", positive_tag=10 * (k + 1) + 1, negative_tag=10 * (k + 1) + 2,
-            orientation="cw", z0_ohm=Z0_OHM,
+            port_id=f"P{k + 1}",
+            positive_tag=10 * (k + 1) + 1,
+            negative_tag=10 * (k + 1) + 2,
+            orientation="cw",
+            z0_ohm=Z0_OHM,
         )
         for k in range(n)
     ]
@@ -124,8 +127,10 @@ def test_n_port_sweep_assembles_the_known_s_matrix(monkeypatch, name):
     result = _sweep_known_s(monkeypatch, s0)
     err = float(np.max(np.abs(result.s_matrix - s0)))
     err_t = float(np.max(np.abs(result.s_matrix - s0.T)))
-    print(f"\nPORT5_ASSEMBLY {name}: n={s0.shape[0]} max|S - S0|={err:.3e} "
-          f"max|S - S0^T|={err_t:.6f} (negative-control comparand)")
+    print(
+        f"\nPORT5_ASSEMBLY {name}: n={s0.shape[0]} max|S - S0|={err:.3e} "
+        f"max|S - S0^T|={err_t:.6f} (negative-control comparand)"
+    )
     assert result.port_ids == tuple(f"P{k + 1}" for k in range(s0.shape[0]))
     assert result.s_matrix.shape == s0.shape
     assert err <= ASSEMBLY_ATOL
@@ -139,11 +144,15 @@ def test_transposed_and_hermitian_comparands_are_seen_only_off_reciprocal_data(m
     n1_line = float(np.max(np.abs(line - S_LINE.T)))
     n2_line = float(np.max(np.abs(line - S_LINE.conj().T)))
     reciprocity_line = summarize_sparameter_sanity(line).reciprocity_max_abs_delta
-    print(f"\nPORT5_CONTROL n1 transposed comparand: circulator {n1_circ:.12f} (exactly 1), "
-          f"line {n1_line:.3e} (reciprocal data cannot see a transposed assembly)")
-    print(f"PORT5_CONTROL n2 Hermitian comparand on the line: {n2_line:.12f} "
-          f"(2 sin theta = {2.0 * np.sin(THETA_LINE):.12f}) where the reciprocity metric reads "
-          f"{reciprocity_line:.3e}")
+    print(
+        f"\nPORT5_CONTROL n1 transposed comparand: circulator {n1_circ:.12f} (exactly 1), "
+        f"line {n1_line:.3e} (reciprocal data cannot see a transposed assembly)"
+    )
+    print(
+        f"PORT5_CONTROL n2 Hermitian comparand on the line: {n2_line:.12f} "
+        f"(2 sin theta = {2.0 * np.sin(THETA_LINE):.12f}) where the reciprocity metric reads "
+        f"{reciprocity_line:.3e}"
+    )
     assert abs(n1_circ - 1.0) <= ASSEMBLY_ATOL
     assert n1_line <= ASSEMBLY_ATOL
     assert abs(n2_line - 2.0 * np.sin(THETA_LINE)) <= METRIC_ATOL
@@ -186,8 +195,10 @@ def test_sanity_metrics_equal_their_closed_forms(name, s_matrix, want, kinds):
     """Anchor B: (abs Δ, rel Δ, σ_max, max column power) and which warnings fire."""
     report = summarize_sparameter_sanity(s_matrix)
     got = _metrics(report)
-    print(f"\nPORT5_METRICS {name}: got={tuple(f'{g:.15g}' for g in got)} want={want} "
-          f"warnings={_kinds(report)}")
+    print(
+        f"\nPORT5_METRICS {name}: got={tuple(f'{g:.15g}' for g in got)} want={want} "
+        f"warnings={_kinds(report)}"
+    )
     assert max(abs(g - w) for g, w in zip(got, want)) <= METRIC_ATOL
     assert _kinds(report) == kinds
     assert len(report.warnings) == sum(kinds)

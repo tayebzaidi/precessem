@@ -25,9 +25,8 @@ from __future__ import annotations
 
 import numpy as np
 import ufl
-from mpi4py import MPI
-
 from dolfinx import default_scalar_type, fem
+from mpi4py import MPI
 
 from fem_em_solver.io.mesh import MeshGenerator
 from tests.mesh.helpers import global_cell_tag_set
@@ -183,9 +182,11 @@ def test_ungapped_default_is_unaffected():
         comm=comm,
     )
 
-    assert global_cell_tag_set(msh, cell_tags) == {1, 2, 3}, (
-        "the default path must not emit gap tags"
-    )
+    assert global_cell_tag_set(msh, cell_tags) == {
+        1,
+        2,
+        3,
+    }, "the default path must not emit gap tags"
 
     v_box = _analytic_box_volume()
     v_total = _total_volume(msh, comm)

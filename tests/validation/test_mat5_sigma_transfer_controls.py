@@ -21,12 +21,12 @@ from __future__ import annotations
 
 import numpy as np
 import ufl
-from dolfinx import fem, mesh as dmesh
+from dolfinx import fem
+from dolfinx import mesh as dmesh
 from mpi4py import MPI
 
 from fem_em_solver.materials.temperature import LinearTemperatureConductivity
 from fem_em_solver.utils.analytical import robin_sphere_steady_temperature
-
 from tests.complex_mode import complex_only
 from tests.materials.test_mat5_step2_lumped_root import (
     ALPHA,
@@ -37,14 +37,14 @@ from tests.materials.test_mat5_step2_lumped_root import (
 )
 from tests.materials.test_phantom_material_model import build_preset_sphere_mesh
 from tests.validation.test_lossy_sphere_sar import SPHERE_RADIUS, SPHERE_TAG
+from tests.validation.test_mat5_em_coupled_sphere import D_BAND, _real, _sub_to_parent
 from tests.validation.test_mat10_sar_to_heat_sphere import (
-    K,
     T_INF,
+    K,
     _allsum,
     _say,
     _sphere_submesh,
 )
-from tests.validation.test_mat5_em_coupled_sphere import D_BAND, _real, _sub_to_parent
 
 R = SPHERE_RADIUS
 N_PARENT = 74_020  # the row's counts (MAT-10 / MAT-5 closing log)
@@ -69,14 +69,20 @@ def test_dprime_sees_planted_transfer_failures():
     sub, parent_ids = _sphere_submesh(msh, cell_tags)
     n_parent = msh.topology.index_map(3).size_global
     n_sub = sub.topology.index_map(3).size_global
-    _say(f"\nMAT5-D' cells: parent = {n_parent}  sub = {n_sub}  (row: {N_PARENT} / {N_SUB}); "
-         f"-n {comm.size}")
+    _say(
+        f"\nMAT5-D' cells: parent = {n_parent}  sub = {n_sub}  (row: {N_PARENT} / {N_SUB}); "
+        f"-n {comm.size}"
+    )
 
     # Sub σ from the closed-form profile, per cell midpoint (no solve).
-    th_c = float(robin_sphere_steady_temperature(
-        0.0, radius=R, k=K, q=Q_STAR, h=H_STEP2, t_inf=T_INF)) - T_INF
-    th_R = float(robin_sphere_steady_temperature(
-        R, radius=R, k=K, q=Q_STAR, h=H_STEP2, t_inf=T_INF)) - T_INF
+    th_c = (
+        float(robin_sphere_steady_temperature(0.0, radius=R, k=K, q=Q_STAR, h=H_STEP2, t_inf=T_INF))
+        - T_INF
+    )
+    th_R = (
+        float(robin_sphere_steady_temperature(R, radius=R, k=K, q=Q_STAR, h=H_STEP2, t_inf=T_INF))
+        - T_INF
+    )
     law = LinearTemperatureConductivity(sigma_ref=SIGMA_0, alpha_per_k=ALPHA, t_ref=T_REF)
     Ws = fem.functionspace(sub, ("DG", 0))
     sig_sub = fem.Function(Ws)
@@ -93,8 +99,10 @@ def test_dprime_sees_planted_transfer_failures():
     vol = _real(_allsum(comm, 1.0 * ufl.dx(domain=sub)))
     sigma_bar = _real(_allsum(comm, sig_sub * ufl.dx(domain=sub))) / vol
     d_sigma = SIGMA_0 * ALPHA * (th_c - th_R)
-    _say(f"MAT5-D' profile: theta(0) = {th_c:.6f} K  theta(R) = {th_R:.6f} K; sigma_bar = "
-         f"{sigma_bar:.9f}  delta sigma = {d_sigma:.6f} (predicted 0.5729 / 0.007125)")
+    _say(
+        f"MAT5-D' profile: theta(0) = {th_c:.6f} K  theta(R) = {th_R:.6f} K; sigma_bar = "
+        f"{sigma_bar:.9f}  delta sigma = {d_sigma:.6f} (predicted 0.5729 / 0.007125)"
+    )
 
     Wp = fem.functionspace(msh, ("DG", 0))
 
@@ -111,43 +119,53 @@ def test_dprime_sees_planted_transfer_failures():
     p0 = parent_at_mean()
     _sub_to_parent(p0, sig_sub, parent_ids)
     rel_p0, m_par, m_sub = _moment_rel(msh, cell_tags, sub, p0, sig_sub)
-    _say(f"MAT5-D' (p0) committed _sub_to_parent: parent = {m_par:.15e}  sub = {m_sub:.15e}  "
-         f"rel = {rel_p0:.3e}  (bound {D_BAND:.0e}; predicted 0.0)")
+    _say(
+        f"MAT5-D' (p0) committed _sub_to_parent: parent = {m_par:.15e}  sub = {m_sub:.15e}  "
+        f"rel = {rel_p0:.3e}  (bound {D_BAND:.0e}; predicted 0.0)"
+    )
 
     # (n1) no transfer.
     n1 = parent_at_mean()
     rel_n1, _, _ = _moment_rel(msh, cell_tags, sub, n1, sig_sub)
-    _say(f"MAT5-D' (n1) no transfer: rel = {rel_n1:.4e}  (predicted {N1_PREDICTED:.2e}; "
-         f"asserted > {D_BAND:.0e})")
+    _say(
+        f"MAT5-D' (n1) no transfer: rel = {rel_n1:.4e}  (predicted {N1_PREDICTED:.2e}; "
+        f"asserted > {D_BAND:.0e})"
+    )
 
     # (n2) shifted by one sub dof, per rank.
     n2 = parent_at_mean()
     n2.x.array[pdofs] = sig_sub.x.array[np.roll(sdofs, 1)]
     n2.x.scatter_forward()
     rel_n2, _, _ = _moment_rel(msh, cell_tags, sub, n2, sig_sub)
-    _say(f"MAT5-D' (n2) shifted transfer (np.roll by 1 on each rank's local+ghost list): "
-         f"rel = {rel_n2:.4e}  (size not predicted; asserted > {D_BAND:.0e})")
+    _say(
+        f"MAT5-D' (n2) shifted transfer (np.roll by 1 on each rank's local+ghost list): "
+        f"rel = {rel_n2:.4e}  (size not predicted; asserted > {D_BAND:.0e})"
+    )
 
     # (n3) reversed, per rank.
     n3 = parent_at_mean()
     n3.x.array[pdofs] = sig_sub.x.array[sdofs[::-1]]
     n3.x.scatter_forward()
     rel_n3, _, _ = _moment_rel(msh, cell_tags, sub, n3, sig_sub)
-    _say(f"MAT5-D' (n3) reversed transfer (sdofs[::-1] on each rank's local+ghost list): "
-         f"rel = {rel_n3:.4e}  (size not predicted, expected above (n2); asserted > "
-         f"{D_BAND:.0e})")
+    _say(
+        f"MAT5-D' (n3) reversed transfer (sdofs[::-1] on each rank's local+ghost list): "
+        f"rel = {rel_n3:.4e}  (size not predicted, expected above (n2); asserted > "
+        f"{D_BAND:.0e})"
+    )
 
     # (n4) ghost-blind: owned sub cells only, no scatter_forward — printed only.
     n4 = parent_at_mean()
     n_owned = simap.size_local
     n4.x.array[pdofs[:n_owned]] = sig_sub.x.array[sdofs[:n_owned]]
     rel_n4, _, _ = _moment_rel(msh, cell_tags, sub, n4, sig_sub)
-    _say(f"MAT5-D' (n4) ghost-blind transfer (owned cells only, no scatter_forward): "
-         f"rel = {rel_n4:.3e}  (predicted 0 at -n 2 — not detected; printed, not asserted)")
-
-    assert n_parent == N_PARENT and n_sub == N_SUB, (
-        f"fixture moved: {n_parent} / {n_sub} cells, row {N_PARENT} / {N_SUB}"
+    _say(
+        f"MAT5-D' (n4) ghost-blind transfer (owned cells only, no scatter_forward): "
+        f"rel = {rel_n4:.3e}  (predicted 0 at -n 2 — not detected; printed, not asserted)"
     )
+
+    assert (
+        n_parent == N_PARENT and n_sub == N_SUB
+    ), f"fixture moved: {n_parent} / {n_sub} cells, row {N_PARENT} / {N_SUB}"
     assert rel_p0 <= D_BAND, f"(p0) committed transfer {rel_p0:.3e} > {D_BAND:.0e}"
     assert rel_n1 > D_BAND, f"(n1) no transfer not seen: {rel_n1:.3e}"
     assert rel_n2 > D_BAND, f"(n2) shifted transfer not seen: {rel_n2:.3e}"

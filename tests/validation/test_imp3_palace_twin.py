@@ -90,11 +90,13 @@ def _sweep(case, problem=None, keep=False):
 
 
 def _ids(label, mq):
-    _say(f"[IMP-3 3 W6] {label}: recip {mq['recip']:.3e} sigma_max {float(mq['sigma'][0]):.12f} "
-         f"colpow {np.array2string(mq['colpow'], precision=12)} Z spreads "
-         + "  ".join(f"{k} {v:.3e}" for k, v in mq["spreads"].items())
-         + f" separation {mq['separation']:.2f}x; σ_y Z pairs "
-         + ", ".join(f"{v:.3e}" for v in mq["mirror"]))
+    _say(
+        f"[IMP-3 3 W6] {label}: recip {mq['recip']:.3e} sigma_max {float(mq['sigma'][0]):.12f} "
+        f"colpow {np.array2string(mq['colpow'], precision=12)} Z spreads "
+        + "  ".join(f"{k} {v:.3e}" for k, v in mq["spreads"].items())
+        + f" separation {mq['separation']:.2f}x; σ_y Z pairs "
+        + ", ".join(f"{v:.3e}" for v in mq["mirror"])
+    )
     assert mq["recip"] <= RECIPROCITY_BAND, (label, mq["recip"])
     assert float(mq["sigma"][0]) <= 1.0 + PASSIVITY_SIGMA_TOLERANCE, (label, mq["sigma"])
     assert np.all(mq["colpow"] <= 1.0), (label, mq["colpow"])
@@ -109,14 +111,14 @@ def test_imp3_palace_twin_degree1():
     wall = {}
     for arm in probe.ARMS:
         built = probe.build_arm(arm)
-        case = build_four_port_sweep(
-            frequency_hz=STEP2D_FREQUENCY_HZ, built=built, build_only=True
-        )
+        case = build_four_port_sweep(frequency_hz=STEP2D_FREQUENCY_HZ, built=built, build_only=True)
         msh = case["mesh"]
         ncells = int(case["cells"])
         areas = _sheet_areas(msh, case["facet_tags"], comm)
-        _say(f"\n[IMP-3 3 W6] arm {arm}: {ncells} cells (meta {meta[arm]['cells']}); N_i areas "
-             + ", ".join(f"P{i} {a:.12e}" for i, a in areas.items()))
+        _say(
+            f"\n[IMP-3 3 W6] arm {arm}: {ncells} cells (meta {meta[arm]['cells']}); N_i areas "
+            + ", ".join(f"P{i} {a:.12e}" for i, a in areas.items())
+        )
         # (F)
         assert ncells == meta[arm]["cells"], (arm, ncells, meta[arm]["cells"])
         for i, a in areas.items():
@@ -165,37 +167,60 @@ def test_imp3_palace_twin_degree1():
 
     if comm.rank == 0:
         with open(probe.OUT_DIR / "ours_imp3x_p1.json", "w") as fh:
-            json.dump({k: [[[c.real, c.imag] for c in row] for row in v.tolist()]
-                       for k, v in ours.items()}, fh)
+            json.dump(
+                {
+                    k: [[[c.real, c.imag] for c in row] for row in v.tolist()]
+                    for k, v in ours.items()
+                },
+                fh,
+            )
     pal = probe.read_palace()
     line = probe.line
     for name in probe.RUNS:
-        _say(f"[IMP-3 3 W6] (T) {name} ours vs Palace per class {line(probe.rel_class_gap(ours[name], pal[name]))} (predicted <= 1e-6)")
+        _say(
+            f"[IMP-3 3 W6] (T) {name} ours vs Palace per class {line(probe.rel_class_gap(ours[name], pal[name]))} (predicted <= 1e-6)"
+        )
     d_o = probe.class_delta(ours["imp3x_rod"], ours["imp3x_off"])
     d_p = probe.class_delta(pal["imp3x_rod"], pal["imp3x_off"])
     w_o = probe.class_delta(ours["imp3x_rod"], ours["imp3x_rodnat"])
     w_p = probe.class_delta(pal["imp3x_rod"], pal["imp3x_rodnat"])
     mo = probe.class_means(ours["imp3x_off"])
-    _say(f"[IMP-3 3 W6] ours |Δ_k(rod)|/|mean_k| {line({k: abs(v) / abs(mo[k]) for k, v in d_o.items()})} (predicted [1e-5, 1e-3])")
-    _say(f"[IMP-3 3 W6] ours |Δ_k,wall|/|mean_k| {line({k: abs(v) / abs(mo[k]) for k, v in w_o.items()})} (predicted [1e-6, 1e-3])")
-    _say(f"[IMP-3 3 W6] ΔS(rod) ours vs Palace per class {line(probe.delta_vs(d_o, d_p))} (predicted <= 1e-4)")
+    _say(
+        f"[IMP-3 3 W6] ours |Δ_k(rod)|/|mean_k| {line({k: abs(v) / abs(mo[k]) for k, v in d_o.items()})} (predicted [1e-5, 1e-3])"
+    )
+    _say(
+        f"[IMP-3 3 W6] ours |Δ_k,wall|/|mean_k| {line({k: abs(v) / abs(mo[k]) for k, v in w_o.items()})} (predicted [1e-6, 1e-3])"
+    )
+    _say(
+        f"[IMP-3 3 W6] ΔS(rod) ours vs Palace per class {line(probe.delta_vs(d_o, d_p))} (predicted <= 1e-4)"
+    )
     ds_o = ours["imp3x_rod"] - ours["imp3x_off"]
     ds_p = pal["imp3x_rod"] - pal["imp3x_off"]
-    _say(f"[IMP-3 3 W6] ΔS(rod) entrywise max|ΔS_ours - ΔS_Pal|/max|ΔS_Pal| "
-         f"{np.max(np.abs(ds_o - ds_p)) / np.max(np.abs(ds_p)):.3e}")
+    _say(
+        f"[IMP-3 3 W6] ΔS(rod) entrywise max|ΔS_ours - ΔS_Pal|/max|ΔS_Pal| "
+        f"{np.max(np.abs(ds_o - ds_p)) / np.max(np.abs(ds_p)):.3e}"
+    )
     dw_o = ours["imp3x_rod"] - ours["imp3x_rodnat"]
     dw_p = pal["imp3x_rod"] - pal["imp3x_rodnat"]
-    _say(f"[IMP-3 3 W6] ΔS_wall ours vs Palace per class {line(probe.delta_vs(w_o, w_p))}; entrywise "
-         f"{np.max(np.abs(dw_o - dw_p)) / np.max(np.abs(dw_p)):.3e} (predicted <= 1e-3)")
-    _say(f"[IMP-3 3 W6] (C1) ours rod PEC vs Palace imp3x_rodnat {line(probe.rel_class_gap(ours['imp3x_rod'], pal['imp3x_rodnat']))} (predicted [1e-6, 1e-3])")
-    _say(f"[IMP-3 3 W6] (C2) ours off vs Palace imp3x_rod {line(probe.rel_class_gap(ours['imp3x_off'], pal['imp3x_rod']))} (predicted [1e-5, 1e-3])")
+    _say(
+        f"[IMP-3 3 W6] ΔS_wall ours vs Palace per class {line(probe.delta_vs(w_o, w_p))}; entrywise "
+        f"{np.max(np.abs(dw_o - dw_p)) / np.max(np.abs(dw_p)):.3e} (predicted <= 1e-3)"
+    )
+    _say(
+        f"[IMP-3 3 W6] (C1) ours rod PEC vs Palace imp3x_rodnat {line(probe.rel_class_gap(ours['imp3x_rod'], pal['imp3x_rodnat']))} (predicted [1e-6, 1e-3])"
+    )
+    _say(
+        f"[IMP-3 3 W6] (C2) ours off vs Palace imp3x_rod {line(probe.rel_class_gap(ours['imp3x_off'], pal['imp3x_rod']))} (predicted [1e-5, 1e-3])"
+    )
     try:
         from tests.validation.test_ans4_exact_strip_records import (
             ANS4_EXACT_STRIP_S_P1_RECORDS,
         )
 
         rec = np.asarray(ANS4_EXACT_STRIP_S_P1_RECORDS["64"], dtype=np.complex128)
-        _say(f"[IMP-3 3 W6] free tie ours off vs ANS4_EXACT_STRIP_S_P1_RECORDS['64'] "
-             f"{line(probe.rel_class_gap(ours['imp3x_off'], rec))} (predicted <= 1e-6)")
+        _say(
+            f"[IMP-3 3 W6] free tie ours off vs ANS4_EXACT_STRIP_S_P1_RECORDS['64'] "
+            f"{line(probe.rel_class_gap(ours['imp3x_off'], rec))} (predicted <= 1e-6)"
+        )
     except Exception as exc:  # a reading about the builders, never a stop
         _say(f"[IMP-3 3 W6] free tie not measured: {exc!r}")

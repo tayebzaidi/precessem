@@ -91,7 +91,6 @@ import pytest
 from mpi4py import MPI
 
 from fem_em_solver.ports.shares import terminal_form_deficit
-
 from tests.complex_mode import complex_only
 from tests.mesh.test_birdcage_port_sheet_prerequisite import CONDUCTOR_RESOLUTION
 from tests.validation.test_port_birdcage_four_port import (
@@ -232,9 +231,7 @@ def _variants():
     tokens = tuple(raw.replace(",", " ").split())
     unknown = [t for t in tokens if t not in ALL_VARIANTS]
     if unknown:
-        raise ValueError(
-            f"{VARIANTS_ENV}: unknown token(s) {unknown}; allowed {ALL_VARIANTS}"
-        )
+        raise ValueError(f"{VARIANTS_ENV}: unknown token(s) {unknown}; allowed {ALL_VARIANTS}")
     return tokens
 
 
@@ -303,9 +300,7 @@ def _means_json(means):
 
 def _relative_move(variant_means, control_means):
     return {
-        name: float(
-            abs(variant_means[name] - control_means[name]) / abs(control_means[name])
-        )
+        name: float(abs(variant_means[name] - control_means[name]) / abs(control_means[name]))
         for name in ("self", "adjacent", "opposite")
     }
 
@@ -363,9 +358,7 @@ def _run_one_frequency(frequency_hz):
         means = _class_means(sweep["s"])
         record["control_prime"] = _gate_readings(sweep)
         record["control_prime"]["seconds"] = float(t)
-        record["control_prime"]["class_means"] = {
-            k: [v.real, v.imag] for k, v in means.items()
-        }
+        record["control_prime"]["class_means"] = {k: [v.real, v.imag] for k, v in means.items()}
         record["control_prime"]["s_diagonal"] = _s_diagonal(sweep["s"])
         record["rss"]["control_prime"] = _rss_report(comm, "control' sweep")
         return sweep, means, t
@@ -385,9 +378,7 @@ def _run_one_frequency(frequency_hz):
         record["control"]["z_column1"] = [
             [float(z.real), float(z.imag)] for z in control["z"][:, 0]
         ]
-        record["control"]["class_means"] = {
-            k: [v.real, v.imag] for k, v in control_means.items()
-        }
+        record["control"]["class_means"] = {k: [v.real, v.imag] for k, v in control_means.items()}
         record["control"]["s_diagonal"] = _s_diagonal(control["s"])
         record["rss"]["control"] = _rss_report(comm, "control sweep")
 
@@ -455,8 +446,7 @@ def _run_one_frequency(frequency_hz):
         # only, and only on its own fixture (the gate-record control's mesh at
         # degree 1) — elsewhere it is not that registered reading.
         if (
-            abs(frequency_hz - STEP3_REGISTERED_FREQUENCY_HZ)
-            <= 1.0e-9 * frequency_hz
+            abs(frequency_hz - STEP3_REGISTERED_FREQUENCY_HZ) <= 1.0e-9 * frequency_hz
             and base_key == "control"
             and not _knobs_set()
         ):
@@ -472,9 +462,7 @@ def _run_one_frequency(frequency_hz):
             )
             record["a"]["registered_residual"] = {
                 "label": label,
-                "value": float(
-                    np.linalg.norm(measured - predicted) / np.linalg.norm(predicted)
-                ),
+                "value": float(np.linalg.norm(measured - predicted) / np.linalg.norm(predicted)),
             }
         del variant_a
 
@@ -536,9 +524,7 @@ def _run_one_frequency(frequency_hz):
 def port21_runs():
     frequencies = _frequencies_hz()
     if not frequencies:
-        pytest.skip(
-            f"{FREQUENCIES_ENV} unset — `PORT-21` step 1 runs only when a slot asks"
-        )
+        pytest.skip(f"{FREQUENCIES_ENV} unset — `PORT-21` step 1 runs only when a slot asks")
     return [_run_one_frequency(f) for f in frequencies]
 
 
@@ -569,8 +555,7 @@ def test_the_control_reproduces_the_gate_record(port21_runs):
     at_record = [
         r
         for r in port21_runs
-        if abs(r["frequency_hz"] - GATE_RECORD_FREQUENCY_HZ)
-        <= 1.0e-9 * GATE_RECORD_FREQUENCY_HZ
+        if abs(r["frequency_hz"] - GATE_RECORD_FREQUENCY_HZ) <= 1.0e-9 * GATE_RECORD_FREQUENCY_HZ
     ]
     if not at_record:
         pytest.skip(
@@ -639,8 +624,7 @@ def test_every_variant_still_passes_the_imported_identity_gates(port21_runs):
                     rec = CONTROL_PRIME_SPREAD_RECORDS.get(record["frequency_hz"])
                     if rec:
                         beside = (
-                            f"{rec[0][0]:.4f} / {rec[0][1]:.4f} / "
-                            f"{rec[0][2]:.4f}% ({rec[1]})"
+                            f"{rec[0][0]:.4f} / {rec[0][1]:.4f} / " f"{rec[0][2]:.4f}% ({rec[1]})"
                         )
                     else:
                         beside = (
@@ -660,9 +644,7 @@ def test_every_variant_still_passes_the_imported_identity_gates(port21_runs):
                     f"the imported {RECIPROCITY_BAND:.0e}"
                 )
             if g["sigma_max"] > 1.0 + PASSIVITY_SIGMA_TOLERANCE:
-                misses.append(
-                    f"{tag}: sigma_max = {g['sigma_max']:.9f} — the network is active"
-                )
+                misses.append(f"{tag}: sigma_max = {g['sigma_max']:.9f} — the network is active")
             if g["column_power_max"] > 1.0 + PASSIVITY_SIGMA_TOLERANCE:
                 misses.append(
                     f"{tag}: column power {g['column_power_max']:.9f} > 1 — it "
@@ -786,11 +768,7 @@ def test_the_sensitivity_table_is_printed(port21_runs):
                 flush=True,
             )
     for key in ("a", "c_prime"):
-        series = [
-            (r["frequency_hz"] / 1e6, r[key]["move"]["self"])
-            for r in rows
-            if key in r
-        ]
+        series = [(r["frequency_hz"] / 1e6, r[key]["move"]["self"]) for r in rows if key in r]
         if len(series) < 2:
             print(
                 f"    variant {key}: frequency trend needs >= 2 rungs; this run "
@@ -800,8 +778,10 @@ def test_the_sensitivity_table_is_printed(port21_runs):
             continue
         falls = all(b[1] < a[1] for a, b in zip(series, series[1:]))
         rises = all(b[1] > a[1] for a, b in zip(series, series[1:]))
-        trend = "FALLS with frequency" if falls else (
-            "RISES with frequency" if rises else "is non-monotonic in frequency"
+        trend = (
+            "FALLS with frequency"
+            if falls
+            else ("RISES with frequency" if rises else "is non-monotonic in frequency")
         )
         print(
             f"    variant {key}: the self-class move {trend} — "
@@ -840,9 +820,7 @@ def test_step1_is_reproduced_with_the_knobs_unset(port21_runs):
     comm = MPI.COMM_WORLD
     if _knobs_set() or not {"control", "a"} <= set(_variants()):
         pytest.skip("a step-3 knob is set or (a)/control not selected")
-    rows = [
-        r for r in port21_runs if r["frequency_hz"] in STEP1_A_SELF_MOVE_PRINTED
-    ]
+    rows = [r for r in port21_runs if r["frequency_hz"] in STEP1_A_SELF_MOVE_PRINTED]
     if not rows:
         pytest.skip("no 10 or 64 MHz rung in this window")
     for record in rows:
@@ -855,8 +833,7 @@ def test_step1_is_reproduced_with_the_knobs_unset(port21_runs):
                 flush=True,
             )
         assert printed == expected, (
-            f"(a)'s self move {printed} != step 1's {expected}: the step-3 "
-            "plumbing moved step 1"
+            f"(a)'s self move {printed} != step 1's {expected}: the step-3 " "plumbing moved step 1"
         )
 
 
@@ -906,14 +883,8 @@ def test_the_step3_knobs_reach_the_solve(port21_runs):
                     "against: run W1 (knobs unset) at this frequency first"
                 )
             ref = json.loads(ref_path.read_text())
-            ref_means = {
-                k: complex(*v)
-                for k, v in ref["control_prime"]["class_means"].items()
-            }
-            means = {
-                k: complex(*v)
-                for k, v in record["control_prime"]["class_means"].items()
-            }
+            ref_means = {k: complex(*v) for k, v in ref["control_prime"]["class_means"].items()}
+            means = {k: complex(*v) for k, v in record["control_prime"]["class_means"].items()}
             move = _relative_move(means, ref_means)
             if comm.rank == 0:
                 print(
@@ -1016,6 +987,6 @@ def test_degree2_10mhz_reproduces_w3(port21_runs):
             f"{name} S diagonal misses W3 by {max(errs):.3e} against "
             f"{LEG_D0_REPRODUCTION_BAND:.0e}: the degree-2 solve moved"
         )
-    assert err_k < LEG_D0_REPRODUCTION_BAND, (
-        f"kappa {kappa:.9e} misses W3's {W3_KAPPA:.9e} by {err_k:.3e}"
-    )
+    assert (
+        err_k < LEG_D0_REPRODUCTION_BAND
+    ), f"kappa {kappa:.9e} misses W3's {W3_KAPPA:.9e} by {err_k:.3e}"

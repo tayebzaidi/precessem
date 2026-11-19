@@ -35,7 +35,7 @@ from mpi4py import MPI
 
 import fem_em_solver.study as study_mod
 from fem_em_solver.materials import GelledSalinePhantomMaterial
-from fem_em_solver.ports.circuit import s_to_z, z_to_s
+from fem_em_solver.ports.circuit import z_to_s
 from fem_em_solver.ports.ring_modes import ring_mode_rows, ring_port_map_from_names
 from fem_em_solver.study import (
     FHumanBirdcageGeometry,
@@ -47,7 +47,6 @@ from fem_em_solver.study import (
     TwoPortQuadratureDrive,
 )
 from fem_em_solver.utils.instrumentation import report_peak_rss
-
 from tests.complex_mode import complex_only
 from tests.mesh.test_birdcage_port_sheet_prerequisite import CELL_COUNT_BAND
 from tests.validation.test_birdcage_sar_mass_averaged import EXACT_IDENTITY_RTOL
@@ -113,8 +112,14 @@ def _study(geom=None, drive=None):
 
 
 def _rows(s, names, c_f):
-    return ring_mode_rows(s, port_map=ring_port_map_from_names(names), freq_hz=FREQUENCY_HZ,
-                          c_f=c_f, feeds=FEEDS, drives=DRIVES)
+    return ring_mode_rows(
+        s,
+        port_map=ring_port_map_from_names(names),
+        freq_hz=FREQUENCY_HZ,
+        c_f=c_f,
+        feeds=FEEDS,
+        drives=DRIVES,
+    )
 
 
 def _synthetic():
@@ -155,8 +160,14 @@ def test_wf16_s12_k0_refusals_and_synthetic(monkeypatch):
     quad = _study(drive=TwoPortQuadratureDrive(118.0e-12, esr_ohm=ESR_OHM))
     with pytest.raises(TypeError):
         quad.tune()
-    solid = Study(FHumanBirdcageGeometry(), _phantom(), LumpedPortDrive(),
-                  frequency_hz=FREQUENCY_HZ, degree=DEGREE, conductor=LeontovichWall())
+    solid = Study(
+        FHumanBirdcageGeometry(),
+        _phantom(),
+        LumpedPortDrive(),
+        frequency_hz=FREQUENCY_HZ,
+        degree=DEGREE,
+        conductor=LeontovichWall(),
+    )
     with pytest.raises(TypeError):
         solid.solve()
     st = _study()
@@ -173,8 +184,9 @@ def test_wf16_s12_k0_refusals_and_synthetic(monkeypatch):
     p = rng.permutation(32)
     s_sh = s[np.ix_(p, p)]
     names_sh = [names[i] for i in p]
-    st.result = SimpleNamespace(s_matrix=s_sh,
-                                port_definitions=[SimpleNamespace(port_id=n) for n in names_sh])
+    st.result = SimpleNamespace(
+        s_matrix=s_sh, port_definitions=[SimpleNamespace(port_id=n) for n in names_sh]
+    )
     t1, t2 = st.tune(k=1), st.tune(k=2)
     ref = {1: 1.0 / (OMEGA * d[1].imag), 2: 1.0 / (OMEGA * d[2].imag)}
     rows = _rows(s_sh, names_sh, t1.c_mode_farad)
@@ -182,16 +194,19 @@ def test_wf16_s12_k0_refusals_and_synthetic(monkeypatch):
     e2 = abs(t2.c_mode_farad / ref[2] - 1.0)
     r1 = abs(t1.c_mode_farad / rows["c_mode_f"] - 1.0)
     r2 = abs(t2.c_mode_farad / rows["c_k2_f"] - 1.0)
-    _p0(f"\n[WF-16 s12 K0] synthetic C1 {t1.c_mode_farad:.12e} F (rel vs closed {e1:.3e}, vs "
+    _p0(
+        f"\n[WF-16 s12 K0] synthetic C1 {t1.c_mode_farad:.12e} F (rel vs closed {e1:.3e}, vs "
         f"ring_mode_rows {r1:.3e}); C2 {t2.c_mode_farad:.12e} F (rel {e2:.3e}, {r2:.3e}); "
-        f"off {t1.off_diagonal_residual:.3e}; band EXACT_IDENTITY_RTOL {EXACT_IDENTITY_RTOL:.1e}")
+        f"off {t1.off_diagonal_residual:.3e}; band EXACT_IDENTITY_RTOL {EXACT_IDENTITY_RTOL:.1e}"
+    )
     assert e1 <= EXACT_IDENTITY_RTOL and e2 <= EXACT_IDENTITY_RTOL
     assert r1 <= EXACT_IDENTITY_RTOL and r2 <= EXACT_IDENTITY_RTOL
     assert t1.off_diagonal_residual <= EXACT_IDENTITY_RTOL
     assert t1.k == 1 and t2.k == 2 and t1.frequency_hz == FREQUENCY_HZ
     plain = _study()
-    plain.result = SimpleNamespace(s_matrix=s,
-                                   port_definitions=[SimpleNamespace(port_id=n) for n in names])
+    plain.result = SimpleNamespace(
+        s_matrix=s, port_definitions=[SimpleNamespace(port_id=n) for n in names]
+    )
     # The brief asked "bit for bit"; measured 20261015T213212Z_WF-16-s12-W0.log:63:
     # 1.1813757652308145e-10 vs …148e-10 (1 ulp, ≈ 2.5e-16 relative) — s_to_z
     # inverts the shuffled and unshuffled S in different row orders, so LAPACK
@@ -205,17 +220,22 @@ def test_wf16_s12_k0_refusals_and_synthetic(monkeypatch):
 @pytest.fixture(scope="module")
 def tuned():
     if not _knob():
-        pytest.skip(f"{S12_ENV} unset: the copper F-human tune is a heavy -n 8 window, "
-                    "environment-selected")
+        pytest.skip(
+            f"{S12_ENV} unset: the copper F-human tune is a heavy -n 8 window, "
+            "environment-selected"
+        )
     comm = MPI.COMM_WORLD
     assert comm.size == RECORD_RANK_WIDTH, (comm.size, RECORD_RANK_WIDTH)
     npz = None
     if comm.rank == 0:
         assert os.path.exists(NPZ_PATH), f"{NPZ_PATH} absent: stop (BLOCKED, rule (d))"
         with np.load(NPZ_PATH, allow_pickle=False) as fh:
-            npz = {"s32": np.array(fh["s32"], dtype=np.complex128),
-                   "order": [str(x) for x in fh["order"]],
-                   "cells": int(fh["cells"]), "c_mode": float(fh["c_mode"])}
+            npz = {
+                "s32": np.array(fh["s32"], dtype=np.complex128),
+                "order": [str(x) for x in fh["order"]],
+                "cells": int(fh["cells"]),
+                "c_mode": float(fh["c_mode"]),
+            }
     npz = comm.bcast(npz, root=0)
     study = _study()
     assert study.degree == 1
@@ -227,13 +247,14 @@ def tuned():
     t1 = study.tune(k=1, comm=comm)
     t2 = study.tune(k=2, comm=comm)
     assert study.result is res
-    _p0(f"\n[WF-16 s12] cells {res.cells}, mesh {res.mesh_time:.1f} s, sweep "
-        f"{res.sweep_time:.1f} s, total {t_solve:.1f} s, -n {comm.size}")
+    _p0(
+        f"\n[WF-16 s12] cells {res.cells}, mesh {res.mesh_time:.1f} s, sweep "
+        f"{res.sweep_time:.1f} s, total {t_solve:.1f} s, -n {comm.size}"
+    )
     report_peak_rss(comm, label="[WF-16 s12] summed peak ru_maxrss")
     s = np.asarray(res.s_matrix, dtype=np.complex128)
     names = [pd.port_id for pd in res.port_definitions]
-    return {"study": study, "res": res, "s": s, "names": names, "t1": t1, "t2": t2,
-            "npz": npz}
+    return {"study": study, "res": res, "s": s, "names": names, "t1": t1, "t2": t2, "npz": npz}
 
 
 @complex_only
@@ -247,12 +268,14 @@ def test_wf16_s12_r0_fixture_tie(tuned):
     recip = float(np.linalg.norm(s - s.T) / np.linalg.norm(s))
     smax = float(np.linalg.svd(s, compute_uv=False)[0])
     col = np.linalg.norm(s_p - npz["s32"], axis=0) / np.linalg.norm(npz["s32"], axis=0)
-    _p0(f"\n[WF-16 s12 R0] cells {res.cells} vs record {HOLE_CELL_RECORD} (==, band "
+    _p0(
+        f"\n[WF-16 s12 R0] cells {res.cells} vs record {HOLE_CELL_RECORD} (==, band "
         f"CELL_COUNT_BAND {CELL_COUNT_BAND} printed) vs npz {npz['cells']} (==); "
         f"||S_study - S_npz||/||S_npz|| = {rel:.3e} (band REUSE_REPRODUCTION_RTOL "
         f"{REUSE_REPRODUCTION_RTOL:.1e}; predicted <= 1e-10); worst column {col.max():.3e}; "
         f"reciprocity {recip:.6e} (step 3 {WF12_STEP3_RECIPROCITY:.6e}), sigma_max "
-        f"{smax:.9f} (step 3 {WF12_STEP3_SIGMA_MAX:.9f})")
+        f"{smax:.9f} (step 3 {WF12_STEP3_SIGMA_MAX:.9f})"
+    )
     assert res.cells == HOLE_CELL_RECORD
     assert res.cells == npz["cells"]
     assert sorted(names) == sorted(npz["order"])
@@ -269,12 +292,16 @@ def test_wf16_s12_i_api_equals_ring_mode_rows(tuned):
     ro = abs(t1.off_diagonal_residual / rows["off_block"] - 1.0)
     z1 = t1.z_k[1]
     rz = abs(t1.c_mode_farad * OMEGA * z1.imag - 1.0)
-    _p0(f"\n[WF-16 s12 I] rel vs ring_mode_rows: C1 {r1:.3e}, C2 {r2:.3e}, off {ro:.3e}; "
-        f"C1 w Im z1 - 1 = {rz:.3e} (band EXACT_IDENTITY_RTOL {EXACT_IDENTITY_RTOL:.1e})")
+    _p0(
+        f"\n[WF-16 s12 I] rel vs ring_mode_rows: C1 {r1:.3e}, C2 {r2:.3e}, off {ro:.3e}; "
+        f"C1 w Im z1 - 1 = {rz:.3e} (band EXACT_IDENTITY_RTOL {EXACT_IDENTITY_RTOL:.1e})"
+    )
     for k in range(3):
         z = t1.z_k[k]
-        _p0(f"    z_{k} = {z.real:+.4f}{z.imag:+.4f}j ohm (step 3 "
-            f"{WF12_STEP3_LAMBDA_ANTI[k].real:+.4f}{WF12_STEP3_LAMBDA_ANTI[k].imag:+.4f}j)")
+        _p0(
+            f"    z_{k} = {z.real:+.4f}{z.imag:+.4f}j ohm (step 3 "
+            f"{WF12_STEP3_LAMBDA_ANTI[k].real:+.4f}{WF12_STEP3_LAMBDA_ANTI[k].imag:+.4f}j)"
+        )
     _p0(f"    off-block {t1.off_diagonal_residual:.6e} (step 3 {WF12_STEP3_OFF_BLOCK:.6e})")
     assert r1 <= EXACT_IDENTITY_RTOL
     assert r2 <= EXACT_IDENTITY_RTOL
@@ -289,13 +316,15 @@ def test_wf16_s12_a_c_mode_equals_wf12_h12c(tuned):
     """(a): C_mode within REDUCTION_BAND of `WF-12` step 3's H12c reading."""
     c = tuned["t1"].c_mode_farad
     gap = c / WF12_STEP3_C_MODE_CU_F - 1.0
-    _p0(f"\n[WF-16 s12 a] C_mode = {c:.12e} F; record {WF12_STEP3_C_MODE_CU_F:.12e} F; gap "
+    _p0(
+        f"\n[WF-16 s12 a] C_mode = {c:.12e} F; record {WF12_STEP3_C_MODE_CU_F:.12e} F; gap "
         f"{gap:+.6e} (band REDUCTION_BAND {REDUCTION_BAND:.1e}; predicted <= 1e-9); "
         f"|gap| vs LEG_D0_REPRODUCTION_BAND {LEG_D0_REPRODUCTION_BAND:.1e} printed; vs "
         f"C_MODE_CU_PF {c / (C_MODE_CU_PF * 1e-12) - 1:+.3e}; vs npz c_mode "
         f"{c / tuned['npz']['c_mode'] - 1:+.3e}; vs sigma = 800 C_MODE_F "
         f"{c / C_MODE_F - 1:+.4e} (different mesh, printed); vs C_in F-human "
-        f"{c / (C_IN_F_HUMAN_PF * 1e-12) - 1:+.4e} (different quantity, printed)")
+        f"{c / (C_IN_F_HUMAN_PF * 1e-12) - 1:+.4e} (different quantity, printed)"
+    )
     assert abs(gap) <= REDUCTION_BAND
 
 
@@ -304,7 +333,9 @@ def test_wf16_s12_c1_mode_index_control(tuned):
     """(c1): k = 2 on the same Study misses the record (predicted -33.27 %)."""
     c2 = tuned["t2"].c_mode_farad
     gap = c2 / WF12_STEP3_C_MODE_CU_F - 1.0
-    _p0(f"\n[WF-16 s12 c1] k = 2 C = {c2:.12e} F, gap {gap:+.6e} "
+    _p0(
+        f"\n[WF-16 s12 c1] k = 2 C = {c2:.12e} F, gap {gap:+.6e} "
         f"({abs(gap) / REDUCTION_BAND:.1f}x band; step 3 separation "
-        f"{WF12_STEP3_K2_SEPARATION}); vs step 3 C2 {c2 / WF12_STEP3_C2_CU_F - 1:+.3e}")
+        f"{WF12_STEP3_K2_SEPARATION}); vs step 3 C2 {c2 / WF12_STEP3_C2_CU_F - 1:+.3e}"
+    )
     assert abs(gap) > REDUCTION_BAND

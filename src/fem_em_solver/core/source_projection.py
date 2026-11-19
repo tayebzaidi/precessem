@@ -55,9 +55,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Optional, Sequence
 
+import dolfinx
 import numpy as np
 import ufl
-import dolfinx
 from dolfinx import fem
 from dolfinx.fem.petsc import LinearProblem
 from mpi4py import MPI
@@ -172,11 +172,7 @@ def remove_gradient_content(
         # rank 0, dolfinx numbering the owned ranges in rank order — which is
         # rank-safe and fixes only the additive constant.  Lifted from the
         # `TH-13` step-2 projection helper that measured the identity.
-        pin = (
-            np.array([0], dtype=np.int32)
-            if mesh.comm.rank == 0
-            else np.zeros(0, dtype=np.int32)
-        )
+        pin = np.array([0], dtype=np.int32) if mesh.comm.rank == 0 else np.zeros(0, dtype=np.int32)
         bcs = [fem.dirichletbc(PETSc.ScalarType(0), pin, q_space)]
 
     options = {

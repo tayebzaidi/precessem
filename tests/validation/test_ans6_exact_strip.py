@@ -54,8 +54,8 @@ from tests.mesh.test_birdcage_port_sheets import (
     PORT_LOWER,
     PORT_UPPER,
     SHEET_IFACE,
-    _build as _sheets_build,
 )
+from tests.mesh.test_birdcage_port_sheets import _build as _sheets_build
 from tests.mesh.test_birdcage_port_tags import LEG_COUNT, RING_RADIUS
 from tests.mesh.test_birdcage_port_terminals import _interface_area_or_zero
 from tests.mesh.test_coil_phantom_conforming import _tag_volume
@@ -92,12 +92,18 @@ REPO = Path(__file__).resolve().parents[2]
 OUT_DIR = REPO / "logs" / "ans6_exact"
 MODE_ENV = "FEM_EM_EXACT_ANS6"
 ANS6_METRICS = (
-    REPO / "examples" / "ansys_benchmarks"
-    / "ans6_copper_birdcage_four_port_10_64_128MHz" / "metrics.json"
+    REPO
+    / "examples"
+    / "ansys_benchmarks"
+    / "ans6_copper_birdcage_four_port_10_64_128MHz"
+    / "metrics.json"
 )
 ANS7_METRICS = (
-    REPO / "examples" / "ansys_benchmarks"
-    / "ans7_tuned_copper_birdcage_driven_sweep" / "metrics.json"
+    REPO
+    / "examples"
+    / "ansys_benchmarks"
+    / "ans7_tuned_copper_birdcage_driven_sweep"
+    / "metrics.json"
 )
 PORTS = list(range(1, LEG_COUNT + 1))
 CLASSES = ("self", "adjacent", "opposite")
@@ -117,28 +123,40 @@ ANS6_EXACT_STRIP_HOLE_CELL_RECORD = 80798
 # (1*) licence — re-record on an image change, never re-band.
 ANS6_EXACT_STRIP_CLASS_MEANS_P1 = {
     "10": {
-        "cu": {"self": -4.835946573e-01 + 1.496865370e-01j,
-               "adjacent": +4.968908987e-01 - 4.219890799e-02j,
-               "opposite": +4.897195031e-01 - 7.859240439e-02j},
-        "pec": {"self": -4.837960870e-01 + 1.495553853e-01j,
-                "adjacent": +4.969410045e-01 - 4.216223166e-02j,
-                "opposite": +4.898207240e-01 - 7.853460271e-02j},
+        "cu": {
+            "self": -4.835946573e-01 + 1.496865370e-01j,
+            "adjacent": +4.968908987e-01 - 4.219890799e-02j,
+            "opposite": +4.897195031e-01 - 7.859240439e-02j,
+        },
+        "pec": {
+            "self": -4.837960870e-01 + 1.495553853e-01j,
+            "adjacent": +4.969410045e-01 - 4.216223166e-02j,
+            "opposite": +4.898207240e-01 - 7.853460271e-02j,
+        },
     },
     "64": {
-        "cu": {"self": -3.894212853e-02 + 6.590775812e-01j,
-               "adjacent": +3.977072490e-01 - 2.222710707e-01j,
-               "opposite": +2.397020121e-01 - 3.002075581e-01j},
-        "pec": {"self": -3.933329848e-02 + 6.592411299e-01j,
-                "adjacent": +3.978340023e-01 - 2.222897411e-01j,
-                "opposite": +2.398399832e-01 - 3.003335088e-01j},
+        "cu": {
+            "self": -3.894212853e-02 + 6.590775812e-01j,
+            "adjacent": +3.977072490e-01 - 2.222710707e-01j,
+            "opposite": +2.397020121e-01 - 3.002075581e-01j,
+        },
+        "pec": {
+            "self": -3.933329848e-02 + 6.592411299e-01j,
+            "adjacent": +3.978340023e-01 - 2.222897411e-01j,
+            "opposite": +2.398399832e-01 - 3.003335088e-01j,
+        },
     },
     "128": {
-        "cu": {"self": +4.654952469e-01 + 6.579036879e-01j,
-               "adjacent": +2.385171187e-01 - 2.935241150e-01j,
-               "opposite": +4.167270495e-02 - 2.459835329e-01j},
-        "pec": {"self": +4.653444453e-01 + 6.581856746e-01j,
-                "adjacent": +2.385966529e-01 - 2.936075081e-01j,
-                "opposite": +4.166643522e-02 - 2.460973517e-01j},
+        "cu": {
+            "self": +4.654952469e-01 + 6.579036879e-01j,
+            "adjacent": +2.385171187e-01 - 2.935241150e-01j,
+            "opposite": +4.167270495e-02 - 2.459835329e-01j,
+        },
+        "pec": {
+            "self": +4.653444453e-01 + 6.581856746e-01j,
+            "adjacent": +2.385966529e-01 - 2.936075081e-01j,
+            "opposite": +4.166643522e-02 - 2.460973517e-01j,
+        },
     },
 }
 ANS6_EXACT_STRIP_RECORD_RANK_WIDTH = 2
@@ -153,28 +171,40 @@ ANS6_EXACT_STRIP_RECORD_RANK_WIDTH = 2
 # re-record on an image change, never re-band.
 ANS6_EXACT_STRIP_CLASS_MEANS_P2 = {
     "10": {
-        "cu": {"self": -4.821901317e-01 + 1.563310044e-01j,
-               "adjacent": +4.966236707e-01 - 4.361263927e-02j,
-               "opposite": +4.888645793e-01 - 8.135292126e-02j},
-        "pec": {"self": -4.823981130e-01 + 1.561975831e-01j,
-                "adjacent": +4.966752944e-01 - 4.357522874e-02j,
-                "opposite": +4.889693156e-01 - 8.129431878e-02j},
+        "cu": {
+            "self": -4.821901317e-01 + 1.563310044e-01j,
+            "adjacent": +4.966236707e-01 - 4.361263927e-02j,
+            "opposite": +4.888645793e-01 - 8.135292126e-02j,
+        },
+        "pec": {
+            "self": -4.823981130e-01 + 1.561975831e-01j,
+            "adjacent": +4.966752944e-01 - 4.357522874e-02j,
+            "opposite": +4.889693156e-01 - 8.129431878e-02j,
+        },
     },
     "64": {
-        "cu": {"self": -1.276864349e-02 + 6.709270564e-01j,
-               "adjacent": +3.908392789e-01 - 2.255913789e-01j,
-               "opposite": +2.278736968e-01 - 2.986429559e-01j},
-        "pec": {"self": -1.315445856e-02 + 6.711050243e-01j,
-                "adjacent": +3.909665706e-01 - 2.256145287e-01j,
-                "opposite": +2.280051972e-01 - 2.987743957e-01j},
+        "cu": {
+            "self": -1.276864349e-02 + 6.709270564e-01j,
+            "adjacent": +3.908392789e-01 - 2.255913789e-01j,
+            "opposite": +2.278736968e-01 - 2.986429559e-01j,
+        },
+        "pec": {
+            "self": -1.315445856e-02 + 6.711050243e-01j,
+            "adjacent": +3.909665706e-01 - 2.256145287e-01j,
+            "opposite": +2.280051972e-01 - 2.987743957e-01j,
+        },
     },
     "128": {
-        "cu": {"self": +4.918927876e-01 + 6.533106200e-01j,
-               "adjacent": +2.288719133e-01 - 2.895746771e-01j,
-               "opposite": +3.702806662e-02 - 2.355310451e-01j},
-        "pec": {"self": +4.917553754e-01 + 6.535906126e-01j,
-                "adjacent": +2.289466054e-01 - 2.896597086e-01j,
-                "opposite": +3.701783028e-02 - 2.356397332e-01j},
+        "cu": {
+            "self": +4.918927876e-01 + 6.533106200e-01j,
+            "adjacent": +2.288719133e-01 - 2.895746771e-01j,
+            "opposite": +3.702806662e-02 - 2.355310451e-01j,
+        },
+        "pec": {
+            "self": +4.917553754e-01 + 6.535906126e-01j,
+            "adjacent": +2.289466054e-01 - 2.896597086e-01j,
+            "opposite": +3.701783028e-02 - 2.356397332e-01j,
+        },
     },
 }
 ANS6_EXACT_STRIP_P2_RECORD_RANK_WIDTH = 8
@@ -289,14 +319,26 @@ def _hole_rung(strip_fraction, resolution=None):
         azimuth = _sheet_azimuth_deg(msh, tags_full, tag, comm)
         frame = _port_frame(azimuth)
         spans, centres = _projected_extents(msh, tags_full, tag, comm, list(frame))
-        ports[i] = {"tag": tag, "frame": frame, "w_full": float(spans[0]),
-                    "centre_radial": float(centres[0]), "F": float(full_areas[i]),
-                    "F_facets": _owned_facet_count(msh, tags_full, tag, comm)}
+        ports[i] = {
+            "tag": tag,
+            "frame": frame,
+            "w_full": float(spans[0]),
+            "centre_radial": float(centres[0]),
+            "F": float(full_areas[i]),
+            "F_facets": _owned_facet_count(msh, tags_full, tag, comm),
+        }
     tags_n = tags_full
     for i in PORTS:
         p = ports[i]
-        tags_n = _narrowed_radial(msh, tags_n, p["tag"], GATED_WIDTH_FRACTION,
-                                  p["centre_radial"], p["frame"][0], 0.5 * p["w_full"])
+        tags_n = _narrowed_radial(
+            msh,
+            tags_n,
+            p["tag"],
+            GATED_WIDTH_FRACTION,
+            p["centre_radial"],
+            p["frame"][0],
+            0.5 * p["w_full"],
+        )
     for i in PORTS:
         p = ports[i]
         full = np.asarray(tags_full.find(p["tag"]), dtype=np.int64)
@@ -308,12 +350,21 @@ def _hole_rung(strip_fraction, resolution=None):
         p["N_span_radial"] = float(spans_n[0])
         p["N_h"] = float(spans_n[2])
         p["N_centre_radial"] = float(centres_n[0])
-        p["halves"] = (_tag_volume(msh, cell_tags, PORT_LOWER + i, comm),
-                       _tag_volume(msh, cell_tags, PORT_UPPER + i, comm))
+        p["halves"] = (
+            _tag_volume(msh, cell_tags, PORT_LOWER + i, comm),
+            _tag_volume(msh, cell_tags, PORT_UPPER + i, comm),
+        )
     subset_all = bool(comm.allreduce(all(ports[i]["subset_local"] for i in PORTS), op=MPI.LAND))
-    return {"cells": int(msh.topology.index_map(tdim).size_global), "dx": dx, "dz": dz,
-            "box_volume": box_volume, "ports": ports, "subset_all": subset_all,
-            "cavity_cad": diag["conductor_cavity_cad"], "elapsed": elapsed}
+    return {
+        "cells": int(msh.topology.index_map(tdim).size_global),
+        "dx": dx,
+        "dz": dz,
+        "box_volume": box_volume,
+        "ports": ports,
+        "subset_all": subset_all,
+        "cavity_cad": diag["conductor_cavity_cad"],
+        "elapsed": elapsed,
+    }
 
 
 @pytest.fixture(scope="module")
@@ -321,34 +372,47 @@ def meshes():
     comm = MPI.COMM_WORLD
     res = _resolution()  # §9 item 266: a bad value raises on every rank before any mesh
     _degree()  # §9 item 216: a bad value raises on every rank before any mesh
-    built = {"on": _hole_rung(GATED_WIDTH_FRACTION, resolution=res),
-             "off": _hole_rung(None, resolution=res)}
+    built = {
+        "on": _hole_rung(GATED_WIDTH_FRACTION, resolution=res),
+        "off": _hole_rung(None, resolution=res),
+    }
     if comm.rank == 0:
         for name, r in built.items():
-            print(f"\n[ANS-6 step4] hole flag {name}: cells={r['cells']} build "
-                  f"{r['elapsed']:.2f} s dx*dz={r['dx'] * r['dz']:.9e} cavity CAD "
-                  f"{r['cavity_cad']}", flush=True)
+            print(
+                f"\n[ANS-6 step4] hole flag {name}: cells={r['cells']} build "
+                f"{r['elapsed']:.2f} s dx*dz={r['dx'] * r['dz']:.9e} cavity CAD "
+                f"{r['cavity_cad']}",
+                flush=True,
+            )
             for i in PORTS:
                 p = r["ports"][i]
                 comp = p["F"] - p["N"]
-                print(f"    P{i}: F={p['F']:.9e} ({p['F_facets']} tri) N={p['N']:.9e} "
-                      f"({p['N_facets']} tri, rel {p['N'] / SPEC_AREA_M2 - 1.0:+.3e}) "
-                      f"w=A/h={p['N'] / p['N_h']:.9e} radial span={p['N_span_radial']:.9e} "
-                      f"h={p['N_h']:.9e} centre r={p['N_centre_radial']:.9e} "
-                      f"F\\N={comp:.9e} halves sum={sum(p['halves']) / r['box_volume']:.12f}",
-                      flush=True)
+                print(
+                    f"    P{i}: F={p['F']:.9e} ({p['F_facets']} tri) N={p['N']:.9e} "
+                    f"({p['N_facets']} tri, rel {p['N'] / SPEC_AREA_M2 - 1.0:+.3e}) "
+                    f"w=A/h={p['N'] / p['N_h']:.9e} radial span={p['N_span_radial']:.9e} "
+                    f"h={p['N_h']:.9e} centre r={p['N_centre_radial']:.9e} "
+                    f"F\\N={comp:.9e} halves sum={sum(p['halves']) / r['box_volume']:.12f}",
+                    flush=True,
+                )
         on = built["on"]["cells"]
         if res is None:
-            print(f"[ANS-6 step4] strip hole cells {on} (PREDICTED [80600, 81800]: "
-                  f"{'met' if 80600 <= on <= 81800 else 'NOT met'}; ratio to flag-off "
-                  f"{on / built['off']['cells']:.6f})", flush=True)
+            print(
+                f"[ANS-6 step4] strip hole cells {on} (PREDICTED [80600, 81800]: "
+                f"{'met' if 80600 <= on <= 81800 else 'NOT met'}; ratio to flag-off "
+                f"{on / built['off']['cells']:.6f})",
+                flush=True,
+            )
         else:
             lo, hi = PREDICTED_R0P0075_ON_BRACKET
-            print(f"[ANS-6 step5b′] resolution {res:g}: strip hole cells {on} (printed; "
-                  f"PREDICTED at 0.0075 [{lo}, {hi}]: {'met' if lo <= on <= hi else 'NOT met'};"
-                  f" ratio to flag-off {on / built['off']['cells']:.6f}); flag-off "
-                  f"{built['off']['cells']} (printed; PREDICTED at 0.0075 "
-                  f"{PREDICTED_R0P0075_OFF_CELLS} exactly)", flush=True)
+            print(
+                f"[ANS-6 step5b′] resolution {res:g}: strip hole cells {on} (printed; "
+                f"PREDICTED at 0.0075 [{lo}, {hi}]: {'met' if lo <= on <= hi else 'NOT met'};"
+                f" ratio to flag-off {on / built['off']['cells']:.6f}); flag-off "
+                f"{built['off']['cells']} (printed; PREDICTED at 0.0075 "
+                f"{PREDICTED_R0P0075_OFF_CELLS} exactly)",
+                flush=True,
+            )
     return built
 
 
@@ -376,8 +440,9 @@ def test_m2_strip_is_the_spec_rectangle(meshes):
             "centre radius": (p["N_centre_radial"], RING_RADIUS),
         }
         for name, (got, want) in checks.items():
-            assert abs(got / want - 1.0) < STRIP_BAND, (
-                f"P{i} {name}: {got:.12e} vs {want:.12e} ({p['N_facets']} tri)")
+            assert (
+                abs(got / want - 1.0) < STRIP_BAND
+            ), f"P{i} {name}: {got:.12e} vs {want:.12e} ({p['N_facets']} tri)"
 
 
 @complex_only
@@ -420,9 +485,12 @@ def test_m6_default_hole_cells_unchanged(meshes):
     if _resolution() is not None:
         # (F′) §9 item 266: the knob reaches the flag-off hole mesh.
         if MPI.COMM_WORLD.rank == 0:
-            print(f"\n[ANS-6 step5b′] (F′) M6 flag-off hole cells = {cells} > "
-                  f"{KNOB_CELL_FACTOR} x {tracked} (asserted); PREDICTED at 0.0075 "
-                  f"{PREDICTED_R0P0075_OFF_CELLS} (printed)", flush=True)
+            print(
+                f"\n[ANS-6 step5b′] (F′) M6 flag-off hole cells = {cells} > "
+                f"{KNOB_CELL_FACTOR} x {tracked} (asserted); PREDICTED at 0.0075 "
+                f"{PREDICTED_R0P0075_OFF_CELLS} (printed)",
+                flush=True,
+            )
         assert cells > KNOB_CELL_FACTOR * tracked, f"flag off {cells} vs {tracked}"
         return
     assert abs(cells / tracked - 1.0) < CELL_COUNT_BAND, f"flag off {cells} vs {tracked}"
@@ -434,17 +502,23 @@ def test_m6_default_hole_cells_unchanged(meshes):
 def test_m7_strip_hole_cell_record(meshes):
     cells = meshes["on"]["cells"]
     if MPI.COMM_WORLD.rank == 0:
-        print(f"\n[ANS-6 step4] M7 flag-on hole cells = {cells} "
-              f"(record {ANS6_EXACT_STRIP_HOLE_CELL_RECORD})", flush=True)
+        print(
+            f"\n[ANS-6 step4] M7 flag-on hole cells = {cells} "
+            f"(record {ANS6_EXACT_STRIP_HOLE_CELL_RECORD})",
+            flush=True,
+        )
     if ANS6_EXACT_STRIP_HOLE_CELL_RECORD is None:
         pytest.skip("M7 record not yet registered (W1 measures it)")
     if _resolution() is not None:
         # (F′) §9 item 266: the knob reaches the flag-on hole mesh.
         lo, hi = PREDICTED_R0P0075_ON_BRACKET
         if MPI.COMM_WORLD.rank == 0:
-            print(f"[ANS-6 step5b′] (F′) M7 flag-on {cells} > {KNOB_CELL_FACTOR} x "
-                  f"{ANS6_EXACT_STRIP_HOLE_CELL_RECORD} (asserted); PREDICTED at 0.0075 "
-                  f"[{lo}, {hi}] (printed)", flush=True)
+            print(
+                f"[ANS-6 step5b′] (F′) M7 flag-on {cells} > {KNOB_CELL_FACTOR} x "
+                f"{ANS6_EXACT_STRIP_HOLE_CELL_RECORD} (asserted); PREDICTED at 0.0075 "
+                f"[{lo}, {hi}] (printed)",
+                flush=True,
+            )
         assert cells > KNOB_CELL_FACTOR * ANS6_EXACT_STRIP_HOLE_CELL_RECORD
         return
     assert abs(cells / ANS6_EXACT_STRIP_HOLE_CELL_RECORD - 1.0) < CELL_COUNT_BAND
@@ -458,9 +532,12 @@ def test_n1_flag_off_hole_strip_is_ragged(meshes):
     for i in PORTS:
         miss = meshes["off"]["ports"][i]["N"] / SPEC_AREA_M2 - 1.0
         if MPI.COMM_WORLD.rank == 0:
-            print(f"[ANS-6 step4] N1 (PREDICTED ≈ +4e-2, printed) P{i}: miss {miss:+.3e} "
-                  f"({'exceeds' if abs(miss) > NEGATIVE_CONTROL_FLOOR else 'DOES NOT exceed'}"
-                  f" floor {NEGATIVE_CONTROL_FLOOR:.0e})", flush=True)
+            print(
+                f"[ANS-6 step4] N1 (PREDICTED ≈ +4e-2, printed) P{i}: miss {miss:+.3e} "
+                f"({'exceeds' if abs(miss) > NEGATIVE_CONTROL_FLOOR else 'DOES NOT exceed'}"
+                f" floor {NEGATIVE_CONTROL_FLOOR:.0e})",
+                flush=True,
+            )
 
 
 def _cmeans_json(means):
@@ -492,35 +569,52 @@ def ladder(request):
         extra["resolution"] = res  # §9 item 266: unset adds no key (item 232's call)
     if comm.rank == 0:
         res_txt = "unset" if res is None else f"{res:g}"
-        print(f"\n[ANS-6 step5b′] knobs: resolution {res_txt}, "
-              f"degree {'unset' if degree is None else degree}, part "
-              f"{'unset' if part is None else part}, frequencies "
-              f"{os.environ.get(th14.FREQS_ENV, 'all')}", flush=True)
-    lad = th14._build_ladder(leg_sheet_strip_fraction=GATED_WIDTH_FRACTION, measure_kappa=True,
-                             **extra)
+        print(
+            f"\n[ANS-6 step5b′] knobs: resolution {res_txt}, "
+            f"degree {'unset' if degree is None else degree}, part "
+            f"{'unset' if part is None else part}, frequencies "
+            f"{os.environ.get(th14.FREQS_ENV, 'all')}",
+            flush=True,
+        )
+    lad = th14._build_ladder(
+        leg_sheet_strip_fraction=GATED_WIDTH_FRACTION, measure_kappa=True, **extra
+    )
     if res is not None:
         report_peak_rss(comm, label="ANS-6 step5b′ after ladder")
     lad["degree"] = 1 if degree is None else degree
     lad["part"] = part
     lad["resolution"] = res
-    means = {k: {"cu": _class_means(lad["freqs"][k]["sigma"][th14.COPPER_SIGMA]["s"]),
-                 "pec": _class_means(lad["freqs"][k]["pec"]["s"])} for k in lad["freqs"]}
-    moves = {k: {"cu": _relative_move(means[k]["cu"], _class_means(_ragged_cu(k)))}
-             for k in lad["freqs"]}
+    means = {
+        k: {
+            "cu": _class_means(lad["freqs"][k]["sigma"][th14.COPPER_SIGMA]["s"]),
+            "pec": _class_means(lad["freqs"][k]["pec"]["s"]),
+        }
+        for k in lad["freqs"]
+    }
+    moves = {
+        k: {"cu": _relative_move(means[k]["cu"], _class_means(_ragged_cu(k)))} for k in lad["freqs"]
+    }
     # (N3), degree 2 only: the move of every class mean from the degree-1 record.
     order_moves = {}
     # §9 item 266: knobbed, (N3) would mix h and order — suppressed.
     if lad["degree"] == 2 and res is None:
-        order_moves = {k: {col: _relative_move(means[k][col],
-                                               ANS6_EXACT_STRIP_CLASS_MEANS_P1[k][col])
-                           for col in ("cu", "pec")} for k in lad["freqs"]}
+        order_moves = {
+            k: {
+                col: _relative_move(means[k][col], ANS6_EXACT_STRIP_CLASS_MEANS_P1[k][col])
+                for col in ("cu", "pec")
+            }
+            for k in lad["freqs"]
+        }
     lad["means"] = means
     lad["moves"] = moves
     lad["order_moves"] = order_moves
     if comm.rank == 0:
-        print(f"\n[ANS-6 step4] solve: degree {lad['degree']}, part {part}, cells "
-              f"{lad['cells']}, unknowns {lad['unknowns']}, -n {comm.size}, total "
-              f"{lad['t_total']:.1f} s", flush=True)
+        print(
+            f"\n[ANS-6 step4] solve: degree {lad['degree']}, part {part}, cells "
+            f"{lad['cells']}, unknowns {lad['unknowns']}, -n {comm.size}, total "
+            f"{lad['t_total']:.1f} s",
+            flush=True,
+        )
         for k, rec in lad["freqs"].items():
             # §9 item 226 rank-0 guards: power / kappa exist only with the field
             # solve, the PEC-limit rung only with the whole σ ladder.
@@ -532,53 +626,84 @@ def ladder(request):
                 p_in = p["p_src"] - p["p_sheets"]
                 ratio = p["p_surf"] / p_in
                 rag = RAGGED_P_COIL_OVER_P_IN[k]
-                txt.append(f"identity residual {rec['identity_residual']:.3e} (PREDICTED <~ "
-                           f"1e-11); P_coil/P_in {ratio:.7f} vs ragged {rag:.7f} "
-                           f"({ratio / rag - 1.0:+.3%}, PREDICTED within ±2 %)")
+                txt.append(
+                    f"identity residual {rec['identity_residual']:.3e} (PREDICTED <~ "
+                    f"1e-11); P_coil/P_in {ratio:.7f} vs ragged {rag:.7f} "
+                    f"({ratio / rag - 1.0:+.3%}, PREDICTED within ±2 %)"
+                )
             last = rec["sigma"].get(th14.SIGMA_LADDER[-1])
             if last is not None:
-                txt.append(f"PEC-limit max|dS| {last['max_abs_ds']:.3e} (PREDICTED <= "
-                           f"{th14.PREDICTED_PEC_LIMIT_MAX_ABS_DS:.0e})")
+                txt.append(
+                    f"PEC-limit max|dS| {last['max_abs_ds']:.3e} (PREDICTED <= "
+                    f"{th14.PREDICTED_PEC_LIMIT_MAX_ABS_DS:.0e})"
+                )
             print(f"[ANS-6 step4] {k} MHz: " + "; ".join(txt), flush=True)
             for col in ("cu", "pec"):
-                print(f"    {col} class means (10 digits): " + ", ".join(
-                    f"{c} {means[k][col][c].real:+.9e}{means[k][col][c].imag:+.9e}j"
-                    for c in CLASSES), flush=True)
-            print(f"    cu exact vs ragged ans:6 metrics.json class move: " + "  ".join(
-                f"{c} {moves[k]['cu'][c] * 100:.4f}%" for c in CLASSES)
-                + (" (N2, floor asserted; PREDICTED self 0.5-2 %)" if k == "64" else
-                   " (printed)")
-                + (" [degree 2 vs degree-1 ragged: measures order plus sheet]"
-                   if lad["degree"] == 2 else ""), flush=True)
+                print(
+                    f"    {col} class means (10 digits): "
+                    + ", ".join(
+                        f"{c} {means[k][col][c].real:+.9e}{means[k][col][c].imag:+.9e}j"
+                        for c in CLASSES
+                    ),
+                    flush=True,
+                )
+            print(
+                "    cu exact vs ragged ans:6 metrics.json class move: "
+                + "  ".join(f"{c} {moves[k]['cu'][c] * 100:.4f}%" for c in CLASSES)
+                + (" (N2, floor asserted; PREDICTED self 0.5-2 %)" if k == "64" else " (printed)")
+                + (
+                    " [degree 2 vs degree-1 ragged: measures order plus sheet]"
+                    if lad["degree"] == 2
+                    else ""
+                ),
+                flush=True,
+            )
             if order_moves:
                 for col in ("cu", "pec"):
-                    print(f"    (N3) {k} MHz {col} degree-2 vs degree-1 exact class move "
-                          f"(floor {KNOB_REACHES_THE_SOLVE:.0e} asserted; PREDICTED 64 MHz "
-                          f"self 5-9 % couplings 2-6 %, 10 MHz self 1-4 %, 128 MHz self "
-                          f"4-9 %): " + "  ".join(
-                              f"{c} {order_moves[k][col][c] * 100:.4f}%" for c in CLASSES),
-                          flush=True)
+                    print(
+                        f"    (N3) {k} MHz {col} degree-2 vs degree-1 exact class move "
+                        f"(floor {KNOB_REACHES_THE_SOLVE:.0e} asserted; PREDICTED 64 MHz "
+                        f"self 5-9 % couplings 2-6 %, 10 MHz self 1-4 %, 128 MHz self "
+                        f"4-9 %): "
+                        + "  ".join(f"{c} {order_moves[k][col][c] * 100:.4f}%" for c in CLASSES),
+                        flush=True,
+                    )
             cu_m, pec_m = means[k]["cu"], means[k]["pec"]
-            print(f"    cu vs pec class-mean relative gap |cu-pec|/|pec| (printed; degree 1 "
-                  f"read <= 0.0642 %, item 216 W0): " + "  ".join(
-                f"{c} {abs(cu_m[c] - pec_m[c]) / abs(pec_m[c]) * 100:.4f}%" for c in CLASSES),
-                flush=True)
+            print(
+                "    cu vs pec class-mean relative gap |cu-pec|/|pec| (printed; degree 1 "
+                "read <= 0.0642 %, item 216 W0): "
+                + "  ".join(
+                    f"{c} {abs(cu_m[c] - pec_m[c]) / abs(pec_m[c]) * 100:.4f}%" for c in CLASSES
+                ),
+                flush=True,
+            )
             if res is not None:
                 # §9 item 266: entry 31's readout — h-move against the ×1 record.
-                x1 = (ANS6_EXACT_STRIP_CLASS_MEANS_P2 if lad["degree"] == 2
-                      else ANS6_EXACT_STRIP_CLASS_MEANS_P1)
+                x1 = (
+                    ANS6_EXACT_STRIP_CLASS_MEANS_P2
+                    if lad["degree"] == 2
+                    else ANS6_EXACT_STRIP_CLASS_MEANS_P1
+                )
                 if k in x1:
                     for col in ("cu", "pec"):
                         hmv = _relative_move(means[k][col], x1[k][col])
-                        print(f"    h-move {k} MHz {col} r={res:g} vs x1 record degree "
-                              f"{lad['degree']} (printed, never asserted): " + "  ".join(
-                                  f"{c} {hmv[c] * 100:.4f}%" for c in CLASSES), flush=True)
+                        print(
+                            f"    h-move {k} MHz {col} r={res:g} vs x1 record degree "
+                            f"{lad['degree']} (printed, never asserted): "
+                            + "  ".join(f"{c} {hmv[c] * 100:.4f}%" for c in CLASSES),
+                            flush=True,
+                        )
                     x_cu, x_pec = x1[k]["cu"], x1[k]["pec"]
-                    print(f"    Cu-PEC gap |cu-pec|/|pec| rung r={res:g} vs x1 record "
-                          f"(printed, never asserted): " + "  ".join(
-                              f"{c} {abs(cu_m[c] - pec_m[c]) / abs(pec_m[c]) * 100:.4f}% vs "
-                              f"{abs(x_cu[c] - x_pec[c]) / abs(x_pec[c]) * 100:.4f}%"
-                              for c in CLASSES), flush=True)
+                    print(
+                        f"    Cu-PEC gap |cu-pec|/|pec| rung r={res:g} vs x1 record "
+                        f"(printed, never asserted): "
+                        + "  ".join(
+                            f"{c} {abs(cu_m[c] - pec_m[c]) / abs(pec_m[c]) * 100:.4f}% vs "
+                            f"{abs(x_cu[c] - x_pec[c]) / abs(x_pec[c]) * 100:.4f}%"
+                            for c in CLASSES
+                        ),
+                        flush=True,
+                    )
         OUT_DIR.mkdir(parents=True, exist_ok=True)
         if degree is None and th14.FREQS_ENV not in os.environ:
             out = OUT_DIR / "ans6_exact_p1.json"
@@ -588,28 +713,45 @@ def ladder(request):
             out = OUT_DIR / f"ans6_exact_p{lad['degree']}_f{'-'.join(lad['freqs'])}_{part}.json"
         if res is not None:
             tail = f"_{part}" if part is not None else ""
-            out = OUT_DIR / (f"ans6_exact_p{lad['degree']}_r{res:g}_f"
-                             f"{'-'.join(lad['freqs'])}{tail}.json")
+            out = OUT_DIR / (
+                f"ans6_exact_p{lad['degree']}_r{res:g}_f" f"{'-'.join(lad['freqs'])}{tail}.json"
+            )
 
         def _cj(s):
             return [[[float(z.real), float(z.imag)] for z in row] for row in np.asarray(s)]
 
-        payload_extra = {} if degree is None else {
-            "degree": lad["degree"], "order_moves_vs_p1": order_moves}
-        out.write_text(json.dumps({
-            **payload_extra,
-            "ranks": comm.size, "cells": lad["cells"], "unknowns": lad["unknowns"],
-            "census": lad["census"],
-            "s": {k: {"cu": _cj(r["sigma"][th14.COPPER_SIGMA]["s"]), "pec": _cj(r["pec"]["s"])}
-                  for k, r in lad["freqs"].items()},
-            "class_means": {k: {col: _cmeans_json(v) for col, v in m.items()}
-                            for k, m in means.items()},
-            "kappa": {k: r.get("kappa") for k, r in lad["freqs"].items()},
-            "power": {k: r.get("power") for k, r in lad["freqs"].items()},
-            "identity_residual": {k: r.get("identity_residual")
-                                  for k, r in lad["freqs"].items()},
-            "moves_vs_ragged": moves,
-        }, indent=2) + "\n")
+        payload_extra = (
+            {} if degree is None else {"degree": lad["degree"], "order_moves_vs_p1": order_moves}
+        )
+        out.write_text(
+            json.dumps(
+                {
+                    **payload_extra,
+                    "ranks": comm.size,
+                    "cells": lad["cells"],
+                    "unknowns": lad["unknowns"],
+                    "census": lad["census"],
+                    "s": {
+                        k: {
+                            "cu": _cj(r["sigma"][th14.COPPER_SIGMA]["s"]),
+                            "pec": _cj(r["pec"]["s"]),
+                        }
+                        for k, r in lad["freqs"].items()
+                    },
+                    "class_means": {
+                        k: {col: _cmeans_json(v) for col, v in m.items()} for k, m in means.items()
+                    },
+                    "kappa": {k: r.get("kappa") for k, r in lad["freqs"].items()},
+                    "power": {k: r.get("power") for k, r in lad["freqs"].items()},
+                    "identity_residual": {
+                        k: r.get("identity_residual") for k, r in lad["freqs"].items()
+                    },
+                    "moves_vs_ragged": moves,
+                },
+                indent=2,
+            )
+            + "\n"
+        )
         print(f"    wrote {out.relative_to(REPO)}", flush=True)
     return lad
 
@@ -654,11 +796,16 @@ def test_sigma_ladder_monotone(ladder, key):
         pytest.skip("(sigma) is asserted in the sweeps windows")
     rungs = ladder["freqs"][key]["sigma"]
     if MPI.COMM_WORLD.rank == 0:
-        print(f"[ANS-6 step4] (sigma) {key} MHz degree {ladder['degree']} per class "
-              f"max|S_sigma - S_PEC| over {th14.SIGMA_LADDER}: " + "; ".join(
-                  f"{c} " + " > ".join(f"{rungs[sig]['class_ds'][c]:.3e}"
-                                       for sig in th14.SIGMA_LADDER) for c in CLASSES),
-              flush=True)
+        print(
+            f"[ANS-6 step4] (sigma) {key} MHz degree {ladder['degree']} per class "
+            f"max|S_sigma - S_PEC| over {th14.SIGMA_LADDER}: "
+            + "; ".join(
+                f"{c} "
+                + " > ".join(f"{rungs[sig]['class_ds'][c]:.3e}" for sig in th14.SIGMA_LADDER)
+                for c in CLASSES
+            ),
+            flush=True,
+        )
     for c in CLASSES:
         seq = [rungs[sig]["class_ds"][c] for sig in th14.SIGMA_LADDER]
         assert all(b < a for a, b in zip(seq, seq[1:])), (c, seq)
@@ -672,18 +819,30 @@ def test_c_bracket_10mhz_against_exact_solid_record(ladder):
     _require_key(ladder, "10")
     rec = ladder["freqs"]["10"]
     solid = th14._class_max_abs(
-        np.asarray(ANS4_EXACT_STRIP_S_P1_RECORDS["10"], dtype=np.complex128) - rec["pec"]["s"])
+        np.asarray(ANS4_EXACT_STRIP_S_P1_RECORDS["10"], dtype=np.complex128) - rec["pec"]["s"]
+    )
     ragged = th14._class_max_abs(
-        np.asarray(LEG_D_S_MATRIX_10MHZ, dtype=np.complex128) - rec["pec"]["s"])
+        np.asarray(LEG_D_S_MATRIX_10MHZ, dtype=np.complex128) - rec["pec"]["s"]
+    )
     cu = rec["sigma"][th14.COPPER_SIGMA]["class_ds"]
     if MPI.COMM_WORLD.rank == 0:
-        mismatch = (" [ORDER MISMATCHED: S_800 record is degree 1, S_PEC is degree "
-                    f"{ladder['degree']}]" if ladder["degree"] != 1 else "")
+        mismatch = (
+            " [ORDER MISMATCHED: S_800 record is degree 1, S_PEC is degree " f"{ladder['degree']}]"
+            if ladder["degree"] != 1
+            else ""
+        )
         if ladder["resolution"] is not None:
             mismatch += " [MESH MISMATCHED: comparand is ×1]"
-        print("[ANS-6 step4] (c) 10 MHz per class max|dS|: " + "; ".join(
-            f"{c}: copper {cu[c]:.9e} vs exact solid-800 {solid[c]:.9e} (ragged "
-            f"LEG_D, printed only {ragged[c]:.9e})" for c in CLASSES) + mismatch, flush=True)
+        print(
+            "[ANS-6 step4] (c) 10 MHz per class max|dS|: "
+            + "; ".join(
+                f"{c}: copper {cu[c]:.9e} vs exact solid-800 {solid[c]:.9e} (ragged "
+                f"LEG_D, printed only {ragged[c]:.9e})"
+                for c in CLASSES
+            )
+            + mismatch,
+            flush=True,
+        )
     for c in CLASSES:
         assert cu[c] <= solid[c], (c, cu[c], solid[c])
 
@@ -694,9 +853,11 @@ def test_n2_exact_vs_ragged_64mhz_moves(ladder):
     """(N2) floor asserted: every 64 MHz Cu class mean moves > floor."""
     _require_key(ladder, "64")
     if ladder["resolution"] is not None and MPI.COMM_WORLD.rank == 0:
-        print("[ANS-6 step5b′] (N2) [MESH MISMATCHED: comparand is ×1] 64 MHz cu moves: "
-              + "  ".join(f"{c} {v * 100:.4f}%" for c, v in ladder["moves"]["64"]["cu"].items()),
-              flush=True)
+        print(
+            "[ANS-6 step5b′] (N2) [MESH MISMATCHED: comparand is ×1] 64 MHz cu moves: "
+            + "  ".join(f"{c} {v * 100:.4f}%" for c, v in ladder["moves"]["64"]["cu"].items()),
+            flush=True,
+        )
     for c, value in ladder["moves"]["64"]["cu"].items():
         assert value > KNOB_REACHES_THE_SOLVE, f"{c} move {value:.3e}"
 
@@ -749,9 +910,11 @@ def test_p_prime_part_reaches_the_ladder(ladder, key):
     _require_key(ladder, key)
     rec = ladder["freqs"][key]
     if MPI.COMM_WORLD.rank == 0:
-        print(f"[ANS-6 step5] (P') {key} MHz part {ladder['part']}: sigmas "
-              f"{sorted(rec['sigma'])}, power {'present' if 'power' in rec else 'absent'}",
-              flush=True)
+        print(
+            f"[ANS-6 step5] (P') {key} MHz part {ladder['part']}: sigmas "
+            f"{sorted(rec['sigma'])}, power {'present' if 'power' in rec else 'absent'}",
+            flush=True,
+        )
     if ladder["part"] == "sweeps":
         assert set(rec["sigma"]) == set(th14.SIGMA_LADDER), sorted(rec["sigma"])
         assert "power" not in rec

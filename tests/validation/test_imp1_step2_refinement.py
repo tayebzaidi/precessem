@@ -36,9 +36,8 @@ import resource
 import time
 
 import pytest
-from mpi4py import MPI
-
 from dolfinx import fem
+from mpi4py import MPI
 
 from tests.complex_mode import complex_only
 from tests.validation.test_imp1_pec_sphere_lossy_host import (
@@ -102,9 +101,11 @@ def _announce(label, rung):
     ncells = msh.topology.index_map(msh.topology.dim).size_global
     v = fem.functionspace(msh, ("N1curl", DEGREE))
     ndofs = v.dofmap.index_map.size_global * v.dofmap.index_map_bs
-    _say(f"\n[IMP-1 step 2] {label}: resolution_sphere = {rung[0]:.6e} m, "
-         f"resolution_far = {rung[1]:.6e} m, {ncells} cells, {ndofs} degree-{DEGREE} "
-         f"dofs, -n {comm.size} (before the solve)")
+    _say(
+        f"\n[IMP-1 step 2] {label}: resolution_sphere = {rung[0]:.6e} m, "
+        f"resolution_far = {rung[1]:.6e} m, {ncells} cells, {ndofs} degree-{DEGREE} "
+        f"dofs, -n {comm.size} (before the solve)"
+    )
     return ncells, ndofs
 
 
@@ -113,25 +114,35 @@ def _timed_solve(label, pec_facet_tags, rung):
     out = _solve(pec_facet_tags, DEGREE, resolution_sphere=rung[0], resolution_far=rung[1])
     out["seconds"] = time.perf_counter() - t0
     out["rss_gib"] = _peak_rss_gib()
-    _say(f"[IMP-1 step 2] {label}: solve + post {out['seconds']:.1f} s, summed peak RSS "
-         f"{out['rss_gib']:.2f} GiB (process peak so far)")
+    _say(
+        f"[IMP-1 step 2] {label}: solve + post {out['seconds']:.1f} s, summed peak RSS "
+        f"{out['rss_gib']:.2f} GiB (process peak so far)"
+    )
     return out
 
 
 def _print_rung(label, d):
     beta_miss = abs(d["beta"] - BETA_PEC)
     phi_miss = abs(d["phi_h"] / d["phi_cf_h"] - 1.0)
-    _say(f"  {label}: beta = {d['beta']:.6f}  |beta - 1| = {beta_miss:.4%} "
-         f"(band {TH15_BETA_BAND:.4%})")
-    _say(f"  {label}: Phi_h = {d['phi_h']:.6f}, Phi_cf,h = {d['phi_cf_h']:.6f}, "
-         f"Phi_h/Phi_cf,h - 1 = {d['phi_h'] / d['phi_cf_h'] - 1.0:+.4%} (band {MAT4_BAND:.0%})")
-    _say(f"  {label} [record]: Phi_cf,h vs continuous closed form {PHI_CLOSED_FORM_PEC:.6f}: "
-         f"{d['phi_cf_h'] / PHI_CLOSED_FORM_PEC - 1:+.4%}; |Im E|/|Re E| = "
-         f"{d['imag_ratio']:.4e}; cavity dofs = {d['n_cavity']}, max |E| = "
-         f"{d['cavity_max']:.3e}; {d['ncells']} cells")
+    _say(
+        f"  {label}: beta = {d['beta']:.6f}  |beta - 1| = {beta_miss:.4%} "
+        f"(band {TH15_BETA_BAND:.4%})"
+    )
+    _say(
+        f"  {label}: Phi_h = {d['phi_h']:.6f}, Phi_cf,h = {d['phi_cf_h']:.6f}, "
+        f"Phi_h/Phi_cf,h - 1 = {d['phi_h'] / d['phi_cf_h'] - 1.0:+.4%} (band {MAT4_BAND:.0%})"
+    )
+    _say(
+        f"  {label} [record]: Phi_cf,h vs continuous closed form {PHI_CLOSED_FORM_PEC:.6f}: "
+        f"{d['phi_cf_h'] / PHI_CLOSED_FORM_PEC - 1:+.4%}; |Im E|/|Re E| = "
+        f"{d['imag_ratio']:.4e}; cavity dofs = {d['n_cavity']}, max |E| = "
+        f"{d['cavity_max']:.3e}; {d['ncells']} cells"
+    )
     for theta_deg, ratio, closed in _sar_ratio_records(d["fields"]):
-        _say(f"  {label} [record]: SAR/SAR0 at r = 1.2a, polar {theta_deg:.0f} deg: "
-             f"{ratio:.4f} (quasi-static closed form {closed:.4f})")
+        _say(
+            f"  {label} [record]: SAR/SAR0 at r = 1.2a, polar {theta_deg:.0f} deg: "
+            f"{ratio:.4f} (quasi-static closed form {closed:.4f})"
+        )
     return beta_miss, phi_miss
 
 
@@ -146,14 +157,20 @@ def _residual(label, rung, d):
     signed_total = d["phi_h"] / phi_cf_1 - 1.0
     signed_rho = d["phi_h"] / phi_cf_beta - 1.0
     m_defect = abs(phi_cf_1 / d["phi_cf_h"] - 1.0)
-    _say(f"  {label}: Phi_h/Phi_cf,h(1) - 1 = {signed_total:+.4%}; "
-         f"Phi_h/Phi_cf,h(beta_h) - 1 = {signed_rho:+.4%} "
-         f"(rho predicted ≈ {RHO_PREDICTED[label]:.3%}, not asserted)")
-    _say(f"  {label} [record]: Phi_cf,h(beta_h) = {phi_cf_beta:.6f} beside "
-         f"1 + beta_h^2 (Phi_cf,h(1) - 1) = {no_cross:.6f}: the mask's cross term "
-         f"{phi_cf_beta - no_cross:+.3e}")
-    _say(f"  {label} [record]: (M) Phi_cf,h(1) here {phi_cf_1:.12f} vs _solve's "
-         f"{d['phi_cf_h']:.12f}: {m_defect:.2e} relative")
+    _say(
+        f"  {label}: Phi_h/Phi_cf,h(1) - 1 = {signed_total:+.4%}; "
+        f"Phi_h/Phi_cf,h(beta_h) - 1 = {signed_rho:+.4%} "
+        f"(rho predicted ≈ {RHO_PREDICTED[label]:.3%}, not asserted)"
+    )
+    _say(
+        f"  {label} [record]: Phi_cf,h(beta_h) = {phi_cf_beta:.6f} beside "
+        f"1 + beta_h^2 (Phi_cf,h(1) - 1) = {no_cross:.6f}: the mask's cross term "
+        f"{phi_cf_beta - no_cross:+.3e}"
+    )
+    _say(
+        f"  {label} [record]: (M) Phi_cf,h(1) here {phi_cf_1:.12f} vs _solve's "
+        f"{d['phi_cf_h']:.12f}: {m_defect:.2e} relative"
+    )
     return dict(
         phi_cf_1=phi_cf_1,
         signed_total=signed_total,
@@ -181,45 +198,54 @@ def test_three_rung_residual():
         ncells, _ = _announce(label, rung)
         if label == "a/12":
             # The only assert ahead of the a/12 solve: the cost guard.
-            assert ncells <= CELL_GUARD, (
-                f"a/12 mesh has {ncells} cells > {CELL_GUARD}: not solved (item 106)"
-            )
+            assert (
+                ncells <= CELL_GUARD
+            ), f"a/12 mesh has {ncells} cells > {CELL_GUARD}: not solved (item 106)"
         d = _timed_solve(label, pec, rung)
         beta_miss, phi_miss = _print_rung(label, d)
-        out[label] = dict(d=d, beta_miss=beta_miss, phi_miss=phi_miss,
-                          **_residual(label, rung, d))
+        out[label] = dict(d=d, beta_miss=beta_miss, phi_miss=phi_miss, **_residual(label, rung, d))
         if label == "a/6":
-            _say(f"  a/6 [reference, step 1's log, not asserted]: |beta - 1| = "
-                 f"{STEP1_BETA_MISS:.4%}, Phi miss = {STEP1_PHI_MISS:.4%}")
+            _say(
+                f"  a/6 [reference, step 1's log, not asserted]: |beta - 1| = "
+                f"{STEP1_BETA_MISS:.4%}, Phi miss = {STEP1_PHI_MISS:.4%}"
+            )
 
     c, f, o = out["a/6"], out["a/10"], out["a/12"]
-    _say(f"\n[IMP-1 step 2b] rho a/6 -> a/10 -> a/12 = {c['rho']:.4%} -> {f['rho']:.4%} "
-         f"-> {o['rho']:.4%} (signed {c['signed_rho']:+.4%}, {f['signed_rho']:+.4%}, "
-         f"{o['signed_rho']:+.4%}; predicted ≈ 1.17 % -> 0.448 % -> 0.32 %)")
+    _say(
+        f"\n[IMP-1 step 2b] rho a/6 -> a/10 -> a/12 = {c['rho']:.4%} -> {f['rho']:.4%} "
+        f"-> {o['rho']:.4%} (signed {c['signed_rho']:+.4%}, {f['signed_rho']:+.4%}, "
+        f"{o['signed_rho']:+.4%}; predicted ≈ 1.17 % -> 0.448 % -> 0.32 %)"
+    )
     for (la, ra, na), (lb, rb, nb) in (
         (("a/6", c, 6.0), ("a/10", f, 10.0)),
         (("a/10", f, 10.0), ("a/12", o, 12.0)),
         (("a/6", c, 6.0), ("a/12", o, 12.0)),
     ):
-        _say(f"  [record] pairwise rate of rho, {la} -> {lb}: "
-             f"{_rate(ra['rho'], na, rb['rho'], nb):.3f} "
-             f"(the a/6 -> a/10 prediction was 1.87; not asserted)")
-    _say(f"  [record] |beta - 1| a/6 -> a/10 -> a/12 = {c['beta_miss']:.4%} -> "
-         f"{f['beta_miss']:.4%} -> {o['beta_miss']:.4%} (signed beta - 1: "
-         f"{c['d']['beta'] - 1:+.4%}, {f['d']['beta'] - 1:+.4%}, "
-         f"{o['d']['beta'] - 1:+.4%}); a/10 -> a/12 is not asserted")
-    _say(f"  [banked 2026-09-30, not asserted] old (v), total Phi miss a/6 -> a/10: "
-         f"{c['phi_miss']:.4%} -> {f['phi_miss']:.4%} (record "
-         f"{BANKED_PHI_MISS[0]:.4%} -> {BANKED_PHI_MISS[1]:.4%}); a/12: "
-         f"{o['phi_miss']:.4%}")
+        _say(
+            f"  [record] pairwise rate of rho, {la} -> {lb}: "
+            f"{_rate(ra['rho'], na, rb['rho'], nb):.3f} "
+            f"(the a/6 -> a/10 prediction was 1.87; not asserted)"
+        )
+    _say(
+        f"  [record] |beta - 1| a/6 -> a/10 -> a/12 = {c['beta_miss']:.4%} -> "
+        f"{f['beta_miss']:.4%} -> {o['beta_miss']:.4%} (signed beta - 1: "
+        f"{c['d']['beta'] - 1:+.4%}, {f['d']['beta'] - 1:+.4%}, "
+        f"{o['d']['beta'] - 1:+.4%}); a/10 -> a/12 is not asserted"
+    )
+    _say(
+        f"  [banked 2026-09-30, not asserted] old (v), total Phi miss a/6 -> a/10: "
+        f"{c['phi_miss']:.4%} -> {f['phi_miss']:.4%} (record "
+        f"{BANKED_PHI_MISS[0]:.4%} -> {BANKED_PHI_MISS[1]:.4%}); a/12: "
+        f"{o['phi_miss']:.4%}"
+    )
 
     for label, _, _ in rungs:
         r = out[label]
         d = r["d"]
         assert d["n_cavity"] > 0, f"(iii) {label}: no dofs located on cavity facet tag 2"
-        assert d["cavity_max"] < 1e-12, (
-            f"(iii) {label}: cavity dofs carry max |E| = {d['cavity_max']:.3e}"
-        )
+        assert (
+            d["cavity_max"] < 1e-12
+        ), f"(iii) {label}: cavity dofs carry max |E| = {d['cavity_max']:.3e}"
         assert r["m_defect"] <= 1e-12, (
             f"(M) {label}: Phi_cf,h(1) = {r['phi_cf_1']:.12f} differs from _solve's "
             f"{d['phi_cf_h']:.12f} by {r['m_defect']:.2e} relative"
@@ -228,17 +254,19 @@ def test_three_rung_residual():
             f"(i) {label}: beta = {d['beta']:.6f} misses 1 by {r['beta_miss']:.4%} > "
             f"{TH15_BETA_BAND:.4%}"
         )
-        assert r["phi_miss"] <= MAT4_BAND, (
-            f"(ii) {label}: Phi miss {r['phi_miss']:.4%} > {MAT4_BAND:.0%}"
-        )
+        assert (
+            r["phi_miss"] <= MAT4_BAND
+        ), f"(ii) {label}: Phi miss {r['phi_miss']:.4%} > {MAT4_BAND:.0%}"
     assert o["beta_miss"] <= c["beta_miss"], (
         f"(iv') |beta - 1| at a/12 above a/6: {c['beta_miss']:.4%} (a/6) -> "
         f"{o['beta_miss']:.4%} (a/12)"
     )
-    _say(f"  [banked 2026-09-30, not asserted] (v'), rho a/6 -> a/10 -> a/12: "
-         f"{c['rho']:.4%} -> {f['rho']:.4%} -> {o['rho']:.4%} (record "
-         f"{BANKED_RHO['a/6']:.4%} -> {BANKED_RHO['a/10']:.4%} -> "
-         f"{BANKED_RHO['a/12']:.4%}; the fixture's floor near 0.5 %)")
+    _say(
+        f"  [banked 2026-09-30, not asserted] (v'), rho a/6 -> a/10 -> a/12: "
+        f"{c['rho']:.4%} -> {f['rho']:.4%} -> {o['rho']:.4%} (record "
+        f"{BANKED_RHO['a/6']:.4%} -> {BANKED_RHO['a/10']:.4%} -> "
+        f"{BANKED_RHO['a/12']:.4%}; the fixture's floor near 0.5 %)"
+    )
 
 
 @complex_only
@@ -250,14 +278,16 @@ def test_control():
     ctl = _timed_solve("a/10 control", (OUTER_BOUNDARY_TAG,), RUNG_FINE)
     delta_beta = abs(ctl["beta"] - BETA_PEC)
     phi_miss = abs(ctl["phi_h"] / ctl["phi_cf_h"] - 1.0)
-    _say(f"[IMP-1 step 2] negative control, pec_facet_tags=(1,), degree {DEGREE}, a/10: "
-         f"beta = {ctl['beta']:.6f} (void {BETA_VOID:+.2f}; predicted ≈ -0.43), |dbeta| = "
-         f"{delta_beta:.4f}")
-    _say(f"  Phi_h = {ctl['phi_h']:.6f} (void closed form {PHI_CLOSED_FORM_VOID:.4f}) vs "
-         f"Phi_cf,h(PEC) = {ctl['phi_cf_h']:.6f}: miss {phi_miss:.4%} (predicted ≈ 44 %)")
-    assert delta_beta > TH15_BETA_BAND, (
-        f"natural cavity beta = {ctl['beta']:.6f} within the band of 1"
+    _say(
+        f"[IMP-1 step 2] negative control, pec_facet_tags=(1,), degree {DEGREE}, a/10: "
+        f"beta = {ctl['beta']:.6f} (void {BETA_VOID:+.2f}; predicted ≈ -0.43), |dbeta| = "
+        f"{delta_beta:.4f}"
     )
-    assert phi_miss > MAT4_BAND, (
-        f"natural cavity Phi miss {phi_miss:.4%} not over {MAT4_BAND:.0%}"
+    _say(
+        f"  Phi_h = {ctl['phi_h']:.6f} (void closed form {PHI_CLOSED_FORM_VOID:.4f}) vs "
+        f"Phi_cf,h(PEC) = {ctl['phi_cf_h']:.6f}: miss {phi_miss:.4%} (predicted ≈ 44 %)"
     )
+    assert (
+        delta_beta > TH15_BETA_BAND
+    ), f"natural cavity beta = {ctl['beta']:.6f} within the band of 1"
+    assert phi_miss > MAT4_BAND, f"natural cavity Phi miss {phi_miss:.4%} not over {MAT4_BAND:.0%}"

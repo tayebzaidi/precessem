@@ -60,9 +60,8 @@ from typing import Optional, Union
 import dolfinx
 import numpy as np
 import ufl
-from mpi4py import MPI
-
 from dolfinx import fem
+from mpi4py import MPI
 
 from ..utils.constants import MU_0
 
@@ -150,9 +149,7 @@ def poynting_power_balance(
     else:
         sigma_value = float(sigma)
         if not np.isfinite(sigma_value) or sigma_value < 0.0:
-            raise ValueError(
-                f"sigma must be finite and non-negative (S/m), got {sigma!r}"
-            )
+            raise ValueError(f"sigma must be finite and non-negative (S/m), got {sigma!r}")
         # Wrapped in a Constant rather than left as a Python float: at the
         # documented sigma = 0.0 negative control, `0.5 * 0.0 * inner(E, E)`
         # constant-folds to a domain-less UFL zero and `* ufl.dx` then raises
@@ -172,9 +169,7 @@ def poynting_power_balance(
     else:
         mu_r_ufl = float(mu_r)
         if not np.isfinite(mu_r_ufl) or mu_r_ufl <= 0.0:
-            raise ValueError(
-                f"mu_r must be finite and positive, got {mu_r!r}"
-            )
+            raise ValueError(f"mu_r must be finite and positive, got {mu_r!r}")
 
     normal = ufl.FacetNormal(msh)
     h_field = ufl.curl(e_complex) / (-1j * omega * MU_0 * mu_r_ufl)
@@ -182,15 +177,11 @@ def poynting_power_balance(
     # ufl.inner conjugates its second argument, so inner(E, E) is |E|² already.
     # σ is real, so the product's imaginary part is round-off and Re() below is
     # exact rather than a truncation — true for the DG0 field path too.
-    dissipated_form = fem.form(
-        0.5 * sigma_ufl * ufl.inner(e_complex, e_complex) * ufl.dx
-    )
+    dissipated_form = fem.form(0.5 * sigma_ufl * ufl.inner(e_complex, e_complex) * ufl.dx)
     # Outward complex Poynting flux.  Written with an explicit conj() rather
     # than inner() so the cross product keeps the ½E×H̄ ordering of the theorem;
     # ufl.dot against the outward FacetNormal then gives the *outgoing* power.
-    outward_form = fem.form(
-        0.5 * ufl.dot(ufl.cross(e_complex, ufl.conj(h_field)), normal) * ufl.ds
-    )
+    outward_form = fem.form(0.5 * ufl.dot(ufl.cross(e_complex, ufl.conj(h_field)), normal) * ufl.ds)
 
     dissipated_c = comm.allreduce(fem.assemble_scalar(dissipated_form), op=MPI.SUM)
     outward_c = comm.allreduce(fem.assemble_scalar(outward_form), op=MPI.SUM)
@@ -201,9 +192,7 @@ def poynting_power_balance(
 
     source = 0.0
     if current_density is not None:
-        dx_src = (
-            ufl.Measure("dx", domain=msh) if source_measure is None else source_measure
-        )
+        dx_src = ufl.Measure("dx", domain=msh) if source_measure is None else source_measure
         if dx_src.integral_type() != "cell":
             raise ValueError(
                 "source_measure must be a cell measure (dx); got integral type "
@@ -217,9 +206,7 @@ def poynting_power_balance(
         # also makes the J = 0 negative control assemble-free and exactly 0.0.
         integrand = 0.5 * ufl.inner(e_complex, current_density)
         if not isinstance(integrand, ufl.constantvalue.Zero):
-            source_c = comm.allreduce(
-                fem.assemble_scalar(fem.form(integrand * dx_src)), op=MPI.SUM
-            )
+            source_c = comm.allreduce(fem.assemble_scalar(fem.form(integrand * dx_src)), op=MPI.SUM)
             source = float(np.real(source_c))
 
     # The two-term (source-free) reading is always reported: it is the stronger
@@ -229,9 +216,7 @@ def poynting_power_balance(
     # source-free scale keeps its own name.
     two_term_scale = max(abs(dissipated), abs(net_inward))
     two_term_imbalance = (
-        abs(net_inward - dissipated) / two_term_scale
-        if two_term_scale > 0.0
-        else float("inf")
+        abs(net_inward - dissipated) / two_term_scale if two_term_scale > 0.0 else float("inf")
     )
 
     if current_density is None:
@@ -240,9 +225,7 @@ def poynting_power_balance(
     else:
         scale = max(abs(dissipated), abs(net_inward), abs(source))
         relative_imbalance = (
-            abs(net_inward - (dissipated + source)) / scale
-            if scale > 0.0
-            else float("inf")
+            abs(net_inward - (dissipated + source)) / scale if scale > 0.0 else float("inf")
         )
 
     return {

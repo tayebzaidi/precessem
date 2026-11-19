@@ -31,9 +31,8 @@ import time
 import numpy as np
 import pytest
 import ufl
-from mpi4py import MPI
-
 from dolfinx import fem
+from mpi4py import MPI
 
 from fem_em_solver.core import (
     HomogeneousMaterial,
@@ -48,7 +47,6 @@ from fem_em_solver.io.mesh import (
     _free_exponent_fit,
 )
 from fem_em_solver.utils.constants import C_0, MU_0
-
 from tests.complex_mode import complex_only
 from tests.validation.test_geo4_box_padding_heuristic import P0_BAND_PP, P0_RUNG_PP
 from tests.validation.test_port_reaction_impedance import (

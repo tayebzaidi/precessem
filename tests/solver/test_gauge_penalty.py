@@ -105,6 +105,4 @@ def test_null_space_magnitude_scales_inversely_with_gauge_penalty():
 
     # Two decades more penalty => roughly two decades less null-space amplitude.
     ratio = a_small / max(a_large, 1e-300)
-    assert 10.0 < ratio < 1000.0, (
-        f"expected |A| to scale as ~1/gauge (ratio ~100), got {ratio:.3g}"
-    )
+    assert 10.0 < ratio < 1000.0, f"expected |A| to scale as ~1/gauge (ratio ~100), got {ratio:.3g}"

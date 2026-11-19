@@ -32,11 +32,10 @@ import argparse
 import time
 from typing import Dict, List
 
+import dolfinx
 import numpy as np
 import ufl
 from mpi4py import MPI
-
-import dolfinx
 
 from fem_em_solver.io.mesh import _interface_facet_tags, _model_to_mesh
 
@@ -56,7 +55,7 @@ from tests.validation.test_port_gap_voltage_impedance import (
 )
 from tests.validation.test_port_lumped_two_torus import _build
 
-CONDUCTOR_SURFACE_TAG = 301          # probe-local, variant B only
+CONDUCTOR_SURFACE_TAG = 301  # probe-local, variant B only
 OUTER_BOUNDARY_TAG = 1
 
 
@@ -91,11 +90,19 @@ def _hole_build(comm, rank: int = 0, conductor_group: bool = True):
 
         # --- partial tori, the generator's construction verbatim -------------
         wire_1 = gmsh.model.occ.addTorus(
-            0, 0, -z_offset, MAJOR_RADIUS, MINOR_RADIUS,
+            0,
+            0,
+            -z_offset,
+            MAJOR_RADIUS,
+            MINOR_RADIUS,
             angle=2.0 * np.pi - GAP_ANGLE,
         )
         wire_2 = gmsh.model.occ.addTorus(
-            0, 0, z_offset, MAJOR_RADIUS, MINOR_RADIUS,
+            0,
+            0,
+            z_offset,
+            MAJOR_RADIUS,
+            MINOR_RADIUS,
             angle=2.0 * np.pi - GAP_ANGLE,
         )
         for wire in (wire_1, wire_2):
@@ -105,20 +112,30 @@ def _hole_build(comm, rank: int = 0, conductor_group: bool = True):
         gap_half_y = MAJOR_RADIUS * np.sin(0.5 * GAP_ANGLE) + burial
         gap_size = (2.0 * gap_half_xz, 2.0 * gap_half_y, 2.0 * gap_half_xz)
         gap_1 = gmsh.model.occ.addBox(
-            MAJOR_RADIUS - gap_half_xz, -gap_half_y, -z_offset - gap_half_xz,
+            MAJOR_RADIUS - gap_half_xz,
+            -gap_half_y,
+            -z_offset - gap_half_xz,
             *gap_size,
         )
         gap_2 = gmsh.model.occ.addBox(
-            MAJOR_RADIUS - gap_half_xz, -gap_half_y, z_offset - gap_half_xz,
+            MAJOR_RADIUS - gap_half_xz,
+            -gap_half_y,
+            z_offset - gap_half_xz,
             *gap_size,
         )
         sheet_1 = gmsh.model.occ.addRectangle(
-            MAJOR_RADIUS - gap_half_xz, -gap_half_y, -z_offset,
-            2.0 * gap_half_xz, 2.0 * gap_half_y,
+            MAJOR_RADIUS - gap_half_xz,
+            -gap_half_y,
+            -z_offset,
+            2.0 * gap_half_xz,
+            2.0 * gap_half_y,
         )
         sheet_2 = gmsh.model.occ.addRectangle(
-            MAJOR_RADIUS - gap_half_xz, -gap_half_y, z_offset,
-            2.0 * gap_half_xz, 2.0 * gap_half_y,
+            MAJOR_RADIUS - gap_half_xz,
+            -gap_half_y,
+            z_offset,
+            2.0 * gap_half_xz,
+            2.0 * gap_half_y,
         )
 
         padding = float(AIR_PADDING)
@@ -127,32 +144,41 @@ def _hole_build(comm, rank: int = 0, conductor_group: bool = True):
         box_half_y = radial_extent + padding
         box_half_z = z_offset + MINOR_RADIUS + padding
         domain = gmsh.model.occ.addBox(
-            -box_half_x, -box_half_y, -box_half_z,
-            2.0 * box_half_x, 2.0 * box_half_y, 2.0 * box_half_z,
+            -box_half_x,
+            -box_half_y,
+            -box_half_z,
+            2.0 * box_half_x,
+            2.0 * box_half_y,
+            2.0 * box_half_z,
         )
 
         # --- step 1: the conductor is the arc minus what the gap box swallows.
         # The gap box keeps its own volume (removeTool=False) -- the generator
         # gives the gap precedence over metal for exactly the same reason.
         conductors, _ = gmsh.model.occ.cut(
-            [(3, wire_1), (3, wire_2)], [(3, gap_1), (3, gap_2)],
-            removeObject=True, removeTool=False,
+            [(3, wire_1), (3, wire_2)],
+            [(3, gap_1), (3, gap_2)],
+            removeObject=True,
+            removeTool=False,
         )
-        cond_of = {}                       # conductor volume -> 1 or 2
+        cond_of = {}  # conductor volume -> 1 or 2
         gmsh.model.occ.synchronize()
         for dim, tag in conductors:
             _, _, zc = gmsh.model.occ.getCenterOfMass(dim, tag)
             cond_of[tag] = 1 if zc < 0.0 else 2
-        print(f"[hole] conductor solids after arc cut: {conductors} "
-              f"masses="
-              + " ".join(f"{t}:{gmsh.model.occ.getMass(3, t):.6e}"
-                         for _, t in conductors),
-              flush=True)
+        print(
+            f"[hole] conductor solids after arc cut: {conductors} "
+            f"masses=" + " ".join(f"{t}:{gmsh.model.occ.getMass(3, t):.6e}" for _, t in conductors),
+            flush=True,
+        )
 
         # --- step 2: subtract them from the air box.  removeTool=False keeps
         # the conductor solids alive so their surfaces are addressable.
         air_pieces, _ = gmsh.model.occ.cut(
-            [(3, domain)], conductors, removeObject=True, removeTool=False,
+            [(3, domain)],
+            conductors,
+            removeObject=True,
+            removeTool=False,
         )
 
         # --- step 3: the gap boxes and the port sheets fragment into the cut
@@ -170,8 +196,7 @@ def _hole_build(comm, rank: int = 0, conductor_group: bool = True):
                 if dim == 3:
                     ancestors.setdefault(piece, set()).add(input_dimtag)
 
-        gap_of = {(3, gap_1): (101, 111, -z_offset),
-                  (3, gap_2): (102, 112, z_offset)}
+        gap_of = {(3, gap_1): (101, 111, -z_offset), (3, gap_2): (102, 112, z_offset)}
         group_of_piece: Dict[int, int] = {}
         for piece, sources in ancestors.items():
             hit_gap = sources & gap_of.keys()
@@ -186,12 +211,16 @@ def _hole_build(comm, rank: int = 0, conductor_group: bool = True):
         for piece, group in sorted(group_of_piece.items()):
             pieces_by_group.setdefault(group, []).append(piece)
 
-        group_names = {3: "domain", 101: "gap_1", 102: "gap_2",
-                       111: "gap_1_upper", 112: "gap_2_upper"}
+        group_names = {
+            3: "domain",
+            101: "gap_1",
+            102: "gap_2",
+            111: "gap_1_upper",
+            112: "gap_2_upper",
+        }
         volumes = [t for _, t in gmsh.model.getEntities(dim=3)]
         masses = {t: gmsh.model.occ.getMass(3, t) for t in volumes}
-        missing = [group_names[g] for g in (3, 101, 102, 111, 112)
-                   if g not in pieces_by_group]
+        missing = [group_names[g] for g in (3, 101, 102, 111, 112) if g not in pieces_by_group]
         print(
             f"[hole] fragment volumes={len(volumes)} "
             + " ".join(
@@ -215,9 +244,11 @@ def _hole_build(comm, rank: int = 0, conductor_group: bool = True):
         # air/gap interfaces and the port-sheet mid-planes bound two, the outer
         # walls bound one but are flat against a wall.
         def _bnd(dimtags):
-            return {s for dt in dimtags
-                    for _, s in gmsh.model.getBoundary([dt], oriented=False,
-                                                       recursive=False)}
+            return {
+                s
+                for dt in dimtags
+                for _, s in gmsh.model.getBoundary([dt], oriented=False, recursive=False)
+            }
 
         mesh_volumes = [v for v in volumes if v not in cond_of]
         face_use: Dict[int, int] = {}
@@ -227,31 +258,42 @@ def _hole_build(comm, rank: int = 0, conductor_group: bool = True):
 
         def _on_wall(s):
             bb = gmsh.model.getBoundingBox(2, s)
-            return any(abs(bb[i] - lo) < 1e-6 and abs(bb[i + 3] - lo) < 1e-6
-                       for i, lo in ((0, -box_half_x), (0, box_half_x),
-                                     (1, -box_half_y), (1, box_half_y),
-                                     (2, -box_half_z), (2, box_half_z)))
+            return any(
+                abs(bb[i] - lo) < 1e-6 and abs(bb[i + 3] - lo) < 1e-6
+                for i, lo in (
+                    (0, -box_half_x),
+                    (0, box_half_x),
+                    (1, -box_half_y),
+                    (1, box_half_y),
+                    (2, -box_half_z),
+                    (2, box_half_z),
+                )
+            )
 
-        cavity_surfaces = sorted(s for s, n in face_use.items()
-                                 if n == 1 and not _on_wall(s))
+        cavity_surfaces = sorted(s for s, n in face_use.items() if n == 1 and not _on_wall(s))
 
         # How much of the retained tool's own boundary the cut actually shared
         # with the cavity -- the question `removeTool=False` is there to ask.
         cond_surfaces = {tag: _bnd([(3, tag)]) for tag in cond_of}
-        print("[hole] conductor solid surfaces: "
-              + " ".join(
-                  f"vol {t}: {len(cond_surfaces[t])} faces, "
-                  f"{len(cond_surfaces[t] & set(cavity_surfaces))} of them "
-                  "shared with the cavity"
-                  for t in sorted(cond_of))
-              + f"; cavity faces from the meshed volumes: "
-                f"{len(cavity_surfaces)}",
-              flush=True)
+        print(
+            "[hole] conductor solid surfaces: "
+            + " ".join(
+                f"vol {t}: {len(cond_surfaces[t])} faces, "
+                f"{len(cond_surfaces[t] & set(cavity_surfaces))} of them "
+                "shared with the cavity"
+                for t in sorted(cond_of)
+            )
+            + f"; cavity faces from the meshed volumes: "
+            f"{len(cavity_surfaces)}",
+            flush=True,
+        )
 
         cavity_area = sum(gmsh.model.occ.getMass(2, s) for s in cavity_surfaces)
-        print(f"[hole] conductor-surface group {CONDUCTOR_SURFACE_TAG}: "
-              f"{len(cavity_surfaces)} surface(s) CAD area={cavity_area:.9e}",
-              flush=True)
+        print(
+            f"[hole] conductor-surface group {CONDUCTOR_SURFACE_TAG}: "
+            f"{len(cavity_surfaces)} surface(s) CAD area={cavity_area:.9e}",
+            flush=True,
+        )
 
         # Drop the conductor volumes: the cavity is the hole.  recursive=False
         # so the faces survive for the physical group.
@@ -259,41 +301,52 @@ def _hole_build(comm, rank: int = 0, conductor_group: bool = True):
         gmsh.model.occ.synchronize()
         if any((3, t) in gmsh.model.getEntities(dim=3) for t in cond_of):
             # occ.remove + synchronize did not propagate; drop them model-side.
-            gmsh.model.removeEntities([(3, t) for t in cond_of],
-                                      recursive=False)
+            gmsh.model.removeEntities([(3, t) for t in cond_of], recursive=False)
         remaining = [t for _, t in gmsh.model.getEntities(dim=3)]
-        print(f"[hole] volumes after dropping the conductors: {len(remaining)} "
-              f"(was {len(volumes)})", flush=True)
+        print(
+            f"[hole] volumes after dropping the conductors: {len(remaining)} "
+            f"(was {len(volumes)})",
+            flush=True,
+        )
 
-        still_there = [s for s in cavity_surfaces
-                       if (2, s) in gmsh.model.getEntities(dim=2)]
-        print(f"[hole] cavity surfaces surviving the drop: {len(still_there)}"
-              f"/{len(cavity_surfaces)}", flush=True)
+        still_there = [s for s in cavity_surfaces if (2, s) in gmsh.model.getEntities(dim=2)]
+        print(
+            f"[hole] cavity surfaces surviving the drop: {len(still_there)}"
+            f"/{len(cavity_surfaces)}",
+            flush=True,
+        )
         if still_there and conductor_group:
-            gmsh.model.addPhysicalGroup(2, still_there,
-                                        tag=CONDUCTOR_SURFACE_TAG)
-            gmsh.model.setPhysicalName(2, CONDUCTOR_SURFACE_TAG,
-                                       "conductor_surface")
+            gmsh.model.addPhysicalGroup(2, still_there, tag=CONDUCTOR_SURFACE_TAG)
+            gmsh.model.setPhysicalName(2, CONDUCTOR_SURFACE_TAG, "conductor_surface")
         elif still_there:
-            print("[hole] conductor-surface physical group SUPPRESSED "
-                  "(--conductor-group off): isolating the model_to_mesh abort",
-                  flush=True)
+            print(
+                "[hole] conductor-surface physical group SUPPRESSED "
+                "(--conductor-group off): isolating the model_to_mesh abort",
+                flush=True,
+            )
 
         # --- the outer boundary, the generator's own test verbatim -----------
         tol = 1e-6
         boundary_surfaces = []
         for dim, surf in gmsh.model.getEntities(dim=2):
             x0, y0, z0, x1, y1, z1 = gmsh.model.getBoundingBox(dim, surf)
-            if (abs(x0 + box_half_x) < tol and abs(x1 + box_half_x) < tol
-                    or abs(x0 - box_half_x) < tol and abs(x1 - box_half_x) < tol
-                    or abs(y0 + box_half_y) < tol and abs(y1 + box_half_y) < tol
-                    or abs(y0 - box_half_y) < tol and abs(y1 - box_half_y) < tol
-                    or abs(z0 + box_half_z) < tol and abs(z1 + box_half_z) < tol
-                    or abs(z0 - box_half_z) < tol and abs(z1 - box_half_z) < tol):
+            if (
+                abs(x0 + box_half_x) < tol
+                and abs(x1 + box_half_x) < tol
+                or abs(x0 - box_half_x) < tol
+                and abs(x1 - box_half_x) < tol
+                or abs(y0 + box_half_y) < tol
+                and abs(y1 + box_half_y) < tol
+                or abs(y0 - box_half_y) < tol
+                and abs(y1 - box_half_y) < tol
+                or abs(z0 + box_half_z) < tol
+                and abs(z1 + box_half_z) < tol
+                or abs(z0 - box_half_z) < tol
+                and abs(z1 - box_half_z) < tol
+            ):
                 boundary_surfaces.append(surf)
         if boundary_surfaces:
-            gmsh.model.addPhysicalGroup(2, boundary_surfaces,
-                                        tag=OUTER_BOUNDARY_TAG)
+            gmsh.model.addPhysicalGroup(2, boundary_surfaces, tag=OUTER_BOUNDARY_TAG)
             gmsh.model.setPhysicalName(2, OUTER_BOUNDARY_TAG, "outer_boundary")
 
         # --- sizing: the generator's graded field, pointed at the same
@@ -301,13 +354,14 @@ def _hole_build(comm, rank: int = 0, conductor_group: bool = True):
         # cell count is comparable to variant A's.
         h_wire = float(H_WIRE)
         h_far = float(H_FAR)
-        refine_volumes = [p for g in (101, 102, 111, 112)
-                          for p in pieces_by_group.get(g, [])]
+        refine_volumes = [p for g in (101, 102, 111, 112) for p in pieces_by_group.get(g, [])]
         wire_surfaces = sorted(
             set(still_there)
-            | {s for v in refine_volumes
-               for _, s in gmsh.model.getBoundary([(3, v)], oriented=False,
-                                                  recursive=False)}
+            | {
+                s
+                for v in refine_volumes
+                for _, s in gmsh.model.getBoundary([(3, v)], oriented=False, recursive=False)
+            }
         )
         dist = gmsh.model.mesh.field.add("Distance")
         gmsh.model.mesh.field.setNumbers(dist, "SurfacesList", wire_surfaces)
@@ -326,12 +380,13 @@ def _hole_build(comm, rank: int = 0, conductor_group: bool = True):
         r_major = float(MAJOR_RADIUS)
         local_fields = []
         for z_c in (-float(z_offset), float(z_offset)):
-            band = (f"(0.5*((sqrt(y^2)-{arc_half_y!r})"
-                    f"+sqrt((sqrt(y^2)-{arc_half_y!r})^2)))")
-            expr = (f"sqrt((sqrt(x^2+y^2)-{r_major!r})^2"
-                    f"+(z-({z_c!r}))^2"
-                    f"+{band}^2"
-                    f"+(0.5*(sqrt(x^2)-x))^2)")
+            band = f"(0.5*((sqrt(y^2)-{arc_half_y!r})" f"+sqrt((sqrt(y^2)-{arc_half_y!r})^2)))"
+            expr = (
+                f"sqrt((sqrt(x^2+y^2)-{r_major!r})^2"
+                f"+(z-({z_c!r}))^2"
+                f"+{band}^2"
+                f"+(0.5*(sqrt(x^2)-x))^2)"
+            )
             arc_dist = gmsh.model.mesh.field.add("MathEval")
             gmsh.model.mesh.field.setString(arc_dist, "F", expr)
             arc_thr = gmsh.model.mesh.field.add("Threshold")
@@ -343,8 +398,7 @@ def _hole_build(comm, rank: int = 0, conductor_group: bool = True):
             local_fields.append(arc_thr)
 
         background = gmsh.model.mesh.field.add("Min")
-        gmsh.model.mesh.field.setNumbers(background, "FieldsList",
-                                         [thr] + local_fields)
+        gmsh.model.mesh.field.setNumbers(background, "FieldsList", [thr] + local_fields)
         gmsh.model.mesh.field.setAsBackgroundMesh(background)
         gmsh.option.setNumber("Mesh.MeshSizeExtendFromBoundary", 0)
         gmsh.option.setNumber("Mesh.MeshSizeFromPoints", 0)
@@ -375,17 +429,20 @@ def _hole_build(comm, rank: int = 0, conductor_group: bool = True):
                         dup += 1
                     tri_keys.add(key)
                     orphan_nodes.update(v for v in key if v not in tet_nodes)
-        print(f"[hole] gmsh census: nodes={len(node_tags_all)} "
-              f"tet-attached nodes={len(tet_nodes)} "
-              f"conductor-surface triangles={tri_count} duplicates={dup} "
-              f"nodes not attached to any tet={len(orphan_nodes)}", flush=True)
-        print("[hole] physical groups: "
-              + " ".join(f"{d}/{t}" for d, t in gmsh.model.getPhysicalGroups()),
-              flush=True)
+        print(
+            f"[hole] gmsh census: nodes={len(node_tags_all)} "
+            f"tet-attached nodes={len(tet_nodes)} "
+            f"conductor-surface triangles={tri_count} duplicates={dup} "
+            f"nodes not attached to any tet={len(orphan_nodes)}",
+            flush=True,
+        )
+        print(
+            "[hole] physical groups: "
+            + " ".join(f"{d}/{t}" for d, t in gmsh.model.getPhysicalGroups()),
+            flush=True,
+        )
 
-    partitioner = dolfinx.mesh.create_cell_partitioner(
-        dolfinx.mesh.GhostMode.shared_facet, 2
-    )
+    partitioner = dolfinx.mesh.create_cell_partitioner(dolfinx.mesh.GhostMode.shared_facet, 2)
     mesh, cell_tags, facet_tags = _model_to_mesh(
         gmsh.model, comm, rank, gdim=3, partitioner=partitioner
     )
@@ -405,25 +462,21 @@ def _hole_build(comm, rank: int = 0, conductor_group: bool = True):
 # ---------------------------------------------------------------------------
 def _facet_area(msh, facet_tags, tag, comm) -> float:
     """``dS`` area of one interior facet group; 0.0 when the group is empty."""
-    present = comm.allreduce(int(np.count_nonzero(facet_tags.values == tag)),
-                             op=MPI.SUM)
+    present = comm.allreduce(int(np.count_nonzero(facet_tags.values == tag)), op=MPI.SUM)
     if present == 0:
         return float("nan")
     one = dolfinx.fem.Constant(msh, dolfinx.default_scalar_type(1.0))
-    dS = ufl.Measure("dS", domain=msh, subdomain_data=facet_tags,
-                     subdomain_id=(tag,))
+    dS = ufl.Measure("dS", domain=msh, subdomain_data=facet_tags, subdomain_id=(tag,))
     local = dolfinx.fem.assemble_scalar(dolfinx.fem.form(ufl.avg(one) * dS))
     return float(np.real(comm.allreduce(local, op=MPI.SUM)))
 
 
 def _exterior_facet_area(msh, facet_tags, tag, comm) -> float:
-    present = comm.allreduce(int(np.count_nonzero(facet_tags.values == tag)),
-                             op=MPI.SUM)
+    present = comm.allreduce(int(np.count_nonzero(facet_tags.values == tag)), op=MPI.SUM)
     if present == 0:
         return float("nan")
     one = dolfinx.fem.Constant(msh, dolfinx.default_scalar_type(1.0))
-    ds = ufl.Measure("ds", domain=msh, subdomain_data=facet_tags,
-                     subdomain_id=(tag,))
+    ds = ufl.Measure("ds", domain=msh, subdomain_data=facet_tags, subdomain_id=(tag,))
     local = dolfinx.fem.assemble_scalar(dolfinx.fem.form(one * ds))
     return float(np.real(comm.allreduce(local, op=MPI.SUM)))
 
@@ -449,12 +502,10 @@ def _census(values, comm, *, indices=None, n_owned=None):
     if indices is not None and n_owned is not None:
         values = values[np.asarray(indices) < int(n_owned)]
     local_tags, local_counts = np.unique(values, return_counts=True)
-    all_tags = sorted({int(t) for t in comm.allreduce(list(local_tags),
-                                                      op=MPI.SUM)})
+    all_tags = sorted({int(t) for t in comm.allreduce(list(local_tags), op=MPI.SUM)})
     out = {}
     for tag in all_tags:
-        local = (int(local_counts[local_tags == tag].sum())
-                 if tag in local_tags else 0)
+        local = int(local_counts[local_tags == tag].sum()) if tag in local_tags else 0
         out[tag] = comm.allreduce(local, op=MPI.SUM)
     return out
 
@@ -472,16 +523,22 @@ def _owned_census(msh, tags, dim, comm):
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--variant", choices=("A", "B"), required=True)
-    ap.add_argument("--conductor-group", choices=("on", "off"), default="on",
-                    help="variant B only: emit the dim-2 conductor-surface "
-                         "physical group (diagnostic switch)")
+    ap.add_argument(
+        "--conductor-group",
+        choices=("on", "off"),
+        default="on",
+        help="variant B only: emit the dim-2 conductor-surface "
+        "physical group (diagnostic switch)",
+    )
     args = ap.parse_args()
 
     comm = MPI.COMM_WORLD
     t0 = time.perf_counter()
-    label = ("A: solid build (MeshGenerator.two_torus_domain)"
-             if args.variant == "A"
-             else "B: hole build (probe-local cut, conductor removed)")
+    label = (
+        "A: solid build (MeshGenerator.two_torus_domain)"
+        if args.variant == "A"
+        else "B: hole build (probe-local cut, conductor removed)"
+    )
     if comm.rank == 0:
         print(f"=== variant {label} ===", flush=True)
 
@@ -505,28 +562,29 @@ def main() -> None:
     # between a conductor cell and anything else (air or gap).
     if args.variant == "A":
         cond_ft = _interface_facet_tags(
-            msh, cell_tags,
-            {311: ((1, 3), (1, 101), (1, 111)),
-             312: ((2, 3), (2, 102), (2, 112))},
+            msh,
+            cell_tags,
+            {311: ((1, 3), (1, 101), (1, 111)), 312: ((2, 3), (2, 102), (2, 112))},
         )
         cond_counts = _owned_census(msh, cond_ft, tdim - 1, comm)
         cond_n = {1: cond_counts.get(311, 0), 2: cond_counts.get(312, 0)}
-        cond_area = {1: _facet_area(msh, cond_ft, 311, comm),
-                     2: _facet_area(msh, cond_ft, 312, comm)}
+        cond_area = {
+            1: _facet_area(msh, cond_ft, 311, comm),
+            2: _facet_area(msh, cond_ft, 312, comm),
+        }
     else:
         cond_n = {"all": facet_census.get(CONDUCTOR_SURFACE_TAG, 0)}
-        cond_area = {"all": _exterior_facet_area(msh, facet_tags,
-                                                 CONDUCTOR_SURFACE_TAG, comm)}
+        cond_area = {"all": _exterior_facet_area(msh, facet_tags, CONDUCTOR_SURFACE_TAG, comm)}
 
     half_xz, half_y = _gap_half_extents()
     nominal_area = 4.0 * half_xz * half_y
     sheet = {}
     for tag in (211, 212):
-        sheet[tag] = (facet_census.get(tag, 0),
-                      _facet_area(msh, facet_tags, tag, comm))
+        sheet[tag] = (facet_census.get(tag, 0), _facet_area(msh, facet_tags, tag, comm))
 
     if comm.rank == 0:
         import gmsh
+
         print(f"  dolfinx {dolfinx.__version__}  gmsh {gmsh.__version__}")
         print(f"  variant                : {args.variant}")
         print(f"  cells (global)         : {n_cells}")
@@ -534,12 +592,15 @@ def main() -> None:
         print(f"  cell-tag census        : {cell_census}")
         print(f"  facet-tag census       : {facet_census}")
         for tag, (n, area) in sorted(sheet.items()):
-            print(f"  port sheet {tag}        : {n} facets  area={area:.9e}  "
-                  f"nominal={nominal_area:.9e}  "
-                  f"rel_dev={abs(area - nominal_area) / nominal_area:.3e}")
+            print(
+                f"  port sheet {tag}        : {n} facets  area={area:.9e}  "
+                f"nominal={nominal_area:.9e}  "
+                f"rel_dev={abs(area - nominal_area) / nominal_area:.3e}"
+            )
         for key in sorted(cond_n, key=str):
-            print(f"  conductor surface {key} : {cond_n[key]} facets  "
-                  f"area={cond_area[key]:.9e}")
+            print(
+                f"  conductor surface {key} : {cond_n[key]} facets  " f"area={cond_area[key]:.9e}"
+            )
         print(f"  mesh wall time         : {t_mesh:.2f} s")
         print(f"  probe wall time        : {time.perf_counter() - t0:.2f} s")
 

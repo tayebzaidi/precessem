@@ -235,9 +235,7 @@ def larmor_rungs():
     rungs = {
         "control_10mhz": _four_port_rung("control 10 MHz", zeros, FREQUENCY_HZ),
         "larmor_128mhz": _four_port_rung("larmor 128 MHz", zeros, FREQUENCY_128_HZ),
-        "displaced_128mhz": _four_port_rung(
-            "displaced 128 MHz", displaced, FREQUENCY_128_HZ
-        ),
+        "displaced_128mhz": _four_port_rung("displaced 128 MHz", displaced, FREQUENCY_128_HZ),
     }
     resolution = _resolution(rungs["larmor_128mhz"])
 
@@ -432,8 +430,7 @@ def test_the_ten_megahertz_rung_reproduces_leg_d(larmor_rungs):
         )
         for row in range(LEG_COUNT):
             print(
-                f"    S_{row + 1}k rel. deviation  "
-                + "  ".join(f"{d:.3e}" for d in s_dev[row]),
+                f"    S_{row + 1}k rel. deviation  " + "  ".join(f"{d:.3e}" for d in s_dev[row]),
                 flush=True,
             )
         print(
@@ -682,16 +679,10 @@ def test_gate_iii_still_detects_the_broken_c4_at_128_mhz(larmor_rungs):
         )
         for cls in ("self", "adjacent", "opposite"):
             role = "gated" if cls in ("self", "adjacent") else "reported"
-            verdict = (
-                "EXCEEDS (detected)"
-                if disp[cls] > ADJACENT_SPREAD_BAND
-                else "inside (blind)"
-            )
+            verdict = "EXCEEDS (detected)" if disp[cls] > ADJACENT_SPREAD_BAND else "inside (blind)"
             record = STEP2_64MHZ["displaced_spreads"].get(cls)
             record_text = (
-                f"   (64 MHz displaced record {record * 100:.4f}%)"
-                if record is not None
-                else ""
+                f"   (64 MHz displaced record {record * 100:.4f}%)" if record is not None else ""
             )
             print(
                 f"    {cls:9s} [{role:8s}]  undisplaced {gated[cls] * 100:9.4f}%   "

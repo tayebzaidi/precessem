@@ -16,6 +16,7 @@ Anchors (asserted):
 Printed only: the real-data replay of the weekly's rotation on nine rows.
 Every fixture is synthetic under tmp_path; the live plan is never touched.
 """
+
 from __future__ import annotations
 
 import importlib.util
@@ -31,8 +32,8 @@ SCRATCH = REPO_ROOT / "logs" / "ops66-step2-control"
 
 # The tool's last commit before the fix — never HEAD: (brief, "Traps").
 TOOL_PINNED_SHA = "15bdce61ca16199c6b1f3e947b6f13ad020e6ed8"
-PRE_ROTATION_SHA = "38aa4afd"   # 397b69d0^, the plan before the weekly's rotation
-ROTATED_SHA = "397b69d0"        # the weekly's rotation, glyphs de-duplicated by hand
+PRE_ROTATION_SHA = "38aa4afd"  # 397b69d0^, the plan before the weekly's rotation
+ROTATED_SHA = "397b69d0"  # the weekly's rotation, glyphs de-duplicated by hand
 REPLAY_IDS = ("OPS-70", "GEO-36", "MAT-15", "WF-1", "WF-10", "WF-12", "WF-15", "WF-16", "WF-17")
 
 
@@ -46,7 +47,9 @@ def _load(name: str, path: Path):
 def _git(*args: str) -> subprocess.CompletedProcess:
     return subprocess.run(
         ["git", "-c", f"safe.directory={REPO_ROOT}", "-C", str(REPO_ROOT), *args],
-        capture_output=True, text=True, check=False,
+        capture_output=True,
+        text=True,
+        check=False,
     )
 
 
@@ -63,8 +66,9 @@ new = _load("rotate_plan_archive_ops66s2_new", TOOL)
 def old():
     SCRATCH.mkdir(parents=True, exist_ok=True)
     path = SCRATCH / "rotate_plan_archive_pinned.py"
-    path.write_text(_git_show(TOOL_PINNED_SHA, "scripts/maintenance/rotate_plan_archive.py"),
-                    encoding="utf-8")
+    path.write_text(
+        _git_show(TOOL_PINNED_SHA, "scripts/maintenance/rotate_plan_archive.py"), encoding="utf-8"
+    )
     return _load("rotate_plan_archive_ops66s2_old", path)
 
 
@@ -95,14 +99,16 @@ def _fixture(tmp_path: Path, tag: str, spec_text: str) -> tuple[Path, Path, Path
 
 
 def _row(plan: Path, cid: str) -> str:
-    return next(l for l in plan.read_text(encoding="utf-8").split("\n") if l.startswith(f"| `{cid}` |"))
+    return next(
+        l for l in plan.read_text(encoding="utf-8").split("\n") if l.startswith(f"| `{cid}` |")
+    )
 
 
 def _status_cell(row: str) -> str:
     """Text from the title/status boundary to ``*History:``."""
     head = row.split("*History:", 1)[0]
     pipes = new._split_unescaped(head)
-    return head[pipes[2] + 1:]
+    return head[pipes[2] + 1 :]
 
 
 def _count(row: str, glyph: str) -> int:
@@ -146,8 +152,10 @@ def test_g2_no_glyph_state_byte_identical(tmp_path, old, capsys, with_dw):
             first = next((i for i, (x, y) in enumerate(zip(a, b)) if x != y), min(len(a), len(b)))
             pytest.fail(f"G2 {name} differs at byte {first}")
     with capsys.disabled():
-        print(f"\nG2 (with_dw={with_dw}): plan/chunk/dry-run/census byte-identical "
-              f"({len(out['new'][0])} / {len(out['new'][1])} / {len(out['new'][2])} / {len(out['new'][3])} B)")
+        print(
+            f"\nG2 (with_dw={with_dw}): plan/chunk/dry-run/census byte-identical "
+            f"({len(out['new'][0])} / {len(out['new'][1])} / {len(out['new'][2])} / {len(out['new'][3])} B)"
+        )
 
 
 def test_g3_mismatched_glyph_refused(tmp_path, capsys):
@@ -193,7 +201,7 @@ def test_replay_real_rotation_printed_only(tmp_path, old):
             p = new._parse_row(target, cid, new._ncols(post, i))
             span, glyph = p["span"], p["glyph"]
             m = re.search(r" \| (?:\*\*)?(?=" + re.escape(glyph) + ")", span)
-            status = span[m.end():]
+            status = span[m.end() :]
             state = re.split(r" \*\*Done-when:\*\* | \*History:", status, 1)[0].strip()
             dwm = re.search(r"\*\*Done-when:\*\* (.*?) \*History:", status)
             spec_text = f"=== {cid}\n{state}\n" + (f"Done-when: {dwm.group(1)}\n" if dwm else "")
@@ -211,7 +219,11 @@ def test_replay_real_rotation_printed_only(tmp_path, old):
             dbl = res["old"][0] == 0 and _count(res["old"][1], glyph) == 2
             equal += eq
             doubled += dbl
-            print(f"REPLAY {cid:7} new==397b69d0: {eq}  old doubled: {dbl}  (rc new {res['new'][0]}, old {res['old'][0]})")
+            print(
+                f"REPLAY {cid:7} new==397b69d0: {eq}  old doubled: {dbl}  (rc new {res['new'][0]}, old {res['old'][0]})"
+            )
         except Exception as e:  # printed only, never a red
             print(f"REPLAY {cid:7} not reconstructed: {type(e).__name__}: {e}")
-    print(f"REPLAY summary: equal {equal}/{len(REPLAY_IDS)}, old doubled {doubled}/{len(REPLAY_IDS)}")
+    print(
+        f"REPLAY summary: equal {equal}/{len(REPLAY_IDS)}, old doubled {doubled}/{len(REPLAY_IDS)}"
+    )

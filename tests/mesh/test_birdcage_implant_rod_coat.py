@@ -77,16 +77,13 @@ def _coat_volume():
 
 def _coat_area():
     """2 pi (a + b) L + 2 pi (b^2 - a^2): inner + outer wall + two end annuli."""
-    return (
-        2.0 * math.pi * (ROD_RADIUS + COAT_RADIUS) * ROD_LENGTH
-        + 2.0 * math.pi * (COAT_RADIUS**2 - ROD_RADIUS**2)
+    return 2.0 * math.pi * (ROD_RADIUS + COAT_RADIUS) * ROD_LENGTH + 2.0 * math.pi * (
+        COAT_RADIUS**2 - ROD_RADIUS**2
     )
 
 
 def _gel_volume():
-    return (
-        math.pi * PHANTOM_RADIUS**2 * PHANTOM_HEIGHT - _rod_volume() - _coat_volume()
-    )
+    return math.pi * PHANTOM_RADIUS**2 * PHANTOM_HEIGHT - _rod_volume() - _coat_volume()
 
 
 def _say(msg):
@@ -95,9 +92,9 @@ def _say(msg):
 
 
 def _total(msh, expr, comm):
-    return float(np.real(comm.allreduce(
-        dolfinx.fem.assemble_scalar(dolfinx.fem.form(expr)), op=MPI.SUM
-    )))
+    return float(
+        np.real(comm.allreduce(dolfinx.fem.assemble_scalar(dolfinx.fem.form(expr)), op=MPI.SUM))
+    )
 
 
 def _summary(msh, cells, facets, diag, elapsed, comm):
@@ -158,13 +155,16 @@ def builds():
     coated = _summary(msh, cells, facets, diag, t, comm)
     if coated["n_cells"] > KEPT_ROD_CELL_GUARD:
         raise RuntimeError(
-            f"coated build: {coated['n_cells']} cells exceed the "
-            f"{KEPT_ROD_CELL_GUARD} guard"
+            f"coated build: {coated['n_cells']} cells exceed the " f"{KEPT_ROD_CELL_GUARD} guard"
         )
-    (coated["n402"], coated["n402_ext"], coated["n402_int"], coated["n402_pair"],
-     coated["area402"], _) = _interior_facet_check(
-        msh, cells, facets, BIRDCAGE_IMPLANT_SURFACE_TAG, comm
-    )
+    (
+        coated["n402"],
+        coated["n402_ext"],
+        coated["n402_int"],
+        coated["n402_pair"],
+        coated["area402"],
+        _,
+    ) = _interior_facet_check(msh, cells, facets, BIRDCAGE_IMPLANT_SURFACE_TAG, comm)
     pairs = _interface_facet_tags(
         msh,
         cells,
@@ -184,7 +184,6 @@ def builds():
     coated["vol403"] = _total(msh, one * dx(BIRDCAGE_IMPLANT_CELL_TAG), comm)
     coated["vol404"] = _total(msh, one * dx(BIRDCAGE_IMPLANT_COAT_CELL_TAG), comm)
     coated["edge404"] = _edge_stats(msh, cells, BIRDCAGE_IMPLANT_COAT_CELL_TAG, comm)
-    tdim = msh.topology.dim
     msh.topology.create_entities(1)
     msh.topology.create_entities(2)
     coated["E"] = msh.topology.index_map(1).size_global
@@ -254,8 +253,9 @@ def test_p4_nothing_removed_and_others_bitwise(builds):
     )
     assert p4 < STRIP_BAND
     assert set(others_c) == set(others_k)
-    assert all(diff.values()), {k: (others_c.get(k), others_k.get(k))
-                                for k, ok in diff.items() if not ok}
+    assert all(diff.values()), {
+        k: (others_c.get(k), others_k.get(k)) for k, ok in diff.items() if not ok
+    }
 
 
 def test_p5_occ_boundary_areas(builds):
@@ -397,8 +397,7 @@ def test_dof_identity(builds):
         dict(ROD, keep_cells=False, coat_radius=COAT_RADIUS),
         dict(COATED_ROD, coat_radius=PHANTOM_RADIUS),
     ],
-    ids=["bool", "str", "nan", "inf", "eq_a", "lt_a", "no_keep", "keep_false",
-         "outside"],
+    ids=["bool", "str", "nan", "inf", "eq_a", "lt_a", "no_keep", "keep_false", "outside"],
 )
 def test_p8_refusals_raise_without_meshing(coat):
     """(P8) refused before gmsh, ``gmsh.isInitialized()`` False (K7 pattern)."""
@@ -406,5 +405,7 @@ def test_p8_refusals_raise_without_meshing(coat):
     with pytest.raises(ValueError, match="implant_rod"):
         _build_rod(implant_rod=coat)
     assert not gmsh.isInitialized()
-    _say(f"[GEO-36 step 5] (P8) {coat.get('coat_radius')!r} / keep "
-         f"{coat.get('keep_cells')!r} refused in {time.perf_counter() - started:.3f} s")
+    _say(
+        f"[GEO-36 step 5] (P8) {coat.get('coat_radius')!r} / keep "
+        f"{coat.get('keep_cells')!r} refused in {time.perf_counter() - started:.3f} s"
+    )

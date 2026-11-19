@@ -37,10 +37,9 @@ from fem_em_solver.utils.analytical import (
     robin_slab_odd_linear_coefficients,
     two_layer_slab_eigenvalues,
 )
-
 from tests.validation.test_imp4_pec_cylinder_closed_form import B1_BAND
 from tests.validation.test_mat13_transient_perfusion_sphere import INTERIOR_BAND
-from tests.validation.test_mat15_finite_cylinder_closed_form import H, K, RHO_C
+from tests.validation.test_mat15_finite_cylinder_closed_form import RHO_C, H, K
 from tests.validation.test_mat21_box_closed_form import C_BOX, T_C
 from tests.validation.test_mat21_initial_gradient_closed_form import ALPHA, G_GRAD, GC, N_TERMS
 from tests.validation.test_mat21_pre_equilibration_closed_form import ADJ_PT, P5
@@ -63,7 +62,7 @@ P0 = (0.0, 0.0, 0.0)
 GATE_PTS = (("P5", P5), ("ADJ_PT", ADJ_PT))
 TABLE_PTS = (("P0", P0), ("P5", P5), ("ADJ_PT", ADJ_PT))
 MASSLESS = 1e-9  # test_mat21_wall_transient_fem.py:75, the (K0) scale; printed beside (Lim-c)
-N_ROOT = 60      # item 673: (Root) at 200 roots fell below float64 resolution
+N_ROOT = 60  # item 673: (Root) at 200 roots fell below float64 resolution
 
 # P63's FEM record, hard-coded (`20261104T060527Z_MAT-21-P63-W1b.log:76–80`, columns 2 and 4):
 # (label, point, t_w is T_C, FEM drift R_k − R0 K, wall-capacity term FEM − _drift_1d K)
@@ -115,8 +114,14 @@ def _odd_eigs_raw(n, *, d=D_WALL, rho_c_w=RHO_C_W, refine=64):
         fs = _F_odd(xs, **kw)
         idx = np.nonzero(np.sign(fs[:-1]) * np.sign(fs[1:]) < 0)[0]
         for i in idx:
-            x0 = brentq(lambda x: float(_F_odd(x, **kw)), xs[i], xs[i + 1],
-                        xtol=1e-300, rtol=4 * np.finfo(float).eps, maxiter=500)
+            x0 = brentq(
+                lambda x: float(_F_odd(x, **kw)),
+                xs[i],
+                xs[i + 1],
+                xtol=1e-300,
+                rtol=4 * np.finfo(float).eps,
+                maxiter=500,
+            )
             cand = x0 + np.spacing(x0) * np.arange(-16, 17)
             roots.append(float(cand[np.argmin(np.abs(_F_odd(cand, **kw)))]))
             if len(roots) == n:
@@ -243,8 +248,10 @@ def test_preconditions_root_int_orth_ic():
     lam_f = _odd_eigs_raw(N_ROOT, refine=256)
     agree = float(np.abs(lam_f - lam).max() / lam.max())
     incr = bool(np.all(np.diff(lam) > 0)) and lam[0] > 0
-    _say(f"MAT21-38 (Root-odd) n <= {N_ROOT}: max |F|/scale {froot:.3e}; refine-256 rescan "
-         f"{agree:.3e} (band {ROOT_BAND:g}); strictly increasing {incr}")
+    _say(
+        f"MAT21-38 (Root-odd) n <= {N_ROOT}: max |F|/scale {froot:.3e}; refine-256 rescan "
+        f"{agree:.3e} (band {ROOT_BAND:g}); strictly increasing {incr}"
+    )
     gates["Root"] = froot <= ROOT_BAND and agree <= ROOT_BAND and incr
     # (Int-odd)
     m1 = np.sqrt(lam * RHO_C / K)
@@ -257,8 +264,10 @@ def test_preconditions_root_int_orth_ic():
     L = C_BOX + D_WALL
     Xe, de = _mode_odd(L, lam)[0], _mode_odd(L, lam, deriv=1)[0]
     robin = float((np.abs(K_W * de + H * Xe) / (np.abs(K_W * de) + np.abs(H * Xe) + f_scale)).max())
-    _say(f"MAT21-38 (Int-odd) {N_ROOT} modes: |X(C-) - X(C+)| {t_jump:.3e}; flux jump/(k mu1) "
-         f"{f_jump:.3e}; outer Robin/scale {robin:.3e} (band {INT_BAND:g})")
+    _say(
+        f"MAT21-38 (Int-odd) {N_ROOT} modes: |X(C-) - X(C+)| {t_jump:.3e}; flux jump/(k mu1) "
+        f"{f_jump:.3e}; outer Robin/scale {robin:.3e} (band {INT_BAND:g})"
+    )
     gates["Int"] = max(t_jump, f_jump, robin) <= INT_BAND
     # (Orth-odd)
     lam20 = _odd_eigs(20)
@@ -270,11 +279,15 @@ def test_preconditions_root_int_orth_ic():
     off = float((np.abs(Gm - np.diag(dgn)) / np.sqrt(np.outer(dgn, dgn))).max())
     n_err = float(np.abs(_norm_closed(lam20) - dgn).max() / dgn.max())
     pg = (X * (rc * w * G_GRAD * z)[:, None]).sum(0)
-    p_err = float(np.abs(pg - (_proj_gel(lam20) + _proj_wall(lam20, D_WALL, RHO_C_W))).max()
-                  / np.abs(pg).max())
-    _say(f"MAT21-38 (Orth-odd) 20 modes, 12-pt GL 200 gel + 40 wall panels: max offdiag "
-         f"{off:.3e}; N closed vs GL {n_err:.3e} (band {ORTH_BAND:g}); projection vs GL "
-         f"{p_err:.3e} (printed)")
+    p_err = float(
+        np.abs(pg - (_proj_gel(lam20) + _proj_wall(lam20, D_WALL, RHO_C_W))).max()
+        / np.abs(pg).max()
+    )
+    _say(
+        f"MAT21-38 (Orth-odd) 20 modes, 12-pt GL 200 gel + 40 wall panels: max offdiag "
+        f"{off:.3e}; N closed vs GL {n_err:.3e} (band {ORTH_BAND:g}); projection vs GL "
+        f"{p_err:.3e} (printed)"
+    )
     gates["Orth"] = off <= ORTH_BAND and n_err <= ORTH_BAND
     # (IC-odd)
     z, w = _gl_layers(D_WALL, 1000, 100, order=8)
@@ -286,9 +299,11 @@ def test_preconditions_root_int_orth_ic():
         rec = _drift_cap_z(z, 0.0, n=n)
         errs[n] = float(np.sqrt((rc * w * (rec - th0) ** 2).sum()) / nrm)
     ratios = [errs[4 * n] / errs[n] for n in (25, 100)]
-    _say("MAT21-38 (IC-odd) rho c-weighted L2 of g z on [0, C+d]: "
-         + ", ".join(f"N={n}: {e:.3e}" for n, e in errs.items())
-         + f"; ratios 4N/N {ratios[0]:.4f}, {ratios[1]:.4f} (bar 0.5)")
+    _say(
+        "MAT21-38 (IC-odd) rho c-weighted L2 of g z on [0, C+d]: "
+        + ", ".join(f"N={n}: {e:.3e}" for n, e in errs.items())
+        + f"; ratios 4N/N {ratios[0]:.4f}, {ratios[1]:.4f} (bar 0.5)"
+    )
     gates["IC"] = ratios[0] <= 0.5 and ratios[1] <= 0.5
     _say(f"MAT21-38 preconditions gates: {gates}")
     assert all(gates.values()), gates
@@ -316,10 +331,14 @@ def test_anchors_lim_w_lim_c_bq_sup():
             adv = float(np.sum(c * np.exp(-lam * w) * np.exp(-lam * T_STAR) * Xp))
             worst["Sup-shift"] = max(worst["Sup-shift"], _rel(adv, dc))
     for k_, v in worst.items():
-        _say(f"MAT21-38 anchor ({k_}) max rel over P5, ADJ_PT x {len(WAITS)} waits {v:.3e} "
-             f"(band {B1_BAND:g}, ASSERTED)")
-    _say(f"MAT21-38 (Lim-c) at MASSLESS*RHO_C_W instead of 0.0: max rel {massless:.3e} "
-         f"(printed; predicted approx 5e-11, not asserted)")
+        _say(
+            f"MAT21-38 anchor ({k_}) max rel over P5, ADJ_PT x {len(WAITS)} waits {v:.3e} "
+            f"(band {B1_BAND:g}, ASSERTED)"
+        )
+    _say(
+        f"MAT21-38 (Lim-c) at MASSLESS*RHO_C_W instead of 0.0: max rel {massless:.3e} "
+        f"(printed; predicted approx 5e-11, not asserted)"
+    )
     assert all(v <= B1_BAND for v in worst.values()), worst
 
 
@@ -328,9 +347,11 @@ def test_control_composite_misses_massless_and_d0():
     dc = _drift_cap(P5, T_STAR)
     m_1d = _rel(dc, _drift_1d(P5, T_STAR))
     m_d0 = _rel(dc, _drift_cap(P5, T_STAR, d=0.0))
-    _say(f"MAT21-38 control P5 t*: composite {dc:+.6e} K; miss vs _drift_1d {m_1d:.4e}; miss "
-         f"vs d = 0 form {m_d0:.4e} (both asserted > {B1_BAND:g}); predicted miss vs _drift_1d "
-         f"approx 0.135 (printed beside CTRL_FLOOR {CTRL_FLOOR:g}, not asserted)")
+    _say(
+        f"MAT21-38 control P5 t*: composite {dc:+.6e} K; miss vs _drift_1d {m_1d:.4e}; miss "
+        f"vs d = 0 form {m_d0:.4e} (both asserted > {B1_BAND:g}); predicted miss vs _drift_1d "
+        f"approx 0.135 (printed beside CTRL_FLOOR {CTRL_FLOOR:g}, not asserted)"
+    )
     assert m_1d > B1_BAND and m_d0 > B1_BAND, (m_1d, m_d0)
 
 
@@ -344,28 +365,43 @@ def test_printed_prediction_and_tables():
         delta = dc - d1
         rel = abs(delta - term) / term
         ra = abs(dc - fem) / fem
-        note = " (T_C row carries item 805's even CN-switch residue 1.778e-05 K at P0)" if is_tc else ""
-        _say(f"MAT21-38 PREDICTION {lab}: _drift_cap {dc:+.6e}, _drift_1d {d1:+.6e}, Delta_cap "
-             f"{delta:+.6e} vs P63 term {term:.6e}: literal rel {rel:.4e} -> "
-             f"{'GREEN' if rel <= INTERIOR_BAND else 'RED'} (INTERIOR_BAND {INTERIOR_BAND:g}); "
-             f"reading (a) |_drift_cap - FEM {fem:.6e}|/FEM {ra:.4e} -> "
-             f"{'GREEN' if ra <= INTERIOR_BAND else 'RED'}{note} (printed, never asserted)")
-    _say("MAT21-38 TABLE point | t_w | t_w s | _drift_cap K | _drift_1d K | Delta_cap K | "
-         "bias cap | gel-only-IC drift K | wall-IC share K")
+        note = (
+            " (T_C row carries item 805's even CN-switch residue 1.778e-05 K at P0)"
+            if is_tc
+            else ""
+        )
+        _say(
+            f"MAT21-38 PREDICTION {lab}: _drift_cap {dc:+.6e}, _drift_1d {d1:+.6e}, Delta_cap "
+            f"{delta:+.6e} vs P63 term {term:.6e}: literal rel {rel:.4e} -> "
+            f"{'GREEN' if rel <= INTERIOR_BAND else 'RED'} (INTERIOR_BAND {INTERIOR_BAND:g}); "
+            f"reading (a) |_drift_cap - FEM {fem:.6e}|/FEM {ra:.4e} -> "
+            f"{'GREEN' if ra <= INTERIOR_BAND else 'RED'}{note} (printed, never asserted)"
+        )
+    _say(
+        "MAT21-38 TABLE point | t_w | t_w s | _drift_cap K | _drift_1d K | Delta_cap K | "
+        "bias cap | gel-only-IC drift K | wall-IC share K"
+    )
     for lab, p in TABLE_PTS:
         s = _sourced(p, T_STAR)
         for wl, w in zip(WAIT_LABELS, WAITS):
             t = T_STAR + w
             dc, d1, dg = _drift_cap(p, t), _drift_1d(p, t), _drift_cap(p, t, gel_only=True)
-            _say(f"MAT21-38 TABLE {lab} | {wl} | {w:.1f} | {dc:+.6e} | {d1:+.6e} | "
-                 f"{dc - d1:+.6e} | {dc / s:+.6e} | {dg:+.6e} | {dc - dg:+.6e}")
+            _say(
+                f"MAT21-38 TABLE {lab} | {wl} | {w:.1f} | {dc:+.6e} | {d1:+.6e} | "
+                f"{dc - d1:+.6e} | {dc / s:+.6e} | {dg:+.6e} | {dc - dg:+.6e}"
+            )
         assert s > 0.0
     z0 = _drift_cap(P0, T_STAR)
     lam_heff = ALPHA * (robin_slab_odd_eigenvalues(H_EFF * C_BOX / K, 1)[0] / C_BOX) ** 2
-    lam_even = float(two_layer_slab_eigenvalues(half_thickness=C_BOX, wall=D_WALL, k=K, k_w=K_W,
-                                                rho_c=RHO_C, rho_c_w=RHO_C_W, h=H, n=1)[0])
+    lam_even = float(
+        two_layer_slab_eigenvalues(
+            half_thickness=C_BOX, wall=D_WALL, k=K, k_w=K_W, rho_c=RHO_C, rho_c_w=RHO_C_W, h=H, n=1
+        )[0]
+    )
     _say(f"MAT21-38 drift at z = 0: {z0!r} (exactly 0 by sin(0))")
-    _say(f"MAT21-38 LAM1_W {LAM1_W:.6e} /s (tau {1 / LAM1_W:.1f} s); h_eff odd 1D rate "
-         f"{lam_heff:.6e} /s; P48a'' even lambda_1 {lam_even:.6e} /s; t* {T_STAR:.2f} s; waits "
-         f"{[round(w, 2) for w in WAITS]} s")
+    _say(
+        f"MAT21-38 LAM1_W {LAM1_W:.6e} /s (tau {1 / LAM1_W:.1f} s); h_eff odd 1D rate "
+        f"{lam_heff:.6e} /s; P48a'' even lambda_1 {lam_even:.6e} /s; t* {T_STAR:.2f} s; waits "
+        f"{[round(w, 2) for w in WAITS]} s"
+    )
     assert z0 == 0.0

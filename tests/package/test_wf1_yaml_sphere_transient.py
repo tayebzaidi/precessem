@@ -37,7 +37,6 @@ from dolfinx import default_scalar_type, fem
 from mpi4py import MPI
 
 from fem_em_solver import (
-    DutyCycle,
     FourPortBirdcageGeometry,
     RobinCooling,
     SphereInBoxGeometry,
@@ -56,15 +55,7 @@ from fem_em_solver.study_yaml import (
 )
 from fem_em_solver.thermal.probe import ProbeBall
 from fem_em_solver.utils.constants import EPSILON_0
-
 from tests.complex_mode import complex_only
-from tests.package.test_wf15_study_lossy_sphere import _study
-from tests.package.test_wf15_study_sphere_transient import (
-    MAT12_A_T_PRINT,
-    MAT12_S2_PRINT,
-    _owned_rel,
-)
-from tests.package.test_wf15_study_temperature import MAT10_SUB_CELLS
 from tests.package.test_wf1_study_yaml import (
     LOGS,
     WF1,
@@ -74,6 +65,13 @@ from tests.package.test_wf1_study_yaml import (
     _spec_diff,
 )
 from tests.package.test_wf1_yaml_thermal_box_wall import _field, _with, _without
+from tests.package.test_wf15_study_lossy_sphere import _study
+from tests.package.test_wf15_study_sphere_transient import (
+    MAT12_A_T_PRINT,
+    MAT12_S2_PRINT,
+    _owned_rel,
+)
+from tests.package.test_wf15_study_temperature import MAT10_SUB_CELLS
 from tests.validation.test_lossy_sphere_sar import (
     E0,
     EPSILON_R_SPHERE,
@@ -81,6 +79,7 @@ from tests.validation.test_lossy_sphere_sar import (
     RHO_KG_M3,
     SIGMA_HIGH,
 )
+from tests.validation.test_mat5_em_coupled_sphere import L0_BAND
 from tests.validation.test_mat10_sar_to_heat_sphere import (
     A_BAND,
     G,
@@ -100,11 +99,11 @@ from tests.validation.test_mat12_transient_sar_heating_sphere import (
     _exact_theta,
     _mean,
 )
-from tests.validation.test_mat5_em_coupled_sphere import L0_BAND
 
 S29_ENV = "FEM_EM_WF1_S29"
-needs_s29 = pytest.mark.skipif(os.environ.get(S29_ENV) != "1",
-                               reason=f"opt-in solve: set {S29_ENV}=1")
+needs_s29 = pytest.mark.skipif(
+    os.environ.get(S29_ENV) != "1", reason=f"opt-in solve: set {S29_ENV}=1"
+)
 A_FILE = WF1 / "sphere_mat12_transient_a.yaml"
 S_FILE = WF1 / "sphere_mat12_transient_s.yaml"
 DUTY_FILE = WF1 / "malformed_sphere_transient_duty.yaml"
@@ -158,9 +157,11 @@ def test_wf1_s29_parse_and_refusals(monkeypatch):
         d_spec = _spec_diff(load_study(path), _study(degree=1))
         th = _thermal(_mapping(path), str(path))
         rc_check = _rc_all(cli.main(["check", str(path)]), comm)
-        _p0(f"\n[WF-1 s29] (K) {path.name}: spec diff {d_spec}; cooling {th.cooling!r}; "
+        _p0(
+            f"\n[WF-1 s29] (K) {path.name}: spec diff {d_spec}; cooling {th.cooling!r}; "
             f"transient {th.transient!r} (U131 {spec_ref!r}); dt {th.transient.dt_s.hex()} "
-            f"(U131 {dt_ref.hex()}); check rc {rc_check}")
+            f"(U131 {dt_ref.hex()}); check rc {rc_check}"
+        )
         assert isinstance(th, _BallThermal) and th.duty is None
         assert d_spec == [], d_spec
         assert repr(th.cooling) == repr(cool_ref), (th.cooling, cool_ref)
@@ -173,12 +174,16 @@ def test_wf1_s29_parse_and_refusals(monkeypatch):
     # sphere since U135, WF-15 step 17): compared with the module constant, never
     # with a live API call.
     study = _study(degree=1)
-    _p0(f"  (Ref) duty split: the API accepts DutyCycle on the EM sphere since U135 "
+    _p0(
+        f"  (Ref) duty split: the API accepts DutyCycle on the EM sphere since U135 "
         f"(WF-15 step 17); YAML refuses thermal.duty (no sphere duty key commissioned): "
-        f"{_SPHERE_DUTY_REFUSAL!r}")
+        f"{_SPHERE_DUTY_REFUSAL!r}"
+    )
     with pytest.raises(ValueError) as e_init:
-        study.temperature(cool_ref, transient=TransientSpec(T_STAR / N_MAIN, N_MAIN, RHO_C,
-                                                            initial_gradient_k_per_m=1.0))
+        study.temperature(
+            cool_ref,
+            transient=TransientSpec(T_STAR / N_MAIN, N_MAIN, RHO_C, initial_gradient_k_per_m=1.0),
+        )
     with pytest.raises(ValueError) as e_probe:
         study.probe([ProbeBall((0.0, 0.0, 0.0), 1e-3)], cool_ref, transient=_spec_a())
     landed = _exc(lambda: load_study(PORT_LANDED))
@@ -186,22 +191,37 @@ def test_wf1_s29_parse_and_refusals(monkeypatch):
     mA = _mapping(A_FILE)
     cases = {
         "duty file": (_exc(lambda: load_study(DUTY_FILE)), "thermal.duty", _SPHERE_DUTY_REFUSAL),
-        "initial": (_exc(lambda: _thermal(_with(mA, {"gradient_k_per_m": 1.0}, "thermal",
-                                                "initial"))),
-                    "thermal.initial", str(e_init.value)),
-        "probes": (_exc(lambda: _thermal(_with(mA, [{"centre": [0.0, 0.0, 0.0], "radius": 1e-3}],
-                                               "outputs", "probes"))),
-                   "outputs.probes", str(e_probe.value)),
+        "initial": (
+            _exc(lambda: _thermal(_with(mA, {"gradient_k_per_m": 1.0}, "thermal", "initial"))),
+            "thermal.initial",
+            str(e_init.value),
+        ),
+        "probes": (
+            _exc(
+                lambda: _thermal(
+                    _with(mA, [{"centre": [0.0, 0.0, 0.0], "radius": 1e-3}], "outputs", "probes")
+                )
+            ),
+            "outputs.probes",
+            str(e_probe.value),
+        ),
         "port file": (_exc(lambda: load_study(PORT_FILE)), "thermal", landed.reason),
     }
     for label, (exc, field, reason) in cases.items():
-        _p0(f"  (Ref) {label}: field {getattr(exc, 'field', None)!r} (expected {field!r}); "
-            f"reason {getattr(exc, 'reason', None)!r}; API {reason!r}")
+        _p0(
+            f"  (Ref) {label}: field {getattr(exc, 'field', None)!r} (expected {field!r}); "
+            f"reason {getattr(exc, 'reason', None)!r}; API {reason!r}"
+        )
         assert type(exc) is StudyConfigError, label
         assert exc.field == field, (label, exc.field)
         assert exc.reason == reason, (label, exc.reason, reason)
-    dt_m = _with(_without(mA, "thermal", "transient", "t_end_s"), T_STAR / N_MAIN,
-                 "thermal", "transient", "dt_s")
+    dt_m = _with(
+        _without(mA, "thermal", "transient", "t_end_s"),
+        T_STAR / N_MAIN,
+        "thermal",
+        "transient",
+        "dt_s",
+    )
     exc_dt = _exc(lambda: _thermal(dt_m))
     _p0(f"  (Ref) dt_s for t_end_s: field {exc_dt.field!r}; reason {exc_dt.reason!r}")
     # §9 item 892 (18:00 ruling): refused at the block, with the YAML-owned
@@ -227,8 +247,12 @@ def test_wf1_s29_parse_and_refusals(monkeypatch):
 
 def _a_t(th):
     cf = uniform_sphere_sar_closed_form(
-        e0=E0, epsilon_r=EPSILON_R_SPHERE, sigma=SIGMA_HIGH, omega=OMEGA,
-        rho=RHO_KG_M3, epsilon_0=EPSILON_0,
+        e0=E0,
+        epsilon_r=EPSILON_R_SPHERE,
+        sigma=SIGMA_HIGH,
+        omega=OMEGA,
+        rho=RHO_KG_M3,
+        epsilon_0=EPSILON_0,
     )
     q_cf = G * RHO_KG_M3 * cf["sar_w_per_kg"]
     sub = th.mesh
@@ -294,16 +318,22 @@ def test_wf1_s29_sphere_transient_reproduces_u131():
     n_sub = {k: r.thermal.mesh.topology.index_map(3).size_global for k, (r, _, _) in runs.items()}
     once = {k: r.study.result is r.result for k, (r, _, _) in runs.items()}
     dts = {k: r.thermal.transient.dt_s.hex() for k, (r, _, _) in runs.items()}
-    _p0(f"\n[WF-1 s29] (UT) sub cells {n_sub} (MAT10_SUB_CELLS {MAT10_SUB_CELLS}); (Once) {once}; "
+    _p0(
+        f"\n[WF-1 s29] (UT) sub cells {n_sub} (MAT10_SUB_CELLS {MAT10_SUB_CELLS}); (Once) {once}; "
         f"dt A {dts['A']} (T_STAR/N_MAIN {(T_STAR / N_MAIN).hex()}), S {dts['S']} "
-        f"(DT_1 {DT_1.hex()}); wall A {wallA:.1f} s, S {wallS:.1f} s")
+        f"(DT_1 {DT_1.hex()}); wall A {wallA:.1f} s, S {wallS:.1f} s"
+    )
 
     err_A, q_cf = _a_t(thA)
-    _p0(f"  (A_t) interior rel L2 = {err_A:.10e} [{err_A:.4e}] (band {A_BAND}; U131 "
-        f"{U131_A_T_10E}, record {MAT12_A_T_PRINT}); q_cf {q_cf:.6f} W/m^3")
+    _p0(
+        f"  (A_t) interior rel L2 = {err_A:.10e} [{err_A:.4e}] (band {A_BAND}; U131 "
+        f"{U131_A_T_10E}, record {MAT12_A_T_PRINT}); q_cf {q_cf:.6f} W/m^3"
+    )
     s2, ratio = _s2(thS, comm)
-    _p0(f"  (S2) ratio = {ratio:.9f} |ratio - 1| = {s2:.10e} [{s2:.4e}] (band {S2_BAND:.0e}; "
-        f"U131 ratio {U131_S2_RATIO}, record {MAT12_S2_PRINT})")
+    _p0(
+        f"  (S2) ratio = {ratio:.9f} |ratio - 1| = {s2:.10e} [{s2:.4e}] (band {S2_BAND:.0e}; "
+        f"U131 ratio {U131_S2_RATIO}, record {MAT12_S2_PRINT})"
+    )
     eA = runA.summary["temperature"]["max_balance_residual"]
     eS = runS.summary["temperature"]["max_balance_residual"]
     _p0(f"  (E) max balance A {eA:.3e}  S {eS:.3e}  (band {E_BAND:.0e})")
@@ -315,8 +345,10 @@ def test_wf1_s29_sphere_transient_reproduces_u131():
     subQ = thQ.submesh
     thetaQ = _exact_theta(subQ, T_STAR, q_cf)
     err_qs = _interior_rel(subQ, _interior_indicator(subQ), thQ.temperature - thetaQ, thetaQ)
-    _p0(f"  (c-qs) steady theta for theta(t*): {err_qs:.4e} (must miss {A_BAND}; U131 "
-        f"1.0108e+00); once {once_q}")
+    _p0(
+        f"  (c-qs) steady theta for theta(t*): {err_qs:.4e} (must miss {A_BAND}; U131 "
+        f"1.0108e+00); once {once_q}"
+    )
 
     # (IT-run) §9 item 891: the YAML θ against the same run's Study, U131's spec;
     # no second EM solve (the same `run` object, never a fresh load_study).
@@ -327,14 +359,18 @@ def test_wf1_s29_sphere_transient_reproduces_u131():
     once_run_post = {"A": runA.study.result is runA.result, "S": runS.study.result is runS.result}
     itrA, lrA = _owned_rel(thA.temperature, rA.temperature, comm)
     itrS, lrS = _owned_rel(thS.temperature, rS.temperature, comm)
-    _p0(f"  (IT-run) A {itrA:.3e}  S {itrS:.3e} (band {L0_BAND:.0e}); layouts {lrA}/{lrS}; "
-        f"once before {once_run_pre} after {once_run_post}")
+    _p0(
+        f"  (IT-run) A {itrA:.3e}  S {itrS:.3e} (band {L0_BAND:.0e}); layouts {lrA}/{lrS}; "
+        f"once before {once_run_pre} after {once_run_post}"
+    )
     # (Q-rep) the YAML route's two runs: q_h and integrated source power.
     q_rep, l_rep = _owned_rel(thA.q, thS.q, comm)
     p_rep = abs(float(np.real(thA.source_power)) - float(np.real(thS.source_power)))
     p_rep_rel = p_rep / abs(float(np.real(thA.source_power)))
-    _p0(f"  (Q-rep) q_h(A run) vs q_h(S run) owned max rel {q_rep:.3e} (layout {l_rep}); "
-        f"source power |diff| {p_rep:.3e} W, rel {p_rep_rel:.3e}")
+    _p0(
+        f"  (Q-rep) q_h(A run) vs q_h(S run) owned max rel {q_rep:.3e} (layout {l_rep}); "
+        f"source power |diff| {p_rep:.3e} W, rel {p_rep_rel:.3e}"
+    )
 
     # (IT-ind) an independently solved Python Study, U131's specs.
     t0 = time.perf_counter()
@@ -348,11 +384,15 @@ def test_wf1_s29_sphere_transient_reproduces_u131():
     itS, layS = _owned_rel(thS.temperature, pyS.temperature, comm)
     qA_ind = _owned_rel(thA.q, pyA.q, comm)[0]
     qS_ind = _owned_rel(thS.q, pyS.q, comm)[0]
-    _p0(f"  (IT-ind) A {itA:.3e} (band {L0_BAND:.0e}, asserted); layouts {layA}/{layS}; "
-        f"Python twin {t_py:.1f} s")
-    _p0(f"  (IT-ind) S {itS:.3e} printed: pointwise cross-solve spread (known-issues `-n 2` "
+    _p0(
+        f"  (IT-ind) A {itA:.3e} (band {L0_BAND:.0e}, asserted); layouts {layA}/{layS}; "
+        f"Python twin {t_py:.1f} s"
+    )
+    _p0(
+        f"  (IT-ind) S {itS:.3e} printed: pointwise cross-solve spread (known-issues `-n 2` "
         f"MUMPS observation, 2026-11-08 row); a band is the weekly's; q_h owned max rel "
-        f"A {qA_ind:.3e}  S {qS_ind:.3e}")
+        f"A {qA_ind:.3e}  S {qS_ind:.3e}"
+    )
     if q_rep >= 1e-9:
         verdict = "floor of the solve (Q-rep >= 1e-9): recorded"
     elif q_rep < 1e-10 and itS > 1e-9:
@@ -362,18 +402,28 @@ def test_wf1_s29_sphere_transient_reproduces_u131():
     _p0(f"  (Q-rep) decision: {verdict}")
     # (IT) per-ingredient comparison (the brief's Negative-result print; printed only).
     for k, f_th, p_th in (("A", thA, pyA), ("S", thS, pyS)):
-        cells = (f_th.mesh.topology.index_map(3).size_global,
-                 p_th.mesh.topology.index_map(3).size_global)
-        nf = tuple(comm.allreduce(int(np.sum(t.values == 1)), op=MPI.SUM)
-                   for t in (f_th.facet_tags, p_th.facet_tags))
-        spec = (f_th.transient.dt_s.hex(), p_th.transient.dt_s.hex(), f_th.transient.theta,
-                p_th.transient.theta, f_th.transient.startup_half_steps,
-                p_th.transient.startup_half_steps)
-        q_rel = (_owned_rel(f_th.q, p_th.q, comm)[0]
-                 if hasattr(f_th.q, "function_space") else "n/a")
+        cells = (
+            f_th.mesh.topology.index_map(3).size_global,
+            p_th.mesh.topology.index_map(3).size_global,
+        )
+        nf = tuple(
+            comm.allreduce(int(np.sum(t.values == 1)), op=MPI.SUM)
+            for t in (f_th.facet_tags, p_th.facet_tags)
+        )
+        spec = (
+            f_th.transient.dt_s.hex(),
+            p_th.transient.dt_s.hex(),
+            f_th.transient.theta,
+            p_th.transient.theta,
+            f_th.transient.startup_half_steps,
+            p_th.transient.startup_half_steps,
+        )
+        q_rel = _owned_rel(f_th.q, p_th.q, comm)[0] if hasattr(f_th.q, "function_space") else "n/a"
         sp = (repr(float(np.real(f_th.source_power))), repr(float(np.real(p_th.source_power))))
-        _p0(f"  (IT-ingr) {k}: cells {cells}; Robin facets (tag 1, owned+ghost sum) {nf}; "
-            f"dt/theta/startup {spec}; q_h owned max rel diff {q_rel}; source_power {sp}")
+        _p0(
+            f"  (IT-ingr) {k}: cells {cells}; Robin facets (tag 1, owned+ghost sum) {nf}; "
+            f"dt/theta/startup {spec}; q_h owned max rel diff {q_rel}; source_power {sp}"
+        )
 
     # (CLI = API by repr)
     json_eq = {}
@@ -397,10 +447,14 @@ def test_wf1_s29_sphere_transient_reproduces_u131():
     with open(out_cli / "summary.json") as fh:
         disk_cli = json.load(fh)
     cli_bad = _close(runA.summary, disk_cli)
-    _p0(f"  (CLI=API) JSON round trip {json_eq}; summary fields vs result by repr {field_eq}; "
-        f"CLI rc {rc_cli}, {t_cli:.1f} s; CLI vs API mismatches {cli_bad}")
-    _p0(f"  summary['temperature'] A {runA.summary['temperature']['transient']}; theta_max "
-        f"{runA.summary['temperature']['theta_max_k']!r}")
+    _p0(
+        f"  (CLI=API) JSON round trip {json_eq}; summary fields vs result by repr {field_eq}; "
+        f"CLI rc {rc_cli}, {t_cli:.1f} s; CLI vs API mismatches {cli_bad}"
+    )
+    _p0(
+        f"  summary['temperature'] A {runA.summary['temperature']['transient']}; theta_max "
+        f"{runA.summary['temperature']['theta_max_k']!r}"
+    )
 
     assert all(once.values()) and once_q, "(Once) a second EM solve happened"
     assert all(n == MAT10_SUB_CELLS for n in n_sub.values()), f"(UT) {n_sub}"

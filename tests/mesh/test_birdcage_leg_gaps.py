@@ -31,20 +31,11 @@ from mpi4py import MPI
 
 from fem_em_solver.io.mesh import MeshGenerator, _interface_facet_tags
 from tests.mesh.helpers import global_cell_tag_set
-from tests.mesh.test_coil_phantom_conforming import _tag_volume, _total_volume
 from tests.mesh.test_birdcage_conductor_sizing import CAD_MASS_GATE
-from tests.mesh.test_two_torus_port_facets import _facet_group_area
 from tests.mesh.test_birdcage_port_sheet_prerequisite import (
     CELL_COUNT_BAND,
     CONDUCTOR_RESOLUTION,
     STEP3_CELL_COUNT_RECORD,
-)
-from tests.mesh.test_birdcage_port_terminals import (
-    AIR_IFACE,
-    CONDUCTOR_IFACE,
-    PHANTOM_IFACE,
-    _global_facet_count,
-    _interface_area_or_zero,
 )
 from tests.mesh.test_birdcage_port_tags import (
     AIR_PADDING,
@@ -59,6 +50,14 @@ from tests.mesh.test_birdcage_port_tags import (
     RING_MINOR_RADIUS,
     RING_RADIUS,
 )
+from tests.mesh.test_birdcage_port_terminals import (
+    AIR_IFACE,
+    CONDUCTOR_IFACE,
+    PHANTOM_IFACE,
+    _global_facet_count,
+    _interface_area_or_zero,
+)
+from tests.mesh.test_coil_phantom_conforming import _tag_volume, _total_volume
 
 # The gap. 8 mm on a 140 mm leg: long enough that the port box is not a sliver
 # against the 1.6 mm conductor sizing, short enough to stay far clear of the
@@ -87,9 +86,7 @@ def _analytic_box_volume(port_dy: float) -> float:
     a different transverse box size, so the air box is a different air box.
     """
     leg_radius_eff = 0.5 * LEG_WIDTH
-    radial_extent = (
-        RING_RADIUS + max(leg_radius_eff, RING_MINOR_RADIUS) + port_dy + AIR_PADDING
-    )
+    radial_extent = RING_RADIUS + max(leg_radius_eff, RING_MINOR_RADIUS) + port_dy + AIR_PADDING
     z_extent = (
         max(0.5 * COIL_LENGTH, 0.5 * LEG_SPACING + RING_MINOR_RADIUS, 0.5 * PHANTOM_HEIGHT)
         + AIR_PADDING
@@ -250,8 +247,7 @@ def test_leg_gaps_give_every_port_two_disk_terminals():
             f"(record {UNCUT_CAD_RATIO_RECORD})  rung={unc_elapsed:.2f} s  "
             "conductor-facing areas "
             + " ".join(
-                f"P{i}={areas_unc[CONDUCTOR_IFACE + i]:.6e}"
-                for i in range(1, LEG_COUNT + 1)
+                f"P{i}={areas_unc[CONDUCTOR_IFACE + i]:.6e}" for i in range(1, LEG_COUNT + 1)
             ),
             flush=True,
         )
@@ -283,9 +279,7 @@ def test_leg_gaps_give_every_port_two_disk_terminals():
     # 1. The finding: each port box now meets metal on two disks.
     for i in range(1, LEG_COUNT + 1):
         total = (
-            areas_gap[CONDUCTOR_IFACE + i]
-            + areas_gap[AIR_IFACE + i]
-            + areas_gap[PHANTOM_IFACE + i]
+            areas_gap[CONDUCTOR_IFACE + i] + areas_gap[AIR_IFACE + i] + areas_gap[PHANTOM_IFACE + i]
         )
         assert abs(total / box_area_gap - 1.0) < 1e-9, (
             f"port P{i} boundary areas sum to {total:.9e} m^2 against the "
@@ -308,9 +302,7 @@ def test_leg_gaps_give_every_port_two_disk_terminals():
 
     # C4 by construction, checked rather than assumed: the four terminals are
     # the same terminal, so their meshed areas may differ only by the mesh.
-    terminals = np.array(
-        [areas_gap[CONDUCTOR_IFACE + i] for i in range(1, LEG_COUNT + 1)]
-    )
+    terminals = np.array([areas_gap[CONDUCTOR_IFACE + i] for i in range(1, LEG_COUNT + 1)])
     assert terminals.std() / terminals.mean() < 0.02, (
         f"terminal areas {terminals} are not C4-symmetric to 2% "
         f"(spread {terminals.std() / terminals.mean():.6f}); the four ports are "

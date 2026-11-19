@@ -195,11 +195,17 @@ def _apply_degree_c3(ctx, comm):
     n_faces = int(msh.topology.index_map(2).size_global)
     assert solver.degree == degree, (solver.degree, degree)
     expected = _check_unknowns(n_dofs, degree, n_edges, n_faces)
-    _say(comm, f"(Deg) knob {knob}; solver.degree {solver.degree}; global unknowns {n_dofs} vs "
-               f"{'E' if degree == 1 else '2E+2F'} = {expected} (E {n_edges}, F {n_faces}; records "
-               f"U1 {F_CLINICAL_R1_UNKNOWNS_RECORD[0]}, U2 {F_CLINICAL_R1_UNKNOWNS_RECORD[1]}; "
-               f"ASSERTED exact)")
-    assert n_dofs == F_CLINICAL_R1_UNKNOWNS_RECORD[degree - 1], (n_dofs, F_CLINICAL_R1_UNKNOWNS_RECORD)
+    _say(
+        comm,
+        f"(Deg) knob {knob}; solver.degree {solver.degree}; global unknowns {n_dofs} vs "
+        f"{'E' if degree == 1 else '2E+2F'} = {expected} (E {n_edges}, F {n_faces}; records "
+        f"U1 {F_CLINICAL_R1_UNKNOWNS_RECORD[0]}, U2 {F_CLINICAL_R1_UNKNOWNS_RECORD[1]}; "
+        f"ASSERTED exact)",
+    )
+    assert n_dofs == F_CLINICAL_R1_UNKNOWNS_RECORD[degree - 1], (
+        n_dofs,
+        F_CLINICAL_R1_UNKNOWNS_RECORD,
+    )
     return solver, degree, {"n_dofs": n_dofs, "n_edges": n_edges, "n_faces": n_faces}
 
 
@@ -255,7 +261,11 @@ def _synthetic_s(az, zc):
         for j in range(n):
             steps, _r = _azimuth_class_32(az[i], az[j])
             same = zc[i] * zc[j] > 0.0
-            s[i, j] = (0.08 if same else 0.06) * np.exp(-0.15 * steps) * np.exp(0.3j * steps + (0.0 if same else 0.7j))
+            s[i, j] = (
+                (0.08 if same else 0.06)
+                * np.exp(-0.15 * steps)
+                * np.exp(0.3j * steps + (0.0 if same else 0.7j))
+            )
     return s
 
 
@@ -288,8 +298,11 @@ def _sheet_geometry(ctx, comm):
         xyz = _facet_coords(msh, _owned(msh, fi[fv == sp.facet_tag]))
         a = _area(xyz)
         c = xyz.mean(axis=1) if len(xyz) else np.zeros((0, 3))
-        local.append([float(len(a)), float(a.sum()), *(a[:, None] * c).sum(axis=0).tolist()]
-                     if len(a) else [0.0, 0.0, 0.0, 0.0, 0.0])
+        local.append(
+            [float(len(a)), float(a.sum()), *(a[:, None] * c).sum(axis=0).tolist()]
+            if len(a)
+            else [0.0, 0.0, 0.0, 0.0, 0.0]
+        )
     tot = comm.allreduce(np.array(local), op=MPI.SUM)
     geo = {}
     for sp, row in zip(ctx["specs"], tot):
@@ -322,6 +335,7 @@ def _layout_failures(ids, geo):
 
 
 def _run_c3(comm, *, build_only, n_drives=N_PORTS):
+    from fem_em_solver.io.mesh import BIRDCAGE_CONDUCTOR_SURFACE_TAG
     from tests.mesh.test_birdcage_port_sheet_prerequisite import CELL_COUNT_BAND
     from tests.validation.test_geo38_f_clinical_build import (
         F_CLINICAL_R1_CELL_RECORD,
@@ -335,10 +349,12 @@ def _run_c3(comm, *, build_only, n_drives=N_PORTS):
     from tests.validation.test_ops61_exact_strip_ports import STRIP_BAND
     from tests.validation.test_port_birdcage_ring_column import AZIMUTH_MATCH_DEG
     from tests.validation.test_wf12_f_human_hole import _census_checks, _owned_census, _rss_gib
-    from fem_em_solver.io.mesh import BIRDCAGE_CONDUCTOR_SURFACE_TAG
 
     t_window = time.perf_counter()
-    _say(comm, f"start: -n {comm.size}, {'BUILD-ONLY' if build_only else f'full sweep, {n_drives} drives'}")
+    _say(
+        comm,
+        f"start: -n {comm.size}, {'BUILD-ONLY' if build_only else f'full sweep, {n_drives} drives'}",
+    )
 
     # ---- fixture (entry 40's in-memory route), (A0), (iv), outer census, (S)
     t0 = time.perf_counter()
@@ -346,7 +362,7 @@ def _run_c3(comm, *, build_only, n_drives=N_PORTS):
     comm.Barrier()
     t_build = time.perf_counter() - t0
     ctx = built["ctx"]
-    msh, tags_f, omega, cell_tags = ctx["msh"], ctx["tags_f"], ctx["omega"], ctx["cell_tags"]
+    msh, cell_tags = ctx["msh"], ctx["cell_tags"]
     facets = built["facets"]
     n_cells = built["cells"]
     census = _owned_census(msh, cell_tags, comm)
@@ -358,15 +374,21 @@ def _run_c3(comm, *, build_only, n_drives=N_PORTS):
     fi = np.asarray(facets.indices)
     cav_p = _facet_coords(msh, _owned(msh, fi[fv == BIRDCAGE_CONDUCTOR_SURFACE_TAG])).reshape(-1, 3)
     cav_hmax = comm.allreduce(
-        float(np.hypot(cav_p[:, 0], cav_p[:, 1]).max()) if len(cav_p) else 0.0, op=MPI.MAX)
-    _say(comm, f"fixture: t_build {t_build:.1f} s at -n {comm.size}; (A0) cells {n_cells} vs record "
-               f"{F_CLINICAL_R1_CELL_RECORD}, rel {cell_rel:.3e} (band {CELL_COUNT_BAND}, ASSERTED); "
-               f"(iv) failures {census_fails or 'none'}; outer census {oc}; (S) cavity max hypot "
-               f"{cav_hmax:.9f} m < R_s {R_s} (ASSERTED)")
+        float(np.hypot(cav_p[:, 0], cav_p[:, 1]).max()) if len(cav_p) else 0.0, op=MPI.MAX
+    )
+    _say(
+        comm,
+        f"fixture: t_build {t_build:.1f} s at -n {comm.size}; (A0) cells {n_cells} vs record "
+        f"{F_CLINICAL_R1_CELL_RECORD}, rel {cell_rel:.3e} (band {CELL_COUNT_BAND}, ASSERTED); "
+        f"(iv) failures {census_fails or 'none'}; outer census {oc}; (S) cavity max hypot "
+        f"{cav_hmax:.9f} m < R_s {R_s} (ASSERTED)",
+    )
     assert abs(cell_rel) <= CELL_COUNT_BAND, cell_rel
     assert not census_fails, census_fails
     assert oc["tag_collision"] == 0 and oc["cavity"] > 0, oc
-    assert oc["cavity_exterior"] == oc["cavity"] and oc["outer"] + oc["cavity"] == oc["exterior"], oc
+    assert (
+        oc["cavity_exterior"] == oc["cavity"] and oc["outer"] + oc["cavity"] == oc["exterior"]
+    ), oc
     assert cav_hmax < R_s, (cav_hmax, R_s)
 
     # ---- (C) census, (W) widths, (Az) layout, (U1) ----------------------
@@ -389,17 +411,29 @@ def _run_c3(comm, *, build_only, n_drives=N_PORTS):
     V = ctx["solver"].function_space()
     u1 = int(V.dofmap.index_map.size_global * V.dofmap.index_map_bs)
     t_checks = time.perf_counter() - t1
-    _say(comm, f"(C) {len(ids)} specs (= 2*LEG_COUNT), owned facets per sheet min "
-               f"{min(owned_counts.values())} max {max(owned_counts.values())}; failures "
-               f"{c_fails or 'none'} (ASSERTED)")
-    _say(comm, f"(W) sheet widths vs 2r+2c = {w_expected:.6f} m: worst rel {w_worst:.3e} "
-               f"(band STRIP_BAND {STRIP_BAND:g}, ASSERTED)")
-    _say(comm, f"(Az) worst slot residual {az_worst:.3e} deg (< {AZIMUTH_MATCH_DEG:.0e}, ASSERTED); "
-               f"layout failures {az_fails or 'none'}; pair classes {len(classes)} (expected "
-               f"{N_SYMMETRY_CLASSES_32}, ASSERTED), worst pair residual {cls_res:.3e} deg; sizes "
-               f"equal expected {sizes == _expected_class_sizes()} (ASSERTED), total {sum(sizes.values())}")
-    _say(comm, f"(U1) N1curl global size x bs = {u1} vs record {F_CLINICAL_R1_UNKNOWNS_RECORD[0]} "
-               f"(EXACT, ASSERTED); checks {t_checks:.1f} s")
+    _say(
+        comm,
+        f"(C) {len(ids)} specs (= 2*LEG_COUNT), owned facets per sheet min "
+        f"{min(owned_counts.values())} max {max(owned_counts.values())}; failures "
+        f"{c_fails or 'none'} (ASSERTED)",
+    )
+    _say(
+        comm,
+        f"(W) sheet widths vs 2r+2c = {w_expected:.6f} m: worst rel {w_worst:.3e} "
+        f"(band STRIP_BAND {STRIP_BAND:g}, ASSERTED)",
+    )
+    _say(
+        comm,
+        f"(Az) worst slot residual {az_worst:.3e} deg (< {AZIMUTH_MATCH_DEG:.0e}, ASSERTED); "
+        f"layout failures {az_fails or 'none'}; pair classes {len(classes)} (expected "
+        f"{N_SYMMETRY_CLASSES_32}, ASSERTED), worst pair residual {cls_res:.3e} deg; sizes "
+        f"equal expected {sizes == _expected_class_sizes()} (ASSERTED), total {sum(sizes.values())}",
+    )
+    _say(
+        comm,
+        f"(U1) N1curl global size x bs = {u1} vs record {F_CLINICAL_R1_UNKNOWNS_RECORD[0]} "
+        f"(EXACT, ASSERTED); checks {t_checks:.1f} s",
+    )
     assert not c_fails, c_fails
     assert w_worst <= STRIP_BAND, sorted(w_rel.items(), key=lambda kv: -kv[1])[:4]
     assert not az_fails, az_fails
@@ -413,12 +447,21 @@ def _run_c3(comm, *, build_only, n_drives=N_PORTS):
 
     if build_only:
         _m, rss_per, rss_sum = _rss_gib(comm)
-        _say(comm, f"BUILD-ONLY return: t_build {t_build:.1f} s; RSS per rank "
-                   f"{', '.join(f'{r:.2f}' for r in (rss_per or []))} GiB, summed {rss_sum:.2f} GiB; "
-                   f"window {time.perf_counter() - t_window:.1f} s (no wall term, no assembly, "
-                   f"no factorisation)")
-        return {"t_build": t_build, "cells": n_cells, "u1": u1, "rss_sum": rss_sum,
-                "geo": geo, "classes": len(classes)}
+        _say(
+            comm,
+            f"BUILD-ONLY return: t_build {t_build:.1f} s; RSS per rank "
+            f"{', '.join(f'{r:.2f}' for r in (rss_per or []))} GiB, summed {rss_sum:.2f} GiB; "
+            f"window {time.perf_counter() - t_window:.1f} s (no wall term, no assembly, "
+            f"no factorisation)",
+        )
+        return {
+            "t_build": t_build,
+            "cells": n_cells,
+            "u1": u1,
+            "rss_sum": rss_sum,
+            "geo": geo,
+            "classes": len(classes),
+        }
 
     return _sweep(comm, built, geo, order, az, zc, classes, t_build, t_window, n_drives)
 
@@ -471,20 +514,30 @@ def _sweep(comm, built, geo, order, az, zc, classes, t_build, t_window, n_drives
     def _drive(driven_id, *, held):
         sheets = [sp.sheet(driven=(sp.port_id == driven_id)) for sp in ctx["specs"]]
         dsheet = next(s for s in sheets if s.port_id == driven_id)
-        linear = [lambda test, _s=dsheet: lumped_port_linear_term(
-            msh, tags_f, _s, test, omega_rad_per_s=omega)]
+        linear = [
+            lambda test, _s=dsheet: lumped_port_linear_term(
+                msh, tags_f, _s, test, omega_rad_per_s=omega
+            )
+        ]
         comm.Barrier()
         t0 = time.perf_counter()
         if held:
             fields = solver.solve_with_held_factorization(extra_linear_terms=linear)
         else:
             bil = [wall] + [
-                (lambda trial, test, _s=s: lumped_port_bilinear_term(
-                    msh, tags_f, _s, trial, test, omega_rad_per_s=omega))
+                (
+                    lambda trial, test, _s=s: lumped_port_bilinear_term(
+                        msh, tags_f, _s, trial, test, omega_rad_per_s=omega
+                    )
+                )
                 for s in sheets
             ]
-            fields = solver.solve(current_density=None, project_source=False,
-                                  extra_bilinear_terms=bil, extra_linear_terms=linear)
+            fields = solver.solve(
+                current_density=None,
+                project_source=False,
+                extra_bilinear_terms=bil,
+                extra_linear_terms=linear,
+            )
         comm.Barrier()
         t_solve = time.perf_counter() - t0
         t1 = time.perf_counter()
@@ -508,9 +561,17 @@ def _sweep(comm, built, geo, order, az, zc, classes, t_build, t_window, n_drives
         p_surf = _surface_loss_w(msh, facets, z_s, e, comm)
         del fields
         t_post = time.perf_counter() - t1
-        d = {"s": s_col, "kind": "held" if held else "solve", "t_solve": t_solve,
-             "t_post": t_post, "p_src": p_src, "p_sheets": p_sheets, "p_phantom": p_phantom,
-             "p_rest": p_total - p_phantom, "p_surf": p_surf}
+        d = {
+            "s": s_col,
+            "kind": "held" if held else "solve",
+            "t_solve": t_solve,
+            "t_post": t_post,
+            "p_src": p_src,
+            "p_sheets": p_sheets,
+            "p_phantom": p_phantom,
+            "p_rest": p_total - p_phantom,
+            "p_surf": p_surf,
+        }
         d["rel"] = abs(p_src - p_sheets - p_total - p_surf) / abs(p_src)
         d["blind"] = abs(p_src - p_sheets - p_total) / abs(p_src)
         return d
@@ -521,34 +582,46 @@ def _sweep(comm, built, geo, order, az, zc, classes, t_build, t_window, n_drives
     for k, pid in enumerate(driven_ids):
         d = _drive(pid, held=(k > 0))
         cols[pid] = d
-        _say(comm, f"Cu drive {k + 1:2d}/{n_drives} {pid}: {d['kind']} {d['t_solve']:.2f} s + post "
-                   f"{d['t_post']:.2f} s; S_driven {d['s'][pid]:.6f}; sum|S|^2 "
-                   f"{sum(abs(v) ** 2 for v in d['s'].values()):.6f} | P_src {d['p_src']:.9e} "
-                   f"P_surf {d['p_surf']:.9e} W; (P) rel {d['rel']:.3e}; NEG blind "
-                   f"{d['blind']:.4e} t={time.perf_counter() - t_window:.1f} s")
+        _say(
+            comm,
+            f"Cu drive {k + 1:2d}/{n_drives} {pid}: {d['kind']} {d['t_solve']:.2f} s + post "
+            f"{d['t_post']:.2f} s; S_driven {d['s'][pid]:.6f}; sum|S|^2 "
+            f"{sum(abs(v) ** 2 for v in d['s'].values()):.6f} | P_src {d['p_src']:.9e} "
+            f"P_surf {d['p_surf']:.9e} W; (P) rel {d['rel']:.3e}; NEG blind "
+            f"{d['blind']:.4e} t={time.perf_counter() - t_window:.1f} s",
+        )
     kinds = [cols[p]["kind"] for p in driven_ids]
     _m, rss_per, rss_sum = _rss_gib(comm)
     first = cols[DRIVEN]
     held_cad = [cols[p]["t_solve"] + cols[p]["t_post"] for p in driven_ids[1:]]
-    _say(comm, f"PRICE: t_b {t_build:.1f} s; t_col {first['t_solve']:.1f} s (+ post "
-               f"{first['t_post']:.1f} s); held cadence mean "
-               f"{(np.mean(held_cad) if held_cad else float('nan')):.2f} s max "
-               f"{(max(held_cad) if held_cad else float('nan')):.2f} s; RSS per rank "
-               f"{', '.join(f'{r:.2f}' for r in (rss_per or []))} GiB, summed {rss_sum:.2f} GiB "
-               f"(beside entry 40's t_b / t_col / t_held)")
+    _say(
+        comm,
+        f"PRICE: t_b {t_build:.1f} s; t_col {first['t_solve']:.1f} s (+ post "
+        f"{first['t_post']:.1f} s); held cadence mean "
+        f"{(np.mean(held_cad) if held_cad else float('nan')):.2f} s max "
+        f"{(max(held_cad) if held_cad else float('nan')):.2f} s; RSS per rank "
+        f"{', '.join(f'{r:.2f}' for r in (rss_per or []))} GiB, summed {rss_sum:.2f} GiB "
+        f"(beside entry 40's t_b / t_col / t_held)",
+    )
     worst_rel = max(cols[p]["rel"] for p in driven_ids)
     min_blind = min(cols[p]["blind"] for p in driven_ids)
-    _say(comm, f"kinds {kinds.count('solve')} solve / {kinds.count('held')} held (ASSERTED 1 / "
-               f"{n_drives - 1}); (P) worst rel {worst_rel:.3e} (band {DISCRETE_IDENTITY_RTOL:g}, "
-               f"ASSERTED); NEG min blind {min_blind:.4e} > band (ASSERTED)")
+    _say(
+        comm,
+        f"kinds {kinds.count('solve')} solve / {kinds.count('held')} held (ASSERTED 1 / "
+        f"{n_drives - 1}); (P) worst rel {worst_rel:.3e} (band {DISCRETE_IDENTITY_RTOL:g}, "
+        f"ASSERTED); NEG min blind {min_blind:.4e} > band (ASSERTED)",
+    )
     assert kinds.count("solve") == 1 and kinds.count("held") == n_drives - 1, kinds
     assert worst_rel <= DISCRETE_IDENTITY_RTOL, worst_rel
     assert all(cols[p]["p_surf"] > 0.0 for p in driven_ids)
     assert min_blind > BLIND_FACTOR * DISCRETE_IDENTITY_RTOL, min_blind
 
     if n_drives < N_PORTS:
-        _say(comm, f"(ii), (iii), (iv') and the column-scale control: SKIPPED "
-                   f"({C3_DRIVES_ENV}={n_drives} < {N_PORTS})")
+        _say(
+            comm,
+            f"(ii), (iii), (iv') and the column-scale control: SKIPPED "
+            f"({C3_DRIVES_ENV}={n_drives} < {N_PORTS})",
+        )
         return {"cols": cols, "kinds": kinds, "t_build": t_build}
 
     s = np.array([[cols[pj]["s"][pi] for pj in order] for pi in order], dtype=complex)
@@ -560,43 +633,74 @@ def _sweep(comm, built, geo, order, az, zc, classes, t_build, t_window, n_drives
     col_norms = np.sum(np.abs(s) ** 2, axis=0)
     spreads = _class_spreads(s, classes)
     worst = max(spreads, key=lambda key: spreads[key][0])
-    _say(comm, f"(ii) reciprocity {ratio:.6e} (band {RECIPROCITY_BAND:.0e}, ASSERTED; PREDICTED "
-               f"≈{PREDICTED_RECIPROCITY:.0e})")
-    _say(comm, f"(iii) sigma_max {sigma_max:.12f} (ceiling {MATRIX_PASSIVITY_CEILING}, ASSERTED; "
-               f"entry 44 names 1 + {PASSIVITY_SIGMA_TOLERANCE:g}, printed); column sum|S|^2 min "
-               f"{col_norms.min():.6f} max {col_norms.max():.6f} (ASSERTED <= ceiling)")
+    _say(
+        comm,
+        f"(ii) reciprocity {ratio:.6e} (band {RECIPROCITY_BAND:.0e}, ASSERTED; PREDICTED "
+        f"≈{PREDICTED_RECIPROCITY:.0e})",
+    )
+    _say(
+        comm,
+        f"(iii) sigma_max {sigma_max:.12f} (ceiling {MATRIX_PASSIVITY_CEILING}, ASSERTED; "
+        f"entry 44 names 1 + {PASSIVITY_SIGMA_TOLERANCE:g}, printed); column sum|S|^2 min "
+        f"{col_norms.min():.6f} max {col_norms.max():.6f} (ASSERTED <= ceiling)",
+    )
     for same_ring in (True, False):
         for steps in range(N_AZIMUTH_CLASSES_32):
             sp, cnt, mean = spreads[(same_ring, steps)]
-            _say(comm, f"     {'same ' if same_ring else 'other'} ring, {steps:2d} steps  n = {cnt:4d}"
-                       f"  mean |S| = {mean:.9e}  spread {sp * 100:8.4f}%"
-                       + ("   <-- worst" if (same_ring, steps) == worst else ""))
-    _say(comm, f"(iv') worst class spread {spreads[worst][0]:.4e} (band OPPOSITE_SPREAD_BAND "
-               f"{OPPOSITE_SPREAD_BAND}, ASSERTED; vs ADJACENT_SPREAD_BAND {ADJACENT_SPREAD_BAND} "
-               f"= {spreads[worst][0] / ADJACENT_SPREAD_BAND:.2f}x, PRINTED; F-human "
-               f"{PREDICTED_SPREAD_F_HUMAN})")
-    _say(comm, f"control (predicted, printed): column {order[0]} x {CONTROL_COLUMN_SCALE}: ratio "
-               f"{control_ratio:.6e} (ceiling ≈{N2_CEILING:.2e}; band {RECIPROCITY_BAND:.0e})")
+            _say(
+                comm,
+                f"     {'same ' if same_ring else 'other'} ring, {steps:2d} steps  n = {cnt:4d}"
+                f"  mean |S| = {mean:.9e}  spread {sp * 100:8.4f}%"
+                + ("   <-- worst" if (same_ring, steps) == worst else ""),
+            )
+    _say(
+        comm,
+        f"(iv') worst class spread {spreads[worst][0]:.4e} (band OPPOSITE_SPREAD_BAND "
+        f"{OPPOSITE_SPREAD_BAND}, ASSERTED; vs ADJACENT_SPREAD_BAND {ADJACENT_SPREAD_BAND} "
+        f"= {spreads[worst][0] / ADJACENT_SPREAD_BAND:.2f}x, PRINTED; F-human "
+        f"{PREDICTED_SPREAD_F_HUMAN})",
+    )
+    _say(
+        comm,
+        f"control (predicted, printed): column {order[0]} x {CONTROL_COLUMN_SCALE}: ratio "
+        f"{control_ratio:.6e} (ceiling ≈{N2_CEILING:.2e}; band {RECIPROCITY_BAND:.0e})",
+    )
     save_path = _save_path()
     if comm.rank == 0:
         save_path.parent.mkdir(parents=True, exist_ok=True)
-        np.savez(save_path, s64=s.astype(np.complex128), order=np.array(order),
-                 azimuth_deg=az, z_m=zc, cells=built["cells"], n_ranks=comm.size)
+        np.savez(
+            save_path,
+            s64=s.astype(np.complex128),
+            order=np.array(order),
+            azimuth_deg=az,
+            z_m=zc,
+            cells=built["cells"],
+            n_ranks=comm.size,
+        )
     comm.Barrier()
     _say(comm, f"saved {save_path}; window {time.perf_counter() - t_window:.1f} s")
     assert ratio <= RECIPROCITY_BAND, ratio
     assert sigma_max <= MATRIX_PASSIVITY_CEILING, sigma_max
     assert float(col_norms.max()) <= MATRIX_PASSIVITY_CEILING, col_norms.max()
     assert spreads[worst][0] <= OPPOSITE_SPREAD_BAND, spreads[worst]
-    return {"cols": cols, "kinds": kinds, "t_build": t_build, "s": s, "ratio": ratio,
-            "sigma_max": sigma_max, "spreads": spreads}
+    return {
+        "cols": cols,
+        "kinds": kinds,
+        "t_build": t_build,
+        "s": s,
+        "ratio": ratio,
+        "sigma_max": sigma_max,
+        "spreads": spreads,
+    }
 
 
 # ---------------------------------------------------------------------------
 # Coding tests (numpy only); skip when FEM_EM_GEO38_C3 is set.
 # ---------------------------------------------------------------------------
-_coding = pytest.mark.skipif(os.environ.get(C3_ENV, "").strip() != "",
-                             reason=f"{C3_ENV} set: coding tests skip in solve windows")
+_coding = pytest.mark.skipif(
+    os.environ.get(C3_ENV, "").strip() != "",
+    reason=f"{C3_ENV} set: coding tests skip in solve windows",
+)
 
 
 @_coding
@@ -649,8 +753,10 @@ def test_k2_synthetic_matrix_gates():
     spreads = _class_spreads(s, classes)
     ratio = _reciprocity_ratio(s)
     sigma_max = float(np.linalg.norm(s, 2))
-    print(f"[GEO-38 C3 K2] reciprocity {ratio:.3e}, worst spread "
-          f"{max(v[0] for v in spreads.values()):.3e}, sigma_max {sigma_max:.6f}")
+    print(
+        f"[GEO-38 C3 K2] reciprocity {ratio:.3e}, worst spread "
+        f"{max(v[0] for v in spreads.values()):.3e}, sigma_max {sigma_max:.6f}"
+    )
     assert ratio <= 1e-15, ratio
     assert all(v[0] == 0.0 for v in spreads.values()), spreads
 
@@ -682,8 +788,10 @@ def test_n2_column_scale_lifts_reciprocity_above_band():
     s = _synthetic_s(az, zc)
     s[:, 0] *= CONTROL_COLUMN_SCALE
     ratio = _reciprocity_ratio(s)
-    print(f"[GEO-38 C3 N2] controlled ratio {ratio:.4e} = {ratio / RECIPROCITY_BAND:.3f}x band "
-          f"(ceiling ≈{N2_CEILING:.3e})")
+    print(
+        f"[GEO-38 C3 N2] controlled ratio {ratio:.4e} = {ratio / RECIPROCITY_BAND:.3f}x band "
+        f"(ceiling ≈{N2_CEILING:.3e})"
+    )
     assert ratio > RECIPROCITY_BAND, ratio
     assert ratio <= N2_CEILING * (1.0 + 1e-9), ratio
 
@@ -797,7 +905,10 @@ def test_k5_build_keeps_save_state(tmp_path):
         _build_keeps_save_state(comm, present, touch)
     with pytest.raises(AssertionError):
         _build_keeps_save_state(comm, absent, create)
-    print("\n[GEO-38 C3 K5] (S) identical present and absent; touch and create both fail it", flush=True)
+    print(
+        "\n[GEO-38 C3 K5] (S) identical present and absent; touch and create both fail it",
+        flush=True,
+    )
 
 
 @_coding
@@ -821,8 +932,10 @@ def test_k6_rung_knob_parsing(monkeypatch):
         _rung_checked()
     monkeypatch.setenv(C3_RUNG_ENV, "r1")
     assert _rung_checked() == "r1"
-    print("\n[GEO-38 C3 K6] rung knob r1 / r2 accepted, r3 / R2 / 2 refused; r2 at degree 2 refused",
-          flush=True)
+    print(
+        "\n[GEO-38 C3 K6] rung knob r1 / r2 accepted, r3 / R2 / 2 refused; r2 at degree 2 refused",
+        flush=True,
+    )
 
 
 @_coding
@@ -841,7 +954,9 @@ def test_k7_r2_patches_route_and_restore():
         _r2_patches(mp)
         seen = c11._tripwire_kwargs(mp)
         assert seen["conductor_resolution"] == s1a.CONDUCTOR_RESOLUTION["r2"] == 2.4e-3, seen
-        assert set(seen) - {"comm", "return_diagnostics"} == set(r1_kw), sorted(set(seen) ^ set(r1_kw))
+        assert set(seen) - {"comm", "return_diagnostics"} == set(r1_kw), sorted(
+            set(seen) ^ set(r1_kw)
+        )
         moved = sorted(k for k in r1_kw if seen[k] != r1_kw[k])
         assert moved == ["conductor_resolution"], moved
         assert s1a.F_CLINICAL_R1_CELL_RECORD == 912_804
@@ -855,23 +970,28 @@ def test_k7_r2_patches_route_and_restore():
     assert s1a.F_CLINICAL_R1_CELL_RECORD == 1_147_366
     assert s1a.F_CLINICAL_R1_UNKNOWNS_RECORD == (1_525_193, 7_885_674)
     assert this.SAVE_PATH == ENTRY44_D1_PATH
-    print(f"\n[GEO-38 C3 K7] r2 patches: builder sees only conductor_resolution "
-          f"{seen['conductor_resolution']} (r1 {r1_kw['conductor_resolution']}), save "
-          f"{SAVE_PATH_R2}; restored on exit; c11's c3 is this module: {c11._modules()[0] is this}",
-          flush=True)
+    print(
+        f"\n[GEO-38 C3 K7] r2 patches: builder sees only conductor_resolution "
+        f"{seen['conductor_resolution']} (r1 {r1_kw['conductor_resolution']}), save "
+        f"{SAVE_PATH_R2}; restored on exit; c11's c3 is this module: {c11._modules()[0] is this}",
+        flush=True,
+    )
 
 
 @_coding
 def test_n5_r1_records_refuse_r2_mesh():
     """N5 (asserted, integers only): r1's records refuse the r2 mesh."""
-    from tests.mesh.test_birdcage_port_sheet_prerequisite import CELL_COUNT_BAND
     import tests.validation.test_geo38_f_clinical_build as s1a
+    from tests.mesh.test_birdcage_port_sheet_prerequisite import CELL_COUNT_BAND
 
     cells_rel = abs(s1a.F_CLINICAL_R2_CELL_RECORD / s1a.F_CLINICAL_R1_CELL_RECORD - 1.0)
     u1_rel = abs(s1a.F_CLINICAL_R2_UNKNOWNS_RECORD[0] / s1a.F_CLINICAL_R1_UNKNOWNS_RECORD[0] - 1.0)
-    print(f"\n[GEO-38 C3 N5] |912804 / 1147366 - 1| = {cells_rel:.4f} = "
-          f"{cells_rel / CELL_COUNT_BAND:.1f}x CELL_COUNT_BAND; |1184518 / 1525193 - 1| = "
-          f"{u1_rel:.4f}", flush=True)
+    print(
+        f"\n[GEO-38 C3 N5] |912804 / 1147366 - 1| = {cells_rel:.4f} = "
+        f"{cells_rel / CELL_COUNT_BAND:.1f}x CELL_COUNT_BAND; |1184518 / 1525193 - 1| = "
+        f"{u1_rel:.4f}",
+        flush=True,
+    )
     assert cells_rel > CELL_COUNT_BAND, cells_rel
     assert s1a.F_CLINICAL_R2_UNKNOWNS_RECORD[0] != s1a.F_CLINICAL_R1_UNKNOWNS_RECORD[0]
     assert u1_rel > 0.2, u1_rel
@@ -896,8 +1016,11 @@ def test_n6_rung_knob_does_not_leak(monkeypatch):
         c11._c11_patches(mp)
         c11_unset = c11._tripwire_kwargs(mp)
     assert c11_knob == c11_unset, sorted(k for k in c11_unset if c11_knob.get(k) != c11_unset[k])
-    print(f"\n[GEO-38 C3 N6] knob r2, no patches: conductor_resolution {bare['conductor_resolution']}; "
-          f"C11 kwargs with knob == unset: {c11_knob == c11_unset}", flush=True)
+    print(
+        f"\n[GEO-38 C3 N6] knob r2, no patches: conductor_resolution {bare['conductor_resolution']}; "
+        f"C11 kwargs with knob == unset: {c11_knob == c11_unset}",
+        flush=True,
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -930,25 +1053,40 @@ def test_geo38_c3_f_clinical_copper_matrix(monkeypatch):
     comm = MPI.COMM_WORLD
     literal = (ENTRY44_D1_PATH, ENTRY54_D2_PATH)
     if rung == "r2":
-        lit_before = comm.bcast([_size_mtime(p) for p in literal] if comm.rank == 0 else None, root=0)
+        lit_before = comm.bcast(
+            [_size_mtime(p) for p in literal] if comm.rank == 0 else None, root=0
+        )
         lo, hi = PREDICTED_T_BUILD_R2_S[1]
-        _say(comm, f"(C35) rung r2: save path {SAVE_PATH_R2}; PREDICTED t_build ≈ "
-                   f"{PREDICTED_T_BUILD_R2_S[0]:.0f} s in [{lo:.0f}, {hi:.0f}] (printed only)")
+        _say(
+            comm,
+            f"(C35) rung r2: save path {SAVE_PATH_R2}; PREDICTED t_build ≈ "
+            f"{PREDICTED_T_BUILD_R2_S[0]:.0f} s in [{lo:.0f}, {hi:.0f}] (printed only)",
+        )
         _r2_patches(monkeypatch)
     if mode == "build":
         save_path = _save_path()
         d1_before = _size_mtime(SAVE_PATH)
-        _, save_state = _build_keeps_save_state(comm, save_path, lambda: _run_c3(comm, build_only=True))
+        _, save_state = _build_keeps_save_state(
+            comm, save_path, lambda: _run_c3(comm, build_only=True)
+        )
         d1_after = _size_mtime(SAVE_PATH)
-        _say(comm, f"(S) save path {save_path} (size, mtime_ns) or absence unchanged by build-only: "
-                   f"{save_state} (ASSERTED)")
+        _say(
+            comm,
+            f"(S) save path {save_path} (size, mtime_ns) or absence unchanged by build-only: "
+            f"{save_state} (ASSERTED)",
+        )
         _say(comm, f"(S) {SAVE_PATH} (size, mtime_ns) {d1_after} == before {d1_before} (ASSERTED)")
         assert d1_after == d1_before, (d1_after, d1_before)
         if rung == "r2":
-            lit_after = comm.bcast([_size_mtime(p) for p in literal] if comm.rank == 0 else None, root=0)
-            _say(comm, f"(S-r2) {save_path} absent before and after: {save_state is None}; "
-                       f"{ENTRY44_D1_PATH} / {ENTRY54_D2_PATH} (size, mtime_ns) {lit_after} == before "
-                       f"{lit_before} (ASSERTED)")
+            lit_after = comm.bcast(
+                [_size_mtime(p) for p in literal] if comm.rank == 0 else None, root=0
+            )
+            _say(
+                comm,
+                f"(S-r2) {save_path} absent before and after: {save_state is None}; "
+                f"{ENTRY44_D1_PATH} / {ENTRY54_D2_PATH} (size, mtime_ns) {lit_after} == before "
+                f"{lit_before} (ASSERTED)",
+            )
             assert save_path == SAVE_PATH_R2 and save_state is None, (save_path, save_state)
             assert lit_after == lit_before, (lit_after, lit_before)
         return

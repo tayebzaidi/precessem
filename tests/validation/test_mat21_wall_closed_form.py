@@ -36,13 +36,13 @@ from fem_em_solver.utils.analytical import (
     two_layer_slab_steady_temperature,
     wall_effective_heat_transfer,
 )
-from tests.validation.test_mat15_finite_cylinder_closed_form import H, K, Q, RHO_C, T_INF
+from tests.validation.test_mat15_finite_cylinder_closed_form import RHO_C, T_INF, H, K, Q
 from tests.validation.test_mat21_box_closed_form import C_BOX, HALF, SERIES_TERMS
 
-D_WALL = 0.006            # m — fixture's choice
-K_W = 0.19                # W/m/K — PMMA, nominal handbook value, citation owed
+D_WALL = 0.006  # m — fixture's choice
+K_W = 0.19  # W/m/K — PMMA, nominal handbook value, citation owed
 RHO_C_W = 1190.0 * 1470.0  # J/m³/K — PMMA, nominal handbook value, citation owed
-SLAB_TERMS = 4000         # measured 2026-10-27: 400 → 2.7e-11, 4000 → 2.8e-14, 40000 → 7.0e-16
+SLAB_TERMS = 4000  # measured 2026-10-27: 400 → 2.7e-11, 4000 → 2.8e-14, 40000 → 7.0e-16
 W_BAND = 1.0e-12
 KINF_BAND = 1.0e-9
 WNEG_FLOOR = 1.0e-3
@@ -55,7 +55,8 @@ def _say(msg):
 
 def _two_layer(z, k_w=K_W, **kw):
     return two_layer_slab_steady_temperature(
-        z, half_thickness=C_BOX, wall=D_WALL, k=K, k_w=k_w, q=Q, h=H, t_inf=T_INF, **kw)
+        z, half_thickness=C_BOX, wall=D_WALL, k=K, k_w=k_w, q=Q, h=H, t_inf=T_INF, **kw
+    )
 
 
 def _bare_series(z, h):
@@ -75,9 +76,11 @@ def test_w1_gel_side_equals_bare_slab_at_h_eff():
     h_eff = wall_effective_heat_transfer(H, D_WALL, K_W)
     rise = _rise0()
     err = np.abs(_two_layer(Z_GEL) - _bare_series(Z_GEL, h_eff)).max() / rise
-    _say(f"MAT21-20 (W1) h {H} -> h_eff {h_eff:.12f} W/m2/K (d {D_WALL} m, k_w {K_W}); "
-         f"Bi_eff {h_eff * C_BOX / K:.6f}; centre rise {rise:.12f} K; "
-         f"max |two-layer - bare series(h_eff)|/rise over {Z_GEL.size} gel points {err:.3e}")
+    _say(
+        f"MAT21-20 (W1) h {H} -> h_eff {h_eff:.12f} W/m2/K (d {D_WALL} m, k_w {K_W}); "
+        f"Bi_eff {h_eff * C_BOX / K:.6f}; centre rise {rise:.12f} K; "
+        f"max |two-layer - bare series(h_eff)|/rise over {Z_GEL.size} gel points {err:.3e}"
+    )
     assert err <= W_BAND
 
 
@@ -88,7 +91,7 @@ def test_w2_interface_continuity_and_outer_robin():
     worst_t = worst_f = worst_r = 0.0
     for sgn in (1.0, -1.0):
         zi = sgn * C_BOX
-        zo = np.nextafter(zi, sgn * np.inf)        # the wall branch, one ulp outside
+        zo = np.nextafter(zi, sgn * np.inf)  # the wall branch, one ulp outside
         tg, dg = _two_layer(zi, return_gradient=True)
         tw, dw = _two_layer(zo, return_gradient=True)
         dt = abs(float(tg - tw)) / rise
@@ -97,10 +100,12 @@ def test_w2_interface_continuity_and_outer_robin():
         te, de = _two_layer(ze, return_gradient=True)
         res = abs(float(-K_W * de * sgn - H * (te - T_INF))) / qc
         out_flux = float(-K_W * de * sgn)
-        _say(f"MAT21-20 (W2) face {sgn:+.0f}: |dT| at |z|=C /rise {dt:.3e}; "
-             f"|flux jump|/(qC) {df:.3e}; Robin residual at |z|=C+d /(qC) {res:.3e}; "
-             f"outward flux {out_flux:.12f} W/m2 vs qC {qc:.12f}; "
-             f"T(C) {float(tg):.9f} K, T(C+d) {float(te):.9f} K")
+        _say(
+            f"MAT21-20 (W2) face {sgn:+.0f}: |dT| at |z|=C /rise {dt:.3e}; "
+            f"|flux jump|/(qC) {df:.3e}; Robin residual at |z|=C+d /(qC) {res:.3e}; "
+            f"outward flux {out_flux:.12f} W/m2 vs qC {qc:.12f}; "
+            f"T(C) {float(tg):.9f} K, T(C+d) {float(te):.9f} K"
+        )
         worst_t, worst_f, worst_r = max(worst_t, dt), max(worst_f, df), max(worst_r, res)
     assert worst_t <= W_BAND
     assert worst_f <= W_BAND
@@ -116,20 +121,26 @@ def test_w3_box_at_h_eff_and_wall_share_printed():
     slab_eff = _rise0()
     slab_bare = float(_bare_series(0.0, H)[0] - T_INF)
     eps_w = RHO_C_W * D_WALL / (RHO_C * C_BOX)
-    _say(f"MAT21-20 (W3, print) box centre rise at h_eff {box_eff:.9f} K vs at h {box_bare:.9f} K "
-         f"(ratio {box_eff / box_bare:.6f}); 1D slab with wall {slab_eff:.9f} K vs bare {slab_bare:.9f} K "
-         f"(ratio {slab_eff / slab_bare:.6f}); box/slab at h_eff {box_eff / slab_eff:.6f}")
-    _say(f"MAT21-20 (Print) eps_w = rho_w c_w d/(rho c C) = {eps_w:.6f} "
-         f"(rho_w c_w {RHO_C_W:.4e} J/m3/K, nominal, citation owed)")
-    assert np.isfinite(box_eff) and np.isfinite(eps_w)   # print-only test; no claim
+    _say(
+        f"MAT21-20 (W3, print) box centre rise at h_eff {box_eff:.9f} K vs at h {box_bare:.9f} K "
+        f"(ratio {box_eff / box_bare:.6f}); 1D slab with wall {slab_eff:.9f} K vs bare {slab_bare:.9f} K "
+        f"(ratio {slab_eff / slab_bare:.6f}); box/slab at h_eff {box_eff / slab_eff:.6f}"
+    )
+    _say(
+        f"MAT21-20 (Print) eps_w = rho_w c_w d/(rho c C) = {eps_w:.6f} "
+        f"(rho_w c_w {RHO_C_W:.4e} J/m3/K, nominal, citation owed)"
+    )
+    assert np.isfinite(box_eff) and np.isfinite(eps_w)  # print-only test; no claim
 
 
 # ---------------------------------------------------------------- (K∞)
 def test_kinf_reduces_to_bare_robin():
     rise_bare = float(_bare_series(0.0, H)[0] - T_INF)
     err = np.abs(_two_layer(Z_GEL, k_w=1.0e9) - _bare_series(Z_GEL, H)).max() / rise_bare
-    _say(f"MAT21-20 (Kinf) k_w = 1e9: max |two-layer - bare series(h)|/rise {err:.3e} "
-         f"(h_eff {wall_effective_heat_transfer(H, D_WALL, 1.0e9):.15f})")
+    _say(
+        f"MAT21-20 (Kinf) k_w = 1e9: max |two-layer - bare series(h)|/rise {err:.3e} "
+        f"(h_eff {wall_effective_heat_transfer(H, D_WALL, 1.0e9):.15f})"
+    )
     assert err <= KINF_BAND
 
 
@@ -138,6 +149,8 @@ def test_negative_control_bare_slab_misses_wall():
     rise = _rise0()
     bare = float(_bare_series(0.0, H)[0] - T_INF)
     miss = abs(rise - bare) / rise
-    _say(f"MAT21-20 (Wneg) centre rise with wall {rise:.9f} K, bare at h {bare:.9f} K; "
-         f"relative miss {miss:.6f} (floor {WNEG_FLOOR})")
+    _say(
+        f"MAT21-20 (Wneg) centre rise with wall {rise:.9f} K, bare at h {bare:.9f} K; "
+        f"relative miss {miss:.6f} (floor {WNEG_FLOOR})"
+    )
     assert miss > WNEG_FLOOR

@@ -115,13 +115,19 @@ def test_s1f_refusals_and_acceptance(tmp_path, monkeypatch):
     monkeypatch.setattr(FourPortBirdcageGeometry, "build", _no_build)
     with pytest.raises(_Reached):
         _cu_study().solve(MPI.COMM_WORLD, backend="palace", case_dir=tmp_path / "c")
-    print("[s1f W0] as_hole + LeontovichWall(5.8e7): passes every refusal, reaches build",
-          flush=True)
+    print(
+        "[s1f W0] as_hole + LeontovichWall(5.8e7): passes every refusal, reaches build", flush=True
+    )
 
     # The Boundaries block equals the probe's own h05x_cu_o2.json (when on disk).
     cfg = palace_config(
-        mesh_name="mesh.msh", output="postpro", materials=[], ports=[1, 2, 3, 4],
-        order=2, freq_ghz=0.064, r_ohm=50.0,
+        mesh_name="mesh.msh",
+        output="postpro",
+        materials=[],
+        ports=[1, 2, 3, 4],
+        order=2,
+        freq_ghz=0.064,
+        r_ohm=50.0,
         conductivity=[{"Attributes": [401], "Conductivity": 5.8e7, "Permeability": 1.0}],
     )
     if PROBE_CFG.exists():
@@ -129,9 +135,12 @@ def test_s1f_refusals_and_acceptance(tmp_path, monkeypatch):
         assert cfg["Boundaries"] == probe["Boundaries"], cfg["Boundaries"]
         assert cfg["Solver"] == probe["Solver"]
         print("[s1f W0] Boundaries / Solver == h05x_cu_o2.json", flush=True)
-    assert "Conductivity" not in palace_config(
-        mesh_name="m", output="o", materials=[], ports=[1], order=2, freq_ghz=0.064,
-        r_ohm=50.0)["Boundaries"]
+    assert (
+        "Conductivity"
+        not in palace_config(
+            mesh_name="m", output="o", materials=[], ports=[1], order=2, freq_ghz=0.064, r_ohm=50.0
+        )["Boundaries"]
+    )
 
 
 def test_s1f_write_case():
@@ -191,22 +200,32 @@ def test_s1f_read_back():
     s_cu, _ = read_port_s(PROBE_CU)
     s_pec, _ = read_port_s(PROBE_PEC)
     ent = np.abs(s - s_cu) / np.abs(s_cu)
-    print(f"[s1f Wread E2-Cu] entry-wise |S - S_probe|/|S_probe| max {ent.max():.3e} "
-          f"(band {LEG_D0_REPRODUCTION_BAND:.0e}); Frobenius-rel "
-          f"{np.linalg.norm(s - s_cu) / np.linalg.norm(s_cu):.3e}; cells {res.cells}; "
-          f"palace_total_s {res.palace_total_s}", flush=True)
+    print(
+        f"[s1f Wread E2-Cu] entry-wise |S - S_probe|/|S_probe| max {ent.max():.3e} "
+        f"(band {LEG_D0_REPRODUCTION_BAND:.0e}); Frobenius-rel "
+        f"{np.linalg.norm(s - s_cu) / np.linalg.norm(s_cu):.3e}; cells {res.cells}; "
+        f"palace_total_s {res.palace_total_s}",
+        flush=True,
+    )
     m = _class_means(s)
     ref = ANS6_EXACT_STRIP_CLASS_MEANS_P2["64"]["cu"]
     tie = {k: float(abs(m[k] - ref[k]) / abs(ref[k])) for k in ref}
-    print("[s1f Wread Tie-Cu] " + ", ".join(f"{k} {v:.3e}" for k, v in tie.items())
-          + f" (band TIE2_BAND {TIE2_BAND:.1e} from tests/package/test_arch1_palace_backend.py;"
-          f" step 2b (T4) printed {T4_RECORDED}, predicted <= 1e-6)", flush=True)
+    print(
+        "[s1f Wread Tie-Cu] "
+        + ", ".join(f"{k} {v:.3e}" for k, v in tie.items())
+        + f" (band TIE2_BAND {TIE2_BAND:.1e} from tests/package/test_arch1_palace_backend.py;"
+        f" step 2b (T4) printed {T4_RECORDED}, predicted <= 1e-6)",
+        flush=True,
+    )
     mp = _class_means(s_pec)
     miss = {k: float(abs(mp[k] - m[k]) / abs(m[k])) for k in m}
-    print("[s1f Wread control] PEC hole (postpro_h05x_pec_o2) vs Study Cu, degree 2: "
-          + ", ".join(f"{k} {v:.3e}" for k, v in miss.items())
-          + f" (> NEGATIVE_CONTROL_FLOOR {NEGATIVE_CONTROL_FLOOR:.0e}; WF-1 degree-1 miss "
-          f"{WF1_D1_MISS})", flush=True)
+    print(
+        "[s1f Wread control] PEC hole (postpro_h05x_pec_o2) vs Study Cu, degree 2: "
+        + ", ".join(f"{k} {v:.3e}" for k, v in miss.items())
+        + f" (> NEGATIVE_CONTROL_FLOOR {NEGATIVE_CONTROL_FLOOR:.0e}; WF-1 degree-1 miss "
+        f"{WF1_D1_MISS})",
+        flush=True,
+    )
     assert ent.max() <= LEG_D0_REPRODUCTION_BAND, ent.max()
     for k, v in tie.items():
         assert v <= TIE2_BAND, (k, v)

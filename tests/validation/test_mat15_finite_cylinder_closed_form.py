@@ -21,7 +21,6 @@ Negative control (predicted, asserted only > 1e-3): Dirichlet radial roots.
 from __future__ import annotations
 
 import numpy as np
-import pytest
 from scipy.special import j0, j1, jn_zeros
 
 from fem_em_solver.utils.analytical import (
@@ -64,7 +63,8 @@ def _steady(r, z, **kw):
 
 def _trans(r, z, t, **kw):
     return robin_finite_cylinder_transient_temperature(
-        r, z, t, t_inf=T_INF, rho_c=RHO_C, t_init=T_INF, **{**KW, **kw})
+        r, z, t, t_inf=T_INF, rho_c=RHO_C, t_init=T_INF, **{**KW, **kw}
+    )
 
 
 def test_r0_roots_and_coefficients():
@@ -87,11 +87,15 @@ def test_r0_roots_and_coefficients():
     # (residual 2.7e-15·β, printed above) moves J₁ by |J₀/J₁|·δβ ≈ 2.5e-10.
     # The 1e-12 bar is kept and applied in the series' own norm, |ΔCₘ|/max|Cₘ|.
     dc = np.max(np.abs(c1 - c2)) / np.max(np.abs(c1))
-    _say(f"MAT15-2a (R0) max root residual / root: beta {res_b.max():.3e}, "
-         f"gamma {res_g.max():.3e}; C_m two forms max |dC|/max|C| {dc:.3e} (per-root rel {dc_rel:.3e}, printed only)")
-    _say(f"MAT15-2a printed beta_1 = {beta[0]:.4f} (Incropera Table 5.1 Bi 0.5, from "
-         f"memory: 0.9408); gamma_1 at Bi 0.5 = {robin_slab_eigenvalues(0.5, 1)[0]:.4f} "
-         f"(0.6533); gamma_1 at Bi_z {BI_Z:.3f} = {gam[0]:.4f}")
+    _say(
+        f"MAT15-2a (R0) max root residual / root: beta {res_b.max():.3e}, "
+        f"gamma {res_g.max():.3e}; C_m two forms max |dC|/max|C| {dc:.3e} (per-root rel {dc_rel:.3e}, printed only)"
+    )
+    _say(
+        f"MAT15-2a printed beta_1 = {beta[0]:.4f} (Incropera Table 5.1 Bi 0.5, from "
+        f"memory: 0.9408); gamma_1 at Bi 0.5 = {robin_slab_eigenvalues(0.5, 1)[0]:.4f} "
+        f"(0.6533); gamma_1 at Bi_z {BI_Z:.3f} = {gam[0]:.4f}"
+    )
     assert res_b.max() <= 1e-12
     assert res_g.max() <= 1e-12
     assert dc <= 1e-12
@@ -124,10 +128,17 @@ def test_r1_robin_residuals():
 def _fd_lap_residual(delta, x0, y0, z0):
     def th(x, y, z):
         return _steady(np.hypot(x, y), z) - T_INF
+
     c = th(x0, y0, z0)
-    lap = (th(x0 + delta, y0, z0) + th(x0 - delta, y0, z0)
-           + th(x0, y0 + delta, z0) + th(x0, y0 - delta, z0)
-           + th(x0, y0, z0 + delta) + th(x0, y0, z0 - delta) - 6.0 * c) / delta**2
+    lap = (
+        th(x0 + delta, y0, z0)
+        + th(x0 - delta, y0, z0)
+        + th(x0, y0 + delta, z0)
+        + th(x0, y0 - delta, z0)
+        + th(x0, y0, z0 + delta)
+        + th(x0, y0, z0 - delta)
+        - 6.0 * c
+    ) / delta**2
     return float(K * lap + Q)
 
 
@@ -141,14 +152,18 @@ def test_r2_fd_laplacian():
     # δ = 1e-3·a is still printed.  Bounds unchanged.
     e1s = _fd_lap_residual(1e-3 * A, x0, y0, z0)
     e2s = _fd_lap_residual(2e-3 * A, x0, y0, z0)
-    _say(f"MAT15-2a (R2, record) delta = 1e-3 a: {abs(e1s) / Q:.3e}, 2 delta {abs(e2s) / Q:.3e}, "
-         f"ratio {e2s / e1s:.4f}")
+    _say(
+        f"MAT15-2a (R2, record) delta = 1e-3 a: {abs(e1s) / Q:.3e}, 2 delta {abs(e2s) / Q:.3e}, "
+        f"ratio {e2s / e1s:.4f}"
+    )
     d = 1e-2 * A
     e1 = _fd_lap_residual(d, x0, y0, z0)
     e2 = _fd_lap_residual(2 * d, x0, y0, z0)
     ratio = e2 / e1
-    _say(f"MAT15-2a (R2) |k lap + q|/q at delta = {abs(e1) / Q:.3e}, 2 delta = "
-         f"{abs(e2) / Q:.3e}, ratio {ratio:.4f}")
+    _say(
+        f"MAT15-2a (R2) |k lap + q|/q at delta = {abs(e1) / Q:.3e}, 2 delta = "
+        f"{abs(e2) / Q:.3e}, ratio {ratio:.4f}"
+    )
     assert 3.8 <= ratio <= 4.2
     assert abs(e1) / Q <= 1e-4
 
@@ -195,8 +210,10 @@ def _r4_error(**kw):
             a = float(_trans(r, z, t, **kw) - T_INF)
             b = _duhamel(r, z, t)
             worst = max(worst, abs(a - b) / th00)
-            _say(f"MAT15-2a (R4{'-ctl' if kw else ''}) Fo {fo} (r,z) = ({r:.3f},{z:.3f}): "
-                 f"series {a:.9f}  Duhamel {b:.9f}")
+            _say(
+                f"MAT15-2a (R4{'-ctl' if kw else ''}) Fo {fo} (r,z) = ({r:.3f},{z:.3f}): "
+                f"series {a:.9f}  Duhamel {b:.9f}"
+            )
     return worst
 
 
@@ -213,18 +230,23 @@ def test_r5_limits_and_tail():
     rs = np.array([0.0, 0.5 * A, 0.9 * A])
     inf_cyl = Q * (A**2 - rs**2) / (4 * K) + Q * A / (2 * H)
     got = robin_finite_cylinder_steady_temperature(
-        rs, np.zeros_like(rs), radius=A, half_height=100 * A, k=K, q=Q, h=H)
+        rs, np.zeros_like(rs), radius=A, half_height=100 * A, k=K, q=Q, h=H
+    )
     e_cyl = np.max(np.abs(got - inf_cyl) / inf_cyl)
     zs = np.array([0.0, 0.5 * L, 0.9 * L])
     slab = Q / (2 * K) * (L**2 - zs**2) + Q * L / H
     got = robin_finite_cylinder_steady_temperature(
-        np.zeros_like(zs), zs, radius=100 * L, half_height=L, k=K, q=Q, h=H)
+        np.zeros_like(zs), zs, radius=100 * L, half_height=L, k=K, q=Q, h=H
+    )
     e_slab = np.max(np.abs(got - slab) / slab)
-    _say(f"MAT15-2a (R5) Fo 50 vs steady {e_late:.3e}; infinite-cylinder limit "
-         f"{e_cyl:.3e}; slab limit {e_slab:.3e}")
+    _say(
+        f"MAT15-2a (R5) Fo 50 vs steady {e_late:.3e}; infinite-cylinder limit "
+        f"{e_cyl:.3e}; slab limit {e_slab:.3e}"
+    )
     for mn in (100, 200, 400):
         v = robin_finite_cylinder_transient_temperature(
-            0.0, 0.0, 0.0, t_inf=0.0, rho_c=RHO_C, n_radial=mn, n_axial=mn, **KW)
+            0.0, 0.0, 0.0, t_inf=0.0, rho_c=RHO_C, n_radial=mn, n_axial=mn, **KW
+        )
         _say(f"MAT15-2a printed t = 0 tail at M = N = {mn}: theta(0,0,0) = {float(v):.3e} K")
     assert e_late <= 1e-12
     assert e_cyl <= 1e-6
@@ -235,9 +257,12 @@ def test_negative_control_dirichlet_roots():
     beta_d = jn_zeros(0, 200)
     t = 0.2 * T_R
     rr, _ = _robin_residuals(
-        lambda r, z: _trans(r, z, t, radial_roots=beta_d, return_gradient=True))
+        lambda r, z: _trans(r, z, t, radial_roots=beta_d, return_gradient=True)
+    )
     worst = _r4_error(radial_roots=beta_d)
-    _say(f"MAT15-2a control (Dirichlet roots): (R1) radial residual {rr:.3e} "
-         f"(predicted ≈ 1.0); (R4) miss {worst:.3e}")
+    _say(
+        f"MAT15-2a control (Dirichlet roots): (R1) radial residual {rr:.3e} "
+        f"(predicted ≈ 1.0); (R4) miss {worst:.3e}"
+    )
     assert rr > 1e-3
     assert worst > 1e-3

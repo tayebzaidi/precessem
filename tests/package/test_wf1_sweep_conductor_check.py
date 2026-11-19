@@ -39,19 +39,18 @@ from fem_em_solver import (
     FourPortBirdcageGeometry,
     LeontovichWall,
     SphereInBoxGeometry,
+    Study,
     StudyConfigError,
     ThermalBallGeometry,
     ThermalBoxGeometry,
-    Study,
     cli,
     load_study,
 )
-from fem_em_solver.study import COPPER_SIGMA, _SWEEP_CONDUCTOR_REASON
-from fem_em_solver.study_yaml import _load, _study_from_mapping
-
-from tests.package.test_wf16_study_sweep import _port_study
+from fem_em_solver.study import _SWEEP_CONDUCTOR_REASON, COPPER_SIGMA
+from fem_em_solver.study_yaml import _study_from_mapping
 from tests.package.test_wf1_study_yaml import LOGS, WF1, _fresh_dir, _mapping, _rc_all
 from tests.package.test_wf1_yaml_sweep import FOUR_PORT, GOOD_SWEEP, SWEEP, _field, _with_sweep
+from tests.package.test_wf16_study_sweep import _port_study
 from tests.validation.test_ans4_exact_strip_records import FREQUENCIES
 
 REPO = Path(__file__).resolve().parents[2]
@@ -62,8 +61,13 @@ PRE_CHANGE_CLI_SHA = "acf99b1b"
 #: the pre-change ``study.py`` (its last edit before this step; c-old, printed only)
 PRE_CHANGE_STUDY_SHA = "6f0c8453"
 COPPER_FILE = WF1 / "f_small_copper.yaml"
-BUILD_CLASSES = (SphereInBoxGeometry, FHumanBirdcageGeometry, FourPortBirdcageGeometry,
-                 ThermalBallGeometry, ThermalBoxGeometry)
+BUILD_CLASSES = (
+    SphereInBoxGeometry,
+    FHumanBirdcageGeometry,
+    FourPortBirdcageGeometry,
+    ThermalBallGeometry,
+    ThermalBoxGeometry,
+)
 
 
 class _Sentinel(Exception):
@@ -79,7 +83,10 @@ def _say(capsys, msg):
 def _git_show(sha, path):
     return subprocess.run(
         ["git", "-c", f"safe.directory={REPO}", "-C", str(REPO), "show", f"{sha}:{path}"],
-        check=True, capture_output=True, text=True).stdout
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout
 
 
 def _pinned(sha, path, name, absent):
@@ -112,9 +119,14 @@ def stub_build(monkeypatch):
 def _copper_studies():
     hole = load_study(COPPER_FILE)
     base, _ = _port_study(1)
-    solid = Study(base.geometry, base.material, base.excitation,
-                  frequency_hz=base.frequency_hz, degree=1,
-                  conductor=LeontovichWall(COPPER_SIGMA))
+    solid = Study(
+        base.geometry,
+        base.material,
+        base.excitation,
+        frequency_hz=base.frequency_hz,
+        degree=1,
+        conductor=LeontovichWall(COPPER_SIGMA),
+    )
     return {"hole": hole, "solid": solid}
 
 
@@ -134,9 +146,12 @@ def test_wf1_s23_python_sweep_refuses_conductor(stub_build, capsys):
         got = str(exc.value)
         with pytest.raises(TypeError) as exc_bad:
             st.solve_sweep(())
-        _say(capsys, f"\n[WF-1 s23] (Py) {label}: as_hole {st.geometry.as_hole}; "
-             f"refusal {got!r}; equal {got == want}; builds {stub_build['n'] - n0}; "
-             f"bad list () -> {type(exc_bad.value).__name__}: {str(exc_bad.value)!r}")
+        _say(
+            capsys,
+            f"\n[WF-1 s23] (Py) {label}: as_hole {st.geometry.as_hole}; "
+            f"refusal {got!r}; equal {got == want}; builds {stub_build['n'] - n0}; "
+            f"bad list () -> {type(exc_bad.value).__name__}: {str(exc_bad.value)!r}",
+        )
         assert got == want, (label, got)
         assert str(exc_bad.value) == want, (label, str(exc_bad.value))
         assert stub_build["n"] == n0, label
@@ -155,8 +170,9 @@ def test_wf1_s23_python_sweep_refuses_conductor(stub_build, capsys):
 
     # (c-old) printed, not asserted (ruling 2026-10-22 03:00 (4)): the pinned
     # pre-change solve_sweep on a copper Study of its own classes.
-    old = _pinned(PRE_CHANGE_STUDY_SHA, STUDY_PATH, "fem_em_solver._study_6f0c8453",
-                  "_SWEEP_CONDUCTOR_REASON")
+    old = _pinned(
+        PRE_CHANGE_STUDY_SHA, STUDY_PATH, "fem_em_solver._study_6f0c8453", "_SWEEP_CONDUCTOR_REASON"
+    )
     old_calls = {"n": 0}
 
     def old_stub(self, comm=MPI.COMM_WORLD):
@@ -164,9 +180,14 @@ def test_wf1_s23_python_sweep_refuses_conductor(stub_build, capsys):
         raise _Sentinel("old build reached")
 
     old.FourPortBirdcageGeometry.build = old_stub
-    ost = old.Study(old.FourPortBirdcageGeometry.f_small(), plain.material,
-                    old.LumpedPortDrive(), frequency_hz=plain.frequency_hz, degree=1,
-                    conductor=old.LeontovichWall(old.COPPER_SIGMA))
+    ost = old.Study(
+        old.FourPortBirdcageGeometry.f_small(),
+        plain.material,
+        old.LumpedPortDrive(),
+        frequency_hz=plain.frequency_hz,
+        degree=1,
+        conductor=old.LeontovichWall(old.COPPER_SIGMA),
+    )
     try:
         ost.solve_sweep(freqs)
         outcome = "returned"
@@ -174,8 +195,11 @@ def test_wf1_s23_python_sweep_refuses_conductor(stub_build, capsys):
         outcome = "reached build (conductor ignored)"
     except Exception as e:  # printed only
         outcome = f"{type(e).__name__}: {e}"
-    _say(capsys, f"  (c-old) {PRE_CHANGE_STUDY_SHA} solve_sweep on a solid copper Study: "
-         f"{outcome}; build calls {old_calls['n']} (printed, not asserted)")
+    _say(
+        capsys,
+        f"  (c-old) {PRE_CHANGE_STUDY_SHA} solve_sweep on a solid copper Study: "
+        f"{outcome}; build calls {old_calls['n']} (printed, not asserted)",
+    )
 
 
 # ------------------------------------------------------------------ (Y)
@@ -191,8 +215,11 @@ def test_wf1_s23_yaml_twin_and_cli(stub_build, capsys):
         reason = None
     except StudyConfigError as exc:
         reason = exc.reason
-    _say(capsys, f"\n[WF-1 s23] (Y) field {field!r}; reason {reason!r}; "
-         f"== _SWEEP_CONDUCTOR_REASON {reason == _SWEEP_CONDUCTOR_REASON}")
+    _say(
+        capsys,
+        f"\n[WF-1 s23] (Y) field {field!r}; reason {reason!r}; "
+        f"== _SWEEP_CONDUCTOR_REASON {reason == _SWEEP_CONDUCTOR_REASON}",
+    )
     assert field == "study.sweep_hz"
     assert reason == _SWEEP_CONDUCTOR_REASON
 
@@ -207,8 +234,11 @@ def test_wf1_s23_yaml_twin_and_cli(stub_build, capsys):
     rc_check = _rc_all(cli.main(["check", str(f)]), comm)
     rc_run = _rc_all(cli.main(["run", str(f), "--output-dir", str(out)]), comm)
     absent = comm.allreduce(int(not out.exists()), op=MPI.MIN)
-    _say(capsys, f"  (Y) femem check rc {rc_check}; femem run rc {rc_run}; "
-         f"output dir absent on every rank {bool(absent)}; builds {stub_build['n']}")
+    _say(
+        capsys,
+        f"  (Y) femem check rc {rc_check}; femem run rc {rc_run}; "
+        f"output dir absent on every rank {bool(absent)}; builds {stub_build['n']}",
+    )
     assert rc_check == (2, 2)
     assert rc_run == (2, 2)
     assert absent == 1
@@ -242,10 +272,13 @@ def test_wf1_s23_check_lists_sweep_hz(stub_build, capsys):
         assert sw[0] == fq[0] + 1, lines
         key, _, val = lines[sw[0]].partition(": ")
         parsed = ast.literal_eval(val)
-        c_table = [key, val, key in file_study,
-                   [float(x).hex() for x in parsed] == [float(x).hex() for x in file_study[key]],
-                   [float(x).hex() for x in parsed]
-                   == [float(x).hex() for x in FREQUENCIES.values()]]
+        c_table = [
+            key,
+            val,
+            key in file_study,
+            [float(x).hex() for x in parsed] == [float(x).hex() for x in file_study[key]],
+            [float(x).hex() for x in parsed] == [float(x).hex() for x in FREQUENCIES.values()],
+        ]
         assert key == "sweep_hz"
         assert key in file_study
         assert len(parsed) == len(file_study[key])
@@ -271,7 +304,7 @@ def test_wf1_s23_check_lists_sweep_hz(stub_build, capsys):
                 extra = [ln for ln in new if ln.startswith("sweep_hz: ")]
                 assert len(extra) == 1, (f.name, new)
                 i = new.index(extra[0])
-                assert new[:i] + new[i + 1:] == prev, (f.name, new, prev)
+                assert new[:i] + new[i + 1 :] == prev, (f.name, new, prev)
                 old_has = any(ln.startswith("sweep_hz") for ln in prev)
                 assert not old_has, (f.name, prev)  # (c-check)
                 if f == SWEEP:
@@ -280,10 +313,16 @@ def test_wf1_s23_check_lists_sweep_hz(stub_build, capsys):
                 assert new == prev, (f.name, new, prev)
             rows.append((f.relative_to(REPO).as_posix(), len(new), len(prev), is_sweep))
 
-    _say(capsys, f"\n[WF-1 s23] (C) femem check {SWEEP.name}: rc {rc_c}; "
-         f"key/value/key-in-file/hex=file/hex=FREQUENCIES {c_table}")
-    _say(capsys, f"  (U) files {len(files)}; sweep files {n_sweep} (predicted 1); "
-         f"pinned cli {PRE_CHANGE_CLI_SHA}")
+    _say(
+        capsys,
+        f"\n[WF-1 s23] (C) femem check {SWEEP.name}: rc {rc_c}; "
+        f"key/value/key-in-file/hex=file/hex=FREQUENCIES {c_table}",
+    )
+    _say(
+        capsys,
+        f"  (U) files {len(files)}; sweep files {n_sweep} (predicted 1); "
+        f"pinned cli {PRE_CHANGE_CLI_SHA}",
+    )
     for r in rows:
         _say(capsys, f"    {r[0]}: new {r[1]} lines, pinned {r[2]} lines, sweep {r[3]}")
     _say(capsys, f"  (c-check) pinned check on {SWEEP.name} prints sweep_hz: {c_check}")

@@ -33,12 +33,12 @@ from __future__ import annotations
 
 import itertools
 from dataclasses import dataclass, field
-from typing import Callable, List, Optional, Union
+from typing import Callable, List, Optional
 
+import dolfinx.fem.petsc as fem_petsc
 import numpy as np
 import ufl
 from dolfinx import default_scalar_type, fem
-import dolfinx.fem.petsc as fem_petsc
 from dolfinx.fem.petsc import LinearProblem
 from mpi4py import MPI
 from petsc4py import PETSc
@@ -120,7 +120,10 @@ def _solve(
         L = L + ufl.inner(w_c * tinf_c, v) * ufl.dx
 
     problem = LinearProblem(
-        a, L, bcs=bcs, petsc_options=dict(_PETSC_OPTIONS),
+        a,
+        L,
+        bcs=bcs,
+        petsc_options=dict(_PETSC_OPTIONS),
         petsc_options_prefix=petsc_prefix,
     )
     T_h = problem.solve()
@@ -130,9 +133,7 @@ def _solve(
 
     # assemble_scalar is rank-local: reduce every integral.
     comm = mesh.comm
-    src = comm.allreduce(
-        fem.assemble_scalar(fem.form(q_c * ufl.dx(domain=mesh))), op=MPI.SUM
-    )
+    src = comm.allreduce(fem.assemble_scalar(fem.form(q_c * ufl.dx(domain=mesh))), op=MPI.SUM)
     conv = comm.allreduce(
         fem.assemble_scalar(fem.form(h_c * (T_h - tinf_c) * ds(robin_tag))),
         op=MPI.SUM,
@@ -188,12 +189,16 @@ def solve_steady_conduction(
             if not kmin > 0.0:
                 raise ValueError(f"k must be positive, got min(k)={kmin!r}")
     if perfusion_w_per_m3_k < 0.0:
-        raise ValueError(
-            f"perfusion_w_per_m3_k must be >= 0, got {perfusion_w_per_m3_k!r}"
-        )
+        raise ValueError(f"perfusion_w_per_m3_k must be >= 0, got {perfusion_w_per_m3_k!r}")
     return _solve(
-        mesh, facet_tags, k=k, q=q, h=h, t_inf=t_inf,
-        robin_tag=robin_tag, degree=degree,
+        mesh,
+        facet_tags,
+        k=k,
+        q=q,
+        h=h,
+        t_inf=t_inf,
+        robin_tag=robin_tag,
+        degree=degree,
         perfusion_w_per_m3_k=perfusion_w_per_m3_k,
     )
 
@@ -264,12 +269,9 @@ def solve_steady_conduction_picard(
     q_expr = _as_source(mesh, source(T_old))
 
     a_form = fem.form(
-        k_c * ufl.inner(ufl.grad(T), ufl.grad(v)) * ufl.dx
-        + ufl.inner(h_c * T, v) * ds(robin_tag)
+        k_c * ufl.inner(ufl.grad(T), ufl.grad(v)) * ufl.dx + ufl.inner(h_c * T, v) * ds(robin_tag)
     )
-    L_form = fem.form(
-        ufl.inner(q_expr, v) * ufl.dx + ufl.inner(h_c * tinf_c, v) * ds(robin_tag)
-    )
+    L_form = fem.form(ufl.inner(q_expr, v) * ufl.dx + ufl.inner(h_c * tinf_c, v) * ds(robin_tag))
     src_form = fem.form(q_expr * ufl.dx(domain=mesh))
     conv_form = fem.form(h_c * (T_new - tinf_c) * ds(robin_tag))
     inc_form = fem.form((T_new - T_old) ** 2 * ufl.dx)

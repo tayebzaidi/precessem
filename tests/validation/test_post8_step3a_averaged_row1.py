@@ -44,9 +44,8 @@ from pathlib import Path
 import numpy as np
 import pytest
 import ufl
-from mpi4py import MPI
-
 from dolfinx import fem
+from mpi4py import MPI
 
 from fem_em_solver.post.evaluation import (
     evaluate_vector_field_parallel,
@@ -57,7 +56,6 @@ from fem_em_solver.post.sar import (
     build_density_field,
     mass_averaged_sar,
 )
-
 from tests.complex_mode import complex_only
 from tests.mesh.helpers import global_cell_tag_set
 from tests.mesh.test_birdcage_port_sheets import SHEET_IFACE
@@ -123,13 +121,10 @@ def case():
     assert not ans2.RESOLUTION_OVERRIDDEN
 
     sweep = build_four_port_sweep(phantom_resolution=PHANTOM_RESOLUTION_1G_RUNG)
-    azimuths = {
-        f"P{s['tag'] - SHEET_IFACE}": float(s["azimuth_deg"]) for s in sweep["sheets"]
-    }
+    azimuths = {f"P{s['tag'] - SHEET_IFACE}": float(s["azimuth_deg"]) for s in sweep["sheets"]}
     order = sorted(azimuths)
     indices = {
-        pid: _port_index(azimuths[pid], azimuths["P1"], QUADRATURE_STEP_DEG)
-        for pid in order
+        pid: _port_index(azimuths[pid], azimuths["P1"], QUADRATURE_STEP_DEG) for pid in order
     }
     solves = {pid: _solve_driven(sweep, pid) for pid in order}
     built = {
@@ -171,9 +166,7 @@ def readings(case):
     raw = np.zeros((4, 4))
     for k in range(4):
         e = built["solves"][f"P{k + 1}"]["fields"].e_complex
-        vals, valid = evaluate_vector_field_parallel(
-            e, points, comm, owner="lowest_original_cell"
-        )
+        vals, valid = evaluate_vector_field_parallel(e, points, comm, owner="lowest_original_cell")
         assert bool(np.all(valid))
         vals = np.asarray(vals)
         for i in range(4):
@@ -195,9 +188,7 @@ def readings(case):
         for k in range(4):
             e = built["solves"][f"P{k + 1}"]["fields"].e_complex
             ev = np.asarray(e.eval(qpts, cells_arg)).reshape(4, 3)
-            cell_i_local[k, i] = np.mean(
-                [_sar_point(sigma, rho, ev[q]) for q in range(4)]
-            )
+            cell_i_local[k, i] = np.mean([_sar_point(sigma, rho, ev[q]) for q in range(4)])
     cell_i = np.zeros_like(cell_i_local)
     comm.Allreduce(cell_i_local, cell_i, op=MPI.SUM)
 
@@ -281,12 +272,15 @@ def readings(case):
     if comm.rank == 0:
         print(f"\n[POST-8 3a] -n {comm.size}: owner original_cell_index {owner_original.tolist()}")
         print(f"[POST-8 3a] 1 g radius a1g = {a1g:.17e} m (rho {rho}, sigma {sigma})")
-        for name, arr in (("raw", raw), ("cell(i)", cell_i), ("cell(ii)", cell_ii),
-                          ("1g", one_gram), ("CG1", cg1)):
+        for name, arr in (
+            ("raw", raw),
+            ("cell(i)", cell_i),
+            ("cell(ii)", cell_ii),
+            ("1g", one_gram),
+            ("CG1", cg1),
+        ):
             for k in range(4):
-                print(
-                    f"  {name:8s} P{k + 1}: " + "  ".join(f"{v:.17e}" for v in arr[k])
-                )
+                print(f"  {name:8s} P{k + 1}: " + "  ".join(f"{v:.17e}" for v in arr[k]))
         print("[POST-8 3a] ratios [drive][point]: cell/raw | 1g/raw")
         for k in range(4):
             print(
@@ -435,10 +429,7 @@ def test_c1b_negative_control(case, readings):
         ref = np.array(probe.LOGGED_P1_ROW[w])
         seps[w] = float(np.min(np.abs(row / ref - 1.0)))
     if comm.rank == 0:
-        print(
-            f"\n[POST-8 3a C1b] -n {width}: CG1 P1 row "
-            + "  ".join(f"{v:.12e}" for v in row)
-        )
+        print(f"\n[POST-8 3a C1b] -n {width}: CG1 P1 row " + "  ".join(f"{v:.12e}" for v in row))
         for w in (2, 4):
             ref = np.array(probe.LOGGED_P1_ROW[w])
             print(
@@ -449,8 +440,10 @@ def test_c1b_negative_control(case, readings):
     if width in (2, 4):
         other = 4 if width == 2 else 2
         if comm.rank == 0:
-            print(f"[POST-8 3a C1b] asserted: min |rel| vs -n {other} {seps[other]:.4f} "
-                  f"(>= {C1B_MIN_SEPARATION})")
+            print(
+                f"[POST-8 3a C1b] asserted: min |rel| vs -n {other} {seps[other]:.4f} "
+                f"(>= {C1B_MIN_SEPARATION})"
+            )
         assert seps[other] >= C1B_MIN_SEPARATION
     elif comm.rank == 0:
         print("[POST-8 3a C1b] -n 1: printed only (no logged -n 1 row)")

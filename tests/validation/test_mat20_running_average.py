@@ -44,8 +44,17 @@ def _p(*a):
 def _theta(t):
     t = np.asarray(t, dtype=float)
     return robin_sphere_duty_cycle_temperature(
-        np.zeros_like(t), t, radius=R, k=K, rho_c=RHO_C, q=Q, h=H, t_inf=0.0,
-        period=P, duty=D, periodic=True,
+        np.zeros_like(t),
+        t,
+        radius=R,
+        k=K,
+        rho_c=RHO_C,
+        q=Q,
+        h=H,
+        t_inf=0.0,
+        period=P,
+        duty=D,
+        periodic=True,
     )
 
 
@@ -83,8 +92,10 @@ def test_b1_integer_period_mean_and_wc_control():
             means, _, _ = running_average(t, v, window=k * P)
             ok = ~np.isnan(means)
             res = float(np.max(np.abs(means[ok] - target))) / target
-            _p(f"[MAT-20 B1] k={k} M={M}: {ok.sum()} windows, "
-               f"max |mean − D·θ_ss|/(D·θ_ss) = {res:.3e} (bar {BAR:g})")
+            _p(
+                f"[MAT-20 B1] k={k} M={M}: {ok.sum()} windows, "
+                f"max |mean − D·θ_ss|/(D·θ_ss) = {res:.3e} (bar {BAR:g})"
+            )
             assert res <= BAR
             # (Wc) W = kP + P/2: a non-integer number of periods.
             Wc = k * P + 0.5 * P
@@ -95,8 +106,10 @@ def test_b1_integer_period_mean_and_wc_control():
             # Predicted O(ripple): the extra half period's mean departs from
             # D·θ_ss by at most (θ_max − θ_min)/2, diluted by P/2 / Wc.
             pred = 0.5 * (v.max() - v.min()) * (0.5 * P / Wc) / target
-            _p(f"[MAT-20 Wc] k={k} M={M}: W={Wc:g} miss {miss:.3e} "
-               f"(predicted ≤ {pred:.3e}; must exceed {BAR:g})")
+            _p(
+                f"[MAT-20 Wc] k={k} M={M}: W={Wc:g} miss {miss:.3e} "
+                f"(predicted ≤ {pred:.3e}; must exceed {BAR:g})"
+            )
             assert miss > BAR
 
 
@@ -116,12 +129,16 @@ def test_b2_window_max_phase_and_pc():
         i = np.nanargmax(np.where(sel, means, -np.inf))
         t_max = t[i] - P
         off = t_max - root
-        _p(f"[MAT-20 B2] M={M}: brentq root {root:.6f} s, t_max {t_max:.6f} s, "
-           f"offset {off:+.6f} s = {off / dt:+.3f} samples (Δt {dt:.6f} s, "
-           f"W/Δt = {W_B2 / dt:.3f})")
+        _p(
+            f"[MAT-20 B2] M={M}: brentq root {root:.6f} s, t_max {t_max:.6f} s, "
+            f"offset {off:+.6f} s = {off / dt:+.3f} samples (Δt {dt:.6f} s, "
+            f"W/Δt = {W_B2 / dt:.3f})"
+        )
         assert abs(off) <= dt
         # (Pc) printed: window one sample short.
         mp, _, _ = running_average(t, v, window=W_B2 - dt)
         ip = np.nanargmax(np.where(sel, mp, -np.inf))
-        _p(f"[MAT-20 Pc] M={M}: W−Δt → t_max {t[ip] - P:.6f} s "
-           f"(shift {(t[ip] - P) - t_max:+.6f} s; predicted ≈ −Δt/2 = {-dt / 2:+.6f})")
+        _p(
+            f"[MAT-20 Pc] M={M}: W−Δt → t_max {t[ip] - P:.6f} s "
+            f"(shift {(t[ip] - P) - t_max:+.6f} s; predicted ≈ −Δt/2 = {-dt / 2:+.6f})"
+        )

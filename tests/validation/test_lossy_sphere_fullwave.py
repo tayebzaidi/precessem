@@ -66,14 +66,13 @@ Pass ``-k 64mhz`` or ``-k 128mhz`` to run one gate; each is priced separately
 
 from __future__ import annotations
 
+import dolfinx
 import numpy as np
 import pytest
 import ufl
+from dolfinx import fem
 from mpi4py import MPI
 from petsc4py import PETSc
-
-import dolfinx
-from dolfinx import fem
 
 from fem_em_solver.core import (
     HomogeneousMaterial,
@@ -83,7 +82,6 @@ from fem_em_solver.core import (
 from fem_em_solver.io.mesh import MeshGenerator
 from fem_em_solver.post.evaluation import evaluate_vector_field_parallel
 from fem_em_solver.utils.analytical import LossySphereSeries, complex_permittivity
-
 from tests.complex_mode import complex_only
 
 SPHERE_RADIUS = 0.05
@@ -195,17 +193,13 @@ def _mesh_and_solve(
         material=HomogeneousMaterial(sigma=0.0, epsilon_r=1.0),
         cell_tags=cell_tags,
         material_map={
-            SPHERE_TAG: HomogeneousMaterial(
-                sigma=SALINE_SIGMA, epsilon_r=SALINE_EPSILON_R
-            )
+            SPHERE_TAG: HomogeneousMaterial(sigma=SALINE_SIGMA, epsilon_r=SALINE_EPSILON_R)
         },
         boundary_condition="pec_zero_tangential_a",
         dirichlet_e_field=_dirichlet_total_field(series),
     )
     fields = TimeHarmonicSolver(problem, degree=degree).solve()
-    ncells = int(
-        comm.allreduce(msh.topology.index_map(msh.topology.dim).size_local, op=MPI.SUM)
-    )
+    ncells = int(comm.allreduce(msh.topology.index_map(msh.topology.dim).size_local, op=MPI.SUM))
     return msh, cell_tags, fields, ncells
 
 
@@ -225,9 +219,7 @@ def _solve(series: LossySphereSeries, resolution_sphere: float, resolution_far: 
     )
     valid = valid_real & valid_imag
     if not np.all(valid):
-        raise RuntimeError(
-            f"{int((~valid).sum())} interior probe points were not evaluated"
-        )
+        raise RuntimeError(f"{int((~valid).sum())} interior probe points were not evaluated")
     e_fem = np.real(real_values) + 1j * np.real(imag_values)
 
     e_series = series.internal_field(points)
@@ -385,9 +377,7 @@ def series_interior_function(series: LossySphereSeries, msh, cell_tags):
     """
     v_space = fem.functionspace(msh, ("Lagrange", 2, (3,)))
     e_series_fn = fem.Function(v_space, name="E_series")
-    sphere_cells = np.asarray(
-        cell_tags.indices[cell_tags.values == SPHERE_TAG], dtype=np.int32
-    )
+    sphere_cells = np.asarray(cell_tags.indices[cell_tags.values == SPHERE_TAG], dtype=np.int32)
     e_series_fn.interpolate(_series_interior_interpolant(series), cells0=sphere_cells)
     return e_series_fn
 
@@ -416,9 +406,7 @@ def _ohmic_power(e_field, sigma_field, msh, cell_tags, comm, quadrature_degree: 
     """
     integrand = 0.5 * sigma_field * ufl.inner(e_field, e_field)
     return float(
-        np.real(
-            _integrate_over_sphere(integrand, msh, cell_tags, comm, quadrature_degree)
-        )
+        np.real(_integrate_over_sphere(integrand, msh, cell_tags, comm, quadrature_degree))
     )
 
 
@@ -458,9 +446,7 @@ def _exact_sphere_series_power(series: LossySphereSeries, sigma: float, n_radial
 def _power_rung(series: LossySphereSeries, resolution_sphere: float, resolution_far: float):
     """One rung of the power gate.  Returns a dict of the three integrals."""
     comm = MPI.COMM_WORLD
-    msh, cell_tags, fields, ncells = _mesh_and_solve(
-        series, resolution_sphere, resolution_far
-    )
+    msh, cell_tags, fields, ncells = _mesh_and_solve(series, resolution_sphere, resolution_far)
 
     p_fem = _ohmic_power(
         fields.e_complex,
@@ -514,11 +500,7 @@ def _power_rung(series: LossySphereSeries, resolution_sphere: float, resolution_
 
     one = fem.Constant(msh, dolfinx.default_scalar_type(1.0))
     volume = float(
-        np.real(
-            _integrate_over_sphere(
-                one, msh, cell_tags, comm, REFERENCE_QUADRATURE_DEGREE
-            )
-        )
+        np.real(_integrate_over_sphere(one, msh, cell_tags, comm, REFERENCE_QUADRATURE_DEGREE))
     )
 
     return {
@@ -546,9 +528,7 @@ def test_lossy_sphere_ohmic_power_matches_full_wave_series_at_64mhz():
     rungs = [_power_rung(series, hs, hf) for hs, hf in RESOLUTIONS_64]
     for rung in rungs:
         rung["error"] = abs(rung["p_fem"] - rung["p_series"]) / rung["p_series"]
-        rung["qs_miss"] = (
-            abs(rung["p_quasistatic"] - rung["p_series"]) / rung["p_series"]
-        )
+        rung["qs_miss"] = abs(rung["p_quasistatic"] - rung["p_series"]) / rung["p_series"]
     fine = rungs[-1]
 
     volume_exact = 4.0 / 3.0 * np.pi * SPHERE_RADIUS**3

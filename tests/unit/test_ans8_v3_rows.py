@@ -31,8 +31,12 @@ from tests.validation.test_wf10_f_human_copper_esr_root import (
     _z_rc,
 )
 
-CASE = (Path(__file__).resolve().parents[2] / "examples" / "ansys_benchmarks"
-        / "ans8_f_human_quadrature_mode_content_64MHz")
+CASE = (
+    Path(__file__).resolve().parents[2]
+    / "examples"
+    / "ansys_benchmarks"
+    / "ans8_f_human_quadrature_mode_content_64MHz"
+)
 SCRIPT = CASE / "08_f_human_quadrature_mode_content.py"
 Z0 = 50.0
 
@@ -70,8 +74,10 @@ def test_v1_p_acc_line_cut_equals_wave_form():
         # item 361's P_acc: power into the coil terminals only (no feed-gap ESR).
         p_361 = float(0.5 * np.real(np.sum(v * np.conj(cur))))
         miss = abs(p_361 - p_wave) / abs(p_wave)
-        print(f"V1 w={w}: line {p_line:.15e} wave {p_wave:.15e} rel {rel:.3e} (band "
-              f"{Y0_CODING_BAND:g}); item-361 form miss {miss:.3e} (> 1e-6 ASSERTED)")
+        print(
+            f"V1 w={w}: line {p_line:.15e} wave {p_wave:.15e} rel {rel:.3e} (band "
+            f"{Y0_CODING_BAND:g}); item-361 form miss {miss:.3e} (> 1e-6 ASSERTED)"
+        )
         assert p_wave > 0.0
         assert rel <= Y0_CODING_BAND
         assert miss > 1e-6
@@ -79,8 +85,7 @@ def test_v1_p_acc_line_cut_equals_wave_form():
 
 def test_v2_row5_fractions_sum_to_one():
     mod = _mod()
-    terms = dict(p_rc30=2.1e-2, p_esr_feeds=1.27e-3, p_phantom=8.2e-3, p_surf=6.1e-4,
-                 p_rest=3.3e-9)
+    terms = dict(p_rc30=2.1e-2, p_esr_feeds=1.27e-3, p_phantom=8.2e-3, p_surf=6.1e-4, p_rest=3.3e-9)
     p_acc = sum(terms.values())
     fr = mod.row5_fractions(p_acc, **terms)
     print(f"V2 fractions {fr}; |sum - 1| {abs(fr['sum'] - 1.0):.3e}")
@@ -89,10 +94,12 @@ def test_v2_row5_fractions_sum_to_one():
 
 
 def _rows_v3():
-    sp = {"share_k1": 0.99, "leak_k0": 1e-3, "fractions": [0.0] * 16,
-          "abs_k_folds": [0.0] * 9}
+    sp = {"share_k1": 0.99, "leak_k0": 1e-3, "fractions": [0.0] * 16, "abs_k_folds": [0.0] * 9}
     return {
-        "c_in_pf": 118.2437, "r_ohm": 0.2, "cells": 369387, "feeds": ["P17", "P21"],
+        "c_in_pf": 118.2437,
+        "r_ohm": 0.2,
+        "cells": 369387,
+        "feeds": ["P17", "P21"],
         "row1_y_in_ccw_s": {"P17": [1.0e-3, 1.0e-5], "P21": [1.1e-3, -2.0e-4]},
         "row2_field": {"bottom": dict(sp), "top": dict(sp)},
         "row3": {n: {"b1p_per_sqrt_w": 1.6e-6} for n in ("O", "P1", "P2", "P3", "P4")},
@@ -114,7 +121,7 @@ def test_v3_comparison_text():
     m["aed"] = {"v3": {"row3_O": sentinel, "row4": sentinel}}
     after = mod.comparison_text(m)
     assert after.startswith(before.rstrip("\n")), "v1 / v2 lines must be an unchanged prefix"
-    added = after[len(before.rstrip("\n")):].splitlines()
+    added = after[len(before.rstrip("\n")) :].splitlines()
     rows = [ln for ln in added if ln.startswith("| (")]
     labels = {ln.split(")")[0] + ")" for ln in rows}
     print(f"V3: {len(rows)} v3 table rows, labels {sorted(labels)}")
@@ -133,7 +140,7 @@ def test_v4_sheet_variance_split_recovers_both_terms():
     mod = _mod()
     rng = np.random.default_rng(386)
     n = 400
-    wts = rng.uniform(0.5, 1.5, size=n) * 1e-6           # quadrature weights [m²]
+    wts = rng.uniform(0.5, 1.5, size=n) * 1e-6  # quadrature weights [m²]
     f = (2.0 + 0.3 * rng.normal(size=n)) + 1j * (0.5 + 0.2 * rng.normal(size=n))
     g = 0.1 * rng.normal(size=n) + 0.05j * rng.normal(size=n)
     h_hat = np.array([0.0, 0.0, 1.0])
@@ -154,8 +161,10 @@ def test_v4_sheet_variance_split_recovers_both_terms():
     r_t = abs(trans / trans_ref - 1.0)
     r_v = abs(var / var_ref - 1.0)
     r_cs = abs(cs / (trans_ref + var_ref) - 1.0)
-    print(f"V4: transverse {trans:.15e} (ref {trans_ref:.15e}, rel {r_t:.3e}); variance "
-          f"{var:.15e} (ref {var_ref:.15e}, rel {r_v:.3e}); CS rel {r_cs:.3e} (band 1e-12)")
+    print(
+        f"V4: transverse {trans:.15e} (ref {trans_ref:.15e}, rel {r_t:.3e}); variance "
+        f"{var:.15e} (ref {var_ref:.15e}, rel {r_v:.3e}); CS rel {r_cs:.3e} (band 1e-12)"
+    )
     assert r_t <= 1e-12 and r_v <= 1e-12 and r_cs <= 1e-12
     # Uniform drive field, no transverse part: both terms vanish (CS = 0).
     cs0, t0, v0 = mod.sheet_variance_split(area, 2.0 * area, 4.0 * area, 4.0 * area, y_s)

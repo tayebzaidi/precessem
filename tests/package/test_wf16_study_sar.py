@@ -39,7 +39,6 @@ from fem_em_solver.study import (
     SphereInBoxGeometry,
 )
 from fem_em_solver.utils.instrumentation import report_peak_rss
-
 from tests.complex_mode import complex_only
 from tests.mesh.helpers import global_cell_tag_set
 from tests.mesh.test_birdcage_phantom_resolution import _global_tag_cell_count
@@ -121,9 +120,7 @@ def test_wf16_sar_containment():
     a10 = averaging_ball_radius(mass_kg=TEN_GRAM_KG, rho=_port_study().density_kg_m3)
     assert CENTRE_RADIUS_M + a10 < g.phantom_radius
     circum = float(np.hypot(g.phantom_radius, 0.5 * g.phantom_height))
-    nearest_conductor = min(
-        g.ring_radius - 0.5 * g.leg_width, g.ring_radius - g.ring_minor_radius
-    )
+    nearest_conductor = min(g.ring_radius - 0.5 * g.leg_width, g.ring_radius - g.ring_minor_radius)
     assert circum < WHOLE_PHANTOM_BALL_RADIUS_M < nearest_conductor
     _p0(
         f"\n[WF-16 s4] (iv) r0 + a_10g = {(CENTRE_RADIUS_M + a10) * 1e3:.4f} mm < "
@@ -137,9 +134,9 @@ def case():
     degree = _degree()
     comm = MPI.COMM_WORLD
     width = ANS4_EXACT_STRIP_RECORD_RANK_WIDTH if degree == 1 else DEGREE2_RECORD_WIDTH
-    assert comm.size == width, (
-        f"degree {degree} record is asserted at -n {width}; got -n {comm.size}"
-    )
+    assert (
+        comm.size == width
+    ), f"degree {degree} record is asserted at -n {width}; got -n {comm.size}"
     study = _port_study(degree)
     t0 = time.perf_counter()
     res = study._solve_port_fields(comm)
@@ -163,15 +160,13 @@ def case():
 
     t0 = time.perf_counter()
     diag = {
-        k: study.sar(mass_g=10.0, centres=[centres[k]], drives=[by_k[k]], comm=comm)[
-            by_k[k]
-        ][0]
+        k: study.sar(mass_g=10.0, centres=[centres[k]], drives=[by_k[k]], comm=comm)[by_k[k]][0]
         for k in range(4)
     }
     control = {
-        k: study.sar(
-            mass_g=10.0, centres=[centres[(k + 2) % 4]], drives=[by_k[k]], comm=comm
-        )[by_k[k]][0]
+        k: study.sar(mass_g=10.0, centres=[centres[(k + 2) % 4]], drives=[by_k[k]], comm=comm)[
+            by_k[k]
+        ][0]
         for k in range(4)
     }
     whole = study.sar(
@@ -189,9 +184,7 @@ def case():
         res.mesh,
         study.density_kg_m3,
         cell_tags=res.cell_tags,
-        density_map={
-            int(t): 0.0 for t in sorted(all_tags) if int(t) != study.geometry.phantom_tag
-        },
+        density_map={int(t): 0.0 for t in sorted(all_tags) if int(t) != study.geometry.phantom_tag},
     )
     a10 = averaging_ball_radius(mass_kg=TEN_GRAM_KG, rho=study.density_kg_m3)
     direct = mass_averaged_sar(
@@ -274,9 +267,7 @@ def test_wf16_sar_i_whole_phantom_coverage(case):
 def test_wf16_sar_ii_ten_gram_c4(case):
     """(ii) the 10 g C4 quadrant identity, the gate."""
     diag, by_k = case["diag"], case["by_k"]
-    pairs = {
-        k: abs(diag[(k + 1) % 4][SAR] - diag[k][SAR]) / diag[k][SAR] for k in range(4)
-    }
+    pairs = {k: abs(diag[(k + 1) % 4][SAR] - diag[k][SAR]) / diag[k][SAR] for k in range(4)}
     lines = "\n".join(
         f"    k={k} ({by_k[k]} at c_{k}): SAR_10g = {diag[k][SAR]:.9e} W/kg, mass "
         f"{diag[k]['mass_kg']:.9e} kg vs rho*4/3*pi*a^3 "

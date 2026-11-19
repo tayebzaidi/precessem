@@ -29,13 +29,12 @@ from mpi4py import MPI
 
 from fem_em_solver.post.evaluation import evaluate_vector_field_parallel
 from fem_em_solver.thermal import solve_transient_conduction
-
 from tests.validation.test_mat10_sar_to_heat_sphere import ROBIN_TAG, _robin_tags, _say
 from tests.validation.test_mat12_transient_sar_heating_sphere import E_BAND, RHO_C
 from tests.validation.test_mat13_transient_perfusion_sphere import INTERIOR_BAND
 from tests.validation.test_mat15_coil_driven_heating_phantom import H_GEL, K_GEL, N_MAIN, T_INF
 from tests.validation.test_mat15_finite_cylinder_fem import _rel
-from tests.validation.test_mat21_box_closed_form import A_BOX, B_BOX, C_BOX, Q, T_C
+from tests.validation.test_mat21_box_closed_form import A_BOX, B_BOX, C_BOX, T_C, Q
 from tests.validation.test_mat21_box_fem import (
     BASE,
     INTERP_CHUNK,
@@ -63,16 +62,26 @@ def _wait_init(t_w):
         n = x.shape[1]
         out = np.empty(n)
         for s in range(0, n, INTERP_CHUNK):
-            out[s:s + INTERP_CHUNK] = np.real(
-                fn(x[0, s:s + INTERP_CHUNK], x[1, s:s + INTERP_CHUNK], x[2, s:s + INTERP_CHUNK]))
+            out[s : s + INTERP_CHUNK] = np.real(
+                fn(
+                    x[0, s : s + INTERP_CHUNK],
+                    x[1, s : s + INTERP_CHUNK],
+                    x[2, s : s + INTERP_CHUNK],
+                )
+            )
         return T_INF + out
+
     return ev
 
 
 def _read(T, pts):
     vals, ok = evaluate_vector_field_parallel(T, pts)
-    th = np.array([float(np.real(np.ravel(vals[i])[0])) - T_INF if bool(ok[i]) else np.nan
-                   for i in range(pts.shape[0])])
+    th = np.array(
+        [
+            float(np.real(np.ravel(vals[i])[0])) - T_INF if bool(ok[i]) else np.nan
+            for i in range(pts.shape[0])
+        ]
+    )
     return th, [bool(o) for o in ok]
 
 
@@ -82,18 +91,35 @@ def runs():
     t0 = time.perf_counter()
     m = RUNGS[-1]
     ns = [b * m for b in BASE]
-    msh = dmesh.create_box(comm, [np.array([-A_BOX, -B_BOX, -C_BOX]),
-                                  np.array([A_BOX, B_BOX, C_BOX])],
-                           ns, cell_type=dmesh.CellType.tetrahedron)
+    msh = dmesh.create_box(
+        comm,
+        [np.array([-A_BOX, -B_BOX, -C_BOX]), np.array([A_BOX, B_BOX, C_BOX])],
+        ns,
+        cell_type=dmesh.CellType.tetrahedron,
+    )
     ft = _robin_tags(msh)
     chi = _interior_chi(msh)
     pts = np.array(PROBE_PTS, dtype=float)
-    _say(f"\nMAT21-26 rung m = {m} {tuple(ns)}: cells {msh.topology.index_map(3).size_global}; "
-         f"g = {G_GRAD} K/m, g C = {GC} K; t_C = {T_C:.3f} s, t* = {T_STAR:.3f} s, q = {Q} W/m^3, "
-         f"CN N = {N_MAIN} + 2 BE half-steps; ranks {comm.size}")
+    _say(
+        f"\nMAT21-26 rung m = {m} {tuple(ns)}: cells {msh.topology.index_map(3).size_global}; "
+        f"g = {G_GRAD} K/m, g C = {GC} K; t_C = {T_C:.3f} s, t* = {T_STAR:.3f} s, q = {Q} W/m^3, "
+        f"CN N = {N_MAIN} + 2 BE half-steps; ranks {comm.size}"
+    )
 
-    kw = dict(k=K_GEL, rho_c=RHO_C, q=Q, h=H_GEL, t_inf=T_INF, t_init=T_INF, robin_tag=ROBIN_TAG,
-              dt=T_STAR / N_MAIN, n_steps=N_MAIN, theta=0.5, startup_half_steps=2, degree=1)
+    kw = dict(
+        k=K_GEL,
+        rho_c=RHO_C,
+        q=Q,
+        h=H_GEL,
+        t_inf=T_INF,
+        t_init=T_INF,
+        robin_tag=ROBIN_TAG,
+        dt=T_STAR / N_MAIN,
+        n_steps=N_MAIN,
+        theta=0.5,
+        startup_half_steps=2,
+        degree=1,
+    )
     starts = {"ref": None, "tw0": lambda x: T_INF + G_GRAD * x[2], "twC": _wait_init(T_C)}
     out = {"E": {}, "src": {}, "th": {}, "ok": {}}
     res = {}
@@ -103,28 +129,36 @@ def runs():
         out["E"][key] = float(res[key].max_balance_residual)
         out["src"][key] = float(res[key].source_power)
         out["th"][key], out["ok"][key] = _read(res[key].temperature, pts)
-        _say(f"MAT21-26 run {key}: {time.perf_counter() - tq:.1f} s; (E) {out['E'][key]:.3e} "
-             f"(E_BAND {E_BAND:.0e}); source_power {out['src'][key]:.9e} W, / q V_box "
-             f"{out['src'][key] / (Q * 8.0 * A_BOX * B_BOX * C_BOX) - 1.0:+.3e}")
+        _say(
+            f"MAT21-26 run {key}: {time.perf_counter() - tq:.1f} s; (E) {out['E'][key]:.3e} "
+            f"(E_BAND {E_BAND:.0e}); source_power {out['src'][key]:.9e} W, / q V_box "
+            f"{out['src'][key] / (Q * 8.0 * A_BOX * B_BOX * C_BOX) - 1.0:+.3e}"
+        )
 
     tq = time.perf_counter()
     ex_s, npts = _exact(msh, _trans_ex(T_STAR))
     ex_0, _ = _exact(msh, _grad_ex(T_STAR))
     ex_c, _ = _exact(msh, _grad_ex(T_STAR + T_C))
     ex_dz, _ = _exact(msh, _grad_ex(T_STAR, roots_z=DZ_ROOTS))
-    _say(f"MAT21-26 four series interpolations ({npts} P2 points): {time.perf_counter() - tq:.1f} s")
+    _say(
+        f"MAT21-26 four series interpolations ({npts} P2 points): {time.perf_counter() - tq:.1f} s"
+    )
 
     th = {key: r.temperature - T_INF for key, r in res.items()}
     out["ref_T"] = _rel(msh, th["ref"], ex_s, chi)
     out["I0"] = _rel(msh, th["tw0"], ex_s + ex_0, chi)
     out["IC"] = _rel(msh, th["twC"], ex_s + ex_c, chi)
     out["Dz"] = _rel(msh, th["tw0"], ex_s + ex_dz, chi)
-    _say(f"MAT21-26 (I) t_w = 0: interior rel L2 {out['I0']:.6e}; t_w = T_C: {out['IC']:.6e} "
-         f"(bound {INTERIOR_BAND:.0e}); whole {_rel(msh, th['tw0'], ex_s + ex_0):.6e} / "
-         f"{_rel(msh, th['twC'], ex_s + ex_c):.6e} (printed)")
-    _say(f"MAT21-26 control (ref) reference interior {out['ref_T']:.6e} vs step 1 {STEP1_T:.6e}, "
-         f"|delta| {abs(out['ref_T'] - STEP1_T):.3e} (bound {STEP1_T_BOUND:.0e}); (Dz) Dirichlet-z "
-         f"interior miss {out['Dz']:.4e} (asserted > {INTERIOR_BAND:.0e})")
+    _say(
+        f"MAT21-26 (I) t_w = 0: interior rel L2 {out['I0']:.6e}; t_w = T_C: {out['IC']:.6e} "
+        f"(bound {INTERIOR_BAND:.0e}); whole {_rel(msh, th['tw0'], ex_s + ex_0):.6e} / "
+        f"{_rel(msh, th['twC'], ex_s + ex_c):.6e} (printed)"
+    )
+    _say(
+        f"MAT21-26 control (ref) reference interior {out['ref_T']:.6e} vs step 1 {STEP1_T:.6e}, "
+        f"|delta| {abs(out['ref_T'] - STEP1_T):.3e} (bound {STEP1_T_BOUND:.0e}); (Dz) Dirichlet-z "
+        f"interior miss {out['Dz']:.4e} (asserted > {INTERIOR_BAND:.0e})"
+    )
     _say(f"MAT21-26 elapsed {time.perf_counter() - t0:.1f} s")
     return out
 
@@ -133,8 +167,10 @@ def test_w0_comparand_at_p5():
     """W0 (numpy): the imports and P51's comparand at P5, with no solve."""
     p = PROBE_PTS[5]
     d0, dc, s = _drift(p, T_STAR), _drift(p, T_STAR + T_C), _sourced(p, T_STAR)
-    _say(f"MAT21-26 W0 P5: drift(t*) {d0:+.6e} K, drift(t* + T_C) {dc:+.6e} K, sourced "
-         f"{s:.6f} K; T_C {T_C:.3f} s; {N_MAIN} steps; {len(DZ_ROOTS)} Dz roots")
+    _say(
+        f"MAT21-26 W0 P5: drift(t*) {d0:+.6e} K, drift(t* + T_C) {dc:+.6e} K, sourced "
+        f"{s:.6f} K; T_C {T_C:.3f} s; {N_MAIN} steps; {len(DZ_ROOTS)} Dz roots"
+    )
     assert N_MAIN == 40 and RUNGS[-1] == 6
     assert 0.0 < dc < d0 and s > 0.0
 
@@ -158,8 +194,10 @@ def test_sym_prime_on_the_drift_part(runs):
         d = runs["th"][key] - runs["th"]["ref"]
         s12, s34, s0 = abs(d[1] + d[2]), abs(d[3] + d[4]), abs(d[0])
         worst[key] = max(s12, s34, s0)
-        _say(f"MAT21-26 (Sym') {key}: |P1 + P2|/(g C) {s12 / GC:.3e}, |P3 + P4|/(g C) "
-             f"{s34 / GC:.3e}, |P0|/(g C) {s0 / GC:.3e} (bar {SYM_BAR:.0e})")
+        _say(
+            f"MAT21-26 (Sym') {key}: |P1 + P2|/(g C) {s12 / GC:.3e}, |P3 + P4|/(g C) "
+            f"{s34 / GC:.3e}, |P0|/(g C) {s0 / GC:.3e} (bar {SYM_BAR:.0e})"
+        )
     for key, w in worst.items():
         assert w <= SYM_BAR * GC, (key, w)
 
@@ -174,13 +212,17 @@ def test_control_dirichlet_z_misses(runs):
 
 def test_printed_bias_table(runs):
     """The record (no band); asserts only that it was formed."""
-    _say("MAT21-26 TABLE point | t_w | FEM drift K | P51 drift K | FEM sourced K | P51 sourced K | "
-         "FEM bias | P51 bias | |FEM drift|/(g C)")
+    _say(
+        "MAT21-26 TABLE point | t_w | FEM drift K | P51 drift K | FEM sourced K | P51 sourced K | "
+        "FEM bias | P51 bias | |FEM drift|/(g C)"
+    )
     ref = runs["th"]["ref"]
     for key, t_w, tag in (("tw0", 0.0, "0"), ("twC", T_C, "T_C")):
         for i, (lab, p) in enumerate(zip(PROBE_LABELS, PROBE_PTS)):
             d_h = runs["th"][key][i] - ref[i]
             d_s, s_s = _drift(p, T_STAR + t_w), _sourced(p, T_STAR)
-            _say(f"MAT21-26 TABLE {lab} | {tag} | {d_h:+.6e} | {d_s:+.6e} | {ref[i]:.6f} | "
-                 f"{s_s:.6f} | {d_h / ref[i]:+.6e} | {d_s / s_s:+.6e} | {abs(d_h) / GC:.3e}")
+            _say(
+                f"MAT21-26 TABLE {lab} | {tag} | {d_h:+.6e} | {d_s:+.6e} | {ref[i]:.6f} | "
+                f"{s_s:.6f} | {d_h / ref[i]:+.6e} | {d_s / s_s:+.6e} | {abs(d_h) / GC:.3e}"
+            )
             assert np.isfinite(d_h / ref[i])

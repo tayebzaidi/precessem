@@ -29,11 +29,10 @@ import time
 import numpy as np
 import pytest
 import ufl
+from dolfinx import fem
 from mpi4py import MPI
 from petsc4py import PETSc
 from scipy import special
-
-from dolfinx import fem
 
 from fem_em_solver.core import (
     HomogeneousMaterial,
@@ -47,7 +46,6 @@ from fem_em_solver.utils.analytical import (
     pec_cylinder_tm0_current,
     pec_cylinder_tm0_field,
 )
-
 from tests.complex_mode import complex_only
 from tests.validation.test_imp1_pec_sphere_lossy_host import (
     CAVITY_TAG,
@@ -89,8 +87,7 @@ MU_0 = 4e-7 * np.pi
 K = complex(K_FIXTURE)
 EPS_C = K**2 / (OMEGA**2 * MU_0)
 
-PEC_TAGS = {"tm": (OUTER_BOUNDARY_TAG, CAVITY_TAG, END_TAG),
-            "te": (OUTER_BOUNDARY_TAG, CAVITY_TAG)}
+PEC_TAGS = {"tm": (OUTER_BOUNDARY_TAG, CAVITY_TAG, END_TAG), "te": (OUTER_BOUNDARY_TAG, CAVITY_TAG)}
 
 _MESH_CACHE: dict = {}
 
@@ -104,8 +101,12 @@ def _mesh():
     if "m" not in _MESH_CACHE:
         t0 = time.perf_counter()
         out = MeshGenerator.cylindrical_domain(
-            inner_radius=A, outer_radius=C, length=LENGTH, comm=MPI.COMM_WORLD,
-            as_hole=True, resolution_wall=RESOLUTION_WALL,
+            inner_radius=A,
+            outer_radius=C,
+            length=LENGTH,
+            comm=MPI.COMM_WORLD,
+            as_hole=True,
+            resolution_wall=RESOLUTION_WALL,
             resolution_far=RESOLUTION_FAR,
         )
         _MESH_CACHE["m"] = (out, time.perf_counter() - t0)
@@ -113,16 +114,14 @@ def _mesh():
 
 
 def _ncells(msh):
-    return int(msh.comm.allreduce(msh.topology.index_map(msh.topology.dim).size_local,
-                                  op=MPI.SUM))
+    return int(msh.comm.allreduce(msh.topology.index_map(msh.topology.dim).size_local, op=MPI.SUM))
 
 
 # ------------------------------------------------------------------ fields
 def _cf(drive, interior="zero"):
     if drive == "tm":
         return lambda p: pec_cylinder_tm0_field(p, k=K, radius=A, e0=E0, interior=interior)
-    return lambda p: pec_cylinder_te1_field(p, k=K, radius=A, omega=OMEGA, e0=E0,
-                                            interior=interior)
+    return lambda p: pec_cylinder_te1_field(p, k=K, radius=A, omega=OMEGA, e0=E0, interior=interior)
 
 
 def _dirichlet(drive):
@@ -163,11 +162,13 @@ def _te_mode(points, kind):
 
 def _incident(drive):
     if drive == "tm":
+
         def inc(p):
             p = np.asarray(p, dtype=float)
             out = np.zeros((p.shape[0], 3), dtype=complex)
             out[:, 2] = E0 * special.jv(0, K * np.hypot(p[:, 0], p[:, 1]))
             return out
+
         return inc
     return lambda p: _te_mode(p, "J")
 
@@ -208,8 +209,7 @@ def _continuous_annulus_mean(field_fn, n_r=64, n_phi=64):
     wr = 0.5 * (r1 - r0) * wg * rho
     ang = (np.arange(n_phi) + 0.5) * 2.0 * np.pi / n_phi
     rr, aa = np.meshgrid(rho, ang, indexing="ij")
-    pts = np.column_stack([(rr * np.cos(aa)).ravel(), (rr * np.sin(aa)).ravel(),
-                           np.zeros(rr.size)])
+    pts = np.column_stack([(rr * np.cos(aa)).ravel(), (rr * np.sin(aa)).ravel(), np.zeros(rr.size)])
     e2 = np.sum(np.abs(field_fn(pts)) ** 2, axis=1).reshape(rr.shape)
     return float(np.sum(wr[:, None] * e2) / (np.sum(wr) * n_phi) / E0**2)
 
@@ -229,8 +229,10 @@ def _h_wall_over_a(msh):
     if n_owned:
         mid = v.mean(axis=1)
         near = np.hypot(mid[:, 0], mid[:, 1]) < 1.1 * A
-        edges = np.stack([np.linalg.norm(v[:, i] - v[:, j], axis=1)
-                          for i in range(4) for j in range(i + 1, 4)], axis=1)
+        edges = np.stack(
+            [np.linalg.norm(v[:, i] - v[:, j], axis=1) for i in range(4) for j in range(i + 1, 4)],
+            axis=1,
+        )
         local = float(np.max(edges[near])) if np.any(near) else 0.0
     else:
         local = 0.0
@@ -263,9 +265,13 @@ def _solve_cylinder(drive, pec_tags, *, return_fields=False, trace=None):
     beta = complex(np.sum(np.conj(e_s) * (e_h - e_inc)) / np.sum(np.abs(e_s) ** 2))
 
     zc = [_eval_complex(fields, _circle(1.5 * A, z), comm) for z in (0.0, LENGTH / 4, -LENGTH / 4)]
-    z_inv = float(max(np.max(np.linalg.norm(zc[1] - zc[0], axis=1)),
-                      np.max(np.linalg.norm(zc[2] - zc[0], axis=1)))
-                  / np.max(np.linalg.norm(zc[0], axis=1)))
+    z_inv = float(
+        max(
+            np.max(np.linalg.norm(zc[1] - zc[0], axis=1)),
+            np.max(np.linalg.norm(zc[2] - zc[0], axis=1)),
+        )
+        / np.max(np.linalg.norm(zc[0], axis=1))
+    )
 
     chi = _annulus_mask(msh)
     e = fields.e_complex
@@ -287,10 +293,22 @@ def _solve_cylinder(drive, pec_tags, *, return_fields=False, trace=None):
     ndofs = int(v_space.dofmap.index_map.size_global * v_space.dofmap.index_map_bs)
     h_wall = _h_wall_over_a(msh)
     rss = _rss_gib(comm)  # collective
-    out = dict(beta=beta, phi_h=phi_h, phi_cf_h=phi_cf_h, phi_cont=phi_cont,
-               n_mask=n_mask, n_cavity=n_cavity, cavity_max=cavity_max,
-               ncells=_ncells(msh), ndofs=ndofs, h_wall=h_wall, z_inv=z_inv,
-               seconds=time.perf_counter() - t0, t_solve=t_solve, rss=rss)
+    out = dict(
+        beta=beta,
+        phi_h=phi_h,
+        phi_cf_h=phi_cf_h,
+        phi_cont=phi_cont,
+        n_mask=n_mask,
+        n_cavity=n_cavity,
+        cavity_max=cavity_max,
+        ncells=_ncells(msh),
+        ndofs=ndofs,
+        h_wall=h_wall,
+        z_inv=z_inv,
+        seconds=time.perf_counter() - t0,
+        t_solve=t_solve,
+        rss=rss,
+    )
     if return_fields:
         out["fields"] = fields
     return out
@@ -298,34 +316,45 @@ def _solve_cylinder(drive, pec_tags, *, return_fields=False, trace=None):
 
 def _report(label, drive, pec_tags, d):
     miss = d["phi_h"] / d["phi_cf_h"] - 1.0
-    _say(f"\n[IMP-4 step 1] {label}: drive {drive}, pec tags {pec_tags}; cells "
-         f"{d['ncells']}, degree-{DEGREE} dofs {d['ndofs']}, {d['seconds']:.1f} s "
-         f"(solve {d['t_solve']:.1f} s), RSS(sum) {d['rss']:.2f} GiB, h_wall/a "
-         f"{d['h_wall']:.3f}, annulus cells {d['n_mask']}")
-    _say(f"  beta = {d['beta'].real:.6f}{d['beta'].imag:+.6f}j  |beta - 1| = "
-         f"{abs(d['beta'] - 1):.4%} (band {TH15_BETA_BAND:.4%})")
-    _say(f"  Phi_h = {d['phi_h']:.6e}, Phi_cf,h = {d['phi_cf_h']:.6e}, continuous "
-         f"Phi = {d['phi_cont']:.6e} (Phi_cf,h/cont - 1 = "
-         f"{d['phi_cf_h'] / d['phi_cont'] - 1:+.4%}); Phi_h/Phi_cf,h - 1 = "
-         f"{miss:+.4%} (band {MAT4_BAND:.0%})")
-    _say(f"  cavity dofs {d['n_cavity']}, max |E| {d['cavity_max']:.3e}; "
-         f"z-invariance {d['z_inv']:.3e}")
+    _say(
+        f"\n[IMP-4 step 1] {label}: drive {drive}, pec tags {pec_tags}; cells "
+        f"{d['ncells']}, degree-{DEGREE} dofs {d['ndofs']}, {d['seconds']:.1f} s "
+        f"(solve {d['t_solve']:.1f} s), RSS(sum) {d['rss']:.2f} GiB, h_wall/a "
+        f"{d['h_wall']:.3f}, annulus cells {d['n_mask']}"
+    )
+    _say(
+        f"  beta = {d['beta'].real:.6f}{d['beta'].imag:+.6f}j  |beta - 1| = "
+        f"{abs(d['beta'] - 1):.4%} (band {TH15_BETA_BAND:.4%})"
+    )
+    _say(
+        f"  Phi_h = {d['phi_h']:.6e}, Phi_cf,h = {d['phi_cf_h']:.6e}, continuous "
+        f"Phi = {d['phi_cont']:.6e} (Phi_cf,h/cont - 1 = "
+        f"{d['phi_cf_h'] / d['phi_cont'] - 1:+.4%}); Phi_h/Phi_cf,h - 1 = "
+        f"{miss:+.4%} (band {MAT4_BAND:.0%})"
+    )
+    _say(
+        f"  cavity dofs {d['n_cavity']}, max |E| {d['cavity_max']:.3e}; "
+        f"z-invariance {d['z_inv']:.3e}"
+    )
     return miss
 
 
 # --------------------------------------------------------------------- W0
 def test_census_and_numpy():
     comm = MPI.COMM_WORLD
-    _say(f"\n[IMP-4 step 1] k = {K:.6g} 1/m, |k|a = {abs(K) * A:.4f}, |k|c = "
-         f"{abs(K) * C:.4f}; a {A * 1e3} mm, c {C * 1e3} mm, L {LENGTH * 1e3} mm")
+    _say(
+        f"\n[IMP-4 step 1] k = {K:.6g} 1/m, |k|a = {abs(K) * A:.4f}, |k|c = "
+        f"{abs(K) * C:.4f}; a {A * 1e3} mm, c {C * 1e3} mm, L {LENGTH * 1e3} mm"
+    )
     msh, _, facet_tags = _mesh()
     ncells = _ncells(msh)
     one = fem.Constant(msh, PETSc.ScalarType(1.0))
-    ds = ufl.Measure("ds", domain=msh, subdomain_data=facet_tags,
-                     metadata={"quadrature_degree": 2})
-    refs = {OUTER_BOUNDARY_TAG: 2 * np.pi * C * LENGTH,
-            CAVITY_TAG: 2 * np.pi * A * LENGTH,
-            END_TAG: 2 * np.pi * (C**2 - A**2)}
+    ds = ufl.Measure("ds", domain=msh, subdomain_data=facet_tags, metadata={"quadrature_degree": 2})
+    refs = {
+        OUTER_BOUNDARY_TAG: 2 * np.pi * C * LENGTH,
+        CAVITY_TAG: 2 * np.pi * A * LENGTH,
+        END_TAG: 2 * np.pi * (C**2 - A**2),
+    }
     areas = {t: _assemble_real(one * ds(t), comm) for t in refs}
     nfacets = {t: int(comm.allreduce(int(facet_tags.find(t).size), op=MPI.SUM)) for t in refs}
 
@@ -336,23 +365,31 @@ def test_census_and_numpy():
     mq = _numpy_quadrature_mean(msh, cells, _static_te_numpy)
     x = ufl.SpatialCoordinate(msh)
     r4 = (x[0] ** 2 + x[1] ** 2) ** 2
-    e_st = ufl.as_vector((2.0 * E0 * A * A * x[0] * x[1] / r4,
-                          E0 + E0 * A * A * (x[1] ** 2 - x[0] ** 2) / r4, 0.0))
+    e_st = ufl.as_vector(
+        (2.0 * E0 * A * A * x[0] * x[1] / r4, E0 + E0 * A * A * (x[1] ** 2 - x[0] ** 2) / r4, 0.0)
+    )
     dx = ufl.Measure("dx", domain=msh, metadata={"quadrature_degree": QDEG})
-    mu_ufl = (_assemble_real(chi * ufl.dot(e_st, e_st) * dx, comm)
-              / (E0**2 * _assemble_real(chi * dx, comm)))
+    mu_ufl = _assemble_real(chi * ufl.dot(e_st, e_st) * dx, comm) / (
+        E0**2 * _assemble_real(chi * dx, comm)
+    )
     m_err = abs(mq / mu_ufl - 1.0)
     h_wall = _h_wall_over_a(msh)
     rss = _rss_gib(comm)
 
-    _say(f"[IMP-4 census] cells {ncells} (guard {CELL_GUARD}), mesh "
-         f"{_MESH_CACHE['m'][1]:.1f} s, annulus-mask cells {n_mask}, h_wall/a "
-         f"{h_wall:.3f}, RSS(sum) {rss:.2f} GiB")
+    _say(
+        f"[IMP-4 census] cells {ncells} (guard {CELL_GUARD}), mesh "
+        f"{_MESH_CACHE['m'][1]:.1f} s, annulus-mask cells {n_mask}, h_wall/a "
+        f"{h_wall:.3f}, RSS(sum) {rss:.2f} GiB"
+    )
     for t, ref in refs.items():
-        _say(f"[IMP-4 Tag] tag {t}: facets {nfacets[t]}, area {areas[t]:.9e} vs "
-             f"{ref:.9e}, rel {areas[t] / ref - 1:+.4%} (band {TAG_BAND:.0%})")
-    _say(f"[IMP-4 M'] numpy {mq:.15f} vs UFL {mu_ufl:.15f} rel {m_err:.3e}; "
-         f"continuous 1 + <a^4/rho^4> = {1 + 4.0 / 9.0:.4f}")
+        _say(
+            f"[IMP-4 Tag] tag {t}: facets {nfacets[t]}, area {areas[t]:.9e} vs "
+            f"{ref:.9e}, rel {areas[t] / ref - 1:+.4%} (band {TAG_BAND:.0%})"
+        )
+    _say(
+        f"[IMP-4 M'] numpy {mq:.15f} vs UFL {mu_ufl:.15f} rel {m_err:.3e}; "
+        f"continuous 1 + <a^4/rho^4> = {1 + 4.0 / 9.0:.4f}"
+    )
 
     # (S) the incident/scattered split, 64 points in [1.2a, 2a].
     rng = np.random.default_rng(206)
@@ -366,10 +403,11 @@ def test_census_and_numpy():
     coef = special.jvp(1, K * A, 1) / special.h2vp(1, K * A, 1)
     scat = _cf("te")(pts) - _te_mode(pts, "J")
     pred = -coef * _te_mode(pts, "H")
-    s_te = float(np.max(np.linalg.norm(scat - pred, axis=1))
-                 / np.max(np.linalg.norm(pred, axis=1)))
-    _say(f"[IMP-4 S] TM const ratio vs -J0(ka)/H0(ka) = {target:.6g}: rel {s_tm:.3e}; "
-         f"TE scattered vs -J1'(ka)/H1'(ka) H-mode (coef {coef:.6g}): rel {s_te:.3e}")
+    s_te = float(np.max(np.linalg.norm(scat - pred, axis=1)) / np.max(np.linalg.norm(pred, axis=1)))
+    _say(
+        f"[IMP-4 S] TM const ratio vs -J0(ka)/H0(ka) = {target:.6g}: rel {s_tm:.3e}; "
+        f"TE scattered vs -J1'(ka)/H1'(ka) H-mode (coef {coef:.6g}): rel {s_te:.3e}"
+    )
 
     assert ncells <= CELL_GUARD, f"cell guard: {ncells} > {CELL_GUARD}"
     for t, ref in refs.items():
@@ -391,15 +429,22 @@ def test_both_drives():
         if drive == "tm":
             i_cf = pec_cylinder_tm0_current(k=K, radius=A, omega=OMEGA, e0=E0)
             i_fit = d["beta"] * i_cf
-            _say(f"  TM current beta*I = {i_fit:.6g} A per V/m (|I| {abs(i_fit):.6g}, "
-                 f"closed form {i_cf:.6g}, |I_cf| {abs(i_cf):.6g})")
+            _say(
+                f"  TM current beta*I = {i_fit:.6g} A per V/m (|I| {abs(i_fit):.6g}, "
+                f"closed form {i_cf:.6g}, |I_cf| {abs(i_cf):.6g})"
+            )
         results[drive] = d
     for drive, d in results.items():
         assert d["n_cavity"] > 0, drive
         assert d["cavity_max"] < 1e-12, (drive, d["cavity_max"])
         assert abs(d["beta"] - 1.0) <= TH15_BETA_BAND, (drive, d["beta"], d["h_wall"])
         assert abs(d["phi_h"] / d["phi_cf_h"] - 1.0) <= MAT4_BAND, (
-            drive, d["phi_h"], d["phi_cf_h"], d["phi_cont"], d["z_inv"])
+            drive,
+            d["phi_h"],
+            d["phi_cf_h"],
+            d["phi_cont"],
+            d["z_inv"],
+        )
 
 
 # --------------------------------------------------------------------- W2
@@ -410,15 +455,19 @@ def test_natural_cavity_controls():
     # Phi miss ~ +7900 % [+3000, +15000] %.
     d1 = _solve_cylinder("tm", (OUTER_BOUNDARY_TAG, END_TAG))
     m1 = _report("control c1", "tm", (OUTER_BOUNDARY_TAG, END_TAG), d1)
-    _say(f"  c1 predicted: beta ~ 0.53-0.13j, |beta-1| ~ 0.49 [0.3, 0.7]; Phi miss "
-         f"~ +7900 % [+3000, +15000] %; measured |beta-1| {abs(d1['beta'] - 1):.4f}, "
-         f"miss {m1:+.2%}")
+    _say(
+        f"  c1 predicted: beta ~ 0.53-0.13j, |beta-1| ~ 0.49 [0.3, 0.7]; Phi miss "
+        f"~ +7900 % [+3000, +15000] %; measured |beta-1| {abs(d1['beta'] - 1):.4f}, "
+        f"miss {m1:+.2%}"
+    )
     # (c2) TE, natural cavity (void cylinder): predicted beta ~ -0.980,
     # |beta-1| ~ 1.98; Phi miss ~ 1 - A^2 ~ 3.9 % (printed only).
     d2 = _solve_cylinder("te", (OUTER_BOUNDARY_TAG,))
     m2 = _report("control c2", "te", (OUTER_BOUNDARY_TAG,), d2)
-    _say(f"  c2 predicted: beta ~ -0.980, |beta-1| ~ 1.98; Phi miss ~ 3.9 % (not "
-         f"asserted); measured |beta-1| {abs(d2['beta'] - 1):.4f}, miss {m2:+.2%}")
+    _say(
+        f"  c2 predicted: beta ~ -0.980, |beta-1| ~ 1.98; Phi miss ~ 3.9 % (not "
+        f"asserted); measured |beta-1| {abs(d2['beta'] - 1):.4f}, miss {m2:+.2%}"
+    )
     assert abs(d1["beta"] - 1.0) > TH15_BETA_BAND
     assert abs(m1) > MAT4_BAND
     assert abs(d2["beta"] - 1.0) > TH15_BETA_BAND

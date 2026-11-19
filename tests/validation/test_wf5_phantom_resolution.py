@@ -86,13 +86,15 @@ def fixture_build(ans7):
     tracked = json.loads((ANS7_DIR / "metrics.json").read_text())
     kappa = float(tracked["kappa"])
     msh, cell_tags, facet_tags, _diag, t_mesh = th14._sheets_build(
-        True, as_hole=True, phantom_resolution=h_p)
+        True, as_hole=True, phantom_resolution=h_p
+    )
     tdim = msh.topology.dim
     msh.topology.create_connectivity(tdim - 1, tdim)
     msh.topology.create_entity_permutations()
     outer_tags, _census = th14._outer_box_tags(msh, facet_tags, comm)
-    tags_k, port_defs_k, specs_k = th14._build_ports(msh, cell_tags, comm,
-                                                     width_correction_kappa=kappa)
+    tags_k, port_defs_k, specs_k = th14._build_ports(
+        msh, cell_tags, comm, width_correction_kappa=kappa
+    )
     geo_k = (msh, cell_tags, facet_tags, outer_tags, tags_k, port_defs_k)
     n_cells = int(msh.topology.index_map(tdim).size_global)
     n_ph = _global_tag_cells(msh, cell_tags, th14.PHANTOM_CELL_TAG, comm)
@@ -101,14 +103,29 @@ def fixture_build(ans7):
     geo_u = (msh, cell_tags, facet_tags, outer_tags, tags_u, port_defs_u)
     kappa_run = ans7._kappa_in_run(th14, geo_u, specs_unc, comm)
     if comm.rank == 0:
-        print(f"[wf5-3] phantom_resolution {h_p}: hole mesh {n_cells} cells (default "
-              f"{DEFAULT_CELLS}; PREDICTED ~ {PREDICTED_CELLS.get(h_p)}), phantom (tag "
-              f"{th14.PHANTOM_CELL_TAG}) cells {n_ph}, mesh {t_mesh:.1f} s", flush=True)
-        print(f"[wf5-3] kappa tracked {kappa:.9e} (held); kappa in-run {kappa_run:.9e} "
-              f"(rel {abs(kappa_run - kappa) / abs(kappa):.4e}, printed only)", flush=True)
-    return {"th14": th14, "geo": geo_k, "specs": specs_k, "tracked": tracked, "comm": comm,
-            "h_p": h_p, "n_cells": n_cells, "n_ph": n_ph, "kappa": kappa,
-            "kappa_run": kappa_run}
+        print(
+            f"[wf5-3] phantom_resolution {h_p}: hole mesh {n_cells} cells (default "
+            f"{DEFAULT_CELLS}; PREDICTED ~ {PREDICTED_CELLS.get(h_p)}), phantom (tag "
+            f"{th14.PHANTOM_CELL_TAG}) cells {n_ph}, mesh {t_mesh:.1f} s",
+            flush=True,
+        )
+        print(
+            f"[wf5-3] kappa tracked {kappa:.9e} (held); kappa in-run {kappa_run:.9e} "
+            f"(rel {abs(kappa_run - kappa) / abs(kappa):.4e}, printed only)",
+            flush=True,
+        )
+    return {
+        "th14": th14,
+        "geo": geo_k,
+        "specs": specs_k,
+        "tracked": tracked,
+        "comm": comm,
+        "h_p": h_p,
+        "n_cells": n_cells,
+        "n_ph": n_ph,
+        "kappa": kappa,
+        "kappa_run": kappa_run,
+    }
 
 
 @pytest.fixture(scope="module")
@@ -136,12 +153,19 @@ def test_phantom_share_record(ans7, fixture_build, sweep):
     fails = []
     # (R1)
     if rank0:
-        print(f"[wf5-3] (R1) cells {fb['n_cells']} != default {DEFAULT_CELLS} (ASSERTED)",
-              flush=True)
+        print(
+            f"[wf5-3] (R1) cells {fb['n_cells']} != default {DEFAULT_CELLS} (ASSERTED)", flush=True
+        )
     if fb["n_cells"] == DEFAULT_CELLS:
         fails.append(("R1", fb["n_cells"]))
-    record = {"phantom_resolution": h_p, "n_cells": fb["n_cells"], "n_phantom_cells": fb["n_ph"],
-              "kappa_tracked": fb["kappa"], "kappa_in_run": fb["kappa_run"], "columns": {}}
+    record = {
+        "phantom_resolution": h_p,
+        "n_cells": fb["n_cells"],
+        "n_phantom_cells": fb["n_ph"],
+        "kappa_tracked": fb["kappa"],
+        "kappa_in_run": fb["kappa_run"],
+        "columns": {},
+    }
     for col in COLUMNS:
         rows = _rows_on_grid(UNLOADED_MHZ, sweep[col])  # (R3) asserted inside
         f0 = rows["f0_hz"]
@@ -156,29 +180,45 @@ def test_phantom_share_record(ans7, fixture_build, sweep):
         share = b["p_phantom"] / (omega * w_tot)
         d_share = (share - STEP1_PI_PH[col]) / STEP1_PI_PH[col]
         if rank0:
-            print(f"[wf5-3] {col}: (R3) one crossing in {rows['bracket_mhz']} MHz; f0 "
-                  f"{f0:.6f} Hz (cubic {rows['f0_cubic_hz']:.6f}); Q_slope {q_slope:.6f}, "
-                  f"Q_field {q_field:.6f}; |Q_field - Q_slope|/Q_slope = {miss:.4e} "
-                  f"(B_Q {PREDICTED_B_Q:.0e} PREDICTED only, not asserted on this mesh)",
-                  flush=True)
-            print(f"[wf5-3] {col}: secant G0 {rows['g0']:.9e} S, dB/df {rows['dbdf']:.9e} S/Hz; "
-                  f"cubic Q {1.0 / rows['inv_q_cubic']:.6f}, e_sec "
-                  f"{abs(rows['inv_q_cubic'] - rows['inv_q_sec']) / rows['inv_q_sec']:.4e}; "
-                  f"|Q_field - Q_cubic|/Q_cubic = "
-                  f"{abs(q_field * rows['inv_q_cubic'] - 1.0):.4e} (printed)", flush=True)
-            print(f"[wf5-3] {col}: (R2) P_phantom {b['p_phantom']:.9e} W, P_surf "
-                  f"{b['p_surf']:.9e} W, P_loss {p_loss:.9e} W; p_src {b['p_src']:.9e} W, "
-                  f"p_sheet(P1) {b['p_sheet1']:.9e} W; identity rel {id_rel:.3e} (ASSERTED <= "
-                  f"{DISCRETE_IDENTITY_RTOL:.0e})", flush=True)
-            print(f"[wf5-3] {col}: phantom share P_ph/(w0 W) {share:.6e} (default mesh "
-                  f"{STEP1_PI_PH[col]:.6e}); relative change {d_share:+.4e} (PREDICTED |.| <= "
-                  f"{PREDICTED_SHARE_CHANGE:.0e}; > {SHARE_STOP:.0e} is T13's finding, recorded)",
-                  flush=True)
+            print(
+                f"[wf5-3] {col}: (R3) one crossing in {rows['bracket_mhz']} MHz; f0 "
+                f"{f0:.6f} Hz (cubic {rows['f0_cubic_hz']:.6f}); Q_slope {q_slope:.6f}, "
+                f"Q_field {q_field:.6f}; |Q_field - Q_slope|/Q_slope = {miss:.4e} "
+                f"(B_Q {PREDICTED_B_Q:.0e} PREDICTED only, not asserted on this mesh)",
+                flush=True,
+            )
+            print(
+                f"[wf5-3] {col}: secant G0 {rows['g0']:.9e} S, dB/df {rows['dbdf']:.9e} S/Hz; "
+                f"cubic Q {1.0 / rows['inv_q_cubic']:.6f}, e_sec "
+                f"{abs(rows['inv_q_cubic'] - rows['inv_q_sec']) / rows['inv_q_sec']:.4e}; "
+                f"|Q_field - Q_cubic|/Q_cubic = "
+                f"{abs(q_field * rows['inv_q_cubic'] - 1.0):.4e} (printed)",
+                flush=True,
+            )
+            print(
+                f"[wf5-3] {col}: (R2) P_phantom {b['p_phantom']:.9e} W, P_surf "
+                f"{b['p_surf']:.9e} W, P_loss {p_loss:.9e} W; p_src {b['p_src']:.9e} W, "
+                f"p_sheet(P1) {b['p_sheet1']:.9e} W; identity rel {id_rel:.3e} (ASSERTED <= "
+                f"{DISCRETE_IDENTITY_RTOL:.0e})",
+                flush=True,
+            )
+            print(
+                f"[wf5-3] {col}: phantom share P_ph/(w0 W) {share:.6e} (default mesh "
+                f"{STEP1_PI_PH[col]:.6e}); relative change {d_share:+.4e} (PREDICTED |.| <= "
+                f"{PREDICTED_SHARE_CHANGE:.0e}; > {SHARE_STOP:.0e} is T13's finding, recorded)",
+                flush=True,
+            )
         if not id_rel <= DISCRETE_IDENTITY_RTOL:
             fails.append((col, "R2", id_rel))
-        record["columns"][col] = {"f0_hz": f0, "q_slope": q_slope, "q_field": q_field,
-                                  "q_miss": miss, "identity_rel": id_rel,
-                                  "phantom_share": share, "phantom_share_change": d_share}
+        record["columns"][col] = {
+            "f0_hz": f0,
+            "q_slope": q_slope,
+            "q_field": q_field,
+            "q_miss": miss,
+            "identity_rel": id_rel,
+            "phantom_share": share,
+            "phantom_share_change": d_share,
+        }
     if rank0:
         JSON_DIR.mkdir(parents=True, exist_ok=True)
         (JSON_DIR / f"phantom_resolution_{h_p}.json").write_text(json.dumps(record, indent=2))
@@ -188,8 +228,11 @@ def test_phantom_share_record(ans7, fixture_build, sweep):
         coarse = json.loads((JSON_DIR / f"phantom_resolution_{CONTROL_COARSE}.json").read_text())
         n_c = int(coarse["n_phantom_cells"])
         if rank0:
-            print(f"[wf5-3] control: phantom cells {fb['n_ph']} at {CONTROL_FINE} > {n_c} at "
-                  f"{CONTROL_COARSE} (ASSERTED)", flush=True)
+            print(
+                f"[wf5-3] control: phantom cells {fb['n_ph']} at {CONTROL_FINE} > {n_c} at "
+                f"{CONTROL_COARSE} (ASSERTED)",
+                flush=True,
+            )
         if not fb["n_ph"] > n_c:
             fails.append(("control", fb["n_ph"], n_c))
     assert not fails, f"WF-5 step 3 gates: {fails}"

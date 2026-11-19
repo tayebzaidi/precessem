@@ -136,9 +136,7 @@ def _geo35_2b_mode():
     if raw == "":
         return None
     if raw not in GEO35_2B_MODES:
-        raise ValueError(
-            f"{GEO35_2B_ENV}={raw!r}: expected one of {GEO35_2B_MODES} or unset"
-        )
+        raise ValueError(f"{GEO35_2B_ENV}={raw!r}: expected one of {GEO35_2B_MODES} or unset")
     return raw
 
 
@@ -161,7 +159,6 @@ def build_sar10g_case(comm, *, emit_leg_ports=False):
         mass_averaged_sar,
         mean_sar,
     )
-
     from tests.mesh.helpers import global_cell_tag_set
     from tests.mesh.test_birdcage_phantom_resolution import _global_tag_cell_count
     from tests.validation import test_port_drive_superposition as post6
@@ -212,9 +209,7 @@ def build_sar10g_case(comm, *, emit_leg_ports=False):
     if build_s > BUILD_STOP_S:
         pytest.fail(f"STOP rule: build {build_s:.1f} s > {BUILD_STOP_S:.0f} s")
 
-    case = post6._build_ring_quadrature_case(
-        built=built, cell_record=F_HUMAN_BRANCH_B_CELL_RECORD
-    )
+    case = post6._build_ring_quadrature_case(built=built, cell_record=F_HUMAN_BRANCH_B_CELL_RECORD)
     t_sweep_done = time.perf_counter()
     rss_after_sweep = rss_gib()
     if rss_after_sweep > RSS_STOP_GIB:
@@ -228,9 +223,7 @@ def build_sar10g_case(comm, *, emit_leg_ports=False):
     e_p17 = result.fields[CONTROL_PORT].e_complex
 
     # ---- phantom geometry, measured and allreduced -------------------------
-    centre, radius, half_height, lo, hi = _phantom_geometry(
-        msh, cell_tags, PHANTOM_CELL_TAG, comm
-    )
+    centre, radius, half_height, lo, hi = _phantom_geometry(msh, cell_tags, PHANTOM_CELL_TAG, comm)
     z_c = float(centre[2])
     a10 = averaging_ball_radius(mass_kg=TEN_GRAM_KG, rho=PHANTOM_RHO_KG_PER_M3)
     say(
@@ -323,9 +316,7 @@ def build_sar10g_case(comm, *, emit_leg_ports=False):
     for m in CONTROL_IMAGES:
         cm = _rotate_z(c_star, np.radians(m * step_deg))[0]
         control_sar[m] = ball(e_p17, cm, f"control P17 R_{m}")["averaged_sar_w_per_kg"]
-    control = {
-        m: abs(control_sar[m] - control_sar[0]) / control_sar[0] for m in CONTROL_IMAGES
-    }
+    control = {m: abs(control_sar[m] - control_sar[0]) / control_sar[0] for m in CONTROL_IMAGES}
     control_worst = max(control.values())
 
     # ---- (i) coverage identity -------------------------------------------------
@@ -485,9 +476,11 @@ def test_geo35_2b_measure_knob_contract(monkeypatch):
     assert param.default is False
     assert param.kind is inspect.Parameter.KEYWORD_ONLY
     if MPI.COMM_WORLD.rank == 0:
-        print(f"\n[GEO-35 s2b-i (K)] {GEO35_2B_ENV}: unset -> None, {GEO35_2B_MODES} "
-              "parse, others raise; build_sar10g_case(emit_leg_ports=False) default",
-              flush=True)
+        print(
+            f"\n[GEO-35 s2b-i (K)] {GEO35_2B_ENV}: unset -> None, {GEO35_2B_MODES} "
+            "parse, others raise; build_sar10g_case(emit_leg_ports=False) default",
+            flush=True,
+        )
 
 
 @complex_only
@@ -533,7 +526,9 @@ def test_geo35_2b_measure(sar10g_case):
             f"REUSE_REPRODUCTION_RTOL {REUSE_REPRODUCTION_RTOL:.0e}"
             + (
                 f" (PREDICTED {GEO35_C2_PREDICTED[0]:.0f}-{GEO35_C2_PREDICTED[1]:.0f}x, "
-                "printed, never asserted)" if mode == "dropped" else " (ASSERTED <= 1x)"
+                "printed, never asserted)"
+                if mode == "dropped"
+                else " (ASSERTED <= 1x)"
             )
             + f"\n[GEO-35 s2b-i] worst C16 {c['c16'][c['worst_m']] * 100:.4f}% at "
             f"R_{c['worst_m']}, mirror {c['mirror'] * 100:.4f}%, coverage power "
@@ -635,9 +630,7 @@ def test_ii_sar10g_c16_invariant(sar10g_case):
 @complex_only
 def test_iii_sar10g_mirror(sar10g_case):
     c = sar10g_case
-    assert c["mirror"] <= c["band"], (
-        f"mirror {c['mirror'] * 100:.4f}% > {c['band'] * 100:.1f}%"
-    )
+    assert c["mirror"] <= c["band"], f"mirror {c['mirror'] * 100:.4f}% > {c['band'] * 100:.1f}%"
 
 
 @complex_only

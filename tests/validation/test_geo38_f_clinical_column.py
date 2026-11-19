@@ -83,12 +83,15 @@ def _sheet_tags_and_widths(msh, cell_tags, chord, comm):
     ring_ports = _ring_ports()
     assert len(ring_ports) == 2 * LEG_COUNT
     tags_f = _interface_facet_tags(
-        msh, cell_tags, {SHEET_IFACE + i: (PORT_LOWER + i, PORT_UPPER + i) for i in ring_ports})
+        msh, cell_tags, {SHEET_IFACE + i: (PORT_LOWER + i, PORT_UPPER + i) for i in ring_ports}
+    )
     tdim = msh.topology.dim
     msh.topology.create_connectivity(tdim - 1, tdim)
     msh.topology.create_entity_permutations()
-    widths = {int(i): _interface_area_or_zero(msh, tags_f, SHEET_IFACE + i, comm) / chord
-              for i in ring_ports}
+    widths = {
+        int(i): _interface_area_or_zero(msh, tags_f, SHEET_IFACE + i, comm) / chord
+        for i in ring_ports
+    }
     return tags_f, widths
 
 
@@ -110,31 +113,41 @@ def _context_from_mesh(msh, cell_tags, facets, chord, comm):
     specs = []
     for i, width in widths.items():
         phi_hat, _centre = _ring_gap_frame(i, LEG_COUNT)
-        specs.append(LumpedSheetPortSpec(
-            port_id=f"P{i}",
-            facet_tag=int(SHEET_IFACE + i),
-            port_impedance_ohm=TERMINATED_PORT_IMPEDANCE_OHM,
-            gap_height_m=chord,
-            sheet_width_m=width,
-            drive_direction=tuple(float(c) for c in phi_hat),
-            drive_voltage_v=1.0 + 0.0j,
-            interior=True,
-        ))
+        specs.append(
+            LumpedSheetPortSpec(
+                port_id=f"P{i}",
+                facet_tag=int(SHEET_IFACE + i),
+                port_impedance_ohm=TERMINATED_PORT_IMPEDANCE_OHM,
+                gap_height_m=chord,
+                sheet_width_m=width,
+                drive_direction=tuple(float(c) for c in phi_hat),
+                drive_voltage_v=1.0 + 0.0j,
+                interior=True,
+            )
+        )
     outer_tags, outer_census = _outer_box_tags(msh, facets, comm)
     problem = TimeHarmonicProblem(
         mesh=msh,
         frequency_hz=FREQUENCY_HZ,
         material=HomogeneousMaterial(sigma=0.0, epsilon_r=1.0, mu_r=1.0),
         cell_tags=cell_tags,
-        material_map={PHANTOM_CELL_TAG: HomogeneousMaterial(
-            sigma=SALINE_SIGMA, epsilon_r=SALINE_EPSILON_R, mu_r=1.0)},
+        material_map={
+            PHANTOM_CELL_TAG: HomogeneousMaterial(
+                sigma=SALINE_SIGMA, epsilon_r=SALINE_EPSILON_R, mu_r=1.0
+            )
+        },
         boundary_condition="pec_zero_tangential_a",
         facet_tags=outer_tags,
         pec_facet_tags=(OUTER_BOX_TAG,),
     )
-    ctx = {"msh": msh, "tags_f": tags_f, "cell_tags": cell_tags,
-           "omega": 2.0 * np.pi * FREQUENCY_HZ, "specs": specs,
-           "solver": TimeHarmonicSolver(problem, degree=DEGREE)}
+    ctx = {
+        "msh": msh,
+        "tags_f": tags_f,
+        "cell_tags": cell_tags,
+        "omega": 2.0 * np.pi * FREQUENCY_HZ,
+        "specs": specs,
+        "solver": TimeHarmonicSolver(problem, degree=DEGREE),
+    }
     return ctx, outer_census, widths
 
 
@@ -146,12 +159,18 @@ def _build_f_clinical(comm):
 
     kwargs = _f_clinical_kwargs("r1")
     msh, cell_tags, facets, diag = MeshGenerator.birdcage_port_domain(
-        comm=comm, return_diagnostics=True, **kwargs)
+        comm=comm, return_diagnostics=True, **kwargs
+    )
     n_cells = int(msh.topology.index_map(3).size_global)
     chord = float(diag["ring_port_layout"]["ring_port_gap_chord_m"])
     ctx, outer_census, _widths = _context_from_mesh(msh, cell_tags, facets, chord, comm)
-    return {"ctx": ctx, "cells": n_cells, "facets": facets,
-            "shield_radius_m": float(diag["shield_radius_m"]), "outer_census": outer_census}
+    return {
+        "ctx": ctx,
+        "cells": n_cells,
+        "facets": facets,
+        "shield_radius_m": float(diag["shield_radius_m"]),
+        "outer_census": outer_census,
+    }
 
 
 # ---- item 485: the disk cache (window A writes, window B reads) -------------
@@ -187,15 +206,19 @@ def _owned_tag_counts(msh, tags, comm):
 
 
 def _cache_signature(msh, cell_tags, facets, comm):
-    return {"cells": int(comm.allreduce(msh.topology.index_map(3).size_local, op=MPI.SUM)),
-            "cell_counts": _owned_tag_counts(msh, cell_tags, comm),
-            "facet_counts": _owned_tag_counts(msh, facets, comm)}
+    return {
+        "cells": int(comm.allreduce(msh.topology.index_map(3).size_local, op=MPI.SUM)),
+        "cell_counts": _owned_tag_counts(msh, cell_tags, comm),
+        "facet_counts": _owned_tag_counts(msh, facets, comm),
+    }
 
 
 def _sig_from_json(d):
-    return {"cells": int(d["cells"]),
-            "cell_counts": {int(k): int(v) for k, v in d["cell_counts"].items()},
-            "facet_counts": {int(k): int(v) for k, v in d["facet_counts"].items()}}
+    return {
+        "cells": int(d["cells"]),
+        "cell_counts": {int(k): int(v) for k, v in d["cell_counts"].items()},
+        "facet_counts": {int(k): int(v) for k, v in d["facet_counts"].items()},
+    }
 
 
 def _versions():
@@ -207,7 +230,8 @@ def _versions():
 
 def _read_cache(comm):
     """Read the cached mesh with `shared_facet` ghosts -> (msh, cell_tags, facets, t_read)."""
-    from dolfinx import io, mesh as dmesh
+    from dolfinx import io
+    from dolfinx import mesh as dmesh
 
     path = _cache_path()
     comm.Barrier()
@@ -245,13 +269,17 @@ def test_geo38_step1b_cache_r1():
     comm.Barrier()
     t0 = time.perf_counter()
     msh, cell_tags, facets, diag = MeshGenerator.birdcage_port_domain(
-        comm=comm, return_diagnostics=True, **_f_clinical_kwargs("r1"))
+        comm=comm, return_diagnostics=True, **_f_clinical_kwargs("r1")
+    )
     comm.Barrier()
     t_build = time.perf_counter() - t0
     chord = float(diag["ring_port_layout"]["ring_port_gap_chord_m"])
     written = _cache_signature(msh, cell_tags, facets, comm)
-    _say(comm, f"cache build: {t_build:.1f} s at -n {comm.size}; {written['cells']} cells; "
-               f"cell tags {written['cell_counts']}; facet tags {written['facet_counts']}")
+    _say(
+        comm,
+        f"cache build: {t_build:.1f} s at -n {comm.size}; {written['cells']} cells; "
+        f"cell tags {written['cell_counts']}; facet tags {written['facet_counts']}",
+    )
     _tags_f, widths = _sheet_tags_and_widths(msh, cell_tags, chord, comm)
 
     msh.name = MESH_NAME
@@ -266,9 +294,15 @@ def test_geo38_step1b_cache_r1():
     comm.Barrier()
     t_write = time.perf_counter() - t1
     if comm.rank == 0:
-        side = {**written, "shield_radius_m": float(diag["shield_radius_m"]),
-                "ring_port_gap_chord_m": chord, "t_build_s": t_build, "n_ranks": comm.size,
-                "versions": _versions(), "sheet_widths_m": widths}
+        side = {
+            **written,
+            "shield_radius_m": float(diag["shield_radius_m"]),
+            "ring_port_gap_chord_m": chord,
+            "t_build_s": t_build,
+            "n_ranks": comm.size,
+            "versions": _versions(),
+            "sheet_widths_m": widths,
+        }
         path.with_suffix(".json").write_text(json.dumps(side, indent=1, sort_keys=True))
     comm.Barrier()
 
@@ -276,15 +310,21 @@ def test_geo38_step1b_cache_r1():
     read = _cache_signature(msh_r, ct_r, ft_r, comm)
     _tf_r, widths_r = _sheet_tags_and_widths(msh_r, ct_r, chord, comm)
     w_rel = max(abs(widths_r[i] / widths[i] - 1.0) for i in widths)
-    _say(comm, f"read-back sheet widths vs built: max rel {w_rel:.3e} over {len(widths)} "
-               f"sheets (printed; catches a ghost-mode slip before window B)")
+    _say(
+        comm,
+        f"read-back sheet widths vs built: max rel {w_rel:.3e} over {len(widths)} "
+        f"sheets (printed; catches a ghost-mode slip before window B)",
+    )
     size_mib = _cache_size_mib(path) if comm.rank == 0 else 0.0
-    _say(comm, f"cache {path} ({size_mib:.1f} MiB): write {t_write:.1f} s, read-back "
-               f"{t_read:.1f} s (shared_facet, -n {comm.size}); read {read['cells']} cells; "
-               f"cell tags equal {read['cell_counts'] == written['cell_counts']}; facet tags "
-               f"equal {read['facet_counts'] == written['facet_counts']} (EXACT, ASSERTED); "
-               f"cells vs record {F_CLINICAL_R1_CELL_RECORD} (EXACT, ASSERTED); versions "
-               f"{_versions()}")
+    _say(
+        comm,
+        f"cache {path} ({size_mib:.1f} MiB): write {t_write:.1f} s, read-back "
+        f"{t_read:.1f} s (shared_facet, -n {comm.size}); read {read['cells']} cells; "
+        f"cell tags equal {read['cell_counts'] == written['cell_counts']}; facet tags "
+        f"equal {read['facet_counts'] == written['facet_counts']} (EXACT, ASSERTED); "
+        f"cells vs record {F_CLINICAL_R1_CELL_RECORD} (EXACT, ASSERTED); versions "
+        f"{_versions()}",
+    )
     assert written["cells"] == F_CLINICAL_R1_CELL_RECORD, written["cells"]
     assert read == written, (read, written)
 
@@ -297,18 +337,23 @@ def _built_from_cache(comm):
     path = _cache_path()
     side_path = path.with_suffix(".json")
     present = path.exists() and path.with_suffix(".h5").exists() and side_path.exists()
-    assert present, f"cache {path} or its .h5 / .json sidecar is missing: refusing (never build here)"
+    assert (
+        present
+    ), f"cache {path} or its .h5 / .json sidecar is missing: refusing (never build here)"
     side = json.loads(side_path.read_text())
     assert side["versions"] == _versions(), (side["versions"], _versions())
     msh, cell_tags, facets, t_read = _read_cache(comm)
     read = _cache_signature(msh, cell_tags, facets, comm)
     expected = _sig_from_json(side)
-    _say(comm, f"cache read: {t_read:.1f} s at -n {comm.size} (shared_facet), "
-               f"{_cache_size_mib(path):.1f} MiB; {read['cells']} cells; vs sidecar: cells "
-               f"{read['cells'] == expected['cells']}, cell tags "
-               f"{read['cell_counts'] == expected['cell_counts']}, facet tags "
-               f"{read['facet_counts'] == expected['facet_counts']} (EXACT, ASSERTED); sidecar "
-               f"t_b {side['t_build_s']:.1f} s at -n {side['n_ranks']}, versions {side['versions']}")
+    _say(
+        comm,
+        f"cache read: {t_read:.1f} s at -n {comm.size} (shared_facet), "
+        f"{_cache_size_mib(path):.1f} MiB; {read['cells']} cells; vs sidecar: cells "
+        f"{read['cells'] == expected['cells']}, cell tags "
+        f"{read['cell_counts'] == expected['cell_counts']}, facet tags "
+        f"{read['facet_counts'] == expected['facet_counts']} (EXACT, ASSERTED); sidecar "
+        f"t_b {side['t_build_s']:.1f} s at -n {side['n_ranks']}, versions {side['versions']}",
+    )
     assert read == expected, (read, expected)
     assert read["cells"] == F_CLINICAL_R1_CELL_RECORD, read["cells"]
     chord = float(side["ring_port_gap_chord_m"])
@@ -316,19 +361,30 @@ def _built_from_cache(comm):
     ctx, outer_census, widths = _context_from_mesh(msh, cell_tags, facets, chord, comm)
     w_a = {int(k): float(v) for k, v in side["sheet_widths_m"].items()}
     w_rel = max(abs(widths[i] / w_a[i] - 1.0) for i in w_a)
-    _say(comm, f"context from cache: {time.perf_counter() - t0:.1f} s; sheet widths vs window A "
-               f"max rel {w_rel:.3e} over {len(w_a)} sheets (printed)")
-    return {"ctx": ctx, "cells": int(msh.topology.index_map(3).size_global), "facets": facets,
-            "shield_radius_m": float(side["shield_radius_m"]), "outer_census": outer_census,
-            "t_read": t_read, "t_build_sidecar": float(side["t_build_s"]),
-            "n_build_sidecar": int(side["n_ranks"])}
+    _say(
+        comm,
+        f"context from cache: {time.perf_counter() - t0:.1f} s; sheet widths vs window A "
+        f"max rel {w_rel:.3e} over {len(w_a)} sheets (printed)",
+    )
+    return {
+        "ctx": ctx,
+        "cells": int(msh.topology.index_map(3).size_global),
+        "facets": facets,
+        "shield_radius_m": float(side["shield_radius_m"]),
+        "outer_census": outer_census,
+        "t_read": t_read,
+        "t_build_sidecar": float(side["t_build_s"]),
+        "n_build_sidecar": int(side["n_ranks"]),
+    }
 
 
 @complex_only
 def test_geo38_step1b_f_clinical_copper_column():
     mode = _selector()
     if mode not in ("1", "column"):
-        pytest.skip(f"{STEP1B_ENV} not in (1, column): GEO-38 step 1b is selected by environment only")
+        pytest.skip(
+            f"{STEP1B_ENV} not in (1, column): GEO-38 step 1b is selected by environment only"
+        )
     import ufl
     from dolfinx import fem
 
@@ -360,9 +416,12 @@ def test_geo38_step1b_f_clinical_copper_column():
 
     comm = MPI.COMM_WORLD
     t_window = time.perf_counter()
-    _say(comm, f"start ({STEP1B_ENV}={mode}): -n {comm.size}, degree 1, 64 MHz, drives "
-               f"{DRIVEN} (factorise) + {HELD} (held); PREDICTED T {PREDICTED_T_S} s, "
-               f"M {PREDICTED_M_GIB} GiB")
+    _say(
+        comm,
+        f"start ({STEP1B_ENV}={mode}): -n {comm.size}, degree 1, 64 MHz, drives "
+        f"{DRIVEN} (factorise) + {HELD} (held); PREDICTED T {PREDICTED_T_S} s, "
+        f"M {PREDICTED_M_GIB} GiB",
+    )
 
     # ---- fixture, (A0), (iv) ---------------------------------------------
     t0 = time.perf_counter()
@@ -370,9 +429,11 @@ def test_geo38_step1b_f_clinical_copper_column():
     t_here = time.perf_counter() - t0
     if mode == "column":
         t_build = built["t_build_sidecar"]
-        t_b_note = (f"t_b {t_build:.1f} s from the sidecar (window A, -n "
-                    f"{built['n_build_sidecar']}); item 469's in-memory build "
-                    f"{ATTEMPT1_T_BUILD_N8_S} s (-n 8); t_read {built['t_read']:.1f} s")
+        t_b_note = (
+            f"t_b {t_build:.1f} s from the sidecar (window A, -n "
+            f"{built['n_build_sidecar']}); item 469's in-memory build "
+            f"{ATTEMPT1_T_BUILD_N8_S} s (-n 8); t_read {built['t_read']:.1f} s"
+        )
     else:
         t_build = t_here
         t_b_note = f"t_b {t_build:.1f} s (-n {comm.size}, in-memory)"
@@ -381,8 +442,11 @@ def test_geo38_step1b_f_clinical_copper_column():
     facets = built["facets"]
     n_cells = built["cells"]
     rho = n_cells / F_HUMAN_N1
-    _say(comm, f"fixture done: {t_here:.1f} s, cells {n_cells}, rho = N1/{F_HUMAN_N1} = "
-               f"{rho:.4f}, t={time.perf_counter() - t_window:.1f} s; {t_b_note}")
+    _say(
+        comm,
+        f"fixture done: {t_here:.1f} s, cells {n_cells}, rho = N1/{F_HUMAN_N1} = "
+        f"{rho:.4f}, t={time.perf_counter() - t_window:.1f} s; {t_b_note}",
+    )
     census = _owned_census(msh, cell_tags, comm)
     census_fails = _census_checks(census, n_cells, _ring_ports())
     oc = built["outer_census"]
@@ -392,15 +456,21 @@ def test_geo38_step1b_f_clinical_copper_column():
     fi = np.asarray(facets.indices)
     cav_p = _facet_coords(msh, _owned(msh, fi[fv == BIRDCAGE_CONDUCTOR_SURFACE_TAG])).reshape(-1, 3)
     cav_hmax = comm.allreduce(
-        float(np.hypot(cav_p[:, 0], cav_p[:, 1]).max()) if len(cav_p) else 0.0, op=MPI.MAX)
-    _say(comm, f"(A0) cells {n_cells} vs record {F_CLINICAL_R1_CELL_RECORD}, rel {cell_rel:.3e} "
-               f"(band {CELL_COUNT_BAND}, ASSERTED); (iv) census failures "
-               f"{census_fails or 'none'}; outer census {oc}; (S) cavity max hypot "
-               f"{cav_hmax:.9f} m < R_s {R_s} (ASSERTED)")
+        float(np.hypot(cav_p[:, 0], cav_p[:, 1]).max()) if len(cav_p) else 0.0, op=MPI.MAX
+    )
+    _say(
+        comm,
+        f"(A0) cells {n_cells} vs record {F_CLINICAL_R1_CELL_RECORD}, rel {cell_rel:.3e} "
+        f"(band {CELL_COUNT_BAND}, ASSERTED); (iv) census failures "
+        f"{census_fails or 'none'}; outer census {oc}; (S) cavity max hypot "
+        f"{cav_hmax:.9f} m < R_s {R_s} (ASSERTED)",
+    )
     assert abs(cell_rel) <= CELL_COUNT_BAND, cell_rel
     assert not census_fails, census_fails
     assert oc["tag_collision"] == 0 and oc["cavity"] > 0, oc
-    assert oc["cavity_exterior"] == oc["cavity"] and oc["outer"] + oc["cavity"] == oc["exterior"], oc
+    assert (
+        oc["cavity_exterior"] == oc["cavity"] and oc["outer"] + oc["cavity"] == oc["exterior"]
+    ), oc
     assert cav_hmax < R_s, (cav_hmax, R_s)
 
     z_s = (1.0 + 1.0j) * surface_resistance_ohm(omega, COPPER_SIGMA)
@@ -414,29 +484,45 @@ def test_geo38_step1b_f_clinical_copper_column():
         """`test_wf12_f_human_copper_matrix.py`'s `_drive`, wall term first."""
         sheets = [sp.sheet(driven=(sp.port_id == driven_id)) for sp in ctx["specs"]]
         dsheet = next(s for s in sheets if s.port_id == driven_id)
-        linear = [lambda test, _s=dsheet: lumped_port_linear_term(
-            msh, tags_f, _s, test, omega_rad_per_s=omega)]
+        linear = [
+            lambda test, _s=dsheet: lumped_port_linear_term(
+                msh, tags_f, _s, test, omega_rad_per_s=omega
+            )
+        ]
         comm.Barrier()
         t0 = time.perf_counter()
         if held:
             fields = solver.solve_with_held_factorization(extra_linear_terms=linear)
         else:
             bil = [wall] + [
-                (lambda trial, test, _s=s: lumped_port_bilinear_term(
-                    msh, tags_f, _s, trial, test, omega_rad_per_s=omega))
+                (
+                    lambda trial, test, _s=s: lumped_port_bilinear_term(
+                        msh, tags_f, _s, trial, test, omega_rad_per_s=omega
+                    )
+                )
                 for s in sheets
             ]
             _say(comm, f"column start t={time.perf_counter() - t_window:.1f} s")
-            fields = solver.solve(current_density=None, project_source=False,
-                                  extra_bilinear_terms=bil, extra_linear_terms=linear)
+            fields = solver.solve(
+                current_density=None,
+                project_source=False,
+                extra_bilinear_terms=bil,
+                extra_linear_terms=linear,
+            )
         comm.Barrier()
         t_solve = time.perf_counter() - t0
-        _say(comm, f"{'held drive' if held else 'column (assembly + factorisation + solve)'} done "
-                   f"({driven_id}): {t_solve:.1f} s, t={time.perf_counter() - t_window:.1f} s")
+        _say(
+            comm,
+            f"{'held drive' if held else 'column (assembly + factorisation + solve)'} done "
+            f"({driven_id}): {t_solve:.1f} s, t={time.perf_counter() - t_window:.1f} s",
+        )
         if not held:
             _m, per, tot = _rss_gib(comm)
-            _say(comm, f"RSS after column: per rank "
-                       f"{', '.join(f'{r:.2f}' for r in (per or []))} GiB, summed {tot:.2f} GiB")
+            _say(
+                comm,
+                f"RSS after column: per rank "
+                f"{', '.join(f'{r:.2f}' for r in (per or []))} GiB, summed {tot:.2f} GiB",
+            )
         t1 = time.perf_counter()
         e = fields.e_complex
         currents = {s.port_id: sheet_terminal_current(msh, tags_f, s, e, comm) for s in sheets}
@@ -459,19 +545,29 @@ def test_geo38_step1b_f_clinical_copper_column():
         del fields
         t_post = time.perf_counter() - t1
         p_vol = p_total
-        d = {"s": s_col, "t_solve": t_solve, "t_post": t_post, "p_src": p_src,
-             "p_sheets": p_sheets, "p_phantom": p_phantom, "p_rest": p_total - p_phantom,
-             "p_surf": p_surf}
+        d = {
+            "s": s_col,
+            "t_solve": t_solve,
+            "t_post": t_post,
+            "p_src": p_src,
+            "p_sheets": p_sheets,
+            "p_phantom": p_phantom,
+            "p_rest": p_total - p_phantom,
+            "p_surf": p_surf,
+        }
         d["rel"] = abs(p_src - p_sheets - p_vol - p_surf) / abs(p_src)
         d["blind"] = abs(p_src - p_sheets - p_vol) / abs(p_src)
         d["share"] = p_surf / (p_src - p_sheets)
-        _say(comm, f"{driven_id}: post {t_post:.1f} s; S_driven {s_col[driven_id]:.6f}; sum|S|^2 "
-                   f"{sum(abs(v) ** 2 for v in s_col.values()):.6f} | P_src {p_src:.9e} sumP_sheet "
-                   f"{p_sheets:.9e} P_phantom {p_phantom:.9e} P_rest {d['p_rest']:.9e} P_surf "
-                   f"{p_surf:.9e} W; (P) rel {d['rel']:.3e}; NEG blind {d['blind']:.4e} = "
-                   f"{d['blind'] / DISCRETE_IDENTITY_RTOL:.1f}x band (PREDICTED ≈"
-                   f"{PREDICTED_BLIND_FACTOR:.0f}x); coil share {d['share']:.4f} (F-human "
-                   f"{PREDICTED_COIL_SHARE})")
+        _say(
+            comm,
+            f"{driven_id}: post {t_post:.1f} s; S_driven {s_col[driven_id]:.6f}; sum|S|^2 "
+            f"{sum(abs(v) ** 2 for v in s_col.values()):.6f} | P_src {p_src:.9e} sumP_sheet "
+            f"{p_sheets:.9e} P_phantom {p_phantom:.9e} P_rest {d['p_rest']:.9e} P_surf "
+            f"{p_surf:.9e} W; (P) rel {d['rel']:.3e}; NEG blind {d['blind']:.4e} = "
+            f"{d['blind'] / DISCRETE_IDENTITY_RTOL:.1f}x band (PREDICTED ≈"
+            f"{PREDICTED_BLIND_FACTOR:.0f}x); coil share {d['share']:.4f} (F-human "
+            f"{PREDICTED_COIL_SHARE})",
+        )
         return d
 
     col = _drive(DRIVEN, held=False)
@@ -490,27 +586,39 @@ def test_geo38_step1b_f_clinical_copper_column():
     t_held = held["t_solve"]
     exp_meas = math.log(t_col / F_HUMAN_COL_S) / math.log(rho)
     c3 = t_build + t_col + 63 * t_held
-    deg2_t = t_build + 287.1 * rho ** COL_EXPONENT
-    _say(comm, f"PRICE: t_b {t_build:.1f} s ({t_b_note}); t_col {t_col:.1f} s "
-               f"(PREDICTED {F_HUMAN_COL_S * rho ** COL_EXPONENT:.1f}; conservative "
-               f"{F_HUMAN_COL_S * (u1 / 500_568) ** 2:.1f}); t_held {t_held:.2f} s (PREDICTED "
-               f"{F_HUMAN_HELD_S * rho ** (4 / 3):.2f}); U1 {u1}; measured exponent "
-               f"ln(t_col/39.2)/ln rho = {exp_meas:.3f} (weekly {COL_EXPONENT}); RSS per rank "
-               f"{', '.join(f'{r:.2f}' for r in (rss_per or []))} GiB, summed {rss_sum:.2f} GiB "
-               f"(PREDICTED {PREDICTED_M_GIB})")
-    _say(comm, f"PROJECTIONS: C3 = t_b + t_col + 63 t_held = {c3:.0f} s -> "
-               f"{'heavy' if c3 <= 590 else 'xl'}; degree-2 column at -n 16 t_b + 287.1 rho^0.84 = "
-               f"{deg2_t:.0f} s, memory 89.31 rho^0.84 = {89.31 * rho ** COL_EXPONENT:.1f} GiB "
-               f"(rho^(4/3): {89.31 * rho ** (4 / 3):.1f} GiB)")
+    deg2_t = t_build + 287.1 * rho**COL_EXPONENT
+    _say(
+        comm,
+        f"PRICE: t_b {t_build:.1f} s ({t_b_note}); t_col {t_col:.1f} s "
+        f"(PREDICTED {F_HUMAN_COL_S * rho ** COL_EXPONENT:.1f}; conservative "
+        f"{F_HUMAN_COL_S * (u1 / 500_568) ** 2:.1f}); t_held {t_held:.2f} s (PREDICTED "
+        f"{F_HUMAN_HELD_S * rho ** (4 / 3):.2f}); U1 {u1}; measured exponent "
+        f"ln(t_col/39.2)/ln rho = {exp_meas:.3f} (weekly {COL_EXPONENT}); RSS per rank "
+        f"{', '.join(f'{r:.2f}' for r in (rss_per or []))} GiB, summed {rss_sum:.2f} GiB "
+        f"(PREDICTED {PREDICTED_M_GIB})",
+    )
+    _say(
+        comm,
+        f"PROJECTIONS: C3 = t_b + t_col + 63 t_held = {c3:.0f} s -> "
+        f"{'heavy' if c3 <= 590 else 'xl'}; degree-2 column at -n 16 t_b + 287.1 rho^0.84 = "
+        f"{deg2_t:.0f} s, memory 89.31 rho^0.84 = {89.31 * rho ** COL_EXPONENT:.1f} GiB "
+        f"(rho^(4/3): {89.31 * rho ** (4 / 3):.1f} GiB)",
+    )
     if mode == "column":
         c3_cached = built["t_read"] + t_col + 63 * t_held
-        _say(comm, f"PROJECTIONS (cached): t_read + t_col + 63 t_held = {c3_cached:.0f} s; "
-                   f"with item 469's -n 8 build {ATTEMPT1_T_BUILD_N8_S + t_col + 63 * t_held:.0f} s")
-    _say(comm, f"(P) {DRIVEN} rel {col['rel']:.3e}, {HELD} rel {held['rel']:.3e} (band "
-               f"{DISCRETE_IDENTITY_RTOL:g}, ASSERTED); P_surf {col['p_surf']:.3e} W > 0 (ASSERTED); "
-               f"NEG blind miss {col['blind']:.4e} > band (ASSERTED); (R1) |S33,34 - S34,33|/max|S| "
-               f"{recip:.3e} (band {RECIPROCITY_BAND:.0e}, ASSERTED; PREDICTED ≈"
-               f"{PREDICTED_RECIPROCITY:.0e})")
+        _say(
+            comm,
+            f"PROJECTIONS (cached): t_read + t_col + 63 t_held = {c3_cached:.0f} s; "
+            f"with item 469's -n 8 build {ATTEMPT1_T_BUILD_N8_S + t_col + 63 * t_held:.0f} s",
+        )
+    _say(
+        comm,
+        f"(P) {DRIVEN} rel {col['rel']:.3e}, {HELD} rel {held['rel']:.3e} (band "
+        f"{DISCRETE_IDENTITY_RTOL:g}, ASSERTED); P_surf {col['p_surf']:.3e} W > 0 (ASSERTED); "
+        f"NEG blind miss {col['blind']:.4e} > band (ASSERTED); (R1) |S33,34 - S34,33|/max|S| "
+        f"{recip:.3e} (band {RECIPROCITY_BAND:.0e}, ASSERTED; PREDICTED ≈"
+        f"{PREDICTED_RECIPROCITY:.0e})",
+    )
     _say(comm, f"window {time.perf_counter() - t_window:.1f} s")
     assert col["rel"] <= DISCRETE_IDENTITY_RTOL, col["rel"]
     assert held["rel"] <= DISCRETE_IDENTITY_RTOL, held["rel"]

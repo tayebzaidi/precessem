@@ -27,14 +27,8 @@ import numpy as np
 import pytest
 from mpi4py import MPI
 
-from fem_em_solver import cli, load_study
-from fem_em_solver import study_yaml
-
+from fem_em_solver import cli, load_study, study_yaml
 from tests.complex_mode import complex_only
-from tests.package.test_wf13_cli_estimate import _diff, _parse, _patch_solves
-from tests.package.test_wf13_study_estimate import BRACKET
-from tests.package.test_wf15_study_lossy_sphere import MAT4_DEG1_RECORD, _study
-from tests.package.test_wf16_study_four_port import _record, _rel
 from tests.package.test_wf1_study_yaml import (
     BIRDCAGE_FILE,
     SPHERE_FILE,
@@ -43,6 +37,10 @@ from tests.package.test_wf1_study_yaml import (
     _spec_diff,
 )
 from tests.package.test_wf1_yaml_copper import PEC_CONTROL_FILE, _py_copper
+from tests.package.test_wf13_cli_estimate import _diff, _parse, _patch_solves
+from tests.package.test_wf13_study_estimate import BRACKET
+from tests.package.test_wf15_study_lossy_sphere import MAT4_DEG1_RECORD, _study
+from tests.package.test_wf16_study_four_port import _record, _rel
 from tests.validation.test_ans6_exact_strip import (
     ANS6_EXACT_STRIP_CLASS_MEANS_P1,
     ANS6_EXACT_STRIP_CLASS_MEANS_P2,
@@ -82,7 +80,9 @@ def _need(stage):
     name, width = _stage()
     if name != stage:
         pytest.skip(f"stage {stage} not selected (FEM_EM_WF4_STAGE selects {name})")
-    assert MPI.COMM_WORLD.size == width, f"stage {stage} runs at -n {width}; got -n {MPI.COMM_WORLD.size}"
+    assert (
+        MPI.COMM_WORLD.size == width
+    ), f"stage {stage} runs at -n {width}; got -n {MPI.COMM_WORLD.size}"
 
 
 def _p0(*args):
@@ -136,7 +136,9 @@ def _price_then_run(preset, capsys):
     if comm.rank == 0:
         parsed = _parse(printed, names)
         complete = set(parsed) == set(names) and all(len(v) == 1 for v in parsed.values())
-        verdict = dict(complete=complete, parsed=parsed, differ=_diff(parsed, api) if complete else None)
+        verdict = dict(
+            complete=complete, parsed=parsed, differ=_diff(parsed, api) if complete else None
+        )
     verdict = comm.bcast(verdict, root=0)
     exists = comm.allreduce(bool(est_dir.exists()), op=MPI.LOR)
     assert _rc_all(rc, comm) == (0, 0)
@@ -194,8 +196,8 @@ def test_wf4_k_parse_identity():
     assert d["bl~python(deg1)"] == ["degree"]
     assert load_study(BL).degree == 2
 
-    import io
     import contextlib
+    import io
 
     for f in (DEBUG, DEV, BL):
         buf = io.StringIO()
@@ -303,9 +305,12 @@ def test_wf4_benchmark_lite_reproduces_and_prices(capsys):
     with capsys.disabled():
         _p0(
             f"[WF-4] (R-bl) cells {summary['cells']} (record {ANS6_EXACT_STRIP_HOLE_CELL_RECORD}); "
-            "class rel vs P2 pec: " + ", ".join(f"{c} {v:.3e}" for c, v in rel.items())
+            "class rel vs P2 pec: "
+            + ", ".join(f"{c} {v:.3e}" for c, v in rel.items())
             + f" (band {LEG_D0_REPRODUCTION_BAND:.0e}); (c6) vs P1 pec: "
-            + ", ".join(f"{c} {v:.3e} ({v / LEG_D0_REPRODUCTION_BAND:.2e} x band)" for c, v in c6.items())
+            + ", ".join(
+                f"{c} {v:.3e} ({v / LEG_D0_REPRODUCTION_BAND:.2e} x band)" for c, v in c6.items()
+            )
             + f"; (c5) predicted {api.predicted_seconds:.2f} / debug elapsed {dbg} = {c5}"
         )
     assert summary["degree"] == 2 and summary["family"] == "four_port_birdcage"

@@ -61,14 +61,14 @@ from fem_em_solver.ports.definitions import PortDefinition
 from fem_em_solver.ports.lumped import LumpedSheetPortSpec, run_lumped_sheet_port_case
 from fem_em_solver.ports.sparameters import run_n_port_sparameter_sweep
 from fem_em_solver.utils.constants import MU_0
-
 from tests.complex_mode import complex_only
 from tests.mesh.test_birdcage_leg_offset import (
     _projected_extents,
     _sheet_areas,
     _sheet_azimuth_deg,
 )
-from tests.mesh.test_birdcage_port_sheets import SHEET_IFACE, _build as _sheets_build
+from tests.mesh.test_birdcage_port_sheets import SHEET_IFACE
+from tests.mesh.test_birdcage_port_sheets import _build as _sheets_build
 from tests.mesh.test_birdcage_port_tags import LEG_COUNT
 from tests.mesh.test_two_torus_port_facets import _facet_group_area
 from tests.mesh.test_two_torus_port_sheet import _sheet_facet_count
@@ -189,8 +189,11 @@ def _build_ports(msh, cell_tags, comm, width_correction_kappa=None):
     to every ``LumpedSheetPortSpec``; ``None`` -- the default -- builds
     today's specs unchanged.
     """
-    extra = {} if width_correction_kappa is None else {
-        "width_correction_kappa": float(width_correction_kappa)}
+    extra = (
+        {}
+        if width_correction_kappa is None
+        else {"width_correction_kappa": float(width_correction_kappa)}
+    )
     ports_idx = list(range(1, LEG_COUNT + 1))
     tags_f, _full = _sheet_areas(msh, cell_tags, ports_idx, comm)
     geometry = {}
@@ -199,12 +202,24 @@ def _build_ports(msh, cell_tags, comm, width_correction_kappa=None):
         azimuth = _sheet_azimuth_deg(msh, tags_f, tag, comm)
         radial, azimuthal, axial = _port_frame(azimuth)
         spans, centres = _projected_extents(msh, tags_f, tag, comm, [radial, azimuthal, axial])
-        geometry[i] = {"tag": tag, "azimuth_deg": float(azimuth), "radial": radial,
-                       "w_full": float(spans[0]), "centre_radial": float(centres[0])}
+        geometry[i] = {
+            "tag": tag,
+            "azimuth_deg": float(azimuth),
+            "radial": radial,
+            "w_full": float(spans[0]),
+            "centre_radial": float(centres[0]),
+        }
     for i in ports_idx:
         g = geometry[i]
-        tags_f = _narrowed_radial(msh, tags_f, g["tag"], GATED_WIDTH_FRACTION,
-                                  g["centre_radial"], g["radial"], 0.5 * g["w_full"])
+        tags_f = _narrowed_radial(
+            msh,
+            tags_f,
+            g["tag"],
+            GATED_WIDTH_FRACTION,
+            g["centre_radial"],
+            g["radial"],
+            0.5 * g["w_full"],
+        )
     port_defs, specs = [], []
     for i in ports_idx:
         g = geometry[i]
@@ -213,16 +228,28 @@ def _build_ports(msh, cell_tags, comm, width_correction_kappa=None):
         radial, azimuthal, axial = _port_frame(g["azimuth_deg"])
         spans, _c = _projected_extents(msh, tags_f, g["tag"], comm, [radial, azimuthal, axial])
         pid = f"P{i}"
-        port_defs.append(PortDefinition(
-            port_id=pid, positive_tag=int(g["tag"]), negative_tag=CONDUCTOR_CELL_TAG,
-            orientation="leg_gap_axial_plus_z", z0_ohm=REFERENCE_IMPEDANCE_OHM,
-        ))
-        specs.append(LumpedSheetPortSpec(
-            port_id=pid, facet_tag=int(g["tag"]),
-            port_impedance_ohm=TERMINATED_PORT_IMPEDANCE_OHM, gap_height_m=float(spans[2]),
-            sheet_width_m=float(area / spans[2]), drive_direction=(0.0, 0.0, 1.0),
-            drive_voltage_v=1.0 + 0.0j, interior=True, **extra,
-        ))
+        port_defs.append(
+            PortDefinition(
+                port_id=pid,
+                positive_tag=int(g["tag"]),
+                negative_tag=CONDUCTOR_CELL_TAG,
+                orientation="leg_gap_axial_plus_z",
+                z0_ohm=REFERENCE_IMPEDANCE_OHM,
+            )
+        )
+        specs.append(
+            LumpedSheetPortSpec(
+                port_id=pid,
+                facet_tag=int(g["tag"]),
+                port_impedance_ohm=TERMINATED_PORT_IMPEDANCE_OHM,
+                gap_height_m=float(spans[2]),
+                sheet_width_m=float(area / spans[2]),
+                drive_direction=(0.0, 0.0, 1.0),
+                drive_voltage_v=1.0 + 0.0j,
+                interior=True,
+                **extra,
+            )
+        )
     return tags_f, port_defs, specs
 
 
@@ -260,9 +287,17 @@ def ladder():
     return _build_ladder()
 
 
-def _build_ladder(degree: int = 1, sigmas=None, resolution=None, frequencies_hz=None,
-                  width_correction_kappa=None, measure_kappa=False, pec_column=True,
-                  field_solve=True, leg_sheet_strip_fraction=None):
+def _build_ladder(
+    degree: int = 1,
+    sigmas=None,
+    resolution=None,
+    frequencies_hz=None,
+    width_correction_kappa=None,
+    measure_kappa=False,
+    pec_column=True,
+    field_solve=True,
+    leg_sheet_strip_fraction=None,
+):
     """`ladder`'s body, lifted module-level (`ANS-6`, rule (a)) so a caller
 
     outside pytest's fixture machinery — the `ans:6` example script — can
@@ -311,14 +346,16 @@ def _build_ladder(degree: int = 1, sigmas=None, resolution=None, frequencies_hz=
     if leg_sheet_strip_fraction is not None:
         _strip_extra["leg_sheet_strip_fraction"] = float(leg_sheet_strip_fraction)
     msh, cell_tags, facet_tags, _diag, t_mesh = _sheets_build(
-        True, as_hole=True, resolution=resolution, **_strip_extra)
+        True, as_hole=True, resolution=resolution, **_strip_extra
+    )
     tdim = msh.topology.dim
     msh.topology.create_connectivity(tdim - 1, tdim)
     msh.topology.create_entity_permutations()
     ncells = int(msh.topology.index_map(tdim).size_global)
     outer_tags, census = _outer_box_tags(msh, facet_tags, comm)
     tags_f, port_defs, specs = _build_ports(
-        msh, cell_tags, comm, width_correction_kappa=width_correction_kappa)
+        msh, cell_tags, comm, width_correction_kappa=width_correction_kappa
+    )
     # Global unknown count of the N1curl space every solve below builds on this
     # mesh (`ANS-6` step 2b, additive: a returned key, printed by the `ans:6`
     # knob route; no gate here reads it).
@@ -327,8 +364,11 @@ def _build_ladder(degree: int = 1, sigmas=None, resolution=None, frequencies_hz=
     del _v
     out = {"cells": ncells, "unknowns": unknowns, "census": census, "freqs": {}}
     if comm.rank == 0:
-        print(f"\n[TH-14 step2] hole mesh {ncells} cells, mesh {t_mesh:.1f} s, -n {comm.size}; "
-              f"census {census}", flush=True)
+        print(
+            f"\n[TH-14 step2] hole mesh {ncells} cells, mesh {t_mesh:.1f} s, -n {comm.size}; "
+            f"census {census}",
+            flush=True,
+        )
 
     for key, f_hz in freq_items:
         omega = 2.0 * np.pi * f_hz
@@ -337,9 +377,15 @@ def _build_ladder(degree: int = 1, sigmas=None, resolution=None, frequencies_hz=
         t1 = time.perf_counter()
         if pec_column:
             pec_problem = _problem(msh, cell_tags, f_hz, facet_tags, None)
-            rec["pec"] = _sweep_record(run_n_port_sparameter_sweep(
-                pec_problem, port_defs, lumped_sheet_ports=specs, lumped_sheet_facet_tags=tags_f,
-                degree=degree))
+            rec["pec"] = _sweep_record(
+                run_n_port_sparameter_sweep(
+                    pec_problem,
+                    port_defs,
+                    lumped_sheet_ports=specs,
+                    lumped_sheet_facet_tags=tags_f,
+                    degree=degree,
+                )
+            )
             comm.Barrier()
         rec["t_pec"] = time.perf_counter() - t1
         imp_problem = _problem(msh, cell_tags, f_hz, outer_tags, (OUTER_BOX_TAG,))
@@ -348,9 +394,16 @@ def _build_ladder(degree: int = 1, sigmas=None, resolution=None, frequencies_hz=
             z_s = (1.0 + 1.0j) * r_s
             t1 = time.perf_counter()
             term = _leontovich_term(msh, facet_tags, z_s, omega)
-            sw = _sweep_record(run_n_port_sparameter_sweep(
-                imp_problem, port_defs, lumped_sheet_ports=specs, lumped_sheet_facet_tags=tags_f,
-                extra_bilinear_terms=[term], degree=degree))
+            sw = _sweep_record(
+                run_n_port_sparameter_sweep(
+                    imp_problem,
+                    port_defs,
+                    lumped_sheet_ports=specs,
+                    lumped_sheet_facet_tags=tags_f,
+                    extra_bilinear_terms=[term],
+                    degree=degree,
+                )
+            )
             comm.Barrier()
             sw["t"] = time.perf_counter() - t1
             sw["z_s"] = z_s
@@ -361,11 +414,17 @@ def _build_ladder(degree: int = 1, sigmas=None, resolution=None, frequencies_hz=
             rec["sigma"][sig] = sw
         if not field_solve:
             if comm.rank == 0:
-                print(f"\n[TH-14 step2] f = {f_hz:.6e} Hz: pec_column={pec_column} "
-                      f"(PEC {rec['t_pec']:.1f} s), field_solve=False", flush=True)
+                print(
+                    f"\n[TH-14 step2] f = {f_hz:.6e} Hz: pec_column={pec_column} "
+                    f"(PEC {rec['t_pec']:.1f} s), field_solve=False",
+                    flush=True,
+                )
                 for sig, sw in rec["sigma"].items():
-                    print(f"  sigma = {sig:.1e} S/m: sweep {sw['t']:.1f} s; "
-                          f"||S-S^T||/||S|| = {sw['reciprocity']:.9e}", flush=True)
+                    print(
+                        f"  sigma = {sig:.1e} S/m: sweep {sw['t']:.1f} s; "
+                        f"||S-S^T||/||S|| = {sw['reciprocity']:.9e}",
+                        flush=True,
+                    )
             out["freqs"][key] = rec
             continue
         # (b) the P1 field solve on copper.
@@ -373,8 +432,16 @@ def _build_ladder(degree: int = 1, sigmas=None, resolution=None, frequencies_hz=
         term_cu = _leontovich_term(msh, facet_tags, z_cu, omega)
         t1 = time.perf_counter()
         p1, fields = run_lumped_sheet_port_case(
-            imp_problem, port_defs, specs, facet_tags=tags_f, driven_port_id=DRIVEN,
-            verbose=False, return_fields=True, extra_bilinear_terms=[term_cu], degree=degree)
+            imp_problem,
+            port_defs,
+            specs,
+            facet_tags=tags_f,
+            driven_port_id=DRIVEN,
+            verbose=False,
+            return_fields=True,
+            extra_bilinear_terms=[term_cu],
+            degree=degree,
+        )
         comm.Barrier()
         rec["t_p1"] = time.perf_counter() - t1
         e = fields.e_complex
@@ -391,15 +458,21 @@ def _build_ladder(degree: int = 1, sigmas=None, resolution=None, frequencies_hz=
         p_src = float(_source_power_w(acct, sheet_objs[DRIVEN], e, omega))
         if measure_kappa:
             from fem_em_solver.ports.shares import terminal_form_deficit
+
             deficit = terminal_form_deficit(msh, tags_f, list(sheet_objs.values()), e, comm)
-            rec["kappa"] = {"pooled": float(deficit["pooled"]),
-                            "per_sheet": {k: float(v) for k, v in deficit["per_sheet"].items()}}
+            rec["kappa"] = {
+                "pooled": float(deficit["pooled"]),
+                "per_sheet": {k: float(v) for k, v in deficit["per_sheet"].items()},
+            }
         p_total = _vol(dx)
         p_phantom = _vol(dx(PHANTOM_CELL_TAG))
         p_surf = _surface_loss_w(msh, facet_tags, z_cu, e, comm)
         rec["power"] = {
-            "p_src": p_src, "p_sheets": float(p_sheets), "p_phantom": p_phantom,
-            "p_non_phantom": float(p_total - p_phantom), "p_surf": p_surf,
+            "p_src": p_src,
+            "p_sheets": float(p_sheets),
+            "p_phantom": p_phantom,
+            "p_non_phantom": float(p_total - p_phantom),
+            "p_surf": p_surf,
         }
         p = rec["power"]
         rec["identity_residual"] = abs(
@@ -407,38 +480,61 @@ def _build_ladder(degree: int = 1, sigmas=None, resolution=None, frequencies_hz=
         ) / abs(p["p_src"])
         p_in = p["p_src"] - p["p_sheets"]
         if comm.rank == 0:
-            print(f"\n[TH-14 step2] f = {f_hz:.6e} Hz: PEC sweep {rec['t_pec']:.1f} s, "
-                  f"P1 copper field solve {rec['t_p1']:.1f} s", flush=True)
+            print(
+                f"\n[TH-14 step2] f = {f_hz:.6e} Hz: PEC sweep {rec['t_pec']:.1f} s, "
+                f"P1 copper field solve {rec['t_p1']:.1f} s",
+                flush=True,
+            )
             pec = rec["pec"]
             for row in range(LEG_COUNT):
-                print("    S_PEC_%dk = " % (row + 1)
-                      + "  ".join(f"{v:+.9e}" for v in pec["s"][row]), flush=True)
+                print(
+                    "    S_PEC_%dk = " % (row + 1) + "  ".join(f"{v:+.9e}" for v in pec["s"][row]),
+                    flush=True,
+                )
             for sig, sw in rec["sigma"].items():
                 sp = sw["spreads"]
-                print(f"  sigma = {sig:.1e} S/m: Z_s = {sw['z_s'].real:.6e}(1+j) ohm, sweep "
-                      f"{sw['t']:.1f} s", flush=True)
+                print(
+                    f"  sigma = {sig:.1e} S/m: Z_s = {sw['z_s'].real:.6e}(1+j) ohm, sweep "
+                    f"{sw['t']:.1f} s",
+                    flush=True,
+                )
                 for row in range(LEG_COUNT):
-                    print("    S_%dk = " % (row + 1)
-                          + "  ".join(f"{v:+.9e}" for v in sw["s"][row]), flush=True)
-                print(f"    ||S-S^T||/||S|| = {sw['reciprocity']:.9e} (band {RECIPROCITY_BAND:.0e}); "
-                      f"sigma_max(S) = {float(np.max(sw['sigma'])):.12f}; spreads self "
-                      f"{sp['self'] * 100:.4f}% adjacent {sp['adjacent'] * 100:.4f}% opposite "
-                      f"{sp['opposite'] * 100:.4f}% (band {ADJACENT_SPREAD_BAND * 100:.1f}%)",
-                      flush=True)
-                print("    max|S_sigma - S_PEC| per class: " + ", ".join(
-                    f"{c} {sw['class_ds'][c]:.9e}" for c in CLASSES)
-                    + f"; max entry {sw['max_abs_ds']:.9e}", flush=True)
+                    print(
+                        "    S_%dk = " % (row + 1) + "  ".join(f"{v:+.9e}" for v in sw["s"][row]),
+                        flush=True,
+                    )
+                print(
+                    f"    ||S-S^T||/||S|| = {sw['reciprocity']:.9e} (band {RECIPROCITY_BAND:.0e}); "
+                    f"sigma_max(S) = {float(np.max(sw['sigma'])):.12f}; spreads self "
+                    f"{sp['self'] * 100:.4f}% adjacent {sp['adjacent'] * 100:.4f}% opposite "
+                    f"{sp['opposite'] * 100:.4f}% (band {ADJACENT_SPREAD_BAND * 100:.1f}%)",
+                    flush=True,
+                )
+                print(
+                    "    max|S_sigma - S_PEC| per class: "
+                    + ", ".join(f"{c} {sw['class_ds'][c]:.9e}" for c in CLASSES)
+                    + f"; max entry {sw['max_abs_ds']:.9e}",
+                    flush=True,
+                )
             last = rec["sigma"][sigma_list[-1]]["max_abs_ds"]
-            print(f"    negative control (PREDICTED, printed): sigma = {sigma_list[-1]:.1e} "
-                  f"max|S - S_PEC| = {last:.3e} vs predicted <= {PREDICTED_PEC_LIMIT_MAX_ABS_DS:.0e}: "
-                  f"{'met' if last <= PREDICTED_PEC_LIMIT_MAX_ABS_DS else 'NOT met'}", flush=True)
-            print(f"    (b) P1 copper: P_src {p['p_src']:.9e} W, sum P_sheet {p['p_sheets']:.9e} W, "
-                  f"P_phantom {p['p_phantom']:.9e} W, P_(Omega\\phantom) {p['p_non_phantom']:.9e} W, "
-                  f"P_surf {p['p_surf']:.9e} W; residual/P_src {rec['identity_residual']:.3e} "
-                  f"(ASSERTED <= {DISCRETE_IDENTITY_RTOL:g})", flush=True)
-            print(f"    PRINTED: P_coil/P_in = {p['p_surf'] / p_in:.6e}, "
-                  f"P_phantom/P_in = {p['p_phantom'] / p_in:.6e} (copper, f = {f_hz:.3e} Hz)",
-                  flush=True)
+            print(
+                f"    negative control (PREDICTED, printed): sigma = {sigma_list[-1]:.1e} "
+                f"max|S - S_PEC| = {last:.3e} vs predicted <= {PREDICTED_PEC_LIMIT_MAX_ABS_DS:.0e}: "
+                f"{'met' if last <= PREDICTED_PEC_LIMIT_MAX_ABS_DS else 'NOT met'}",
+                flush=True,
+            )
+            print(
+                f"    (b) P1 copper: P_src {p['p_src']:.9e} W, sum P_sheet {p['p_sheets']:.9e} W, "
+                f"P_phantom {p['p_phantom']:.9e} W, P_(Omega\\phantom) {p['p_non_phantom']:.9e} W, "
+                f"P_surf {p['p_surf']:.9e} W; residual/P_src {rec['identity_residual']:.3e} "
+                f"(ASSERTED <= {DISCRETE_IDENTITY_RTOL:g})",
+                flush=True,
+            )
+            print(
+                f"    PRINTED: P_coil/P_in = {p['p_surf'] / p_in:.6e}, "
+                f"P_phantom/P_in = {p['p_phantom'] / p_in:.6e} (copper, f = {f_hz:.3e} Hz)",
+                flush=True,
+            )
         out["freqs"][key] = rec
 
     out["t_total"] = time.perf_counter() - t0
@@ -488,9 +584,13 @@ def test_copper_is_bracketed_by_pec_and_the_solid_record_at_10mhz(ladder):
     solid = _class_max_abs(np.asarray(LEG_D_S_MATRIX_10MHZ, dtype=np.complex128) - rec["pec"]["s"])
     cu = rec["sigma"][COPPER_SIGMA]["class_ds"]
     if MPI.COMM_WORLD.rank == 0:
-        print("[TH-14 step2] (c) 10 MHz per class max|dS|: " + "; ".join(
-            f"{c}: copper {cu[c]:.9e} vs solid-800 record {solid[c]:.9e}" for c in CLASSES),
-            flush=True)
+        print(
+            "[TH-14 step2] (c) 10 MHz per class max|dS|: "
+            + "; ".join(
+                f"{c}: copper {cu[c]:.9e} vs solid-800 record {solid[c]:.9e}" for c in CLASSES
+            ),
+            flush=True,
+        )
     for c in CLASSES:
         assert cu[c] <= solid[c], (c, cu[c], solid[c])
 

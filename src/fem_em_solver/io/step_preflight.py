@@ -24,7 +24,7 @@ from __future__ import annotations
 
 import time
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, Optional, Tuple
 
 import numpy as np
 from mpi4py import MPI
@@ -63,9 +63,7 @@ def build_preflight_mesh(step, config, comm: MPI.Intracomm = MPI.COMM_WORLD):
     # (2026-09-30, while the import produced no wall group) is removed: a
     # silent re-tagging branch would hide the next regression.
     msh.topology.create_connectivity(msh.topology.dim - 1, msh.topology.dim)
-    merged = _interface_facet_tags(
-        msh, cell_tags, port_sheet_interfaces(cfg), existing=facet_tags
-    )
+    merged = _interface_facet_tags(msh, cell_tags, port_sheet_interfaces(cfg), existing=facet_tags)
     merged.name = FACET_TAGS_NAME
     return msh, cell_tags, merged, diag, cfg
 
@@ -95,9 +93,15 @@ def write_preflight_files(
         translucent = tuple(t for t, n in names.items() if "phantom" in n.lower())
         t0 = time.perf_counter()
         written = write_setup_figure(
-            msh, cell_tags, out_dir / f"{STEM}_setup.png",
-            region_names=names, title=title, hide_tags=hide,
-            translucent_tags=translucent, enabled=True, comm=comm,
+            msh,
+            cell_tags,
+            out_dir / f"{STEM}_setup.png",
+            region_names=names,
+            title=title,
+            hide_tags=hide,
+            translucent_tags=translucent,
+            enabled=True,
+            comm=comm,
         )
         t_fig = time.perf_counter() - t0
         ok = comm.bcast(written is not None if comm.rank == 0 else None, root=0)
@@ -152,11 +156,11 @@ def write_step_preflight(
         )
     if len(title) > MAX_TITLE_CHARS:  # the default must never trip the guard
         title = f"GEO-34 preflight: {n_cells} cells, {len(sheets)} port sheets"
-    files = write_preflight_files(
-        msh, cell_tags, facets, out_dir, comm, config=cfg, title=title
-    )
+    files = write_preflight_files(msh, cell_tags, facets, out_dir, comm, config=cfg, title=title)
     cell_list = [int(g["tag"]) for g in cfg["volume_groups"]]
-    facet_list = ([int(cfg["outer_boundary_tag"])] if cfg.get("outer_boundary_tag") is not None else []) + sorted(sheets)
+    facet_list = (
+        [int(cfg["outer_boundary_tag"])] if cfg.get("outer_boundary_tag") is not None else []
+    ) + sorted(sheets)
     cells, fcounts = memory_counts(msh, cell_tags, facets, cell_list, facet_list, comm)
     if comm.rank == 0:
         print(
@@ -171,7 +175,11 @@ def write_step_preflight(
         )
     record = dict(files)
     record.update(
-        {"cells": n_cells, "cells_per_tag": cells, "facets_per_tag": fcounts,
-         "t_import_s": t_import}
+        {
+            "cells": n_cells,
+            "cells_per_tag": cells,
+            "facets_per_tag": fcounts,
+            "t_import_s": t_import,
+        }
     )
     return record

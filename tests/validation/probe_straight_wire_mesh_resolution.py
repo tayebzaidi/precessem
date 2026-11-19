@@ -177,13 +177,9 @@ class _SizeFieldPatch:
 
     def _generate(self, *args, **kwargs):
         if self.install:
-            surfaces = gmsh.model.getEntitiesForPhysicalGroup(
-                2, WIRE_SURFACE_PHYSICAL_TAG
-            )
+            surfaces = gmsh.model.getEntitiesForPhysicalGroup(2, WIRE_SURFACE_PHYSICAL_TAG)
             distance = gmsh.model.mesh.field.add("Distance")
-            gmsh.model.mesh.field.setNumbers(
-                distance, "SurfacesList", [int(s) for s in surfaces]
-            )
+            gmsh.model.mesh.field.setNumbers(distance, "SurfacesList", [int(s) for s in surfaces])
             gmsh.model.mesh.field.setNumber(distance, "Sampling", 100)
             threshold = gmsh.model.mesh.field.add("Threshold")
             gmsh.model.mesh.field.setNumber(threshold, "InField", distance)
@@ -252,9 +248,11 @@ def bisect_main(comm):
     rank0 = comm.rank == 0
     if rank0:
         print("straight_wire_domain: bisecting the coarse-resolution floor")
-        print(f"  grid {BISECT_GRID[0]} .. {BISECT_GRID[-1]} at 2.5e-4, "
-              f"fixed wire_radius = {EXAMPLE_WIRE_RADIUS} m; "
-              f"{comm.size} rank(s)\n")
+        print(
+            f"  grid {BISECT_GRID[0]} .. {BISECT_GRID[-1]} at 2.5e-4, "
+            f"fixed wire_radius = {EXAMPLE_WIRE_RADIUS} m; "
+            f"{comm.size} rank(s)\n"
+        )
 
     summary = []
     for name, wire_length, domain_radius in BISECT_GEOMETRIES:
@@ -262,9 +260,7 @@ def bisect_main(comm):
             print(f"Leg C/{name} -- L = {wire_length}, R = {domain_radius}:")
         h_ok, h_fail, cells_at_h_ok = None, None, None
         for resolution in BISECT_GRID:
-            ok, cells, message, elapsed = attempt(
-                comm, wire_length, domain_radius, resolution
-            )
+            ok, cells, message, elapsed = attempt(comm, wire_length, domain_radius, resolution)
             comm.Barrier()
             # `h_ok` is the *coarsest* meshing rung and `h_fail` the *finest*
             # failing one; the grid runs fine-to-coarse, so each keeps its
@@ -276,11 +272,9 @@ def bisect_main(comm):
                     h_fail = resolution
             if rank0:
                 if ok:
-                    print(f"  h = {resolution:<8.5f} OK    {cells:>8d} cells "
-                          f"({elapsed:.1f} s)")
+                    print(f"  h = {resolution:<8.5f} OK    {cells:>8d} cells " f"({elapsed:.1f} s)")
                 else:
-                    print(f"  h = {resolution:<8.5f} FAIL  {message} "
-                          f"({elapsed:.1f} s)")
+                    print(f"  h = {resolution:<8.5f} FAIL  {message} " f"({elapsed:.1f} s)")
         summary.append((name, h_ok, cells_at_h_ok, h_fail))
         if rank0:
             print("")
@@ -288,15 +282,16 @@ def bisect_main(comm):
     if rank0:
         print("Summary -- coarsest meshing rung / finest failing rung:")
         for name, h_ok, cells_at_h_ok, h_fail in summary:
-            print(f"  {name:<8s} h_ok = {h_ok}  ({cells_at_h_ok} cells)   "
-                  f"h_fail = {h_fail}")
+            print(f"  {name:<8s} h_ok = {h_ok}  ({cells_at_h_ok} cells)   " f"h_fail = {h_fail}")
         # Monotone means: every rung at or below h_ok meshed and every rung
         # above it failed.  A violation is `GEO-22`'s stop condition, so it is
         # printed as such rather than inferred by the reader.
         for name, h_ok, _cells, h_fail in summary:
             if h_ok is not None and h_fail is not None and h_fail < h_ok:
-                print(f"  {name}: NON-MONOTONE -- a failing rung "
-                      f"({h_fail}) lies below a meshing one ({h_ok}).")
+                print(
+                    f"  {name}: NON-MONOTONE -- a failing rung "
+                    f"({h_fail}) lies below a meshing one ({h_ok})."
+                )
         print("\nMeasurement only -- no assertion, nothing re-recorded.")
 
 
@@ -305,13 +300,17 @@ def sizefield_main(comm):
     rank0 = comm.rank == 0
     if rank0:
         print("straight_wire_domain: leg C's grid with a wire-surface size field")
-        print(f"  grid {BISECT_GRID[0]} .. {BISECT_GRID[-1]} at 2.5e-4, "
-              f"fixed wire_radius = {EXAMPLE_WIRE_RADIUS} m; "
-              f"{comm.size} rank(s)")
-        print(f"  Distance/Threshold on physical group (2, "
-              f"{WIRE_SURFACE_PHYSICAL_TAG}): SizeMin = {FIELD_SIZE_MIN}, "
-              f"SizeMax = the rung's own h, DistMin = {FIELD_DIST_MIN}, "
-              f"DistMax = {FIELD_DIST_MAX}\n")
+        print(
+            f"  grid {BISECT_GRID[0]} .. {BISECT_GRID[-1]} at 2.5e-4, "
+            f"fixed wire_radius = {EXAMPLE_WIRE_RADIUS} m; "
+            f"{comm.size} rank(s)"
+        )
+        print(
+            f"  Distance/Threshold on physical group (2, "
+            f"{WIRE_SURFACE_PHYSICAL_TAG}): SizeMin = {FIELD_SIZE_MIN}, "
+            f"SizeMax = the rung's own h, DistMin = {FIELD_DIST_MIN}, "
+            f"DistMax = {FIELD_DIST_MAX}\n"
+        )
 
     # `sizefield <h>` runs the single named rung on both geometries -- the
     # cost probe the compute budget (§5.1) asks for before an unmeasured
@@ -339,10 +338,11 @@ def sizefield_main(comm):
             if fallbacks:
                 n_fallback_cells += 1
             if rank0:
-                verdict = (f"OK    {cells:>8d} cells" if ok
-                           else f"FAIL  {message}")
-                print(f"  h = {resolution:<8.5f} {verdict}   "
-                      f"fallbacks = {fallbacks}  ({elapsed:.1f} s)")
+                verdict = f"OK    {cells:>8d} cells" if ok else f"FAIL  {message}"
+                print(
+                    f"  h = {resolution:<8.5f} {verdict}   "
+                    f"fallbacks = {fallbacks}  ({elapsed:.1f} s)"
+                )
         summary.append((name, n_ok, n_fallback_cells))
         if rank0:
             print("")
@@ -353,18 +353,23 @@ def sizefield_main(comm):
         n_cells = len(BISECT_GEOMETRIES) * len(grid)
         print("Summary -- the two numbers `GEO-22` step 2 asked for:")
         for name, n_ok, n_fallback in summary:
-            print(f"  {name:<8s} OK {n_ok}/{len(grid)}   "
-                  f"rungs with >= 1 fallback: {n_fallback}/{len(grid)}")
-        print(f"  total    OK {total_ok}/{n_cells}   "
-              f"rungs with >= 1 fallback: {total_fallback}/{n_cells}")
+            print(
+                f"  {name:<8s} OK {n_ok}/{len(grid)}   "
+                f"rungs with >= 1 fallback: {n_fallback}/{len(grid)}"
+            )
+        print(
+            f"  total    OK {total_ok}/{n_cells}   "
+            f"rungs with >= 1 fallback: {total_fallback}/{n_cells}"
+        )
         # The pre-registered hypothesis, printed as a verdict rather than left
         # to the reader: step 1 read >= 1 fallback in all 18 cells and 7 FAILs.
         if total_ok == n_cells and total_fallback == 0:
-            print(f"  VERDICT: hypothesis CONFIRMED -- {n_cells}/{n_cells} OK, "
-                  "0 fallbacks.")
+            print(f"  VERDICT: hypothesis CONFIRMED -- {n_cells}/{n_cells} OK, " "0 fallbacks.")
         else:
-            print("  VERDICT: hypothesis REFUTED -- the size field does not "
-                  "give 18/18 OK with 0 fallbacks.")
+            print(
+                "  VERDICT: hypothesis REFUTED -- the size field does not "
+                "give 18/18 OK with 0 fallbacks."
+            )
         print("\nMeasurement only -- no assertion, nothing re-recorded.")
 
 
@@ -382,13 +387,12 @@ def main():
 
     if rank0:
         print("straight_wire_domain: where does the 0.11 image stop meshing?")
+        print(f"  fixed wire_radius = {EXAMPLE_WIRE_RADIUS} m; " f"{comm.size} rank(s)\n")
         print(
-            f"  fixed wire_radius = {EXAMPLE_WIRE_RADIUS} m; "
-            f"{comm.size} rank(s)\n"
+            "Leg A -- the example's geometry "
+            f"(L = {EXAMPLE_WIRE_LENGTH}, R = {EXAMPLE_DOMAIN_RADIUS}), "
+            "resolution swept:"
         )
-        print("Leg A -- the example's geometry "
-              f"(L = {EXAMPLE_WIRE_LENGTH}, R = {EXAMPLE_DOMAIN_RADIUS}), "
-              "resolution swept:")
 
     for resolution in RESOLUTION_LADDER:
         ok, cells, message, elapsed = attempt(
@@ -397,20 +401,18 @@ def main():
         comm.Barrier()
         if rank0:
             if ok:
-                print(f"  h = {resolution:<7.4f} OK    {cells:>8d} cells "
-                      f"({elapsed:.1f} s)")
+                print(f"  h = {resolution:<7.4f} OK    {cells:>8d} cells " f"({elapsed:.1f} s)")
             else:
-                print(f"  h = {resolution:<7.4f} FAIL  {message} "
-                      f"({elapsed:.1f} s)")
+                print(f"  h = {resolution:<7.4f} FAIL  {message} " f"({elapsed:.1f} s)")
 
     if rank0:
-        print(f"\nLeg B -- the example's resolution "
-              f"(h = {EXAMPLE_RESOLUTION}), geometry stepped to the gate's:")
+        print(
+            f"\nLeg B -- the example's resolution "
+            f"(h = {EXAMPLE_RESOLUTION}), geometry stepped to the gate's:"
+        )
 
     for wire_length, domain_radius in GEOMETRY_LADDER:
-        ok, cells, message, elapsed = attempt(
-            comm, wire_length, domain_radius, EXAMPLE_RESOLUTION
-        )
+        ok, cells, message, elapsed = attempt(comm, wire_length, domain_radius, EXAMPLE_RESOLUTION)
         comm.Barrier()
         if rank0:
             label = f"L = {wire_length:<5.2f} R = {domain_radius:<5.3f}"

@@ -101,7 +101,6 @@ def _rod_kwargs(as_hole=True, implant_rod=None):
 
 def _load():
     from fem_em_solver.utils.constants import MU_0
-
     from tests.validation.test_wf7_f_human_b1_quadrature import FREQUENCY_HZ
 
     return -1j * (2.0 * np.pi * float(FREQUENCY_HZ)) * MU_0
@@ -112,7 +111,6 @@ def _build_f_human_rod(comm, implant_rod):
     mapped to the gel (the *without* arm) and ``problem`` added to the dict."""
     from fem_em_solver.core import TimeHarmonicSolver
     from fem_em_solver.io.mesh import BIRDCAGE_IMPLANT_CELL_TAG
-
     from tests.validation import test_wf7_f_human_b1_quadrature as wf7
     from tests.validation.test_port_birdcage_lumped_column import PHANTOM_CELL_TAG
 
@@ -121,8 +119,9 @@ def _build_f_human_rod(comm, implant_rod):
     orig = wf7._f_human_kwargs
 
     def _patched(phantom_resolution=None, as_hole=False, emit_leg_ports=None):
-        k = orig(phantom_resolution=phantom_resolution, as_hole=as_hole,
-                 emit_leg_ports=emit_leg_ports)
+        k = orig(
+            phantom_resolution=phantom_resolution, as_hole=as_hole, emit_leg_ports=emit_leg_ports
+        )
         if not as_hole:
             raise ValueError("implant_rod requires as_hole=True")
         k["implant_rod"] = dict(implant_rod)
@@ -139,8 +138,7 @@ def _build_f_human_rod(comm, implant_rod):
     del old
     mmap = dict(problem.material_map)
     gel = mmap[PHANTOM_CELL_TAG]
-    p_without = dataclasses.replace(
-        problem, material_map={**mmap, BIRDCAGE_IMPLANT_CELL_TAG: gel})
+    p_without = dataclasses.replace(problem, material_map={**mmap, BIRDCAGE_IMPLANT_CELL_TAG: gel})
     ctx["solver"] = TimeHarmonicSolver(p_without, degree=wf7.DEGREE)
     built["problem"] = p_without
     return built
@@ -175,18 +173,23 @@ def test_imp3_s8_coding():
         b = _rod_kwargs(as_hole=hole, implant_rod=None)
         assert a == b and "implant_rod" not in a and "implant_rod" not in b
     k = _rod_kwargs(as_hole=True, implant_rod=ROD_FH)
-    assert k["implant_rod"] == ROD_FH and {kk: v for kk, v in k.items() if kk != "implant_rod"} \
-        == _f_human_kwargs(as_hole=True)
+    assert k["implant_rod"] == ROD_FH and {
+        kk: v for kk, v in k.items() if kk != "implant_rod"
+    } == _f_human_kwargs(as_hole=True)
     with pytest.raises(ValueError):
         _rod_kwargs(as_hole=False, implant_rod=ROD_FH)
     assert ROD_FH == dict(ROD, keep_cells=True)
-    top = tuple(np.asarray(ROD_CENTRE, dtype=float)
-                + np.array([0.0, 0.0, ROD["length"] / 2.0 + ROD["radius"]]))
+    top = tuple(
+        np.asarray(ROD_CENTRE, dtype=float)
+        + np.array([0.0, 0.0, ROD["length"] / 2.0 + ROD["radius"]])
+    )
     assert top == tuple(float(x) for x in TIPS["top"]), (top, TIPS["top"])
     load = _load()
     rel = abs(load / WF9_LOAD - 1.0)
-    print(f"[IMP-3 step8 coding] LOAD {load:.15e} vs WF-9 {WF9_LOAD:.15e}: rel {rel:.3e} "
-          f"(band 1e-15, ASSERTED); TIPS top {TIPS['top']} == ROD_CENTRE + (0,0,l/2+r) {top}")
+    print(
+        f"[IMP-3 step8 coding] LOAD {load:.15e} vs WF-9 {WF9_LOAD:.15e}: rel {rel:.3e} "
+        f"(band 1e-15, ASSERTED); TIPS top {TIPS['top']} == ROD_CENTRE + (0,0,l/2+r) {top}"
+    )
     assert rel <= 1e-15
 
 
@@ -199,7 +202,6 @@ def _ball_mean_closed_form_tag3(msh, cell_tags, centre, radius):
     import basix
 
     from fem_em_solver.utils.analytical import pec_prolate_spheroid_field
-
     from tests.mesh.test_birdcage_implant_rod import ROD_CENTRE, _cell_values_with_ghosts
     from tests.validation.test_imp3_rod_birdcage import (
         CF_CHUNK,
@@ -227,7 +229,7 @@ def _ball_mean_closed_form_tag3(msh, cell_tags, centre, radius):
     num = 0.0
     vol = 0.0
     for start in range(0, cells.size, CF_CHUNK):
-        chunk = cells[start:start + CF_CHUNK]
+        chunk = cells[start : start + CF_CHUNK]
         v = xg[dmap[chunk]]
         jac = np.stack([v[:, 1] - v[:, 0], v[:, 2] - v[:, 0], v[:, 3] - v[:, 0]], axis=2)
         det = np.abs(np.linalg.det(jac))
@@ -260,8 +262,7 @@ def _read_record(comm):
             rec = json.load(fh)
     rec = comm.bcast(rec, root=0)
     assert abs(rec["c_in_pf"] - C_IN_F_HUMAN_PF) == 0.0, rec["c_in_pf"]
-    return np.array([[complex(a, b) for a, b in row] for row in rec["s_node"]],
-                    dtype=np.complex128)
+    return np.array([[complex(a, b) for a, b in row] for row in rec["s_node"]], dtype=np.complex128)
 
 
 def _c_star(az17, z_c):
@@ -275,7 +276,6 @@ def _c_star(az17, z_c):
 
 def _run_repro(comm):
     from fem_em_solver.post.sar import averaging_ball_radius, build_density_field, mass_averaged_sar
-
     from tests.mesh.helpers import global_cell_tag_set
     from tests.mesh.test_birdcage_port_sheet_prerequisite import CELL_COUNT_BAND
     from tests.validation.test_birdcage_b1_plus_map import PHANTOM_RHO_KG_PER_M3
@@ -300,16 +300,24 @@ def _run_repro(comm):
     a = out["anchors"]
     cells = out["cells"]
     cell_rel = cells / HOLE_CELL_RECORD - 1.0
-    _say(f"[repro] (S_rep) s_node vs NODE_JSON read before the builder: residual {r_srep:.6e} "
-         f"(band {REUSE_REPRODUCTION_RTOL:g}, ASSERTED; PREDICTED <= {PRED_S_REP:g})")
-    _say(f"[repro] (A0) cells {cells} vs {HOLE_CELL_RECORD} rel {cell_rel:.3e} (band "
-         f"{CELL_COUNT_BAND:g}, ASSERTED; census asserted clean by the builder)")
-    _say(f"[repro] (P_RC) {a['p_rc_node']:.3e} (band {DISCRETE_IDENTITY_RTOL:g}, ASSERTED); node "
-         f"NEG {a['blind_node']:.4e} = {a['blind_node'] / DISCRETE_IDENTITY_RTOL:.1f}x (bar "
-         f"{BLIND_FACTOR:.0f}x, ASSERTED; 358 read 7.0125e-3)")
+    _say(
+        f"[repro] (S_rep) s_node vs NODE_JSON read before the builder: residual {r_srep:.6e} "
+        f"(band {REUSE_REPRODUCTION_RTOL:g}, ASSERTED; PREDICTED <= {PRED_S_REP:g})"
+    )
+    _say(
+        f"[repro] (A0) cells {cells} vs {HOLE_CELL_RECORD} rel {cell_rel:.3e} (band "
+        f"{CELL_COUNT_BAND:g}, ASSERTED; census asserted clean by the builder)"
+    )
+    _say(
+        f"[repro] (P_RC) {a['p_rc_node']:.3e} (band {DISCRETE_IDENTITY_RTOL:g}, ASSERTED); node "
+        f"NEG {a['blind_node']:.4e} = {a['blind_node'] / DISCRETE_IDENTITY_RTOL:.1f}x (bar "
+        f"{BLIND_FACTOR:.0f}x, ASSERTED; 358 read 7.0125e-3)"
+    )
     for s, (rel, blind) in a["p_w"].items():
-        _say(f"[repro] (P_w) [{s}] rel {rel:.3e} (band {DISCRETE_IDENTITY_RTOL:g}, ASSERTED); "
-             f"blind {blind:.4e}; (Lin) {a['lin'][s][0]:.3e} (printed)")
+        _say(
+            f"[repro] (P_w) [{s}] rel {rel:.3e} (band {DISCRETE_IDENTITY_RTOL:g}, ASSERTED); "
+            f"blind {blind:.4e}; (Lin) {a['lin'][s][0]:.3e} (printed)"
+        )
     # Reading: SAR10g(c*) under ccw on this mesh with the builder's σ (as 359).
     ctx = out["ctx"]
     msh, cell_tags = ctx["msh"], ctx["cell_tags"]
@@ -317,18 +325,32 @@ def _run_repro(comm):
     c = _c_star(float(out["az_feeds"][0]), float(centre[2]))
     all_tags = global_cell_tag_set(msh, cell_tags)
     rho = build_density_field(
-        msh, PHANTOM_RHO_KG_PER_M3, cell_tags=cell_tags,
-        density_map={int(t): 0.0 for t in sorted(all_tags) if int(t) != PHANTOM_CELL_TAG})
+        msh,
+        PHANTOM_RHO_KG_PER_M3,
+        cell_tags=cell_tags,
+        density_map={int(t): 0.0 for t in sorted(all_tags) if int(t) != PHANTOM_CELL_TAG},
+    )
     a10 = averaging_ball_radius(mass_kg=TEN_GRAM_KG, rho=PHANTOM_RHO_KG_PER_M3)
-    r = mass_averaged_sar(out["e"]["ccw"], sigma=out["sigma"], rho=rho, center=c, radius=a10,
-                          comm=comm, quadrature_degree=QUADRATURE_DEGREE)
+    r = mass_averaged_sar(
+        out["e"]["ccw"],
+        sigma=out["sigma"],
+        rho=rho,
+        center=c,
+        radius=a10,
+        comm=comm,
+        quadrature_degree=QUADRATURE_DEGREE,
+    )
     sar = float(r["averaged_sar_w_per_kg"])
-    _say(f"[repro] SAR10g(c* {C_STAR_LABEL} at {tuple(round(x * 1e3, 3) for x in c)} mm) ccw "
-         f"{sar:.9e} W/kg vs 359 {SAR10G_C_STAR_359:.9e}: rel {sar / SAR10G_C_STAR_359 - 1.0:.3e} "
-         f"(PREDICTED <= 1e-9, reading)")
+    _say(
+        f"[repro] SAR10g(c* {C_STAR_LABEL} at {tuple(round(x * 1e3, 3) for x in c)} mm) ccw "
+        f"{sar:.9e} W/kg vs 359 {SAR10G_C_STAR_359:.9e}: rel {sar / SAR10G_C_STAR_359 - 1.0:.3e} "
+        f"(PREDICTED <= 1e-9, reading)"
+    )
     _m, _p, rss = _rss_gib(comm)
-    _say(f"[repro] times {out['times']}; window {time.perf_counter() - t_w:.1f} s; summed RSS "
-         f"{rss:.2f} GiB")
+    _say(
+        f"[repro] times {out['times']}; window {time.perf_counter() - t_w:.1f} s; summed RSS "
+        f"{rss:.2f} GiB"
+    )
     assert r_srep <= REUSE_REPRODUCTION_RTOL, f"(S_rep) {r_srep:.3e}"
     assert abs(cell_rel) <= CELL_COUNT_BAND, cell_rel
     assert a["p_rc_node"] <= DISCRETE_IDENTITY_RTOL
@@ -357,7 +379,6 @@ def _run_rod(comm):
         mass_averaged_sar,
         mean_sar,
     )
-
     from tests.mesh.helpers import global_cell_tag_set
     from tests.mesh.test_birdcage_implant_rod import ROD_CENTRE, _cell_values_with_ghosts
     from tests.mesh.test_birdcage_implant_rod_f_human import (
@@ -427,11 +448,13 @@ def _run_rod(comm):
     cell_rel = n_cells / F_HUMAN_KEPT_ROD_CELL_RECORD - 1.0
     msh.topology.create_entities(1)
     n_edges = int(msh.topology.index_map(1).size_global)
-    _say(f"[rod] (A0r) cells {n_cells} vs F_HUMAN_KEPT_ROD_CELL_RECORD "
-         f"{F_HUMAN_KEPT_ROD_CELL_RECORD} rel {cell_rel:.3e} (band {CELL_COUNT_BAND:g}, ASSERTED; "
-         f"guard {F_HUMAN_KEPT_ROD_CELL_GUARD}); census failures {census_fails or 'none'}; tag-403 "
-         f"cells {n403} (PREDICTED ≈ 15 000); E = degree-1 dofs {n_edges}; build "
-         f"{times['build']:.1f} s")
+    _say(
+        f"[rod] (A0r) cells {n_cells} vs F_HUMAN_KEPT_ROD_CELL_RECORD "
+        f"{F_HUMAN_KEPT_ROD_CELL_RECORD} rel {cell_rel:.3e} (band {CELL_COUNT_BAND:g}, ASSERTED; "
+        f"guard {F_HUMAN_KEPT_ROD_CELL_GUARD}); census failures {census_fails or 'none'}; tag-403 "
+        f"cells {n403} (PREDICTED ≈ 15 000); E = degree-1 dofs {n_edges}; build "
+        f"{times['build']:.1f} s"
+    )
     assert abs(cell_rel) <= CELL_COUNT_BAND, cell_rel
     assert not census_fails, census_fails
     assert n403 > 0
@@ -440,9 +463,15 @@ def _run_rod(comm):
     p_without = built["problem"]
     mmap = dict(p_without.material_map)
     gel = mmap[PHANTOM_CELL_TAG]
-    p_with = dataclasses.replace(p_without, material_map={
-        **mmap, BIRDCAGE_IMPLANT_CELL_TAG: HomogeneousMaterial(
-            sigma=SIGMA_WIRE_S_PER_M, epsilon_r=gel.epsilon_r, mu_r=gel.mu_r)})
+    p_with = dataclasses.replace(
+        p_without,
+        material_map={
+            **mmap,
+            BIRDCAGE_IMPLANT_CELL_TAG: HomogeneousMaterial(
+                sigma=SIGMA_WIRE_S_PER_M, epsilon_r=gel.epsilon_r, mu_r=gel.mu_r
+            ),
+        },
+    )
     delta_sigma = float(SIGMA_WIRE_S_PER_M - gel.sigma)
 
     tdim = msh.topology.dim
@@ -457,9 +486,13 @@ def _run_rod(comm):
 
     def _minmax(problem):
         sigma_f, eps_f = build_material_fields(
-            msh, problem.material, cell_tags=problem.cell_tags,
-            material_map=problem.material_map, phantom_material=problem.phantom_material,
-            phantom_tag=problem.phantom_tag)
+            msh,
+            problem.material,
+            cell_tags=problem.cell_tags,
+            material_map=problem.material_map,
+            phantom_material=problem.phantom_material,
+            phantom_tag=problem.phantom_tag,
+        )
         owned_lead = np.flatnonzero(lead[:n_owned])
         res = {}
         for name, f in (("sigma", sigma_f), ("eps", eps_f)):
@@ -471,8 +504,10 @@ def _run_rod(comm):
         return res
 
     m_with, m_without = _minmax(p_with), _minmax(p_without)
-    _say(f"[rod] (M0) with: {m_with}; without: {m_without}; gel sigma {gel.sigma} eps_r "
-         f"{gel.epsilon_r}; delta_sigma {delta_sigma:.9f} (ASSERTED min = max)")
+    _say(
+        f"[rod] (M0) with: {m_with}; without: {m_without}; gel sigma {gel.sigma} eps_r "
+        f"{gel.epsilon_r}; delta_sigma {delta_sigma:.9f} (ASSERTED min = max)"
+    )
     assert m_with["sigma"] == (SIGMA_WIRE_S_PER_M, SIGMA_WIRE_S_PER_M), m_with
     assert m_with["eps"] == (gel.epsilon_r, gel.epsilon_r), m_with
     assert m_without["sigma"] == (gel.sigma, gel.sigma), m_without
@@ -501,8 +536,10 @@ def _run_rod(comm):
         return comm.allreduce(fem.assemble_scalar(fem.form(expr)), op=MPI.SUM)
 
     v_ball = float(np.real(_scalar(chi_b * dxx)))
-    _say(f"[rod] masks: lead {n_lead_c}, ball {n_ball_c} cells (V_b {v_ball:.6e} m^3), disjoint "
-         f"{disjoint} (ASSERTED)")
+    _say(
+        f"[rod] masks: lead {n_lead_c}, ball {n_ball_c} cells (V_b {v_ball:.6e} m^3), disjoint "
+        f"{disjoint} (ASSERTED)"
+    )
     assert n_lead_c > 0 and n_ball_c > 0 and disjoint
 
     # ---- shared coil terms -------------------------------------------------------
@@ -523,10 +560,12 @@ def _run_rod(comm):
     # tests/validation/test_wf10_f_human_tuned_b1_sar.py lines 416–436, verbatim.
     az_ref, slots = _ring_quadrature_slots(built["sheets"])
     ref_k, ref_sign = slots["P17"]
-    feed2 = next(pid for pid, (k, sg) in slots.items()
-                 if sg == ref_sign and k == (ref_k + QUADRATURE_SLOT_OFFSET) % 16)
-    others = sorted((pid for pid in slots if pid not in ("P17", feed2)),
-                    key=lambda p: int(p[1:]))
+    feed2 = next(
+        pid
+        for pid, (k, sg) in slots.items()
+        if sg == ref_sign and k == (ref_k + QUADRATURE_SLOT_OFFSET) % 16
+    )
+    others = sorted((pid for pid in slots if pid not in ("P17", feed2)), key=lambda p: int(p[1:]))
     order = ["P17", feed2] + others
     feeds = order[:2]
     feeds_idx = [0, 1]
@@ -554,39 +593,53 @@ def _run_rod(comm):
         def _drive(specs, driven_id, *, held, partition, keep_as=None):
             sheets = [sp.sheet(driven=(sp.port_id == driven_id)) for sp in specs]
             dsheet = next(s for s in sheets if s.port_id == driven_id)
-            linear = [lambda test, _s=dsheet: lumped_port_linear_term(
-                msh, tags_f, _s, test, omega_rad_per_s=omega)]
+            linear = [
+                lambda test, _s=dsheet: lumped_port_linear_term(
+                    msh, tags_f, _s, test, omega_rad_per_s=omega
+                )
+            ]
             comm.Barrier()
             t0 = time.perf_counter()
             if held:
                 fields = solver.solve_with_held_factorization(extra_linear_terms=linear)
             else:
                 bil = [wall] + [
-                    (lambda trial, test, _s=s: lumped_port_bilinear_term(
-                        msh, tags_f, _s, trial, test, omega_rad_per_s=omega))
+                    (
+                        lambda trial, test, _s=s: lumped_port_bilinear_term(
+                            msh, tags_f, _s, trial, test, omega_rad_per_s=omega
+                        )
+                    )
                     for s in sheets
                 ]
-                fields = solver.solve(current_density=None, project_source=False,
-                                      extra_bilinear_terms=bil, extra_linear_terms=linear)
+                fields = solver.solve(
+                    current_density=None,
+                    project_source=False,
+                    extra_bilinear_terms=bil,
+                    extra_linear_terms=linear,
+                )
             comm.Barrier()
             t_solve = time.perf_counter() - t0
             t1 = time.perf_counter()
             e = fields.e_complex
-            currents = {s.port_id: sheet_terminal_current(msh, tags_f, s, e, comm)
-                        for s in sheets}
+            currents = {s.port_id: sheet_terminal_current(msh, tags_f, s, e, comm) for s in sheets}
             v_src = complex(dsheet.source_voltage_v)
             s_col = {}
             for s in sheets:
                 v = complex(s.source_voltage_v) - currents[s.port_id] * z_p
                 s_col[s.port_id] = (v - z_p * currents[s.port_id]) / v_src
-            out = {"s": s_col, "currents": currents, "kind": "held" if held else "solve",
-                   "t_solve": t_solve}
+            out = {
+                "s": s_col,
+                "currents": currents,
+                "kind": "held" if held else "solve",
+                "t_solve": t_solve,
+            }
             if "sigma" not in keep:
                 keep["sigma"] = fields.sigma_field
             if partition:
                 sigma_f = fields.sigma_field
-                by_id = {s.port_id: float(_sheet_field_dissipation_w(acct, s, e, omega))
-                         for s in sheets}
+                by_id = {
+                    s.port_id: float(_sheet_field_dissipation_w(acct, s, e, omega)) for s in sheets
+                }
                 out["p_sheet_by_id"] = by_id
                 out["p_sheets"] = float(sum(by_id.values()))
                 out["p_src"] = float(_source_power_w(acct, dsheet, e, omega))
@@ -609,16 +662,27 @@ def _run_rod(comm):
             assert all(sp.width_correction_kappa is None for sp in specs_x)
             cur, knd, tt, parts = [], [], [], []
             for n_drive, pid in enumerate(feeds):
-                d = _drive(specs_x, pid, held=(n_drive > 0), partition=(n_drive == 0),
-                           keep_as=(f"E_{pid}" if keep_fields else None))
+                d = _drive(
+                    specs_x,
+                    pid,
+                    held=(n_drive > 0),
+                    partition=(n_drive == 0),
+                    keep_as=(f"E_{pid}" if keep_fields else None),
+                )
                 knd.append(d["kind"])
                 tt.append(d["t_solve"] + d["t_post"])
                 cur.append(np.array([d["currents"][p] for p in order], dtype=np.complex128))
                 if n_drive == 0:
                     parts.append({k: v for k, v in d.items() if k.startswith("p_")})
                 del d
-            return (_current_route_s(cur, feeds_idx, z_feed, v_feed), cur, knd, tt, parts[0],
-                    specs_x)
+            return (
+                _current_route_s(cur, feeds_idx, z_feed, v_feed),
+                cur,
+                knd,
+                tt,
+                parts[0],
+                specs_x,
+            )
 
         # Lifted `_partition` (same file, lines 455–459), verbatim.
         def _partition(p):
@@ -631,12 +695,14 @@ def _run_rod(comm):
         s_node, cur_node, kinds, t_n, pn, specs_n = _pair(imp, z_th, v_s, keep_fields=True)
         assert kinds == ["solve", "held"], kinds
         p_rc, blind = _partition(pn)
-        _say(f"[rod/{label}] node pair {kinds}, {', '.join(f'{t:.2f}' for t in t_n)} s; (P_RC) "
-             f"P_src {pn['p_src']:.9e} sumP_sheet {pn['p_sheets']:.9e} P_phantom "
-             f"{pn['p_phantom']:.9e} P_rest {pn['p_rest']:.9e} P_surf {pn['p_surf']:.9e} W; rel "
-             f"{p_rc:.3e} (band {DISCRETE_IDENTITY_RTOL:g}, ASSERTED; PREDICTED <= {PRED_P_W:g}); "
-             f"node NEG {blind:.4e} = {blind / DISCRETE_IDENTITY_RTOL:.1f}x the band (bar "
-             f"{BLIND_FACTOR:.0f}x; PRINTED per ruling (3); PREDICTED ≈ {PRED_NEG:g})")
+        _say(
+            f"[rod/{label}] node pair {kinds}, {', '.join(f'{t:.2f}' for t in t_n)} s; (P_RC) "
+            f"P_src {pn['p_src']:.9e} sumP_sheet {pn['p_sheets']:.9e} P_phantom "
+            f"{pn['p_phantom']:.9e} P_rest {pn['p_rest']:.9e} P_surf {pn['p_surf']:.9e} W; rel "
+            f"{p_rc:.3e} (band {DISCRETE_IDENTITY_RTOL:g}, ASSERTED; PREDICTED <= {PRED_P_W:g}); "
+            f"node NEG {blind:.4e} = {blind / DISCRETE_IDENTITY_RTOL:.1f}x the band (bar "
+            f"{BLIND_FACTOR:.0f}x; PRINTED per ruling (3); PREDICTED ≈ {PRED_NEG:g})"
+        )
         w_field = None
         if ell is not None:
             t1 = time.perf_counter()
@@ -645,8 +711,10 @@ def _run_rod(comm):
             w_field.x.array[:] = f_ell.e_complex.x.array
             w_field.x.scatter_forward()
             del f_ell
-            _say(f"[rod/{label}] ell held on the P17 node factorisation: "
-                 f"{time.perf_counter() - t1:.2f} s")
+            _say(
+                f"[rod/{label}] ell held on the P17 node factorisation: "
+                f"{time.perf_counter() - t1:.2f} s"
+            )
         e17, e21 = keep.pop(f"E_{feeds[0]}"), keep.pop(f"E_{feeds[1]}")
         sigma_solver = keep["sigma"]
         specs_by = {sp.port_id: sp for sp in specs_n}
@@ -659,17 +727,27 @@ def _run_rod(comm):
             e_s[sense] = ef
             wf = {feeds[0]: w17, feeds[1]: w21}
             cur_lin = w17 * cur_node[0] + w21 * cur_node[1]
-            sheets = {pid: (dataclasses.replace(specs_by[pid].sheet(driven=True),
-                                                source_voltage_v=complex(wf[pid]))
-                            if pid in feeds else specs_by[pid].sheet(driven=False))
-                      for pid in order}
-            cur_read = np.array([sheet_terminal_current(msh, tags_f, sheets[pid], ef, comm)
-                                 for pid in order], dtype=np.complex128)
+            sheets = {
+                pid: (
+                    dataclasses.replace(
+                        specs_by[pid].sheet(driven=True), source_voltage_v=complex(wf[pid])
+                    )
+                    if pid in feeds
+                    else specs_by[pid].sheet(driven=False)
+                )
+                for pid in order
+            }
+            cur_read = np.array(
+                [sheet_terminal_current(msh, tags_f, sheets[pid], ef, comm) for pid in order],
+                dtype=np.complex128,
+            )
             r_lin = float(np.max(np.abs(cur_read - cur_lin)) / np.max(np.abs(cur_lin)))
-            p = {"p_src": float(sum(_source_power_w(acct, sheets[pid], ef, omega)
-                                    for pid in feeds))}
-            p["p_sheets"] = float(sum(_sheet_field_dissipation_w(acct, sheets[pid], ef, omega)
-                                      for pid in order))
+            p = {
+                "p_src": float(sum(_source_power_w(acct, sheets[pid], ef, omega) for pid in feeds))
+            }
+            p["p_sheets"] = float(
+                sum(_sheet_field_dissipation_w(acct, sheets[pid], ef, omega) for pid in order)
+            )
             p_total = _vol(sigma_solver, ef, dx)
             p["p_phantom"] = _vol(sigma_solver, ef, dx(PHANTOM_CELL_TAG))
             p["p_rest"] = p_total - p["p_phantom"]
@@ -678,15 +756,27 @@ def _run_rod(comm):
             p["rel"], p["blind"] = _partition(p)
             parts[sense] = p
             lin[sense] = r_lin
-            _say(f"[rod/{label}] [{sense}] (P_w) P_src {p['p_src']:.9e} sumP_sheet "
-                 f"{p['p_sheets']:.9e} P_phantom {p['p_phantom']:.9e} P_rest {p['p_rest']:.9e} "
-                 f"(P_rod {p['p_rod']:.9e}) P_surf {p['p_surf']:.9e} W; rel {p['rel']:.3e} (band "
-                 f"{DISCRETE_IDENTITY_RTOL:g}, ASSERTED); blind {p['blind']:.4e}; (Lin) "
-                 f"{r_lin:.3e} (printed)")
+            _say(
+                f"[rod/{label}] [{sense}] (P_w) P_src {p['p_src']:.9e} sumP_sheet "
+                f"{p['p_sheets']:.9e} P_phantom {p['p_phantom']:.9e} P_rest {p['p_rest']:.9e} "
+                f"(P_rod {p['p_rod']:.9e}) P_surf {p['p_surf']:.9e} W; rel {p['rel']:.3e} (band "
+                f"{DISCRETE_IDENTITY_RTOL:g}, ASSERTED); blind {p['blind']:.4e}; (Lin) "
+                f"{r_lin:.3e} (printed)"
+            )
         times[f"{label}_arm"] = time.perf_counter() - t0
-        return {"s_node": np.asarray(s_node, dtype=np.complex128), "e": e_s, "e17": e17,
-                "e21": e21, "sigma": sigma_solver, "pn": pn, "p_rc": p_rc, "blind": blind,
-                "parts": parts, "lin": lin, "w": w_field}
+        return {
+            "s_node": np.asarray(s_node, dtype=np.complex128),
+            "e": e_s,
+            "e17": e17,
+            "e21": e21,
+            "sigma": sigma_solver,
+            "pn": pn,
+            "p_rc": p_rc,
+            "blind": blind,
+            "parts": parts,
+            "lin": lin,
+            "w": w_field,
+        }
 
     # ---- the without arm ------------------------------------------------------------
     solver = ctx.pop("solver")
@@ -717,27 +807,35 @@ def _run_rod(comm):
         rel = abs(fold - dq) / abs(dq)
         f1, f2 = abs(c1 - dq) / abs(dq), abs(c2 - dq) / abs(dq)
         t3[d] = dict(qo=qo, qw=qw, dq=dq, fold=fold, rel=rel, c1=f1, c2=f2)
-        _say(f"[rod] (T3) {d}: q_without {qo:.10e} q_with {qw:.10e} dq {dq:.10e} fold "
-             f"{fold:.10e}; rel {rel:.3e} (band {DISCRETE_IDENTITY_RTOL:g}, ASSERTED; PREDICTED <= "
-             f"{PRED_T3:g}); |q_with/q_without| {abs(qw / qo):.6f}; C1 (conj w) miss {f1:.4f} "
-             f"(PREDICTED {PRED_C1} {_in(f1, PRED_C1)}; wired ASSERTED); C2 (E_with) miss "
-             f"{f2:.4f} (PREDICTED {PRED_C2} {_in(f2, PRED_C2)}; wired ASSERTED)")
+        _say(
+            f"[rod] (T3) {d}: q_without {qo:.10e} q_with {qw:.10e} dq {dq:.10e} fold "
+            f"{fold:.10e}; rel {rel:.3e} (band {DISCRETE_IDENTITY_RTOL:g}, ASSERTED; PREDICTED <= "
+            f"{PRED_T3:g}); |q_with/q_without| {abs(qw / qo):.6f}; C1 (conj w) miss {f1:.4f} "
+            f"(PREDICTED {PRED_C1} {_in(f1, PRED_C1)}; wired ASSERTED); C2 (E_with) miss "
+            f"{f2:.4f} (PREDICTED {PRED_C2} {_in(f2, PRED_C2)}; wired ASSERTED)"
+        )
     wc = w_sense["ccw"]
     dq_ccw = wc[0] * t3["P17"]["dq"] + wc[1] * t3["P21"]["dq"]
     fold_ccw = wc[0] * t3["P17"]["fold"] + wc[1] * t3["P21"]["fold"]
     q_ccw_o = wc[0] * t3["P17"]["qo"] + wc[1] * t3["P21"]["qo"]
     q_ccw_w = wc[0] * t3["P17"]["qw"] + wc[1] * t3["P21"]["qw"]
-    _say(f"[rod] (T3) ccw by linearity: dq {dq_ccw:.10e} fold {fold_ccw:.10e} rel "
-         f"{abs(fold_ccw - dq_ccw) / abs(dq_ccw):.3e}; |q_with/q_without| "
-         f"{abs(q_ccw_w / q_ccw_o):.6f} (printed)")
+    _say(
+        f"[rod] (T3) ccw by linearity: dq {dq_ccw:.10e} fold {fold_ccw:.10e} rel "
+        f"{abs(fold_ccw - dq_ccw) / abs(dq_ccw):.3e}; |q_with/q_without| "
+        f"{abs(q_ccw_w / q_ccw_o):.6f} (printed)"
+    )
 
     # ---- (Σ_P), coverage --------------------------------------------------------------
-    centre, radius, half_height, _lo, _hi = _phantom_geometry(msh, cell_tags, PHANTOM_CELL_TAG,
-                                                              comm)
+    centre, radius, half_height, _lo, _hi = _phantom_geometry(
+        msh, cell_tags, PHANTOM_CELL_TAG, comm
+    )
     all_tags = global_cell_tag_set(msh, cell_tags)
     rho = build_density_field(
-        msh, PHANTOM_RHO_KG_PER_M3, cell_tags=cell_tags,
-        density_map={int(t): 0.0 for t in sorted(all_tags) if int(t) != PHANTOM_CELL_TAG})
+        msh,
+        PHANTOM_RHO_KG_PER_M3,
+        cell_tags=cell_tags,
+        density_map={int(t): 0.0 for t in sorted(all_tags) if int(t) != PHANTOM_CELL_TAG},
+    )
     coverage_radius = float(np.hypot(radius, half_height) + COVERAGE_BALL_PAD_M)
     conductor_limit = F_HUMAN_RING_RADIUS - CONDUCTOR_CLEARANCE_M
     assert coverage_radius < conductor_limit, (coverage_radius, conductor_limit)
@@ -745,31 +843,63 @@ def _run_rod(comm):
     sp_cov = {}
     for label, arm in (("without", arm_o), ("with", arm_w)):
         e = arm["e"]["ccw"]
-        ms = mean_sar(e, sigma=arm["sigma"], rho=PHANTOM_RHO_KG_PER_M3, cell_tags=cell_tags,
-                      subdomain_ids=PHANTOM_CELL_TAG, comm=comm)
+        ms = mean_sar(
+            e,
+            sigma=arm["sigma"],
+            rho=PHANTOM_RHO_KG_PER_M3,
+            cell_tags=cell_tags,
+            subdomain_ids=PHANTOM_CELL_TAG,
+            comm=comm,
+        )
         r_sp = abs(ms["dissipated_power_w"] - arm["parts"]["ccw"]["p_phantom"]) / abs(
-            arm["parts"]["ccw"]["p_phantom"])
-        whole = mass_averaged_sar(e, sigma=sigma3, rho=rho, center=cen, radius=coverage_radius,
-                                  comm=comm, quadrature_degree=QUADRATURE_DEGREE)
-        tagged = mean_sar(e, sigma=sigma3, rho=PHANTOM_RHO_KG_PER_M3, cell_tags=cell_tags,
-                          subdomain_ids=PHANTOM_CELL_TAG, comm=comm)
+            arm["parts"]["ccw"]["p_phantom"]
+        )
+        whole = mass_averaged_sar(
+            e,
+            sigma=sigma3,
+            rho=rho,
+            center=cen,
+            radius=coverage_radius,
+            comm=comm,
+            quadrature_degree=QUADRATURE_DEGREE,
+        )
+        tagged = mean_sar(
+            e,
+            sigma=sigma3,
+            rho=PHANTOM_RHO_KG_PER_M3,
+            cell_tags=cell_tags,
+            subdomain_ids=PHANTOM_CELL_TAG,
+            comm=comm,
+        )
         pmiss = abs(whole["dissipated_power_w"] / tagged["dissipated_power_w"] - 1.0)
         mmiss = abs(whole["mass_kg"] / (PHANTOM_RHO_KG_PER_M3 * tagged["volume_m3"]) - 1.0)
         c3 = None
         if label == "with":
-            whole_s = mass_averaged_sar(e, sigma=arm["sigma"], rho=rho, center=cen,
-                                        radius=coverage_radius, comm=comm,
-                                        quadrature_degree=QUADRATURE_DEGREE)
+            whole_s = mass_averaged_sar(
+                e,
+                sigma=arm["sigma"],
+                rho=rho,
+                center=cen,
+                radius=coverage_radius,
+                comm=comm,
+                quadrature_degree=QUADRATURE_DEGREE,
+            )
             c3 = abs(whole_s["dissipated_power_w"] / tagged["dissipated_power_w"] - 1.0)
         sp_cov[label] = (r_sp, pmiss, mmiss)
-        _say(f"[rod/{label}] (Sigma_P) mean_sar(solver sigma, tag 3) vs partition P_phantom: rel "
-             f"{r_sp:.3e} (band {EXACT_IDENTITY_RTOL:g}, ASSERTED; PREDICTED <= {PRED_SIGMA_P:g}); "
-             f"coverage (sigma3, R_cov {coverage_radius * 1e3:.3f} mm < {conductor_limit * 1e3:.3f}"
-             f" mm): power miss {pmiss:.3e}, mass miss {mmiss:.3e} (band {EXACT_IDENTITY_RTOL:g}, "
-             f"ASSERTED; PREDICTED <= {PRED_COVERAGE:g})"
-             + (f"; C3 solver-sigma whole ball miss {c3:.4e} vs P_rod/P_phantom "
+        _say(
+            f"[rod/{label}] (Sigma_P) mean_sar(solver sigma, tag 3) vs partition P_phantom: rel "
+            f"{r_sp:.3e} (band {EXACT_IDENTITY_RTOL:g}, ASSERTED; PREDICTED <= {PRED_SIGMA_P:g}); "
+            f"coverage (sigma3, R_cov {coverage_radius * 1e3:.3f} mm < {conductor_limit * 1e3:.3f}"
+            f" mm): power miss {pmiss:.3e}, mass miss {mmiss:.3e} (band {EXACT_IDENTITY_RTOL:g}, "
+            f"ASSERTED; PREDICTED <= {PRED_COVERAGE:g})"
+            + (
+                f"; C3 solver-sigma whole ball miss {c3:.4e} vs P_rod/P_phantom "
                 f"{arm['parts']['ccw']['p_rod'] / arm['parts']['ccw']['p_phantom']:.4e} "
-                f"(predicted, printed)" if c3 is not None else ""))
+                f"(predicted, printed)"
+                if c3 is not None
+                else ""
+            )
+        )
 
     # ---- readings: tip 1 g ratio, η_z, M_cf, estimate ---------------------------------
     a1 = averaging_ball_radius(mass_kg=ONE_GRAM_KG, rho=PHANTOM_RHO_KG_PER_M3)
@@ -791,47 +921,84 @@ def _run_rod(comm):
     for tip in ("top", "bottom"):
         c = tuple(float(v) for v in TIPS[tip])
         for d in ("ccw", "P17", "P21"):
-            ro = mass_averaged_sar(fields_o[d], sigma=sigma3, rho=rho, center=c, radius=a1,
-                                   comm=comm, quadrature_degree=QUADRATURE_DEGREE)
-            rw = mass_averaged_sar(fields_w[d], sigma=sigma3, rho=rho, center=c, radius=a1,
-                                   comm=comm, quadrature_degree=QUADRATURE_DEGREE)
+            ro = mass_averaged_sar(
+                fields_o[d],
+                sigma=sigma3,
+                rho=rho,
+                center=c,
+                radius=a1,
+                comm=comm,
+                quadrature_degree=QUADRATURE_DEGREE,
+            )
+            rw = mass_averaged_sar(
+                fields_w[d],
+                sigma=sigma3,
+                rho=rho,
+                center=c,
+                radius=a1,
+                comm=comm,
+                quadrature_degree=QUADRATURE_DEGREE,
+            )
             qq = rw["averaged_sar_w_per_kg"] / ro["averaged_sar_w_per_kg"]
             est = eta[d] * m_cf[tip][0] + (1.0 - eta[d])
-            extra = (f" (PREDICTED {PRED_Q_TOP_CCW} {_in(qq, PRED_Q_TOP_CCW)})"
-                     if (tip, d) == ("top", "ccw") else "")
-            _say(f"[rod] tip {tip:<6s} {d:<4s}: SAR1g without {ro['averaged_sar_w_per_kg']:.9e} "
-                 f"with {rw['averaged_sar_w_per_kg']:.9e} W/kg; Q {qq:.6f}{extra}; masses "
-                 f"{ro['mass_kg'] * 1e3:.6f} / {rw['mass_kg'] * 1e3:.6f} g (PREDICTED ≈ "
-                 f"{PRED_MASS_1G_G}); eta_z {eta[d]:.6f} M_cf {m_cf[tip][0]:.6f} est {est:.6f} "
-                 f"Q/est {qq / est:.6f} (PREDICTED {PRED_Q_OVER_ESTIMATE} "
-                 f"{_in(qq / est, PRED_Q_OVER_ESTIMATE)}); reading")
+            extra = (
+                f" (PREDICTED {PRED_Q_TOP_CCW} {_in(qq, PRED_Q_TOP_CCW)})"
+                if (tip, d) == ("top", "ccw")
+                else ""
+            )
+            _say(
+                f"[rod] tip {tip:<6s} {d:<4s}: SAR1g without {ro['averaged_sar_w_per_kg']:.9e} "
+                f"with {rw['averaged_sar_w_per_kg']:.9e} W/kg; Q {qq:.6f}{extra}; masses "
+                f"{ro['mass_kg'] * 1e3:.6f} / {rw['mass_kg'] * 1e3:.6f} g (PREDICTED ≈ "
+                f"{PRED_MASS_1G_G}); eta_z {eta[d]:.6f} M_cf {m_cf[tip][0]:.6f} est {est:.6f} "
+                f"Q/est {qq / est:.6f} (PREDICTED {PRED_Q_OVER_ESTIMATE} "
+                f"{_in(qq / est, PRED_Q_OVER_ESTIMATE)}); reading"
+            )
     times["tip_balls"] = time.perf_counter() - t0
-    _say(f"[rod] eta_z ccw {eta['ccw']:.6f} (PREDICTED {PRED_ETA_Z_CCW} "
-         f"{_in(eta['ccw'], PRED_ETA_Z_CCW)}); a1g {a1 * 1e3:.4f} mm")
+    _say(
+        f"[rod] eta_z ccw {eta['ccw']:.6f} (PREDICTED {PRED_ETA_Z_CCW} "
+        f"{_in(eta['ccw'], PRED_ETA_Z_CCW)}); a1g {a1 * 1e3:.4f} mm"
+    )
 
     # ---- readings: SAR10g(c*), residuals, P_rod -----------------------------------------
     c_st = _c_star(az_feeds[0], float(centre[2]))
     s10 = {}
     for label, f in (("without", fields_o["ccw"]), ("with", fields_w["ccw"])):
-        s10[label] = float(mass_averaged_sar(
-            f, sigma=sigma3, rho=rho, center=c_st, radius=a10, comm=comm,
-            quadrature_degree=QUADRATURE_DEGREE)["averaged_sar_w_per_kg"])
+        s10[label] = float(
+            mass_averaged_sar(
+                f,
+                sigma=sigma3,
+                rho=rho,
+                center=c_st,
+                radius=a10,
+                comm=comm,
+                quadrature_degree=QUADRATURE_DEGREE,
+            )["averaged_sar_w_per_kg"]
+        )
     dsar = s10["with"] / s10["without"] - 1.0
-    _say(f"[rod] SAR10g(c* {C_STAR_LABEL}) ccw sigma3: without {s10['without']:.9e} (359 "
-         f"{SAR10G_C_STAR_359:.9e}, remesh rel {s10['without'] / SAR10G_C_STAR_359 - 1.0:.3e}) with "
-         f"{s10['with']:.9e} W/kg; with/without - 1 = {dsar:.4e} (PREDICTED |.| in {PRED_D_SAR10G} "
-         f"{_in(abs(dsar), PRED_D_SAR10G)}; reading)")
+    _say(
+        f"[rod] SAR10g(c* {C_STAR_LABEL}) ccw sigma3: without {s10['without']:.9e} (359 "
+        f"{SAR10G_C_STAR_359:.9e}, remesh rel {s10['without'] / SAR10G_C_STAR_359 - 1.0:.3e}) with "
+        f"{s10['with']:.9e} W/kg; with/without - 1 = {dsar:.4e} (PREDICTED |.| in {PRED_D_SAR10G} "
+        f"{_in(abs(dsar), PRED_D_SAR10G)}; reading)"
+    )
     r_remesh = _residual(arm_o["s_node"], s_rec)
     r_rod = _residual(arm_w["s_node"], arm_o["s_node"])
-    _say(f"[rod] remesh move _residual(s_without, s_rec) {r_remesh:.4e} (PREDICTED {PRED_REMESH} "
-         f"{_in(r_remesh, PRED_REMESH)}); rod move _residual(s_with, s_without) {r_rod:.4e} "
-         f"(PREDICTED <= {PRED_ROD_S_MOVE:g}); readings")
+    _say(
+        f"[rod] remesh move _residual(s_without, s_rec) {r_remesh:.4e} (PREDICTED {PRED_REMESH} "
+        f"{_in(r_remesh, PRED_REMESH)}); rod move _residual(s_with, s_without) {r_rod:.4e} "
+        f"(PREDICTED <= {PRED_ROD_S_MOVE:g}); readings"
+    )
     pw = arm_w["parts"]["ccw"]
-    _say(f"[rod] P_rod (with, ccw) {pw['p_rod']:.9e} W; P_rod/P_phantom "
-         f"{pw['p_rod'] / pw['p_phantom']:.4e}; ESR {ESR_OHM} Ohm, C_in {C_IN_F_HUMAN_PF} pF")
+    _say(
+        f"[rod] P_rod (with, ccw) {pw['p_rod']:.9e} W; P_rod/P_phantom "
+        f"{pw['p_rod'] / pw['p_phantom']:.4e}; ESR {ESR_OHM} Ohm, C_in {C_IN_F_HUMAN_PF} pF"
+    )
     _m, _p, rss = _rss_gib(comm)
-    _say(f"[rod] times {dict((k, round(v, 1)) for k, v in times.items())}; window "
-         f"{time.perf_counter() - t_w:.1f} s; summed RSS {rss:.2f} GiB; -n {comm.size}")
+    _say(
+        f"[rod] times {dict((k, round(v, 1)) for k, v in times.items())}; window "
+        f"{time.perf_counter() - t_w:.1f} s; summed RSS {rss:.2f} GiB; -n {comm.size}"
+    )
 
     # ---- asserts (after every print) ----------------------------------------------------
     for arm in (arm_o, arm_w):

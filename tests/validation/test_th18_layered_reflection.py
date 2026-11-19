@@ -133,13 +133,19 @@ def closed_form_gamma(case):
     if case == "leo":
         z_in = layered_surface_impedance(OMEGA, [_slab()], _leo_zs())
     elif case == "t5":
-        z_in = layered_surface_impedance(OMEGA, [_slab(), ConductorLayer(SIGMA, 5.0 * delta)], ETA_0)
+        z_in = layered_surface_impedance(
+            OMEGA, [_slab(), ConductorLayer(SIGMA, 5.0 * delta)], ETA_0
+        )
     elif case == "thin":
-        z_in = layered_surface_impedance(OMEGA, [_slab(), ConductorLayer(SIGMA, 0.5 * delta)], ETA_0)
+        z_in = layered_surface_impedance(
+            OMEGA, [_slab(), ConductorLayer(SIGMA, 0.5 * delta)], ETA_0
+        )
     elif case == "pec":
         z_in = layered_surface_impedance(OMEGA, [_slab()], 0.0)
     elif case == "copper":
-        z_in = layered_surface_impedance(OMEGA, [_slab(), ConductorLayer(COPPER_SIGMA, COPPER_T)], ETA_0)
+        z_in = layered_surface_impedance(
+            OMEGA, [_slab(), ConductorLayer(COPPER_SIGMA, COPPER_T)], ETA_0
+        )
     elif case == "pmc":
         # PMC backing: Z_in = Z_c / tanh(γd) (open-circuit load).
         z_c = ETA_0 / np.sqrt(EPS_SLAB)
@@ -244,12 +250,18 @@ def _fixture():
 
     n_cells = comm.allreduce(n_local, op=MPI.SUM)
     n_slab = comm.allreduce(int(slab.size), op=MPI.SUM)
-    n_term = comm.allreduce(int(np.count_nonzero(np.asarray(facet_tags.values) == TERM_TAG)), op=MPI.SUM)
+    n_term = comm.allreduce(
+        int(np.count_nonzero(np.asarray(facet_tags.values) == TERM_TAG)), op=MPI.SUM
+    )
     _say(f"[TH-18s2] mesh cells={n_cells} slab_cells={n_slab} term_facets(rank-summed)={n_term}")
     assert n_slab == n_cells // 6  # 0.2 of 1.2 m
     xs = np.linspace(*X_SAMPLES, N_SAMPLES)
-    pts = np.column_stack([xs, np.full_like(xs, YZ_FRACTION * WIDTH), np.full_like(xs, YZ_FRACTION * WIDTH)])
-    _FIXTURE.update(msh=msh, cell_tags=cell_tags, facet_tags=facet_tags, xs=xs, pts=pts, n_cells=n_cells)
+    pts = np.column_stack(
+        [xs, np.full_like(xs, YZ_FRACTION * WIDTH), np.full_like(xs, YZ_FRACTION * WIDTH)]
+    )
+    _FIXTURE.update(
+        msh=msh, cell_tags=cell_tags, facet_tags=facet_tags, xs=xs, pts=pts, n_cells=n_cells
+    )
     return _FIXTURE
 
 
@@ -305,7 +317,10 @@ def fem_gamma(case, return_fields=False):
     (a, b), *_ = np.linalg.lstsq(m, ez, rcond=None)
     resid = float(np.linalg.norm(m @ np.array([a, b]) - ez) / np.linalg.norm(ez))
     g = complex(b / a * np.exp(2j * K0 * L_AIR))
-    ndofs = solver.function_space().dofmap.index_map.size_global * solver.function_space().dofmap.index_map_bs
+    ndofs = (
+        solver.function_space().dofmap.index_map.size_global
+        * solver.function_space().dofmap.index_map_bs
+    )
     _say(
         f"[TH-18s2] FEM {case:6s} Z_s={zs} dofs={ndofs} A={a:.6f} B={b:.6f} "
         f"|1+G(0)|={abs(1 + b / a):.4f} lsq_resid={resid:.2e} Gamma={g:.8f} "
@@ -358,7 +373,9 @@ def test_negative_control_bulk_leontovich_vs_thin():
     b_mag, b_arg = _bands()
     nc = abs(fem_gamma("leo") - closed_form_gamma("thin"))
     b = max(b_mag, b_arg)
-    _say(f"[TH-18s2] negative control |G_leo,FEM - G_thin,cf| = {nc:.6f}; floor 10*B = {10 * b:.1e}")
+    _say(
+        f"[TH-18s2] negative control |G_leo,FEM - G_thin,cf| = {nc:.6f}; floor 10*B = {10 * b:.1e}"
+    )
     assert nc > 10.0 * b
     assert abs(nc - NEGATIVE_CONTROL_HAND) <= b  # item 87: ceiling fixed at 0.093 ± B
 
@@ -366,11 +383,15 @@ def test_negative_control_bulk_leontovich_vs_thin():
 def test_printed_only_readings():
     g_pec = fem_gamma("pec")
     g_cu = fem_gamma("copper")
-    _say(f"[TH-18s2] printed copper: |G_cu,FEM - G_pec,FEM| = {abs(g_cu - g_pec):.3e}; "
-         f"cf |G_cu - G_pec| = {abs(closed_form_gamma('copper') - closed_form_gamma('pec')):.3e}")
+    _say(
+        f"[TH-18s2] printed copper: |G_cu,FEM - G_pec,FEM| = {abs(g_cu - g_pec):.3e}; "
+        f"cf |G_cu - G_pec| = {abs(closed_form_gamma('copper') - closed_form_gamma('pec')):.3e}"
+    )
     g_pmc = fem_gamma("pmc")
     g_pmc_cf = closed_form_gamma("pmc")
-    _say(f"[TH-18s2] printed pmc: FEM |G|={abs(g_pmc):.6f} arg={np.angle(g_pmc):.6f}; "
-         f"cf |G|={abs(g_pmc_cf):.6f} arg={np.angle(g_pmc_cf):.6f}")
+    _say(
+        f"[TH-18s2] printed pmc: FEM |G|={abs(g_pmc):.6f} arg={np.angle(g_pmc):.6f}; "
+        f"cf |G|={abs(g_pmc_cf):.6f} arg={np.angle(g_pmc_cf):.6f}"
+    )
     g_ns = closed_form_gamma("thin_noslab")
     _say(f"[TH-18s2] printed slab-dropped thin cf |G|={abs(g_ns):.6f} arg={np.angle(g_ns):.6f}")

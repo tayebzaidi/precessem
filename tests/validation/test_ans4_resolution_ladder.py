@@ -178,9 +178,7 @@ FREQUENCY_ENV = "FEM_EM_ANS4_FREQUENCY_HZ"
 _FREQUENCY_RAW = os.environ.get(FREQUENCY_ENV)
 if _FREQUENCY_RAW is not None and not _FREQUENCY_RAW.strip():
     _FREQUENCY_RAW = None
-LADDER_FREQUENCY_HZ = (
-    FREQUENCY_128_HZ if _FREQUENCY_RAW is None else float(_FREQUENCY_RAW.strip())
-)
+LADDER_FREQUENCY_HZ = FREQUENCY_128_HZ if _FREQUENCY_RAW is None else float(_FREQUENCY_RAW.strip())
 
 # Step 3a's control record: step 2a″ w1's x1 rung (`c4_congruent_sheets` on,
 # degree 1, 128 MHz, 116 118 cells) — the driven column's three C4 classes as
@@ -377,7 +375,6 @@ def _report_rung_rss(comm, label):
     report_peak_rss(comm, label=f"ANS-4 step2 after {label}")
 
 
-
 def _control_rung(rungs):
     """The rung that must reproduce the 116 085-cell record, either ladder.
 
@@ -463,9 +460,7 @@ def ladder():
     # ``None`` ⇒ no ``conductor_resolution`` passed, which is `_four_port_rung`'s
     # default and every earlier 2c / 2d window bit for bit.
     conductor_factor = _conductor_factor() if (rungspec or resolutions) else None
-    h_c = (
-        None if conductor_factor is None else conductor_factor * CONDUCTOR_RESOLUTION
-    )
+    h_c = None if conductor_factor is None else conductor_factor * CONDUCTOR_RESOLUTION
     cf_tag = "" if conductor_factor is None else f" conductor x{conductor_factor:g}"
 
     # --- step 2d: the matched-Ansys ladder, explicit (h, degree) per rung.
@@ -635,7 +630,7 @@ def test_the_record_rung_reproduces_the_fixture(ladder):
             f"meshed {base['cells']} cells at conductor x{base_cf:g}, not the "
             "116 085-cell record fixture"
         )
-    ratio =base["cells"] / STEP2_CELL_COUNT
+    ratio = base["cells"] / STEP2_CELL_COUNT
     if comm.rank == 0:
         print(
             f"[ANS-4 step2] x1 rung: {base['cells']} cells against `GEO-19` "
@@ -795,9 +790,7 @@ def test_the_conductor_factor_refines_every_rung(ladder):
     comm = MPI.COMM_WORLD
     rungs = list(ladder["rungs"])
     factored = [
-        r
-        for r in rungs
-        if r.get("conductor_factor") is not None and r["conductor_factor"] < 1.0
+        r for r in rungs if r.get("conductor_factor") is not None and r["conductor_factor"] < 1.0
     ]
     if not factored:
         pytest.skip(f"{CONDUCTOR_FACTOR_ENV} unset or >= 1 on this ladder")
@@ -857,9 +850,9 @@ def test_every_rung_passes_the_imported_port11_gates(ladder):
             f"{label}: reciprocity {reciprocity:.9e} exceeds the imported, "
             f"unmoved {RECIPROCITY_BAND:.0e}"
         )
-        assert sigma_max <= 1.0 + PASSIVITY_SIGMA_TOLERANCE, (
-            f"{label}: sigma_max {sigma_max:.12f} exceeds passivity"
-        )
+        assert (
+            sigma_max <= 1.0 + PASSIVITY_SIGMA_TOLERANCE
+        ), f"{label}: sigma_max {sigma_max:.12f} exceeds passivity"
         for name, value in spreads.items():
             assert value <= ADJACENT_SPREAD_BAND, (
                 f"{label}: {name} class spread {value * 100:.4f}% exceeds the "
@@ -892,10 +885,7 @@ def test_the_ladder_readout_is_printed(ladder):
     )
     for rung in rungs + ([ladder["degree2"]] if ladder["degree2"] else []):
         entries = _class_entries(np.asarray(rung["s"]))
-        s_spreads = {
-            n: _class_spread(_circulant_classes(np.asarray(rung["s"]))[n])
-            for n in names
-        }
+        s_spreads = {n: _class_spread(_circulant_classes(np.asarray(rung["s"]))[n]) for n in names}
         tag = f"x{rung['factor']:g} degree {rung['degree']}"
         print(f"[ANS-4 step2] rung {tag} ({rung['cells']} cells):", flush=True)
         for n in names:
@@ -910,9 +900,7 @@ def test_the_ladder_readout_is_printed(ladder):
             print(line, flush=True)
 
     # Richardson on the three finest degree-1 rungs, as pre-registered.
-    fine = sorted(
-        (r for r in ladder["rungs"] if r["factor"] < 1.0), key=lambda r: -r["factor"]
-    )
+    fine = sorted((r for r in ladder["rungs"] if r["factor"] < 1.0), key=lambda r: -r["factor"])
     print("\n[ANS-4 step2] Richardson h -> 0 (three finest degree-1 rungs):", flush=True)
     if len(fine) != 3:
         print(
@@ -923,8 +911,7 @@ def test_the_ladder_readout_is_printed(ladder):
         return
     hs = [r["factor"] for r in fine]
     print(
-        "    fitting S(h) = S_inf + C h^p on factors "
-        + ", ".join(f"x{h:g}" for h in hs),
+        "    fitting S(h) = S_inf + C h^p on factors " + ", ".join(f"x{h:g}" for h in hs),
         flush=True,
     )
     for n in names:
@@ -985,9 +972,7 @@ def test_the_frequency_knob_reaches_the_solve(ladder):
     entries = {k: complex(v) for k, v in _class_entries(s).items()}
     c4 = _c4_congruent_enabled()
     is_default = LADDER_FREQUENCY_HZ == FREQUENCY_128_HZ
-    moves = {
-        k: abs(entries[k] - STEP3A_RECORD_128MHZ_C4[k]) for k in STEP3A_RECORD_128MHZ_C4
-    }
+    moves = {k: abs(entries[k] - STEP3A_RECORD_128MHZ_C4[k]) for k in STEP3A_RECORD_128MHZ_C4}
     if comm.rank == 0:
         print(
             f"[ANS-4 step3a] f = {LADDER_FREQUENCY_HZ:.6e} Hz "

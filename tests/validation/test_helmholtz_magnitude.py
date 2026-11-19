@@ -116,9 +116,7 @@ def test_helmholtz_centre_field_magnitude():
     # size_global is already reduced; local cell counts would differ per rank.
     n_cells = mesh.topology.index_map(mesh.topology.dim).size_global
 
-    problem = MagnetostaticProblem(
-        mesh=mesh, cell_tags=cell_tags, facet_tags=facet_tags, mu=MU_0
-    )
+    problem = MagnetostaticProblem(mesh=mesh, cell_tags=cell_tags, facet_tags=facet_tags, mu=MU_0)
     solver = MagnetostaticSolver(problem, degree=1)
     solver.solve(current_density=_current_density)
     b_field = solver.compute_b_field()
@@ -163,9 +161,7 @@ def test_helmholtz_centre_field_magnitude():
     centre_rel = abs(bz_num[centre] - bz_closed_form) / abs(bz_closed_form)
 
     window = np.abs(z_eval) <= CENTRAL_WINDOW
-    mean_rel = float(
-        np.mean(np.abs(bz_num[window] - bz_ana[window]) / np.abs(bz_ana[window]))
-    )
+    mean_rel = float(np.mean(np.abs(bz_num[window] - bz_ana[window]) / np.abs(bz_ana[window])))
 
     # Innermost samples: uniformity of the central region (the _v2 check).
     inner = np.argsort(np.abs(z_eval))[:5]
@@ -192,6 +188,5 @@ def test_helmholtz_centre_field_magnitude():
         f"exceeds {MAGNITUDE_REL_TOL:.0%}"
     )
     assert cv < UNIFORMITY_CV_MAX, (
-        f"central field non-uniform: CV={cv:.4%} (expected < "
-        f"{UNIFORMITY_CV_MAX:.0%})"
+        f"central field non-uniform: CV={cv:.4%} (expected < " f"{UNIFORMITY_CV_MAX:.0%})"
     )

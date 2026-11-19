@@ -42,13 +42,12 @@ import hashlib
 import os
 import time
 
+import dolfinx
 import numpy as np
 import pytest
 import ufl
-from mpi4py import MPI
-
-import dolfinx
 from dolfinx import fem
+from mpi4py import MPI
 
 from fem_em_solver.io.step_import import import_step, load_step_config
 from tests.mesh.probe_wf6_sheet_facet_census import _tet_quality
@@ -59,6 +58,7 @@ from tests.validation.test_ops61_exact_strip_ports import (
     STRIP_BAND,
 )
 from tests.validation.test_port_birdcage_lumped_column import _sheet_bbox_centre
+
 # `GEO-34` 1b's (iv) pre-gate band, imported from where 1b imports it
 # (`test_port_birdcage_four_port` does not re-export it).
 from tests.validation.test_port_birdcage_ring_column import AZIMUTH_MATCH_DEG
@@ -121,16 +121,15 @@ def _azimuth_error_deg(measured, target):
 
 
 def _cyclic_misses(az):
-    return {i: a for i, a in az.items()
-            if _azimuth_error_deg(a, 90.0 * (i - 1)) >= AZIMUTH_MATCH_DEG}
+    return {
+        i: a for i, a in az.items() if _azimuth_error_deg(a, 90.0 * (i - 1)) >= AZIMUTH_MATCH_DEG
+    }
 
 
 @pytest.fixture(scope="module")
 def primitive():
     t0 = time.perf_counter()
-    msh, _cells, _facets, diag, _el = _build(
-        np.zeros(LEG_COUNT), leg_sheet_strip_fraction=0.5
-    )
+    msh, _cells, _facets, diag, _el = _build(np.zeros(LEG_COUNT), leg_sheet_strip_fraction=0.5)
     t_build = time.perf_counter() - t0
     dx, dy, dz = (float(v) for v in diag["port_box_size_m"])
     t0 = time.perf_counter()
@@ -145,8 +144,10 @@ def built():
     mesh, cell_tags, facet_tags, diag = import_step(STEP, CONFIG, COMM)
     t_import = time.perf_counter() - t0
     mesh.topology.create_connectivity(2, 3)
-    _p0(f"[U13a] n={COMM.size} import + tag {t_import:.2f} s (gmsh import "
-        f"{diag['import_wall_time_s']:.2f} s, mesh {diag['mesh_wall_time_s']:.2f} s)")
+    _p0(
+        f"[U13a] n={COMM.size} import + tag {t_import:.2f} s (gmsh import "
+        f"{diag['import_wall_time_s']:.2f} s, mesh {diag['mesh_wall_time_s']:.2f} s)"
+    )
     return mesh, cell_tags, facet_tags, diag
 
 
@@ -154,8 +155,10 @@ def test_custody_and_config():
     pinned = os.environ["U13A_STEP_SHA256"]  # missing => KeyError: an error, not a skip
     with open(STEP, "rb") as handle:
         digest = hashlib.sha256(handle.read()).hexdigest()
-    _p0(f"[U13a] n={COMM.size} {STEP} bytes={os.path.getsize(STEP)} sha256={digest} "
-        f"U13A_STEP_SHA256={pinned}")
+    _p0(
+        f"[U13a] n={COMM.size} {STEP} bytes={os.path.getsize(STEP)} sha256={digest} "
+        f"U13A_STEP_SHA256={pinned}"
+    )
     assert digest == pinned
     cfg = load_step_config(CONFIG)
     assert cfg["highest_dim_only"] is False
@@ -174,9 +177,11 @@ def test_c0_one_volume_per_port_group(built, primitive):
     for i in PORTS:
         name = f"port_P{i}"
         n_vol = diag["volumes_by_group"][name]
-        _p0(f"[U13a] (C0) n={COMM.size} {name} tag={diag['tag_by_group'][name]} "
+        _p0(
+            f"[U13a] (C0) n={COMM.size} {name} tag={diag['tag_by_group'][name]} "
             f"volumes={n_vol} cad_mass={diag['cad_mass_by_group'][name]!r} "
-            f"(dx*dy*dz={vol!r})")
+            f"(dx*dy*dz={vol!r})"
+        )
         assert diag["tag_by_group"][name] == CELL_BASE + i
         assert n_vol == 1
 
@@ -190,9 +195,11 @@ def test_c1_strip_area(built, primitive):
             float(_tri_areas(mesh, _owned(mesh, facet_tags, TAG_BASE + i)).sum()), op=MPI.SUM
         )
         r1, r2 = a / half - 1.0, a / rec["cad_area"] - 1.0
-        _p0(f"[U13a] (C1) n={COMM.size} P{i} A={a!r} A/(0.5 dx dz)-1={r1:+.3e} "
+        _p0(
+            f"[U13a] (C1) n={COMM.size} P{i} A={a!r} A/(0.5 dx dz)-1={r1:+.3e} "
             f"A/cad_area-1={r2:+.3e} cad_area={rec['cad_area']!r} "
-            f"n_triangles={rec['n_triangles']}")
+            f"n_triangles={rec['n_triangles']}"
+        )
         assert abs(r1) <= STRIP_BAND, (i, r1)
         assert abs(r2) <= STRIP_BAND, (i, r2)
 
@@ -224,10 +231,12 @@ def test_c2p_embedded_in_one_volume(built):
         not_two = COMM.allreduce(not_two, op=MPI.SUM)
         wrong_tag = COMM.allreduce(wrong_tag, op=MPI.SUM)
         n_tri = diag["surface_groups"][f"port_{i}"]["n_triangles"]
-        _p0(f"[U13a] (C2') n={COMM.size} P{i} owned {TAG_BASE + i}={count} "
+        _p0(
+            f"[U13a] (C2') n={COMM.size} P{i} owned {TAG_BASE + i}={count} "
             f"n_triangles={n_tri} facets not two-sided={not_two} "
             f"facets with a cell not tagged {CELL_BASE + i}={wrong_tag} "
-            f"(embedded in one volume: 2 cells/facet, both {CELL_BASE + i})")
+            f"(embedded in one volume: 2 cells/facet, both {CELL_BASE + i})"
+        )
         assert count == n_tri
         assert not_two == 0
         assert wrong_tag == 0
@@ -236,12 +245,15 @@ def test_c2p_embedded_in_one_volume(built):
 def test_c3_dS(built, primitive):
     mesh, _, facet_tags, _ = built
     half = 0.5 * primitive["dx"] * primitive["dz"]
-    dS = ufl.Measure("dS", domain=mesh, subdomain_data=facet_tags,
-                     metadata={"quadrature_degree": 2})
+    dS = ufl.Measure(
+        "dS", domain=mesh, subdomain_data=facet_tags, metadata={"quadrature_degree": 2}
+    )
     one = fem.Constant(mesh, dolfinx.default_scalar_type(1.0))
     for i in PORTS:
         v = COMM.allreduce(fem.assemble_scalar(fem.form(one * dS(TAG_BASE + i))), op=MPI.SUM)
-        _p0(f"[U13a] (C3) n={COMM.size} P{i} dS({TAG_BASE + i})={v!r} rel={abs(v) / half - 1.0:+.3e}")
+        _p0(
+            f"[U13a] (C3) n={COMM.size} P{i} dS({TAG_BASE + i})={v!r} rel={abs(v) / half - 1.0:+.3e}"
+        )
         assert abs(v - half) <= STRIP_BAND * half
 
 
@@ -249,8 +261,10 @@ def test_c4_lineage_and_tag_set(built):
     mesh, _, facet_tags, diag = built
     for i in PORTS:
         rec = diag["surface_groups"][f"port_{i}"]
-        _p0(f"[U13a] (C4) n={COMM.size} P{i} tag={rec['tag']} step_name={rec['step_name']} "
-            f"route={rec['route']}")
+        _p0(
+            f"[U13a] (C4) n={COMM.size} P{i} tag={rec['tag']} step_name={rec['step_name']} "
+            f"route={rec['route']}"
+        )
         assert rec["tag"] == TAG_BASE + i and rec["role"] == "port"
         assert rec["step_name"] == f"PortSheet{i}"
         assert "fragment child" in rec["route"] and "(embedded)" in rec["route"]
@@ -264,8 +278,10 @@ def test_c4_lineage_and_tag_set(built):
 def test_c5_cyclic_azimuths(built):
     az = _azimuths(built[0], built[2])
     for i in PORTS:
-        _p0(f"[U13a] (C5) n={COMM.size} P{i} azimuth {az[i]:.12f} deg err "
-            f"{_azimuth_error_deg(az[i], 90.0 * (i - 1)):.3e} (band {AZIMUTH_MATCH_DEG:.0e})")
+        _p0(
+            f"[U13a] (C5) n={COMM.size} P{i} azimuth {az[i]:.12f} deg err "
+            f"{_azimuth_error_deg(az[i], 90.0 * (i - 1)):.3e} (band {AZIMUTH_MATCH_DEG:.0e})"
+        )
     assert not _cyclic_misses(az), az
 
 
@@ -274,15 +290,21 @@ def test_q_quality_printed(built, primitive):
     cells, dih, asp, bad = _quality(built[0])
     t_q = time.perf_counter() - t0
     pc, pd, pa, pb = primitive["quality"]
-    _p0(f"[U13a] (Q) n={COMM.size} definitions: min dihedral = min over tets of the "
+    _p0(
+        f"[U13a] (Q) n={COMM.size} definitions: min dihedral = min over tets of the "
         f"smallest of 6 dihedral angles [deg]; max aspect = max over tets of "
-        f"1/(3 r_in/R_circ) (1 = regular tet); tets with a dihedral < 1 deg counted")
-    _p0(f"[U13a] (Q) n={COMM.size} import (un-optimised, no Netgen): cells={cells} "
-        f"min dihedral={dih:.4f} deg max aspect={asp:.4f} tets<1deg={bad} ({t_q:.2f} s)")
-    _p0(f"[U13a] (Q) n={COMM.size} primitive f=0.5 (Netgen): cells={pc} "
+        f"1/(3 r_in/R_circ) (1 = regular tet); tets with a dihedral < 1 deg counted"
+    )
+    _p0(
+        f"[U13a] (Q) n={COMM.size} import (un-optimised, no Netgen): cells={cells} "
+        f"min dihedral={dih:.4f} deg max aspect={asp:.4f} tets<1deg={bad} ({t_q:.2f} s)"
+    )
+    _p0(
+        f"[U13a] (Q) n={COMM.size} primitive f=0.5 (Netgen): cells={pc} "
         f"(record {ANS4_EXACT_STRIP_CELL_RECORD}) min dihedral={pd:.4f} deg "
         f"max aspect={pa:.4f} tets<1deg={pb} (build {primitive['t_build']:.2f} s, "
-        f"quality {primitive['t_q']:.2f} s)")
+        f"quality {primitive['t_q']:.2f} s)"
+    )
 
 
 def test_n_drop_one_facet_is_seen(built, primitive):
@@ -292,8 +314,10 @@ def test_n_drop_one_facet_is_seen(built, primitive):
     drop = COMM.allgather(len(areas) > 0).index(True)
     kept = areas[1:] if COMM.rank == drop else areas
     r = COMM.allreduce(float(kept.sum()), op=MPI.SUM) / half - 1.0
-    _p0(f"[U13a] (n-drop) n={COMM.size} P1 drop rank {drop}: rel={r:+.3e} "
-        f"= {abs(r) / STRIP_BAND:.3e} x STRIP_BAND")
+    _p0(
+        f"[U13a] (n-drop) n={COMM.size} P1 drop rank {drop}: rel={r:+.3e} "
+        f"= {abs(r) / STRIP_BAND:.3e} x STRIP_BAND"
+    )
     assert abs(r) > STRIP_BAND
 
 
@@ -304,9 +328,11 @@ def test_n_swap_p2_p3_fails_c5():
     mesh, _, facet_tags, _ = import_step(STEP, cfg, COMM)
     az = _azimuths(mesh, facet_tags)
     misses = _cyclic_misses(az)
-    _p0(f"[U13a] (n-swap) n={COMM.size} azimuths "
+    _p0(
+        f"[U13a] (n-swap) n={COMM.size} azimuths "
         + ", ".join(f"P{i}={v:.6f}" for i, v in sorted(az.items()))
-        + f"; misses {sorted(misses)}")
+        + f"; misses {sorted(misses)}"
+    )
     assert set(misses) == {2, 3}
 
 

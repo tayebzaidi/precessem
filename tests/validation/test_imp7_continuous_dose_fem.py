@@ -29,7 +29,6 @@ import pytest
 from mpi4py import MPI
 
 from fem_em_solver.thermal.dose import cem43, running_average
-
 from tests.validation.test_imp4_pec_cylinder_closed_form import B1_BAND
 from tests.validation.test_imp7_duty25_dose_fem import (
     CAP_50_POLE,
@@ -37,7 +36,7 @@ from tests.validation.test_imp7_duty25_dose_fem import (
     _duty_fn_at,
     _mids,
 )
-from tests.validation.test_imp7_duty_cycle_fem import A, B, PERIOD, S0_BAND, _chi
+from tests.validation.test_imp7_duty_cycle_fem import PERIOD, S0_BAND, A, B, _chi
 from tests.validation.test_imp7_duty_dose_closed_form import (
     AVG_BAR,
     DOSE_BAR,
@@ -93,15 +92,27 @@ def fem_dose():
     out = {}
     res = LADDER[0]
     sub, sft, q_f, t_build, parent = _shell_fixture(res)
-    _say(f"\nIMP7-13 res={res} sub_cells={sub.topology.index_map(3).size_global} "
-         f"build={t_build:.1f}s; ranks {sub.comm.size}; dt {DT:.4f} s, {N_RUN} steps to "
-         f"{T_END:.4f} s, constant source (D = {D100})")
-    cn, ts = _transient(sub, sft, q_f, dt=DT, n_steps=N_RUN, theta=0.5,
-                        startup_half_steps=STARTUP, snapshot_steps=tuple(range(N_RUN + 1)))
+    _say(
+        f"\nIMP7-13 res={res} sub_cells={sub.topology.index_map(3).size_global} "
+        f"build={t_build:.1f}s; ranks {sub.comm.size}; dt {DT:.4f} s, {N_RUN} steps to "
+        f"{T_END:.4f} s, constant source (D = {D100})"
+    )
+    cn, ts = _transient(
+        sub,
+        sft,
+        q_f,
+        dt=DT,
+        n_steps=N_RUN,
+        theta=0.5,
+        startup_half_steps=STARTUP,
+        snapshot_steps=tuple(range(N_RUN + 1)),
+    )
     out["E"] = float(cn.max_balance_residual)
     out["mult"] = list(cn.source_multipliers)
-    _say(f"IMP7-13 CN solve {ts:.1f}s; (E) {out['E']:.3e} (E_BAND {E_BAND:.0e}); recorded "
-         f"multipliers {len(out['mult'])} (constant source, (S0) has no content)")
+    _say(
+        f"IMP7-13 CN solve {ts:.1f}s; (E) {out['E']:.3e} (E_BAND {E_BAND:.0e}); recorded "
+        f"multipliers {len(out['mult'])} (constant source, (S0) has no content)"
+    )
 
     tq = time.perf_counter()
     th_h = np.empty((N_RUN + 1, M_PTS.shape[0]))
@@ -111,23 +122,31 @@ def fem_dose():
         th_h[k] = th
         ok_all &= ok
     out["th"], out["ok"] = th_h, ok_all
-    _say(f"IMP7-13 reads: {N_RUN + 1} batches of {M_PTS.shape[0]} in "
-         f"{time.perf_counter() - tq:.1f}s; valid {ok_all.tolist()}")
+    _say(
+        f"IMP7-13 reads: {N_RUN + 1} batches of {M_PTS.shape[0]} in "
+        f"{time.perf_counter() - tq:.1f}s; valid {ok_all.tolist()}"
+    )
 
     tq = time.perf_counter()
     e_all, out["T"] = _err(sub, cn.snapshots[N_RUN], _series_fn(T_END, "neumann"))
-    _say(f"IMP7-13 (T) at 4 t*: interior rel L2 {out['T']:.4e} (INTERIOR_BAND "
-         f"{INTERIOR_BAND:.0e}); whole {e_all:.4e} (printed); {time.perf_counter() - tq:.1f}s")
+    _say(
+        f"IMP7-13 (T) at 4 t*: interior rel L2 {out['T']:.4e} (INTERIOR_BAND "
+        f"{INTERIOR_BAND:.0e}); whole {e_all:.4e} (printed); {time.perf_counter() - tq:.1f}s"
+    )
     tq = time.perf_counter()
     out["c50"] = _err(sub, cn.snapshots[N_RUN], _duty_fn_at(T_END, 0.5))[1]
-    _say(f"IMP7-13 control at T_END: D = 0.5 series miss {out['c50']:.4e} (asserted > "
-         f"{INTERIOR_BAND:.0e}); {time.perf_counter() - tq:.1f}s")
+    _say(
+        f"IMP7-13 control at T_END: D = 0.5 series miss {out['c50']:.4e} (asserted > "
+        f"{INTERIOR_BAND:.0e}); {time.perf_counter() - tq:.1f}s"
+    )
     cn.snapshots.clear()
 
     tq = time.perf_counter()
     out["th_s"] = _duty_hist_at(_modes(), M_PTS, D100)
-    _say(f"IMP7-13 series history {out['th_s'].shape} in {time.perf_counter() - tq:.1f}s; "
-         f"fixture elapsed {time.perf_counter() - t0:.1f}s")
+    _say(
+        f"IMP7-13 series history {out['th_s'].shape} in {time.perf_counter() - tq:.1f}s; "
+        f"fixture elapsed {time.perf_counter() - t0:.1f}s"
+    )
     return out
 
 
@@ -137,8 +156,10 @@ def test_imp7_13_w0_grid_census_and_c100():
     assert A < M_PTS[0, 2] < M_PTS[1, 2] < B
     assert list(M_LABELS) == ["pole", "mid"]
     mult, rel, tot = _census_100()
-    _say(f"IMP7-13 W0: {len(mult)} (half-)steps, all 1: {all(m == 1.0 for m in mult)}; sum "
-         f"chi*dt {tot:.6f} s vs {T_END:.6f} s rel {rel:.3e} (bar {S0_BAND:.0e})")
+    _say(
+        f"IMP7-13 W0: {len(mult)} (half-)steps, all 1: {all(m == 1.0 for m in mult)}; sum "
+        f"chi*dt {tot:.6f} s vs {T_END:.6f} s rel {rel:.3e} (bar {S0_BAND:.0e})"
+    )
     assert all(m == 1.0 for m in mult)
     assert rel <= S0_BAND, rel
 
@@ -147,8 +168,10 @@ def test_imp7_13_w0_grid_census_and_c100():
     d1 = _duty_hist_at(modes, M_PTS, D100)
     cont = _continuous_hist(M_PTS, modes)
     worst = float(np.max(np.abs(d1[1:] - cont[1:]) / np.abs(cont[1:])))
-    _say(f"IMP7-13 (C100) D = 1 vs continuous over {cont.shape}: worst rel {worst:.3e} (band "
-         f"{B1_BAND:g}, ASSERTED); {time.perf_counter() - tq:.1f}s")
+    _say(
+        f"IMP7-13 (C100) D = 1 vs continuous over {cont.shape}: worst rel {worst:.3e} (band "
+        f"{B1_BAND:g}, ASSERTED); {time.perf_counter() - tq:.1f}s"
+    )
     assert worst <= B1_BAND, worst
 
 
@@ -164,9 +187,11 @@ def test_preconditions(fem_dose):
 
 def test_t_at_end_and_series_control(fem_dose):
     e, c50 = fem_dose["T"], fem_dose["c50"]
-    _say(f"IMP7-13 gates: (T) {e:.4e} <= {INTERIOR_BAND:.0e} "
-         f"{'PASS' if e <= INTERIOR_BAND else 'FAIL'}; (c-50) {c50:.4e} > {INTERIOR_BAND:.0e} "
-         f"{'PASS' if c50 > INTERIOR_BAND else 'FAIL'}")
+    _say(
+        f"IMP7-13 gates: (T) {e:.4e} <= {INTERIOR_BAND:.0e} "
+        f"{'PASS' if e <= INTERIOR_BAND else 'FAIL'}; (c-50) {c50:.4e} > {INTERIOR_BAND:.0e} "
+        f"{'PASS' if c50 > INTERIOR_BAND else 'FAIL'}"
+    )
     assert e <= INTERIOR_BAND, e
     assert c50 > INTERIOR_BAND, c50
 
@@ -177,11 +202,15 @@ def test_q_hd_win_hd_and_rc_hd(fem_dose):
         th = th_d[:, j]
         dose, ref, rel, swap, miss = _q_check(T_GRID, T_INF + th)
         mx, t_mx, lo, hi, wref, wrel = _win_check(T_GRID, th)
-        _say(f"IMP7-13 (Q-hd) peak {name}: FEM CEM43 {dose:.6e} s vs quad {ref:.6e} s rel "
-             f"{rel:.3e} (bar {DOSE_BAR:g}, ASSERTED); (Rc-hd) swap miss {miss:.4e} (asserted "
-             f"> {DOSE_BAR:g}), factor {swap / ref:.3e}")
-        _say(f"IMP7-13 (Win-hd) peak {name}: max six-minute mean {mx:.6e} K at {t_mx:.2f} s; "
-             f"[{lo:.6e}, {hi:.6e}]; quad {wref:.6e} rel {wrel:.3e} (bar {AVG_BAR:g}, ASSERTED)")
+        _say(
+            f"IMP7-13 (Q-hd) peak {name}: FEM CEM43 {dose:.6e} s vs quad {ref:.6e} s rel "
+            f"{rel:.3e} (bar {DOSE_BAR:g}, ASSERTED); (Rc-hd) swap miss {miss:.4e} (asserted "
+            f"> {DOSE_BAR:g}), factor {swap / ref:.3e}"
+        )
+        _say(
+            f"IMP7-13 (Win-hd) peak {name}: max six-minute mean {mx:.6e} K at {t_mx:.2f} s; "
+            f"[{lo:.6e}, {hi:.6e}]; quad {wref:.6e} rel {wrel:.3e} (bar {AVG_BAR:g}, ASSERTED)"
+        )
         assert rel <= DOSE_BAR, (name, rel)
         assert miss > DOSE_BAR, (name, miss)
         assert T_GRID[0] + W_B2 <= t_mx <= T_GRID[-1], (name, t_mx)
@@ -204,11 +233,15 @@ def test_printed_gap_and_m_p_table(fem_dose):
         M, t_M = float(np.max(dth)), float(T_GRID[int(np.argmax(dth))])
         cap = INTERIOR_BAND * float(np.max(th_s[:, j]))
         rows[name] = (M, t_M, cap)
-        _say(f"IMP7-13 GAP D=1 {name}: peak-scale dose {d_h:.6e} s vs {d_s:.6e} s, rel "
-             f"{abs(d_h / d_s - 1.0):.3e}; six-minute peak {mx_h:.6f} K at {t_h:.2f} s vs "
-             f"{mx_s:.6f} K at {t_s:.2f} s, delta {mx_h - mx_s:+.3e} K")
-        _say(f"IMP7-13 (Bd-ii) D=1 {name}: M_p {M:.4e} K vs cap {cap:.4e} K, headroom cap/M_p "
-             f"{cap / M:.3f} (a reading, no gate); t(M_p) {t_M:.2f} s")
+        _say(
+            f"IMP7-13 GAP D=1 {name}: peak-scale dose {d_h:.6e} s vs {d_s:.6e} s, rel "
+            f"{abs(d_h / d_s - 1.0):.3e}; six-minute peak {mx_h:.6f} K at {t_h:.2f} s vs "
+            f"{mx_s:.6f} K at {t_s:.2f} s, delta {mx_h - mx_s:+.3e} K"
+        )
+        _say(
+            f"IMP7-13 (Bd-ii) D=1 {name}: M_p {M:.4e} K vs cap {cap:.4e} K, headroom cap/M_p "
+            f"{cap / M:.3f} (a reading, no gate); t(M_p) {t_M:.2f} s"
+        )
         assert np.isfinite(d_h / d_s)
     M, t_M, cap = rows["pole"]
     m50, m25, t25, cap25 = ITEM_700_POLE[4], *ITEM_719_POLE
@@ -216,5 +249,7 @@ def test_printed_gap_and_m_p_table(fem_dose):
     _say(f"IMP7-13   1.00 {M:.4e} {t_M:.2f} {cap:.4e} {cap / M:.3f} (this run)")
     _say(f"IMP7-13   0.50 {m50:.4e} -- {CAP_50_POLE:.4e} {CAP_50_POLE / m50:.3f} (item 700)")
     _say(f"IMP7-13   0.25 {m25:.4e} {t25:.2f} {cap25:.4e} {cap25 / m25:.3f} (item 719)")
-    _say(f"IMP7-13 prediction (no gate): M_p {PREDICTED_M_P:.2e} K at t {PREDICTED_T_M_P:.2f} s; "
-         f"measured / predicted M_p {M / PREDICTED_M_P:.3f}")
+    _say(
+        f"IMP7-13 prediction (no gate): M_p {PREDICTED_M_P:.2e} K at t {PREDICTED_T_M_P:.2f} s; "
+        f"measured / predicted M_p {M / PREDICTED_M_P:.3f}"
+    )

@@ -79,9 +79,7 @@ def main():
         # only thing that varies, so a spread here is the sampler's and a flat
         # row rules it out (`OPS-18` step 3, leg 2's discriminator).
         for n_points in N_POINTS:
-            _, b_num_mag, b_ana_mag, _ = _sample_radial(
-                b_field, n_points, comm, R_MIN, R_MAX_BC
-            )
+            _, b_num_mag, b_ana_mag, _ = _sample_radial(b_field, n_points, comm, R_MIN, R_MAX_BC)
             err = ErrorMetrics.l2_relative_error(b_num_mag, b_ana_mag)
             if comm.rank == 0:
                 cells_rec, err_rec = RECORD[res]

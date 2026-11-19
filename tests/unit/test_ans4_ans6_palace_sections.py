@@ -81,8 +81,12 @@ TRACE = [
     ("6", "1.378e-10", "20261015T095049Z_OPS-61-item457-W6-read.log", 70),
     ("6", "1.153e-10", "20261015T095049Z_OPS-61-item457-W6-read.log", 70),
     ("6", "1.484e-10", "20261015T095049Z_OPS-61-item457-W6-read.log", 70),
-    ("6", "self 0.1193%  adjacent 0.0501%  opposite 0.1081%",
-     "20261015T095049Z_OPS-61-item457-W6-read.log", 73),
+    (
+        "6",
+        "self 0.1193%  adjacent 0.0501%  opposite 0.1081%",
+        "20261015T095049Z_OPS-61-item457-W6-read.log",
+        73,
+    ),
     ("6", "3.581e-08", "20261015T095049Z_OPS-61-item457-W6-read.log", 89),
     ("6", "2.515e-07", "20261015T095049Z_OPS-61-item457-W6-read.log", 89),
     ("6", "1.790e-07", "20261015T095049Z_OPS-61-item457-W6-read.log", 89),
@@ -95,12 +99,24 @@ TRACE = [
     ("6", "226904", "20261015T094114Z_OPS-61-item457-W2-palace-hole-h0075-pec-e1.log", 68),
     ("6", "1538030", "20261015T094114Z_OPS-61-item457-W2-palace-hole-h0075-pec-e1.log", 101),
     # ans:4
-    ("4", "self 2.464e-10  adjacent 9.668e-11  opposite 9.883e-11",
-     "20261004T214342Z_OPS-61-item229-W4-read.log", 41),
-    ("4", "self 2.542e-10  adjacent 9.997e-11  opposite 6.236e-11",
-     "20261004T214342Z_OPS-61-item229-W4-read.log", 48),
-    ("4", "self 9.930e-11  adjacent 8.685e-11  opposite 1.495e-10",
-     "20261004T214342Z_OPS-61-item229-W4-read.log", 60),
+    (
+        "4",
+        "self 2.464e-10  adjacent 9.668e-11  opposite 9.883e-11",
+        "20261004T214342Z_OPS-61-item229-W4-read.log",
+        41,
+    ),
+    (
+        "4",
+        "self 2.542e-10  adjacent 9.997e-11  opposite 6.236e-11",
+        "20261004T214342Z_OPS-61-item229-W4-read.log",
+        48,
+    ),
+    (
+        "4",
+        "self 9.930e-11  adjacent 8.685e-11  opposite 1.495e-10",
+        "20261004T214342Z_OPS-61-item229-W4-read.log",
+        60,
+    ),
     ("4", "1.917e-10", "20261013T124505Z_OPS-61-item418-W6-read.log", 65),
     ("4", "1.861e-11", "20261013T124505Z_OPS-61-item418-W6-read.log", 65),
     ("4", "7.373e-11", "20261013T124505Z_OPS-61-item418-W6-read.log", 65),
@@ -129,8 +145,12 @@ TRACE = [
     ("4", "9.151e-11", "20261015T111439Z_OPS-61-item458b-W3-read.log", 67),
     ("4", "8.137e-11", "20261015T111439Z_OPS-61-item458b-W3-read.log", 67),
     ("4", "1.143e-10", "20261015T111439Z_OPS-61-item458b-W3-read.log", 67),
-    ("4", "self 0.0569% (5.689e-04)  adjacent 0.0235% (2.353e-04)  opposite 0.0611%",
-     "20261015T111439Z_OPS-61-item458b-W3-read.log", 87),
+    (
+        "4",
+        "self 0.0569% (5.689e-04)  adjacent 0.0235% (2.353e-04)  opposite 0.0611%",
+        "20261015T111439Z_OPS-61-item458b-W3-read.log",
+        87,
+    ),
     ("4", "v0.18.1", "20261004T213356Z_OPS-61-item229-W2-palace-o2-f10.log", 45),
     ("4", "117206", "20261004T213356Z_OPS-61-item229-W2-palace-o2-f10.log", 68),
     ("4", "753062", "20261004T213356Z_OPS-61-item229-W2-palace-o2-f10.log", 110),
@@ -144,15 +164,21 @@ TRACE = [
 
 #: section strings for cells whose section form differs from the log form
 SECTION_FORM = {
-    "80798": "80 798", "570332": "570 332", "226904": "226 904", "1538030": "1 538 030",
-    "117206": "117 206", "753062": "753 062", "282198": "282 198", "1822094": "1 822 094",
-    "593478": "593 478", "3833208": "3 833 208",
+    "80798": "80 798",
+    "570332": "570 332",
+    "226904": "226 904",
+    "1538030": "1 538 030",
+    "117206": "117 206",
+    "753062": "753 062",
+    "282198": "282 198",
+    "1822094": "1 822 094",
+    "593478": "593 478",
+    "3833208": "3 833 208",
     "self 0.1193%  adjacent 0.0501%  opposite 0.1081%": "0.1193 / 0.0501 / 0.1081",
     "self 2.464e-10  adjacent 9.668e-11  opposite 9.883e-11": "2.464e-10 / 9.668e-11 / 9.883e-11",
     "self 2.542e-10  adjacent 9.997e-11  opposite 6.236e-11": "2.542e-10 / 9.997e-11 / 6.236e-11",
     "self 9.930e-11  adjacent 8.685e-11  opposite 1.495e-10": "9.930e-11 / 8.685e-11 / 1.495e-10",
-    "self 0.0569% (5.689e-04)  adjacent 0.0235% (2.353e-04)  opposite 0.0611%":
-        "0.0569 / 0.0235 / 0.0611 — ours 0.0569 / 0.0235 / 0.0611",
+    "self 0.0569% (5.689e-04)  adjacent 0.0235% (2.353e-04)  opposite 0.0611%": "0.0569 / 0.0235 / 0.0611 — ours 0.0569 / 0.0235 / 0.0611",
 }
 
 
@@ -185,13 +211,15 @@ def _render(mod, case: Path, tmp: Path) -> bytes:
 
 
 def _section(text: str, heading: str) -> str:
-    return text[text.index(heading):]
+    return text[text.index(heading) :]
 
 
 def test_traced():
     """(X) and (N-cite)."""
-    sections = {t: _section((c["case"] / "COMPARISON.md").read_text(), c["heading"])
-                for t, c in CASES.items()}
+    sections = {
+        t: _section((c["case"] / "COMPARISON.md").read_text(), c["heading"])
+        for t, c in CASES.items()
+    }
     bad = []
     for tag, cell, log, line in TRACE:
         if cell not in _log_line(log, line):
@@ -225,12 +253,14 @@ def test_palace_section(tag, tmp_path):
     new = _render(mod, case, tmp_path / "new")
     text = new.decode()
     n_head = text.count(c["heading"])
-    print(f"\n(R{tag}) render {len(new)} B vs committed {len(committed)} B: "
-          f"identical={new == committed}; Palace heading count {n_head}")
+    print(
+        f"\n(R{tag}) render {len(new)} B vs committed {len(committed)} B: "
+        f"identical={new == committed}; Palace heading count {n_head}"
+    )
     assert n_head == 1
     assert new == committed
     section = _section(text, c["heading"])
-    assert text.endswith(section) and "\n## " not in section[len(c["heading"]):]
+    assert text.endswith(section) and "\n## " not in section[len(c["heading"]) :]
     assert mod.PALACE_SECTION.strip() == section.strip()
 
     # (P) PALACE_SECTION referenced only under `if not private`
@@ -241,11 +271,16 @@ def test_palace_section(tag, tmp_path):
         if isinstance(node, ast.Name) and node.id == "PALACE_SECTION":
             total += 1
     for node in ast.walk(fn):
-        if (isinstance(node, ast.If) and isinstance(node.test, ast.UnaryOp)
-                and isinstance(node.test.op, ast.Not)
-                and isinstance(node.test.operand, ast.Name) and node.test.operand.id == "private"):
-            guarded += sum(1 for n in ast.walk(node)
-                           if isinstance(n, ast.Name) and n.id == "PALACE_SECTION")
+        if (
+            isinstance(node, ast.If)
+            and isinstance(node.test, ast.UnaryOp)
+            and isinstance(node.test.op, ast.Not)
+            and isinstance(node.test.operand, ast.Name)
+            and node.test.operand.id == "private"
+        ):
+            guarded += sum(
+                1 for n in ast.walk(node) if isinstance(n, ast.Name) and n.id == "PALACE_SECTION"
+            )
     print(f"(P{tag}) PALACE_SECTION references {total}, under `if not private` {guarded}")
     assert total >= 1 and guarded == total
 
@@ -275,9 +310,11 @@ def test_palace_section(tag, tmp_path):
     (tmp_path / "old").mkdir()
     old = _render(old_mod, case, tmp_path / "old")
     n_old = old.decode().count(c["heading"])
-    print(f"(N-old{tag}) pinned {c['pin_sha']} render Palace-heading count {n_old}; "
-          f"differs from committed = {old != committed}; pre-section prefix equal = "
-          f"{committed.startswith(old)}")
+    print(
+        f"(N-old{tag}) pinned {c['pin_sha']} render Palace-heading count {n_old}; "
+        f"differs from committed = {old != committed}; pre-section prefix equal = "
+        f"{committed.startswith(old)}"
+    )
     assert n_old == 0
     assert old != committed
     assert committed == old + mod.PALACE_SECTION.encode()

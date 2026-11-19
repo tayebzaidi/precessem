@@ -60,6 +60,7 @@ from fem_em_solver.io.mesh import (
     BIRDCAGE_IMPLANT_SURFACE_TAG,
     MeshGenerator,
 )
+from tests.mesh.probe_two_torus_conductor_hole import _exterior_facet_area
 
 # Bands, records, fixture and helpers imported, never restated (`ANS-1`).
 from tests.mesh.test_birdcage_conductor_hole import (
@@ -68,11 +69,11 @@ from tests.mesh.test_birdcage_conductor_hole import (
     SOLID_CELL_RECORD,
     _owned_census,
 )
+from tests.mesh.test_birdcage_leg_gaps import LEG_GAP_LENGTH, TERMINAL_AREA_BAND
 from tests.mesh.test_birdcage_port_sheet_prerequisite import (
     CELL_COUNT_BAND,
     CONDUCTOR_RESOLUTION,
 )
-from tests.mesh.test_birdcage_leg_gaps import LEG_GAP_LENGTH, TERMINAL_AREA_BAND
 from tests.mesh.test_birdcage_port_sheets import PORT_LOWER, PORT_UPPER, _build
 from tests.mesh.test_birdcage_port_tags import (
     AIR_PADDING,
@@ -87,7 +88,6 @@ from tests.mesh.test_birdcage_port_tags import (
     RING_MINOR_RADIUS,
     RING_RADIUS,
 )
-from tests.mesh.probe_two_torus_conductor_hole import _exterior_facet_area
 
 # The rod (§9 item 171 "Restated geometry").
 ROD_RADIUS = 1.0e-3
@@ -213,9 +213,9 @@ def _interior_facet_check(msh, cell_tags, facet_tags, tag, comm):
     one = dolfinx.fem.Constant(msh, dolfinx.default_scalar_type(1.0))
 
     def _total(expr):
-        return float(np.real(comm.allreduce(
-            dolfinx.fem.assemble_scalar(dolfinx.fem.form(expr)), op=MPI.SUM
-        )))
+        return float(
+            np.real(comm.allreduce(dolfinx.fem.assemble_scalar(dolfinx.fem.form(expr)), op=MPI.SUM))
+        )
 
     area = _total(one * dS)
     moments = [_total(x[i]("+") * dS) for i in range(3)]
@@ -262,9 +262,11 @@ def _facet_check(msh, cell_tags, facet_tags, tag, comm):
     x = ufl.SpatialCoordinate(msh)
     ds = ufl.Measure("ds", domain=msh, subdomain_data=facet_tags, subdomain_id=(tag,))
     moments = [
-        float(np.real(comm.allreduce(
-            dolfinx.fem.assemble_scalar(dolfinx.fem.form(x[i] * ds)), op=MPI.SUM
-        )))
+        float(
+            np.real(
+                comm.allreduce(dolfinx.fem.assemble_scalar(dolfinx.fem.form(x[i] * ds)), op=MPI.SUM)
+            )
+        )
         for i in range(3)
     ]
     return (
@@ -299,12 +301,9 @@ def builds():
         "census": _owned_census(rod_msh, rod_cells, tdim, comm),
         "diag": rod_diag,
         "t": t_rod,
-        "area402": _exterior_facet_area(
-            rod_msh, rod_facets, BIRDCAGE_IMPLANT_SURFACE_TAG, comm
-        ),
+        "area402": _exterior_facet_area(rod_msh, rod_facets, BIRDCAGE_IMPLANT_SURFACE_TAG, comm),
     }
-    (rod["n402"], rod["n402_ext"], rod["n402_phantom"], rod["n402_int"],
-     moments) = _facet_check(
+    rod["n402"], rod["n402_ext"], rod["n402_phantom"], rod["n402_int"], moments = _facet_check(
         rod_msh, rod_cells, rod_facets, BIRDCAGE_IMPLANT_SURFACE_TAG, comm
     )
     rod["mesh_centroid"] = tuple(m / rod["area402"] for m in moments)
@@ -332,22 +331,29 @@ def builds():
         "diag": kept_diag,
         "t": t_kept,
     }
-    (kept["n402"], kept["n402_ext"], kept["n402_int"], kept["n402_pair"],
-     kept["area402"], moments) = _interior_facet_check(
-        kept_msh, kept_cells, kept_facets, BIRDCAGE_IMPLANT_SURFACE_TAG, comm
-    )
+    (
+        kept["n402"],
+        kept["n402_ext"],
+        kept["n402_int"],
+        kept["n402_pair"],
+        kept["area402"],
+        moments,
+    ) = _interior_facet_check(kept_msh, kept_cells, kept_facets, BIRDCAGE_IMPLANT_SURFACE_TAG, comm)
     kept["mesh_centroid"] = tuple(m / kept["area402"] for m in moments)
     one = dolfinx.fem.Constant(kept_msh, dolfinx.default_scalar_type(1.0))
     dx = ufl.Measure("dx", domain=kept_msh, subdomain_data=kept_cells)
-    kept["implant_volume"] = float(np.real(comm.allreduce(
-        dolfinx.fem.assemble_scalar(
-            dolfinx.fem.form(one * dx(BIRDCAGE_IMPLANT_CELL_TAG))
-        ),
-        op=MPI.SUM,
-    )))
+    kept["implant_volume"] = float(
+        np.real(
+            comm.allreduce(
+                dolfinx.fem.assemble_scalar(dolfinx.fem.form(one * dx(BIRDCAGE_IMPLANT_CELL_TAG))),
+                op=MPI.SUM,
+            )
+        )
+    )
     if comm.rank == 0:
         record = (
-            "unregistered" if KEPT_ROD_CELL_RECORD is None
+            "unregistered"
+            if KEPT_ROD_CELL_RECORD is None
             else f"{kept['n_cells'] / KEPT_ROD_CELL_RECORD:.6f} of {KEPT_ROD_CELL_RECORD}"
         )
         print(
@@ -587,13 +593,25 @@ def test_k6_kept_wall_centroid(builds):
         {"implant_rod": dict(ROD, keep_cells="yes")},
         {"implant_rod": dict(ROD, keep_cells=1)},
     ],
-    ids=["as_hole", "symmetry_quadrant", "r0", "rneg", "l0", "lneg", "radial_out",
-         "axial_out", "k7_keep_str", "k7_keep_int"],
+    ids=[
+        "as_hole",
+        "symmetry_quadrant",
+        "r0",
+        "rneg",
+        "l0",
+        "lneg",
+        "radial_out",
+        "axial_out",
+        "k7_keep_str",
+        "k7_keep_int",
+    ],
 )
 def test_a7_refusals_raise_without_meshing(overrides):
     started = time.perf_counter()
     with pytest.raises(ValueError, match="implant_rod"):
         _build_rod(**overrides)
     assert not gmsh.isInitialized()
-    _say(f"[GEO-36 step 2] (A7) {sorted(overrides)} refused in "
-         f"{time.perf_counter() - started:.3f} s")
+    _say(
+        f"[GEO-36 step 2] (A7) {sorted(overrides)} refused in "
+        f"{time.perf_counter() - started:.3f} s"
+    )

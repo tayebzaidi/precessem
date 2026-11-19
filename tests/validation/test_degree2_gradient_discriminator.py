@@ -149,7 +149,6 @@ from fem_em_solver.core import (
 from fem_em_solver.core.resonance import stored_electric_energy
 from fem_em_solver.core.time_harmonic import TimeHarmonicBoundaryCondition
 from fem_em_solver.utils.constants import EPSILON_0, MU_0
-
 from tests.complex_mode import complex_only
 from tests.solver.test_time_harmonic_smoke import (
     AXIAL_RECORD_DISSIPATED_W,
@@ -242,9 +241,9 @@ STEP1PRIME_DEFAULT_DEGREE1_RATIO = 1.926692e-02
 # re-asserting a premise that measurement has killed would only duplicate the
 # precondition red below, and per §7 no band is invented around a negative.
 # The factor stays defined for the print and for whoever scopes step 2.
-OMEGA_SQUARED_PREDICTED_RATIO = STEP1_RECORD_DEGREE1_RATIO * (
-    LOOP_FREQUENCY_HZ / LOOP_RECORD_FREQUENCY_HZ
-) ** 2
+OMEGA_SQUARED_PREDICTED_RATIO = (
+    STEP1_RECORD_DEGREE1_RATIO * (LOOP_FREQUENCY_HZ / LOOP_RECORD_FREQUENCY_HZ) ** 2
+)
 OMEGA_SQUARED_PREDICTION_FACTOR = 2.0
 
 # `TH-12` step 3's recorded cross-order moves
@@ -325,9 +324,7 @@ def _complex_ohmic_power(e_complex, sigma: float, comm) -> complex:
     `TH-12` step 1 gates the sphere with (:data:`POWER_IMAGINARY_BOUND`).
     ``assemble_scalar`` is rank-local — reduced here before the caller sees it.
     """
-    local = fem.assemble_scalar(
-        fem.form(0.5 * sigma * ufl.inner(e_complex, e_complex) * ufl.dx)
-    )
+    local = fem.assemble_scalar(fem.form(0.5 * sigma * ufl.inner(e_complex, e_complex) * ufl.dx))
     return complex(comm.allreduce(local, op=MPI.SUM))
 
 
@@ -354,9 +351,7 @@ def _l2_norm(expression, comm) -> float:
     convention on both sides of every ratio below.  ``assemble_scalar`` is
     rank-local (§7 trap): the reduction happens here, once.
     """
-    local = fem.assemble_scalar(
-        fem.form(ufl.inner(expression, expression) * ufl.dx)
-    )
+    local = fem.assemble_scalar(fem.form(ufl.inner(expression, expression) * ufl.dx))
     return float(np.sqrt(abs(complex(comm.allreduce(local, op=MPI.SUM)))))
 
 
@@ -389,17 +384,9 @@ def _gradient_potential(mesh, degree: int, source, comm, *, dirichlet_h10: bool)
         facets = dolfinx.mesh.exterior_facet_indices(mesh.topology)
         zero = fem.Function(q_space)
         zero.x.array[:] = 0.0
-        bcs = [
-            fem.dirichletbc(
-                zero, fem.locate_dofs_topological(q_space, tdim - 1, facets)
-            )
-        ]
+        bcs = [fem.dirichletbc(zero, fem.locate_dofs_topological(q_space, tdim - 1, facets))]
     else:
-        pin = (
-            np.array([0], dtype=np.int32)
-            if comm.rank == 0
-            else np.zeros(0, dtype=np.int32)
-        )
+        pin = np.array([0], dtype=np.int32) if comm.rank == 0 else np.zeros(0, dtype=np.int32)
         bcs = [fem.dirichletbc(PETSc.ScalarType(0), pin, q_space)]
 
     problem = LinearProblem(
@@ -468,9 +455,7 @@ def _gradient_identity_row(
         j_used = indicator * j_raw
         projected = False
 
-    chi = _gradient_potential(
-        mesh, degree, e_complex, comm, dirichlet_h10=dirichlet_h10
-    )
+    chi = _gradient_potential(mesh, degree, e_complex, comm, dirichlet_h10=dirichlet_h10)
     phi = _gradient_potential(mesh, degree, j_used, comm, dirichlet_h10=dirichlet_h10)
 
     c = _form_constant(frequency_hz)
@@ -488,9 +473,7 @@ def _gradient_identity_row(
         "norm_grad_phi": _l2_norm(grad_phi, comm),
         "norm_j_used": _l2_norm(j_used, comm),
         "residual": _l2_norm(grad_chi - c_const * grad_phi, comm) / norm_chi,
-        "residual_mistuned": (
-            _l2_norm(grad_chi - c_mistuned * grad_phi, comm) / norm_chi
-        ),
+        "residual_mistuned": (_l2_norm(grad_chi - c_mistuned * grad_phi, comm) / norm_chi),
         # (B): the electric energy carried by the gradient part of E, in the
         # module's own imported convention — `stored_electric_energy` is
         # (ε₀/4)∫εᵣ|E|², not the ε₀εᵣ‖·‖²/2 §7 wrote, and the share is only
@@ -505,9 +488,7 @@ def _solve_loop_at_degree(
     frequency_hz: float,
     *,
     project_source: bool | str = True,
-    boundary_condition: TimeHarmonicBoundaryCondition = (
-        TimeHarmonicBoundaryCondition.NATURAL
-    ),
+    boundary_condition: TimeHarmonicBoundaryCondition = (TimeHarmonicBoundaryCondition.NATURAL),
 ) -> dict:
     """The closed azimuthal loop drive on the smoke box at ``frequency_hz``.
 
@@ -601,24 +582,18 @@ def discriminator_rows():
     comm = MPI.COMM_WORLD
     loop = {
         frequency_hz: {
-            degree: _solve_loop_at_degree(degree, comm, frequency_hz)
-            for degree in (1, 2)
+            degree: _solve_loop_at_degree(degree, comm, frequency_hz) for degree in (1, 2)
         }
         for frequency_hz in LOOP_FREQUENCIES_HZ
     }
     smoke = {degree: _solve_smoke_at_degree(degree, comm) for degree in (1, 2)}
-    sphere = {
-        degree: _energies_of_sphere_row(_run_at_degree(degree), comm)
-        for degree in (1, 2)
-    }
+    sphere = {degree: _energies_of_sphere_row(_run_at_degree(degree), comm) for degree in (1, 2)}
     # Step 2's negative control (§7): the same fixture solved once with the
     # source projection OFF, so `‖P_∇₁J‖/‖J‖` can be read against the projected
     # `‖P_∇₁J′‖/‖J′‖` and the projection is seen doing something (`PORT-1`
     # step 2d/2e precedent).  Degree 1, one extra solve, no energy is read off
     # it and no recorded number depends on it.
-    unprojected = _solve_loop_at_degree(
-        1, comm, LOOP_FREQUENCY_HZ, project_source=False
-    )
+    unprojected = _solve_loop_at_degree(1, comm, LOOP_FREQUENCY_HZ, project_source=False)
     return {
         "loop": loop,
         "smoke": smoke,
@@ -632,13 +607,9 @@ def _print_table(rows: dict) -> None:
     if comm.rank != 0:
         return
     print("\n[TH-13 step 1'] stored energies at N1curl degree 1 vs 2:")
-    print(
-        "  fixture         deg   cells     DOFs        W_m [J]        W_e [J]"
-        "      W_e/W_m"
-    )
+    print("  fixture         deg   cells     DOFs        W_m [J]        W_e [J]" "      W_e/W_m")
     named = [
-        (_label(frequency_hz), rows["loop"][frequency_hz])
-        for frequency_hz in LOOP_FREQUENCIES_HZ
+        (_label(frequency_hz), rows["loop"][frequency_hz]) for frequency_hz in LOOP_FREQUENCIES_HZ
     ] + [("smoke", rows["smoke"]), ("sphere", rows["sphere"])]
     for name, pair in named:
         for degree in (1, 2):
@@ -687,10 +658,7 @@ def _print_table(rows: dict) -> None:
             f"= {one['w_e'] / one['w_m']:.6e} against the pre-registered "
             f"<= {MAGNETIC_DOMINANCE_MAX:.0e}"
         )
-    measured = (
-        rows["loop"][LOOP_FREQUENCY_HZ][1]["w_e"]
-        / rows["loop"][LOOP_FREQUENCY_HZ][1]["w_m"]
-    )
+    measured = rows["loop"][LOOP_FREQUENCY_HZ][1]["w_e"] / rows["loop"][LOOP_FREQUENCY_HZ][1]["w_m"]
     print(
         f"  omega^2 rescope: predicted {OMEGA_SQUARED_PREDICTED_RATIO:.6e} at "
         f"{LOOP_FREQUENCY_HZ / 1e6:.0f} MHz from the "
@@ -1035,8 +1003,7 @@ def test_the_source_projection_leaves_a_residue_the_solve_answers(
     control = gradient_projections["unprojected"]
 
     projected_share = (
-        rows[(LOOP_FREQUENCY_HZ, 1)]["norm_grad_phi"]
-        / rows[(LOOP_FREQUENCY_HZ, 1)]["norm_j_used"]
+        rows[(LOOP_FREQUENCY_HZ, 1)]["norm_grad_phi"] / rows[(LOOP_FREQUENCY_HZ, 1)]["norm_j_used"]
     )
 
     if comm.rank == 0:
@@ -1130,9 +1097,7 @@ def pin_exterior_control():
 
 @complex_only
 @pytest.mark.integration
-def test_the_matched_projection_removes_the_residue_it_targets(
-    matched_rows, gradient_projections
-):
+def test_the_matched_projection_removes_the_residue_it_targets(matched_rows, gradient_projections):
     """(i) — under ``"matched"``, ``‖P_∇ₚJ′‖/‖J′‖ ≤ 1e-8`` on all four rows.
 
     The pre-registered anchor of step 3a (PROJECT_PLAN §7).  ``J′`` is built by

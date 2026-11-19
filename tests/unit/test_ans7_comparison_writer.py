@@ -69,8 +69,10 @@ def test_writer_reproduces_committed_comparison(ans7, ans7_old, tmp_path):
     # (R)
     new = _render(ans7, tmp_path, json.loads(metrics_text))
     n_new = new.decode().count(HEAD128)
-    print(f"\n(R) rendered {len(new)} B, committed {len(committed)} B, "
-          f"127.74 MHz heading count {n_new}")
+    print(
+        f"\n(R) rendered {len(new)} B, committed {len(committed)} B, "
+        f"127.74 MHz heading count {n_new}"
+    )
     assert n_new == 1
     assert new == committed
 
@@ -90,8 +92,10 @@ def test_writer_reproduces_committed_comparison(ans7, ans7_old, tmp_path):
     del m["degree2_exact"]["tuned_larmor_esr"]["127.74"]
     nokey = _render(ans7, key_dir, m)
     n_key = nokey.decode().count(HEAD128)
-    print(f"(N-key) new writer without the 127.74 key: {len(nokey)} B, heading count {n_key}, "
-          f"equals (N-old): {nokey == old}")
+    print(
+        f"(N-key) new writer without the 127.74 key: {len(nokey)} B, heading count {n_key}, "
+        f"equals (N-old): {nokey == old}"
+    )
     assert n_key == 0
     # §9 item 460 (licensed by the 2026-10-15 03:00 review ruling, item-417 ruling-(2) pattern):
     # the new writer adds the unconditional Palace section, which b01dc790 predates; cut it
@@ -109,8 +113,10 @@ def test_writer_reproduces_committed_comparison(ans7, ans7_old, tmp_path):
     vs = "\n".join(ans7.VERDICT_SECTION) + "\n"
     assert nokey_text.count(vs) == 1
     nokey_text = nokey_text.replace(vs, "")
-    old_close = ("Not claimed: any absolute `Z_in`, a match; no h-statement (T12′); no absolute "
-                 "f₀ / Q / R_in.")
+    old_close = (
+        "Not claimed: any absolute `Z_in`, a match; no h-statement (T12′); no absolute "
+        "f₀ / Q / R_in."
+    )
     assert nokey_text.count("\n" + ans7.CLOSING_LINE + "\n") == 1
     nokey_text = nokey_text.replace("\n" + ans7.CLOSING_LINE + "\n", "\n" + old_close + "\n")
     nokey = nokey_text.encode()

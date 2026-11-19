@@ -42,10 +42,14 @@ CASES = {
         levels=("0.73 %", "1 %", "0.1 %", "0.014 / 0.057 / 0.066 %"),
         digit=("0.73 %", "0.74 %"),
         # the stale clause's first and last words, pre-edit (scope paragraph)
-        scope_old=("absolute-accuracy claim is made from our side; adjudication is the next weekly",
-                   "review's, after the AED numbers land."),
-        scope_new=("absolute-accuracy claim is made from our side; the adjudication is recorded in",
-                   "the verdict section below."),
+        scope_old=(
+            "absolute-accuracy claim is made from our side; adjudication is the next weekly",
+            "review's, after the AED numbers land.",
+        ),
+        scope_new=(
+            "absolute-accuracy claim is made from our side; the adjudication is recorded in",
+            "the verdict section below.",
+        ),
     ),
     "6": dict(
         case=BENCH / "ans6_copper_birdcage_four_port_10_64_128MHz",
@@ -53,10 +57,14 @@ CASES = {
         pin_sha="69fa0777",
         levels=("0.33 %", "0.21 %"),
         digit=("0.33 %", "0.34 %"),
-        scope_old=("absolute `S₁₁` / `Z_in` claim at 10 or 64 MHz (`PORT-21`). Adjudication is a",
-                   "future weekly review's, after the AED numbers land."),
-        scope_new=("absolute `S₁₁` / `Z_in` claim at 10 or 64 MHz (`PORT-21`). The adjudication",
-                   "is recorded in the verdict section below."),
+        scope_old=(
+            "absolute `S₁₁` / `Z_in` claim at 10 or 64 MHz (`PORT-21`). Adjudication is a",
+            "future weekly review's, after the AED numbers land.",
+        ),
+        scope_new=(
+            "absolute `S₁₁` / `Z_in` claim at 10 or 64 MHz (`PORT-21`). The adjudication",
+            "is recorded in the verdict section below.",
+        ),
     ),
 }
 
@@ -109,8 +117,10 @@ def test_verdict_section(tag, tmp_path):
     old_mod = _exec_as(f"ans{tag}_pin_{c['pin_sha']}_ut", pin_script, case / script)
     (tmp_path / "old").mkdir()
     old = _render(old_mod, case, tmp_path / "old")
-    print(f"\n(Pre{tag}) pinned {c['pin_sha']} render {len(old)} B vs pre-edit {len(pre_edit)} B: "
-          f"identical={old == pre_edit}")
+    print(
+        f"\n(Pre{tag}) pinned {c['pin_sha']} render {len(old)} B vs pre-edit {len(pre_edit)} B: "
+        f"identical={old == pre_edit}"
+    )
     if old != pre_edit:
         for i, (a, b) in enumerate(zip(old.decode().splitlines(), pre_edit.decode().splitlines())):
             if a != b:
@@ -123,8 +133,10 @@ def test_verdict_section(tag, tmp_path):
     (tmp_path / "new").mkdir()
     new = _render(new_mod, case, tmp_path / "new")
     n_head = new.decode().count(HEADING)
-    print(f"(R{tag}) render {len(new)} B vs committed {len(committed)} B: identical={new == committed}; "
-          f"verdict heading count {n_head}")
+    print(
+        f"(R{tag}) render {len(new)} B vs committed {len(committed)} B: identical={new == committed}; "
+        f"verdict heading count {n_head}"
+    )
     assert n_head == 1
     assert new == committed
 
@@ -141,7 +153,9 @@ def test_verdict_section(tag, tmp_path):
     # cut here, at its heading (present exactly once, as the file's tail), before the
     # item-416 diff is classified. Nothing else is exempted.
     if tag == "4":
-        h_head = "\n## h-sequence of the adjudicated pairing (ours; degree 2, exact rectangles, κ off)\n"
+        h_head = (
+            "\n## h-sequence of the adjudicated pairing (ours; degree 2, exact rectangles, κ off)\n"
+        )
         assert committed_text.count(h_head) == 1
         committed_text = committed_text[: committed_text.index(h_head) + 1]
     # §9 item 462 (licensed, 2026-10-15 03:00 review): `ans:6`'s writer now appends
@@ -165,13 +179,16 @@ def test_verdict_section(tag, tmp_path):
     scope_first, scope_last = c["scope_old"]
     i0 = old_lines.index(scope_first)
     i1 = old_lines.index(scope_last)
-    allowed_removed = set(old_lines[i0:i1 + 1])
+    allowed_removed = set(old_lines[i0 : i1 + 1])
     # added lines: the re-pointed scope clause (two lines) and verdict-section lines
-    stray_added = [ln for ln in added if ln not in v_lines and ln != ""
-                   and ln not in c["scope_new"]]
+    stray_added = [
+        ln for ln in added if ln not in v_lines and ln != "" and ln not in c["scope_new"]
+    ]
     stray_removed = [ln for ln in removed if ln not in allowed_removed]
-    print(f"(Δ{tag}) removed {len(removed)} line(s), added {len(added)} line(s); "
-          f"stray removed {stray_removed!r}, stray added {stray_added!r}")
+    print(
+        f"(Δ{tag}) removed {len(removed)} line(s), added {len(added)} line(s); "
+        f"stray removed {stray_removed!r}, stray added {stray_added!r}"
+    )
     assert removed and set(removed) <= allowed_removed
     assert not stray_added
     assert all(ln in added for ln in c["scope_new"])
@@ -191,7 +208,9 @@ def test_verdict_section(tag, tmp_path):
 
     # (N-old)
     n_old = old.decode().count(HEADING)
-    print(f"(N-old{tag}) pinned render verdict-heading count {n_old}; differs from committed = "
-          f"{old != committed}")
+    print(
+        f"(N-old{tag}) pinned render verdict-heading count {n_old}; differs from committed = "
+        f"{old != committed}"
+    )
     assert n_old == 0
     assert old != committed

@@ -70,11 +70,10 @@ from __future__ import annotations
 
 import time
 
+import dolfinx
 import numpy as np
 import pytest
 from mpi4py import MPI
-
-import dolfinx
 
 from fem_em_solver.core import HomogeneousMaterial, TimeHarmonicProblem
 from fem_em_solver.io.mesh import _interface_facet_tags
@@ -82,7 +81,6 @@ from fem_em_solver.ports.definitions import PortDefinition
 from fem_em_solver.ports.lumped import LumpedSheetPortSpec, run_lumped_sheet_port_case
 from fem_em_solver.utils.analytical import complex_permittivity
 from fem_em_solver.utils.constants import EPSILON_0, MU_0
-
 from tests.complex_mode import complex_only
 from tests.mesh.test_birdcage_port_sheets import (
     PORT_LOWER,
@@ -206,9 +204,7 @@ def larmor_probe():
     msh.topology.create_entity_permutations()
 
     halves = {i: (PORT_LOWER + i, PORT_UPPER + i) for i in ports_idx}
-    tags_f = _interface_facet_tags(
-        msh, cell_tags, {SHEET_IFACE + i: halves[i] for i in ports_idx}
-    )
+    tags_f = _interface_facet_tags(msh, cell_tags, {SHEET_IFACE + i: halves[i] for i in ports_idx})
 
     # Leg (c)/(d0)/(d)'s sheet construction, unchanged and copied from the
     # four-port module: measure each full sheet, name its transverse axis off the
@@ -224,9 +220,7 @@ def larmor_probe():
             "axis": 0 if extents[0] >= extents[1] else 1,
             "centroid": centroid,
             "w_full": float(w_bbox),
-            "azimuth_deg": float(
-                np.degrees(np.arctan2(centroid[1], centroid[0])) % 360.0
-            ),
+            "azimuth_deg": float(np.degrees(np.arctan2(centroid[1], centroid[0])) % 360.0),
         }
 
     for i in ports_idx:
@@ -326,9 +320,7 @@ def larmor_probe():
         # never gated.
         power = 0.5 * complex(v_driven) * np.conjugate(complex(i_driven))
         media = {
-            "phantom": _propagation_constants(
-                SALINE_EPSILON_R, SALINE_SIGMA, frequency_hz
-            ),
+            "phantom": _propagation_constants(SALINE_EPSILON_R, SALINE_SIGMA, frequency_hz),
             "air": _propagation_constants(1.0, 0.0, frequency_hz),
         }
         return {
@@ -339,10 +331,8 @@ def larmor_probe():
             "v_driven": complex(v_driven),
             "power": complex(power),
             "media": media,
-            "cells_per_delta_phantom": media["phantom"]["delta"]
-            / sizes["phantom"]["h_mean"],
-            "cells_per_lambda_phantom": media["phantom"]["lambda"]
-            / sizes["phantom"]["h_mean"],
+            "cells_per_delta_phantom": media["phantom"]["delta"] / sizes["phantom"]["h_mean"],
+            "cells_per_lambda_phantom": media["phantom"]["lambda"] / sizes["phantom"]["h_mean"],
             "cells_per_lambda_air": media["air"]["lambda"] / sizes["air"]["h_mean"],
             "solve_time": float(t_solve),
         }
@@ -433,12 +423,8 @@ def test_the_probe_solved_the_gated_fixture_at_both_frequencies(larmor_probe):
             f"sheet's extent {s['w_full']:.9e} m — the interior-width filter "
             "did not run"
         )
-    assert larmor_probe["solves"]["control_10mhz"]["frequency_hz"] == pytest.approx(
-        FREQUENCY_HZ
-    )
-    assert larmor_probe["solves"]["larmor_64mhz"]["frequency_hz"] == pytest.approx(
-        FREQUENCY_64_HZ
-    )
+    assert larmor_probe["solves"]["control_10mhz"]["frequency_hz"] == pytest.approx(FREQUENCY_HZ)
+    assert larmor_probe["solves"]["larmor_64mhz"]["frequency_hz"] == pytest.approx(FREQUENCY_64_HZ)
     for name, sv in larmor_probe["solves"].items():
         r = sv["result"]
         assert not r.is_placeholder, (

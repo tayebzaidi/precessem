@@ -140,15 +140,9 @@ def four_port_network_gates(
     spreads = {n: class_spread(v) for n, v in classes.items()}
     sigma = np.linalg.svd(s_matrix, compute_uv=False)
     column_power = np.sum(np.abs(s_matrix) ** 2, axis=0)
-    reciprocity = float(
-        np.linalg.norm(s_matrix - s_matrix.T) / np.linalg.norm(s_matrix)
-    )
-    z_reciprocity = float(
-        np.linalg.norm(z_matrix - z_matrix.T) / np.linalg.norm(z_matrix)
-    )
-    pooled = class_spread(
-        np.concatenate([classes["adjacent"], classes["opposite"]])
-    )
+    reciprocity = float(np.linalg.norm(s_matrix - s_matrix.T) / np.linalg.norm(s_matrix))
+    z_reciprocity = float(np.linalg.norm(z_matrix - z_matrix.T) / np.linalg.norm(z_matrix))
+    pooled = class_spread(np.concatenate([classes["adjacent"], classes["opposite"]]))
     worst = max(spreads.values())
     separation = pooled / worst if worst > 0.0 else np.inf
     sigma_max = float(np.max(sigma))

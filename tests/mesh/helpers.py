@@ -6,9 +6,8 @@ from typing import Mapping
 
 import numpy as np
 import ufl
-from mpi4py import MPI
-
 from dolfinx import default_scalar_type, fem
+from mpi4py import MPI
 
 from fem_em_solver.io.mesh_qa import (
     cell_tag_counts,
@@ -38,7 +37,9 @@ REQUIRED_COIL_PHANTOM_TAGS = {
 }
 
 
-def assert_required_tags_nonempty(cell_tags, required_tags: Mapping[int, str], comm: MPI.Intracomm) -> None:
+def assert_required_tags_nonempty(
+    cell_tags, required_tags: Mapping[int, str], comm: MPI.Intracomm
+) -> None:
     """Assert that each required tag exists and has at least one cell."""
     counts = cell_tag_counts(cell_tags, comm=comm)
 
@@ -73,9 +74,7 @@ VOLUME_PARTITION_BAND = 1.0e-9
 
 def tag_volume(mesh, cell_tags, tag: int, comm: MPI.Intracomm) -> float:
     """``int_tag 1 dV``, reduced -- ``assemble_scalar`` is rank-local."""
-    dx_tag = ufl.Measure(
-        "dx", domain=mesh, subdomain_data=cell_tags, subdomain_id=(int(tag),)
-    )
+    dx_tag = ufl.Measure("dx", domain=mesh, subdomain_data=cell_tags, subdomain_id=(int(tag),))
     one = fem.Constant(mesh, default_scalar_type(1.0))
     local = fem.assemble_scalar(fem.form(one * dx_tag))
     return float(np.real(comm.allreduce(local, op=MPI.SUM)))

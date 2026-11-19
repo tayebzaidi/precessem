@@ -55,16 +55,17 @@ def test_wf13_estimate_sphere_unknowns_exact_and_no_solve():
     s2 = _study()
     assert s2.degree == 2
     e2 = s2.estimate(comm)
-    _say(f"WF13-S2 (U) sphere deg2 cells={e2.cells} unknowns={e2.unknowns} "
-         f"pred_peak={e2.predicted_peak_gib:.2f} GiB pred_s={e2.predicted_seconds:.1f} "
-         f"ranks={e2.ranks} rows={e2.rows_used}")
+    _say(
+        f"WF13-S2 (U) sphere deg2 cells={e2.cells} unknowns={e2.unknowns} "
+        f"pred_peak={e2.predicted_peak_gib:.2f} GiB pred_s={e2.predicted_seconds:.1f} "
+        f"ranks={e2.ranks} rows={e2.rows_used}"
+    )
     assert s2.result is None  # (K)
     assert e2.cells == WF15_CELLS_RECORD
     assert e2.unknowns == WF15_DEG2_UNKNOWNS_RECORD
     # Degree 1 carries < 2 priced rows, so its count is read from the space the
     # Study's own solve() would build (TimeHarmonicSolver.function_space).
-    from fem_em_solver.core import TimeHarmonicProblem, TimeHarmonicSolver
-    from fem_em_solver.core import HomogeneousMaterial
+    from fem_em_solver.core import HomogeneousMaterial, TimeHarmonicProblem, TimeHarmonicSolver
 
     msh, cell_tags, _ = s2.geometry.build(comm)
     problem = TimeHarmonicProblem(
@@ -89,11 +90,14 @@ def test_wf13_estimate_sphere_unknowns_exact_and_no_solve():
 def test_wf13_estimate_f_small_cells():
     comm = MPI.COMM_WORLD
     phantom = GelledSalinePhantomMaterial(SALINE_SIGMA, SALINE_EPSILON_R, FREQUENCY_64_HZ)
-    st = Study(FourPortBirdcageGeometry.f_small(), phantom, LumpedPortDrive(),
-               frequency_hz=FREQUENCY_64_HZ)
+    st = Study(
+        FourPortBirdcageGeometry.f_small(), phantom, LumpedPortDrive(), frequency_hz=FREQUENCY_64_HZ
+    )
     est = st.estimate(comm)
-    _say(f"WF13-S2 (U) f_small deg{est.degree} cells={est.cells} unknowns={est.unknowns} "
-         f"pred_peak={est.predicted_peak_gib:.2f} GiB pred_s={est.predicted_seconds:.1f}")
+    _say(
+        f"WF13-S2 (U) f_small deg{est.degree} cells={est.cells} unknowns={est.unknowns} "
+        f"pred_peak={est.predicted_peak_gib:.2f} GiB pred_s={est.predicted_seconds:.1f}"
+    )
     assert st.result is None
     assert est.cells == ANS4_EXACT_STRIP_CELL_RECORD
     assert est.unknowns == F_SMALL_DEG2_UNKNOWNS_RECORD
@@ -107,9 +111,11 @@ def test_wf13_p4_cells_and_unknowns_read():
     geom = FourPortBirdcageGeometry(conductor_resolution=0.5 * CONDUCTOR_RESOLUTION)
     st = Study(geom, phantom, LumpedPortDrive(), frequency_hz=FREQUENCY_64_HZ)
     est = st.estimate(comm)
-    _say(f"WF13-S2 (U4) P4 route deg{est.degree} cells={est.cells} "
-         f"(record {P4_CELLS_RECORD}) unknowns={est.unknowns} "
-         f"({est.unknowns / est.cells:.4f} per cell)")
+    _say(
+        f"WF13-S2 (U4) P4 route deg{est.degree} cells={est.cells} "
+        f"(record {P4_CELLS_RECORD}) unknowns={est.unknowns} "
+        f"({est.unknowns / est.cells:.4f} per cell)"
+    )
     assert st.result is None
     assert est.degree == 2
     assert est.cells == P4_CELLS_RECORD
@@ -147,16 +153,17 @@ def _inside(r):
 
 def test_wf13_price_leave_one_out_bracket():
     rows = _deg2(PRICE_TABLE)
-    _say(f"WF13-S2 table: {len(rows)} degree-2 rows fitted: "
-         f"{[r['row'] for r in rows]}")
+    _say(f"WF13-S2 table: {len(rows)} degree-2 rows fitted: " f"{[r['row'] for r in rows]}")
     for r in PRICE_TABLE:
         _say(f"WF13-S2 row {r}")
     for r in ITEM212_RANK_ROWS:
         _say(f"WF13-S2 item-212 rank-sensitivity (not fitted) {r}")
     for r in rows:
         peak, secs, _ = _predict(r["unknowns"], 2, r["ranks"])
-        _say(f"WF13-S2 in-sample {r['row']} mem {peak / r['peak_gib']:.3f} "
-             f"time {secs / r['seconds']:.3f}")
+        _say(
+            f"WF13-S2 in-sample {r['row']} mem {peak / r['peak_gib']:.3f} "
+            f"time {secs / r['seconds']:.3f}"
+        )
     for r in rows:
         if r["row"] in LOO_ROWS:
             continue
@@ -167,8 +174,7 @@ def test_wf13_price_leave_one_out_bracket():
     bad = []
     for name in LOO_ROWS:
         w = _hat_weights(PRICE_TABLE, name)
-        _say(f"WF13-S2 hat weights LOO {name}: "
-             + " ".join(f"{k}={v:.3f}" for k, v in w.items()))
+        _say(f"WF13-S2 hat weights LOO {name}: " + " ".join(f"{k}={v:.3f}" for k, v in w.items()))
         rm, rt = _ratios(PRICE_TABLE, name)
         _say(f"WF13-S2 (B) LOO {name} mem pred/rec={rm:.3f} time pred/rec={rt:.3f}")
         for q, r in (("mem", rm), ("time", rt)):
@@ -189,14 +195,19 @@ def test_wf13_planted_price_fails_bracket():
     kmin_m = (BRACKET / rm0) ** (1.0 / w) if rm0 < BRACKET else 1.0
     kmin_t = (BRACKET / rt0) ** (1.0 / w) if rt0 < BRACKET else 1.0
     planted = tuple(
-        dict(r, peak_gib=r["peak_gib"] * PLANT_K, seconds=r["seconds"] * PLANT_K)
-        if r["row"] == "P5" else r
+        (
+            dict(r, peak_gib=r["peak_gib"] * PLANT_K, seconds=r["seconds"] * PLANT_K)
+            if r["row"] == "P5"
+            else r
+        )
         for r in NO_FH2
     )
     rm, rt = _ratios(planted, "P6")
-    _say(f"WF13-S2 (c2) P5 hat weight in LOO P6 w={w:.3f}; min failing k mem "
-         f"{kmin_m:.2f} time {kmin_t:.2f}; P5 x{PLANT_K:g} -> LOO P6 mem "
-         f"{rm:.3f} time {rt:.3f}")
+    _say(
+        f"WF13-S2 (c2) P5 hat weight in LOO P6 w={w:.3f}; min failing k mem "
+        f"{kmin_m:.2f} time {kmin_t:.2f}; P5 x{PLANT_K:g} -> LOO P6 mem "
+        f"{rm:.3f} time {rt:.3f}"
+    )
     assert PLANT_K >= max(kmin_m, kmin_t)
     assert not _inside(rm)
     assert not _inside(rt)
@@ -218,5 +229,3 @@ def test_wf13_n_blind_estimator_fails_bracket():
             if _inside(r):
                 bad.append(f"{name} {q} {r:.3f}")
     assert not bad, f"(c3) N-blind estimator inside x2: {bad}"
-
-

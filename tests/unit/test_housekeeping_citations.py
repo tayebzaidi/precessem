@@ -8,6 +8,7 @@ three globs only, so logs cited solely from `docs/planning/chunks/*.md` or
 Negative control: set HOUSEKEEPING_PATH to a copy of housekeeping.py as of the
 pre-change commit; both citation tests must fail.
 """
+
 from __future__ import annotations
 
 import importlib.util

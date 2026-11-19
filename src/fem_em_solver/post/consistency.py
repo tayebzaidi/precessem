@@ -18,7 +18,7 @@ where "is the field shape suspicious?" is all they ever claimed to answer.
 from __future__ import annotations
 
 import math
-from typing import Mapping, Any
+from typing import Any, Mapping
 
 
 def compute_field_consistency_diagnostics(
@@ -70,7 +70,9 @@ def compute_field_consistency_diagnostics(
                 f"reference_speed_m_per_s must be finite and positive, got {reference_speed_m_per_s!r}"
             )
         scaled_b_mean = speed * b_mean
-        mean_balance_rel_diff = abs(e_mean - scaled_b_mean) / max(e_mean, scaled_b_mean, scale_floor)
+        mean_balance_rel_diff = abs(e_mean - scaled_b_mean) / max(
+            e_mean, scaled_b_mean, scale_floor
+        )
 
     warnings: list[str] = []
     if e_span_ratio > max_span_ratio_warn:

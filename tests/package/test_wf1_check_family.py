@@ -55,7 +55,9 @@ def _check_lines(main, f, capsys):
 @pytest.fixture(scope="module")
 def old_cli():
     if not OLD_CLI.exists():
-        pytest.fail(f"{OLD_CLI} missing: run `git show b01dc790:src/fem_em_solver/cli.py > {OLD_CLI}`")
+        pytest.fail(
+            f"{OLD_CLI} missing: run `git show b01dc790:src/fem_em_solver/cli.py > {OLD_CLI}`"
+        )
     spec = importlib.util.spec_from_file_location("fem_em_solver._cli_b01dc790", OLD_CLI)
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
@@ -83,8 +85,11 @@ def test_wf1_check_prints_the_parsed_kind(capsys):
         assert printed["sphere_mat4.yaml"] == "family: sphere_in_box"
         assert printed["f_small_four_port.yaml"] == "family: four_port_birdcage"
         # (N)
-        _p0(f"  (N) pre-change F-human line {PRE_CHANGE_FH_FAMILY_LINE!r} vs now "
-            f"{printed['f_human_tuned_copper.yaml']!r}", capsys)
+        _p0(
+            f"  (N) pre-change F-human line {PRE_CHANGE_FH_FAMILY_LINE!r} vs now "
+            f"{printed['f_human_tuned_copper.yaml']!r}",
+            capsys,
+        )
         assert printed["f_human_tuned_copper.yaml"] != PRE_CHANGE_FH_FAMILY_LINE
 
 

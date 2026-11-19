@@ -65,14 +65,17 @@ def test_s14_box_identity(k):
     from fem_em_solver.study import _n1curl_unknowns
 
     comm = MPI.COMM_WORLD
-    msh = mesh.create_box(comm, [[0.0, 0.0, 0.0], [1.0, 2.0, 3.0]], [3, 2, 4],
-                          mesh.CellType.tetrahedron)
+    msh = mesh.create_box(
+        comm, [[0.0, 0.0, 0.0], [1.0, 2.0, 3.0]], [3, 2, 4], mesh.CellType.tetrahedron
+    )
     for dim in (1, 2):
         msh.topology.create_entities(dim)
     edges, faces, cells = (msh.topology.index_map(d).size_global for d in (1, 2, 3))
     V = fem.functionspace(msh, ("N1curl", k))
     size = V.dofmap.index_map.size_global * V.dofmap.index_map_bs
     formula = _n1curl_unknowns(k, edges, faces, cells)
-    _say(f"\n[WF-13 s14] box k={k}: E {edges}, F {faces}, T {cells}; dofmap {size}, formula "
-         f"{formula}")
+    _say(
+        f"\n[WF-13 s14] box k={k}: E {edges}, F {faces}, T {cells}; dofmap {size}, formula "
+        f"{formula}"
+    )
     assert size == formula

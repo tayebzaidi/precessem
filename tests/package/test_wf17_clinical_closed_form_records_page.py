@@ -31,13 +31,13 @@ REPO = Path(__file__).resolve().parents[2]
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
+from tests.log_records import read_log_text, resolve_log_path  # noqa: E402
 from tests.package.test_geo38_clinical_fixture_page import PAGE  # noqa: E402
 from tests.package.test_wf17_first_study_tutorial import (  # noqa: E402
     LINK_PASS_RE,
     _checker_stdout,
 )
 from tests.unit.test_doc_reference_exit_codes import run_checker  # noqa: E402
-from tests.log_records import read_log_text, resolve_log_path  # noqa: E402
 
 TAG = "[WF-17 s50]"
 HEADING = "## Closed-form gel-box records (MAT-21 steps 48 / 49)"
@@ -54,8 +54,9 @@ P_DEP = ("0.1", "1", "10", "100")
 
 
 def p88_row_re(p: str) -> str:
-    return (r"^MAT21-48 TABLE " + re.escape(p)
-            + r" \| (?:\S+ \| ){5}(\S+) \| \S+ \| \S+ \| (\S+) \| \(")
+    return (
+        r"^MAT21-48 TABLE " + re.escape(p) + r" \| (?:\S+ \| ){5}(\S+) \| \S+ \| \S+ \| (\S+) \| \("
+    )
 
 
 PERWATT_RE = r"^MAT21-48 per-watt excess at 100 W / at 0\.1 W (\S+) \("
@@ -66,22 +67,36 @@ P83_SHARE_RE = r"^MAT21-46 power share s3/s1\.5 (\S+) \("
 
 
 def p89_beside_re(label: str) -> str:
-    return (r"^MAT21-49 LEVER beside C39 " + re.escape(label)
-            + r" \(`[^`]+`, \d+ matches, \d+ distinct; [^)]*\): (\S+)")
+    return (
+        r"^MAT21-49 LEVER beside C39 "
+        + re.escape(label)
+        + r" \(`[^`]+`, \d+ matches, \d+ distinct; [^)]*\): (\S+)"
+    )
 
 
 def c39_re(label: str) -> str:
-    return (r"^\[GEO-38 C46\]   (" + re.escape(label)
-            + r") theta per P_acc[^:]*: (\S+) \| (\S+) \| (\S+)$")
+    return (
+        r"^\[GEO-38 C46\]   ("
+        + re.escape(label)
+        + r") theta per P_acc[^:]*: (\S+) \| (\S+) \| (\S+)$"
+    )
 
 
 C39_UNANCHORED = r"(ccw hotspot point) theta per P_acc[^:]*: (\S+) \| (\S+) \| (\S+)$"
 # Table B: (row label, P89' beside label or None, C39 label or None)
-C39_ROWS = (("C39 ccw point", "ccw point", "ccw hotspot point"),
-            ("C39 ccw ball", "ccw ball", "ccw ball"),
-            ("C39 cw point (cw heated at ccw's c\\*)", "cw point", "cw hotspot point"))
-DISCLAIMERS = ("Closed form", "Not the clinical SAR", "Per deposited watt",
-               "1.5 T gel constants", "No dose per watt", "A record")
+C39_ROWS = (
+    ("C39 ccw point", "ccw point", "ccw hotspot point"),
+    ("C39 ccw ball", "ccw ball", "ccw ball"),
+    ("C39 cw point (cw heated at ccw's c\\*)", "cw point", "cw hotspot point"),
+)
+DISCLAIMERS = (
+    "Closed form",
+    "Not the clinical SAR",
+    "Per deposited watt",
+    "1.5 T gel constants",
+    "No dose per watt",
+    "A record",
+)
 DECIMAL_RE = re.compile(r"\d+\.\d+")
 
 
@@ -95,8 +110,8 @@ def section(text: str, heading: str) -> str:
     if len(heads) != 1:
         raise LookupError(f"{heading!r}: {len(heads)} occurrences (exactly one required)")
     start = heads[0]
-    nxt = re.search(r"^## ", text[start + len(heading):], re.M)
-    return text[start: start + len(heading) + nxt.start()] if nxt else text[start:]
+    nxt = re.search(r"^## ", text[start + len(heading) :], re.M)
+    return text[start : start + len(heading) + nxt.start()] if nxt else text[start:]
 
 
 def read_one_text(text: str, regex: str, name: str = "") -> tuple[tuple[str, ...], int]:
@@ -104,8 +119,10 @@ def read_one_text(text: str, regex: str, name: str = "") -> tuple[tuple[str, ...
     and the count >= 1.  Prints the count."""
     hits = [m.groups() for m in re.finditer(regex, text, re.M)]
     distinct = set(hits)
-    print(f"{TAG} read_one {name}: {len(hits)} match(es), {len(distinct)} distinct "
-          f"{sorted(distinct)}")
+    print(
+        f"{TAG} read_one {name}: {len(hits)} match(es), {len(distinct)} distinct "
+        f"{sorted(distinct)}"
+    )
     if len(hits) < 1 or len(distinct) != 1:
         raise ValueError(f"{name} {regex!r}: {len(hits)} matches, {len(distinct)} distinct")
     return hits[0], len(hits)
@@ -280,8 +297,10 @@ def test_s50_d_docrefs_guide():
     rc, counts = run_checker("--docs-root", "docs/guide", "--check-links")
     link = LINK_PASS_RE.search(_checker_stdout("--docs-root", "docs/guide", "--check-links"))
     assert link is not None, "(D) no 'Link pass:' line"
-    print(f"{TAG} (D) dead={counts['dead']} links={link.group(1)} pages={link.group(2)} "
-          f"link-dead={link.group(3)} rc={rc}")
+    print(
+        f"{TAG} (D) dead={counts['dead']} links={link.group(1)} pages={link.group(2)} "
+        f"link-dead={link.group(3)} rc={rc}"
+    )
     assert counts["dead"] == 0
     assert int(link.group(3)) == 0
     assert rc != 1

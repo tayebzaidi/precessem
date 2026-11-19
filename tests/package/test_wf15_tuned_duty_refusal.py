@@ -87,9 +87,11 @@ def _assert_refused(counters, d, arm):
     with pytest.raises(TypeError) as excinfo:
         _call(st, d)
     entry = excinfo.traceback[-1]
-    _say(f"{arm}: duty={d!r}: {str(excinfo.value)!r} from {entry.name} line {entry.lineno + 1}; "
-         f"hook calls {counters['hook']}, _tuned_result calls {counters['tuned_result']}, "
-         f"builder calls {counters['builder']}")
+    _say(
+        f"{arm}: duty={d!r}: {str(excinfo.value)!r} from {entry.name} line {entry.lineno + 1}; "
+        f"hook calls {counters['hook']}, _tuned_result calls {counters['tuned_result']}, "
+        f"builder calls {counters['builder']}"
+    )
     assert str(excinfo.value) == MESSAGE
     assert entry.name == FRAME
     assert counters["hook"] == 0
@@ -121,8 +123,10 @@ def test_wf15_s19_duty_free_call_reaches_tuned_result(counters):
     st = _study()
     with pytest.raises(_Reached):
         _call(st)
-    _say(f"Ctl: duty omitted: reached _tuned_result; hook calls {counters['hook']}, "
-         f"_tuned_result calls {counters['tuned_result']}, builder calls {counters['builder']}")
+    _say(
+        f"Ctl: duty omitted: reached _tuned_result; hook calls {counters['hook']}, "
+        f"_tuned_result calls {counters['tuned_result']}, builder calls {counters['builder']}"
+    )
     assert counters["hook"] == 1
     assert counters["tuned_result"] == 1
     assert counters["builder"] == 0

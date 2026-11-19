@@ -46,7 +46,6 @@ from mpi4py import MPI
 from fem_em_solver.materials.temperature import LinearTemperatureConductivity
 from fem_em_solver.post.sar import mean_sar
 from fem_em_solver.thermal.steady import solve_steady_conduction
-
 from tests.complex_mode import complex_only
 from tests.materials.test_mat5_step2_lumped_root import ALPHA
 from tests.validation.test_birdcage_b1_plus_map import PHANTOM_RHO_KG_PER_M3, _solve_driven
@@ -119,8 +118,9 @@ class _Fixture:
     def __init__(self, alpha):
         self.comm = MPI.COMM_WORLD
         t0 = time.perf_counter()
-        self.sweep = build_four_port_sweep(phantom_resolution=PHANTOM_RESOLUTION_1G_RUNG,
-                                           build_only=True)
+        self.sweep = build_four_port_sweep(
+            phantom_resolution=PHANTOM_RESOLUTION_1G_RUNG, build_only=True
+        )
         self.t_mesh = time.perf_counter() - t0
         self.msh, self.cell_tags = self.sweep["mesh"], self.sweep["cell_tags"]
         self.sub, self.parent_ids = _tag_submesh(self.msh, self.cell_tags, PHANTOM_CELL_TAG)
@@ -132,14 +132,17 @@ class _Fixture:
         self.area = _real(_allsum(self.comm, one * self.ds))
         self.Ws = fem.functionspace(self.sub, ("DG", 0))
         self.V1 = fem.functionspace(self.sub, ("Lagrange", 1))
-        self.law = LinearTemperatureConductivity(sigma_ref=SALINE_SIGMA, alpha_per_k=alpha,
-                                                 t_ref=T_INF)
+        self.law = LinearTemperatureConductivity(
+            sigma_ref=SALINE_SIGMA, alpha_per_k=alpha, t_ref=T_INF
+        )
         self.alpha = alpha
         self.G = None
         self.em_secs = []
-        _say(f"\nMAT5s3 alpha = {alpha}  mesh {int(self.sweep['cells'])} cells, sub "
-             f"{self.sub.topology.index_map(3).size_global}; mesh+rung {self.t_mesh:.1f} s; "
-             f"V_sub = {self.v_sub:.12e} m^3  oint ds = {self.area:.9e} m^2")
+        _say(
+            f"\nMAT5s3 alpha = {alpha}  mesh {int(self.sweep['cells'])} cells, sub "
+            f"{self.sub.topology.index_map(3).size_global}; mesh+rung {self.t_mesh:.1f} s; "
+            f"V_sub = {self.v_sub:.12e} m^3  oint ds = {self.area:.9e} m^2"
+        )
 
     # -- sub-mesh algebra (all reductions real, allreduced) --------------------
     def ip(self, a, b):
@@ -172,26 +175,39 @@ class _Fixture:
     def em(self, sig_sub=None):
         hook = None
         if sig_sub is not None:
+
             def hook(sf, _s=sig_sub):
                 _sub_to_parent(sf, _s, self.parent_ids)
+
         t1 = time.perf_counter()
         solved = _solve_driven(self.sweep, "P1", sigma_field_hook=hook)
         self.em_secs.append(time.perf_counter() - t1)
         f = solved["fields"]
-        P = float(mean_sar(f.e_complex, sigma=f.sigma_field, rho=PHANTOM_RHO_KG_PER_M3,
-                           cell_tags=self.cell_tags, comm=self.comm,
-                           subdomain_ids=PHANTOM_CELL_TAG)["dissipated_power_w"])
+        P = float(
+            mean_sar(
+                f.e_complex,
+                sigma=f.sigma_field,
+                rho=PHANTOM_RHO_KG_PER_M3,
+                cell_tags=self.cell_tags,
+                comm=self.comm,
+                subdomain_ids=PHANTOM_CELL_TAG,
+            )["dissipated_power_w"]
+        )
         return f, P
 
     def q_h(self, f):
         Wp, q_par = _cell_average_dg0_tag(
-            self.msh, self.cell_tags, PHANTOM_CELL_TAG,
-            self.G * 0.5 * f.sigma_field * ufl.inner(f.e_complex, f.e_complex))
+            self.msh,
+            self.cell_tags,
+            PHANTOM_CELL_TAG,
+            self.G * 0.5 * f.sigma_field * ufl.inner(f.e_complex, f.e_complex),
+        )
         return _to_sub(Wp, q_par, self.sub, self.parent_ids)
 
     def steady(self, q):
-        return solve_steady_conduction(self.sub, self.ft, k=K_GEL, q=q, h=H_GEL, t_inf=T_INF,
-                                       robin_tag=ROBIN_TAG, degree=1)
+        return solve_steady_conduction(
+            self.sub, self.ft, k=K_GEL, q=q, h=H_GEL, t_inf=T_INF, robin_tag=ROBIN_TAG, degree=1
+        )
 
     def phi(self, T):
         """One Picard map: σ(T) → E → q → steady T.  Sets G on first use."""
@@ -214,8 +230,10 @@ class _Fixture:
         tmax = self.comm.allreduce(loc, op=MPI.MAX)
         tbar = _real(_allsum(self.comm, th * self.dx)) / self.v_sub
         ts = _real(_allsum(self.comm, th * self.ds)) / self.area
-        _say(f"MAT5s3 record {tag}: theta_bar = {tbar:.9f} K  theta_s = {ts:.9f} K  "
-             f"max theta = {tmax:.9f} K")
+        _say(
+            f"MAT5s3 record {tag}: theta_bar = {tbar:.9f} K  theta_s = {ts:.9f} K  "
+            f"max theta = {tmax:.9f} K"
+        )
         return tbar, ts, tmax
 
 
@@ -245,9 +263,11 @@ def alpha0():
     diff = fem.Function(fx.Ws)
     diff.x.array[:] = it1["q"].x.array - q_p1.x.array
     out["R0a_q"] = fx.norm(diff) / fx.norm(q_p1)
-    _say(f"MAT5s3 (R0a) P_hook = {it1['P']:.15e}  P_P1path = {P_p1:.15e}  "
-         f"|ratio-1| = {out['R0a_P']:.3e};  ||q_hook - q||/||q|| = {out['R0a_q']:.3e}  "
-         f"(bound {L0_BAND:.0e}, predicted 0.0)")
+    _say(
+        f"MAT5s3 (R0a) P_hook = {it1['P']:.15e}  P_P1path = {P_p1:.15e}  "
+        f"|ratio-1| = {out['R0a_P']:.3e};  ||q_hook - q||/||q|| = {out['R0a_q']:.3e}  "
+        f"(bound {L0_BAND:.0e}, predicted 0.0)"
+    )
 
     # (D0) non-tag-3 owned cells unchanged; tag-3 cells printed.
     c3, cn3 = _owned_cell_dofs(fx)
@@ -261,9 +281,11 @@ def alpha0():
     d0_3 = comm.allreduce(loc3, op=MPI.MAX)
     loc_hi = float(np.max(np.real(a_b[d_n3]))) if d_n3.size else 0.0
     hi = comm.allreduce(loc_hi, op=MPI.MAX)
-    _say(f"MAT5s3 (D0) max|sigma_hooked - sigma_built| over non-tag-3 owned cells = "
-         f"{out['D0']:.3e} (exact 0 required; max non-tag-3 sigma {hi:.1f} S/m);  "
-         f"tag 3 max|sigma_hooked - sigma0| = {d0_3:.3e} (printed)")
+    _say(
+        f"MAT5s3 (D0) max|sigma_hooked - sigma_built| over non-tag-3 owned cells = "
+        f"{out['D0']:.3e} (exact 0 required; max non-tag-3 sigma {hi:.1f} S/m);  "
+        f"tag 3 max|sigma_hooked - sigma0| = {d0_3:.3e} (printed)"
+    )
 
     # (R0b) records.
     out["R0b_P"] = abs(P_p1 / P1_RECORD_W - 1.0)
@@ -276,22 +298,30 @@ def alpha0():
     out["R0b_surf"] = abs(conv / P1_E_SURFACE_W - 1.0)
     mean_th = _real(_allsum(comm, (res_cn.temperature - T_INF) * fx.dx)) / fx.v_sub
     out["R0b_theta"] = abs(mean_th - P1_MEAN_THETA_K)
-    _say(f"MAT5s3 (R0b) P_1 = {P_p1:.12e} vs record {P1_RECORD_W:.12e}: rel {out['R0b_P']:.3e}  "
-         f"(bound {REPRO_BAND:.0e})")
-    _say(f"MAT5s3 (R0b) CN N=40 stored {stor:.12e} W vs {P1_E_STORED_W:.12e}: rel "
-         f"{out['R0b_stor']:.3e};  surface {conv:.12e} W vs {P1_E_SURFACE_W:.12e}: rel "
-         f"{out['R0b_surf']:.3e}  (bound {REPRO_BAND:.0e}); (E') {ep:.3e}; CN {t_cn:.1f} s")
-    _say(f"MAT5s3 (R0b) mean theta(t*) = {mean_th:.9f} K vs {P1_MEAN_THETA_K:.6f}: "
-         f"|diff| = {out['R0b_theta']:.3e} K (bound {MEAN_THETA_HALF_ULP_K:.0e} K);  "
-         f"V_sub rel {out['R0b_V']:.3e} (bound {V_BAND:.0e})")
+    _say(
+        f"MAT5s3 (R0b) P_1 = {P_p1:.12e} vs record {P1_RECORD_W:.12e}: rel {out['R0b_P']:.3e}  "
+        f"(bound {REPRO_BAND:.0e})"
+    )
+    _say(
+        f"MAT5s3 (R0b) CN N=40 stored {stor:.12e} W vs {P1_E_STORED_W:.12e}: rel "
+        f"{out['R0b_stor']:.3e};  surface {conv:.12e} W vs {P1_E_SURFACE_W:.12e}: rel "
+        f"{out['R0b_surf']:.3e}  (bound {REPRO_BAND:.0e}); (E') {ep:.3e}; CN {t_cn:.1f} s"
+    )
+    _say(
+        f"MAT5s3 (R0b) mean theta(t*) = {mean_th:.9f} K vs {P1_MEAN_THETA_K:.6f}: "
+        f"|diff| = {out['R0b_theta']:.3e} K (bound {MEAN_THETA_HALF_ULP_K:.0e} K);  "
+        f"V_sub rel {out['R0b_V']:.3e} (bound {V_BAND:.0e})"
+    )
 
     # (R0c) two α = 0 iterates.
     it2 = fx.phi(it1["T"])
     th1 = fx.theta(it1["T"])
     d = fx.p1(it2["T"].x.array - it1["T"].x.array)
     out["R0c"] = fx.norm(d) / fx.norm(th1)
-    _say(f"MAT5s3 (R0c) ||theta_2 - theta_1||/||theta_1|| = {out['R0c']:.3e}  "
-         f"(bound {R0C_BAND:.0e}, predicted 0.0)")
+    _say(
+        f"MAT5s3 (R0c) ||theta_2 - theta_1||/||theta_1|| = {out['R0c']:.3e}  "
+        f"(bound {R0C_BAND:.0e}, predicted 0.0)"
+    )
     # Separation diagnostics (§9 item 239), printed, never asserted.
     s1, s2 = it1["f"].sigma_field.x.array, it2["f"].sigma_field.x.array
     loc = float(np.max(np.abs(s2 - s1))) if s1.size else 0.0
@@ -302,14 +332,18 @@ def alpha0():
     de2 = comm.allreduce(float(np.sum(np.abs(e2 - e1) ** 2)), op=MPI.SUM)
     ee2 = comm.allreduce(float(np.sum(np.abs(e1) ** 2)), op=MPI.SUM)
     out["R0c_dE"] = float(np.sqrt(de2 / ee2))
-    _say(f"MAT5s3 (R0c diag) max|sigma_it2 - sigma_it1| over all local parent DG0 dofs = "
-         f"{out['R0c_dsigma']:.3e} (predicted 0.0 exactly);  ||E_it2 - E_it1||/||E_it1|| owned = "
-         f"{out['R0c_dE']:.3e} (predicted 1e-12 ... 1e-9; printed)")
+    _say(
+        f"MAT5s3 (R0c diag) max|sigma_it2 - sigma_it1| over all local parent DG0 dofs = "
+        f"{out['R0c_dsigma']:.3e} (predicted 0.0 exactly);  ||E_it2 - E_it1||/||E_it1|| owned = "
+        f"{out['R0c_dE']:.3e} (predicted 1e-12 ... 1e-9; printed)"
+    )
     fx.records(it1["T"], "alpha=0 steady state (1 W)")
     rss = _rss_summed_gib(comm)
-    _say(f"MAT5s3 W1 clocks: mesh+rung {fx.t_mesh:.1f} s;  EM s/solve "
-         + "  ".join(f"{s:.1f}" for s in fx.em_secs)
-         + f";  peak RSS summed over ranks {rss:.2f} GiB")
+    _say(
+        f"MAT5s3 W1 clocks: mesh+rung {fx.t_mesh:.1f} s;  EM s/solve "
+        + "  ".join(f"{s:.1f}" for s in fx.em_secs)
+        + f";  peak RSS summed over ranks {rss:.2f} GiB"
+    )
     out["t_mesh"] = fx.t_mesh
     out["em_max"] = max(fx.em_secs)
     return out
@@ -330,26 +364,34 @@ def coupled():
         T_hist.append(it["T"])
         ts = _real(_allsum(comm, fx.theta(it["T"]) * fx.ds)) / fx.area
         sbar = _real(_allsum(comm, it["sig"] * fx.dx)) / fx.v_sub
-        _say(f"MAT5s3 iterate {n}: sigma_bar_in = {sbar:.9f}  P_diss = {it['P']:.12e} W  "
-             f"theta_s = {ts:.9f} K  EM {fx.em_secs[-1]:.1f} s")
+        _say(
+            f"MAT5s3 iterate {n}: sigma_bar_in = {sbar:.9f}  P_diss = {it['P']:.12e} W  "
+            f"theta_s = {ts:.9f} K  EM {fx.em_secs[-1]:.1f} s"
+        )
     P1 = its[0]["P"]
     _say(f"MAT5s3 G = 1 W / P_1 = {fx.G:.12e} 1/W (fixed from iterate 1)")
 
     thetas = [fx.theta(T) for T in T_hist[1:]]  # θ₁ … θ₈
-    deltas = [thetas[0]] + [fx.p1(thetas[k].x.array - thetas[k - 1].x.array)
-                            for k in range(1, N_PICARD)]  # δ₁ … δ₈
-    rho = [fx.ip(deltas[k + 1], deltas[k]) / fx.ip(deltas[k], deltas[k])
-           for k in range(N_PICARD - 1)]  # ρ₁ … ρ₇
+    deltas = [thetas[0]] + [
+        fx.p1(thetas[k].x.array - thetas[k - 1].x.array) for k in range(1, N_PICARD)
+    ]  # δ₁ … δ₈
+    rho = [
+        fx.ip(deltas[k + 1], deltas[k]) / fx.ip(deltas[k], deltas[k]) for k in range(N_PICARD - 1)
+    ]  # ρ₁ … ρ₇
     ts_hist = [_real(_allsum(comm, th * fx.ds)) / fx.area for th in thetas]
     d_s = [ts_hist[0]] + [ts_hist[k] - ts_hist[k - 1] for k in range(1, N_PICARD)]
     s_ratios = [d_s[k + 1] / d_s[k] for k in range(N_PICARD - 1)]
     out["rho"] = rho
     _say("MAT5s3 rho_k (L2(sub)) k=1..7 = " + "  ".join(f"{r:+.6e}" for r in rho))
-    _say("MAT5s3 surface-mean increment ratios k=1..7 = " + "  ".join(f"{r:+.6e}" for r in s_ratios))
+    _say(
+        "MAT5s3 surface-mean increment ratios k=1..7 = " + "  ".join(f"{r:+.6e}" for r in s_ratios)
+    )
     _say("MAT5s3 ||delta_k|| k=1..8 = " + "  ".join(f"{fx.norm(d):.4e}" for d in deltas))
     out["F"] = fx.norm(deltas[-1]) / fx.norm(thetas[-1])
-    _say(f"MAT5s3 (F) ||delta_8||/||theta_8|| = {out['F']:.3e}  (bound {S_BAND:.0e}, "
-         f"predicted < 1e-6)")
+    _say(
+        f"MAT5s3 (F) ||delta_8||/||theta_8|| = {out['F']:.3e}  (bound {S_BAND:.0e}, "
+        f"predicted < 1e-6)"
+    )
 
     # ---- Energy identity at iterate 8.
     it8 = its[-1]
@@ -366,13 +408,19 @@ def coupled():
     m_par = _real(_allsum(comm, it8["f"].sigma_field * ufl.inner(xp, xp) * dx3))
     m_sub = _real(_allsum(comm, it8["sig"] * ufl.inner(xs, xs) * fx.dx))
     out["Dp"] = abs(m_par - m_sub) / abs(m_sub)
-    _say(f"MAT5s3 (E*) oint h theta_8 = {conv_int:.15e}  G*P_diss,8 = {dep:.15e}  rel "
-         f"{out['Estar']:.3e} (bound {C_BAND:.0e})")
+    _say(
+        f"MAT5s3 (E*) oint h theta_8 = {conv_int:.15e}  G*P_diss,8 = {dep:.15e}  rel "
+        f"{out['Estar']:.3e} (bound {C_BAND:.0e})"
+    )
     _say(f"MAT5s3 (B') int_sub q_8 = {int_q:.15e}  rel {out['Bp']:.3e} (bound {B_BAND:.0e})")
-    _say(f"MAT5s3 (C') conv = {r8.convected_power:.15e}  src = {r8.source_power:.15e}  rel "
-         f"{out['Cp']:.3e} (bound {C_BAND:.0e})")
-    _say(f"MAT5s3 (D') int sigma x.x: parent = {m_par:.15e}  sub = {m_sub:.15e}  rel "
-         f"{out['Dp']:.3e} (bound {D_BAND:.0e}; ghost propagation not gated)")
+    _say(
+        f"MAT5s3 (C') conv = {r8.convected_power:.15e}  src = {r8.source_power:.15e}  rel "
+        f"{out['Cp']:.3e} (bound {C_BAND:.0e})"
+    )
+    _say(
+        f"MAT5s3 (D') int sigma x.x: parent = {m_par:.15e}  sub = {m_sub:.15e}  rel "
+        f"{out['Dp']:.3e} (bound {D_BAND:.0e}; ghost propagation not gated)"
+    )
 
     # ---- μ_pred: FD power iteration of the re-solved-E Jacobian at θ_b = θ₇.
     T7, T8 = T_hist[N_PICARD - 1], T_hist[N_PICARD]
@@ -385,16 +433,19 @@ def coupled():
         itp = fx.phi(Tp)
         Jv = fx.p1((itp["T"].x.array - T8.x.array) / eps)
         mu.append(fx.ip(Jv, v) / fx.ip(v, v))
-        _say(f"MAT5s3 power iteration j={j + 1}: mu = {mu[-1]:+.9e}  ||Jv|| = {fx.norm(Jv):.6e}  "
-             f"EM {fx.em_secs[-1]:.1f} s")
+        _say(
+            f"MAT5s3 power iteration j={j + 1}: mu = {mu[-1]:+.9e}  ||Jv|| = {fx.norm(Jv):.6e}  "
+            f"EM {fx.em_secs[-1]:.1f} s"
+        )
         v = fx.p1(Jv.x.array / fx.norm(Jv))
     out["mu"] = mu
     mu_pred = mu[-1]
 
     # ---- μ_E (N2): frozen-|E| thermal-only power iteration, E₈.
     f8 = it8["f"]
-    Wp, e2_par = _cell_average_dg0_tag(fx.msh, fx.cell_tags, PHANTOM_CELL_TAG,
-                                       fx.G * 0.5 * ufl.inner(f8.e_complex, f8.e_complex))
+    Wp, e2_par = _cell_average_dg0_tag(
+        fx.msh, fx.cell_tags, PHANTOM_CELL_TAG, fx.G * 0.5 * ufl.inner(f8.e_complex, f8.e_complex)
+    )
     e2_sub = _to_sub(Wp, e2_par, fx.sub, fx.parent_ids)
     v = fx.p1(np.ones_like(np.real(T7.x.array)))
     v = fx.p1(v.x.array / fx.norm(v))
@@ -415,15 +466,23 @@ def coupled():
     _say("MAT5s3 mu_E,j j=1..5 = " + "  ".join(f"{m:+.9e}" for m in mu_E))
     out["K"] = abs(rho[3] / mu_pred - 1.0)
     out["Kconv"] = abs(mu[-1] / mu[-2] - 1.0)
-    _say(f"MAT5s3 (K) rho_4 = {rho[3]:+.9e}  mu_pred = {mu_pred:+.9e}  |rho_4/mu_pred - 1| = "
-         f"{out['K']:.4e}  (bound {K_BAND}; predicted mu_pred in [+0.03, +0.14])")
-    _say(f"MAT5s3 (K-conv) |mu_5/mu_4 - 1| = {out['Kconv']:.3e}  (bound {KCONV_BAND:.0e}, "
-         f"predicted <= 1e-3)")
+    _say(
+        f"MAT5s3 (K) rho_4 = {rho[3]:+.9e}  mu_pred = {mu_pred:+.9e}  |rho_4/mu_pred - 1| = "
+        f"{out['K']:.4e}  (bound {K_BAND}; predicted mu_pred in [+0.03, +0.14])"
+    )
+    _say(
+        f"MAT5s3 (K-conv) |mu_5/mu_4 - 1| = {out['Kconv']:.3e}  (bound {KCONV_BAND:.0e}, "
+        f"predicted <= 1e-3)"
+    )
     _say(f"MAT5s3 (M0) |mu_pred| = {abs(mu_pred):.4e}  (floor {M0_FLOOR:.0e})")
-    _say(f"MAT5s3 (N1) frozen-sigma0 miss of (K) = |0 - mu_pred|/|mu_pred| = 1.000 (by (R0c), "
-         f"its residual <= {R0C_BAND:.0e}, << M0 floor {M0_FLOOR:.0e})")
-    _say(f"MAT5s3 (N2) mu_E = {mu_E[-1]:+.9e}  |mu_E/mu_pred - 1| = "
-         f"{abs(mu_E[-1] / mu_pred - 1.0):.4e}  (predicted 0-50 %, printed)")
+    _say(
+        f"MAT5s3 (N1) frozen-sigma0 miss of (K) = |0 - mu_pred|/|mu_pred| = 1.000 (by (R0c), "
+        f"its residual <= {R0C_BAND:.0e}, << M0 floor {M0_FLOOR:.0e})"
+    )
+    _say(
+        f"MAT5s3 (N2) mu_E = {mu_E[-1]:+.9e}  |mu_E/mu_pred - 1| = "
+        f"{abs(mu_E[-1] / mu_pred - 1.0):.4e}  (predicted 0-50 %, printed)"
+    )
 
     # ---- Records.
     tb1, _, _ = fx.records(T_hist[1], "iterate 1 (sigma0)")
@@ -431,14 +490,20 @@ def coupled():
     sig8 = fx.sigma_sub(T8)
     sbar8 = _real(_allsum(comm, sig8 * fx.dx)) / fx.v_sub
     sbar8_in = _real(_allsum(comm, it8["sig"] * fx.dx)) / fx.v_sub
-    _say(f"MAT5s3 record theta_bar_8/theta_bar_1 - 1 = {tb8 / tb1 - 1.0:+.6e} "
-         f"(predicted mu/(1-mu) ≈ 3-16 %, mu_pred/(1-mu_pred) = {mu_pred / (1 - mu_pred):+.4e})")
-    _say(f"MAT5s3 record sigma_bar(theta_8) = {sbar8:.9f} S/m  (iterate-8 input "
-         f"{sbar8_in:.9f});  P_diss,8/P_1 = {it8['P'] / P1:.9f}")
+    _say(
+        f"MAT5s3 record theta_bar_8/theta_bar_1 - 1 = {tb8 / tb1 - 1.0:+.6e} "
+        f"(predicted mu/(1-mu) ≈ 3-16 %, mu_pred/(1-mu_pred) = {mu_pred / (1 - mu_pred):+.4e})"
+    )
+    _say(
+        f"MAT5s3 record sigma_bar(theta_8) = {sbar8:.9f} S/m  (iterate-8 input "
+        f"{sbar8_in:.9f});  P_diss,8/P_1 = {it8['P'] / P1:.9f}"
+    )
     rss = _rss_summed_gib(comm)
-    _say(f"MAT5s3 W2 clocks: mesh+rung {fx.t_mesh:.1f} s;  EM s/solve mean "
-         f"{np.mean(fx.em_secs):.1f} (max {max(fx.em_secs):.1f}, n = {len(fx.em_secs)});  "
-         f"loop {time.perf_counter() - t0:.1f} s;  peak RSS summed over ranks {rss:.2f} GiB")
+    _say(
+        f"MAT5s3 W2 clocks: mesh+rung {fx.t_mesh:.1f} s;  EM s/solve mean "
+        f"{np.mean(fx.em_secs):.1f} (max {max(fx.em_secs):.1f}, n = {len(fx.em_secs)});  "
+        f"loop {time.perf_counter() - t0:.1f} s;  peak RSS summed over ranks {rss:.2f} GiB"
+    )
     return out
 
 

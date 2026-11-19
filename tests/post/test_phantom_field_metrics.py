@@ -3,20 +3,19 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
 import tempfile
+from pathlib import Path
 
 import numpy as np
 import ufl
-from mpi4py import MPI
 from dolfinx import fem
+from mpi4py import MPI
 
 from fem_em_solver.core import HomogeneousMaterial, TimeHarmonicProblem, TimeHarmonicSolver
 from fem_em_solver.io.mesh import MeshGenerator
 from fem_em_solver.materials import GelledSalinePhantomMaterial
 from fem_em_solver.post import compute_phantom_eb_metrics_and_export
 from fem_em_solver.post.phantom_fields import _evaluate_on_cells
-
 from tests.complex_mode import complex_only
 
 # GEO-23 step 2c (2026-08-28): the global cell count step 2b only printed,
@@ -97,13 +96,19 @@ def test_phantom_field_metrics_and_exports_are_finite():
         def current_density(x):
             return ufl.as_vector([0.0, 0.0, 1.0])
 
-        fields = solver.solve(current_density=current_density, subdomain_ids=[1, 2], gauge_penalty=1e-3)
+        fields = solver.solve(
+            current_density=current_density, subdomain_ids=[1, 2], gauge_penalty=1e-3
+        )
     finally:
         time_harmonic_module.MagnetostaticSolver = original_solver_cls
 
     dg = fem.functionspace(mesh, ("DG", 1, (3,)))
     b_field = fem.Function(dg, name="B_dummy")
-    b_field.interpolate(lambda x: np.vstack((np.ones_like(x[0]), -0.5 * np.ones_like(x[1]), 0.25 * np.ones_like(x[2]))))
+    b_field.interpolate(
+        lambda x: np.vstack(
+            (np.ones_like(x[0]), -0.5 * np.ones_like(x[1]), 0.25 * np.ones_like(x[2]))
+        )
+    )
 
     root_output_dir = tempfile.mkdtemp(prefix="d3_phantom_metrics_") if comm.rank == 0 else None
     output_dir = Path(comm.bcast(root_output_dir, root=0))

@@ -31,24 +31,23 @@ from fem_em_solver.io.mesh import (
     MeshGenerator,
 )
 from tests.mesh.test_birdcage_conductor_hole import EXACT, _owned_census
-from tests.mesh.test_birdcage_implant_rod import (
+from tests.mesh.test_birdcage_implant_rod import (  # noqa: F401  (used through _interior_facet_check)
     ROD,
     ROD_CENTRE,
     ROD_LENGTH,
     ROD_RADIUS,
-    _cell_values_with_ghosts,  # noqa: F401  (used through _interior_facet_check)
+    _cell_values_with_ghosts,
     _interior_facet_check,
     _rod_area,
     _rod_volume,
 )
 from tests.mesh.test_birdcage_leg_gaps import TERMINAL_AREA_BAND
-from tests.mesh.test_birdcage_port_sheet_prerequisite import CELL_COUNT_BAND
 from tests.validation.test_birdcage_f_human_rung import _ring_ports
 from tests.validation.test_ops61_exact_strip_ports import STRIP_BAND
 from tests.validation.test_th14_birdcage_copper import _outer_box_tags
+from tests.validation.test_wf7_f_human_b1_quadrature import _f_human_kwargs
 from tests.validation.test_wf12_f_human_copper_matrix import HOLE_CELL_RECORD
 from tests.validation.test_wf12_f_human_hole import _census_checks
-from tests.validation.test_wf7_f_human_b1_quadrature import _f_human_kwargs
 
 ROD_FH = dict(ROD, keep_cells=True)
 
@@ -104,23 +103,27 @@ def kept():
     # (F9) before any further reading.
     assert n_cells < F_HUMAN_KEPT_ROD_CELL_GUARD
     out["census"] = _owned_census(msh, cells, tdim, comm)
-    (out["n402"], out["n402_ext"], out["n402_int"], out["n402_pair"],
-     out["area402"], moments) = _interior_facet_check(
-        msh, cells, facets, BIRDCAGE_IMPLANT_SURFACE_TAG, comm
+    out["n402"], out["n402_ext"], out["n402_int"], out["n402_pair"], out["area402"], moments = (
+        _interior_facet_check(msh, cells, facets, BIRDCAGE_IMPLANT_SURFACE_TAG, comm)
     )
     one = dolfinx.fem.Constant(msh, dolfinx.default_scalar_type(1.0))
     dx = ufl.Measure("dx", domain=msh, subdomain_data=cells)
-    out["implant_volume"] = float(np.real(comm.allreduce(
-        dolfinx.fem.assemble_scalar(dolfinx.fem.form(one * dx(BIRDCAGE_IMPLANT_CELL_TAG))),
-        op=MPI.SUM,
-    )))
+    out["implant_volume"] = float(
+        np.real(
+            comm.allreduce(
+                dolfinx.fem.assemble_scalar(dolfinx.fem.form(one * dx(BIRDCAGE_IMPLANT_CELL_TAG))),
+                op=MPI.SUM,
+            )
+        )
+    )
     _, out["outer"] = _outer_box_tags(msh, facets, comm)
     msh.topology.create_entities(1)
     n_edges = comm.allreduce(msh.topology.index_map(1).size_local, op=MPI.SUM)
     n_faces = comm.allreduce(msh.topology.index_map(2).size_local, op=MPI.SUM)
     out["E"], out["F"] = n_edges, n_faces
     record = (
-        "unregistered" if F_HUMAN_KEPT_ROD_CELL_RECORD is None
+        "unregistered"
+        if F_HUMAN_KEPT_ROD_CELL_RECORD is None
         else f"{n_cells / F_HUMAN_KEPT_ROD_CELL_RECORD:.6f} of {F_HUMAN_KEPT_ROD_CELL_RECORD}"
     )
     n403 = out["census"].get(BIRDCAGE_IMPLANT_CELL_TAG, 0)
@@ -257,9 +260,7 @@ def _rh():
 def test_f8_refusals(rod, kwargs):
     r, h = _rh()
     with pytest.raises(ValueError, match="implant_rod"):
-        MeshGenerator._normalise_implant_rod(
-            rod, phantom_radius=r, phantom_height=h, **kwargs
-        )
+        MeshGenerator._normalise_implant_rod(rod, phantom_radius=r, phantom_height=h, **kwargs)
     assert not gmsh.isInitialized()
 
 

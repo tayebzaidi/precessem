@@ -114,8 +114,10 @@ def test_wf13_cli_estimate_f_human_refusal(monkeypatch, capsys, tmp_path):
     names = {f.name for f in dataclasses.fields(est)}
     diff = _diff(_parse(out, names), est) if comm.rank == 0 else set()
     diff = comm.bcast(diff, root=0)
-    _say(f"\n[WF-13 s10] stand-in API: cells {est.cells} unknowns {est.unknowns} "
-         f"(ref {n_ref}) rows {est.rows_used} not_priced {est.not_priced}")
+    _say(
+        f"\n[WF-13 s10] stand-in API: cells {est.cells} unknowns {est.unknowns} "
+        f"(ref {n_ref}) rows {est.rows_used} not_priced {est.not_priced}"
+    )
     _say(f"[WF-13 s10] femem run --estimate F-human (stand-in): rc per rank {rcs}; diff {diff}")
     assert rcs == [0] * comm.size
     assert diff == set()

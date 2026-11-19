@@ -137,9 +137,9 @@ def test_loop_magnetic_field_matches_on_axis_closed_form_and_curl_of_A():
             )
             return A[0, 1]  # phi-hat = +y at (rho, 0, z)
 
-        b_z_fd = (
-            (rho0 + h) * a_phi(rho0 + h, z0) - (rho0 - h) * a_phi(rho0 - h, z0)
-        ) / (2 * h * rho0)
+        b_z_fd = ((rho0 + h) * a_phi(rho0 + h, z0) - (rho0 - h) * a_phi(rho0 - h, z0)) / (
+            2 * h * rho0
+        )
         b_rho_fd = -(a_phi(rho0, z0 + h) - a_phi(rho0, z0 - h)) / (2 * h)
 
         B = AnalyticalSolutions.circular_loop_magnetic_field(

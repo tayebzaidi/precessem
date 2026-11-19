@@ -23,9 +23,9 @@ from __future__ import annotations
 import time
 
 import numpy as np
-import pytest
 import ufl
-from dolfinx import default_scalar_type, fem, mesh as dmesh
+from dolfinx import fem
+from dolfinx import mesh as dmesh
 from mpi4py import MPI
 from scipy.integrate import quad
 
@@ -73,7 +73,15 @@ def _allsum(comm, form):
 
 def _series(r, t, n_terms=400):
     return robin_sphere_transient_temperature(
-        r, t, radius=R, k=K, rho_c=RHO_C, q=Q, h=H, t_inf=T_INF, t_init=T_INF,
+        r,
+        t,
+        radius=R,
+        k=K,
+        rho_c=RHO_C,
+        q=Q,
+        h=H,
+        t_inf=T_INF,
+        t_init=T_INF,
         n_terms=n_terms,
     )
 
@@ -99,7 +107,7 @@ def _exact_theta(msh, t):
         r = np.sqrt(np.sum(x**2, axis=0))
         out = np.empty(r.shape)
         for s in range(0, r.size, 20000):
-            out[s:s + 20000] = _series(r[s:s + 20000], t) - T_INF
+            out[s : s + 20000] = _series(r[s : s + 20000], t) - T_INF
         return out
 
     f.interpolate(ev)
@@ -126,9 +134,21 @@ def _rel_diff(msh, a, b):
 
 def _transient(msh, ft, n, theta, startup, snapshot_steps=()):
     return solve_transient_conduction(
-        msh, ft, k=K, rho_c=RHO_C, q=Q, h=H, t_inf=T_INF, t_init=T_INF,
-        robin_tag=ROBIN_TAG, dt=T_END / n, n_steps=n, theta=theta,
-        startup_half_steps=startup, degree=1, snapshot_steps=snapshot_steps,
+        msh,
+        ft,
+        k=K,
+        rho_c=RHO_C,
+        q=Q,
+        h=H,
+        t_inf=T_INF,
+        t_init=T_INF,
+        robin_tag=ROBIN_TAG,
+        dt=T_END / n,
+        n_steps=n,
+        theta=theta,
+        startup_half_steps=startup,
+        degree=1,
+        snapshot_steps=snapshot_steps,
     )
 
 
@@ -155,15 +175,21 @@ def _ladder(theta, startup, label):
         s = _transient(msh, ft, n, theta, startup)
         worst = max(worst, s.max_balance_residual)
         e_ser = _interior_error(msh, s.temperature, theta_ex)
-        _say(comm, f"MAT9T {label} N={n} dt={T_END / n:.2f}s series_interior_rel_L2="
-             f"{e_ser:.4e} max_balance={s.max_balance_residual:.3e} "
-             f"factorizations={s.n_factorizations}")
+        _say(
+            comm,
+            f"MAT9T {label} N={n} dt={T_END / n:.2f}s series_interior_rel_L2="
+            f"{e_ser:.4e} max_balance={s.max_balance_residual:.3e} "
+            f"factorizations={s.n_factorizations}",
+        )
         sols.append(s.temperature)
     d = [_rel_diff(msh, sols[i], sols[i + 1]) for i in range(len(sols) - 1)]
     lsq, pair = _rates(d)
-    _say(comm, f"MAT9T {label} d_N (N=10,20,40,80; whole ball, ratio 2) = "
-         f"{[f'{x:.4e}' for x in d]}  LSQ rate={lsq:.3f} pairwise="
-         f"{[f'{p:.3f}' for p in pair]} ({time.perf_counter() - t0:.1f}s)")
+    _say(
+        comm,
+        f"MAT9T {label} d_N (N=10,20,40,80; whole ball, ratio 2) = "
+        f"{[f'{x:.4e}' for x in d]}  LSQ rate={lsq:.3f} pairwise="
+        f"{[f'{p:.3f}' for p in pair]} ({time.perf_counter() - t0:.1f}s)",
+    )
     _CACHE[key] = (d, lsq, pair, worst)
     return _CACHE[key]
 
@@ -185,10 +211,13 @@ def test_numpy_eigenvalues():
     floor50 = float(np.max(lam50 * np.spacing(lam50)))
     lam = lam50[:20]
     resid = float(np.max(res50[:20]))
-    _say(MPI.COMM_WORLD, f"MAT9T numpy: Bi=1 max|λn-(n-½)π| (n≤50)={err:.3e}; "
-         f"Bi=5/3 max root residual n≤20={resid:.3e}, n≤50={np.max(res50):.3e} "
-         f"(printed; float floor λ·ulp(λ) at n≤50 = {floor50:.3e}); "
-         f"λ1={lam[0]:.6f} (predicted ≈ 1.907)")
+    _say(
+        MPI.COMM_WORLD,
+        f"MAT9T numpy: Bi=1 max|λn-(n-½)π| (n≤50)={err:.3e}; "
+        f"Bi=5/3 max root residual n≤20={resid:.3e}, n≤50={np.max(res50):.3e} "
+        f"(printed; float floor λ·ulp(λ) at n≤50 = {floor50:.3e}); "
+        f"λ1={lam[0]:.6f} (predicted ≈ 1.907)",
+    )
     assert err <= 1e-12
     assert resid <= 1e-12
 
@@ -211,11 +240,14 @@ def test_numpy_eigenvalues():
     # sit ≈ (Bi − 1)/λ off the Bi = 5/3 roots; predicted e_n ≈ (2/3)/λ²
     # (≈ 2.7e-5 at n = 50, ≈ 4e-9 at n = 4000) and max e_n ≥ 1e-2 (n = 1).
     e_ctl = rel_root_err((nn - 0.5) * np.pi)
-    _say(MPI.COMM_WORLD, f"MAT9T numpy: Bi=5/3 max e_n (n≤4000)={np.max(e):.3e} at "
-         f"n={int(np.argmax(e)) + 1} (bar 1e-14, predicted ≲ 1e-15); bracketed={bracketed}; "
-         f"control max e_n={np.max(e_ctl):.3e} at n={int(np.argmax(e_ctl)) + 1} "
-         f"(predicted ≥ 1e-2), e_50={e_ctl[49]:.3e} (pred. ≈ 2.7e-5), "
-         f"e_4000={e_ctl[-1]:.3e} (pred. ≈ 4e-9)")
+    _say(
+        MPI.COMM_WORLD,
+        f"MAT9T numpy: Bi=5/3 max e_n (n≤4000)={np.max(e):.3e} at "
+        f"n={int(np.argmax(e)) + 1} (bar 1e-14, predicted ≲ 1e-15); bracketed={bracketed}; "
+        f"control max e_n={np.max(e_ctl):.3e} at n={int(np.argmax(e_ctl)) + 1} "
+        f"(predicted ≥ 1e-2), e_50={e_ctl[49]:.3e} (pred. ≈ 2.7e-5), "
+        f"e_4000={e_ctl[-1]:.3e} (pred. ≈ 4e-9)",
+    )
     assert np.max(e) <= 1e-14
     assert bracketed
     assert np.max(e_ctl) > 1e-8
@@ -230,8 +262,10 @@ def test_numpy_coefficients_vs_quad():
         nrm = quad(lambda p: p**2 * X(p) ** 2, 0, 1, epsabs=1e-14, epsrel=1e-13, limit=200)[0]
         c = quad(lambda p: p**2 * X(p), 0, 1, epsabs=1e-14, epsrel=1e-13, limit=200)[0] / nrm
         th = lambda p: robin_sphere_steady_temperature(p * R, radius=R, k=K, q=Q, h=H)
-        b = quad(lambda p: p**2 * th(p) * X(p), 0, 1, epsabs=1e-14, epsrel=1e-13,
-                 limit=200)[0] / nrm
+        b = (
+            quad(lambda p: p**2 * th(p) * X(p), 0, 1, epsabs=1e-14, epsrel=1e-13, limit=200)[0]
+            / nrm
+        )
         worst = max(worst, abs(c - C[i]), abs(b - B[i]))
     _say(MPI.COMM_WORLD, f"MAT9T numpy: max |Bn,Cn - quad| (n ≤ 20) = {worst:.3e}")
     assert worst <= 1e-10
@@ -243,14 +277,22 @@ def test_numpy_series_limits():
     t0 = np.max(np.abs(_series(r, 0.0, n_terms=4000) - T_INF))
     alpha = K / RHO_C
     fos = np.array([0.05, 0.1, 0.2, 1.0])
-    d48 = max(np.max(np.abs(_series(r, fo * R**2 / alpha, 400)
-                            - _series(r, fo * R**2 / alpha, 800))) for fo in fos)
-    ss = np.max(np.abs(_series(r, 50 * R**2 / alpha)
-                       - robin_sphere_steady_temperature(r, radius=R, k=K, q=Q, h=H,
-                                                         t_inf=T_INF)))
-    _say(comm, f"MAT9T numpy: max|θ(r,0)| (4000 terms)={t0:.3e} "
-         f"(bar {1e-6 * THETA_SS0:.3e}); 400 vs 800 at Fo≥0.05={d48:.3e}; "
-         f"Fo 50 vs steady={ss:.3e}")
+    d48 = max(
+        np.max(np.abs(_series(r, fo * R**2 / alpha, 400) - _series(r, fo * R**2 / alpha, 800)))
+        for fo in fos
+    )
+    ss = np.max(
+        np.abs(
+            _series(r, 50 * R**2 / alpha)
+            - robin_sphere_steady_temperature(r, radius=R, k=K, q=Q, h=H, t_inf=T_INF)
+        )
+    )
+    _say(
+        comm,
+        f"MAT9T numpy: max|θ(r,0)| (4000 terms)={t0:.3e} "
+        f"(bar {1e-6 * THETA_SS0:.3e}); 400 vs 800 at Fo≥0.05={d48:.3e}; "
+        f"Fo 50 vs steady={ss:.3e}",
+    )
     assert t0 <= 1e-6 * THETA_SS0
     assert d48 <= 1e-12
     assert ss <= 1e-12
@@ -268,18 +310,23 @@ def test_fem_i_cn_accuracy_and_control_a_b():
     t_solve = time.perf_counter() - t0
     theta_ex = _exact_theta(msh, T_END)
     e_i = _interior_error(msh, s.temperature, theta_ex)
-    _say(comm, f"MAT9T (i) CN+Rannacher N=40 res=0.005 cells={n_glob}: interior_rel_L2="
-         f"{e_i:.4e} (predicted ≈ 1e-3) max_balance={s.max_balance_residual:.3e} "
-         f"factorizations={s.n_factorizations} solve {t_solve:.1f}s")
+    _say(
+        comm,
+        f"MAT9T (i) CN+Rannacher N=40 res=0.005 cells={n_glob}: interior_rel_L2="
+        f"{e_i:.4e} (predicted ≈ 1e-3) max_balance={s.max_balance_residual:.3e} "
+        f"factorizations={s.n_factorizations} solve {t_solve:.1f}s",
+    )
     assert s.max_balance_residual <= 1e-9, "(iii) on the (i) run"
     assert e_i <= 1e-2, f"(i) {e_i:.4e} > 1 %"
 
     # (a) quasi-static: the steady field stands in for T(t_end).
-    st = solve_steady_conduction(msh, ft, k=K, q=Q, h=H, t_inf=T_INF,
-                                 robin_tag=ROBIN_TAG, degree=1)
+    st = solve_steady_conduction(msh, ft, k=K, q=Q, h=H, t_inf=T_INF, robin_tag=ROBIN_TAG, degree=1)
     e_a = _interior_error(msh, st.temperature, theta_ex)
-    _say(comm, f"MAT9T control (a) quasi-static: interior_rel_L2={e_a:.4e} "
-         "(asserted > 1e-2; predicted ≈ 0.90)")
+    _say(
+        comm,
+        f"MAT9T control (a) quasi-static: interior_rel_L2={e_a:.4e} "
+        "(asserted > 1e-2; predicted ≈ 0.90)",
+    )
     assert e_a > 1e-2
 
     # (b) storage term dropped from (iii) at the end state (CN step 39→40).
@@ -287,8 +334,11 @@ def test_fem_i_cn_accuracy_and_control_a_b():
     ds = ufl.Measure("ds", domain=msh, subdomain_data=ft)
     conv = _allsum(comm, H * (0.5 * T40 + 0.5 * T39 - T_INF) * ds(ROBIN_TAG))
     bal_b = abs(float(conv) - s.source_power) / s.source_power
-    _say(comm, f"MAT9T control (b) storage dropped: balance={bal_b:.4e} "
-         "(asserted > 1e-3; predicted ≈ 0.47)")
+    _say(
+        comm,
+        f"MAT9T control (b) storage dropped: balance={bal_b:.4e} "
+        "(asserted > 1e-3; predicted ≈ 0.47)",
+    )
     assert bal_b > 1e-3
 
 
@@ -301,8 +351,10 @@ def test_fem_ii_rates_iii_balance_and_control_c():
     assert w_be <= 1e-9 and w_cn <= 1e-9, "(iii)"
     assert 0.9 <= lsq_be <= 1.2, f"(ii) BE LSQ rate {lsq_be:.3f}"
     assert lsq_cn >= 1.8, f"(ii) CN LSQ rate {lsq_cn:.3f}"
-    _say(comm, f"MAT9T control (c) BE rate vs CN bar: {lsq_be:.3f} "
-         "(asserted < 1.8; predicted 1.0)")
+    _say(
+        comm,
+        f"MAT9T control (c) BE rate vs CN bar: {lsq_be:.3f} " "(asserted < 1.8; predicted 1.0)",
+    )
     assert lsq_be < 1.8
 
 
@@ -310,13 +362,25 @@ def test_fem_iv_long_be_equals_steady():
     comm = MPI.COMM_WORLD
     msh, _, ft = _ball(0.01)
     s = solve_transient_conduction(
-        msh, ft, k=K, rho_c=RHO_C, q=Q, h=H, t_inf=T_INF, t_init=T_INF,
-        robin_tag=ROBIN_TAG, dt=5.0 * T_R, n_steps=20, theta=1.0,
+        msh,
+        ft,
+        k=K,
+        rho_c=RHO_C,
+        q=Q,
+        h=H,
+        t_inf=T_INF,
+        t_init=T_INF,
+        robin_tag=ROBIN_TAG,
+        dt=5.0 * T_R,
+        n_steps=20,
+        theta=1.0,
     )
-    st = solve_steady_conduction(msh, ft, k=K, q=Q, h=H, t_inf=T_INF,
-                                 robin_tag=ROBIN_TAG, degree=1)
+    st = solve_steady_conduction(msh, ft, k=K, q=Q, h=H, t_inf=T_INF, robin_tag=ROBIN_TAG, degree=1)
     diff = _rel_diff(msh, s.temperature, st.temperature)
-    _say(comm, f"MAT9T (iv) BE 20 x 5 t_R vs steady: rel diff={diff:.3e} "
-         f"(predicted ≈ 1e-13) max_balance={s.max_balance_residual:.3e}")
+    _say(
+        comm,
+        f"MAT9T (iv) BE 20 x 5 t_R vs steady: rel diff={diff:.3e} "
+        f"(predicted ≈ 1e-13) max_balance={s.max_balance_residual:.3e}",
+    )
     assert s.max_balance_residual <= 1e-9
     assert diff <= 1e-8

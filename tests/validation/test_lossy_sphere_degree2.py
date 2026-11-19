@@ -59,12 +59,10 @@ import time
 import numpy as np
 import pytest
 import ufl
+from dolfinx import fem
 from mpi4py import MPI
 
-from dolfinx import fem
-
 from fem_em_solver.post.evaluation import evaluate_vector_field_parallel
-
 from tests.complex_mode import complex_only
 from tests.validation.test_lossy_sphere_fullwave import (
     FREQUENCY_64_HZ,
@@ -184,8 +182,7 @@ def _run_at_degree(degree: int) -> dict:
     valid = valid_real & valid_imag
     if not np.all(valid):
         raise RuntimeError(
-            f"{int((~valid).sum())} interior probe points were not evaluated "
-            f"at degree {degree}"
+            f"{int((~valid).sum())} interior probe points were not evaluated " f"at degree {degree}"
         )
     e_fem = np.real(real_values) + 1j * np.real(imag_values)
     field_error = _rel_l2(e_fem, series.internal_field(points))
@@ -204,9 +201,7 @@ def _run_at_degree(degree: int) -> dict:
     # so the power error compares against its record and not a new definition.
     series_space = fem.functionspace(msh, ("Lagrange", 2, (3,)))
     e_series_fn = fem.Function(series_space, name="E_series")
-    sphere_cells = np.asarray(
-        cell_tags.indices[cell_tags.values == SPHERE_TAG], dtype=np.int32
-    )
+    sphere_cells = np.asarray(cell_tags.indices[cell_tags.values == SPHERE_TAG], dtype=np.int32)
     # `OPS-18` step 3: `interpolate`'s `cells` kwarg is `cells0` in 0.11.
     e_series_fn.interpolate(_series_interior_interpolant(series), cells0=sphere_cells)
     p_series = float(

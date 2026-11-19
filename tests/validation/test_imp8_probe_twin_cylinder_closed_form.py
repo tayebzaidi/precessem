@@ -38,12 +38,29 @@ from scipy.integrate import quad
 from tests.mesh.test_birdcage_implant_rod import ROD_RADIUS
 from tests.validation.test_imp4_pec_cylinder_closed_form import B1_BAND
 from tests.validation.test_imp8_entry48_lumped import BQ_BAND, _gl01, _tips_steady
-from tests.validation.test_imp8_probe_cylinder_source_closed_form import _GL_B, _g, _phi_cyl, _phi_cyl_dot
+from tests.validation.test_imp8_probe_cylinder_source_closed_form import (
+    _GL_B,
+    _g,
+    _phi_cyl,
+    _phi_cyl_dot,
+)
 from tests.validation.test_imp8_probe_f2182_closed_form import DUTY, N_GL, _axis_steady, _p
 from tests.validation.test_imp8_probe_ladder_closed_form import LADDER_MM, RUNGS, _lab
-from tests.validation.test_imp8_rod_line_source_closed_form import KAPPA, MM, QUAD, T_PRINT, L, _phi, _phi_tips
+from tests.validation.test_imp8_rod_line_source_closed_form import (
+    KAPPA,
+    MM,
+    QUAD,
+    T_PRINT,
+    L,
+    _phi,
+    _phi_tips,
+)
 from tests.validation.test_imp8_rod_line_source_duty_closed_form import PERIOD, SCALE, T_STAR
-from tests.validation.test_imp8_rod_tips_duty_closed_form import _convolution, _duhamel, _phi_tips_dot
+from tests.validation.test_imp8_rod_tips_duty_closed_form import (
+    _convolution,
+    _duhamel,
+    _phi_tips_dot,
+)
 from tests.validation.test_mat13_transient_perfusion_sphere import INTERIOR_BAND
 
 A_LIM = ROD_RADIUS * 1e-7  # 1e-10 m, (Lim-a)
@@ -74,8 +91,12 @@ def _seg_mean(zeta, t, a, n=None, half=None):
     c = a if half is None else half
     assert zeta >= c * (1.0 - 1e-12), (zeta, c)  # the probe is on or beyond the face
     if n is None:
-        return 0.5 * quad(lambda u: float(_bracket_cf(np.array([zeta - c * u]), t, a)[0]),
-                          -1.0, 1.0, **QUAD)[0]
+        return (
+            0.5
+            * quad(
+                lambda u: float(_bracket_cf(np.array([zeta - c * u]), t, a)[0]), -1.0, 1.0, **QUAD
+            )[0]
+        )
     x, w = _gl01(n)
     return float(np.dot(w, _bracket_cf(zeta - c * (2.0 * x - 1.0), t, a)))
 
@@ -97,13 +118,20 @@ def _twin_a_dot(r, z, u, a=ROD_RADIUS):
     """∂Φ₂,a/∂t at age u, closed form, h = 2a (use at a = ROD_RADIUS only)."""
     assert r == 0.0
     h = 2.0 * a
-    return sum((0.5 * L / h) * _phi_cyl_dot(0.0, abs(z - zc), u, a=a, length=h) for zc in _centres(None))
+    return sum(
+        (0.5 * L / h) * _phi_cyl_dot(0.0, abs(z - zc), u, a=a, length=h) for zc in _centres(None)
+    )
 
 
 def _twin_a_steady(z, a=ROD_RADIUS, length=None):
     c = a if length is None else 0.5 * length
-    return 0.5 * L * sum((_g(abs(z - zc) + c, a) - _g(abs(z - zc) - c, a)) / (2.0 * c)
-                         for zc in _centres(length))
+    return (
+        0.5
+        * L
+        * sum(
+            (_g(abs(z - zc) + c, a) - _g(abs(z - zc) - c, a)) / (2.0 * c) for zc in _centres(length)
+        )
+    )
 
 
 def _signed():
@@ -113,14 +141,18 @@ def _signed():
 
 
 def test_lim_every_rung():
-    _p(f"\n[imp8-i86] a {ROD_RADIUS / MM:g} mm, h 2a, L {L / MM:g} mm, t {T_PRINT:g} s, PERIOD {PERIOD:g} s, "
-       f"D {DUTY:g}, SCALE {SCALE:.7g} K/W per unit Φ, κ {KAPPA:.7g} m^2/s")
+    _p(
+        f"\n[imp8-i86] a {ROD_RADIUS / MM:g} mm, h 2a, L {L / MM:g} mm, t {T_PRINT:g} s, PERIOD {PERIOD:g} s, "
+        f"D {DUTY:g}, SCALE {SCALE:.7g} K/W per unit Φ, κ {KAPPA:.7g} m^2/s"
+    )
     worst = 0.0
     for k, sg, z in _signed():
         ph, st = _twin_a(0.0, z, np.inf), _twin_a_steady(z)
         rel = abs(ph / st - 1.0)
-        _p(f"[imp8-i86] (Lim) {_lab(k)} sign {sg:+g}: Φ2a(0,z,inf) quad {ph:.7g} g-form {st:.7g} "
-           f"rel {rel:.3e} (band {B1_BAND:g})")
+        _p(
+            f"[imp8-i86] (Lim) {_lab(k)} sign {sg:+g}: Φ2a(0,z,inf) quad {ph:.7g} g-form {st:.7g} "
+            f"rel {rel:.3e} (band {B1_BAND:g})"
+        )
         worst = max(worst, rel)
     _p(f"[imp8-i86] (Lim) worst {worst:.3e}")
     assert worst <= B1_BAND
@@ -132,9 +164,11 @@ def test_bq_every_rung():
         for t in (T_PRINT, np.inf):
             g_n, g_2n = _twin_a(0.0, z, t, n=N_GL), _twin_a(0.0, z, t, n=2 * N_GL)
             e = abs(g_n / g_2n - 1.0)
-            _p(f"[imp8-i86] (Bq) {_lab(k)} sign {sg:+g} t={t:g}: GL{N_GL} {g_n:.7g} GL{2 * N_GL} {g_2n:.7g} "
-               f"|n/2n-1| {e:.3e} (band {BQ_BAND:g}); printed |GL2n/quad-1| "
-               f"{abs(g_2n / _twin_a(0.0, z, t) - 1.0):.3e}")
+            _p(
+                f"[imp8-i86] (Bq) {_lab(k)} sign {sg:+g} t={t:g}: GL{N_GL} {g_n:.7g} GL{2 * N_GL} {g_2n:.7g} "
+                f"|n/2n-1| {e:.3e} (band {BQ_BAND:g}); printed |GL2n/quad-1| "
+                f"{abs(g_2n / _twin_a(0.0, z, t) - 1.0):.3e}"
+            )
             worst = max(worst, e)
     _p(f"[imp8-i86] (Bq) worst {worst:.3e}")
     assert worst <= BQ_BAND
@@ -147,8 +181,10 @@ def test_dut_every_rung():
         step = _duhamel(_twin_a, 0.0, z, T_STAR, DUTY)
         conv = _convolution(_twin_a_dot, 0.0, z, T_STAR, DUTY)
         e = abs(step - conv) / (SCALE * _twin_a_steady(z))
-        _p(f"[imp8-i86] (Dut) {_lab(k)} sign {sg:+g}: step sum {step:.7g} conv {conv:.7g} "
-           f"|diff|/θ_ss {e:.3e} (band {B1_BAND:g})")
+        _p(
+            f"[imp8-i86] (Dut) {_lab(k)} sign {sg:+g}: step sum {step:.7g} conv {conv:.7g} "
+            f"|diff|/θ_ss {e:.3e} (band {B1_BAND:g})"
+        )
         worst = max(worst, e)
     _p(f"[imp8-i86] (Dut) worst {worst:.3e}; {time.perf_counter() - t0:.1f} s")
     assert worst <= B1_BAND
@@ -161,21 +197,33 @@ def test_lim_a_small_radius_to_point_twin():
         reads = []
         for t in (T_PRINT, np.inf):
             reads.append((f"t={t:g}", small(0.0, z, t), _phi_tips(0.0, z, t)))
-        reads.append(("D=0.5", _duhamel(small, 0.0, z, T_STAR, DUTY), _duhamel(_phi_tips, 0.0, z, T_STAR, DUTY)))
+        reads.append(
+            (
+                "D=0.5",
+                _duhamel(small, 0.0, z, T_STAR, DUTY),
+                _duhamel(_phi_tips, 0.0, z, T_STAR, DUTY),
+            )
+        )
         for lab, got, ref in reads:
             rel = abs(got / ref - 1.0)
-            _p(f"[imp8-i86] (Lim-a) {_lab(k)} sign {sg:+g} {lab}: a=1e-10 m {got:.7g} point twin {ref:.7g} "
-               f"rel {rel:.3e} (band {B1_BAND:g})")
+            _p(
+                f"[imp8-i86] (Lim-a) {_lab(k)} sign {sg:+g} {lab}: a=1e-10 m {got:.7g} point twin {ref:.7g} "
+                f"rel {rel:.3e} (band {B1_BAND:g})"
+            )
             worst = max(worst, rel)
     _p(f"[imp8-i86] (Lim-a) worst {worst:.3e}")
     z0 = RUNGS[0]
     ref = _phi_tips(0.0, z0, T_PRINT)
     defs = [_twin_a(0.0, z0, T_PRINT, a=ROD_RADIUS / f) / ref - 1.0 for f in (10, 20, 40)]
     orders = [np.log2(defs[i] / defs[i + 1]) for i in range(2)]
-    _p(f"[imp8-i86] (Lim-a) 16 mm, t={T_PRINT:g}: Φ2a/Φ2 - 1 at a/10, /20, /40 {defs[0]:+.4e} / {defs[1]:+.4e} / "
-       f"{defs[2]:+.4e}; observed order {orders[0]:.4f} / {orders[1]:.4f} (expected ≈ 2); predicted at a/10 "
-       f"≈ 8e-4 (drafter)")
-    _p(f"[imp8-i86] (Lim-a) own negative: |deficit| at a/10 {abs(defs[0]):.3e} asserted > B1_BAND {B1_BAND:g}")
+    _p(
+        f"[imp8-i86] (Lim-a) 16 mm, t={T_PRINT:g}: Φ2a/Φ2 - 1 at a/10, /20, /40 {defs[0]:+.4e} / {defs[1]:+.4e} / "
+        f"{defs[2]:+.4e}; observed order {orders[0]:.4f} / {orders[1]:.4f} (expected ≈ 2); predicted at a/10 "
+        f"≈ 8e-4 (drafter)"
+    )
+    _p(
+        f"[imp8-i86] (Lim-a) own negative: |deficit| at a/10 {abs(defs[0]):.3e} asserted > B1_BAND {B1_BAND:g}"
+    )
     assert worst <= B1_BAND
     assert abs(defs[0]) > B1_BAND
 
@@ -186,18 +234,26 @@ def test_control_twin_cylinder_below_point_twin():
     ctrl = 1.0 - cyl / pt
     ss_cyl, ss_pt = SCALE * _twin_a_steady(z), SCALE * _tips_steady(0.0, z)
     d_cyl, d_pt = _duhamel(_twin_a, 0.0, z, T_STAR, DUTY), _duhamel(_phi_tips, 0.0, z, T_STAR, DUTY)
-    _p(f"[imp8-i86] (ctrl) {_lab(0)} continuous θ(900 s): cylinder twin {cyl:.7g} point twin {pt:.7g} K/W; "
-       f"1 - ratio {ctrl:.4e} (asserted > INTERIOR_BAND {INTERIOR_BAND:g}, < 1; predicted ≈ {PRED_CTRL:g})")
-    _p(f"[imp8-i86] (ctrl) steady {ss_cyl:.7g} vs {ss_pt:.7g}: 1 - ratio {1.0 - ss_cyl / ss_pt:.4e} "
-       f"(printed; predicted {PRED_CTRL_SS:g})")
-    _p(f"[imp8-i86] (ctrl) D=0.5 {d_cyl:.7g} vs {d_pt:.7g}: 1 - ratio {1.0 - d_cyl / d_pt:.4e} "
-       f"(below the band; not the weekly's control)")
+    _p(
+        f"[imp8-i86] (ctrl) {_lab(0)} continuous θ(900 s): cylinder twin {cyl:.7g} point twin {pt:.7g} K/W; "
+        f"1 - ratio {ctrl:.4e} (asserted > INTERIOR_BAND {INTERIOR_BAND:g}, < 1; predicted ≈ {PRED_CTRL:g})"
+    )
+    _p(
+        f"[imp8-i86] (ctrl) steady {ss_cyl:.7g} vs {ss_pt:.7g}: 1 - ratio {1.0 - ss_cyl / ss_pt:.4e} "
+        f"(printed; predicted {PRED_CTRL_SS:g})"
+    )
+    _p(
+        f"[imp8-i86] (ctrl) D=0.5 {d_cyl:.7g} vs {d_pt:.7g}: 1 - ratio {1.0 - d_cyl / d_pt:.4e} "
+        f"(below the band; not the weekly's control)"
+    )
     assert INTERIOR_BAND < ctrl < 1.0
 
 
 def test_printed_record():
-    _p("[imp8-i86] record: placement and time quoted from memory; W3 confirms or corrects. "
-       "K per watt per rod, infinite gel, tips h = 2a centred on ±L/2.")
+    _p(
+        "[imp8-i86] record: placement and time quoted from memory; W3 confirms or corrects. "
+        "K per watt per rod, infinite gel, tips h = 2a centred on ±L/2."
+    )
     ans = None
     for k, z in enumerate(RUNGS):
         cont = SCALE * _twin_a(0.0, z, T_PRINT)
@@ -211,29 +267,43 @@ def test_printed_record():
         pt_line = _phi_tips(0.0, z, T_PRINT) / _phi(0.0, z, T_PRINT)
         sym = abs(_twin_a(0.0, z, T_PRINT) - _twin_a(0.0, -z, T_PRINT)) * SCALE
         sym_d = abs(duty - _duhamel(_twin_a, 0.0, -z, T_STAR, DUTY))
-        _p(f"[imp8-i86] {_lab(k)} (+{LADDER_MM[k]:g} mm): SCALE*Φ2a 900 s {cont:.7g}, D=0.5 {duty:.7g}, "
-           f"steady {ss:.7g}; |θ(+z)-θ(-z)| cont {sym:.3e} D=0.5 {sym_d:.3e}")
-        _p(f"[imp8-i86]   radius factor Φ2a/Φ2: 900 s {rf:.7g}, D=0.5 {rf_d:.7g}, steady {rf_ss:.7g} "
-           f"(I83 line Φ_a/Φ logged {I83_RADIUS_FACTOR[k]})")
-        _p(f"[imp8-i86]   tip weighting twin_a/line_a: 900 s {tw:.7g}, steady {tw_ss:.7g} "
-           f"(point twin/line here {pt_line:.7g}; I80 logged {I80_TWIN_LINE[k]}); "
-           f"line steady axis form {_axis_steady(z):.7g}")
+        _p(
+            f"[imp8-i86] {_lab(k)} (+{LADDER_MM[k]:g} mm): SCALE*Φ2a 900 s {cont:.7g}, D=0.5 {duty:.7g}, "
+            f"steady {ss:.7g}; |θ(+z)-θ(-z)| cont {sym:.3e} D=0.5 {sym_d:.3e}"
+        )
+        _p(
+            f"[imp8-i86]   radius factor Φ2a/Φ2: 900 s {rf:.7g}, D=0.5 {rf_d:.7g}, steady {rf_ss:.7g} "
+            f"(I83 line Φ_a/Φ logged {I83_RADIUS_FACTOR[k]})"
+        )
+        _p(
+            f"[imp8-i86]   tip weighting twin_a/line_a: 900 s {tw:.7g}, steady {tw_ss:.7g} "
+            f"(point twin/line here {pt_line:.7g}; I80 logged {I80_TWIN_LINE[k]}); "
+            f"line steady axis form {_axis_steady(z):.7g}"
+        )
         if k == 0:
             ans = (rf, tw)
     rf, tw = ans
     dom = "the tip weighting" if abs(np.log(tw)) > abs(np.log(rf)) else "the radius"
-    _p(f"[imp8-i86] answer (16 mm, continuous 900 s): radius factor Φ2a/Φ2 {rf:.7g} (moves the read "
-       f"{100.0 * (1.0 - rf):.3g} %) against tip weighting twin_a/line_a × {tw:.7g}: {dom} dominates "
-       f"(predicted ≈ 4 % against × 6.5)")
-    _p("[imp8-i86] sensitivity (the cylinder's length is an execution detail; the weekly's to fix): "
-       "h = a, cylinders [L/2 - a, L/2] and mirror, inside the rod's end")
+    _p(
+        f"[imp8-i86] answer (16 mm, continuous 900 s): radius factor Φ2a/Φ2 {rf:.7g} (moves the read "
+        f"{100.0 * (1.0 - rf):.3g} %) against tip weighting twin_a/line_a × {tw:.7g}: {dom} dominates "
+        f"(predicted ≈ 4 % against × 6.5)"
+    )
+    _p(
+        "[imp8-i86] sensitivity (the cylinder's length is an execution detail; the weekly's to fix): "
+        "h = a, cylinders [L/2 - a, L/2] and mirror, inside the rod's end"
+    )
     for k, z in enumerate(RUNGS):
         h = ROD_RADIUS
         r9 = _twin_a(0.0, z, T_PRINT, length=h) / _phi_tips(0.0, z, T_PRINT)
         rs = _twin_a(0.0, z, np.inf, length=h) / _tips_steady(0.0, z)
         rs_g = _twin_a_steady(z, length=h) / _tips_steady(0.0, z)
-        _p(f"[imp8-i86]   h=a {_lab(k)}: Φ2a/Φ2 900 s {r9:.7g}, steady {rs:.7g} (g-form {rs_g:.7g})"
-           + (f" (predicted ≈ {PRED_H_A[0]:g} / {PRED_H_A[1]:g})" if k == 0 else ""))
-    _p(f"[imp8-i86] (aux) point-twin Φ̇ closed form at 16 mm, u=900 s: {_phi_tips_dot(0.0, RUNGS[0], 900.0):.7g}; "
-       f"cylinder {_twin_a_dot(0.0, RUNGS[0], 900.0):.7g}")
+        _p(
+            f"[imp8-i86]   h=a {_lab(k)}: Φ2a/Φ2 900 s {r9:.7g}, steady {rs:.7g} (g-form {rs_g:.7g})"
+            + (f" (predicted ≈ {PRED_H_A[0]:g} / {PRED_H_A[1]:g})" if k == 0 else "")
+        )
+    _p(
+        f"[imp8-i86] (aux) point-twin Φ̇ closed form at 16 mm, u=900 s: {_phi_tips_dot(0.0, RUNGS[0], 900.0):.7g}; "
+        f"cylinder {_twin_a_dot(0.0, RUNGS[0], 900.0):.7g}"
+    )
     assert np.isfinite(rf) and np.isfinite(tw)

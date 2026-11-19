@@ -45,14 +45,13 @@ from typing import Callable, Optional, Sequence
 
 import numpy as np
 import ufl
-from mpi4py import MPI
-
 from dolfinx import default_scalar_type, fem
+from mpi4py import MPI
 
 from ..core import TimeHarmonicProblem, TimeHarmonicSolver
 from ..core.solvers import DEFAULT_GAUGE_PENALTY
-from ..utils.constants import EPSILON_0
 from ..post.evaluation import evaluate_vector_field_parallel
+from ..utils.constants import EPSILON_0
 from .definitions import PortDefinition
 from .excitation import (
     PortSolveContext,
@@ -172,13 +171,9 @@ class GapVoltagePortSpec:
         if points.ndim != 2 or points.shape[1] != 3:
             raise ValueError(f"port '{self.port_id}': path_points must be (n, 3)")
         if tangents.shape != points.shape:
-            raise ValueError(
-                f"port '{self.port_id}': path_tangents must match path_points"
-            )
+            raise ValueError(f"port '{self.port_id}': path_tangents must match path_points")
         if weights.shape != (points.shape[0],):
-            raise ValueError(
-                f"port '{self.port_id}': path_weights must be (n,) for (n, 3) points"
-            )
+            raise ValueError(f"port '{self.port_id}': path_weights must be (n,) for (n, 3) points")
         if self.gap_cell_tags is not None and len(tuple(self.gap_cell_tags)) == 0:
             raise ValueError(
                 f"port '{self.port_id}': gap_cell_tags must be a non-empty tuple "
@@ -207,9 +202,7 @@ def _as_tag_tuple(tag) -> tuple[int, ...]:
 
 
 def _tag_measure(msh, cell_tags, tag):
-    return ufl.Measure(
-        "dx", domain=msh, subdomain_data=cell_tags, subdomain_id=_as_tag_tuple(tag)
-    )
+    return ufl.Measure("dx", domain=msh, subdomain_data=cell_tags, subdomain_id=_as_tag_tuple(tag))
 
 
 def _tag_volume(msh, cell_tags, tag, comm) -> float:
@@ -400,9 +393,7 @@ def run_gap_voltage_port_case(
         if spec.current_route == "conduction":
             current = _conduction_current()
         else:
-            field_part, sigma_gap, epsilon_r_gap = _gap_displacement_current(
-                e, problem, spec, comm
-            )
+            field_part, sigma_gap, epsilon_r_gap = _gap_displacement_current(e, problem, spec, comm)
             gap_material_note[port.port_id] = (sigma_gap, epsilon_r_gap)
             drive_part = complex(spec.drive_current_a) if is_driven else 0.0 + 0.0j
             current = drive_part + field_part

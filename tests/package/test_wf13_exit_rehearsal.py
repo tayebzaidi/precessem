@@ -32,10 +32,9 @@ from pathlib import Path
 import pytest
 
 import fem_em_solver
-
 from tests.materials.test_phantom_material_model import MAT4_BAND
-from tests.package.test_wf15_study_lossy_sphere import MAT4_DEG1_PRINT, MAT4_DEG1_RECORD, _closed
 from tests.package.test_wf1_study_yaml import SPHERE_FILE, WF15_DEG2_RECORD
+from tests.package.test_wf15_study_lossy_sphere import MAT4_DEG1_PRINT, MAT4_DEG1_RECORD, _closed
 from tests.validation.test_lossy_sphere_sar import EPSILON_R_SPHERE, SIGMA_HIGH
 from tests.validation.test_mat5_em_coupled_sphere import L0_BAND
 

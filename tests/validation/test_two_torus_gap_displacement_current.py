@@ -84,15 +84,15 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
-from mpi4py import MPI
-
 from dolfinx import default_scalar_type
+from mpi4py import MPI
 
 from fem_em_solver.core import HomogeneousMaterial, TimeHarmonicProblem
 from fem_em_solver.ports.definitions import PortDefinition
 from fem_em_solver.ports.gap_voltage import GapVoltagePortSpec
 from fem_em_solver.ports.sparameters import run_n_port_sparameter_sweep
 from fem_em_solver.ports.systematics import mutual_systematics_ladder
+from tests.validation.test_port_lumped_two_torus import _build
 
 # Every fixture parameter and every pre-existing band is imported, never
 # restated (the two exceptions are the new CONTINUITY_BAND and the loop-route
@@ -108,16 +108,15 @@ from tests.validation.test_port_package_sparameters import (
     PATH_QUADRATURE_ORDER,
     RECORDED_CORRECTED_RATIO,
     REFERENCE_IMPEDANCE_OHM,
+    S_SYMMETRY_BAND,
     SEPARATION,
     SIGMA_WIRE_S_PER_M,
-    S_SYMMETRY_BAND,
     WIRE_TAGS,
     _arc_quadrature,
     _azimuthal_unit,
     _gap_half_extents,
     _mutual_inductance,
 )
-from tests.validation.test_port_lumped_two_torus import _build
 
 # --- the one new band, pre-registered ---------------------------------------
 # Two definitions of the same physical current on the same solved field: they
@@ -201,9 +200,7 @@ def displacement_sweep():
     comm = MPI.COMM_WORLD
     msh, cell_tags, _facet_tags, t_mesh = _build(comm)
     _prepare(msh)
-    n_cells = comm.allreduce(
-        msh.topology.index_map(msh.topology.dim).size_local, op=MPI.SUM
-    )
+    n_cells = comm.allreduce(msh.topology.index_map(msh.topology.dim).size_local, op=MPI.SUM)
     if comm.rank == 0:
         print(
             f"\n[TH-15 step 2d] solid mesh: {n_cells} cells, {t_mesh:.2f} s",
@@ -220,9 +217,7 @@ def displacement_sweep():
         },
         boundary_condition="pec_zero_tangential_a",
     )
-    result = run_n_port_sparameter_sweep(
-        problem, _ports(), gap_voltage_ports=_displacement_specs()
-    )
+    result = run_n_port_sparameter_sweep(problem, _ports(), gap_voltage_ports=_displacement_specs())
     return {"result": result, "n_cells": n_cells, "comm": comm}
 
 
@@ -326,9 +321,9 @@ def test_the_gap_route_sweep_is_reciprocal_and_lands_on_the_mutual(
     """Anchors (iii) and (iv): the network identities, on the new current."""
     result = displacement_sweep["result"]
     comm = displacement_sweep["comm"]
-    assert not result.is_placeholder, (
-        "the gap_displacement route must not mark itself a placeholder"
-    )
+    assert (
+        not result.is_placeholder
+    ), "the gap_displacement route must not mark itself a placeholder"
 
     s = result.s_matrix
     symmetry = float(np.linalg.norm(s - s.T) / np.linalg.norm(s))

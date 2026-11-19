@@ -24,7 +24,6 @@ from mpi4py import MPI
 
 from fem_em_solver.io.mesh import MeshGenerator
 from fem_em_solver.io.mesh_qa import print_cell_tag_summary
-
 from tests.mesh.helpers import (
     REQUIRED_COIL_PHANTOM_TAGS,
     assert_required_tags_nonempty,
@@ -87,10 +86,10 @@ POLICY_MIN_CAD_RECOVERY = 0.755
 # run-to-run move across the two confirming runs of this slot is 0.0 — the
 # meshes are bit-identical to every printed digit.
 UNIFORM_VOLUMES_RECORD = {
-    1: 1.192257046e-04,   # v0.7.2 read 1.191750413e-04 (+4.251e-04 relative)
-    2: 1.185069486e-04,   # v0.7.2 read 1.188402981e-04 (-2.805e-03 relative)
-    3: 4.943767949e-04,   # unmoved by the image change
-    4: 1.143589055e-02,   # v0.7.2 read 1.143560787e-02 (+2.472e-05 relative)
+    1: 1.192257046e-04,  # v0.7.2 read 1.191750413e-04 (+4.251e-04 relative)
+    2: 1.185069486e-04,  # v0.7.2 read 1.188402981e-04 (-2.805e-03 relative)
+    3: 4.943767949e-04,  # unmoved by the image change
+    4: 1.143589055e-02,  # v0.7.2 read 1.143560787e-02 (+2.472e-05 relative)
 }
 
 
@@ -100,7 +99,9 @@ def test_coil_phantom_mesh_tag_integrity():
 
     mesh, cell_tags, _ = MeshGenerator.coil_phantom_domain(comm=comm, **GEOMETRY)
 
-    print_cell_tag_summary(cell_tags, tag_names=REQUIRED_COIL_PHANTOM_TAGS, comm=comm, prefix="[mesh-qa] ")
+    print_cell_tag_summary(
+        cell_tags, tag_names=REQUIRED_COIL_PHANTOM_TAGS, comm=comm, prefix="[mesh-qa] "
+    )
 
     assert_required_tags_nonempty(cell_tags, REQUIRED_COIL_PHANTOM_TAGS, comm=comm)
 
@@ -119,9 +120,7 @@ def test_coil_phantom_mesh_tag_integrity():
 
 def _policy_volume_pair(comm):
     """Tagged volumes of the same CAD under uniform and region-policy sizing."""
-    uniform_mesh, uniform_tags, _ = MeshGenerator.coil_phantom_domain(
-        comm=comm, **GEOMETRY
-    )
+    uniform_mesh, uniform_tags, _ = MeshGenerator.coil_phantom_domain(comm=comm, **GEOMETRY)
     uniform_volumes = assert_tag_volumes_partition_domain(
         uniform_mesh,
         uniform_tags,
@@ -136,7 +135,9 @@ def _policy_volume_pair(comm):
         **GEOMETRY,
     )
 
-    print_cell_tag_summary(cell_tags, tag_names=REQUIRED_COIL_PHANTOM_TAGS, comm=comm, prefix="[mesh-qa] ")
+    print_cell_tag_summary(
+        cell_tags, tag_names=REQUIRED_COIL_PHANTOM_TAGS, comm=comm, prefix="[mesh-qa] "
+    )
     assert_required_tags_nonempty(cell_tags, REQUIRED_COIL_PHANTOM_TAGS, comm=comm)
 
     policy_volumes = assert_tag_volumes_partition_domain(
@@ -235,8 +236,7 @@ def test_region_resolution_policy_refines_the_tagged_volumes_toward_cad():
             recovery = volumes[tag] / cad_volume
             if comm.rank == 0:
                 print(
-                    f"[GEO-17] tag {tag} ({name}) {label} meshed/CAD = "
-                    f"{recovery:.6f}",
+                    f"[GEO-17] tag {tag} ({name}) {label} meshed/CAD = " f"{recovery:.6f}",
                     flush=True,
                 )
             assert recovery <= 1.0, (

@@ -50,9 +50,9 @@ from tests.mesh.test_birdcage_leg_gaps import TERMINAL_AREA_BAND
 from tests.validation.test_birdcage_f_human_rung import _ring_ports
 from tests.validation.test_ops61_exact_strip_ports import STRIP_BAND
 from tests.validation.test_th14_birdcage_copper import _outer_box_tags
+from tests.validation.test_wf7_f_human_b1_quadrature import _f_human_kwargs
 from tests.validation.test_wf12_f_human_copper_matrix import HOLE_CELL_RECORD
 from tests.validation.test_wf12_f_human_hole import _census_checks
-from tests.validation.test_wf7_f_human_b1_quadrature import _f_human_kwargs
 
 #: First record (W1b, ``-n 1``), printed again by W2b; not asserted here.
 #: Measured 417 653 = HOLE_CELL_RECORD 369 387 + 48 266 (tag 403: 14 047),
@@ -97,16 +97,24 @@ def kept():
     )
     assert n_cells < F_HUMAN_KEPT_ROD_CELL_GUARD  # (H9)
     out["census"] = _owned_census(msh, cells, tdim, comm)
-    (out["n402"], out["n402_ext"], out["n402_int"], out["n402_pair"],
-     out["area402"], out["moments"]) = _interior_facet_check(
-        msh, cells, facets, BIRDCAGE_IMPLANT_SURFACE_TAG, comm
-    )
+    (
+        out["n402"],
+        out["n402_ext"],
+        out["n402_int"],
+        out["n402_pair"],
+        out["area402"],
+        out["moments"],
+    ) = _interior_facet_check(msh, cells, facets, BIRDCAGE_IMPLANT_SURFACE_TAG, comm)
     one = dolfinx.fem.Constant(msh, dolfinx.default_scalar_type(1.0))
     dx = ufl.Measure("dx", domain=msh, subdomain_data=cells)
-    out["implant_volume"] = float(np.real(comm.allreduce(
-        dolfinx.fem.assemble_scalar(dolfinx.fem.form(one * dx(BIRDCAGE_IMPLANT_CELL_TAG))),
-        op=MPI.SUM,
-    )))
+    out["implant_volume"] = float(
+        np.real(
+            comm.allreduce(
+                dolfinx.fem.assemble_scalar(dolfinx.fem.form(one * dx(BIRDCAGE_IMPLANT_CELL_TAG))),
+                op=MPI.SUM,
+            )
+        )
+    )
     out["rim"] = _rim_census(msh, cells, comm)
     _, out["outer"] = _outer_box_tags(msh, facets, comm)
     msh.topology.create_entities(1)
@@ -114,7 +122,8 @@ def kept():
     n_edges = comm.allreduce(msh.topology.index_map(1).size_local, op=MPI.SUM)
     n_faces = comm.allreduce(msh.topology.index_map(2).size_local, op=MPI.SUM)
     record = (
-        "unregistered" if F_HUMAN_KEPT_SPHEROID_CELL_RECORD is None
+        "unregistered"
+        if F_HUMAN_KEPT_SPHEROID_CELL_RECORD is None
         else f"{n_cells / F_HUMAN_KEPT_SPHEROID_CELL_RECORD:.6f} of "
         f"{F_HUMAN_KEPT_SPHEROID_CELL_RECORD}"
     )

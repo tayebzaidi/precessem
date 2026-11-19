@@ -43,16 +43,15 @@ from fem_em_solver import (
 from fem_em_solver.study_yaml import StudyConfigError
 from fem_em_solver.thermal.probe import ProbeBall
 from fem_em_solver.utils.constants import EPSILON_0
-
 from tests.complex_mode import IS_COMPLEX
 from tests.package.test_wf15_study_lossy_sphere import FREQUENCY_HZ, _study
 from tests.validation.test_mat10_sar_to_heat_sphere import (
     B_BAND,
+    P_BAND,
+    T_INF,
     H,
     K,
-    P_BAND,
     R,
-    T_INF,
     _allsum,
     _say,
 )
@@ -189,20 +188,29 @@ def test_wf15_s6_ball_probe_reproduces_mat19_gate():
     q = _q_cf()
     st = Study(ThermalBallGeometry(R, 1.0e-3), None, UniformHeatSource(q))
     t0 = time.perf_counter()
-    res = st.probe([WHOLE_BALL, *BALL_PROBES, DISP_PROBE], RobinCooling(K, H, T_INF),
-                   transient=TransientSpec(T_STAR / N_MAIN, N_MAIN, RHO_C))
-    _say(f"WF15-6 ball Study.probe (CN N={N_MAIN}, t*={T_STAR:.4f} s): "
-         f"{time.perf_counter() - t0:.1f} s")
+    res = st.probe(
+        [WHOLE_BALL, *BALL_PROBES, DISP_PROBE],
+        RobinCooling(K, H, T_INF),
+        transient=TransientSpec(T_STAR / N_MAIN, N_MAIN, RHO_C),
+    )
+    _say(
+        f"WF15-6 ball Study.probe (CN N={N_MAIN}, t*={T_STAR:.4f} s): "
+        f"{time.perf_counter() - t0:.1f} s"
+    )
     msh = res.theta.function_space.mesh
     cells = msh.topology.index_map(3).size_global
     mean_h, v_h = _domain_mean(res.theta, comm)
     p0, vol0 = float(res.values[0]), float(res.volumes[0])
     a_val = abs(p0 - mean_h) / abs(mean_h)
     a_vol = abs(vol0 / v_h - 1.0)
-    _say(f"WF15-6 ball cells {cells}; V_h {v_h:.6e} (4/3 pi R^3 {4.0 * np.pi * R**3 / 3.0:.6e}); "
-         f"max_imag_ratio {res.max_imag_ratio:.1e}")
-    _say(f"WF15-6 (A-ball) |P - mean| / |mean| = {a_val:.3e}, |V_probe / V_h - 1| = {a_vol:.3e} "
-         f"(bound {B_BAND:.0e})")
+    _say(
+        f"WF15-6 ball cells {cells}; V_h {v_h:.6e} (4/3 pi R^3 {4.0 * np.pi * R**3 / 3.0:.6e}); "
+        f"max_imag_ratio {res.max_imag_ratio:.1e}"
+    )
+    _say(
+        f"WF15-6 (A-ball) |P - mean| / |mean| = {a_val:.3e}, |V_probe / V_h - 1| = {a_vol:.3e} "
+        f"(bound {B_BAND:.0e})"
+    )
     ratios = []
     for j, c in enumerate(CENTRES):
         d = float(np.linalg.norm(c))
@@ -210,18 +218,24 @@ def test_wf15_s6_ball_probe_reproduces_mat19_gate():
         p = float(res.values[1 + j])
         r = abs(p / cf - 1.0)
         ratios.append(r)
-        _say(f"WF15-6 (T*-ball) c{j} |c| = {d:.4e}: P = {p:.6e}, ball mean = {cf:.6e}, "
-             f"rel = {r:.4e} (bound {P_BAND:.0e}; predicted <= 3e-3); volume "
-             f"{float(res.volumes[1 + j]):.6e} / nominal {float(res.nominal_volumes[1 + j]):.6e}")
-    _say(f"WF15-6 (T*-ball) max rel = {max(ratios):.4e} (MAT-19's own-mesh max over 40 times "
-         f"{MAT19_T_MAX:.4e}, printed only)")
+        _say(
+            f"WF15-6 (T*-ball) c{j} |c| = {d:.4e}: P = {p:.6e}, ball mean = {cf:.6e}, "
+            f"rel = {r:.4e} (bound {P_BAND:.0e}; predicted <= 3e-3); volume "
+            f"{float(res.volumes[1 + j]):.6e} / nominal {float(res.nominal_volumes[1 + j]):.6e}"
+        )
+    _say(
+        f"WF15-6 (T*-ball) max rel = {max(ratios):.4e} (MAT-19's own-mesh max over 40 times "
+        f"{MAT19_T_MAX:.4e}, printed only)"
+    )
     d2 = float(np.linalg.norm(CENTRES[2]))
     cf2 = _ball_mean(d2, A_PROBE, T_STAR, q)
     p_disp = float(res.values[-1])
     c_disp = abs(p_disp / cf2 - 1.0)
     sep = abs(_ball_mean(float(np.linalg.norm(DISPLACED)), A_PROBE, T_STAR, q) / cf2 - 1.0)
-    _say(f"WF15-6 control (c-disp) displaced vs c2's comparand: {c_disp:.4e} (predicted 5.4e-2, "
-         f"MAT-19 {MAT19_C1:.4e}; comparand separation {sep:.4e}; asserted > {P_BAND:.0e})")
+    _say(
+        f"WF15-6 control (c-disp) displaced vs c2's comparand: {c_disp:.4e} (predicted 5.4e-2, "
+        f"MAT-19 {MAT19_C1:.4e}; comparand separation {sep:.4e}; asserted > {P_BAND:.0e})"
+    )
     assert a_val <= B_BAND
     assert a_vol <= B_BAND
     for r in ratios:
@@ -239,7 +253,8 @@ def test_wf15_s6_box_probe_robin_series():
     geo = ThermalBoxGeometry(HALF, BOX_DIVISIONS)
     t0 = time.perf_counter()
     res = Study(geo, None, UniformHeatSource(Q)).probe(
-        [WHOLE_BOX, *BOX_PROBES], RobinCooling(K_GEL, H_GEL, T_INF_GEL))
+        [WHOLE_BOX, *BOX_PROBES], RobinCooling(K_GEL, H_GEL, T_INF_GEL)
+    )
     _say(f"WF15-6 box Study.probe steady m=4: {time.perf_counter() - t0:.1f} s")
     msh = res.theta.function_space.mesh
     cells = msh.topology.index_map(3).size_global
@@ -247,10 +262,14 @@ def test_wf15_s6_box_probe_robin_series():
     p0, vol0 = float(res.values[0]), float(res.volumes[0])
     a_val = abs(p0 - mean_h) / abs(mean_h)
     a_vol = abs(vol0 / v_h - 1.0)
-    _say(f"WF15-6 box cells {cells}; V_h {v_h:.6e} (8ABC {8.0 * A_BOX * B_BOX * C_BOX:.6e}); "
-         f"max_imag_ratio {res.max_imag_ratio:.1e}")
-    _say(f"WF15-6 (A-box) |P - mean| / |mean| = {a_val:.3e}, |V_probe / V_h - 1| = {a_vol:.3e} "
-         f"(bound {B_BAND:.0e})")
+    _say(
+        f"WF15-6 box cells {cells}; V_h {v_h:.6e} (8ABC {8.0 * A_BOX * B_BOX * C_BOX:.6e}); "
+        f"max_imag_ratio {res.max_imag_ratio:.1e}"
+    )
+    _say(
+        f"WF15-6 (A-box) |P - mean| / |mean| = {a_val:.3e}, |V_probe / V_h - 1| = {a_vol:.3e} "
+        f"(bound {B_BAND:.0e})"
+    )
     mv = Q * A_BOXPROBE**2 / (10.0 * K_GEL)
     ratios, vals = [], []
     for j, c in enumerate(BOX_CENTRES):
@@ -260,21 +279,30 @@ def test_wf15_s6_box_probe_robin_series():
         r = abs(p / cf - 1.0)
         ratios.append(r)
         vals.append(p)
-        _say(f"WF15-6 (R-box) c{j} = {c}: P = {p:.6e}, theta_series = {point:.6e}, "
-             f"ball mean = {cf:.6e}, rel = {r:.4e} (bound {INTERIOR_BAND:.0e}; predicted <= 5e-3; "
-             f"m=4 whole-box L2 {STEP1_M4_WHOLE:.6e}); volume {float(res.volumes[1 + j]):.6e} / "
-             f"nominal {float(res.nominal_volumes[1 + j]):.6e}")
+        _say(
+            f"WF15-6 (R-box) c{j} = {c}: P = {p:.6e}, theta_series = {point:.6e}, "
+            f"ball mean = {cf:.6e}, rel = {r:.4e} (bound {INTERIOR_BAND:.0e}; predicted <= 5e-3; "
+            f"m=4 whole-box L2 {STEP1_M4_WHOLE:.6e}); volume {float(res.volumes[1 + j]):.6e} / "
+            f"nominal {float(res.nominal_volumes[1 + j]):.6e}"
+        )
     _say(f"WF15-6 (R-box) max rel = {max(ratios):.4e}")
-    _say(f"WF15-6 mirror pairs (printed only): y {vals[1] - vals[2]:.3e} K, "
-         f"x {vals[3] - vals[4]:.3e} K")
+    _say(
+        f"WF15-6 mirror pairs (printed only): y {vals[1] - vals[2]:.3e} K, "
+        f"x {vals[3] - vals[4]:.3e} K"
+    )
     point0 = _series_at(BOX_CENTRES[0])
-    _say(f"WF15-6 control (c-mv) point theta_series(c0) {point0:.6e} vs ball mean "
-         f"{point0 - mv:.6e}: Q a^2/(10K) = {mv:.4e} K ({mv / point0:.3e} relative; printed only)")
+    _say(
+        f"WF15-6 control (c-mv) point theta_series(c0) {point0:.6e} vs ball mean "
+        f"{point0 - mv:.6e}: Q a^2/(10K) = {mv:.4e} K ({mv / point0:.3e} relative; printed only)"
+    )
     res2 = Study(geo, None, UniformHeatSource(Q)).probe(
-        BOX_PROBES[:1], RobinCooling(K_GEL, 2.0 * H_GEL, T_INF_GEL))
+        BOX_PROBES[:1], RobinCooling(K_GEL, 2.0 * H_GEL, T_INF_GEL)
+    )
     c_wall = abs(float(res2.values[0]) / (point0 - mv) - 1.0)
-    _say(f"WF15-6 control (c-wall) h doubled at c0: {c_wall:.4e} (predicted 0.35, range 0.30-0.42; "
-         f"item 521a interior {S5_C_WALL:.4e}; asserted > {INTERIOR_BAND:.0e})")
+    _say(
+        f"WF15-6 control (c-wall) h doubled at c0: {c_wall:.4e} (predicted 0.35, range 0.30-0.42; "
+        f"item 521a interior {S5_C_WALL:.4e}; asserted > {INTERIOR_BAND:.0e})"
+    )
     assert a_val <= B_BAND
     assert a_vol <= B_BAND
     for r in ratios:

@@ -26,23 +26,22 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Callable, Mapping, Optional, Sequence
 
+import dolfinx
 import numpy as np
 import ufl
-import dolfinx
 from dolfinx import fem
 from dolfinx.fem.petsc import LinearProblem
-from petsc4py import PETSc
 from mpi4py import MPI
+from petsc4py import PETSc
 
 from ..materials import GelledSalinePhantomMaterial
 from ..utils.constants import EPSILON_0, MU_0
-from .source_projection import remove_gradient_content
 from .solvers import (
     DEFAULT_GAUGE_PENALTY,
     LinearSolveDiagnostics,
     MagnetostaticSolver,
 )
-
+from .source_projection import remove_gradient_content
 
 # The third value of `TimeHarmonicSolver.solve(project_source=...)` beside
 # True/False (`TH-13` step 3a): project the drive's gradient content out
@@ -71,8 +70,7 @@ def normalize_boundary_condition(
 
     valid = ", ".join(repr(mode.value) for mode in TimeHarmonicBoundaryCondition)
     raise ValueError(
-        "TimeHarmonicProblem.boundary_condition must be one of "
-        f"{valid}; got {value!r}"
+        "TimeHarmonicProblem.boundary_condition must be one of " f"{valid}; got {value!r}"
     )
 
 
@@ -87,7 +85,9 @@ class HomogeneousMaterial:
     def validate(self, *, context: str = "material") -> None:
         """Validate scalar material properties and raise actionable errors."""
         if not np.isfinite(self.sigma) or self.sigma < 0:
-            raise ValueError(f"{context}.sigma must be finite and non-negative (S/m), got {self.sigma!r}")
+            raise ValueError(
+                f"{context}.sigma must be finite and non-negative (S/m), got {self.sigma!r}"
+            )
         if not np.isfinite(self.epsilon_r) or self.epsilon_r <= 0:
             raise ValueError(
                 f"{context}.epsilon_r must be finite and positive (relative permittivity), got {self.epsilon_r!r}"
@@ -257,7 +257,9 @@ def build_material_fields(
     if phantom_material is not None:
         phantom_material.validate()
         if cell_tags is None:
-            raise ValueError("phantom_material requires problem.cell_tags to assign phantom-tagged cells")
+            raise ValueError(
+                "phantom_material requires problem.cell_tags to assign phantom-tagged cells"
+            )
 
         if material_map and int(phantom_tag) in {int(tag) for tag in material_map}:
             raise ValueError(
@@ -373,12 +375,16 @@ class TimeHarmonicSolver:
                 )
             requested = [int(tag) for tag in pec_facet_tags]
             if not requested:
-                raise ValueError("pec_facet_tags was given but is empty; use None for every exterior facet")
+                raise ValueError(
+                    "pec_facet_tags was given but is empty; use None for every exterior facet"
+                )
             # `facet_tags.find` is rank-local — a tag owned by no facet on this
             # rank is legitimately empty here, so emptiness is only an error
             # globally (the caller asserts the reduced count).
             found = [np.asarray(facet_tags.find(tag), dtype=np.int32) for tag in requested]
-            constrained_facets = np.unique(np.concatenate(found)) if found else np.empty(0, np.int32)
+            constrained_facets = (
+                np.unique(np.concatenate(found)) if found else np.empty(0, np.int32)
+            )
             constrained_facets = constrained_facets.astype(np.int32)
         exterior_dofs = fem.locate_dofs_topological(v_space, fdim, constrained_facets)
 
@@ -454,7 +460,9 @@ class TimeHarmonicSolver:
         """
         material = self.problem.material
         if not np.isfinite(self.problem.frequency_hz) or self.problem.frequency_hz <= 0:
-            raise ValueError(f"frequency_hz must be finite and positive (Hz), got {self.problem.frequency_hz!r}")
+            raise ValueError(
+                f"frequency_hz must be finite and positive (Hz), got {self.problem.frequency_hz!r}"
+            )
         if self.problem.frequency_unit.strip().lower() != "hz":
             raise ValueError(
                 "TimeHarmonicProblem.frequency_unit must be 'Hz'. "
@@ -509,7 +517,9 @@ class TimeHarmonicSolver:
                     f"{PROJECT_SOURCE_MATCHED!r}"
                 )
 
-        current = None if current_density is None else current_density(ufl.SpatialCoordinate(self.mesh))
+        current = (
+            None if current_density is None else current_density(ufl.SpatialCoordinate(self.mesh))
+        )
         if current is None:
             zero = fem.Constant(self.mesh, np.zeros(3, dtype=PETSc.ScalarType))
             L = ufl.inner(zero, v) * ufl.dx
@@ -545,8 +555,10 @@ class TimeHarmonicSolver:
                 L = load_factor * ufl.inner(self._projection.current, v) * ufl.dx
             else:
                 self._projection = None
-                L = load_factor * ufl.inner(current, v) * self._current_measure(
-                    subdomain_id=subdomain_id, subdomain_ids=subdomain_ids
+                L = (
+                    load_factor
+                    * ufl.inner(current, v)
+                    * self._current_measure(subdomain_id=subdomain_id, subdomain_ids=subdomain_ids)
                 )
 
         # Port-model surface terms (`PORT-9` step 1).  A fresh
@@ -793,9 +805,7 @@ class TimeHarmonicSolver:
         k0_squared = omega * omega * MU_0 * EPSILON_0
         epsilon_c = epsilon_r_field - 1j * sigma_field / (omega * EPSILON_0)
         mu_r_inv = (
-            1.0 / float(self.problem.material.mu_r)
-            if mu_r_field is None
-            else 1.0 / mu_r_field
+            1.0 / float(self.problem.material.mu_r) if mu_r_field is None else 1.0 / mu_r_field
         )
 
         v_space = self.function_space()

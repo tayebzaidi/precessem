@@ -48,7 +48,6 @@ import numpy as np
 import pytest
 from mpi4py import MPI
 
-import tests.validation.test_imp3_rod_birdcage as _rb
 from tests.complex_mode import complex_only
 from tests.mesh.test_birdcage_implant_rod import (
     KEPT_ROD_CELL_RECORD,
@@ -109,26 +108,36 @@ def _run():
     comm = MPI.COMM_WORLD
     t0 = time.perf_counter()
     tips, t1 = _probe_points(ROD_CENTRE)
-    _say(f"\nI67 start: -n {comm.size}; source {SOURCE}; balls "
-         + ", ".join(f"{n} {tuple(round(x, 6) for x in tips[n])}" for n in BALLS)
-         + f"; T1 {tuple(round(x, 6) for x in t1)}")
+    _say(
+        f"\nI67 start: -n {comm.size}; source {SOURCE}; balls "
+        + ", ".join(f"{n} {tuple(round(x, 6) for x in tips[n])}" for n in BALLS)
+        + f"; T1 {tuple(round(x, 6) for x in t1)}"
+    )
     store = {}
 
     # 1. hole build + hole arm (PEC wall on 402).
     built_h = _build_rod()
     c_h = _census(built_h)
-    _say(f"I67 (A0) hole build: {c_h['cells']} cells (record {ROD_CELL_RECORD_W1}, ASSERTED exact); "
-         f"tag-3 {c_h['t3']}, tag-403 {c_h['t403']}; build {built_h[4]:.1f} s")
+    _say(
+        f"I67 (A0) hole build: {c_h['cells']} cells (record {ROD_CELL_RECORD_W1}, ASSERTED exact); "
+        f"tag-3 {c_h['t3']}, tag-403 {c_h['t403']}; build {built_h[4]:.1f} s"
+    )
     assert c_h["cells"] == ROD_CELL_RECORD_W1, c_h
-    hole = _arm(built_h, "hole (PEC rod, wall 402)", rod=True,
-                field_hook=_make_hook(store, "hole", tips, t1))
+    hole = _arm(
+        built_h,
+        "hole (PEC rod, wall 402)",
+        rod=True,
+        field_hook=_make_hook(store, "hole", tips, t1),
+    )
     # 2.
     gc.collect()
     # 3. kept build + gel twin.
     built_k = _build_kept_rod()
     c_k = _census(built_k)
-    _say(f"I67 (A0) kept build: {c_k['cells']} cells (record {KEPT_ROD_CELL_RECORD}, ASSERTED exact); "
-         f"tag-3 {c_k['t3']}, tag-403 {c_k['t403']} (expected {ROD_CELLS}); build {built_k[4]:.1f} s")
+    _say(
+        f"I67 (A0) kept build: {c_k['cells']} cells (record {KEPT_ROD_CELL_RECORD}, ASSERTED exact); "
+        f"tag-3 {c_k['t3']}, tag-403 {c_k['t403']} (expected {ROD_CELLS}); build {built_k[4]:.1f} s"
+    )
     assert c_k["cells"] == KEPT_ROD_CELL_RECORD, c_k
     gel = _gel_seen(built_k, "gel twin (403 -> gel)", _make_hook(store, "gel", tips, t1))
     del built_k
@@ -137,51 +146,82 @@ def _run():
     for arm, key in ((hole, "hole"), (gel, "gel")):
         arm["losses"] = store[key]["losses"]
 
-    _say(f"I67 gel twin: build map had 403 {gel['spy']['build_map_has_403']}, mapped "
-         f"{gel['material_403']['mapped']}")
+    _say(
+        f"I67 gel twin: build map had 403 {gel['spy']['build_map_has_403']}, mapped "
+        f"{gel['material_403']['mapped']}"
+    )
     for arm in (hole, gel):
         _print_gates(arm)
     for pid in PORT_IDS:
         lo = hole["losses"][pid]
-        _say(f"I67 hole {pid}: two-tag resid {_two_tag_resid(hole, pid):.3e} vs all-cells; "
-             f"P_vol 403 {lo['403']:.3e} W, rest(all-3-403) {lo['rest']:.6e} W, "
-             f"all - 3 - cond {lo['all'] - lo['3'] - lo['cond']:.3e} W")
-    _say(f"I67 (E) hole arm: tag-402 dofs (owned, reduced) {hole['wall_dofs']}; max |E| per drive "
-         + ", ".join(f"{p} {v:.3e}" for p, v in hole["wall_max"].items())
-         + f" (bound {PEC_WALL_MAX_E:g}, ASSERTED)")
+        _say(
+            f"I67 hole {pid}: two-tag resid {_two_tag_resid(hole, pid):.3e} vs all-cells; "
+            f"P_vol 403 {lo['403']:.3e} W, rest(all-3-403) {lo['rest']:.6e} W, "
+            f"all - 3 - cond {lo['all'] - lo['3'] - lo['cond']:.3e} W"
+        )
+    _say(
+        f"I67 (E) hole arm: tag-402 dofs (owned, reduced) {hole['wall_dofs']}; max |E| per drive "
+        + ", ".join(f"{p} {v:.3e}" for p, v in hole["wall_max"].items())
+        + f" (bound {PEC_WALL_MAX_E:g}, ASSERTED)"
+    )
 
     # (C1) the rod wall left natural, P1, fresh solver.  Its "natural/without" prints
     # carry predicted ranges written for the no-rod mesh: mislabelled here, print only.
-    _say("I67 (C1) follows; its 'natural/without' and 'PEC/natural' predicted ranges were "
-         "written for the no-rod 'without' arm and are mislabelled on the gel twin (printed only)")
+    _say(
+        "I67 (C1) follows; its 'natural/without' and 'PEC/natural' predicted ranges were "
+        "written for the no-rod 'without' arm and are mislabelled on the gel twin (printed only)"
+    )
     c1 = _control_c1({"rod": hole, "off": gel})
-    _say(f"I67 (C1) natural wall P1: max |E| on 402 dofs {c1['wall_max']:.3e} (> {PEC_WALL_MAX_E:g}, "
-         f"ASSERTED; IMP-3 W1 1.29e-4); (P) {c1['resid']:.3e} (<= {DISCRETE_IDENTITY_RTOL:g}, ASSERTED)")
+    _say(
+        f"I67 (C1) natural wall P1: max |E| on 402 dofs {c1['wall_max']:.3e} (> {PEC_WALL_MAX_E:g}, "
+        f"ASSERTED; IMP-3 W1 1.29e-4); (P) {c1['resid']:.3e} (<= {DISCRETE_IDENTITY_RTOL:g}, ASSERTED)"
+    )
 
     hh, hg = store["hole"], store["gel"]
-    _say(f"I67 (A0m) owned tag-3 hole {c_h['t3']} / kept {c_k['t3']} (ASSERTED equal); kept tag-403 "
-         f"{c_k['t403']} (ASSERTED {ROD_CELLS}); hook census hole {hh['census']} / gel {hg['census']}")
+    _say(
+        f"I67 (A0m) owned tag-3 hole {c_h['t3']} / kept {c_k['t3']} (ASSERTED equal); kept tag-403 "
+        f"{c_k['t403']} (ASSERTED {ROD_CELLS}); hook census hole {hh['census']} / gel {hg['census']}"
+    )
     q = {n: hh["sar"][n] / hg["sar"][n] for n in BALLS}
     eta = float(np.linalg.norm(hh["e_t1"]) / np.linalg.norm(hg["e_t1"]))
     q_arm = {t: hole["sar"][(t, SOURCE)] / gel["sar"][(t, SOURCE)] for t in TIPS}
-    _say(f"I67 1 g ball a = {hh['a_1g'] * 1e3:.4f} mm; masses hole / gel twin: "
-         + ", ".join(f"{n} {hh['mass'][n] * 1e3:.6f} / {hg['mass'][n] * 1e3:.6f} g" for n in BALLS))
+    _say(
+        f"I67 1 g ball a = {hh['a_1g'] * 1e3:.4f} mm; masses hole / gel twin: "
+        + ", ".join(f"{n} {hh['mass'][n] * 1e3:.6f} / {hg['mass'][n] * 1e3:.6f} g" for n in BALLS)
+    )
     for n in BALLS:
-        _say(f"I67 record Q[{n}] = SAR_1g(hole)/SAR_1g(gel twin) = {q[n]:.6f} (hole {hh['sar'][n]:.6e}, "
-             f"gel twin {hg['sar'][n]:.6e} W/kg); I57 kept-cell {I57_KEPT_Q[n]:.6f}; hole/kept "
-             f"{q[n] / I57_KEPT_Q[n]:.6f}; entry 48 F-clinical {ENTRY48_Q[n]:.6f}")
+        _say(
+            f"I67 record Q[{n}] = SAR_1g(hole)/SAR_1g(gel twin) = {q[n]:.6f} (hole {hh['sar'][n]:.6e}, "
+            f"gel twin {hg['sar'][n]:.6e} W/kg); I57 kept-cell {I57_KEPT_Q[n]:.6f}; hole/kept "
+            f"{q[n] / I57_KEPT_Q[n]:.6f}; entry 48 F-clinical {ENTRY48_Q[n]:.6f}"
+        )
     rep = {n: abs(q[n] / I41_APEX_Q[n] - 1.0) for n in I41_APEX_Q}
-    _say("I67 (Rep) apex Q vs I41: "
-         + ", ".join(f"{n} {q[n]:.6f} vs {I41_APEX_Q[n]:.6f} rel {rep[n]:.3e}" for n in I41_APEX_Q)
-         + f" (band {DISCRETE_IDENTITY_RTOL:g}, ASSERTED); `_arm`'s own TIPS ratio (I41's computation) "
-         + ", ".join(f"{t} {v:.6f}" for t, v in q_arm.items()))
-    _say(f"I67 record eta_rod(T1) = |E_hole|/|E_gel| = {eta:.6f} (valid {hh['t1_valid'] and hg['t1_valid']}); "
-         f"I57 kept-cell {I57_KEPT_ETA_T1:.6f}; IMP-3 interval {ENTRY43_READOUT_INTERVAL}; "
-         f"entry 48 {ENTRY48_ETA_T1:.6f}")
-    _say(f"I67 timing: hole {hole['t_arm']:.1f} / gel twin {gel['t_arm']:.1f} s; total "
-         f"{time.perf_counter() - t0:.1f} s at -n {comm.size}")
-    return {"hole": hole, "gel": gel, "store": store, "c_h": c_h, "c_k": c_k, "c1": c1,
-            "q": q, "rep": rep, "eta": eta}
+    _say(
+        "I67 (Rep) apex Q vs I41: "
+        + ", ".join(f"{n} {q[n]:.6f} vs {I41_APEX_Q[n]:.6f} rel {rep[n]:.3e}" for n in I41_APEX_Q)
+        + f" (band {DISCRETE_IDENTITY_RTOL:g}, ASSERTED); `_arm`'s own TIPS ratio (I41's computation) "
+        + ", ".join(f"{t} {v:.6f}" for t, v in q_arm.items())
+    )
+    _say(
+        f"I67 record eta_rod(T1) = |E_hole|/|E_gel| = {eta:.6f} (valid {hh['t1_valid'] and hg['t1_valid']}); "
+        f"I57 kept-cell {I57_KEPT_ETA_T1:.6f}; IMP-3 interval {ENTRY43_READOUT_INTERVAL}; "
+        f"entry 48 {ENTRY48_ETA_T1:.6f}"
+    )
+    _say(
+        f"I67 timing: hole {hole['t_arm']:.1f} / gel twin {gel['t_arm']:.1f} s; total "
+        f"{time.perf_counter() - t0:.1f} s at -n {comm.size}"
+    )
+    return {
+        "hole": hole,
+        "gel": gel,
+        "store": store,
+        "c_h": c_h,
+        "c_k": c_k,
+        "c1": c1,
+        "q": q,
+        "rep": rep,
+        "eta": eta,
+    }
 
 
 @pytest.fixture(scope="module")
@@ -192,6 +232,7 @@ def i67():
 
 
 # --- coding tests (W0) -------------------------------------------------------
+
 
 def test_knob_refuses_other_values(monkeypatch):
     monkeypatch.setenv(KNOB, "yes")
@@ -217,6 +258,7 @@ def test_apex_balls_are_i41s_tips_and_t1_outside_rod():
 
 
 # --- W1 ------------------------------------------------------------------------
+
 
 @complex_only
 def test_a0_and_a0m(i67):

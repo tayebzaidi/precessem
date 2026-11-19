@@ -67,8 +67,7 @@ def _sweep2(case):
 
 def _readings2(res, msh, cell_tags, comm):
     """E (6, 3, 4) and W (4,) for every drive; quadrature 4 for degree 2."""
-    dx = ufl.Measure("dx", domain=msh, subdomain_data=cell_tags,
-                     metadata={"quadrature_degree": 4})
+    dx = ufl.Measure("dx", domain=msh, subdomain_data=cell_tags, metadata={"quadrature_degree": 4})
     e = np.zeros((len(PTS), 3, len(PORT_IDS)), dtype=complex)
     w = np.zeros(len(PORT_IDS))
     valid = True
@@ -103,20 +102,23 @@ def test_imp3_palace_fields_degree2():
     fails = []
     for arm in ARMS:
         built = s3.build_arm(arm)
-        case = build_four_port_sweep(
-            frequency_hz=STEP2D_FREQUENCY_HZ, built=built, build_only=True
-        )
+        case = build_four_port_sweep(frequency_hz=STEP2D_FREQUENCY_HZ, built=built, build_only=True)
         msh = case["mesh"]
         ncells = int(case["cells"])
         areas = _sheet_areas(msh, case["facet_tags"], comm)
-        _say(f"\n{TAG} arm {arm}: {ncells} cells (meta {meta[arm]['cells']}); N_i areas "
-             + ", ".join(f"P{i} {a:.12e}" for i, a in areas.items()))
+        _say(
+            f"\n{TAG} arm {arm}: {ncells} cells (meta {meta[arm]['cells']}); N_i areas "
+            + ", ".join(f"P{i} {a:.12e}" for i, a in areas.items())
+        )
         assert ncells == meta[arm]["cells"], (arm, ncells)  # (F)
         for i, a in areas.items():
             assert abs(a - NOMINAL_STRIP_AREA) <= STRIP_BAND, (arm, i, a)
         B[arm] = _owned_hits(msh, comm)
-        _say(f"{TAG} (B) {arm} owned-cell hits per point "
-             + "  ".join(f"{n} {int(h)}" for n, h in zip(PNAMES, B[arm])) + " (predicted 1)")
+        _say(
+            f"{TAG} (B) {arm} owned-cell hits per point "
+            + "  ".join(f"{n} {int(h)}" for n, h in zip(PNAMES, B[arm]))
+            + " (predicted 1)"
+        )
         res = _sweep2(case)
         assert tuple(res.port_ids) == PORT_IDS
         mq = _matrix_quantities(res)
@@ -125,13 +127,17 @@ def test_imp3_palace_fields_degree2():
         if arm == "off":
             ref = np.array([[complex(*z) for z in row] for row in rec["s_kappa_off"]])
             r = float(np.max(np.abs(S[arm] - ref)) / np.max(np.abs(ref)))
-            _say(f"{TAG} (R2) off S vs ours_f05x_p2.json s_kappa_off entrywise {r:.3e} "
-                 f"<= {REUSE_REPRODUCTION_RTOL}")
+            _say(
+                f"{TAG} (R2) off S vs ours_f05x_p2.json s_kappa_off entrywise {r:.3e} "
+                f"<= {REUSE_REPRODUCTION_RTOL}"
+            )
             assert r <= REUSE_REPRODUCTION_RTOL, ("R2", r)
         v_space = res.fields["P1"].e_complex.function_space
         ND[arm] = int(v_space.dofmap.index_map.size_global * v_space.dofmap.index_map_bs)
-        _say(f"{TAG} (D) {arm} global dofs {ND[arm]} (Palace ND predicted "
-             f"{753062 if arm == 'off' else 1090614})")
+        _say(
+            f"{TAG} (D) {arm} global dofs {ND[arm]} (Palace ND predicted "
+            f"{753062 if arm == 'off' else 1090614})"
+        )
         E[arm], W[arm], valid = _readings2(res, msh, built[1], comm)
         _say(f"{TAG} (V) {arm} valid_mask all True: {valid}")
         if not valid:
@@ -149,9 +155,20 @@ def test_imp3_palace_fields_degree2():
 
     if comm.rank == 0:
         with open(out / "ours_imp3q_fields.json", "w") as fh:
-            json.dump({"E": {a: [[[[z.real, z.imag] for z in E[a][k, c, :]] for c in range(3)]
-                                 for k in range(len(PTS))] for a in E},
-                       "W": {a: W[a].tolist() for a in W}, "ND": ND}, fh)
+            json.dump(
+                {
+                    "E": {
+                        a: [
+                            [[[z.real, z.imag] for z in E[a][k, c, :]] for c in range(3)]
+                            for k in range(len(PTS))
+                        ]
+                        for a in E
+                    },
+                    "W": {a: W[a].tolist() for a in W},
+                    "ND": ND,
+                },
+                fh,
+            )
 
     # ---------------------------------------------------------------- printed
     pq = json.loads((out / "palace_imp3q_fields.json").read_text())
@@ -171,9 +188,11 @@ def test_imp3_palace_fields_degree2():
     g2 = E["off"][iF1, cstar, j] / EP["off"][iF1, cstar, j]
     g2c = E["off"][iF1, cstar, j] / np.conj(EP["off"][iF1, cstar, j])
     g1 = EO1["off"][iF1, cstar, j] / EP1["off"][iF1, cstar, j]
-    _say(f"{TAG} g2 = {g2.real:+.9e}{g2.imag:+.9e}j (c* {'xyz'[cstar]}); order-1 g "
-         f"{g1.real:+.9e}{g1.imag:+.9e}j; |g2/g - 1| {abs(g2 / g1 - 1):.3e} "
-         f"(predicted <= 1e-6)")
+    _say(
+        f"{TAG} g2 = {g2.real:+.9e}{g2.imag:+.9e}j (c* {'xyz'[cstar]}); order-1 g "
+        f"{g1.real:+.9e}{g1.imag:+.9e}j; |g2/g - 1| {abs(g2 / g1 - 1):.3e} "
+        f"(predicted <= 1e-6)"
+    )
     amb = {a: [k for k in range(len(PTS)) if int(B[a][k]) != 1] for a in ARMS}
 
     def tie(a, ours, pal, gg, jj=j, conj=False):
@@ -196,14 +215,20 @@ def test_imp3_palace_fields_degree2():
         te[a], where = tie(a, E[a], EP[a], g2)
         tc, wc = tie(a, E[a], EP[a], g2c, conj=True)
         per = [tie(a, E[a], EP[a], g2, jj=jj)[0] for jj in range(len(PORT_IDS))]
-        _say(f"{TAG} (T_E2) {a} P1 max rel {te[a]:.3e} at {where} (predicted <= 1e-6); conj "
-             f"{tc:.3e} at {wc} (predicted O(1)); P1-P4 " + ", ".join(f"{v:.3e}" for v in per))
+        _say(
+            f"{TAG} (T_E2) {a} P1 max rel {te[a]:.3e} at {where} (predicted <= 1e-6); conj "
+            f"{tc:.3e} at {wc} (predicted O(1)); P1-P4 " + ", ".join(f"{v:.3e}" for v in per)
+        )
     q = {a: W[a][j] / WP[a][j] for a in ARMS}
-    _say(f"{TAG} (T_W2) q_rod/q_off - 1 {q['rod'] / q['off'] - 1:+.3e} (predicted <= 1e-6); "
-         f"q_off/|g2|^2 {q['off'] / abs(g2) ** 2:.9e} (item 242: 2.896e9)")
+    _say(
+        f"{TAG} (T_W2) q_rod/q_off - 1 {q['rod'] / q['off'] - 1:+.3e} (predicted <= 1e-6); "
+        f"q_off/|g2|^2 {q['off'] / abs(g2) ** 2:.9e} (item 242: 2.896e9)"
+    )
     for a in ARMS:
-        _say(f"{TAG} (T_S2) {a} ours S P1 column " + ", ".join(
-            f"{z.real:+.6e}{z.imag:+.6e}j" for z in S[a][:, 0]))
+        _say(
+            f"{TAG} (T_S2) {a} ours S P1 column "
+            + ", ".join(f"{z.real:+.6e}{z.imag:+.6e}j" for z in S[a][:, 0])
+        )
 
     mo2 = {a: np.linalg.norm(E[a], axis=1) for a in ARMS}
     mp2 = {a: np.linalg.norm(EP[a], axis=1) for a in ARMS}
@@ -212,43 +237,72 @@ def test_imp3_palace_fields_degree2():
     for a in ARMS:
         do = mo2[a][:, j] / mo1[a][:, j] - 1
         dp = mp2[a][:, j] / mp1[a][:, j] - 1
-        _say(f"{TAG} δ_p {a} P1 ours / Palace / gap: " + "  ".join(
-            f"{n} {do[k]:+.6e}/{dp[k]:+.6e}/{abs(do[k] - dp[k]):.2e}"
-            for k, n in enumerate(PNAMES)))
+        _say(
+            f"{TAG} δ_p {a} P1 ours / Palace / gap: "
+            + "  ".join(
+                f"{n} {do[k]:+.6e}/{dp[k]:+.6e}/{abs(do[k] - dp[k]):.2e}"
+                for k, n in enumerate(PNAMES)
+            )
+        )
     eo2, ep2 = mo2["rod"] / mo2["off"], mp2["rod"] / mp2["off"]
     eo1, ep1 = mo1["rod"] / mo1["off"], mp1["rod"] / mp1["off"]
     for jj in range(len(PORT_IDS)):
-        _say(f"{TAG} η_rod^o2 P{jj + 1} ours / Palace / d_η/η: " + "  ".join(
-            f"{n} {eo2[k, jj]:.6f}/{ep2[k, jj]:.6f}/{abs(eo2[k, jj] - ep2[k, jj]) / ep2[k, jj]:.2e}"
-            for k, n in enumerate(PNAMES)))
-        _say(f"{TAG} η_rod^o2/η_rod^o1 - 1 P{jj + 1} ours / Palace: " + "  ".join(
-            f"{n} {eo2[k, jj] / eo1[k, jj] - 1:+.6e}/{ep2[k, jj] / ep1[k, jj] - 1:+.6e}"
-            for k, n in enumerate(PNAMES)))
+        _say(
+            f"{TAG} η_rod^o2 P{jj + 1} ours / Palace / d_η/η: "
+            + "  ".join(
+                f"{n} {eo2[k, jj]:.6f}/{ep2[k, jj]:.6f}/{abs(eo2[k, jj] - ep2[k, jj]) / ep2[k, jj]:.2e}"
+                for k, n in enumerate(PNAMES)
+            )
+        )
+        _say(
+            f"{TAG} η_rod^o2/η_rod^o1 - 1 P{jj + 1} ours / Palace: "
+            + "  ".join(
+                f"{n} {eo2[k, jj] / eo1[k, jj] - 1:+.6e}/{ep2[k, jj] / ep1[k, jj] - 1:+.6e}"
+                for k, n in enumerate(PNAMES)
+            )
+        )
         dwo2 = W["rod"][jj] / W["off"][jj] - 1
         dwp2 = WP["rod"][jj] / WP["off"][jj] - 1
         dwo1 = WO1["rod"][jj] / WO1["off"][jj] - 1
         dwp1 = WP1["rod"][jj] / WP1["off"][jj] - 1
-        _say(f"{TAG} ΔW(rod/off) P{jj + 1}: o2 ours {dwo2:+.6e} Palace {dwp2:+.6e} gap "
-             f"{abs(dwo2 - dwp2):.2e}; o1 ours {dwo1:+.6e} Palace {dwp1:+.6e}")
-    cf = np.linalg.norm(pec_prolate_spheroid_field(
-        PTS - np.array(ROD_CENTRE), semi_major=0.016, semi_minor=0.001, e0=1.0), axis=1)
-    _say(f"{TAG} closed form |E_cf|/E0 vs η_rod^o2(p)/η_rod^o2(F1) (ours, P1), ratio "
-         "(predicted [0.3, 3]): " + "  ".join(
-             f"{PNAMES[k]} {cf[k]:.4f}/{eo2[k, j] / eo2[iF1, j]:.4f}="
-             f"{cf[k] / (eo2[k, j] / eo2[iF1, j]):.3f}" for k in (0, 1, 2, 3)))
+        _say(
+            f"{TAG} ΔW(rod/off) P{jj + 1}: o2 ours {dwo2:+.6e} Palace {dwp2:+.6e} gap "
+            f"{abs(dwo2 - dwp2):.2e}; o1 ours {dwo1:+.6e} Palace {dwp1:+.6e}"
+        )
+    cf = np.linalg.norm(
+        pec_prolate_spheroid_field(
+            PTS - np.array(ROD_CENTRE), semi_major=0.016, semi_minor=0.001, e0=1.0
+        ),
+        axis=1,
+    )
+    _say(
+        f"{TAG} closed form |E_cf|/E0 vs η_rod^o2(p)/η_rod^o2(F1) (ours, P1), ratio "
+        "(predicted [0.3, 3]): "
+        + "  ".join(
+            f"{PNAMES[k]} {cf[k]:.4f}/{eo2[k, j] / eo2[iF1, j]:.4f}="
+            f"{cf[k] / (eo2[k, j] / eo2[iF1, j]):.3f}"
+            for k in (0, 1, 2, 3)
+        )
+    )
     shift = abs(ep2[iT1, j] / ep1[iT1, j] - 1)
     d1 = abs(eo1[iT1, j] - ep1[iT1, j]) / ep1[iT1, j]
     d2 = abs(eo2[iT1, j] - ep2[iT1, j]) / ep2[iT1, j]
     dmax = max(d1, d2)
-    _say(f"{TAG} (C1') |η^o2_rod(T1)/η^o1_rod(T1) - 1| / max(d_η^o1, d_η^o2)/η = "
-         f"{shift:.6e} / {dmax:.3e} = {shift / dmax if dmax > 0 else float('inf'):.3e}x "
-         f"(predicted >= 1e3, ceiling ≈ 1e8)")
+    _say(
+        f"{TAG} (C1') |η^o2_rod(T1)/η^o1_rod(T1) - 1| / max(d_η^o1, d_η^o2)/η = "
+        f"{shift:.6e} / {dmax:.3e} = {shift / dmax if dmax > 0 else float('inf'):.3e}x "
+        f"(predicted >= 1e3, ceiling ≈ 1e8)"
+    )
     ref = g2 * EP["rod"][iT1, :, j]
     c2 = np.linalg.norm(E["off"][iT1, :, j] - ref) / np.linalg.norm(ref)
-    _say(f"{TAG} (C2') |E^ours,o2_off(T1) - g2·E^Pal,o2_rod(T1)| / ‖·‖ = {c2:.3e} "
-         f"(predicted >= 0.3)")
+    _say(
+        f"{TAG} (C2') |E^ours,o2_off(T1) - g2·E^Pal,o2_rod(T1)| / ‖·‖ = {c2:.3e} "
+        f"(predicted >= 0.3)"
+    )
     ref = g1 * EP1["rod"][iT1, :, j]
     c3 = np.linalg.norm(E["rod"][iT1, :, j] - ref) / np.linalg.norm(ref)
-    _say(f"{TAG} (C3') |E^ours,o2_rod(T1) - g·E^Pal,o1_rod(T1)| / ‖·‖ = {c3:.3e} "
-         f"(predicted >= 1e-3); over (T_E2 rod) "
-         f"{c3 / te['rod'] if te['rod'] > 0 else float('inf'):.3e}x")
+    _say(
+        f"{TAG} (C3') |E^ours,o2_rod(T1) - g·E^Pal,o1_rod(T1)| / ‖·‖ = {c3:.3e} "
+        f"(predicted >= 1e-3); over (T_E2 rod) "
+        f"{c3 / te['rod'] if te['rod'] > 0 else float('inf'):.3e}x"
+    )

@@ -74,7 +74,6 @@ from fem_em_solver.ports.sparameters import (
     _assemble_sparameter_matrix,
     run_n_port_sparameter_sweep,
 )
-
 from tests.complex_mode import complex_only
 from tests.validation.test_port_birdcage_four_port import build_four_port_sweep
 
@@ -93,16 +92,16 @@ Z0_OHM = 50.0
 
 def _max_relative_entry(measured, reference):
     """``max_ij |m_ij − r_ij| / |r_ij|`` and the worst index."""
-    rel = np.abs(np.asarray(measured) - np.asarray(reference)) / np.abs(
-        np.asarray(reference)
-    )
+    rel = np.abs(np.asarray(measured) - np.asarray(reference)) / np.abs(np.asarray(reference))
     idx = np.unravel_index(int(np.argmax(rel)), rel.shape)
     return float(rel[idx]), (int(idx[0]) + 1, int(idx[1]) + 1)
 
 
 def _field_relative_difference(f_a, f_b, comm):
     """Global ``‖a − b‖₂ / ‖b‖₂`` over owned dofs (comm-reduced)."""
-    n_owned = f_b.function_space.dofmap.index_map.size_local * f_b.function_space.dofmap.index_map_bs
+    n_owned = (
+        f_b.function_space.dofmap.index_map.size_local * f_b.function_space.dofmap.index_map_bs
+    )
     a = f_a.x.array[:n_owned]
     b = f_b.x.array[:n_owned]
     num = comm.allreduce(float(np.sum(np.abs(a - b) ** 2)), op=MPI.SUM)
@@ -185,9 +184,11 @@ def reuse_case():
         # drives' right-hand sides back-substituted through it.
         counters.init = counters.solve = 0
         stale_specs = [
-            dataclasses.replace(s, port_impedance_ohm=STALE_PORT_IMPEDANCE_OHM)
-            if s.port_id == STALE_PORT_ID
-            else s
+            (
+                dataclasses.replace(s, port_impedance_ohm=STALE_PORT_IMPEDANCE_OHM)
+                if s.port_id == STALE_PORT_ID
+                else s
+            )
             for s in specs
         ]
         stale = TimeHarmonicSolver(problem, degree=1)
@@ -243,9 +244,9 @@ def reuse_case():
         )
         for pid in port_ids
     }
-    distinct_fields = len(
-        {id(reused["result"].fields[pid].e_complex) for pid in port_ids}
-    ) == len(port_ids)
+    distinct_fields = len({id(reused["result"].fields[pid].e_complex) for pid in port_ids}) == len(
+        port_ids
+    )
 
     if comm.rank == 0:
         print(

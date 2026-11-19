@@ -121,8 +121,10 @@ def _refuse_c3_degree():
     through a 3 T build; the 3 T degree-2 path is ``C11_DEGREE_ENV``."""
     raw = os.environ.get(C3_DEGREE_ENV, "").strip()
     if raw != "":
-        raise ValueError(f"{C3_DEGREE_ENV}={raw!r}: refused in a C11 window; the 3 T degree-2 "
-                         f"path is {C11_DEGREE_ENV} (C5e)")
+        raise ValueError(
+            f"{C3_DEGREE_ENV}={raw!r}: refused in a C11 window; the 3 T degree-2 "
+            f"path is {C11_DEGREE_ENV} (C5e)"
+        )
 
 
 def _modules():
@@ -194,16 +196,20 @@ def _tripwire_kwargs(monkeypatch):
 def _price_lines(comm, cells, u1):
     rho3 = cells / F_HUMAN_N1
     col_s = F_HUMAN_COL_S * (u1 / F_HUMAN_U1) ** 2
-    _say(comm, f"PRICE INPUT (printed only): rho3 = {cells} / {F_HUMAN_N1} = {rho3:.4f}; conservative "
-               f"column {F_HUMAN_COL_S}*(U1/{F_HUMAN_U1})^2 = {col_s:.1f} s (entry 40's 1.5 T column "
-               f"{ENTRY40_COLUMN_S:.0f} s; entry 40 recalibrates both)")
+    _say(
+        comm,
+        f"PRICE INPUT (printed only): rho3 = {cells} / {F_HUMAN_N1} = {rho3:.4f}; conservative "
+        f"column {F_HUMAN_COL_S}*(U1/{F_HUMAN_U1})^2 = {col_s:.1f} s (entry 40's 1.5 T column "
+        f"{ENTRY40_COLUMN_S:.0f} s; entry 40 recalibrates both)",
+    )
 
 
 # ---------------------------------------------------------------------------
 # Coding tests; skip whenever FEM_EM_GEO38_C11 is set.
 # ---------------------------------------------------------------------------
-_coding = pytest.mark.skipif(os.environ.get(C11_ENV, "").strip() != "",
-                             reason=f"{C11_ENV} set: coding tests skip in windows")
+_coding = pytest.mark.skipif(
+    os.environ.get(C11_ENV, "").strip() != "", reason=f"{C11_ENV} set: coding tests skip in windows"
+)
 
 
 @_coding
@@ -241,8 +247,11 @@ def test_c11_k1_routing_tripwire():
         _c11_patches(mp)
         assert wf7.FREQUENCY_HZ == 128e6
         kw = _tripwire_kwargs(mp)
-    print(f"\n[GEO-38 C11 K1] tripwire kwargs: ring_radius {kw.get('ring_radius')}, shield_radius "
-          f"{kw.get('shield_radius')}, coil_length {kw.get('coil_length')}", flush=True)
+    print(
+        f"\n[GEO-38 C11 K1] tripwire kwargs: ring_radius {kw.get('ring_radius')}, shield_radius "
+        f"{kw.get('shield_radius')}, coil_length {kw.get('coil_length')}",
+        flush=True,
+    )
     assert abs(kw["ring_radius"] - 0.352) <= 1e-15, kw["ring_radius"]
     assert abs(kw["shield_radius"] - 0.3715) <= 1e-15, kw["shield_radius"]
     assert s1a._f_clinical_kwargs("r1")["ring_radius"] == 0.355
@@ -257,8 +266,11 @@ def test_c11_n1_15t_record_misses_3t_mesh():
 
     _c3, _col, s1a, t3, _wf7 = _modules()
     rel = abs(t3.F_CLINICAL_3T_R1_CELL_RECORD / s1a.F_CLINICAL_R1_CELL_RECORD - 1.0)
-    print(f"\n[GEO-38 C11 N1] |{t3.F_CLINICAL_3T_R1_CELL_RECORD}/{s1a.F_CLINICAL_R1_CELL_RECORD} - 1| = "
-          f"{rel:.4e} = {rel / CELL_COUNT_BAND:.2f}x CELL_COUNT_BAND", flush=True)
+    print(
+        f"\n[GEO-38 C11 N1] |{t3.F_CLINICAL_3T_R1_CELL_RECORD}/{s1a.F_CLINICAL_R1_CELL_RECORD} - 1| = "
+        f"{rel:.4e} = {rel / CELL_COUNT_BAND:.2f}x CELL_COUNT_BAND",
+        flush=True,
+    )
     assert abs(rel - 7.80e-2) <= 5e-4, rel
     assert rel > 7.0 * CELL_COUNT_BAND, rel
     assert t3.F_CLINICAL_3T_R1_UNKNOWNS_RECORD[0] != s1a.F_CLINICAL_R1_UNKNOWNS_RECORD[0]
@@ -296,7 +308,9 @@ def test_c11_k3t_refuses_c3_degree(monkeypatch):
     monkeypatch.setenv(C3_DEGREE_ENV, "")
     _refuse_c3_degree()
     monkeypatch.setenv(C3_DEGREE_ENV, "2")
-    with pytest.raises(ValueError, match=r"FEM_EM_GEO38_C3_DEGREE.*refused.*FEM_EM_GEO38_C11_DEGREE \(C5e\)"):
+    with pytest.raises(
+        ValueError, match=r"FEM_EM_GEO38_C3_DEGREE.*refused.*FEM_EM_GEO38_C11_DEGREE \(C5e\)"
+    ):
         _refuse_c3_degree()
 
     def never(*a, **k):
@@ -343,8 +357,11 @@ def test_c11_k5_degree2_save_path_route(monkeypatch):
         assert c3._save_path() == C11_SAVE_PATH
     assert c3._degree_knob_c3 is orig_knob
     assert c3.SAVE_PATH == orig_d1 and c3.SAVE_PATH_D2 == orig_d2
-    print(f"\n[GEO-38 C11 K5] C11 d2 {C11_SAVE_PATH_D2}; C11 d1 {C11_SAVE_PATH}; C3 d1 {orig_d1}, "
-          f"d2 {orig_d2}; restored on exit", flush=True)
+    print(
+        f"\n[GEO-38 C11 K5] C11 d2 {C11_SAVE_PATH_D2}; C11 d1 {C11_SAVE_PATH}; C3 d1 {orig_d1}, "
+        f"d2 {orig_d2}; restored on exit",
+        flush=True,
+    )
 
 
 @_coding
@@ -384,8 +401,10 @@ def test_c11_n6_c11_knob_does_not_leak_into_15t(monkeypatch):
     monkeypatch.setenv(C11_DEGREE_ENV, "2")
     assert c3._degree_knob_c3() is None
     assert c3._save_path() == c3.SAVE_PATH
-    print(f"\n[GEO-38 C11 N6] {C11_DEGREE_ENV}=2 unpatched: C3 knob None, save path {c3.SAVE_PATH}",
-          flush=True)
+    print(
+        f"\n[GEO-38 C11 N6] {C11_DEGREE_ENV}=2 unpatched: C3 knob None, save path {c3.SAVE_PATH}",
+        flush=True,
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -403,21 +422,27 @@ def test_geo38_c11_3t_matrix(monkeypatch):
     c3_state = (c3_save.exists(), c3_save.stat().st_mtime_ns if c3_save.exists() else None)
     c3_save_d2 = c3.SAVE_PATH_D2  # read before _c11_patches rebinds it (C5e)
     tb, tb_range = PREDICTED_T_BUILD_S
-    _say(comm, f"PREDICTED (printed, never asserted): (A0) rel 0; t_build ≈{tb} s {tb_range} at loadavg "
-               f"<= 4; checks ≈{PREDICTED_CHECKS_S[0]}-{PREDICTED_CHECKS_S[1]} s; window ≈"
-               f"{PREDICTED_WINDOW_S} s; summed RSS ≈{PREDICTED_RSS_SUM_GIB} GiB; (Az) worst "
-               f"residual ≈{PREDICTED_AZ_RESIDUAL_DEG:.0e} deg")
+    _say(
+        comm,
+        f"PREDICTED (printed, never asserted): (A0) rel 0; t_build ≈{tb} s {tb_range} at loadavg "
+        f"<= 4; checks ≈{PREDICTED_CHECKS_S[0]}-{PREDICTED_CHECKS_S[1]} s; window ≈"
+        f"{PREDICTED_WINDOW_S} s; summed RSS ≈{PREDICTED_RSS_SUM_GIB} GiB; (Az) worst "
+        f"residual ≈{PREDICTED_AZ_RESIDUAL_DEG:.0e} deg",
+    )
 
     _c11_patches(monkeypatch)
     if mode == "build":
         save_path = c3._save_path()  # after the patches: C11's d1 or d2 path (C5e)
         guarded = (C11_SAVE_PATH, c3_save_d2)
-        guarded_before = [comm.bcast(c3._size_mtime(p) if comm.rank == 0 else None, root=0)
-                          for p in guarded]
-        out, c11_state = c3._build_keeps_save_state(comm, save_path,
-                                                    lambda: c3._run_c3(comm, build_only=True))
-        guarded_after = [comm.bcast(c3._size_mtime(p) if comm.rank == 0 else None, root=0)
-                         for p in guarded]
+        guarded_before = [
+            comm.bcast(c3._size_mtime(p) if comm.rank == 0 else None, root=0) for p in guarded
+        ]
+        out, c11_state = c3._build_keeps_save_state(
+            comm, save_path, lambda: c3._run_c3(comm, build_only=True)
+        )
+        guarded_after = [
+            comm.bcast(c3._size_mtime(p) if comm.rank == 0 else None, root=0) for p in guarded
+        ]
     else:
         out = c3._run_c3(comm, build_only=False, n_drives=_n_drives())
 
@@ -425,8 +450,11 @@ def test_geo38_c11_3t_matrix(monkeypatch):
     omega = _REC["omega"]
     omega_ref = 2.0 * np.pi * t3.FREQUENCY_3T_HZ
     f_rel = abs(omega / omega_ref - 1.0)
-    _say(comm, f"(f) recorded omega {omega.real:.12e} vs 2*pi*128e6 {omega_ref:.12e}: rel {f_rel:.3e} "
-               f"(band {OMEGA_REL_BAND:.0e}, ASSERTED)")
+    _say(
+        comm,
+        f"(f) recorded omega {omega.real:.12e} vs 2*pi*128e6 {omega_ref:.12e}: rel {f_rel:.3e} "
+        f"(band {OMEGA_REL_BAND:.0e}, ASSERTED)",
+    )
     assert f_rel <= OMEGA_REL_BAND, (omega, omega_ref)
 
     # (T3) the 3 T table reached the builder.
@@ -435,9 +463,12 @@ def test_geo38_c11_3t_matrix(monkeypatch):
     shield_d = 2.0 * float(diag["shield_radius_m"])
     shield_l = float(diag["shield_length_m"])
     rung_d = 2.0 * kw["ring_radius"]
-    _say(comm, f"(T3) shield Ø {shield_d:.12f} (vs {t3.SHIELD_DIAMETER_3T_M}), length {shield_l:.12f} "
-               f"(vs {t3.SHIELD_LENGTH_3T_M}), rung Ø {rung_d:.12f} (vs {t3.RUNG_DIAMETER_3T_M}) "
-               f"(IDENTITY_BAND {band:.0e}, ASSERTED)")
+    _say(
+        comm,
+        f"(T3) shield Ø {shield_d:.12f} (vs {t3.SHIELD_DIAMETER_3T_M}), length {shield_l:.12f} "
+        f"(vs {t3.SHIELD_LENGTH_3T_M}), rung Ø {rung_d:.12f} (vs {t3.RUNG_DIAMETER_3T_M}) "
+        f"(IDENTITY_BAND {band:.0e}, ASSERTED)",
+    )
     assert abs(shield_d / t3.SHIELD_DIAMETER_3T_M - 1.0) <= band, shield_d
     assert abs(shield_l / t3.SHIELD_LENGTH_3T_M - 1.0) <= band, shield_l
     assert abs(rung_d / t3.RUNG_DIAMETER_3T_M - 1.0) <= band, rung_d
@@ -446,9 +477,12 @@ def test_geo38_c11_3t_matrix(monkeypatch):
         return
     _price_lines(comm, out["cells"], out["u1"])
     c3_after = (c3_save.exists(), c3_save.stat().st_mtime_ns if c3_save.exists() else None)
-    _say(comm, f"save paths after build-only: (S) C11 {save_path} (size, mtime_ns) or absence "
-               f"unchanged: {c11_state} (ASSERTED); C3 {c3_save} (exists, mtime) "
-               f"{c3_after} == before {c3_state} (ASSERTED)")
+    _say(
+        comm,
+        f"save paths after build-only: (S) C11 {save_path} (size, mtime_ns) or absence "
+        f"unchanged: {c11_state} (ASSERTED); C3 {c3_save} (exists, mtime) "
+        f"{c3_after} == before {c3_state} (ASSERTED)",
+    )
     for p, before, after in zip(guarded, guarded_before, guarded_after):
         _say(comm, f"(S) {p} (size, mtime_ns) {after} == before {before} (ASSERTED)")
     assert c3_after == c3_state, (c3_after, c3_state)

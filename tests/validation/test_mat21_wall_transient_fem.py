@@ -45,12 +45,11 @@ from fem_em_solver.utils.analytical import (
     two_layer_slab_eigenvalues,
     two_layer_slab_transient_temperature,
 )
-
 from tests.validation.test_mat10_sar_to_heat_sphere import _say
 from tests.validation.test_mat12_transient_sar_heating_sphere import E_BAND
 from tests.validation.test_mat13_transient_perfusion_sphere import INTERIOR_BAND
 from tests.validation.test_mat15_coil_driven_heating_phantom import H_GEL, K_GEL, N_MAIN
-from tests.validation.test_mat15_finite_cylinder_closed_form import H, K, Q, RHO_C, T_INF
+from tests.validation.test_mat15_finite_cylinder_closed_form import RHO_C, T_INF, H, K, Q
 from tests.validation.test_mat15_finite_cylinder_fem import _rel
 from tests.validation.test_mat21_box_closed_form import A_BOX, B_BOX, C_BOX, T_C
 from tests.validation.test_mat21_wall_closed_form import D_WALL, K_W, RHO_C_W
@@ -82,8 +81,9 @@ def _lam(rho_c_w):
 
 
 def _series(z, t, rho_c_w, lam):
-    return two_layer_slab_transient_temperature(z, t, q=Q, h=H, t_inf=0.0, rho_c_w=rho_c_w,
-                                                n_terms=N_SERIES, eigenvalues=lam, **SLAB)
+    return two_layer_slab_transient_temperature(
+        z, t, q=Q, h=H, t_inf=0.0, rho_c_w=rho_c_w, n_terms=N_SERIES, eigenvalues=lam, **SLAB
+    )
 
 
 def _exact_t(msh, t, rho_c_w, lam):
@@ -94,7 +94,7 @@ def _exact_t(msh, t, rho_c_w, lam):
         n = x.shape[1]
         out = np.empty(n)
         for s in range(0, n, INTERP_CHUNK):
-            out[s:s + INTERP_CHUNK] = _series(x[2, s:s + INTERP_CHUNK], t, rho_c_w, lam)
+            out[s : s + INTERP_CHUNK] = _series(x[2, s : s + INTERP_CHUNK], t, rho_c_w, lam)
         return out
 
     g.interpolate(ev)
@@ -107,8 +107,7 @@ def _rho_c_field(msh):
     imap = msh.topology.index_map(tdim)
     n = imap.size_local + imap.num_ghosts
     mids = dmesh.compute_midpoints(msh, tdim, np.arange(n, dtype=np.int32))
-    gel = ((np.abs(mids[:, 0]) < A_BOX) & (np.abs(mids[:, 1]) < B_BOX)
-           & (np.abs(mids[:, 2]) < C_BOX))
+    gel = (np.abs(mids[:, 0]) < A_BOX) & (np.abs(mids[:, 1]) < B_BOX) & (np.abs(mids[:, 2]) < C_BOX)
     D0 = fem.functionspace(msh, ("DG", 0))
     dofs = D0.dofmap.list[:n, 0]
     rcf = fem.Function(D0)
@@ -130,19 +129,35 @@ def walled():
     v_gel = 8.0 * A_BOX * B_BOX * C_BOX
     v_wall = 4.0 * A_BOX * B_BOX * 2.0 * D_WALL
     out = {"n": n, "dvg": abs(vg / v_gel - 1.0), "dvw": abs(vw / v_wall - 1.0)}
-    _say(f"\nMAT21-20c [W1] 1D-reduced walled box m = {RUNG} cells {tuple(ns)} N_w = {nw} "
-         f"(BASE {BASE}, tags gel {GEL} / wall {WALL}): n = {n}; V_gel rel dev {out['dvg']:.3e}, "
-         f"V_wall rel dev {out['dvw']:.3e} (bar {_vol_bar(n):.3e}); k {K} / {K_W}, rho c "
-         f"{RHO_C} / {RHO_C_W}, h {H}, q {Q}, d {D_WALL}; T_C {T_C:.3f} s, t* {T_STAR:.3f} s, "
-         f"t2 {T2:.3f} s = {T2 / T_C:.4f} T_C; dt {T_STAR / N_MAIN:.4f} s, {N2} CN steps")
+    _say(
+        f"\nMAT21-20c [W1] 1D-reduced walled box m = {RUNG} cells {tuple(ns)} N_w = {nw} "
+        f"(BASE {BASE}, tags gel {GEL} / wall {WALL}): n = {n}; V_gel rel dev {out['dvg']:.3e}, "
+        f"V_wall rel dev {out['dvw']:.3e} (bar {_vol_bar(n):.3e}); k {K} / {K_W}, rho c "
+        f"{RHO_C} / {RHO_C_W}, h {H}, q {Q}, d {D_WALL}; T_C {T_C:.3f} s, t* {T_STAR:.3f} s, "
+        f"t2 {T2:.3f} s = {T2 / T_C:.4f} T_C; dt {T_STAR / N_MAIN:.4f} s, {N2} CN steps"
+    )
     tl = time.perf_counter()
     res = solve_transient_conduction(
-        msh, ft, k=kf, rho_c=rcf, q=Q * chi, h=H_GEL, t_inf=T_INF, t_init=T_INF,
-        robin_tag=ROBIN, theta=0.5, startup_half_steps=2, dt=T_STAR / N_MAIN, n_steps=N2,
-        snapshot_steps=(N_MAIN, N2))
-    _say(f"MAT21-20c [W1] CN solve {time.perf_counter() - tl:.1f} s; source power "
-         f"{res.source_power:.9e} W (Q V_gel {Q * v_gel:.9e}); max balance "
-         f"{res.max_balance_residual:.3e} over {len(res.balance_residuals)} (half-)steps")
+        msh,
+        ft,
+        k=kf,
+        rho_c=rcf,
+        q=Q * chi,
+        h=H_GEL,
+        t_inf=T_INF,
+        t_init=T_INF,
+        robin_tag=ROBIN,
+        theta=0.5,
+        startup_half_steps=2,
+        dt=T_STAR / N_MAIN,
+        n_steps=N2,
+        snapshot_steps=(N_MAIN, N2),
+    )
+    _say(
+        f"MAT21-20c [W1] CN solve {time.perf_counter() - tl:.1f} s; source power "
+        f"{res.source_power:.9e} W (Q V_gel {Q * v_gel:.9e}); max balance "
+        f"{res.max_balance_residual:.3e} over {len(res.balance_residuals)} (half-)steps"
+    )
     out["bal"] = res.max_balance_residual
     lam_w = _lam(RHO_C_W)
     lam_0 = _lam(MASSLESS * RHO_C_W)
@@ -157,14 +172,24 @@ def walled():
         c_h = _centre(res.snapshots[step]) - T_INF
         c_ex = float(_series(0.0, t, RHO_C_W, lam_w)[0])
         c_0 = float(_series(0.0, t, MASSLESS * RHO_C_W, lam_0)[0])
-        out["snap"][step] = {"e_int": e_int, "e_whole": e_whole, "miss0": miss0,
-                             "c_h": c_h, "c_ex": c_ex, "c_0": c_0}
-        _say(f"MAT21-20c [W1] step {step} t = {t:.3f} s ({t / T_C:.4f} T_C): interior rel L2 vs "
-             f"two-layer series {e_int:.6e} (bound {INTERIOR_BAND:.0e}); whole {e_whole:.6e} "
-             f"(printed); massless-wall series vs FEM, interior {miss0:.6e}")
-        _say(f"MAT21-20c [W1] step {step} centre theta: FEM {c_h:.9f} K, two-layer series "
-             f"{c_ex:.9f} K (rel {c_h / c_ex - 1.0:+.3e}), massless-wall series {c_0:.9f} K "
-             f"(series diff {c_0 / c_ex - 1.0:+.4e})")
+        out["snap"][step] = {
+            "e_int": e_int,
+            "e_whole": e_whole,
+            "miss0": miss0,
+            "c_h": c_h,
+            "c_ex": c_ex,
+            "c_0": c_0,
+        }
+        _say(
+            f"MAT21-20c [W1] step {step} t = {t:.3f} s ({t / T_C:.4f} T_C): interior rel L2 vs "
+            f"two-layer series {e_int:.6e} (bound {INTERIOR_BAND:.0e}); whole {e_whole:.6e} "
+            f"(printed); massless-wall series vs FEM, interior {miss0:.6e}"
+        )
+        _say(
+            f"MAT21-20c [W1] step {step} centre theta: FEM {c_h:.9f} K, two-layer series "
+            f"{c_ex:.9f} K (rel {c_h / c_ex - 1.0:+.3e}), massless-wall series {c_0:.9f} K "
+            f"(series diff {c_0 / c_ex - 1.0:+.4e})"
+        )
     _say(f"MAT21-20c [W1] elapsed {time.perf_counter() - t0:.1f} s")
     return out
 
@@ -185,7 +210,9 @@ def test_interior_both_snapshots(walled):
 
 def test_control_massless_wall_misses_at_t2(walled):
     s = walled["snap"][N2]
-    _say(f"MAT21-20c (control) at t2: massless-wall series misses the FEM by {s['miss0']:.6e} "
-         f"(interior rel L2) vs {CTL_FACTOR:.0f} x FEM interior error {CTL_FACTOR * s['e_int']:.6e} "
-         f"(separation {s['miss0'] / s['e_int']:.2f}x)")
+    _say(
+        f"MAT21-20c (control) at t2: massless-wall series misses the FEM by {s['miss0']:.6e} "
+        f"(interior rel L2) vs {CTL_FACTOR:.0f} x FEM interior error {CTL_FACTOR * s['e_int']:.6e} "
+        f"(separation {s['miss0'] / s['e_int']:.2f}x)"
+    )
     assert s["miss0"] > CTL_FACTOR * s["e_int"], s

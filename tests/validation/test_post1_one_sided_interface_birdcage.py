@@ -66,10 +66,7 @@ from tests.validation.test_lossy_sphere_fullwave import (
     _series,
 )
 from tests.validation.test_mat15_coil_driven_heating_phantom import CAD_AREA_M2
-from tests.validation.test_port_birdcage_four_port import (
-    LEG_D0_REPRODUCTION_BAND,
-    PASSIVITY_SIGMA_TOLERANCE,
-)
+from tests.validation.test_port_birdcage_four_port import LEG_D0_REPRODUCTION_BAND
 from tests.validation.test_port_birdcage_lumped_column import (
     CONDUCTOR_CELL_TAG,
     PHANTOM_CELL_TAG,
@@ -182,9 +179,7 @@ def _interface_faces(msh, cell_tags, comm):
 
     g_verts = np.concatenate([_cat(v, (-1, 9)) for v in comm.allgather(verts_out)])
     g_normals = np.concatenate([_cat(v, (-1, 3)) for v in comm.allgather(normals)])
-    g_vids = np.concatenate(
-        [_cat(v, (-1, 3), np.int64) for v in comm.allgather(vids)]
-    )
+    g_vids = np.concatenate([_cat(v, (-1, 3), np.int64) for v in comm.allgather(vids)])
     order = np.lexsort(tuple(g_verts[:, j] for j in range(8, -1, -1)))
     g_verts, g_normals, g_vids = g_verts[order], g_normals[order], g_vids[order]
 
@@ -284,10 +279,16 @@ def _quarter(comm):
         ext = _sheet_extents(msh, tags_s, tag, comm)
         h = float(ext[2])
         mids = np.vstack(comm.allgather(_facet_midpoints(msh, f_owned)))
-        sheets[p] = {"facets": int(n), "area": area, "h": h, "w": area / h, "mid": mids,
-                     "ds_area": _sheet_integral_area(msh, tags_s, tag, False),
-                     "w_bbox": float(ext[SHEET_TRANSVERSE_AXIS[p]]),
-                     "flat": float(ext[SHEET_PLANE_AXIS[p]])}
+        sheets[p] = {
+            "facets": int(n),
+            "area": area,
+            "h": h,
+            "w": area / h,
+            "mid": mids,
+            "ds_area": _sheet_integral_area(msh, tags_s, tag, False),
+            "w_bbox": float(ext[SHEET_TRANSVERSE_AXIS[p]]),
+            "flat": float(ext[SHEET_PLANE_AXIS[p]]),
+        }
     out["sheets"] = sheets
     out["tag_counts"] = _tag_counts(comm, _owned_cell_tags(msh, cells))
     out["volume"] = _volume(msh)
@@ -321,7 +322,9 @@ def _mirror(comm, q):
     local_entities, local_values = dolfinx.io.distribute_entity_data(msh, tdim, ents, vals)
     msh.topology.create_connectivity(tdim, tdim)
     cells = dolfinx.mesh.meshtags_from_entities(
-        msh, tdim, dolfinx.graph.adjacencylist(local_entities),
+        msh,
+        tdim,
+        dolfinx.graph.adjacencylist(local_entities),
         local_values.astype(np.int32, copy=False),
     )
     del x, c, t, ents, vals
@@ -344,9 +347,11 @@ def _mirror(comm, q):
         n_on = 0
         if ext.size:
             nodes = dolfinx.cpp.mesh.entities_to_geometry(msh._cpp_object, fdim, ext, False)
-            n_on = int(np.count_nonzero(
-                np.all(np.abs(msh.geometry.x[nodes][:, :, axis]) < PLANE_TOL, axis=1)
-            ))
+            n_on = int(
+                np.count_nonzero(
+                    np.all(np.abs(msh.geometry.x[nodes][:, :, axis]) < PLANE_TOL, axis=1)
+                )
+            )
         out["exterior_on_plane"][axis] = comm.allreduce(n_on, op=MPI.SUM)
 
     plane = {}
@@ -446,8 +451,12 @@ def step7b2():
     comm.Barrier()
     t0 = time.perf_counter()
     result = run_n_port_sparameter_sweep(
-        problem, defs, lumped_sheet_ports=specs, lumped_sheet_facet_tags=tags_s,
-        degree=1, keep_fields=True,
+        problem,
+        defs,
+        lumped_sheet_ports=specs,
+        lumped_sheet_facet_tags=tags_s,
+        degree=1,
+        keep_fields=True,
     )
     comm.Barrier()
     t_sweep = time.perf_counter() - t0
@@ -513,15 +522,11 @@ def step7b2():
 
         r_leg = float(
             np.sqrt(
-                np.sum(wq * np.abs(eps_c * en_leg - en_leg) ** 2)
-                / np.sum(wq * np.abs(en_leg) ** 2)
+                np.sum(wq * np.abs(eps_c * en_leg - en_leg) ** 2) / np.sum(wq * np.abs(en_leg) ** 2)
             )
         )
         legacy_tag3 = float(
-            np.mean(
-                np.linalg.norm(e_leg - e_in, axis=1)
-                < np.linalg.norm(e_leg - e_out, axis=1)
-            )
+            np.mean(np.linalg.norm(e_leg - e_in, axis=1) < np.linalg.norm(e_leg - e_out, axis=1))
         )
         x1 = float(np.max(np.linalg.norm(np.cross(nq, e_in - e_out), axis=1)))
         x1_scale = float(np.max(np.linalg.norm(e_out, axis=1)))
@@ -536,14 +541,18 @@ def step7b2():
             )["dissipated_power_w"]
         )
         drives[k] = {
-            "N": N, "D": D, "Nj": Nj, "Dj": Dj,
+            "N": N,
+            "D": D,
+            "Nj": Nj,
+            "Dj": Dj,
             "r_n": float(np.sqrt(N / D)),
             "r_n_blind": _rn(eps_c.real),
             "r_n_conj": _rn(np.conj(eps_c)),
             "r_n_legacy": r_leg,
             "legacy_tag3": legacy_tag3,
             "valid": (np.asarray(v_in), np.asarray(v_out), np.asarray(v_leg)),
-            "x1": x1, "x1_scale": x1_scale,
+            "x1": x1,
+            "x1_scale": x1_scale,
             "rho_face": r2.reshape(-1, 3).mean(axis=1),
             "power": power,
         }
@@ -555,15 +564,28 @@ def step7b2():
     m1 = {s: _face_image_map(centroids, normals, areas, SIGMA_MAPS[s][1]) for s in ("sx", "sy")}
 
     out = {
-        "comm": comm, "eps_c": eps_c, "q": q, "m": m,
-        "S": sf, "recip": recip, "d2s": d2s,
+        "comm": comm,
+        "eps_c": eps_c,
+        "q": q,
+        "m": m,
+        "S": sf,
+        "recip": recip,
+        "d2s": d2s,
         "sigma_max": float(np.linalg.svd(sf, compute_uv=False).max()),
         "tag3_global": tag3_global,
         "sigma": (sigma_lo, sigma_hi, sigma_count),
-        "verts": verts, "F": F, "V": V, "n_dropped": n_dropped,
-        "n_points": int(pts.shape[0]), "area": float(np.sum(areas)),
-        "counts": counts, "drives": drives, "m1": m1,
-        "t_sweep": t_sweep, "t_extract": t_extract, "t_window": t_window,
+        "verts": verts,
+        "F": F,
+        "V": V,
+        "n_dropped": n_dropped,
+        "n_points": int(pts.shape[0]),
+        "area": float(np.sum(areas)),
+        "counts": counts,
+        "drives": drives,
+        "m1": m1,
+        "t_sweep": t_sweep,
+        "t_extract": t_extract,
+        "t_window": t_window,
     }
     _report(out)
 
@@ -572,7 +594,10 @@ def step7b2():
             os.makedirs(os.path.dirname(NPZ_PATH), exist_ok=True)
             np.savez(
                 NPZ_PATH,
-                verts=verts, F=F, V=V, area=out["area"],
+                verts=verts,
+                F=F,
+                V=V,
+                area=out["area"],
                 N=np.array([drives[k]["N"] for k in range(4)]),
                 D=np.array([drives[k]["D"] for k in range(4)]),
                 r_n=np.array([drives[k]["r_n"] for k in range(4)]),
@@ -665,13 +690,17 @@ def _report(o):
         )
     )
     print(
-        f"  sweep {o['t_sweep']:.2f} s; S_f=\n" + np.array2string(o["S"], precision=9)
-        + f"\n  (I3) D2 pairs " + " ".join(f"{k} {v:.3e}" for k, v in o["d2s"].items())
+        f"  sweep {o['t_sweep']:.2f} s; S_f=\n"
+        + np.array2string(o["S"], precision=9)
+        + "\n  (I3) D2 pairs "
+        + " ".join(f"{k} {v:.3e}" for k, v in o["d2s"].items())
         + f" (band {LEG_D0_REPRODUCTION_BAND:.0e}, pred <= 1e-11); (I1) reciprocity "
         f"{o['recip']:.3e}; (I2) sigma_max {o['sigma_max']:.9f}"
     )
-    print(f"  (A1) sigma tag-3 [{o['sigma'][0]!r}, {o['sigma'][1]!r}] over {o['sigma'][2]} "
-          f"cells; tag-3 global {o['tag3_global']}")
+    print(
+        f"  (A1) sigma tag-3 [{o['sigma'][0]!r}, {o['sigma'][1]!r}] over {o['sigma'][2]} "
+        f"cells; tag-3 global {o['tag3_global']}"
+    )
     c = o["counts"]
     one_sided = int(np.sum((c[:, 0] == 0) ^ (c[:, 1] == 0)))
     print(
@@ -718,7 +747,8 @@ def _report(o):
             f"  phantom power D2 pairs {s}: "
             + " ".join(
                 f"k{k}->{f(k)} {abs(d[f(k)]['power'] - d[k]['power']) / d[k]['power']:.3e}"
-                for k in range(4) if f(k) != k
+                for k in range(4)
+                if f(k) != k
             )
         )
     for key, name in (("Nj", "N_j^(k)"), ("Dj", "D_j^(k)")):
@@ -727,9 +757,7 @@ def _report(o):
             print("    " + "  ".join(f"{v:.9e}" for v in d[k][key]))
     print("  quadrant R_n table:")
     for k in range(4):
-        print("    " + "  ".join(
-            f"{np.sqrt(n / dd):.5f}" for n, dd in zip(d[k]["Nj"], d[k]["Dj"])
-        ))
+        print("    " + "  ".join(f"{np.sqrt(n / dd):.5f}" for n, dd in zip(d[k]["Nj"], d[k]["Dj"])))
     g1 = {pk: _g1p(d, *pk) for pk in G1P_PAIRS}
     print(
         "  (G1') whole-interface D2 pairs: "
@@ -738,8 +766,10 @@ def _report(o):
     )
     g2 = {pk: _g2p(d, *pk) for pk in G2P_PAIRS}
     g2d = {pk: _g2p(d, *pk, key="Dj") for pk in G2P_PAIRS}
-    print(f"  (G2') quadrant D2 pairs, N then D (40 readings; band {C4_COVARIANCE_BAND:.0e}, "
-          "pred <= 1e-9):")
+    print(
+        f"  (G2') quadrant D2 pairs, N then D (40 readings; band {C4_COVARIANCE_BAND:.0e}, "
+        "pred <= 1e-9):"
+    )
     for pk in G2P_PAIRS:
         print(f"    {pk[0]} k={pk[1]} j={pk[2]}: N {g2[pk]:.3e}  D {g2d[pk]:.3e}")
     g3 = {pk: _g3p(o, *pk) for pk in G3P_PAIRS}
@@ -765,8 +795,8 @@ def _report(o):
             ceiling = max(nk) / min(nk) - 1.0
             vals = [abs(nk[f(j)] - nk[j]) / nk[j] for j in js]
             print(
-                f"  (N1) {s} k={k}: half-mapped " + " ".join(f"j={j} {v * 100:.3f}%"
-                                                             for j, v in zip(js, vals))
+                f"  (N1) {s} k={k}: half-mapped "
+                + " ".join(f"j={j} {v * 100:.3f}%" for j, v in zip(js, vals))
                 + f" (pred [50,400]%), ceiling {ceiling * 100:.3f}%, separation over G2' max "
                 f"{min(vals) / g2max if g2max > 0 else float('inf'):.3e}x (pred >= 1e6)"
             )
@@ -788,12 +818,18 @@ def _report(o):
         + " (pred 0-20%); G2 (rows k, cols j), N then D:"
     )
     for k in range(4):
-        n_row = [abs(d[(k + 1) % 4]["Nj"][(j + 1) % 4] - d[k]["Nj"][j]) / d[k]["Nj"][j]
-                 for j in range(4)]
-        d_row = [abs(d[(k + 1) % 4]["Dj"][(j + 1) % 4] - d[k]["Dj"][j]) / d[k]["Dj"][j]
-                 for j in range(4)]
-        print("    N: " + "  ".join(f"{v * 100:7.4f}%" for v in n_row)
-              + "   D: " + "  ".join(f"{v * 100:7.4f}%" for v in d_row))
+        n_row = [
+            abs(d[(k + 1) % 4]["Nj"][(j + 1) % 4] - d[k]["Nj"][j]) / d[k]["Nj"][j] for j in range(4)
+        ]
+        d_row = [
+            abs(d[(k + 1) % 4]["Dj"][(j + 1) % 4] - d[k]["Dj"][j]) / d[k]["Dj"][j] for j in range(4)
+        ]
+        print(
+            "    N: "
+            + "  ".join(f"{v * 100:7.4f}%" for v in n_row)
+            + "   D: "
+            + "  ".join(f"{v * 100:7.4f}%" for v in d_row)
+        )
     print(
         f"  elapsed: quarter build {q['t_quarter']:.1f}s (mesh {q['mesh_wall']:.1f}s), mirror "
         f"build {m['t_build']:.1f}s, sweep {o['t_sweep']:.1f}s, extraction "

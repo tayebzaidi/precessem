@@ -120,7 +120,9 @@ def _node_violations(registry, collected_ids) -> list[str]:
 
 
 def _registry_files(registry) -> list[str]:
-    return sorted({node.split("::", 1)[0] for e in registry.values() for node in e.get("nodes", [])})
+    return sorted(
+        {node.split("::", 1)[0] for e in registry.values() for node in e.get("nodes", [])}
+    )
 
 
 # ---------------------------------------------------------------- fixtures

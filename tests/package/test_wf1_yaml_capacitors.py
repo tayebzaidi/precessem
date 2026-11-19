@@ -44,12 +44,7 @@ from fem_em_solver.materials import GelledSalinePhantomMaterial
 from fem_em_solver.ports.circuit import reduce_terminated_ports
 from fem_em_solver.study import FHumanBirdcageGeometry, SphereInBoxGeometry
 from fem_em_solver.study_yaml import _load, _study_from_mapping, _tune_summary
-
 from tests.complex_mode import complex_only
-from tests.package.test_wf16_study_capacitor_sheets import C_F, ESR_OHM, _study
-from tests.package.test_wf16_study_copper import _geometry
-from tests.package.test_wf16_study_tune import TH17_STEP3_C_MODE_RECORD_F
-from tests.package.test_wf16_study_tune_capacitors import ITEM429_C_MODE_F
 from tests.package.test_wf1_study_yaml import (
     LOGS,
     WF1,
@@ -58,8 +53,12 @@ from tests.package.test_wf1_study_yaml import (
     _rc_all,
     _spec_diff,
 )
-from tests.package.test_wf1_yaml_copper import PEC_CONTROL_FILE, _py_copper
+from tests.package.test_wf1_yaml_copper import PEC_CONTROL_FILE
 from tests.package.test_wf1_yaml_tune import TUNE_FILE
+from tests.package.test_wf16_study_capacitor_sheets import C_F, ESR_OHM, _study
+from tests.package.test_wf16_study_copper import _geometry
+from tests.package.test_wf16_study_tune import TH17_STEP3_C_MODE_RECORD_F
+from tests.package.test_wf16_study_tune_capacitors import ITEM429_C_MODE_F
 from tests.validation.test_ans6_exact_strip import (
     ANS6_EXACT_STRIP_CLASS_MEANS_P1,
     ANS6_EXACT_STRIP_HOLE_CELL_RECORD,
@@ -105,8 +104,13 @@ def _hex(z):
 
 def _py_caps(c_f=ITEM429_C_MODE_F, esr_ohm=0.0):
     phantom = GelledSalinePhantomMaterial(SALINE_SIGMA, SALINE_EPSILON_R, FREQUENCY_64_HZ)
-    return Study(_geometry(), phantom, CapacitorSheets(c_f, esr_ohm, on=SHEETS),
-                 frequency_hz=FREQUENCY_64_HZ, degree=1)
+    return Study(
+        _geometry(),
+        phantom,
+        CapacitorSheets(c_f, esr_ohm, on=SHEETS),
+        frequency_hz=FREQUENCY_64_HZ,
+        degree=1,
+    )
 
 
 def _with_exc(path, **exc):
@@ -131,9 +135,12 @@ def test_wf1_s13_parse_and_refusals(monkeypatch, capsys):
     s_yaml = load_study(CAP_FILE)
     d_py = _spec_diff(s_yaml, _py_caps())
     d_ctl = _spec_diff(s_yaml, load_study(PEC_CONTROL_FILE))  # (c0): a dropped section
-    _say(capsys, f"\n[WF-1 s13] (K) diff vs Python CapacitorSheets Study {d_py}; vs PEC "
-         f"control {d_ctl}; c_f {s_yaml.excitation.c_f.hex()} vs ITEM429_C_MODE_F "
-         f"{ITEM429_C_MODE_F.hex()}; degree {s_yaml.degree}; conductor {s_yaml.conductor}")
+    _say(
+        capsys,
+        f"\n[WF-1 s13] (K) diff vs Python CapacitorSheets Study {d_py}; vs PEC "
+        f"control {d_ctl}; c_f {s_yaml.excitation.c_f.hex()} vs ITEM429_C_MODE_F "
+        f"{ITEM429_C_MODE_F.hex()}; degree {s_yaml.degree}; conductor {s_yaml.conductor}",
+    )
     assert d_py == [], d_py
     assert type(s_yaml.excitation) is CapacitorSheets
     assert s_yaml.excitation.on == SHEETS
@@ -147,16 +154,27 @@ def test_wf1_s13_parse_and_refusals(monkeypatch, capsys):
     d_esr = _spec_diff(s_esr, s_yaml)
     z_yaml = s_esr.excitation.impedance_ohm(FREQUENCY_64_HZ)
     z_api = CapacitorSheets(ITEM429_C_MODE_F, 0.2, on=SHEETS).impedance_ohm(FREQUENCY_64_HZ)
-    _say(capsys, f"  (K-esr) diff {d_esr}; impedance yaml {complex(z_yaml)!r} api {complex(z_api)!r}")
+    _say(
+        capsys, f"  (K-esr) diff {d_esr}; impedance yaml {complex(z_yaml)!r} api {complex(z_api)!r}"
+    )
     assert d_esr == ["excitation.esr_ohm"], d_esr
     assert _hex(z_yaml) == _hex(z_api)
 
     # (K-cu): item 373's copper ESR Study expressed from YAML, parse only
     m_cu = copy.deepcopy(_mapping(WF1 / "f_small_copper.yaml"))
-    m_cu["excitation"] = {"kind": "capacitor_sheets", "c_f": C_F, "esr_ohm": ESR_OHM,
-                          "sheets": ["P2"]}
-    d_cu = _spec_diff(_study_from_mapping(m_cu, "<cu>"), _study(CapacitorSheets(C_F, ESR_OHM, on=("P2",))))
-    _say(capsys, f"  (K-cu) diff vs item 373's copper Study {d_cu} (C_F {C_F!r}, ESR_OHM {ESR_OHM!r})")
+    m_cu["excitation"] = {
+        "kind": "capacitor_sheets",
+        "c_f": C_F,
+        "esr_ohm": ESR_OHM,
+        "sheets": ["P2"],
+    }
+    d_cu = _spec_diff(
+        _study_from_mapping(m_cu, "<cu>"), _study(CapacitorSheets(C_F, ESR_OHM, on=("P2",)))
+    )
+    _say(
+        capsys,
+        f"  (K-cu) diff vs item 373's copper Study {d_cu} (C_F {C_F!r}, ESR_OHM {ESR_OHM!r})",
+    )
     assert d_cu == [], d_cu
 
     # omitted esr_ohm: the dataclass default, not filled by the parser
@@ -202,7 +220,9 @@ def test_wf1_s13_parse_and_refusals(monkeypatch, capsys):
     on_file = scratch / "on_key.yaml"
     if comm.rank == 0:
         scratch.mkdir(parents=True, exist_ok=True)
-        on_file.write_text(CAP_FILE.read_text().replace("  sheets: [P2, P3, P4]", "  on: [P2, P3, P4]"))
+        on_file.write_text(
+            CAP_FILE.read_text().replace("  sheets: [P2, P3, P4]", "  on: [P2, P3, P4]")
+        )
     comm.Barrier()
     with pytest.raises(StudyConfigError) as ei:
         load_study(on_file)
@@ -268,8 +288,9 @@ def test_wf1_s13_parse_and_refusals(monkeypatch, capsys):
 @pytest.fixture(scope="module")
 def runs():
     comm = MPI.COMM_WORLD
-    assert comm.size == ANS6_EXACT_STRIP_RECORD_RANK_WIDTH, (
-        f"asserted at -n {ANS6_EXACT_STRIP_RECORD_RANK_WIDTH}; got -n {comm.size}")
+    assert (
+        comm.size == ANS6_EXACT_STRIP_RECORD_RANK_WIDTH
+    ), f"asserted at -n {ANS6_EXACT_STRIP_RECORD_RANK_WIDTH}; got -n {comm.size}"
     # Build cache copied from tests/package/test_wf16_study_tune_capacitors.py:99-109
     # (item 463's fixture, itself item 373's): the first call builds, later
     # equal-geometry calls on the same communicator return that build.
@@ -309,13 +330,19 @@ def runs():
         py_res = py.solve(comm)
         out["t_py"] = time.perf_counter() - t0
     _p0(f"\n[WF-1 s13] build cache: {cache['real']} real build, {cache['hits']} hits (3 Studies)")
-    _p0(f"[WF-1 s13] tune file: cells {run_t.result.cells}, mesh {run_t.result.mesh_time:.1f} s, "
-        f"sweep {run_t.result.sweep_time:.1f} s, run_study_file {out['t_run_t']:.1f} s")
-    _p0(f"[WF-1 s13] capacitor file: cells {run_c.result.cells}, mesh {run_c.result.mesh_time:.1f} s, "
-        f"sweep {run_c.result.sweep_time:.1f} s, run_study_file {out['t_run_c']:.1f} s")
+    _p0(
+        f"[WF-1 s13] tune file: cells {run_t.result.cells}, mesh {run_t.result.mesh_time:.1f} s, "
+        f"sweep {run_t.result.sweep_time:.1f} s, run_study_file {out['t_run_t']:.1f} s"
+    )
+    _p0(
+        f"[WF-1 s13] capacitor file: cells {run_c.result.cells}, mesh {run_c.result.mesh_time:.1f} s, "
+        f"sweep {run_c.result.sweep_time:.1f} s, run_study_file {out['t_run_c']:.1f} s"
+    )
     _p0(f"[WF-1 s13] Python Study: sweep {py_res.sweep_time:.1f} s, total {out['t_py']:.1f} s")
-    _p0(f"[WF-1 s13] tune k=1 {run_t.summary['tune']['c_mode_farad']:.9e} F, "
-        f"k=2 {t2['c_mode_farad']:.9e} F")
+    _p0(
+        f"[WF-1 s13] tune k=1 {run_t.summary['tune']['c_mode_farad']:.9e} F, "
+        f"k=2 {t2['c_mode_farad']:.9e} F"
+    )
     assert cache["real"] == 1 and cache["hits"] == 2
     out.update(run_t=run_t, t2=t2, run_c=run_c, disk=disk, py=py, py_res=py_res)
     return out
@@ -332,15 +359,22 @@ def test_wf1_s13_r0_fixture_tie(runs):
     c1 = run_t.summary["tune"]["c_mode_farad"]
     a = c1 / TH17_STEP3_C_MODE_RECORD_F - 1.0
     a_prime = ITEM429_C_MODE_F / c1 - 1.0
-    _p0(f"\n[WF-1 s13 R0] cells {run_t.summary['cells']} / {run_c.summary['cells']}; class means "
-        "vs 'pec' record: " + ", ".join(f"{c} {rel[c]:.3e}" for c in CLASSES)
-        + f" (band {LEG_D0_REPRODUCTION_BAND:.0e}; prior 5.052e-11 / 3.878e-11 / 5.875e-11)")
-    _p0(f"[WF-1 s13 a] C_mode {c1:.9e} F vs TH-17 record {a:+.6e} (band {REDUCTION_BAND:.0e}; "
-        "item 442 -2.976552e-4)")
-    _p0(f"[WF-1 s13 a'] ITEM429_C_MODE_F {ITEM429_C_MODE_F.hex()} vs in-run {float(c1).hex()}: "
+    _p0(
+        f"\n[WF-1 s13 R0] cells {run_t.summary['cells']} / {run_c.summary['cells']}; class means "
+        "vs 'pec' record: "
+        + ", ".join(f"{c} {rel[c]:.3e}" for c in CLASSES)
+        + f" (band {LEG_D0_REPRODUCTION_BAND:.0e}; prior 5.052e-11 / 3.878e-11 / 5.875e-11)"
+    )
+    _p0(
+        f"[WF-1 s13 a] C_mode {c1:.9e} F vs TH-17 record {a:+.6e} (band {REDUCTION_BAND:.0e}; "
+        "item 442 -2.976552e-4)"
+    )
+    _p0(
+        f"[WF-1 s13 a'] ITEM429_C_MODE_F {ITEM429_C_MODE_F.hex()} vs in-run {float(c1).hex()}: "
         f"{a_prime:+.3e} (band {REDUCTION_BAND:.0e}; item 463 {ITEM463_A_PRIME:+.3e}; "
         f"vs EXACT_IDENTITY_RTOL {EXACT_IDENTITY_RTOL:.0e}: "
-        f"{'inside' if abs(a_prime) <= EXACT_IDENTITY_RTOL else 'outside'}, printed)")
+        f"{'inside' if abs(a_prime) <= EXACT_IDENTITY_RTOL else 'outside'}, printed)"
+    )
     assert max(rel.values()) <= LEG_D0_REPRODUCTION_BAND
     assert abs(a) <= REDUCTION_BAND
     assert abs(a_prime) <= REDUCTION_BAND
@@ -362,12 +396,15 @@ def test_wf1_s13_summary_equals_same_study(runs):
         assert json.dumps(disk[key]) == json.dumps(s[key]), key
     for i, row in enumerate(disk["s_matrix"]):
         for j, (re, im) in enumerate(row):
-            assert (float(re).hex(), float(im).hex()) == _hex(s["s_matrix"][i][j][0]
-                                                              + 1j * s["s_matrix"][i][j][1])
+            assert (float(re).hex(), float(im).hex()) == _hex(
+                s["s_matrix"][i][j][0] + 1j * s["s_matrix"][i][j][1]
+            )
     zc = exc.impedance_ohm(FREQUENCY_64_HZ)
     caps = s["capacitors"]
-    _p0(f"\n[WF-1 s13 I=] S11 {complex(res.s_matrix[0, 0]):.9e}; kept {s['kept_ports']}; "
-        f"capacitors {caps}; keys {sorted(s)}")
+    _p0(
+        f"\n[WF-1 s13 I=] S11 {complex(res.s_matrix[0, 0]):.9e}; kept {s['kept_ports']}; "
+        f"capacitors {caps}; keys {sorted(s)}"
+    )
     assert s["kept_ports"] == ["P1"]
     assert caps["sheets"] == ["P2", "P3", "P4"]
     assert float(caps["c_f"]).hex() == float(exc.c_f).hex()
@@ -384,8 +421,10 @@ def test_wf1_s13_yaml_equals_python_study(runs):
     sp = complex(runs["py_res"].s_matrix[0, 0])
     assert _spec_diff(runs["run_c"].study, runs["py"]) == []
     r = abs(sy - sp) / abs(sp)
-    _p0(f"\n[WF-1 s13 I-Py] YAML {sy:.12e} vs Python {sp:.12e}: rel {r:.3e} (band "
-        f"{EXACT_IDENTITY_RTOL:.0e}; predicted 0); hex equal {_hex(sy) == _hex(sp)} (printed)")
+    _p0(
+        f"\n[WF-1 s13 I-Py] YAML {sy:.12e} vs Python {sp:.12e}: rel {r:.3e} (band "
+        f"{EXACT_IDENTITY_RTOL:.0e}; predicted 0); hex equal {_hex(sy) == _hex(sp)} (printed)"
+    )
     assert r <= EXACT_IDENTITY_RTOL
 
 
@@ -405,9 +444,11 @@ def test_wf1_s13_route_a_identity(runs):
     pa = reduce_terminated_ports(s0, float(REFERENCE_IMPEDANCE_OHM), {1: zc, 2: zc, 3: zc})
     sy = complex(run_c.result.s_matrix[0, 0])
     r = abs(sy - pa[0, 0]) / abs(pa[0, 0])
-    _p0(f"\n[WF-1 s13 I-A] S11 {sy:.9e} vs reduction {complex(pa[0, 0]):.9e}: rel {r:.6e} "
+    _p0(
+        f"\n[WF-1 s13 I-A] S11 {sy:.9e} vs reduction {complex(pa[0, 0]):.9e}: rel {r:.6e} "
         f"({r / REDUCTION_BAND:.4f} x REDUCTION_BAND {REDUCTION_BAND:.0e}); item 463 "
-        f"{ITEM463_IA:.6e}, S11 {ITEM463_S11:.9e} (printed)")
+        f"{ITEM463_IA:.6e}, S11 {ITEM463_S11:.9e} (printed)"
+    )
     assert r <= REDUCTION_BAND
 
 
@@ -421,8 +462,10 @@ def test_wf1_s13_k2_control(runs):
     zc1 = run_c.study.excitation.impedance_ohm(FREQUENCY_64_HZ)
     sy = complex(run_c.result.s_matrix[0, 0])
     r = abs(sy - pa2[0, 0]) / abs(pa2[0, 0])
-    _p0(f"\n[WF-1 s13 c1] C_2 {t2['c_mode_farad']:.9e} F, z_cap2 {complex(zc2):.6e} vs z_cap1 "
+    _p0(
+        f"\n[WF-1 s13 c1] C_2 {t2['c_mode_farad']:.9e} F, z_cap2 {complex(zc2):.6e} vs z_cap1 "
         f"{complex(zc1):.6e}; rel {r:.4e} ({r / REDUCTION_BAND:.1f} x REDUCTION_BAND); "
-        f"item 463 {ITEM463_C2:.4e} (printed)")
+        f"item 463 {ITEM463_C2:.4e} (printed)"
+    )
     assert zc2 != zc1
     assert r > REDUCTION_BAND

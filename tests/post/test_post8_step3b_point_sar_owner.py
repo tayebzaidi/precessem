@@ -21,9 +21,8 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from mpi4py import MPI
-
 from dolfinx import fem
+from mpi4py import MPI
 
 from fem_em_solver.post.evaluation import (
     evaluate_vector_field_parallel,
@@ -122,22 +121,16 @@ def _readings(comm):
 def test_d0_k_default_is_rule_and_known_answer():
     comm = MPI.COMM_WORLD
     msh, e_r, e_i, sets, owner_original, sar_default = _readings(comm)
-    sar_rule = point_sar(
-        e_r, e_i, POINTS, sigma=SIGMA, rho=RHO, owner="lowest_original_cell"
-    )
+    sar_rule = point_sar(e_r, e_i, POINTS, sigma=SIGMA, rho=RHO, owner="lowest_original_cell")
     sar_legacy = point_sar(e_r, e_i, POINTS, sigma=SIGMA, rho=RHO, owner=None)
     hand_legacy = _hand_sar(e_r, e_i, comm, None)
 
     # (K) known answer in the oracle's minimum cell
-    sar_c = np.array(
-        [_sar_in_cell(msh, e_r, e_i, POINTS[i], sets[i][0], comm) for i in range(3)]
-    )
+    sar_c = np.array([_sar_in_cell(msh, e_r, e_i, POINTS[i], sets[i][0], comm) for i in range(3)])
     rel_k = np.abs(sar_default - sar_c) / np.abs(sar_c)
 
     # incident-set spread at the vertex (printed, predicted > 1.01)
-    vertex_vals = np.array(
-        [_sar_in_cell(msh, e_r, e_i, POINTS[2], c, comm) for c in sets[2]]
-    )
+    vertex_vals = np.array([_sar_in_cell(msh, e_r, e_i, POINTS[2], c, comm) for c in sets[2]])
 
     # (N1) legacy cell via the DG0 index field
     f_dg = _dg0_index(msh)
@@ -180,7 +173,9 @@ def test_d0_k_default_is_rule_and_known_answer():
     # (N1) asserted only at the widths step 2 measured a separation
     for i in N1_CASES.get(comm.size, ()):
         assert int(legacy_cell[i]) != int(owner_original[i]), (
-            LABELS[i], int(legacy_cell[i]), int(owner_original[i])
+            LABELS[i],
+            int(legacy_cell[i]),
+            int(owner_original[i]),
         )
 
 
@@ -205,7 +200,10 @@ def test_p_phantom_fields_centroids_owner_compliant():
 
     rows = np.asarray(rule_vals)[offset : offset + n_owned]
     pf_vals = np.asarray(pf_vals).reshape(rows.shape)
-    local_eq = bool(np.ascontiguousarray(rows).tobytes() == np.ascontiguousarray(pf_vals).astype(rows.dtype).tobytes())
+    local_eq = bool(
+        np.ascontiguousarray(rows).tobytes()
+        == np.ascontiguousarray(pf_vals).astype(rows.dtype).tobytes()
+    )
     all_eq = comm.allreduce(int(local_eq), op=MPI.MIN)
     n_owner_ok = int(np.sum(owner_original == orig_all))
 

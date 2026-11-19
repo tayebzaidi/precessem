@@ -91,9 +91,7 @@ def wire_solutions():
             gauge=method,
         )
         local_max = float(np.max(np.abs(A.x.array))) if A.x.array.size else 0.0
-        b_vals, valid = evaluate_vector_field_parallel(
-            solver.compute_b_field(), _POINTS, comm=comm
-        )
+        b_vals, valid = evaluate_vector_field_parallel(solver.compute_b_field(), _POINTS, comm=comm)
         assert valid.all(), f"{(~valid).sum()}/{N_POINTS} sample points outside mesh"
         results[method] = {
             "b": b_vals,
@@ -115,9 +113,7 @@ def test_penalty_and_lagrange_agree_on_b_field(wire_solutions):
     b_lag = wire_solutions[GaugeMethod.LAGRANGE]["b"]
 
     rel_diff = ErrorMetrics.l2_relative_error(b_lag, b_pen)
-    assert rel_diff < 0.05, (
-        f"penalty and Lagrange B fields disagree by {rel_diff:.2%}"
-    )
+    assert rel_diff < 0.05, f"penalty and Lagrange B fields disagree by {rel_diff:.2%}"
 
     # Trend sanity: both should track mu0*I/(2*pi*r). Measured 52.5% at this
     # deliberately coarse h=0.006 (35.5% at h=0.005), on a fixture that also
@@ -125,9 +121,7 @@ def test_penalty_and_lagrange_agree_on_b_field(wire_solutions):
     # The bound only needs to catch gross errors: a wrong current direction
     # measured ~88-100% on the loop fixtures, and null-space corruption shows
     # up as orders of magnitude, not percent.
-    b_ana = np.linalg.norm(
-        AnalyticalSolutions.straight_wire_magnetic_field(_POINTS, 1.0), axis=1
-    )
+    b_ana = np.linalg.norm(AnalyticalSolutions.straight_wire_magnetic_field(_POINTS, 1.0), axis=1)
     for method in (GaugeMethod.PENALTY, GaugeMethod.LAGRANGE):
         b_mag = np.linalg.norm(wire_solutions[method]["b"], axis=1)
         err = ErrorMetrics.l2_relative_error(b_mag, b_ana)

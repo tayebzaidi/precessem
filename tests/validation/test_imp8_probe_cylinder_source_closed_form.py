@@ -43,7 +43,7 @@ from scipy.integrate import quad
 from tests.mesh.test_birdcage_implant_rod import ROD_RADIUS
 from tests.validation.test_imp4_pec_cylinder_closed_form import B1_BAND
 from tests.validation.test_imp8_entry48_lumped import BQ_BAND, _gl01
-from tests.validation.test_imp8_probe_f2182_closed_form import DUTY, N_GL, _axis_steady, _p
+from tests.validation.test_imp8_probe_f2182_closed_form import DUTY, N_GL, _p
 from tests.validation.test_imp8_probe_ladder_closed_form import LADDER_MM, RUNGS, _lab
 from tests.validation.test_imp8_rod_line_source_closed_form import KAPPA, MM, QUAD, T_PRINT, L, _phi
 from tests.validation.test_imp8_rod_line_source_duty_closed_form import PERIOD, SCALE, T_STAR
@@ -105,8 +105,12 @@ def _bracket(d, t, a):
 
 def _phi_cyl(r, z, t, a=ROD_RADIUS, length=L):
     assert r == 0.0 and abs(z) > 0.5 * length  # the axis beyond the end only, one piece
-    return quad(lambda zp: float(_bracket(np.array([abs(z - zp)]), t, a)[0]),
-                -0.5 * length, 0.5 * length, **QUAD)[0]
+    return quad(
+        lambda zp: float(_bracket(np.array([abs(z - zp)]), t, a)[0]),
+        -0.5 * length,
+        0.5 * length,
+        **QUAD,
+    )[0]
 
 
 def _phi_cyl_dot(r, z, u, a=ROD_RADIUS, length=L):
@@ -115,8 +119,11 @@ def _phi_cyl_dot(r, z, u, a=ROD_RADIUS, length=L):
     s2 = 4.0 * KAPPA * u
     s = np.sqrt(s2)
     za = abs(z)
-    return (s2 / (2.0 * a * a * u)) * (-np.expm1(-a * a / s2)) * (
-        special.erf((za + 0.5 * length) / s) - special.erf((za - 0.5 * length) / s))
+    return (
+        (s2 / (2.0 * a * a * u))
+        * (-np.expm1(-a * a / s2))
+        * (special.erf((za + 0.5 * length) / s) - special.erf((za - 0.5 * length) / s))
+    )
 
 
 def _g(u, a=ROD_RADIUS):
@@ -136,14 +143,18 @@ def _gl_cyl(z, t, n, a=ROD_RADIUS, length=L):
 
 def test_lim_every_rung():
     worst = 0.0
-    _p(f"\n[imp8-i83] a {ROD_RADIUS / MM:g} mm, L {L / MM:g} mm, t {T_PRINT:g} s, PERIOD {PERIOD:g} s, "
-       f"D {DUTY:g}, SCALE {SCALE:.7g} K/W per unit Φ")
+    _p(
+        f"\n[imp8-i83] a {ROD_RADIUS / MM:g} mm, L {L / MM:g} mm, t {T_PRINT:g} s, PERIOD {PERIOD:g} s, "
+        f"D {DUTY:g}, SCALE {SCALE:.7g} K/W per unit Φ"
+    )
     for k, z in enumerate(RUNGS):
         for sg in (1.0, -1.0):
             ph, st = _phi_cyl(0.0, sg * z, np.inf), _cyl_steady(sg * z)
             rel = abs(ph / st - 1.0)
-            _p(f"[imp8-i83] (Lim) {_lab(k)} sign {sg:+g}: Φ_a(0,z,inf) {ph:.7g} g-form {st:.7g} "
-               f"rel {rel:.3e} (band {B1_BAND:g})")
+            _p(
+                f"[imp8-i83] (Lim) {_lab(k)} sign {sg:+g}: Φ_a(0,z,inf) {ph:.7g} g-form {st:.7g} "
+                f"rel {rel:.3e} (band {B1_BAND:g})"
+            )
             worst = max(worst, rel)
     _p(f"[imp8-i83] (Lim) worst {worst:.3e}")
     assert worst <= B1_BAND
@@ -156,9 +167,11 @@ def test_bq_every_rung():
             for t in (T_PRINT, np.inf):
                 g_n, g_2n = _gl_cyl(sg * z, t, N_GL), _gl_cyl(sg * z, t, 2 * N_GL)
                 e = abs(g_n / g_2n - 1.0)
-                _p(f"[imp8-i83] (Bq) {_lab(k)} sign {sg:+g} t={t:g}: GL{N_GL} {g_n:.7g} "
-                   f"GL{2 * N_GL} {g_2n:.7g} |n/2n-1| {e:.3e} (band {BQ_BAND:g}); printed "
-                   f"|GL2n/quad-1| {abs(g_2n / _phi_cyl(0.0, sg * z, t) - 1.0):.3e}")
+                _p(
+                    f"[imp8-i83] (Bq) {_lab(k)} sign {sg:+g} t={t:g}: GL{N_GL} {g_n:.7g} "
+                    f"GL{2 * N_GL} {g_2n:.7g} |n/2n-1| {e:.3e} (band {BQ_BAND:g}); printed "
+                    f"|GL2n/quad-1| {abs(g_2n / _phi_cyl(0.0, sg * z, t) - 1.0):.3e}"
+                )
                 worst = max(worst, e)
     _p(f"[imp8-i83] (Bq) worst {worst:.3e}")
     assert worst <= BQ_BAND
@@ -172,8 +185,10 @@ def test_dut_every_rung():
             step = _duhamel(_phi_cyl, 0.0, sg * z, T_STAR, DUTY)
             conv = _convolution(_phi_cyl_dot, 0.0, sg * z, T_STAR, DUTY)
             e = abs(step - conv) / (SCALE * _cyl_steady(sg * z))
-            _p(f"[imp8-i83] (Dut) {_lab(k)} sign {sg:+g}: step sum {step:.7g} conv {conv:.7g} "
-               f"|diff|/θ_ss {e:.3e} (band {B1_BAND:g})")
+            _p(
+                f"[imp8-i83] (Dut) {_lab(k)} sign {sg:+g}: step sum {step:.7g} conv {conv:.7g} "
+                f"|diff|/θ_ss {e:.3e} (band {B1_BAND:g})"
+            )
             worst = max(worst, e)
     _p(f"[imp8-i83] (Dut) worst {worst:.3e}; {time.perf_counter() - t0:.1f} s")
     assert worst <= B1_BAND
@@ -190,13 +205,35 @@ def _read_log(name):
 def test_k_reads_from_logs():
     for arm, rec in FEM.items():
         lines = _read_log(rec["log"])
-        means = [m for m in (re.search(
-            r"\[imp8-i81\] ladder \|z\|=(\d+) mm.*? arm " + arm
-            + r": \+/- mean theta\(900 s\) (\S+) K/W.*?D=0\.5 mean (\S+),", ln) for ln in lines) if m]
-        ctrls = [m for m in (re.search(
-            r"\[imp8-i81\] control sign ([+-]1) arm " + arm
-            + r": theta 16/17/18/20 (\S+) / (\S+) / (\S+) / (\S+);", ln) for ln in lines) if m]
-        _p(f"[imp8-i83] (K) arm {arm}: {rec['log']} mean lines {len(means)}, control lines {len(ctrls)}")
+        means = [
+            m
+            for m in (
+                re.search(
+                    r"\[imp8-i81\] ladder \|z\|=(\d+) mm.*? arm "
+                    + arm
+                    + r": \+/- mean theta\(900 s\) (\S+) K/W.*?D=0\.5 mean (\S+),",
+                    ln,
+                )
+                for ln in lines
+            )
+            if m
+        ]
+        ctrls = [
+            m
+            for m in (
+                re.search(
+                    r"\[imp8-i81\] control sign ([+-]1) arm "
+                    + arm
+                    + r": theta 16/17/18/20 (\S+) / (\S+) / (\S+) / (\S+);",
+                    ln,
+                )
+                for ln in lines
+            )
+            if m
+        ]
+        _p(
+            f"[imp8-i83] (K) arm {arm}: {rec['log']} mean lines {len(means)}, control lines {len(ctrls)}"
+        )
         assert len(means) == 4 and len(ctrls) == 2
         assert tuple(int(m.group(1)) for m in means) == tuple(int(round(z / MM)) for z in RUNGS)
         assert tuple(m.group(2) for m in means) == rec["mean"]
@@ -218,13 +255,17 @@ def test_g_gel_arm_z_even_against_cylinder():
         for sg in (1.0, -1.0):
             c, d = _closed(sg * z)
             rc, rd = mean[k] / c - 1.0, dmean[k] / d - 1.0
-            _p(f"[imp8-i83] (G) {_lab(k)} sign {sg:+g}: gel mean {mean[k]:.7g} / SCALE*Φ_a {c:.7g} - 1 = "
-               f"{rc:+.3e}; D=0.5 mean {dmean[k]:.7g} / _duhamel {d:.7g} - 1 = {rd:+.3e} "
-               f"(band {INTERIOR_BAND:g})")
+            _p(
+                f"[imp8-i83] (G) {_lab(k)} sign {sg:+g}: gel mean {mean[k]:.7g} / SCALE*Φ_a {c:.7g} - 1 = "
+                f"{rc:+.3e}; D=0.5 mean {dmean[k]:.7g} / _duhamel {d:.7g} - 1 = {rd:+.3e} "
+                f"(band {INTERIOR_BAND:g})"
+            )
             worst = max(worst, abs(rc), abs(rd))
         c, _ = _closed(z)
-        _p(f"[imp8-i83] (G) printed only, per sign (not gated; I81's mesh asymmetry): "
-           f"+z {plus[k] / c - 1.0:+.3e}, -z {minus[k] / c - 1.0:+.3e}")
+        _p(
+            f"[imp8-i83] (G) printed only, per sign (not gated; I81's mesh asymmetry): "
+            f"+z {plus[k] / c - 1.0:+.3e}, -z {minus[k] / c - 1.0:+.3e}"
+        )
     _p(f"[imp8-i83] (G) worst {worst:.3e} (band {INTERIOR_BAND:g})")
     assert worst <= INTERIOR_BAND
 
@@ -237,9 +278,11 @@ def test_controls_c1_c2():
         c1_exact = 1.0 - _phi_cyl(0.0, z, T_PRINT) / _phi(0.0, z, T_PRINT)
         c2 = {arm: abs(_f(arm, "mean")[k] / c - 1.0) for arm in ("ti", "hole")}
         asserted = k < 2
-        _p(f"[imp8-i83] (C1) {_lab(k)}: 1 - gel/(SCALE*Φ_line) {c1:.6f} (exact-FEM ceiling "
-           f"1 - Φ_a/Φ {c1_exact:.5f}); (C2) |ti/(SCALE*Φ_a)-1| {c2['ti']:.5f}, |hole/..-1| "
-           f"{c2['hole']:.5f}; {'asserted > band' if asserted else 'printed only'} {INTERIOR_BAND:g}")
+        _p(
+            f"[imp8-i83] (C1) {_lab(k)}: 1 - gel/(SCALE*Φ_line) {c1:.6f} (exact-FEM ceiling "
+            f"1 - Φ_a/Φ {c1_exact:.5f}); (C2) |ti/(SCALE*Φ_a)-1| {c2['ti']:.5f}, |hole/..-1| "
+            f"{c2['hole']:.5f}; {'asserted > band' if asserted else 'printed only'} {INTERIOR_BAND:g}"
+        )
         if asserted:
             assert c1 > INTERIOR_BAND
             assert c2["ti"] > INTERIOR_BAND and c2["hole"] > INTERIOR_BAND
@@ -250,40 +293,61 @@ def _drop(v):
 
 
 def test_printed_record():
-    _p("[imp8-i83] record: placement and time quoted from memory; W3 confirms or corrects. "
-       "K per watt, 1 W in the rod, infinite gel.")
+    _p(
+        "[imp8-i83] record: placement and time quoted from memory; W3 confirms or corrects. "
+        "K per watt, 1 W in the rod, infinite gel."
+    )
     for k, z in enumerate(RUNGS):
         c, d = _closed(z)
         ss = SCALE * _cyl_steady(z)
         rf = _phi_cyl(0.0, z, T_PRINT) / _phi(0.0, z, T_PRINT)
         c_eff = SCALE * _phi_cyl(0.0, z, T_PRINT, a=A_EFF)
         rf_eff = c_eff / (SCALE * _phi(0.0, z, T_PRINT))
-        _p(f"[imp8-i83] {_lab(k)} (+{LADDER_MM[k]:g} mm): SCALE*Φ_a 900 s {c:.7g}, D=0.5 {d:.7g}, "
-           f"steady {ss:.7g}; Φ_a/Φ {rf:.7g}; at a=1.0022 mm {c_eff:.7g} (Φ_a/Φ {rf_eff:.7g})")
+        _p(
+            f"[imp8-i83] {_lab(k)} (+{LADDER_MM[k]:g} mm): SCALE*Φ_a 900 s {c:.7g}, D=0.5 {d:.7g}, "
+            f"steady {ss:.7g}; Φ_a/Φ {rf:.7g}; at a=1.0022 mm {c_eff:.7g} (Φ_a/Φ {rf_eff:.7g})"
+        )
         for arm in ("gel", "ti", "hole"):
             m, pl, mi = _f(arm, "mean")[k], _f(arm, "plus")[k], _f(arm, "minus")[k]
-            _p(f"[imp8-i83]   arm {arm}: mean/Φ_a {m / c:.6f}, +z/Φ_a {pl / c:.6f}, -z/Φ_a {mi / c:.6f}")
+            _p(
+                f"[imp8-i83]   arm {arm}: mean/Φ_a {m / c:.6f}, +z/Φ_a {pl / c:.6f}, -z/Φ_a {mi / c:.6f}"
+            )
         g = _f("gel", "mean")[k]
-        _p(f"[imp8-i83]   rod effect on the gated baseline: ti/gel - 1 {_f('ti', 'mean')[k] / g - 1.0:+.4f}, "
-           f"hole/gel - 1 {_f('hole', 'mean')[k] / g - 1.0:+.4f}")
+        _p(
+            f"[imp8-i83]   rod effect on the gated baseline: ti/gel - 1 {_f('ti', 'mean')[k] / g - 1.0:+.4f}, "
+            f"hole/gel - 1 {_f('hole', 'mean')[k] / g - 1.0:+.4f}"
+        )
     line = [SCALE * _phi(0.0, z, T_PRINT) for z in RUNGS[:2]]
     cyl = [_closed(z)[0] for z in RUNGS[:2]]
     dl, dc = _drop(line), _drop(cyl)
     dr = {arm: _drop(_f(arm, "mean")) for arm in ("gel", "ti", "hole")}
-    _p(f"[imp8-i83] first drop (16 -> 17 mm), means: line {dl:.6f}, cylinder {dc:.6f}, gel {dr['gel']:.6f}, "
-       f"ti {dr['ti']:.6f}, hole {dr['hole']:.6f}")
-    _p(f"[imp8-i83] decomposition: radius (cyl - line) {dc - dl:+.6f}; mesh (gel - cyl) {dr['gel'] - dc:+.6f}; "
-       f"rod (ti - gel) {dr['ti'] - dr['gel']:+.6f}; ti - line {dr['ti'] - dl:+.6f}")
+    _p(
+        f"[imp8-i83] first drop (16 -> 17 mm), means: line {dl:.6f}, cylinder {dc:.6f}, gel {dr['gel']:.6f}, "
+        f"ti {dr['ti']:.6f}, hole {dr['hole']:.6f}"
+    )
+    _p(
+        f"[imp8-i83] decomposition: radius (cyl - line) {dc - dl:+.6f}; mesh (gel - cyl) {dr['gel'] - dc:+.6f}; "
+        f"rod (ti - gel) {dr['ti'] - dr['gel']:+.6f}; ti - line {dr['ti'] - dl:+.6f}"
+    )
     for arm in ("gel", "ti", "hole"):
         dp, dm = _drop(_f(arm, "plus")), _drop(_f(arm, "minus"))
-        _p(f"[imp8-i83] per sign arm {arm}: +z drop {dp:.6f}, -z drop {dm:.6f}, spread {abs(dp - dm):.6f}; "
-           f"+z - cyl {dp - dc:+.6f}, -z - cyl {dm - dc:+.6f}")
+        _p(
+            f"[imp8-i83] per sign arm {arm}: +z drop {dp:.6f}, -z drop {dm:.6f}, spread {abs(dp - dm):.6f}; "
+            f"+z - cyl {dp - dc:+.6f}, -z - cyl {dm - dc:+.6f}"
+        )
     z0 = RUNGS[0]
-    defs = [_phi_cyl(0.0, z0, T_PRINT, a=ROD_RADIUS / f) / _phi(0.0, z0, T_PRINT) - 1.0 for f in (10, 20, 40)]
+    defs = [
+        _phi_cyl(0.0, z0, T_PRINT, a=ROD_RADIUS / f) / _phi(0.0, z0, T_PRINT) - 1.0
+        for f in (10, 20, 40)
+    ]
     orders = [np.log2(defs[i] / defs[i + 1]) for i in range(2)]
-    _p(f"[imp8-i83] a -> 0 (16 mm, printed only): Φ_a/Φ - 1 at a/10, /20, /40 "
-       f"{defs[0]:.4e} / {defs[1]:.4e} / {defs[2]:.4e}; observed order {orders[0]:.4f} / {orders[1]:.4f} "
-       f"(expected ≈ 2)")
+    _p(
+        f"[imp8-i83] a -> 0 (16 mm, printed only): Φ_a/Φ - 1 at a/10, /20, /40 "
+        f"{defs[0]:.4e} / {defs[1]:.4e} / {defs[2]:.4e}; observed order {orders[0]:.4f} / {orders[1]:.4f} "
+        f"(expected ≈ 2)"
+    )
     x, y = 0.3, 0.3 + 1e-3
-    _p(f"[imp8-i83] bracket forms at x={x:g}, y={y:g}: ierfc(x)-ierfc(y) {_ierfc(x) - _ierfc(y):.15e} vs "
-       f"GL16 ∫erfc {(y - x) * float(special.erfc(x + (y - x) * _GL_B[0]) @ _GL_B[1]):.15e}")
+    _p(
+        f"[imp8-i83] bracket forms at x={x:g}, y={y:g}: ierfc(x)-ierfc(y) {_ierfc(x) - _ierfc(y):.15e} vs "
+        f"GL16 ∫erfc {(y - x) * float(special.erfc(x + (y - x) * _GL_B[0]) @ _GL_B[1]):.15e}"
+    )

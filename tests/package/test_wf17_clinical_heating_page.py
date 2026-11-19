@@ -53,13 +53,21 @@ TAG = "[WF-17 s46]"
 HEADING = "## Clinical heating records (entries 59 / 60)"
 C39_LOG = TRACKED_LOG_DIR / "20261111T103024Z_GEO-38-C39-W1.log"
 RATIO_KEY = "hotspot point theta per P_acc"
-C39_RE = re.compile(r"^\[GEO-38 C46\]   (ccw|cw) hotspot point theta per P_acc: "
-                    r"(\S+) \| (\S+) \| (\S+)$")
+C39_RE = re.compile(
+    r"^\[GEO-38 C46\]   (ccw|cw) hotspot point theta per P_acc: " r"(\S+) \| (\S+) \| (\S+)$"
+)
 PROBE_COLS = ("P1 +y wall", "P2 -y wall")
-FIELDS = (("1.5 T", "59", ENTRY59_GLOB, ENTRY59_NODE_PF),
-          ("3 T", "60", ENTRY60_GLOB, ENTRY60_NODE_PF))
-DISCLAIMERS = ("degree 1", "1.5 T gel constants", "20 °C baseline", "No container wall",
-               "No compliance claim")
+FIELDS = (
+    ("1.5 T", "59", ENTRY59_GLOB, ENTRY59_NODE_PF),
+    ("3 T", "60", ENTRY60_GLOB, ENTRY60_NODE_PF),
+)
+DISCLAIMERS = (
+    "degree 1",
+    "1.5 T gel constants",
+    "20 °C baseline",
+    "No container wall",
+    "No compliance claim",
+)
 DECIMAL_RE = re.compile(r"\d+\.\d+")
 
 
@@ -73,8 +81,8 @@ def section(text: str) -> str:
     if len(heads) != 1:
         raise LookupError(f"{HEADING!r}: {len(heads)} occurrences (exactly one required)")
     start = heads[0]
-    nxt = re.search(r"^## ", text[start + len(HEADING):], re.M)
-    return text[start: start + len(HEADING) + nxt.start()] if nxt else text[start:]
+    nxt = re.search(r"^## ", text[start + len(HEADING) :], re.M)
+    return text[start : start + len(HEADING) + nxt.start()] if nxt else text[start:]
 
 
 def table(sec: str) -> dict[tuple[str, str], list[str]]:
@@ -113,12 +121,19 @@ def expected_rows(bl: dict[str, dict]) -> dict[tuple[str, str], list[str]]:
     for label, *_ in FIELDS:
         for sn in SENSES:
             p61 = bl[label]["senses"][sn]["p61"]
-            exp[(label, sn)] = [p61["hot"]["point"], p61["hot"]["theta_point"],
-                                *(p61["probes"][c]["theta"] for c in PROBE_COLS)]
+            exp[(label, sn)] = [
+                p61["hot"]["point"],
+                p61["hot"]["theta_point"],
+                *(p61["probes"][c]["theta"] for c in PROBE_COLS),
+            ]
     r = ratios(side(bl["1.5 T"]), side(bl["3 T"]))
     for sn in SENSES:
-        exp[("3 T / 1.5 T", sn)] = ["each its own", format(r[sn][RATIO_KEY], ".6e"),
-                                    "not read", "not read"]
+        exp[("3 T / 1.5 T", sn)] = [
+            "each its own",
+            format(r[sn][RATIO_KEY], ".6e"),
+            "not read",
+            "not read",
+        ]
     return exp
 
 
@@ -199,9 +214,11 @@ def test_s46_q_ratio_c46_and_c39_custody():
     for sn in SENSES:
         mine = format(r[sn][RATIO_KEY], ".6e")
         assert len(tup[sn]) == 1, (sn, tup[sn])
-        (t15, t3, rr), = tup[sn]
-        print(f"{TAG} (Q-ratio) {sn}: C39 tuple ({t15} | {t3} | {rr}); C46 ratios {mine}; "
-              f"page {got[('3 T / 1.5 T', sn)][1]}")
+        ((t15, t3, rr),) = tup[sn]
+        print(
+            f"{TAG} (Q-ratio) {sn}: C39 tuple ({t15} | {t3} | {rr}); C46 ratios {mine}; "
+            f"page {got[('3 T / 1.5 T', sn)][1]}"
+        )
         assert t15 == bl["1.5 T"]["senses"][sn]["p61"]["hot"]["theta_point"]
         assert t3 == bl["3 T"]["senses"][sn]["p61"]["hot"]["theta_point"]
         assert rr == mine == got[("3 T / 1.5 T", sn)][1]
@@ -240,11 +257,14 @@ def test_s46_disc_disclaimers():
 
 def test_s46_d_docrefs_guide():
     rc, counts = _on_root(run_checker, "--docs-root", "docs/guide", "--check-links")
-    link = LINK_PASS_RE.search(_on_root(_checker_stdout, "--docs-root", "docs/guide",
-                                        "--check-links"))
+    link = LINK_PASS_RE.search(
+        _on_root(_checker_stdout, "--docs-root", "docs/guide", "--check-links")
+    )
     assert link is not None, "(D) no 'Link pass:' line"
-    print(f"{TAG} (D) dead={counts['dead']} links={link.group(1)} pages={link.group(2)} "
-          f"link-dead={link.group(3)} rc={rc}")
+    print(
+        f"{TAG} (D) dead={counts['dead']} links={link.group(1)} pages={link.group(2)} "
+        f"link-dead={link.group(3)} rc={rc}"
+    )
     assert counts["dead"] == 0
     assert int(link.group(3)) == 0
 
@@ -257,7 +277,7 @@ def test_s46_c_digit_one_mismatch():
     text = PAGE.read_text(encoding="utf-8")
     tok = bl["3 T"]["senses"]["ccw"]["p61"]["hot"]["theta_point"]
     j = tok.index("e") - 1
-    new = tok[:j] + str((int(tok[j]) + 1) % 10) + tok[j + 1:]
+    new = tok[:j] + str((int(tok[j]) + 1) % 10) + tok[j + 1 :]
     assert text.count(tok) == 1
     planted = text.replace(tok, new, 1)
     bad = tab_mismatches(section(planted), expected_rows(bl))

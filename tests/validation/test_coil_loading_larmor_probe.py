@@ -62,9 +62,8 @@ import time
 import numpy as np
 import pytest
 import ufl
-from mpi4py import MPI
-
 from dolfinx import fem
+from mpi4py import MPI
 
 from fem_em_solver.core import (
     HomogeneousMaterial,
@@ -174,9 +173,7 @@ def _solve_projected_at(
         frequency_hz=frequency_hz,
         material=HomogeneousMaterial(sigma=0.0, epsilon_r=1.0, mu_r=1.0),
         cell_tags=cell_tags,
-        material_map={
-            SLAB_TAG: HomogeneousMaterial(sigma=sigma_slab, epsilon_r=1.0, mu_r=1.0)
-        },
+        material_map={SLAB_TAG: HomogeneousMaterial(sigma=sigma_slab, epsilon_r=1.0, mu_r=1.0)},
         boundary_condition="pec_zero_tangential_a",
     )
     solver = TimeHarmonicSolver(problem, degree=degree)
@@ -197,12 +194,8 @@ def _solve_projected_at(
 
 def _ohmic_power(msh, cell_tags, e_field, sigma_slab, comm) -> float:
     """``½∫_slab σ|E|² dx`` [W] — the dissipation the σ = 0 control zeroes."""
-    dx_slab = ufl.Measure(
-        "dx", domain=msh, subdomain_data=cell_tags, subdomain_id=(SLAB_TAG,)
-    )
-    return 0.5 * sigma_slab * _reduced_real(
-        ufl.inner(e_field, e_field) * dx_slab, comm
-    )
+    dx_slab = ufl.Measure("dx", domain=msh, subdomain_data=cell_tags, subdomain_id=(SLAB_TAG,))
+    return 0.5 * sigma_slab * _reduced_real(ufl.inner(e_field, e_field) * dx_slab, comm)
 
 
 @pytest.fixture(scope="module")
@@ -226,9 +219,7 @@ def larmor_loading():
     )
     comm.Barrier()
     t_mesh = time.perf_counter() - t_mesh
-    ncells = comm.allreduce(
-        msh.topology.index_map(msh.topology.dim).size_local, op=MPI.SUM
-    )
+    ncells = comm.allreduce(msh.topology.index_map(msh.topology.dim).size_local, op=MPI.SUM)
 
     fields_loaded, j_prime, t_loaded = _solve_projected_at(
         msh, cell_tags, FEM_SIGMA_SLAB, LARMOR_FREQUENCY_HZ, comm
@@ -240,9 +231,7 @@ def larmor_loading():
 
     x = ufl.SpatialCoordinate(msh)
     phi_hat = _azimuthal_current_density(1.0)(x)
-    dx_wire = ufl.Measure(
-        "dx", domain=msh, subdomain_data=cell_tags, subdomain_id=(WIRE_TAG,)
-    )
+    dx_wire = ufl.Measure("dx", domain=msh, subdomain_data=cell_tags, subdomain_id=(WIRE_TAG,))
     current = _reduced_real(ufl.inner(j_prime, phi_hat) * dx_wire, comm) / (
         2.0 * np.pi * FEM_LOOP_RADIUS
     )

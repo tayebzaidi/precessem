@@ -33,7 +33,6 @@ import pytest
 from mpi4py import MPI
 
 from fem_em_solver.io.mesh import MeshGenerator, _interface_facet_tags
-
 from tests.mesh.helpers import global_cell_tag_set
 from tests.mesh.test_birdcage_conductor_sizing import CAD_MASS_GATE
 from tests.mesh.test_birdcage_port_sheet_prerequisite import CELL_COUNT_BAND
@@ -97,24 +96,20 @@ def _build(comm, **extra) -> dict:
     base_vol = sum(_tag_volume(msh, cells, t, comm) for t in (1, 2, 3))
     ring_vol = sum(_tag_volume(msh, cells, t, comm) for t in ring_tag_list)
     leg_vol = sum(
-        _tag_volume(msh, cells, t, comm)
-        for i in LEG_IDS
-        for t in (PORT_LOWER + i, PORT_UPPER + i)
+        _tag_volume(msh, cells, t, comm) for i in LEG_IDS for t in (PORT_LOWER + i, PORT_UPPER + i)
     )
 
     _counts, areas = _port_boundary_partition(msh, cells, comm, ring_cell_tags)
     terminal_analytic = float(diag["ring_port_layout"]["ring_terminal_area_m2"])
-    ratios = np.array(
-        [areas[CONDUCTOR_IFACE + i] / terminal_analytic for i in ring_ports]
-    )
+    ratios = np.array([areas[CONDUCTOR_IFACE + i] / terminal_analytic for i in ring_ports])
 
     sheet_tags = _interface_facet_tags(
-        msh, cells,
+        msh,
+        cells,
         {SHEET_IFACE + i: (PORT_LOWER + i, PORT_UPPER + i) for i in ring_ports},
     )
     sheet_areas = np.array(
-        [_interface_area_or_zero(msh, sheet_tags, SHEET_IFACE + i, comm)
-         for i in ring_ports]
+        [_interface_area_or_zero(msh, sheet_tags, SHEET_IFACE + i, comm) for i in ring_ports]
     )
 
     leg_tags = [PORT_LOWER + i for i in LEG_IDS] + [PORT_UPPER + i for i in LEG_IDS]
@@ -128,12 +123,12 @@ def _build(comm, **extra) -> dict:
         "partition_with_legs": (base_vol + ring_vol + leg_vol) / v_total,
         "terminal_ratios": ratios,
         "sheet_areas": sheet_areas,
-        "cad_ratio": _tag_volume(msh, cells, 1, comm)
-        / diag["cad_mass_by_group"]["conductor"],
+        "cad_ratio": _tag_volume(msh, cells, 1, comm) / diag["cad_mass_by_group"]["conductor"],
         "leg_census": _owned_census(msh, cells, leg_tags, comm),
         "ring_census": _owned_census(msh, cells, ring_tag_list, comm),
         "ring_tags_present": sorted(
-            t for t in global_cell_tag_set(msh, cells)
+            t
+            for t in global_cell_tag_set(msh, cells)
             if PORT_LOWER + LEG_COUNT < t <= PORT_LOWER + 3 * LEG_COUNT
             or PORT_UPPER + LEG_COUNT < t <= PORT_UPPER + 3 * LEG_COUNT
         ),
@@ -150,21 +145,22 @@ def test_geo35_knob_contract():
 
     base = _wf7_kwargs()
     refusals = {
-        "leg_gap_length": dict(base, leg_gap_length=0.01, ring_gap_length=None,
-                               ring_sheet_orientation="transverse"),
+        "leg_gap_length": dict(
+            base, leg_gap_length=0.01, ring_gap_length=None, ring_sheet_orientation="transverse"
+        ),
         "as_hole": dict(base, as_hole=True),
         "symmetry_quadrant": dict(base, symmetry_quadrant=True, as_hole=False),
     }
     for name, kwargs in refusals.items():
         assert not gmsh.isInitialized()
         with pytest.raises(ValueError, match="emit_leg_ports"):
-            MeshGenerator.birdcage_port_domain(
-                comm=MPI.COMM_WORLD, emit_leg_ports=False, **kwargs
-            )
+            MeshGenerator.birdcage_port_domain(comm=MPI.COMM_WORLD, emit_leg_ports=False, **kwargs)
         assert not gmsh.isInitialized(), f"{name}: gmsh state existed at refusal"
         if MPI.COMM_WORLD.rank == 0:
-            print(f"\n[GEO-35 (K)] emit_leg_ports=False with {name}: ValueError "
-                  "before gmsh", flush=True)
+            print(
+                f"\n[GEO-35 (K)] emit_leg_ports=False with {name}: ValueError " "before gmsh",
+                flush=True,
+            )
 
 
 def test_geo35_f_human_builder_contract():
@@ -195,8 +191,11 @@ def test_geo35_f_human_builder_contract():
         _f_human_kwargs(as_hole=True, emit_leg_ports=False)
     assert not gmsh.isInitialized()
     if MPI.COMM_WORLD.rank == 0:
-        print("\n[GEO-35 s2a (K)] default drops leg boxes (key False); pinned and "
-              "as_hole add no key; as_hole+False refused before gmsh", flush=True)
+        print(
+            "\n[GEO-35 s2a (K)] default drops leg boxes (key False); pinned and "
+            "as_hole add no key; as_hole+False refused before gmsh",
+            flush=True,
+        )
 
 
 def test_geo35_f_human_drops_leg_ports_keeps_identities():
@@ -245,9 +244,7 @@ def test_geo35_f_human_drops_leg_ports_keeps_identities():
     assert abs(default["n_cells"] / F_HUMAN_BRANCH_B_CELL_RECORD - 1.0) < CELL_COUNT_BAND
     assert default["diag"]["leg_ports_emitted"] is True
     # (c1) the leg-tag detector sees all 16 boxes on the default build.
-    assert all(default["leg_census"][PORT_LOWER + i] > 0 for i in LEG_IDS), (
-        default["leg_census"]
-    )
+    assert all(default["leg_census"][PORT_LOWER + i] > 0 for i in LEG_IDS), default["leg_census"]
     # (c2) the partition comparator sees 16 missing boxes.
     assert c2_measured > EXACT, c2_measured
     assert abs(default["partition_with_legs"] - 1.0) < EXACT
@@ -306,12 +303,12 @@ def test_geo35_transverse_rung_measure():
     rungs = {}
     for scale_sizing in (False, True):
         rung = _build_rung(
-            F_HUMAN_RING_RADIUS, scale_sizing=scale_sizing, keep_mesh=True,
+            F_HUMAN_RING_RADIUS,
+            scale_sizing=scale_sizing,
+            keep_mesh=True,
             emit_leg_ports=False,
         )
-        rung["leg_census"] = _owned_census(
-            rung["mesh"], rung["cell_tags"], leg_tags, comm
-        )
+        rung["leg_census"] = _owned_census(rung["mesh"], rung["cell_tags"], leg_tags, comm)
         rungs[scale_sizing] = rung
         rec = records[scale_sizing]
         rel = rung["n_cells"] / rec - 1.0
@@ -366,5 +363,6 @@ def test_geo35_transverse_rung_measure():
         # Negative control: the switch took effect on the count.
         assert rung["n_cells"] != records[scale_sizing], rung["n_cells"]
     assert a["cad_ratio"] < CAD_MASS_GATE <= b["cad_ratio"], (
-        a["cad_ratio"], b["cad_ratio"],
+        a["cad_ratio"],
+        b["cad_ratio"],
     )

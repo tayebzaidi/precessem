@@ -53,7 +53,6 @@ from fem_em_solver import (
 )
 from fem_em_solver.ports.circuit import reduce_terminated_ports
 from fem_em_solver.study_yaml import StudyConfigError
-
 from tests.complex_mode import complex_only
 from tests.mesh.test_birdcage_implant_rod import ROD, _build_rod
 from tests.mesh.test_birdcage_leg_offset import IDENTITY_BAND
@@ -105,8 +104,14 @@ def _rod_geometry():
 
 
 def _study(geometry, excitation, degree=1, conductor=None):
-    return Study(geometry, _phantom(), excitation, frequency_hz=FREQUENCY_HZ, degree=degree,
-                 conductor=conductor)
+    return Study(
+        geometry,
+        _phantom(),
+        excitation,
+        frequency_hz=FREQUENCY_HZ,
+        degree=degree,
+        conductor=conductor,
+    )
 
 
 def _caps():
@@ -138,30 +143,33 @@ def test_s13_refusal_lifts_on_the_gated_path_only(monkeypatch):
     # Control 2: the copper-hole rod Study.  The brief named the generator's ValueError;
     # review ruling (3) leaves the Study's own TypeError first (unchanged from `main`), and
     # the slot owner ruled that is what is asserted.  Refused before any mesh.
-    copper = FourPortBirdcageGeometry(as_hole=True, strip_fraction=GATED_WIDTH_FRACTION,
-                                      implant_rod=ROD)
+    copper = FourPortBirdcageGeometry(
+        as_hole=True, strip_fraction=GATED_WIDTH_FRACTION, implant_rod=ROD
+    )
     with pytest.raises(TypeError, match="CapacitorSheets") as err:
         _study(copper, _caps(), conductor=LeontovichWall(study_mod.COPPER_SIGMA)).solve(COMM)
     # The other entry points keep the TypeError on the PEC rod (they never had the route).
     with pytest.raises(TypeError, match="CapacitorSheets"):
         _study(_rod_geometry(), _caps()).solve_sweep((64.0e6, 128.0e6), COMM)
     assert len(calls) == 1
-    _p0(f"\n[WF-15 s13] (Ref) PEC rod degree 1 reaches the builder; degree 2 ValueError; "
-        f"copper-hole rod TypeError ({err.value}); builds {len(calls)}")
+    _p0(
+        f"\n[WF-15 s13] (Ref) PEC rod degree 1 reaches the builder; degree 2 ValueError; "
+        f"copper-hole rod TypeError ({err.value}); builds {len(calls)}"
+    )
 
 
 @coding
 def test_s13_yaml_admits_the_gated_path_only(tmp_path):
     caps = {"kind": "capacitor_sheets", "c_f": C_F, "esr_ohm": ESR_OHM, "sheets": [SHEET]}
-    doc = _mapping(study={"frequency_hz": FREQUENCY_HZ, "degree": 1}, excitation=caps,
-                   implant=_rod_yaml())
+    doc = _mapping(
+        study={"frequency_hz": FREQUENCY_HZ, "degree": 1}, excitation=caps, implant=_rod_yaml()
+    )
     st = _load(tmp_path, "gated", doc)
     assert st.geometry == _rod_geometry() and st.conductor is None
     assert isinstance(st.excitation, CapacitorSheets) and st.excitation.on == (SHEET,)
     hole = {"kind": "four_port_birdcage", "preset": "f_small", "as_hole": True}
     refused = {
-        "copper hole": ({**doc, "geometry": hole, "conductor": {"kind": "leontovich"}},
-                        "implant"),
+        "copper hole": ({**doc, "geometry": hole, "conductor": {"kind": "leontovich"}}, "implant"),
         "degree 2": ({**doc, "study": {"frequency_hz": FREQUENCY_HZ, "degree": 2}}, "study.degree"),
     }
     for name, (mapping, field) in refused.items():
@@ -176,8 +184,15 @@ def _direct_three_port(built, label):
     case = build_four_port_sweep(frequency_hz=FREQUENCY_HZ, built=built, build_only=True)
     assert all(s.width_correction_kappa is None for s in case["specs"])
     t0 = time.perf_counter()
-    s3 = _terminated_three_port(case["problem"], case["port_defs"], case["specs"],
-                                case["facet_tags"], None, PLANT_INDEX, _rc(ESR_OHM))
+    s3 = _terminated_three_port(
+        case["problem"],
+        case["port_defs"],
+        case["specs"],
+        case["facet_tags"],
+        None,
+        PLANT_INDEX,
+        _rc(ESR_OHM),
+    )
     _p0(f"[WF-15 s13] direct {label}: 3x3 in {time.perf_counter() - t0:.1f} s")
     return s3, int(case["cells"])
 
@@ -213,8 +228,10 @@ def s13():
             tune = st50.tune(k=1, comm=COMM)
             t_50 = time.perf_counter() - t0
             out[key] = {"res": res, "s0": s0, "tune": tune, "built": cache[key][1]}
-            _p0(f"\n[WF-15 s13] {key} Study: cells {res.cells}, caps 3x3 {t_caps:.1f} s, "
-                f"50 ohm 4x4 + tune {t_50:.1f} s")
+            _p0(
+                f"\n[WF-15 s13] {key} Study: cells {res.cells}, caps 3x3 {t_caps:.1f} s, "
+                f"50 ohm 4x4 + tune {t_50:.1f} s"
+            )
     _p0(f"[WF-15 s13] build cache: {counts['real']} real, {counts['hits']} hits")
     assert counts["real"] == 2
 
@@ -222,8 +239,10 @@ def s13():
         t0 = time.perf_counter()
         built = _build_rod(implant_rod=rod, leg_sheet_strip_fraction=GATED_WIDTH_FRACTION)
         out[key]["direct"], out[key]["direct_cells"] = _direct_three_port(built, key)
-        _p0(f"[WF-15 s13] direct {key}: build {built[4]:.1f} s, total "
-            f"{time.perf_counter() - t0:.1f} s")
+        _p0(
+            f"[WF-15 s13] direct {key}: build {built[4]:.1f} s, total "
+            f"{time.perf_counter() - t0:.1f} s"
+        )
 
     # (E): the rod Study's own three terminated fields on its tag-402 wall.
     from fem_em_solver.ports.lumped import run_lumped_sheet_port_case
@@ -233,12 +252,20 @@ def s13():
     wall = {}
     for pd in res.port_definitions:
         _r, fields = run_lumped_sheet_port_case(
-            res.problem, res.all_port_definitions, res.specs, facet_tags=res.facet_tags,
-            driven_port_id=pd.port_id, verbose=False, return_fields=True,
-            extra_bilinear_terms=res.conductor_terms, degree=res.degree)
+            res.problem,
+            res.all_port_definitions,
+            res.specs,
+            facet_tags=res.facet_tags,
+            driven_port_id=pd.port_id,
+            verbose=False,
+            return_fields=True,
+            extra_bilinear_terms=res.conductor_terms,
+            degree=res.degree,
+        )
         if owned is None:
-            owned, n_wall = _wall_dofs(res.mesh, out["rod"]["built"]["mesh_facet_tags"],
-                                       fields.e_complex.function_space)
+            owned, n_wall = _wall_dofs(
+                res.mesh, out["rod"]["built"]["mesh_facet_tags"], fields.e_complex.function_space
+            )
         wall[pd.port_id] = _wall_max_e(fields.e_complex, owned, COMM)
     out["wall"], out["n_wall"] = wall, n_wall
     return out
@@ -263,12 +290,15 @@ def test_s13_all_gates(s13):
         gates[f"{key} i"] = recip <= RECIPROCITY_BAND
         gates[f"{key} ii_sigma"] = float(sig[0]) <= 1.0 + PASSIVITY_SIGMA_TOLERANCE
         gates[f"{key} ports"] = [p.port_id for p in arm["res"].port_definitions] == [
-            p for p in PORTS if p != SHEET]
-        _p0(f"[WF-15 s13] {key}: cells Study {arm['res'].cells}, direct {arm['direct_cells']}; "
+            p for p in PORTS if p != SHEET
+        ]
+        _p0(
+            f"[WF-15 s13] {key}: cells Study {arm['res'].cells}, direct {arm['direct_cells']}; "
             f"(Id) ||S_study - S_direct||/||S_direct|| {rel:.3e} (IDENTITY_BAND "
             f"{IDENTITY_BAND:.0e}); (i) {recip:.3e} (band {RECIPROCITY_BAND:.0e}); (ii) "
             f"sigma_max {float(sig[0]):.12f} (<= 1 + {PASSIVITY_SIGMA_TOLERANCE:g}); "
-            f"reduce(S0) vs Study {ident:.3e} (printed only)")
+            f"reduce(S0) vs Study {ident:.3e} (printed only)"
+        )
     gates["A0 rod"] = rod["res"].cells == ROD_EXACT_CELL_RECORD
     gates["A0 off"] = off["res"].cells == ANS4_EXACT_STRIP_CELL_RECORD
     gates["E"] = max(s13["wall"].values()) <= PEC_WALL_MAX_E
@@ -277,13 +307,19 @@ def test_s13_all_gates(s13):
     wall_off = _parent_wall_count(off["res"].mesh, off["built"]["mesh_facet_tags"])
     gates["wall_rod"] = wall_rod > 0
     gates["wall_off"] = wall_off == 0
-    _p0(f"[WF-15 s13] (A0) rod {rod['res'].cells} (record {ROD_EXACT_CELL_RECORD}), off "
-        f"{off['res'].cells} (record {ANS4_EXACT_STRIP_CELL_RECORD})")
-    _p0(f"[WF-15 s13] (E) wall dofs {s13['n_wall']}, max|E| {s13['wall']} (bound "
-        f"{PEC_WALL_MAX_E:g}); tag-402 owned facets rod {wall_rod}, off {wall_off}")
+    _p0(
+        f"[WF-15 s13] (A0) rod {rod['res'].cells} (record {ROD_EXACT_CELL_RECORD}), off "
+        f"{off['res'].cells} (record {ANS4_EXACT_STRIP_CELL_RECORD})"
+    )
+    _p0(
+        f"[WF-15 s13] (E) wall dofs {s13['n_wall']}, max|E| {s13['wall']} (bound "
+        f"{PEC_WALL_MAX_E:g}); tag-402 owned facets rod {wall_rod}, off {wall_off}"
+    )
     c_rod, c_off = rod["tune"].c_mode_farad, off["tune"].c_mode_farad
-    _p0(f"[WF-15 s13] tune(k=1) C_mode rod {c_rod:.9e} F, rod-free {c_off:.9e} F: "
-        f"rod / rod-free - 1 = {c_rod / c_off - 1.0:+.6e} (record, printed only)")
+    _p0(
+        f"[WF-15 s13] tune(k=1) C_mode rod {c_rod:.9e} F, rod-free {c_off:.9e} F: "
+        f"rod / rod-free - 1 = {c_rod / c_off - 1.0:+.6e} (record, printed only)"
+    )
     red = [k for k, v in gates.items() if not v]
     _p0(f"[WF-15 s13] gates red: {red or 'none'} of {len(gates)}")
     assert not red, red

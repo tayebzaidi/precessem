@@ -31,13 +31,12 @@ import pytest
 
 from fem_em_solver.thermal import solve_transient_conduction
 from fem_em_solver.thermal.dose import cem43, running_average
-
 from tests.validation.test_imp7_duty_cycle_fem import DUTY, S0_BAND, _chi
 from tests.validation.test_mat10_sar_to_heat_sphere import _say
 from tests.validation.test_mat12_transient_sar_heating_sphere import E_BAND
 from tests.validation.test_mat13_transient_perfusion_sphere import INTERIOR_BAND
 from tests.validation.test_mat15_coil_driven_heating_phantom import H_GEL, K_GEL, N_MAIN
-from tests.validation.test_mat15_finite_cylinder_closed_form import H, K, Q, T_INF
+from tests.validation.test_mat15_finite_cylinder_closed_form import T_INF, H, K, Q
 from tests.validation.test_mat15_finite_cylinder_fem import _rel as _rel_l2
 from tests.validation.test_mat20_cem43_closed_form import _rel
 from tests.validation.test_mat20_running_average import W_B2
@@ -95,8 +94,10 @@ def test_precondition_grid_and_batch():
     assert K == K_GEL and H == H_GEL, (K, K_GEL, H, H_GEL)
     assert BATCH.shape == (3, 3) and LABELS[INTERFACE] == "interface"
     assert BATCH[INTERFACE, 2] == C_BOX
-    _say(f"\nMAT21-23 (W0) T_GRID {T_GRID.size} rows, dt {DT:.4f} s, 4 t* {T_4:.3f} s at row {STEP_4T}; "
-         f"batch z {tuple(float(z) for z in Z_PTS)} m")
+    _say(
+        f"\nMAT21-23 (W0) T_GRID {T_GRID.size} rows, dt {DT:.4f} s, 4 t* {T_4:.3f} s at row {STEP_4T}; "
+        f"batch z {tuple(float(z) for z in Z_PTS)} m"
+    )
 
 
 @pytest.fixture(scope="module")
@@ -109,14 +110,29 @@ def wall_dose():
     ft = _robin_facets(msh, (A_BOX, B_BOX, C_BOX + D_WALL), (2,))
     tl = time.perf_counter()
     res = solve_transient_conduction(
-        msh, ft, k=kf, rho_c=rcf, q=Q * chi, h=H_GEL, t_inf=T_INF, t_init=T_INF,
-        robin_tag=ROBIN, theta=0.5, startup_half_steps=2, dt=DT, n_steps=N2,
-        snapshot_steps=tuple(range(N2 + 1)), source_schedule=_chi(PERIOD, DUTY))
+        msh,
+        ft,
+        k=kf,
+        rho_c=rcf,
+        q=Q * chi,
+        h=H_GEL,
+        t_inf=T_INF,
+        t_init=T_INF,
+        robin_tag=ROBIN,
+        theta=0.5,
+        startup_half_steps=2,
+        dt=DT,
+        n_steps=N2,
+        snapshot_steps=tuple(range(N2 + 1)),
+        source_schedule=_chi(PERIOD, DUTY),
+    )
     t_cn = time.perf_counter() - tl
     s0, tot, n_on, n_off = _census(res)
-    _say(f"\nMAT21-23 [W1] walled box m = {RUNG} cells {tuple(ns)} N_w = {nw}: n = {n}; CN {t_cn:.1f} s; "
-         f"(E) max balance {res.max_balance_residual:.3e} (band {E_BAND:g}); (S0) sum chi dt {tot:.6f} s: "
-         f"rel {s0:.3e} (band {S0_BAND:g}); {n_on} on / {n_off} off (half-)steps")
+    _say(
+        f"\nMAT21-23 [W1] walled box m = {RUNG} cells {tuple(ns)} N_w = {nw}: n = {n}; CN {t_cn:.1f} s; "
+        f"(E) max balance {res.max_balance_residual:.3e} (band {E_BAND:g}); (S0) sum chi dt {tot:.6f} s: "
+        f"rel {s0:.3e} (band {S0_BAND:g}); {n_on} on / {n_off} off (half-)steps"
+    )
 
     tp = time.perf_counter()
     hist = np.zeros((T_GRID.size, BATCH.shape[0]))
@@ -130,14 +146,24 @@ def wall_dose():
     lam_w = _lam(RHO_C_W)
     e_int = _rel_l2(msh, th, _exact_duty_t(msh, T_4, RHO_C_W, lam_w), inter)
     miss_c = _rel_l2(msh, th, _exact_t(msh, T_4, RHO_C_W, lam_w), inter)
-    _say(f"MAT21-23 (T) 4 t* = {T_4:.3f} s: interior rel L2 vs duty series {e_int:.6e} (band "
-         f"{INTERIOR_BAND:.0e}); continuous-source series miss {miss_c:.6e}; point reads {t_probe:.1f} s; "
-         f"all valid {bool(np.all(valid))}")
+    _say(
+        f"MAT21-23 (T) 4 t* = {T_4:.3f} s: interior rel L2 vs duty series {e_int:.6e} (band "
+        f"{INTERIOR_BAND:.0e}); continuous-source series miss {miss_c:.6e}; point reads {t_probe:.1f} s; "
+        f"all valid {bool(np.all(valid))}"
+    )
     series = _duty_hist(RHO_C_W)
     massless = _duty_hist(MASSLESS * RHO_C_W)
     _say(f"MAT21-23 [W1] elapsed {time.perf_counter() - t0:.1f} s")
-    return {"hist": hist, "valid": valid, "bal": res.max_balance_residual, "s0": s0, "e_int": e_int,
-            "miss_c": miss_c, "series": series, "massless": massless}
+    return {
+        "hist": hist,
+        "valid": valid,
+        "bal": res.max_balance_residual,
+        "s0": s0,
+        "e_int": e_int,
+        "miss_c": miss_c,
+        "series": series,
+        "massless": massless,
+    }
 
 
 def test_all_gates(wall_dose):
@@ -157,11 +183,15 @@ def test_all_gates(wall_dose):
             T = T_INF + th
             dose, ref, rel, _swap, miss = _q_check(T_GRID, T)
             mx, t_mx, lo, hi, wref, wrel = _win_check(T_GRID, th)
-            _say(f"MAT21-23 (Q-wf) {lab} {name}: FEM CEM43 {dose:.6e} s vs quad {ref:.6e} s rel "
-                 f"{rel:.3e} (bar {DOSE_BAR:g}); max T {np.max(T):.6f} C (< {T_REF}); R swap miss "
-                 f"{miss:.4e} (> {DOSE_BAR:g})")
-            _say(f"MAT21-23 (Win-wf) {lab} {name}: max six-minute mean {mx:.6e} K at t_max {t_mx:.4f} s; "
-                 f"bracket [{lo:.6e}, {hi:.6e}]; quad {wref:.6e} rel {wrel:.3e} (bar {AVG_BAR:g})")
+            _say(
+                f"MAT21-23 (Q-wf) {lab} {name}: FEM CEM43 {dose:.6e} s vs quad {ref:.6e} s rel "
+                f"{rel:.3e} (bar {DOSE_BAR:g}); max T {np.max(T):.6f} C (< {T_REF}); R swap miss "
+                f"{miss:.4e} (> {DOSE_BAR:g})"
+            )
+            _say(
+                f"MAT21-23 (Win-wf) {lab} {name}: max six-minute mean {mx:.6e} K at t_max {t_mx:.4f} s; "
+                f"bracket [{lo:.6e}, {hi:.6e}]; quad {wref:.6e} rel {wrel:.3e} (bar {AVG_BAR:g})"
+            )
             key = f"{lab} {name}"
             gates[f"Q {key}"] = rel <= DOSE_BAR
             gates[f"maxT {key}"] = float(np.max(T)) < T_REF
@@ -173,10 +203,12 @@ def test_all_gates(wall_dose):
     d_m = cem43(T_GRID, T_INF + w["massless"][:, INTERFACE])
     miss_m = _rel(d_m, d_fem)
     gates["massless_control"] = miss_m > DOSE_BAR
-    _say(f"MAT21-23 (control) interface dose: massless-wall series misses the FEM by {miss_m:.4e} "
-         f"(separation {miss_m / DOSE_BAR:.3e} x DOSE_BAR; item 698's series-side miss 1.1165e-01); "
-         f"continuous-source series at 4 t* {w['miss_c']:.6e} vs INTERIOR_BAND {INTERIOR_BAND:.0e} "
-         f"(separation {w['miss_c'] / INTERIOR_BAND:.2f}x)")
+    _say(
+        f"MAT21-23 (control) interface dose: massless-wall series misses the FEM by {miss_m:.4e} "
+        f"(separation {miss_m / DOSE_BAR:.3e} x DOSE_BAR; item 698's series-side miss 1.1165e-01); "
+        f"continuous-source series at 4 t* {w['miss_c']:.6e} vs INTERIOR_BAND {INTERIOR_BAND:.0e} "
+        f"(separation {w['miss_c'] / INTERIOR_BAND:.2f}x)"
+    )
     for j, name in enumerate(LABELS):
         fem_h, ser_h = hist[:, j], w["series"][:, j]
         rows = [f"max_n |dtheta| {np.max(np.abs(fem_h - ser_h)):.6e} K"]
@@ -184,8 +216,10 @@ def test_all_gates(wall_dose):
             df, ds = cem43(T_GRID, T_INF + fem_h * scale), cem43(T_GRID, T_INF + ser_h * scale)
             mf, tf = _six_minute(fem_h * scale)
             ms, ts = _six_minute(ser_h * scale)
-            rows.append(f"{lab}: dose FEM {df:.6e} s, series {ds:.6e} s (rel {_rel(df, ds):.3e}); "
-                        f"six-minute FEM {mf:.6f} K at {tf:.2f} s, series {ms:.6f} K at {ts:.2f} s")
+            rows.append(
+                f"{lab}: dose FEM {df:.6e} s, series {ds:.6e} s (rel {_rel(df, ds):.3e}); "
+                f"six-minute FEM {mf:.6f} K at {tf:.2f} s, series {ms:.6f} K at {ts:.2f} s"
+            )
         _say(f"MAT21-23 RECORD {name}: " + "; ".join(rows))
     _say(f"MAT21-23 gates red: {[k for k, v in gates.items() if not v] or 'none'} of {len(gates)}")
     assert all(gates.values()), [k for k, v in gates.items() if not v]

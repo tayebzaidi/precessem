@@ -27,9 +27,9 @@ from mpi4py import MPI
 
 from fem_em_solver.study import TuneResult
 from fem_em_solver.study_yaml import _tune_summary
+from tests.package.test_wf1_yaml_tune import ITEM429_A_PRINT, TUNE_FILE
 from tests.package.test_wf16_study_tune import TH17_STEP3_C_MODE_RECORD_F
 from tests.package.test_wf17_first_study_tutorial import extract_tagged_block
-from tests.package.test_wf1_yaml_tune import ITEM429_A_PRINT, TUNE_FILE
 from tests.unit.test_doc_reference_exit_codes import run_checker
 from tests.validation.test_lossy_sphere_fullwave import FREQUENCY_64_HZ
 
@@ -62,7 +62,9 @@ def _page() -> str:
 def _differing_lines(a: str, b: str) -> list[int]:
     la, lb = a.splitlines(), b.splitlines()
     n = max(len(la), len(lb))
-    return [i for i in range(n) if (la[i] if i < len(la) else None) != (lb[i] if i < len(lb) else None)]
+    return [
+        i for i in range(n) if (la[i] if i < len(la) else None) != (lb[i] if i < len(lb) else None)
+    ]
 
 
 def _expected_output() -> str:
@@ -84,12 +86,15 @@ def test_wf17_s6_x_blocks_and_python_call():
     blocks = {tag: extract_tagged_block(text, tag, lang) for lang, tag in TAGS}
     src = blocks["tune-yaml"]
     calls = [
-        n for n in ast.walk(ast.parse(src))
+        n
+        for n in ast.walk(ast.parse(src))
         if isinstance(n, ast.Call) and isinstance(n.func, ast.Name)
     ]
     rsf = [c for c in calls if c.func.id == "run_study_file"]
     studies = [c for c in calls if c.func.id == "Study"]
-    print(f"\n[WF-17 s6] (X) tags={len(blocks)}, run_study_file calls={len(rsf)}, Study calls={len(studies)}")
+    print(
+        f"\n[WF-17 s6] (X) tags={len(blocks)}, run_study_file calls={len(rsf)}, Study calls={len(studies)}"
+    )
     assert len(rsf) == 1
     assert isinstance(rsf[0].args[0], ast.Constant) and rsf[0].args[0].value == TUNE_FILE.name
     assert studies == [] and "Study(" not in src
@@ -154,7 +159,9 @@ def test_wf17_s6_l_nodes_registered_links_resolve_and_c2():
     nodes = NODE_RE.findall(text)
     registered = _registered_nodes()
     missing = _unregistered(nodes, registered)
-    print(f"\n[WF-17 s6] (L) nodes cited={len(nodes)} registered under {REGISTRY_NAMES}; unregistered={missing}")
+    print(
+        f"\n[WF-17 s6] (L) nodes cited={len(nodes)} registered under {REGISTRY_NAMES}; unregistered={missing}"
+    )
     assert len(nodes) == 3
     assert missing == []
 
@@ -188,7 +195,9 @@ def test_wf17_s6_d_guide_zero_dead(capsys):
     out = capsys.readouterr().out
     m = LINK_PASS_RE.search(out)
     with capsys.disabled():
-        print(f"\n[WF-17 s6] (D) rc={rc} {m.group(0) if m else 'no link-pass line'} counts={counts}")
+        print(
+            f"\n[WF-17 s6] (D) rc={rc} {m.group(0) if m else 'no link-pass line'} counts={counts}"
+        )
     assert m is not None
     assert int(m.group(3)) == 0
     assert counts["dead"] == 0
@@ -210,6 +219,8 @@ def test_wf17_s6_c3_planted_dead_link(tmp_path, capsys):
     rc1, counts1 = run_checker("--docs-root", str(guide), "--check-links")
     capsys.readouterr()
     with capsys.disabled():
-        print(f"\n[WF-17 s6] (c3) rc {rc0}/{rc1}; copy dead={counts0['dead']}; planted copy dead={counts1['dead']}")
+        print(
+            f"\n[WF-17 s6] (c3) rc {rc0}/{rc1}; copy dead={counts0['dead']}; planted copy dead={counts1['dead']}"
+        )
     assert counts0["dead"] == 0
     assert counts1["dead"] == 1

@@ -218,12 +218,16 @@ def _masked_wall(msh, idx, mask, comm):
     if len(f):
         g = dolfinx.cpp.mesh.entities_to_geometry(msh._cpp_object, fdim, f, False)
         p = msh.geometry.x[g][:, :3, :]
-        area = float((0.5 * np.linalg.norm(
-            np.cross(p[:, 1] - p[:, 0], p[:, 2] - p[:, 0]), axis=1)).sum())
+        area = float(
+            (0.5 * np.linalg.norm(np.cross(p[:, 1] - p[:, 0], p[:, 2] - p[:, 0]), axis=1)).sum()
+        )
         count = int(len(f))
         mxy = float(np.min(np.minimum(p[:, :, 0], p[:, :, 1])))
-    return (comm.allreduce(area, op=MPI.SUM), comm.allreduce(count, op=MPI.SUM),
-            comm.allreduce(mxy, op=MPI.MIN))
+    return (
+        comm.allreduce(area, op=MPI.SUM),
+        comm.allreduce(count, op=MPI.SUM),
+        comm.allreduce(mxy, op=MPI.MIN),
+    )
 
 
 _CACHE: dict = {}
@@ -251,8 +255,14 @@ def _meshes():
         n_cells = int(msh.topology.index_map(tdim).size_global)
         census = _owned_census(msh, cells, comm)
         _CACHE[name] = {
-            "msh": msh, "cells": cells, "facets": facets, "diag": diag,
-            "kwargs": kwargs, "t_build": t_build, "n_cells": n_cells, "census": census,
+            "msh": msh,
+            "cells": cells,
+            "facets": facets,
+            "diag": diag,
+            "kwargs": kwargs,
+            "t_build": t_build,
+            "n_cells": n_cells,
+            "census": census,
         }
         _rank0_print(
             comm,
@@ -264,11 +274,20 @@ def _meshes():
 
 
 def _extents(kwargs, port_dy):
-    r_e = (kwargs["ring_radius"] + max(0.5 * kwargs["leg_width"], kwargs["ring_minor_radius"])
-           + port_dy + kwargs["air_padding"])
-    z_e = (max(0.5 * kwargs["coil_length"],
-               0.5 * kwargs["leg_spacing"] + kwargs["ring_minor_radius"],
-               0.5 * kwargs["phantom_height"]) + kwargs["air_padding"])
+    r_e = (
+        kwargs["ring_radius"]
+        + max(0.5 * kwargs["leg_width"], kwargs["ring_minor_radius"])
+        + port_dy
+        + kwargs["air_padding"]
+    )
+    z_e = (
+        max(
+            0.5 * kwargs["coil_length"],
+            0.5 * kwargs["leg_spacing"] + kwargs["ring_minor_radius"],
+            0.5 * kwargs["phantom_height"],
+        )
+        + kwargs["air_padding"]
+    )
     return r_e, z_e
 
 
@@ -277,8 +296,14 @@ def _extents(kwargs, port_dy):
 # ---------------------------------------------------------------------------
 @pytest.mark.parametrize(
     "case",
-    ["solid_ring_gaps", "leg_count_14", "transverse", "ring_and_leg_gaps",
-     "azimuth_offsets", "c4_congruent"],
+    [
+        "solid_ring_gaps",
+        "leg_count_14",
+        "transverse",
+        "ring_and_leg_gaps",
+        "azimuth_offsets",
+        "c4_congruent",
+    ],
 )
 def test_th20_q7_lh_refusals(case, monkeypatch):
     from fem_em_solver.io import mesh as mesh_mod
@@ -314,8 +339,11 @@ def test_th20_q0_full_hole_record():
 
     full = _meshes()["full"]
     tags = global_cell_tag_set(full["msh"], full["cells"])
-    _rank0_print(MPI.COMM_WORLD, f"[TH-20 0a] (Q0) full cells {full['n_cells']} "
-                 f"(record {FULL_HOLE_CELL_RECORD}); tags == FULL_TAGS: {tags == FULL_TAGS}")
+    _rank0_print(
+        MPI.COMM_WORLD,
+        f"[TH-20 0a] (Q0) full cells {full['n_cells']} "
+        f"(record {FULL_HOLE_CELL_RECORD}); tags == FULL_TAGS: {tags == FULL_TAGS}",
+    )
     assert full["n_cells"] == FULL_HOLE_CELL_RECORD
     assert tags == FULL_TAGS
 
@@ -360,45 +388,63 @@ def test_th20_q1_to_q6_quarter_identities():
     tags = global_cell_tag_set(msh, cells)
     readings = _plane_readings(msh, cells, facets)
     census_sum = sum(q["census"].values())
-    _rank0_print(comm, f"[TH-20 0a] (Q1) tags {sorted(tags)}; outside vertices "
-                 f"{readings['n_outside']} (min xy {readings['min_xy']:.3e}); census sum "
-                 f"{census_sum} vs {q['n_cells']}")
+    _rank0_print(
+        comm,
+        f"[TH-20 0a] (Q1) tags {sorted(tags)}; outside vertices "
+        f"{readings['n_outside']} (min xy {readings['min_xy']:.3e}); census sum "
+        f"{census_sum} vs {q['n_cells']}",
+    )
     if tags != QUARTER_TAGS:
         fails.append(f"Q1 tags {sorted(tags)} != {sorted(QUARTER_TAGS)}")
     if readings["n_outside"] != 0:
         fails.append(f"Q1 {readings['n_outside']} vertices outside the quadrant")
     if census_sum != q["n_cells"]:
         fails.append(f"Q1 census {census_sum} != {q['n_cells']}")
-    if layout is None or layout["layout"] != "LH" or tuple(layout["kept_ordinals"]) != KEPT_LEG + KEPT_RING:
+    if (
+        layout is None
+        or layout["layout"] != "LH"
+        or tuple(layout["kept_ordinals"]) != KEPT_LEG + KEPT_RING
+    ):
         fails.append(f"Q1/Q4 layout diagnostics {layout}")
 
     # ---- (Q2)
     r_e, z_e = _extents(kw, float(diag["port_box_size_m"][1]))
     a_cut = r_e * 2.0 * z_e - 2.0 * (0.5 * kw["leg_width"]) * kw["coil_length"]
     a_outer = 4.0 * r_e * z_e + 2.0 * r_e * r_e
-    _rank0_print(comm, f"[TH-20 0a] r_e {r_e:.9e} z_e {z_e:.9e}; A_cut closed form "
-                 f"{a_cut:.9e} (brief {A_CUT_PREDICTED:.8e}); A_outer {a_outer:.9e} "
-                 f"(brief {A_OUTER_PREDICTED:.9e})")
+    _rank0_print(
+        comm,
+        f"[TH-20 0a] r_e {r_e:.9e} z_e {z_e:.9e}; A_cut closed form "
+        f"{a_cut:.9e} (brief {A_CUT_PREDICTED:.8e}); A_outer {a_outer:.9e} "
+        f"(brief {A_OUTER_PREDICTED:.9e})",
+    )
     for cut in (BIRDCAGE_CUT_X0_TAG, BIRDCAGE_CUT_Y0_TAG):
         r = readings[cut]
         dev = abs(r["area"] / a_cut - 1.0)
-        _rank0_print(comm, f"[TH-20 0a] (Q2) cut {cut}: facets geo {r['n_geo']} tagged "
-                     f"{r['n_tagged']} mismatch {r['mismatch']} flat {r['flat']:.3e} area "
-                     f"{r['area']:.12e} rel dev {dev:.3e} (band {EXACT_IDENTITY_RTOL:g})")
+        _rank0_print(
+            comm,
+            f"[TH-20 0a] (Q2) cut {cut}: facets geo {r['n_geo']} tagged "
+            f"{r['n_tagged']} mismatch {r['mismatch']} flat {r['flat']:.3e} area "
+            f"{r['area']:.12e} rel dev {dev:.3e} (band {EXACT_IDENTITY_RTOL:g})",
+        )
         if r["mismatch"] != 0 or r["n_tagged"] == 0:
             fails.append(f"Q2 cut {cut} mismatch {r['mismatch']} tagged {r['n_tagged']}")
         if r["flat"] > PLANE_TOL:
             fails.append(f"Q2 cut {cut} flat {r['flat']:.3e}")
         if not dev <= EXACT_IDENTITY_RTOL:
             fails.append(f"Q2 cut {cut} area dev {dev:.3e}")
-    mask = (readings[BIRDCAGE_CUT_X0_TAG]["on_plane_mask"]
-            | readings[BIRDCAGE_CUT_Y0_TAG]["on_plane_mask"])
+    mask = (
+        readings[BIRDCAGE_CUT_X0_TAG]["on_plane_mask"]
+        | readings[BIRDCAGE_CUT_Y0_TAG]["on_plane_mask"]
+    )
     adj = set(int(t) for t in np.unique(readings["_ext_cell_tag"][mask]).tolist())
     adj = set().union(*comm.allgather(adj))
     outer_dev = abs(readings["outer_area"] / a_outer - 1.0)
-    _rank0_print(comm, f"[TH-20 0a] (Q2) cells on the planes {sorted(adj)}; outer area "
-                 f"{readings['outer_area']:.12e} rel dev {outer_dev:.3e}; outer∩cut "
-                 f"{readings['outer_cut_overlap']}")
+    _rank0_print(
+        comm,
+        f"[TH-20 0a] (Q2) cells on the planes {sorted(adj)}; outer area "
+        f"{readings['outer_area']:.12e} rel dev {outer_dev:.3e}; outer∩cut "
+        f"{readings['outer_cut_overlap']}",
+    )
     if adj != {2, 3}:
         fails.append(f"Q2 cells on planes {sorted(adj)}")
     if not outer_dev <= EXACT_IDENTITY_RTOL:
@@ -412,13 +458,16 @@ def test_th20_q1_to_q6_quarter_identities():
     a_f = _exterior_facet_area(full["msh"], full["facets"], CAVITY_TAG, comm)
     q3 = abs(4.0 * a_q / a_f - 1.0)
     cad_cav_q = diag["conductor_cavity_cad"]["area_m2"]
-    _rank0_print(comm, f"[TH-20 0a] (Q3) facets 401 {n_cav}, 501 "
-                 f"{readings[BIRDCAGE_CUT_X0_TAG]['n_tagged']}, 502 "
-                 f"{readings[BIRDCAGE_CUT_Y0_TAG]['n_tagged']}; 401 on planes {cav_on_plane}; "
-                 f"untagged exterior {untagged}; A401 q {a_q:.9e} f {a_f:.9e} |4q/f-1| "
-                 f"{q3:.3e} (band {TH20_QUARTER_WALL_AREA_RTOL:g}, predicted 1.498e-4); "
-                 f"CAD cavity quarter {cad_cav_q:.9e} (predicted "
-                 f"{A_CAVITY_QUARTER_CAD_PREDICTED:.7e})")
+    _rank0_print(
+        comm,
+        f"[TH-20 0a] (Q3) facets 401 {n_cav}, 501 "
+        f"{readings[BIRDCAGE_CUT_X0_TAG]['n_tagged']}, 502 "
+        f"{readings[BIRDCAGE_CUT_Y0_TAG]['n_tagged']}; 401 on planes {cav_on_plane}; "
+        f"untagged exterior {untagged}; A401 q {a_q:.9e} f {a_f:.9e} |4q/f-1| "
+        f"{q3:.3e} (band {TH20_QUARTER_WALL_AREA_RTOL:g}, predicted 1.498e-4); "
+        f"CAD cavity quarter {cad_cav_q:.9e} (predicted "
+        f"{A_CAVITY_QUARTER_CAD_PREDICTED:.7e})",
+    )
     if cav_on_plane != 0:
         fails.append(f"Q3 {cav_on_plane} tag-401 facets on a plane")
     if untagged != 0:
@@ -426,11 +475,18 @@ def test_th20_q1_to_q6_quarter_identities():
     if not q3 <= TH20_QUARTER_WALL_AREA_RTOL:
         fails.append(f"Q3 cavity |4q/f-1| {q3:.3e}")
     # (C3) the cut faces counted as cavity wall; asserted under CONTROL.
-    c3 = 4.0 * (a_q + readings[BIRDCAGE_CUT_X0_TAG]["area"]
-                + readings[BIRDCAGE_CUT_Y0_TAG]["area"]) / a_f - 1.0
-    _rank0_print(comm, f"[TH-20 0a] (C3) cavity rule without the plane walls: "
-                 f"4 A_q'/A_f - 1 = {c3:+.3f} (predicted {C3_PREDICTED:+.2f}; asserted "
-                 f"> {TH20_QUARTER_WALL_AREA_RTOL:g}: {CONTROL})")
+    c3 = (
+        4.0
+        * (a_q + readings[BIRDCAGE_CUT_X0_TAG]["area"] + readings[BIRDCAGE_CUT_Y0_TAG]["area"])
+        / a_f
+        - 1.0
+    )
+    _rank0_print(
+        comm,
+        f"[TH-20 0a] (C3) cavity rule without the plane walls: "
+        f"4 A_q'/A_f - 1 = {c3:+.3f} (predicted {C3_PREDICTED:+.2f}; asserted "
+        f"> {TH20_QUARTER_WALL_AREA_RTOL:g}: {CONTROL})",
+    )
     if CONTROL and not c3 > TH20_QUARTER_WALL_AREA_RTOL:
         fails.append(f"C3 {c3:+.3e} not above the Q3 band")
 
@@ -443,14 +499,20 @@ def test_th20_q1_to_q6_quarter_identities():
     q3b = abs(a_rq / a_rf - 1.0) if a_rf > 0 else math.inf
     ring_all = ((nfl >= 117) & (nfl <= 148)) | ((nfl >= 217) & (nfl <= 248))
     a_rf_all, n_rf_all, _ = _masked_wall(full["msh"], ifl, ring_all, comm)
-    _rank0_print(comm, f"[TH-20 0a] (Q3-b) kept ring-port wall: A_R,q {a_rq:.10e} "
-                 f"({n_rq} facets) A_R,f {a_rf:.10e} ({n_rf} facets) |q/f-1| {q3b:.3e} "
-                 f"(band {RING_PORT_WALL_RTOL:g}; predicted 7.8336145294e-4, 772/772); "
-                 f"guard min(x,y) over full masked vertices {guard:.4e} m (predicted "
-                 f"≈ 2.03e-2, asserted > 0)")
-    _rank0_print(comm, f"[TH-20 0a] (Q3-b trap, printed) whole-class 4 A_R,q / "
-                 f"A_R,f(117-148,217-248) - 1 = {4.0 * a_rq / a_rf_all - 1.0:+.3e} "
-                 f"(4x{n_rq} vs {n_rf_all} facets; predicted -4.65e-5)")
+    _rank0_print(
+        comm,
+        f"[TH-20 0a] (Q3-b) kept ring-port wall: A_R,q {a_rq:.10e} "
+        f"({n_rq} facets) A_R,f {a_rf:.10e} ({n_rf} facets) |q/f-1| {q3b:.3e} "
+        f"(band {RING_PORT_WALL_RTOL:g}; predicted 7.8336145294e-4, 772/772); "
+        f"guard min(x,y) over full masked vertices {guard:.4e} m (predicted "
+        f"≈ 2.03e-2, asserted > 0)",
+    )
+    _rank0_print(
+        comm,
+        f"[TH-20 0a] (Q3-b trap, printed) whole-class 4 A_R,q / "
+        f"A_R,f(117-148,217-248) - 1 = {4.0 * a_rq / a_rf_all - 1.0:+.3e} "
+        f"(4x{n_rq} vs {n_rf_all} facets; predicted -4.65e-5)",
+    )
     if n_rq != n_rf or n_rq == 0:
         fails.append(f"Q3-b facet counts {n_rq} != {n_rf}")
     if not q3b <= RING_PORT_WALL_RTOL:
@@ -463,13 +525,19 @@ def test_th20_q1_to_q6_quarter_identities():
     d_n = -n_117
     d_a = a_117 / a_rq if a_rq > 0 else 0.0
     planted_q3 = 4.0 * (a_q - a_117) / a_f - 1.0
-    _rank0_print(comm, f"[TH-20 0a] (C4) planted missing tag-117 face: dN_R {d_n} "
-                 f"(predicted -{C4_PLANTED_FACETS}), |dA_R/A_R| {d_a:.4e} (bar "
-                 f"{1e6 * RING_PORT_WALL_RTOL:g}, predicted 6.731e-2), A_117 {a_117:.7e} m^2; "
-                 f"asserted={CONTROL}")
-    _rank0_print(comm, f"[TH-20 0a] (C4 under Q3 alone, printed, never asserted) "
-                 f"4 q'/f - 1 = {planted_q3:+.4e} (predicted -8.653e-4; band "
-                 f"{TH20_QUARTER_WALL_AREA_RTOL:g})")
+    _rank0_print(
+        comm,
+        f"[TH-20 0a] (C4) planted missing tag-117 face: dN_R {d_n} "
+        f"(predicted -{C4_PLANTED_FACETS}), |dA_R/A_R| {d_a:.4e} (bar "
+        f"{1e6 * RING_PORT_WALL_RTOL:g}, predicted 6.731e-2), A_117 {a_117:.7e} m^2; "
+        f"asserted={CONTROL}",
+    )
+    _rank0_print(
+        comm,
+        f"[TH-20 0a] (C4 under Q3 alone, printed, never asserted) "
+        f"4 q'/f - 1 = {planted_q3:+.4e} (predicted -8.653e-4; band "
+        f"{TH20_QUARTER_WALL_AREA_RTOL:g})",
+    )
     if CONTROL and not (d_n == -C4_PLANTED_FACETS and d_a >= 1e6 * RING_PORT_WALL_RTOL):
         fails.append(f"C4 dN {d_n} dA/A {d_a:.3e}")
 
@@ -489,9 +557,12 @@ def test_th20_q1_to_q6_quarter_identities():
         d_cad = abs(vq / cq - 1.0)
         d_full = abs(vq / vf - 1.0)
         d_imp = abs(cq / cad_imported - 1.0)
-        _rank0_print(comm, f"[TH-20 0a] (Q4) {name}: V_q {vq:.12e} CAD_q {cq:.12e} V_f "
-                     f"{vf:.12e} CAD_f {float(cad_f.get(name, float('nan'))):.12e}; dev cad "
-                     f"{d_cad:.3e} full {d_full:.3e} imported {d_imp:.3e} (band {EXACT:g})")
+        _rank0_print(
+            comm,
+            f"[TH-20 0a] (Q4) {name}: V_q {vq:.12e} CAD_q {cq:.12e} V_f "
+            f"{vf:.12e} CAD_f {float(cad_f.get(name, float('nan'))):.12e}; dev cad "
+            f"{d_cad:.3e} full {d_full:.3e} imported {d_imp:.3e} (band {EXACT:g})",
+        )
         if not (d_cad <= EXACT and d_full <= EXACT and d_imp <= EXACT):
             fails.append(f"Q4 {name} dev cad {d_cad:.3e} full {d_full:.3e} imp {d_imp:.3e}")
 
@@ -503,9 +574,12 @@ def test_th20_q1_to_q6_quarter_identities():
     sf = _sheet_centroids(full["msh"], full["cells"], ring_ports, comm)
     for o in KEPT_RING:
         dev = abs(sq[o][0] / sheet_analytic - 1.0)
-        _rank0_print(comm, f"[TH-20 0a] (Q4) sheet P{o}: area {sq[o][0]:.12e} vs chord·w "
-                     f"{sheet_analytic:.12e} dev {dev:.3e} (band {SHEET_AREA_BAND:g}); "
-                     f"centroid {sq[o][1]}")
+        _rank0_print(
+            comm,
+            f"[TH-20 0a] (Q4) sheet P{o}: area {sq[o][0]:.12e} vs chord·w "
+            f"{sheet_analytic:.12e} dev {dev:.3e} (band {SHEET_AREA_BAND:g}); "
+            f"centroid {sq[o][1]}",
+        )
         if not dev <= SHEET_AREA_BAND:
             fails.append(f"Q4 sheet P{o} dev {dev:.3e}")
     full_ord = np.array(ring_ports)
@@ -540,8 +614,11 @@ def test_th20_q1_to_q6_quarter_identities():
                 fails.append(f"Q5 {g} P{o}: miss {d[k]:.3e} > {tol5:.3e}")
             if target != expect:
                 fails.append(f"Q5 {g} P{o} -> P{target}, closed form P{expect}")
-    _rank0_print(comm, f"[TH-20 0a] (Q5) worst image miss {worst5:.3e} m (tol {tol5:.3e}); "
-                 f"images cover {len(set(images))} of {len(ring_ports)} ring ordinals")
+    _rank0_print(
+        comm,
+        f"[TH-20 0a] (Q5) worst image miss {worst5:.3e} m (tol {tol5:.3e}); "
+        f"images cover {len(set(images))} of {len(ring_ports)} ring ordinals",
+    )
     if sorted(images) != sorted(ring_ports):
         fails.append(f"Q5 not a bijection: {sorted(images)}")
 
@@ -551,35 +628,52 @@ def test_th20_q1_to_q6_quarter_identities():
     c2_worst = 0.0
     for o in KEPT_RING:
         c = sq[o][1]
-        rot = np.array([[math.cos(2 * alpha), math.sin(2 * alpha)],
-                        [math.sin(2 * alpha), -math.cos(2 * alpha)]])
+        rot = np.array(
+            [
+                [math.cos(2 * alpha), math.sin(2 * alpha)],
+                [math.sin(2 * alpha), -math.cos(2 * alpha)],
+            ]
+        )
         img = np.array([*(rot @ c[:2]), c[2]])
         miss = float(np.min(np.linalg.norm(full_c - img, axis=1)))
         c2_worst = max(c2_worst, abs(miss / ceiling - 1.0))
-    _rank0_print(comm, f"[TH-20 0a] (C2) misplaced mirror: worst |miss/(2R sin(π/32)) - 1| "
-                 f"{c2_worst:.3e} (ceiling {ceiling:.7e} m, predicted 2.9405142e-2; "
-                 f"asserted={CONTROL})")
+    _rank0_print(
+        comm,
+        f"[TH-20 0a] (C2) misplaced mirror: worst |miss/(2R sin(π/32)) - 1| "
+        f"{c2_worst:.3e} (ceiling {ceiling:.7e} m, predicted 2.9405142e-2; "
+        f"asserted={CONTROL})",
+    )
     if CONTROL and not c2_worst <= EXACT:
         fails.append(f"C2 misplaced-mirror miss dev {c2_worst:.3e}")
 
     # ---- (Q6) phantom, air printed
     ph = 4.0 * cad_q["phantom"] / cad_f["phantom"] - 1.0
     air = 4.0 * cad_q.get("air", float("nan"))
-    _rank0_print(comm, f"[TH-20 0a] (Q6) phantom 4 CAD_q/CAD_f - 1 = {ph:.3e} (band "
-                 f"{CAD_ANALYTIC_BAND:g}); air CAD x4 {air:.9e} vs full "
-                 f"{cad_f.get('air', float('nan')):.9e}")
+    _rank0_print(
+        comm,
+        f"[TH-20 0a] (Q6) phantom 4 CAD_q/CAD_f - 1 = {ph:.3e} (band "
+        f"{CAD_ANALYTIC_BAND:g}); air CAD x4 {air:.9e} vs full "
+        f"{cad_f.get('air', float('nan')):.9e}",
+    )
     if not abs(ph) <= CAD_ANALYTIC_BAND:
         fails.append(f"Q6 phantom {ph:.3e}")
 
     # ---- (C1) the quarter checker on the flag-off full mesh
     rf = _plane_readings(full["msh"], full["cells"], full["facets"])
-    c1 = (rf["n_outside"], rf[BIRDCAGE_CUT_X0_TAG]["n_geo"], rf[BIRDCAGE_CUT_Y0_TAG]["n_geo"],
-          rf[BIRDCAGE_CUT_X0_TAG]["area"], rf[BIRDCAGE_CUT_Y0_TAG]["area"])
-    _rank0_print(comm, f"[TH-20 0a] (C1) full mesh: vertices outside {c1[0]} (predicted > 0); "
-                 f"plane facets {c1[1]} / {c1[2]} (predicted 0); cut area {c1[3]:.3e} / "
-                 f"{c1[4]:.3e} (predicted 0); asserted={CONTROL}")
-    if CONTROL and not (c1[0] > 0 and c1[1] == 0 and c1[2] == 0 and c1[3] == 0.0
-                        and c1[4] == 0.0):
+    c1 = (
+        rf["n_outside"],
+        rf[BIRDCAGE_CUT_X0_TAG]["n_geo"],
+        rf[BIRDCAGE_CUT_Y0_TAG]["n_geo"],
+        rf[BIRDCAGE_CUT_X0_TAG]["area"],
+        rf[BIRDCAGE_CUT_Y0_TAG]["area"],
+    )
+    _rank0_print(
+        comm,
+        f"[TH-20 0a] (C1) full mesh: vertices outside {c1[0]} (predicted > 0); "
+        f"plane facets {c1[1]} / {c1[2]} (predicted 0); cut area {c1[3]:.3e} / "
+        f"{c1[4]:.3e} (predicted 0); asserted={CONTROL}",
+    )
+    if CONTROL and not (c1[0] > 0 and c1[1] == 0 and c1[2] == 0 and c1[3] == 0.0 and c1[4] == 0.0):
         fails.append(f"C1 {c1}")
 
     _rank0_print(comm, f"[TH-20 0a] failures: {fails}")

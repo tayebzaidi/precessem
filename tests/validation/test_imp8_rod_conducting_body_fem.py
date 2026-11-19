@@ -33,28 +33,24 @@ import os
 import time
 
 import numpy as np
+import pytest
 import ufl
 from dolfinx import fem, la
 from dolfinx import mesh as dmesh
 from mpi4py import MPI
 
-import pytest
-
 from fem_em_solver.thermal import solve_transient_conduction
-
 from tests.mesh.test_birdcage_implant_rod import ROD_RADIUS
-from tests.validation.test_imp8_composite_cylinder_closed_form import (
-    ROD_K,  # nominal
-    ROD_RHO_C,  # nominal
-)
-from tests.validation.test_imp8_rod_line_source_closed_form import L, MM, T_PRINT, _phi_tips
+from tests.validation.test_imp8_composite_cylinder_closed_form import ROD_K  # nominal
+from tests.validation.test_imp8_composite_cylinder_closed_form import ROD_RHO_C  # nominal
+from tests.validation.test_imp8_rod_line_source_closed_form import MM, T_PRINT, L, _phi_tips
 from tests.validation.test_imp8_rod_line_source_fem import (  # noqa: F401  (box: fixture)
     DEGREE,
     GATE_PTS,
-    P,
     QP,
     T_INF,
     W0C_CELLS,
+    P,
     _need,
     _theta_pts,
     box,
@@ -148,8 +144,10 @@ def _rod_cells(msh, radius=ROD_RADIUS, length=L):
 
 def _coefficients(msh, rod_idx, arm):
     W = fem.functionspace(msh, ("DG", 0))
-    n_all = (msh.topology.index_map(msh.topology.dim).size_local
-             + msh.topology.index_map(msh.topology.dim).num_ghosts)
+    n_all = (
+        msh.topology.index_map(msh.topology.dim).size_local
+        + msh.topology.index_map(msh.topology.dim).num_ghosts
+    )
     dofs = np.asarray(W.dofmap.list).reshape(-1)[:n_all]
     k = fem.Function(W)
     rho_c = fem.Function(W)
@@ -163,7 +161,9 @@ def _coefficients(msh, rod_idx, arm):
         rho_c.x.array[dofs[rod_idx]] = EPS_HOLE * RHO_C
     k.x.scatter_forward()
     rho_c.x.scatter_forward()
-    bad = int(np.count_nonzero(~np.isfinite(k.x.array)) + np.count_nonzero(~np.isfinite(rho_c.x.array)))
+    bad = int(
+        np.count_nonzero(~np.isfinite(k.x.array)) + np.count_nonzero(~np.isfinite(rho_c.x.array))
+    )
     return k, rho_c, msh.comm.allreduce(bad, op=MPI.SUM)
 
 
@@ -174,12 +174,16 @@ def body_run(box):
     msh, ct, ft, n = box
     rod_idx, over_idx, info = _rod_cells(msh)
     v_ideal = np.pi * ROD_RADIUS**2 * L
-    _say(f"[imp8-i66] arm {arm}; ROD_K {ROD_K:g} W/(m K), ROD_RHO_C {ROD_RHO_C:.6g} J/(m3 K) "
-         f"(nominal); K_GEL {K_GEL:g}, RHO_C {RHO_C:.6g}")
-    _say(f"[imp8-i66] cylinder cells {info['n_cyl']} volume {info['v_cyl']:.6e} m^3; rod cells "
-         f"(cylinder minus balls) {info['n_rod']} volume {info['v_rod']:.6e} m^3 "
-         f"(/(pi a^2 L) {info['v_rod'] / v_ideal:.6f}); overlap cells {info['n_overlap']} volume "
-         f"{info['v_overlap']:.6e} m^3 (gel properties, carry the source)")
+    _say(
+        f"[imp8-i66] arm {arm}; ROD_K {ROD_K:g} W/(m K), ROD_RHO_C {ROD_RHO_C:.6g} J/(m3 K) "
+        f"(nominal); K_GEL {K_GEL:g}, RHO_C {RHO_C:.6g}"
+    )
+    _say(
+        f"[imp8-i66] cylinder cells {info['n_cyl']} volume {info['v_cyl']:.6e} m^3; rod cells "
+        f"(cylinder minus balls) {info['n_rod']} volume {info['v_rod']:.6e} m^3 "
+        f"(/(pi a^2 L) {info['v_rod'] / v_ideal:.6f}); overlap cells {info['n_overlap']} volume "
+        f"{info['v_overlap']:.6e} m^3 (gel properties, carry the source)"
+    )
     k, rho_c, n_bad = _coefficients(msh, rod_idx, arm)
     q, balls = _tips_source(msh)
     out = {"arm": arm, "n": n, "n_bad": n_bad, **info}
@@ -188,18 +192,34 @@ def body_run(box):
     for s, (n_sel, v_sel, qb) in zip(SIGNS, balls):
         pb = float(np.real(_allsum(msh.comm, qb * ufl.dx)))
         out["balls"].append((n_sel, abs(pb / (0.5 * P) - 1.0)))
-        _say(f"[imp8-i66] ball z={s * 0.5 * L / MM:+g} mm: cells {n_sel}; volume {v_sel:.6e} m^3; "
-             f"int q / (P/2) - 1 = {pb / (0.5 * P) - 1.0:.3e}")
+        _say(
+            f"[imp8-i66] ball z={s * 0.5 * L / MM:+g} mm: cells {n_sel}; volume {v_sel:.6e} m^3; "
+            f"int q / (P/2) - 1 = {pb / (0.5 * P) - 1.0:.3e}"
+        )
     dt = T_PRINT / N_MAIN
     t1 = time.perf_counter()
     res = solve_transient_conduction(
-        msh, ft, k=k, rho_c=rho_c, q=q, h=H_GEL, t_inf=T_INF, t_init=T_INF,
-        robin_tag=ROBIN_TAG, dt=dt, n_steps=N_MAIN, theta=0.5, startup_half_steps=2,
-        degree=DEGREE)
+        msh,
+        ft,
+        k=k,
+        rho_c=rho_c,
+        q=q,
+        h=H_GEL,
+        t_inf=T_INF,
+        t_init=T_INF,
+        robin_tag=ROBIN_TAG,
+        dt=dt,
+        n_steps=N_MAIN,
+        theta=0.5,
+        startup_half_steps=2,
+        degree=DEGREE,
+    )
     out["t_call"] = time.perf_counter() - t1
     out["E"] = float(res.max_balance_residual)
-    _say(f"[imp8-i66] CN N={N_MAIN} dt={dt:g} s: t_call {out['t_call']:.1f} s; "
-         f"n_factorizations {res.n_factorizations}; ranks {msh.comm.size}")
+    _say(
+        f"[imp8-i66] CN N={N_MAIN} dt={dt:g} s: t_call {out['t_call']:.1f} s; "
+        f"n_factorizations {res.n_factorizations}; ranks {msh.comm.size}"
+    )
     pts = GATE_PTS + RATIO_PTS
     th = _theta_pts(res.temperature, pts)  # one batch, I56's order
     out["theta"] = dict(zip(pts, th))
@@ -207,34 +227,48 @@ def body_run(box):
         ref = I56_THETA[(r, z)]
         cf = QP * _phi_tips(r * MM, z * MM, T_PRINT)
         tol = 10.0 ** (math.floor(math.log10(abs(ref))) - 5)
-        _say(f"[imp8-i66] ({r:g}, {z:g}) mm t*={T_PRINT:g} s arm {arm}: theta {v:.6e} K/W; I56 "
-             f"{ref:.6e}; theta/theta_56 {v / ref:.7f} (|diff| {abs(v - ref):.3e}, 6th-digit unit "
-             f"{tol:.0e}); vs q'/(4 pi k) Phi_2 {cf:.6e}: ratio {v / cf:.6f} (not a gate: the "
-             f"comparand has no rod)")
+        _say(
+            f"[imp8-i66] ({r:g}, {z:g}) mm t*={T_PRINT:g} s arm {arm}: theta {v:.6e} K/W; I56 "
+            f"{ref:.6e}; theta/theta_56 {v / ref:.7f} (|diff| {abs(v - ref):.3e}, 6th-digit unit "
+            f"{tol:.0e}); vs q'/(4 pi k) Phi_2 {cf:.6e}: ratio {v / cf:.6f} (not a gate: the "
+            f"comparand has no rod)"
+        )
     tip = out["theta"][(2.0, 15.0)] / out["theta"][(2.0, 0.0)]
     tip56 = I56_THETA[(2.0, 15.0)] / I56_THETA[(2.0, 0.0)]
     move = out["theta"][(2.0, 0.0)] / I56_THETA[(2.0, 0.0)] - 1.0
     out["move"] = move
-    _say(f"[imp8-i66] tip-point ratio theta(2,15)/theta(2,0): arm {arm} {tip:.6f}; I56 (gel) "
-         f"{tip56:.6f}")
-    _say(f"[imp8-i66] (2, 0) mm move theta/theta_56 - 1 = {move:.4e} (control floor "
-         f"{CONTROL_FLOOR:.0e}, asserted on arm ti; axial-conductance prediction approx "
-         f"{MOVE_PREDICTED} printed only)")
+    _say(
+        f"[imp8-i66] tip-point ratio theta(2,15)/theta(2,0): arm {arm} {tip:.6f}; I56 (gel) "
+        f"{tip56:.6f}"
+    )
+    _say(
+        f"[imp8-i66] (2, 0) mm move theta/theta_56 - 1 = {move:.4e} (control floor "
+        f"{CONTROL_FLOOR:.0e}, asserted on arm ti; axial-conductance prediction approx "
+        f"{MOVE_PREDICTED} printed only)"
+    )
     if arm == "hole":
-        _say(f"[imp8-i69] arm hole: rod cells k = {EPS_HOLE:.0e} K_GEL, rho_c = {EPS_HOLE:.0e} "
-             f"RHO_C")
+        _say(
+            f"[imp8-i69] arm hole: rod cells k = {EPS_HOLE:.0e} K_GEL, rho_c = {EPS_HOLE:.0e} "
+            f"RHO_C"
+        )
         for pt in pts:
             vh, vt, vg = out["theta"][pt], TI_THETA[pt], I56_THETA[pt]
             ranked = sorted((("hole", vh), ("Ti", vt), ("gel", vg)), key=lambda x: -x[1])
             order = " > ".join(name for name, _ in ranked)
-            _say(f"[imp8-i69] ({pt[0]:g}, {pt[1]:g}) mm t*={T_PRINT:g} s: theta hole {vh:.6e}; Ti "
-                 f"(item 846 W1) {vt:.6e}; gel (I56) {vg:.6e} K/W; hole/gel {vh / vg:.6f}; "
-                 f"ordering {order}")
-        _say("[imp8-i69] I64 closed form at r = a, t_c and t*: hole > Ti > gel "
-             "(`20261105T181438Z_IMP-8-item843-W1.log:80-81`; infinite cylinder, shell source "
-             "- not the same geometry)")
-    _say(f"[imp8-i66] (E) {out['E']:.3e} (band {E_BAND:.0e}); (S0) {out['S0']:.3e} (band "
-         f"{B_BAND:.0e}); cells {n} (W0c {W0C_CELLS}); non-finite coefficient dofs {n_bad}")
+            _say(
+                f"[imp8-i69] ({pt[0]:g}, {pt[1]:g}) mm t*={T_PRINT:g} s: theta hole {vh:.6e}; Ti "
+                f"(item 846 W1) {vt:.6e}; gel (I56) {vg:.6e} K/W; hole/gel {vh / vg:.6f}; "
+                f"ordering {order}"
+            )
+        _say(
+            "[imp8-i69] I64 closed form at r = a, t_c and t*: hole > Ti > gel "
+            "(`20261105T181438Z_IMP-8-item843-W1.log:80-81`; infinite cylinder, shell source "
+            "- not the same geometry)"
+        )
+    _say(
+        f"[imp8-i66] (E) {out['E']:.3e} (band {E_BAND:.0e}); (S0) {out['S0']:.3e} (band "
+        f"{B_BAND:.0e}); cells {n} (W0c {W0C_CELLS}); non-finite coefficient dofs {n_bad}"
+    )
     return out
 
 

@@ -30,9 +30,8 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from mpi4py import MPI
-
 import skrf
+from mpi4py import MPI
 
 from fem_em_solver.ports import PortDefinition
 from fem_em_solver.ports.sparameters import (
@@ -40,7 +39,6 @@ from fem_em_solver.ports.sparameters import (
     summarize_sparameter_sanity,
 )
 from fem_em_solver.ports.touchstone import export_touchstone, load_touchstone
-
 from tests.validation.test_port_circuit_layer_field import (
     S_10MHZ_EPS0_RECORD,
     S_64MHZ_EPS0_RECORD,
@@ -114,9 +112,7 @@ def _write_ours(freqs: np.ndarray, s_stack: np.ndarray, out_dir: Path) -> Path:
         )
         for f, s in zip(freqs, s_stack)
     ]
-    return export_touchstone(
-        sweeps, ports, output_dir=out_dir, write_csv_companion=False
-    )
+    return export_touchstone(sweeps, ports, output_dir=out_dir, write_csv_companion=False)
 
 
 def _max_abs(a: np.ndarray, b: np.ndarray) -> float:
@@ -145,7 +141,9 @@ def _spec_literal(s: np.ndarray, freq_hz: float) -> str:
     lines = ["! spec-layout literal", f"# Hz S RI R {Z0_OHM:g}"]
     if n == 2:
         vals = [s[0, 0], s[1, 0], s[0, 1], s[1, 1]]
-        lines.append(f"{float(freq_hz)!r} " + " ".join(f"{float(v.real)!r} {float(v.imag)!r}" for v in vals))
+        lines.append(
+            f"{float(freq_hz)!r} " + " ".join(f"{float(v.real)!r} {float(v.imag)!r}" for v in vals)
+        )
     else:
         for i in range(n):
             row = " ".join(f"{float(v.real)!r} {float(v.imag)!r}" for v in s[i, :])

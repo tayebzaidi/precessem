@@ -50,8 +50,8 @@ from mpi4py import MPI
 
 from fem_em_solver.study import PRICE_TABLE, FHumanBirdcageGeometry, _predict
 from tests.log_records import read_log_text
-from tests.package.test_wf13_cli_estimate import _diff, _parse, _patch_solves
 from tests.package.test_wf1_study_yaml import WF1
+from tests.package.test_wf13_cli_estimate import _diff, _parse, _patch_solves
 
 KNOB = "FEM_EM_WF13_S11"
 REPO = Path(__file__).resolve().parents[2]
@@ -59,15 +59,19 @@ ENTRY41_LOG = REPO / "docs/testing/logs/20261022T070008Z_WF-10-step4-H28.log"
 TUNE_FILE = WF1 / "f_human_hole_copper_tune.yaml"
 # FH2 transcribed: 20261022T070008Z_WF-10-step4-H28.log:6855 (node pair, RSS
 # summed), N :6613 (2E + 2F); cells = the hole record.
-FH2_LITERALS = dict(row="FH2", degree=2, ranks=16, cells=369387, unknowns=2570024,
-                    seconds=298.9, peak_gib=88.58)
+FH2_LITERALS = dict(
+    row="FH2", degree=2, ranks=16, cells=369387, unknowns=2570024, seconds=298.9, peak_gib=88.58
+)
 # Entry 41's cgroup memory.peak, :14681 (printed only; the P5 precedent).
 ENTRY41_MEMORY_PEAK_GIB = 87.12
 # Entry 41's other time definitions (printed sensitivity only): the factorising
 # solve pair :6827 (293.22 s), [solve] done :6788 (281.1 s), the second
 # module's node pair :13598 (290.0 s).
-SENSITIVITY_SECONDS = (("solve pair :6827", 293.22), ("[solve] done :6788", 281.1),
-                       ("second-module node pair :13598", 290.0))
+SENSITIVITY_SECONDS = (
+    ("solve pair :6827", 293.22),
+    ("[solve] done :6788", 281.1),
+    ("second-module node pair :13598", 290.0),
+)
 # Other degree-2 F-human hole windows on record, -n 16 — duplicates of FH2's
 # fixture, printed, never fitted (item 212's precedent).
 DUPLICATE_WINDOWS = (
@@ -121,8 +125,10 @@ def test_wf13_s11_fh2_row_is_its_log():
     prices = PRICE_RE.findall(text)
     unknowns = [int(u) for u in UNKNOWNS_RE.findall(text)]
     status_ok = any(line.strip() == "- Status: 0" for line in text.splitlines())
-    _say(f"\n[WF-13 s11 FH-log] {ENTRY41_LOG.name}: price lines {prices}; "
-         f"global unknowns {unknowns}; Status 0 footer {status_ok}")
+    _say(
+        f"\n[WF-13 s11 FH-log] {ENTRY41_LOG.name}: price lines {prices}; "
+        f"global unknowns {unknowns}; Status 0 footer {status_ok}"
+    )
     assert len(prices) == 1
     build_s, node_s, rss_gib, window_s, ranks = prices[0]
     assert float(node_s) == fh2["seconds"]
@@ -131,8 +137,10 @@ def test_wf13_s11_fh2_row_is_its_log():
     assert len(unknowns) >= 1
     assert all(u == fh2["unknowns"] for u in unknowns)
     assert status_ok
-    _say(f"[WF-13 s11 FH-log] not the row (printed): build {build_s} s, module window "
-         f"{window_s} s; cgroup memory.peak {ENTRY41_MEMORY_PEAK_GIB} GiB")
+    _say(
+        f"[WF-13 s11 FH-log] not the row (printed): build {build_s} s, module window "
+        f"{window_s} s; cgroup memory.peak {ENTRY41_MEMORY_PEAK_GIB} GiB"
+    )
 
 
 def test_wf13_s11_fh2_loo_and_controls():
@@ -148,57 +156,76 @@ def test_wf13_s11_fh2_loo_and_controls():
     m_loo, s_loo, used = _predict(n, 2, w, table=nine)
     rt = s_loo / fh2["seconds"]
     rm = m_loo / fh2["peak_gib"]
-    _say(f"\n[WF-13 s11 LOO] FH2 at N={n}, -n {w}: predicted {s_loo:.3f} s vs "
-         f"{fh2['seconds']} s -> ratio {rt:.4f} (asserted in [{1/BRACKET}, {BRACKET}]); "
-         f"rows {used}")
-    _say(f"[WF-13 s11 LOO] memory (printed only): {m_loo:.3f} GiB vs {fh2['peak_gib']} GiB "
-         f"-> ratio {rm:.4f} ({'inside' if _in(rm, BRACKET) else 'OUTSIDE'} x2); vs cgroup "
-         f"memory.peak {ENTRY41_MEMORY_PEAK_GIB} GiB -> {m_loo / ENTRY41_MEMORY_PEAK_GIB:.4f}")
+    _say(
+        f"\n[WF-13 s11 LOO] FH2 at N={n}, -n {w}: predicted {s_loo:.3f} s vs "
+        f"{fh2['seconds']} s -> ratio {rt:.4f} (asserted in [{1/BRACKET}, {BRACKET}]); "
+        f"rows {used}"
+    )
+    _say(
+        f"[WF-13 s11 LOO] memory (printed only): {m_loo:.3f} GiB vs {fh2['peak_gib']} GiB "
+        f"-> ratio {rm:.4f} ({'inside' if _in(rm, BRACKET) else 'OUTSIDE'} x2); vs cgroup "
+        f"memory.peak {ENTRY41_MEMORY_PEAK_GIB} GiB -> {m_loo / ENTRY41_MEMORY_PEAK_GIB:.4f}"
+    )
     hw = _hat_weights(PRICE_TABLE, "FH2")
-    _say(f"[WF-13 s11 LOO] hat weights at FH2: "
-         + ", ".join(f"{k} {v:.3f}" for k, v in hw.items()))
+    _say("[WF-13 s11 LOO] hat weights at FH2: " + ", ".join(f"{k} {v:.3f}" for k, v in hw.items()))
     assert used == NINE_ROWS
     assert _in(rt, BRACKET)
 
     # Printed: in-sample, sensitivity, LOO without P6, duplicates, -n 2 price.
     m_in, s_in, used_in = _predict(n, 2, w)
-    _say(f"[WF-13 s11 in-sample] rows {used_in}: FH2 time {s_in / fh2['seconds']:.4f} "
-         f"memory {m_in / fh2['peak_gib']:.4f}")
+    _say(
+        f"[WF-13 s11 in-sample] rows {used_in}: FH2 time {s_in / fh2['seconds']:.4f} "
+        f"memory {m_in / fh2['peak_gib']:.4f}"
+    )
     for label, secs in SENSITIVITY_SECONDS:
         _say(f"[WF-13 s11 sensitivity] LOO vs {label} {secs} s -> {s_loo / secs:.4f}")
     _, s_np6, used_np6 = _predict(n, 2, w, table=tuple(r for r in nine if r["row"] != "P6"))
-    _say(f"[WF-13 s11 LOO without P6] {s_np6:.2f} s -> ratio {s_np6 / fh2['seconds']:.4f} "
-         f"(rows {used_np6})")
+    _say(
+        f"[WF-13 s11 LOO without P6] {s_np6:.2f} s -> ratio {s_np6 / fh2['seconds']:.4f} "
+        f"(rows {used_np6})"
+    )
     for label, secs, gib in DUPLICATE_WINDOWS:
         mem = f"; memory {m_loo / gib:.4f} vs {gib} GiB" if gib else ""
-        _say(f"[WF-13 s11 duplicate, not fitted] {label}: {secs} s -> LOO ratio "
-             f"{s_loo / secs:.4f} ({'inside' if _in(s_loo / secs, BRACKET) else 'OUTSIDE'} x2){mem}")
+        _say(
+            f"[WF-13 s11 duplicate, not fitted] {label}: {secs} s -> LOO ratio "
+            f"{s_loo / secs:.4f} ({'inside' if _in(s_loo / secs, BRACKET) else 'OUTSIDE'} x2){mem}"
+        )
     m_n2, s_n2, _ = _predict(n, 2, 2)
-    _say(f"[WF-13 s11 -n 2 price] degree-2 F-human file, ten-row fit: {s_n2:.1f} s / "
-         f"{m_n2:.2f} GiB (no -n 2 degree-2 F-human solve exists)")
+    _say(
+        f"[WF-13 s11 -n 2 price] degree-2 F-human file, ten-row fit: {s_n2:.1f} s / "
+        f"{m_n2:.2f} GiB (no -n 2 degree-2 F-human solve exists)"
+    )
     _, s_w2, _ = _predict(n, 2, 2, table=nine)
-    _say(f"[WF-13 s11 width mismatch, printed] LOO at -n 2: {s_w2:.1f} s -> ratio "
-         f"{s_w2 / fh2['seconds']:.2f}")
+    _say(
+        f"[WF-13 s11 width mismatch, printed] LOO at -n 2: {s_w2:.1f} s -> ratio "
+        f"{s_w2 / fh2['seconds']:.2f}"
+    )
 
     # (c-N) N-blind estimator over the nine rows.
-    gm = float(np.exp(np.mean(np.log([r["seconds"] * r["ranks"] for r in nine
-                                      if r["degree"] == 2]))))
+    gm = float(
+        np.exp(np.mean(np.log([r["seconds"] * r["ranks"] for r in nine if r["degree"] == 2])))
+    )
     gmm = float(np.exp(np.mean(np.log([r["peak_gib"] for r in nine if r["degree"] == 2]))))
     rn = (gm / w) / fh2["seconds"]
-    _say(f"[WF-13 s11 c-N] N-blind {gm / w:.2f} s vs {fh2['seconds']} s -> ratio {rn:.4f}; "
-         f"memory twin {gmm / fh2['peak_gib']:.4f} (printed)")
+    _say(
+        f"[WF-13 s11 c-N] N-blind {gm / w:.2f} s vs {fh2['seconds']} s -> ratio {rn:.4f}; "
+        f"memory twin {gmm / fh2['peak_gib']:.4f} (printed)"
+    )
     assert not _in(rn, BRACKET)
 
     # (c-deg) degree confusion: the degree-1 fit at FH2's N and width.
     m_d1, s_d1, used_d1 = _predict(n, 1, w)
     rd = s_d1 / fh2["seconds"]
-    _say(f"[WF-13 s11 c-deg] degree-1 fit {used_d1} at FH2 N/-n {w}: {s_d1:.2f} s -> ratio "
-         f"{rd:.4f}; memory {m_d1 / fh2['peak_gib']:.4f} (printed)")
+    _say(
+        f"[WF-13 s11 c-deg] degree-1 fit {used_d1} at FH2 N/-n {w}: {s_d1:.2f} s -> ratio "
+        f"{rd:.4f}; memory {m_d1 / fh2['peak_gib']:.4f} (printed)"
+    )
     assert not _in(rd, BRACKET)
 
     # (c-row) FH2 is load-bearing in the fit.
-    bumped = tuple(dict(r, unknowns=int(r["unknowns"] * 1.1)) if r["row"] == "FH2" else r
-                   for r in PRICE_TABLE)
+    bumped = tuple(
+        dict(r, unknowns=int(r["unknowns"] * 1.1)) if r["row"] == "FH2" else r for r in PRICE_TABLE
+    )
     _, s_b, _ = _predict(n, 2, w, table=bumped)
     rel = abs(s_b / s_in - 1.0)
     _say(f"[WF-13 s11 c-row] FH2 unknowns x1.1: {s_b!r} vs {s_in!r} (rel {rel:.3e})")
@@ -212,15 +239,20 @@ def test_wf13_s11_fh2_loo_and_controls():
     kmin_m = (BRACKET / rm0) ** (1.0 / wt) if rm0 < BRACKET else 1.0
     kmin_t = (BRACKET / rt0) ** (1.0 / wt) if rt0 < BRACKET else 1.0
     planted = tuple(
-        dict(r, peak_gib=r["peak_gib"] * PLANT_K, seconds=r["seconds"] * PLANT_K)
-        if r["row"] == "FH2" else r
+        (
+            dict(r, peak_gib=r["peak_gib"] * PLANT_K, seconds=r["seconds"] * PLANT_K)
+            if r["row"] == "FH2"
+            else r
+        )
         for r in PRICE_TABLE
     )
     rmp, rtp = _ratios(planted, "P6")
-    _say(f"[WF-13 s11 c-plant] P6 LOO hat weights: "
-         + ", ".join(f"{k} {v:.3f}" for k, v in weights.items())
-         + f"; largest {top}; unplanted mem {rm0:.3f} time {rt0:.3f}; min failing k mem "
-         f"{kmin_m:.2f} time {kmin_t:.2f}; FH2 x{PLANT_K:g} -> mem {rmp:.3f} time {rtp:.3f}")
+    _say(
+        "[WF-13 s11 c-plant] P6 LOO hat weights: "
+        + ", ".join(f"{k} {v:.3f}" for k, v in weights.items())
+        + f"; largest {top}; unplanted mem {rm0:.3f} time {rt0:.3f}; min failing k mem "
+        f"{kmin_m:.2f} time {kmin_t:.2f}; FH2 x{PLANT_K:g} -> mem {rmp:.3f} time {rtp:.3f}"
+    )
     assert top == "FH2"
     assert PLANT_K >= max(kmin_m, kmin_t)
     assert not _in(rmp, BRACKET)
@@ -279,15 +311,23 @@ def test_wf13_s11_f_human_degree2_priced(monkeypatch, capsys, tmp_path):
     builds = comm.allgather(count["builds"])
     hits = comm.allgather(count["hits"])
     with capsys.disabled():
-        _say(f"\n[WF-13 s11 U7-d2] {d2_file.name}: cells {est.cells} unknowns {est.unknowns} "
-             f"degree {est.degree} ranks {est.ranks} rows {est.rows_used}")
-        _say(f"[WF-13 s11 U7-d2] predicted_seconds {est.predicted_seconds:.3f} "
-             f"predicted_peak_gib {est.predicted_peak_gib:.4f} at -n {est.ranks} "
-             f"(printed only; no -n 2 degree-2 F-human solve to compare)")
-        _say(f"[WF-13 s11 CLI] rc {rcs} diff {diff} not_priced {est.not_priced} "
-             f"output dir exists {out_exists}")
-        _say(f"[WF-13 s11 U7-d2] real builds per rank {builds}, memo hits {hits}; "
-             f"node {time.perf_counter() - t_start:.1f} s")
+        _say(
+            f"\n[WF-13 s11 U7-d2] {d2_file.name}: cells {est.cells} unknowns {est.unknowns} "
+            f"degree {est.degree} ranks {est.ranks} rows {est.rows_used}"
+        )
+        _say(
+            f"[WF-13 s11 U7-d2] predicted_seconds {est.predicted_seconds:.3f} "
+            f"predicted_peak_gib {est.predicted_peak_gib:.4f} at -n {est.ranks} "
+            f"(printed only; no -n 2 degree-2 F-human solve to compare)"
+        )
+        _say(
+            f"[WF-13 s11 CLI] rc {rcs} diff {diff} not_priced {est.not_priced} "
+            f"output dir exists {out_exists}"
+        )
+        _say(
+            f"[WF-13 s11 U7-d2] real builds per rank {builds}, memo hits {hits}; "
+            f"node {time.perf_counter() - t_start:.1f} s"
+        )
     assert est.unknowns == N_DOFS_D2_RECORD
     assert est.cells == HOLE_CELL_RECORD
     assert est.degree == 2

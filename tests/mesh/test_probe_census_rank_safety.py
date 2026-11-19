@@ -27,11 +27,10 @@ Smoke tier, real build, ``-n 1`` and ``-n 2``.
 
 from __future__ import annotations
 
+import dolfinx
 import numpy as np
 import pytest
 from mpi4py import MPI
-
-import dolfinx
 
 from tests.mesh.probe_two_torus_conductor_hole import _census, _owned_census
 
@@ -48,12 +47,10 @@ def _naive_census(values, comm):
     ``tags.values`` — ghosts included — then an ``allreduce``.
     """
     local_tags, local_counts = np.unique(values, return_counts=True)
-    all_tags = sorted({int(t) for t in comm.allreduce(list(local_tags),
-                                                      op=MPI.SUM)})
+    all_tags = sorted({int(t) for t in comm.allreduce(list(local_tags), op=MPI.SUM)})
     out = {}
     for tag in all_tags:
-        local = (int(local_counts[local_tags == tag].sum())
-                 if tag in local_tags else 0)
+        local = int(local_counts[local_tags == tag].sum()) if tag in local_tags else 0
         out[tag] = comm.allreduce(local, op=MPI.SUM)
     return out
 
@@ -104,13 +101,16 @@ def test_the_owned_census_sums_to_the_global_cell_count():
     naive_sum = sum(naive.values())
 
     if comm.rank == 0:
-        print(f"\n[OPS-39] ranks={comm.size} size_global={size_global} "
-              f"Σ_ranks(size_local+num_ghosts)={total_local} "
-              f"Σ_ranks num_ghosts={total_ghosts}")
-        print(f"[OPS-39] owned census {dict(sorted(owned.items()))} "
-              f"sum={owned_sum}")
-        print(f"[OPS-39] naive census {dict(sorted(naive.items()))} "
-              f"sum={naive_sum} overshoot={naive_sum - size_global}")
+        print(
+            f"\n[OPS-39] ranks={comm.size} size_global={size_global} "
+            f"Σ_ranks(size_local+num_ghosts)={total_local} "
+            f"Σ_ranks num_ghosts={total_ghosts}"
+        )
+        print(f"[OPS-39] owned census {dict(sorted(owned.items()))} " f"sum={owned_sum}")
+        print(
+            f"[OPS-39] naive census {dict(sorted(naive.items()))} "
+            f"sum={naive_sum} overshoot={naive_sum - size_global}"
+        )
 
     # Anchor: an exact conservation identity, no tolerance.
     assert owned_sum == size_global, (
@@ -148,8 +148,10 @@ def test_the_masked_census_is_width_invariant_per_tag():
     per_column = 6 * N_PER_SIDE * N_PER_SIDE
     expected = {1: 2 * per_column, 2: 2 * per_column, 3: 4 * per_column}
     if comm.rank == 0:
-        print(f"[OPS-39] per-tag owned census {dict(sorted(owned.items()))} "
-              f"expected {expected} (ranks={comm.size})")
+        print(
+            f"[OPS-39] per-tag owned census {dict(sorted(owned.items()))} "
+            f"expected {expected} (ranks={comm.size})"
+        )
     assert dict(sorted(owned.items())) == expected
     assert sum(expected.values()) == imap.size_global
 

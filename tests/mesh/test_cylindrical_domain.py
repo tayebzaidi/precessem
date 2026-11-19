@@ -18,7 +18,6 @@ inside the meshing range and is not this chunk's to move.
 from mpi4py import MPI
 
 from fem_em_solver.io.mesh import MeshGenerator
-
 from tests.mesh.helpers import assert_tag_volumes_partition_domain
 
 INNER_TAG = 1

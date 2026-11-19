@@ -35,9 +35,9 @@ from pathlib import Path
 import pytest
 from mpi4py import MPI
 
+from tests.log_records import read_log_text
 from tests.package.test_wf13_cli_estimate import _diff, _parse
 from tests.package.test_wf17_estimate_table_page import gen
-from tests.log_records import read_log_text
 
 ROOT = Path(__file__).resolve().parent.parent.parent
 PAGE = ROOT / "docs" / "guide" / "estimates.md"
@@ -94,9 +94,11 @@ def test_wf17_s47_ledger_strings_and_custody():
     got = {p["entry"]: (p["ranks"], p["cells"], p["gib"], p["seconds"]) for p in prices}
     custody = _custody(prices)
     for p in prices:
-        _p0(f"\n[WF-17 s47] (X-ledger) entry {p['entry']} {p['chunk']} `{p['log']}`: ranks "
+        _p0(
+            f"\n[WF-17 s47] (X-ledger) entry {p['entry']} {p['chunk']} `{p['log']}`: ranks "
             f"{p['ranks']!r} cells {p['cells']!r} GiB {p['gib']!r} seconds {p['seconds']!r}; "
-            f"custody failures {custody[p['entry']]}")
+            f"custody failures {custody[p['entry']]}"
+        )
     assert [p["entry"] for p in prices] == ["58", "60", "61"]
     assert got == EXPECTED
     assert custody == {"58": [], "60": [], "61": []}
@@ -111,8 +113,9 @@ def test_wf17_s51_tag403_keys():
 
 def test_wf17_s51_c61_custody_fails_on_entry61(tmp_path):
     text = gen.LEDGER.read_text(encoding="utf-8")
-    row61 = next(ln for ln in text.splitlines()
-                 if ln.startswith("| 2026-11-12 | GEO-36-step11-I36-3T | "))
+    row61 = next(
+        ln for ln in text.splitlines() if ln.startswith("| 2026-11-12 | GEO-36-step11-I36-3T | ")
+    )
     cells = row61.split(" | ")
     assert cells[6] == "848"
     cells[6] = "849"
@@ -139,21 +142,27 @@ def test_wf17_s47_fc3_row_and_section():
     rcs = comm.allgather(row["rc"])
     pin = PRICE_TABLE_CLINICAL_3T[-1]
     pr = row["printed"]
-    _p0(f"\n[WF-17 s47] (K) {row['label']}: rc per rank {rcs}; complete={complete} "
+    _p0(
+        f"\n[WF-17 s47] (K) {row['label']}: rc per rank {rcs}; complete={complete} "
         f"differ={differ}; rows_used={est.rows_used!r}; printed ranks {pr['ranks']!r} "
         f"seconds {pr['predicted_seconds']!r} GiB {pr['predicted_peak_gib']!r} "
-        f"cells {pr['cells']!r}")
+        f"cells {pr['cells']!r}"
+    )
     for r in measured["ratios"]:
-        _p0(f"[WF-17 s47] ratio entry {r['entry']}: GiB {r['gib']} seconds {r['seconds']} "
-            "(estimator / measured; a record)")
+        _p0(
+            f"[WF-17 s47] ratio entry {r['entry']}: GiB {r['gib']} seconds {r['seconds']} "
+            "(estimator / measured; a record)"
+        )
 
     tracked = PAGE.read_text(encoding="utf-8")
     fresh = gen.render_measured(measured)
     pos = tracked.find(gen.MEASURED_HEADING)
     end = tracked.find("\n## ", pos + 1) if pos >= 0 else -1  # U163: the next `## ` heading or EOF
     section = (tracked[pos:end] if end >= 0 else tracked[pos:]) if pos >= 0 else ""
-    _p0(f"[WF-17 s47] (Sec) heading at {pos}; section {len(section)} chars vs fresh "
-        f"{len(fresh)}; equal={section == fresh}")
+    _p0(
+        f"[WF-17 s47] (Sec) heading at {pos}; section {len(section)} chars vs fresh "
+        f"{len(fresh)}; equal={section == fresh}"
+    )
 
     gates = {
         "K rc": rcs == [0] * comm.size,
@@ -173,8 +182,10 @@ def test_wf17_s47_fc3_row_and_section():
 def test_wf17_s47_c15_reads_fc1():
     measured = gen.measured_3t(MPI.COMM_WORLD, fc_file=FC15)
     est = measured["row"]["est"]
-    _p0(f"\n[WF-17 s47] (c-15) {measured['row']['label']}: rows_used={est.rows_used!r} "
-        f"seconds={est.predicted_seconds!r}")
+    _p0(
+        f"\n[WF-17 s47] (c-15) {measured['row']['label']}: rows_used={est.rows_used!r} "
+        f"seconds={est.predicted_seconds!r}"
+    )
     assert est.rows_used == ("FC1",)
     assert est.predicted_seconds == 203.3
 

@@ -46,7 +46,6 @@ from mpi4py import MPI
 import tests.validation.test_imp3_rod_birdcage as _rb
 from fem_em_solver.io.mesh import BIRDCAGE_IMPLANT_CELL_TAG
 from fem_em_solver.post.sar import mean_sar
-
 from tests.complex_mode import complex_only
 from tests.mesh.test_birdcage_implant_rod import (
     KEPT_ROD_CELL_RECORD,
@@ -89,8 +88,9 @@ def _merge_rod_into_phantom(msh, cell_tags):
     """Copy of ``cell_tags`` with tag 403 relabelled to the phantom tag."""
     vals = np.asarray(cell_tags.values).copy()
     vals[vals == BIRDCAGE_IMPLANT_CELL_TAG] = PHANTOM_CELL_TAG
-    return dmesh.meshtags(msh, msh.topology.dim, np.asarray(cell_tags.indices, dtype=np.int32),
-                          vals.astype(np.int32))
+    return dmesh.meshtags(
+        msh, msh.topology.dim, np.asarray(cell_tags.indices, dtype=np.int32), vals.astype(np.int32)
+    )
 
 
 def _census(built):
@@ -113,8 +113,9 @@ def _arm_with_403(built, label, field_hook, map_gel):
         seen["had_403"] = BIRDCAGE_IMPLANT_CELL_TAG in mmap
         if map_gel:
             gel = mmap[PHANTOM_CELL_TAG]
-            case["problem"] = replace(case["problem"],
-                                      material_map={**mmap, BIRDCAGE_IMPLANT_CELL_TAG: gel})
+            case["problem"] = replace(
+                case["problem"], material_map={**mmap, BIRDCAGE_IMPLANT_CELL_TAG: gel}
+            )
             m2 = case["problem"].material_map
             assert m2[BIRDCAGE_IMPLANT_CELL_TAG] is m2[PHANTOM_CELL_TAG]
             case[TWO_TAG_ACK_KEY] = "I41 arm M: shares computed, p_vol never read"
@@ -141,10 +142,12 @@ def _run():
     built_m = _build_kept_rod()
     c_m = _census(built_m)
     m_wall = _parent_wall_count(built_m[0], built_m[2])
-    _say(f"\nI41 (A0m) census: arm M {c_m['cells']} cells (record {KEPT_ROD_CELL_RECORD}), "
-         f"tag-3 {c_m['t3']}, tag-403 {c_m['t403']} (expected {ROD_CELLS}); arm R "
-         f"{c_rod['cells']} cells (record {ROD_CELL_RECORD_W1}), tag-3 {c_rod['t3']}; "
-         f"parent tag-402 owned facets M {m_wall} (interior) / R {rod_wall} (exterior)")
+    _say(
+        f"\nI41 (A0m) census: arm M {c_m['cells']} cells (record {KEPT_ROD_CELL_RECORD}), "
+        f"tag-3 {c_m['t3']}, tag-403 {c_m['t403']} (expected {ROD_CELLS}); arm R "
+        f"{c_rod['cells']} cells (record {ROD_CELL_RECORD_W1}), tag-3 {c_rod['t3']}; "
+        f"parent tag-402 owned facets M {m_wall} (interior) / R {rod_wall} (exterior)"
+    )
     # (A0m) before any solve: the kept build is the hole build plus the rod.
     assert c_m["cells"] == KEPT_ROD_CELL_RECORD, c_m
     assert c_m["t403"] == ROD_CELLS, c_m
@@ -155,19 +158,37 @@ def _run():
         heat["M"] = _heat_arm(label, rod, msh, merged, e_of[SOURCE], sigma_field, None, m_wall)
 
     def hook_r(label, rod, msh, cell_tags, e_of, sigma_field, rho_field):
-        heat["R"] = _heat_arm(label, rod, msh, cell_tags, e_of[SOURCE], sigma_field,
-                              heat["M"]["G"], rod_wall)
+        heat["R"] = _heat_arm(
+            label, rod, msh, cell_tags, e_of[SOURCE], sigma_field, heat["M"]["G"], rod_wall
+        )
 
     def hook_vac(label, rod, msh, cell_tags, e_of, sigma_field, rho_field):
         merged = _merge_rod_into_phantom(msh, cell_tags)
         heat["vac"] = {
-            "P": float(np.real(mean_sar(e_of[SOURCE], sigma=sigma_field,
-                                        rho=PHANTOM_RHO_KG_PER_M3, cell_tags=merged, comm=comm,
-                                        subdomain_ids=PHANTOM_CELL_TAG)["dissipated_power_w"])),
-            "P3": float(np.real(mean_sar(e_of[SOURCE], sigma=sigma_field,
-                                         rho=PHANTOM_RHO_KG_PER_M3, cell_tags=cell_tags,
-                                         comm=comm, subdomain_ids=PHANTOM_CELL_TAG)
-                                ["dissipated_power_w"])),
+            "P": float(
+                np.real(
+                    mean_sar(
+                        e_of[SOURCE],
+                        sigma=sigma_field,
+                        rho=PHANTOM_RHO_KG_PER_M3,
+                        cell_tags=merged,
+                        comm=comm,
+                        subdomain_ids=PHANTOM_CELL_TAG,
+                    )["dissipated_power_w"]
+                )
+            ),
+            "P3": float(
+                np.real(
+                    mean_sar(
+                        e_of[SOURCE],
+                        sigma=sigma_field,
+                        rho=PHANTOM_RHO_KG_PER_M3,
+                        cell_tags=cell_tags,
+                        comm=comm,
+                        subdomain_ids=PHANTOM_CELL_TAG,
+                    )["dissipated_power_w"]
+                )
+            ),
         }
 
     m = _arm_with_403(built_m, "I41 arm M (rod as gel)", hook_m, map_gel=True)
@@ -180,22 +201,32 @@ def _run():
     hm, hr = heat["M"], heat["R"]
     q_sar = {t: r["sar"][(t, SOURCE)] / m["sar"][(t, SOURCE)] for t in TIPS}
     q_th = {t: hr["tip_th"][t] / hm["tip_th"][t] for t in TIPS}
-    _say(f"I41 material map tag 403: arm M had {m['material_403']['had_403']} -> mapped "
-         f"{m['material_403']['mapped']}; control had {vac['material_403']['had_403']} -> "
-         f"mapped {vac['material_403']['mapped']}")
+    _say(
+        f"I41 material map tag 403: arm M had {m['material_403']['had_403']} -> mapped "
+        f"{m['material_403']['mapped']}; control had {vac['material_403']['had_403']} -> "
+        f"mapped {vac['material_403']['mapped']}"
+    )
     for t in TIPS:
-        _say(f"I41 record {t} tip, {SOURCE}: 1 g theta(t*) R/M = {q_th[t]:.6f} (I39 mesh pair "
-             f"{I39_ROD_TH_RATIO[t]:.4f}); 1 g SAR ratio Q R/M = {q_sar[t]:.6f}; ball masses "
-             f"M {m['mass'][t] * 1e3:.6f} g / R {r['mass'][t] * 1e3:.6f} g")
-    _say(f"I41 record: max theta R/M = {hr['th_max'] / hm['th_max']:.6f} ({hr['th_max']:.6e} / "
-         f"{hm['th_max']:.6e} K); mean theta R/M {hr['mean_th'] / hm['mean_th']:.6f}; "
-         f"P_phantom M {hm['P']:.12e} W, R {hr['P']:.12e} W: P(R)/P(M) - 1 = "
-         f"{hr['P'] / hm['P'] - 1.0:+.4%} (I39 +2.00 %)")
-    _say(f"I41 control (predicted, printed): 403 unmapped (vacuum): P over {{3,403}} "
-         f"{heat['vac']['P']:.12e} W, over tag 3 {heat['vac']['P3']:.12e} W; change vs arm M "
-         f"{heat['vac']['P'] / hm['P'] - 1.0:+.4%}")
-    _say(f"I41 timing: arms M {m['t_arm']:.1f} / R {r['t_arm']:.1f} / control {vac['t_arm']:.1f} s; "
-         f"total {time.perf_counter() - t0:.1f} s at -n {comm.size}")
+        _say(
+            f"I41 record {t} tip, {SOURCE}: 1 g theta(t*) R/M = {q_th[t]:.6f} (I39 mesh pair "
+            f"{I39_ROD_TH_RATIO[t]:.4f}); 1 g SAR ratio Q R/M = {q_sar[t]:.6f}; ball masses "
+            f"M {m['mass'][t] * 1e3:.6f} g / R {r['mass'][t] * 1e3:.6f} g"
+        )
+    _say(
+        f"I41 record: max theta R/M = {hr['th_max'] / hm['th_max']:.6f} ({hr['th_max']:.6e} / "
+        f"{hm['th_max']:.6e} K); mean theta R/M {hr['mean_th'] / hm['mean_th']:.6f}; "
+        f"P_phantom M {hm['P']:.12e} W, R {hr['P']:.12e} W: P(R)/P(M) - 1 = "
+        f"{hr['P'] / hm['P'] - 1.0:+.4%} (I39 +2.00 %)"
+    )
+    _say(
+        f"I41 control (predicted, printed): 403 unmapped (vacuum): P over {{3,403}} "
+        f"{heat['vac']['P']:.12e} W, over tag 3 {heat['vac']['P3']:.12e} W; change vs arm M "
+        f"{heat['vac']['P'] / hm['P'] - 1.0:+.4%}"
+    )
+    _say(
+        f"I41 timing: arms M {m['t_arm']:.1f} / R {r['t_arm']:.1f} / control {vac['t_arm']:.1f} s; "
+        f"total {time.perf_counter() - t0:.1f} s at -n {comm.size}"
+    )
     return {"M": m, "R": r, "heat": heat, "c_m": c_m, "c_rod": c_rod}
 
 
@@ -208,6 +239,7 @@ def i41():
 
 # --- coding tests (W0) -------------------------------------------------------
 
+
 def test_knob_refuses_without_value():
     assert os.environ.get(KNOB) in (None, "1"), f"{KNOB} must be unset or 1"
 
@@ -217,12 +249,14 @@ def test_rod_cell_count_is_15000():
 
 
 def test_merge_relabels_only_403():
-    box = dmesh.create_box(MPI.COMM_WORLD, [[0, 0, 0], [1, 1, 1]], [2, 2, 2],
-                           dmesh.CellType.tetrahedron)
+    box = dmesh.create_box(
+        MPI.COMM_WORLD, [[0, 0, 0], [1, 1, 1]], [2, 2, 2], dmesh.CellType.tetrahedron
+    )
     n = box.topology.index_map(3).size_local + box.topology.index_map(3).num_ghosts
     idx = np.arange(n, dtype=np.int32)
-    vals = np.where(idx % 3 == 0, BIRDCAGE_IMPLANT_CELL_TAG,
-                    np.where(idx % 3 == 1, PHANTOM_CELL_TAG, 7)).astype(np.int32)
+    vals = np.where(
+        idx % 3 == 0, BIRDCAGE_IMPLANT_CELL_TAG, np.where(idx % 3 == 1, PHANTOM_CELL_TAG, 7)
+    ).astype(np.int32)
     ct = dmesh.meshtags(box, 3, idx, vals)
     merged = _merge_rod_into_phantom(box, ct)
     expect = np.where(vals == BIRDCAGE_IMPLANT_CELL_TAG, PHANTOM_CELL_TAG, vals)
@@ -231,6 +265,7 @@ def test_merge_relabels_only_403():
 
 
 # --- W1 ------------------------------------------------------------------------
+
 
 @complex_only
 def test_a0m_matched_census(i41):

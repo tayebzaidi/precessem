@@ -1,13 +1,14 @@
 """Mesh generation utilities for EM simulations."""
 
-from typing import Optional, Sequence, Tuple, List, Dict
 import math
 import time
-import numpy as np
-import gmsh
-from mpi4py import MPI
+from typing import Dict, List, Optional, Sequence, Tuple
+
 import dolfinx
+import gmsh
+import numpy as np
 from dolfinx.io import gmsh as dolfinx_gmsh
+from mpi4py import MPI
 
 
 def _model_to_mesh(model, comm, rank, **kwargs):
@@ -61,14 +62,16 @@ def _raise_geometry_failure_on_every_rank(
             f"(resolution={resolution!r}); this is rank {comm.rank}"
         )
 
+
 #: `GEO-13`: ``cylindrical_domain``'s surface-classification tolerance, as a
 #: fraction of the radial gap ``outer_radius - inner_radius``.  Set from
 #: `20260807T033127Z_GEO-13-probe.log`; see the sizing note at its use site.
 _WALL_TOL_FRACTION = 0.01
 
 
-def _cylindrical_hole_domain(a, c, length, resolution_wall, resolution_far, comm, rank,
-                             coat_radius=None):
+def _cylindrical_hole_domain(
+    a, c, length, resolution_wall, resolution_far, comm, rank, coat_radius=None
+):
     """`IMP-4` step 1 (§9 item 206): ``cylindrical_domain(as_hole=True)``.
 
     The radius-``a`` cylinder is *cut* from the radius-``c`` one (both of
@@ -99,8 +102,7 @@ def _cylindrical_hole_domain(a, c, length, resolution_wall, resolution_far, comm
         raise ValueError("length and resolutions must be positive")
     if coat_radius is not None and not a < coat_radius < c:
         raise ValueError(
-            f"need inner_radius < coat_radius < outer_radius, got {a!r}, "
-            f"{coat_radius!r}, {c!r}"
+            f"need inner_radius < coat_radius < outer_radius, got {a!r}, " f"{coat_radius!r}, {c!r}"
         )
     build_error: Optional[BaseException] = None
     if comm.rank == rank:
@@ -239,6 +241,7 @@ def _cylindrical_hole_domain(a, c, length, resolution_wall, resolution_far, comm
     if comm.rank == rank:
         gmsh.finalize()
     return mesh, cell_tags, facet_tags
+
 
 #: `PORT-1` step 3b-xvi: ceiling [m] on the ``Thickness`` of
 #: ``two_torus_domain``'s gap-box refinement field, i.e. how far outside each
@@ -425,10 +428,22 @@ def _place_sheet_in_leg_frame(tag: int, angle: float) -> None:
     gmsh.model.occ.affineTransform(
         [(2, tag)],
         [
-            c, 0.0, s, 0.0,
-            s, 0.0, -c, 0.0,
-            0.0, 1.0, 0.0, 0.0,
-            0.0, 0.0, 0.0, 1.0,
+            c,
+            0.0,
+            s,
+            0.0,
+            s,
+            0.0,
+            -c,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
         ],
     )
 
@@ -523,14 +538,14 @@ class MeshGenerator:
         domain_radius: float = 0.1,
         resolution: float = 0.005,
         comm: MPI.Intracomm = MPI.COMM_WORLD,
-        rank: int = 0
+        rank: int = 0,
     ) -> Tuple[dolfinx.mesh.Mesh, dolfinx.mesh.MeshTags, dolfinx.mesh.MeshTags]:
         """Generate mesh for straight wire in cylindrical domain.
-        
+
         Creates a cylindrical domain with a thin wire along the z-axis.
         Useful for validating against the analytical solution for an
         infinite straight wire.
-        
+
         Parameters
         ----------
         wire_length : float
@@ -545,7 +560,7 @@ class MeshGenerator:
             MPI communicator
         rank : int
             Rank for Gmsh model (usually 0)
-            
+
         Returns
         -------
         mesh : dolfinx.mesh.Mesh
@@ -561,34 +576,33 @@ class MeshGenerator:
                 # Initialize Gmsh
                 gmsh.initialize()
                 gmsh.model.add("straight_wire")
-            
+
                 # Create wire (cylinder along z-axis)
                 wire_tag = gmsh.model.occ.addCylinder(
-                    0, 0, -wire_length/2,  # center of bottom face
-                    0, 0, wire_length,      # axis direction and height
-                    wire_radius
+                    0,
+                    0,
+                    -wire_length / 2,  # center of bottom face
+                    0,
+                    0,
+                    wire_length,  # axis direction and height
+                    wire_radius,
                 )
-            
+
                 # Create surrounding domain (hollow cylinder)
                 domain_tag = gmsh.model.occ.addCylinder(
-                    0, 0, -wire_length/2,
-                    0, 0, wire_length,
-                    domain_radius
+                    0, 0, -wire_length / 2, 0, 0, wire_length, domain_radius
                 )
-            
+
                 # Cut wire out of domain to create separate volumes
                 # Actually, we want both as separate volumes, so we fragment
-                ov, ovv = gmsh.model.occ.fragment(
-                    [(3, domain_tag)],
-                    [(3, wire_tag)]
-                )
+                ov, ovv = gmsh.model.occ.fragment([(3, domain_tag)], [(3, wire_tag)])
                 gmsh.model.occ.synchronize()
-            
+
                 # Get volumes
                 volumes = gmsh.model.getEntities(dim=3)
                 wire_volume = None
                 domain_volume = None
-            
+
                 # Tag volumes based on their bounding box
                 for vol in volumes:
                     bbox = gmsh.model.getBoundingBox(vol[0], vol[1])
@@ -599,44 +613,44 @@ class MeshGenerator:
                         wire_volume = vol[1]
                     else:
                         domain_volume = vol[1]
-            
+
                 # Add physical groups
                 if wire_volume:
                     gmsh.model.addPhysicalGroup(3, [wire_volume], tag=1)
                     gmsh.model.setPhysicalName(3, 1, "wire")
-            
+
                 if domain_volume:
                     gmsh.model.addPhysicalGroup(3, [domain_volume], tag=2)
                     gmsh.model.setPhysicalName(3, 2, "domain")
-            
+
                 # Tag boundaries
                 surfaces = gmsh.model.getEntities(dim=2)
                 boundary_surfaces = []
                 wire_surfaces = []
-            
+
                 for surf in surfaces:
                     bbox = gmsh.model.getBoundingBox(surf[0], surf[1])
                     x_min, y_min, z_min, x_max, y_max, z_max = bbox
                     r_max = np.sqrt(max(x_max**2, y_max**2))
-                
+
                     # Cylindrical boundary of domain
                     if abs(r_max - domain_radius) < resolution:
                         boundary_surfaces.append(surf[1])
                     # Wire surface
                     elif r_max < 2 * wire_radius:
                         wire_surfaces.append(surf[1])
-            
+
                 if boundary_surfaces:
                     gmsh.model.addPhysicalGroup(2, boundary_surfaces, tag=1)
                     gmsh.model.setPhysicalName(2, 1, "boundary")
-            
+
                 if wire_surfaces:
                     gmsh.model.addPhysicalGroup(2, wire_surfaces, tag=2)
                     gmsh.model.setPhysicalName(2, 2, "wire_surface")
-            
+
                 # Set mesh size
                 gmsh.model.mesh.setSize(gmsh.model.getEntities(0), resolution)
-            
+
                 # Generate mesh
                 gmsh.model.mesh.generate(3)
                 gmsh.model.mesh.optimize("Netgen")
@@ -650,19 +664,17 @@ class MeshGenerator:
         # step 2a; the unwrapped throw deadlocked at 120 s instead of
         # failing in seconds).
         _raise_geometry_failure_on_every_rank(
-            comm, rank, 'straight_wire_domain', build_error, resolution
+            comm, rank, "straight_wire_domain", build_error, resolution
         )
 
         # Convert to dolfinx mesh
-        mesh, cell_tags, facet_tags = _model_to_mesh(
-            gmsh.model, comm, rank, gdim=3
-        )
-        
+        mesh, cell_tags, facet_tags = _model_to_mesh(gmsh.model, comm, rank, gdim=3)
+
         if comm.rank == rank:
             gmsh.finalize()
-        
+
         return mesh, cell_tags, facet_tags
-    
+
     @staticmethod
     def circular_loop_domain(
         loop_radius: float = 0.05,
@@ -670,13 +682,13 @@ class MeshGenerator:
         domain_radius: float = 0.15,
         resolution: float = 0.005,
         comm: MPI.Intracomm = MPI.COMM_WORLD,
-        rank: int = 0
+        rank: int = 0,
     ) -> Tuple[dolfinx.mesh.Mesh, dolfinx.mesh.MeshTags, dolfinx.mesh.MeshTags]:
         """Generate mesh for circular current loop in spherical domain.
-        
+
         Creates a torus (ring) for the wire surrounded by a spherical air domain.
         The loop lies in the xy-plane centered at origin.
-        
+
         Parameters
         ----------
         loop_radius : float
@@ -691,7 +703,7 @@ class MeshGenerator:
             MPI communicator
         rank : int
             Rank for Gmsh model (usually 0)
-            
+
         Returns
         -------
         mesh : dolfinx.mesh.Mesh
@@ -705,103 +717,98 @@ class MeshGenerator:
             # Initialize Gmsh
             gmsh.initialize()
             gmsh.model.add("circular_loop")
-            
+
             # Create wire as torus in xy-plane
             # addTorus(x, y, z, major_radius, minor_radius)
             wire_tag = gmsh.model.occ.addTorus(0, 0, 0, loop_radius, wire_radius)
-            
+
             # Create surrounding spherical domain
             domain_tag = gmsh.model.occ.addSphere(0, 0, 0, domain_radius)
-            
+
             # Fragment to get separate volumes
-            ov, ovv = gmsh.model.occ.fragment(
-                [(3, domain_tag)],
-                [(3, wire_tag)]
-            )
+            ov, ovv = gmsh.model.occ.fragment([(3, domain_tag)], [(3, wire_tag)])
             gmsh.model.occ.synchronize()
-            
+
             # Get volumes and tag them
             volumes = gmsh.model.getEntities(dim=3)
             wire_volume = None
             air_volume = None
-            
+
             for vol in volumes:
                 bbox = gmsh.model.getBoundingBox(vol[0], vol[1])
                 x_min, y_min, z_min, x_max, y_max, z_max = bbox
-                
+
                 # Compute bounding box dimensions
                 dx = x_max - x_min
                 dy = y_max - y_min
                 dz = z_max - z_min
-                
+
                 # Wire has smaller bounding box
                 max_dim = max(dx, dy, dz)
                 if max_dim < 4 * loop_radius:  # Wire is smaller
                     wire_volume = vol[1]
                 else:
                     air_volume = vol[1]
-            
+
             # Add physical groups
             if wire_volume:
                 gmsh.model.addPhysicalGroup(3, [wire_volume], tag=1)
                 gmsh.model.setPhysicalName(3, 1, "wire")
-            
+
             if air_volume:
                 gmsh.model.addPhysicalGroup(3, [air_volume], tag=2)
                 gmsh.model.setPhysicalName(3, 2, "air")
-            
+
             # Tag boundaries
             surfaces = gmsh.model.getEntities(dim=2)
             boundary_surfaces = []
-            
+
             for surf in surfaces:
                 bbox = gmsh.model.getBoundingBox(surf[0], surf[1])
                 x_min, y_min, z_min, x_max, y_max, z_max = bbox
-                
+
                 # Check if on outer spherical boundary
                 r_max = np.sqrt(x_max**2 + y_max**2 + z_max**2)
                 if abs(r_max - domain_radius) < resolution:
                     boundary_surfaces.append(surf[1])
-            
+
             if boundary_surfaces:
                 gmsh.model.addPhysicalGroup(2, boundary_surfaces, tag=1)
                 gmsh.model.setPhysicalName(2, 1, "outer_boundary")
-            
+
             # Set mesh size
             gmsh.model.mesh.setSize(gmsh.model.getEntities(0), resolution)
-            
+
             # Generate mesh
             gmsh.model.mesh.generate(3)
             gmsh.model.mesh.optimize("Netgen")
-            
+
         # Convert to dolfinx mesh
-        mesh, cell_tags, facet_tags = _model_to_mesh(
-            gmsh.model, comm, rank, gdim=3
-        )
-        
+        mesh, cell_tags, facet_tags = _model_to_mesh(gmsh.model, comm, rank, gdim=3)
+
         if comm.rank == rank:
             gmsh.finalize()
-        
+
         return mesh, cell_tags, facet_tags
-    
+
     @staticmethod
     def helmholtz_coil_domain(
         loop_radius: float = 0.05,
         wire_radius: float = 0.002,  # Increased from 0.001 for simpler mesh
         domain_radius: float = 0.12,  # Reduced from 0.15
-        resolution: float = 0.008,    # Coarser mesh
+        resolution: float = 0.008,  # Coarser mesh
         comm: MPI.Intracomm = MPI.COMM_WORLD,
-        rank: int = 0
+        rank: int = 0,
     ) -> Tuple[dolfinx.mesh.Mesh, dolfinx.mesh.MeshTags, dolfinx.mesh.MeshTags]:
         """Generate mesh for Helmholtz coil in spherical domain.
-        
+
         A Helmholtz coil consists of two identical circular loops separated
         by a distance equal to their radius. This configuration creates a
         highly uniform magnetic field in the central region.
-        
+
         The loops are positioned at z = -R/2 and z = +R/2, where R is the
         loop radius.
-        
+
         Parameters
         ----------
         loop_radius : float
@@ -816,7 +823,7 @@ class MeshGenerator:
             MPI communicator
         rank : int
             Rank for Gmsh model (usually 0)
-            
+
         Returns
         -------
         mesh : dolfinx.mesh.Mesh
@@ -830,126 +837,115 @@ class MeshGenerator:
             # Initialize Gmsh
             gmsh.initialize()
             gmsh.model.add("helmholtz_coil")
-            
+
             # Helmholtz condition: separation = loop radius
             separation = loop_radius
             z1 = -separation / 2
             z2 = separation / 2
-            
+
             # Create two wire tori at z = -R/2 and z = +R/2
             # addTorus(x, y, z, major_radius, minor_radius)
             wire1_tag = gmsh.model.occ.addTorus(0, 0, z1, loop_radius, wire_radius)
             wire2_tag = gmsh.model.occ.addTorus(0, 0, z2, loop_radius, wire_radius)
-            
+
             # Create surrounding spherical domain
             domain_tag = gmsh.model.occ.addSphere(0, 0, 0, domain_radius)
-            
+
             # Fragment to get separate volumes
             # First fragment domain with wire1
-            ov1, ovv1 = gmsh.model.occ.fragment(
-                [(3, domain_tag)],
-                [(3, wire1_tag)]
-            )
+            ov1, ovv1 = gmsh.model.occ.fragment([(3, domain_tag)], [(3, wire1_tag)])
             gmsh.model.occ.synchronize()
-            
+
             # Then fragment result with wire2
             # Get the air volume from previous fragmentation
             volumes_after_first = gmsh.model.getEntities(dim=3)
             air_tag = None
-            wire1_volume = None
             for vol in volumes_after_first:
                 bbox = gmsh.model.getBoundingBox(vol[0], vol[1])
                 x_min, y_min, z_min, x_max, y_max, z_max = bbox
                 max_dim = max(x_max - x_min, y_max - y_min, z_max - z_min)
                 # Wire is smaller than air domain
-                if max_dim < 4 * loop_radius:
-                    wire1_volume = vol[1]
-                else:
+                if not max_dim < 4 * loop_radius:
                     air_tag = vol[1]
-            
+
             # Fragment air with second wire
             if air_tag:
-                ov2, ovv2 = gmsh.model.occ.fragment(
-                    [(3, air_tag)],
-                    [(3, wire2_tag)]
-                )
+                ov2, ovv2 = gmsh.model.occ.fragment([(3, air_tag)], [(3, wire2_tag)])
             gmsh.model.occ.synchronize()
-            
+
             # Get final volumes and tag them
             volumes = gmsh.model.getEntities(dim=3)
             wire_volumes = []
             air_volume = None
-            
+
             for vol in volumes:
                 bbox = gmsh.model.getBoundingBox(vol[0], vol[1])
                 x_min, y_min, z_min, x_max, y_max, z_max = bbox
-                
+
                 # Compute bounding box dimensions
                 dx = x_max - x_min
                 dy = y_max - y_min
                 dz = z_max - z_min
                 max_dim = max(dx, dy, dz)
-                
+
                 # Wire volumes are smaller and have z-extent ~ 2*wire_radius
                 if max_dim < 4 * loop_radius and dz < 4 * wire_radius:
                     wire_volumes.append(vol[1])
                 else:
                     air_volume = vol[1]
-            
+
             # Add physical groups
             if wire_volumes:
                 # Tag both wires as "wire" (tag=1)
                 gmsh.model.addPhysicalGroup(3, wire_volumes, tag=1)
                 gmsh.model.setPhysicalName(3, 1, "wire")
-            
+
             if air_volume:
                 gmsh.model.addPhysicalGroup(3, [air_volume], tag=2)
                 gmsh.model.setPhysicalName(3, 2, "air")
-            
+
             # Tag outer boundary
             surfaces = gmsh.model.getEntities(dim=2)
             boundary_surfaces = []
-            
+
             for surf in surfaces:
                 bbox = gmsh.model.getBoundingBox(surf[0], surf[1])
                 x_min, y_min, z_min, x_max, y_max, z_max = bbox
-                
+
                 # Check if on outer spherical boundary
                 r_max = np.sqrt(x_max**2 + y_max**2 + z_max**2)
                 if abs(r_max - domain_radius) < resolution:
                     boundary_surfaces.append(surf[1])
-            
+
             if boundary_surfaces:
                 gmsh.model.addPhysicalGroup(2, boundary_surfaces, tag=1)
                 gmsh.model.setPhysicalName(2, 1, "outer_boundary")
-            
+
             # Set mesh size
             gmsh.model.mesh.setSize(gmsh.model.getEntities(0), resolution)
-            
+
             # Generate mesh
             gmsh.model.mesh.generate(3)
             # Skip optimization for Helmholtz coil to avoid Gmsh hangs
             # gmsh.model.mesh.optimize("Netgen")
-            
+
         # Convert to dolfinx mesh
-        mesh, cell_tags, facet_tags = _model_to_mesh(
-            gmsh.model, comm, rank, gdim=3
-        )
-        
+        mesh, cell_tags, facet_tags = _model_to_mesh(gmsh.model, comm, rank, gdim=3)
+
         if comm.rank == rank:
             gmsh.finalize()
-        
+
         return mesh, cell_tags, facet_tags
-    
+
     @staticmethod
     def rectangular_domain(
         bounds: Tuple[float, float, float, float, float, float],
         resolution: float,
         comm: MPI.Intracomm = MPI.COMM_WORLD,
-        rank: int = 0
+        rank: int = 0,
     ) -> dolfinx.mesh.Mesh:
         """Generate simple rectangular domain.
-        
+
         Parameters
         ----------
         bounds : tuple
@@ -960,7 +956,7 @@ class MeshGenerator:
             MPI communicator
         rank : int
             Rank for Gmsh
-            
+
         Returns
         -------
         mesh : dolfinx.mesh.Mesh
@@ -969,35 +965,32 @@ class MeshGenerator:
         if comm.rank == rank:
             gmsh.initialize()
             gmsh.model.add("rectangular")
-            
+
             xmin, xmax, ymin, ymax, zmin, zmax = bounds
-            
+
             # Create box
-            box = gmsh.model.occ.addBox(xmin, ymin, zmin, 
-                                         xmax-xmin, ymax-ymin, zmax-zmin)
+            box = gmsh.model.occ.addBox(xmin, ymin, zmin, xmax - xmin, ymax - ymin, zmax - zmin)
             gmsh.model.occ.synchronize()
-            
+
             gmsh.model.addPhysicalGroup(3, [box], tag=1)
-            
+
             # Set mesh size
             gmsh.model.mesh.setSize(gmsh.model.getEntities(0), resolution)
             gmsh.model.mesh.generate(3)
-        
+
         mesh, _, _ = _model_to_mesh(gmsh.model, comm, rank, gdim=3)
-        
+
         if comm.rank == rank:
             gmsh.finalize()
-        
+
         return mesh
-    
+
     @staticmethod
     def create_simple_box(
-        L: float = 1.0,
-        n: int = 10,
-        comm: MPI.Intracomm = MPI.COMM_WORLD
+        L: float = 1.0, n: int = 10, comm: MPI.Intracomm = MPI.COMM_WORLD
     ) -> dolfinx.mesh.Mesh:
         """Create simple box mesh using dolfinx built-in generator.
-        
+
         Parameters
         ----------
         L : float
@@ -1006,19 +999,19 @@ class MeshGenerator:
             Number of cells in each direction
         comm : MPI.Intracomm
             MPI communicator
-            
+
         Returns
         -------
         mesh : dolfinx.mesh.Mesh
             Box mesh
         """
-        from dolfinx.mesh import create_box, CellType
-        
+        from dolfinx.mesh import CellType, create_box
+
         domain = [(-L, -L, -L), (L, L, L)]
         mesh = create_box(comm, domain, [n, n, n], CellType.tetrahedron)
-        
+
         return mesh
-    
+
     @staticmethod
     def cylindrical_domain(
         inner_radius: float = 0.01,
@@ -1049,18 +1042,20 @@ class MeshGenerator:
         if as_hole:
             if resolution_wall is None or resolution_far is None:
                 raise ValueError(
-                    "cylindrical_domain(as_hole=True) needs resolution_wall and "
-                    "resolution_far"
+                    "cylindrical_domain(as_hole=True) needs resolution_wall and " "resolution_far"
                 )
             return _cylindrical_hole_domain(
-                float(inner_radius), float(outer_radius), float(length),
-                float(resolution_wall), float(resolution_far), comm, rank,
+                float(inner_radius),
+                float(outer_radius),
+                float(length),
+                float(resolution_wall),
+                float(resolution_far),
+                comm,
+                rank,
                 coat_radius=None if coat_radius is None else float(coat_radius),
             )
         if resolution_wall is not None or resolution_far is not None:
-            raise ValueError(
-                "resolution_wall / resolution_far apply only with as_hole=True"
-            )
+            raise ValueError("resolution_wall / resolution_far apply only with as_hole=True")
         if coat_radius is not None:
             raise ValueError("coat_radius applies only with as_hole=True")
         return MeshGenerator._cylindrical_fragment_domain(
@@ -1075,7 +1070,7 @@ class MeshGenerator:
 
         Creates two concentric cylinders along the z-axis. Useful for practicing
         multi-volume meshing and for problems with cylindrical symmetry.
-        
+
         Parameters
         ----------
         inner_radius : float
@@ -1090,7 +1085,7 @@ class MeshGenerator:
             MPI communicator
         rank : int
             Rank for Gmsh model (usually 0)
-            
+
         Returns
         -------
         mesh : dolfinx.mesh.Mesh
@@ -1106,58 +1101,57 @@ class MeshGenerator:
                 # Initialize Gmsh
                 gmsh.initialize()
                 gmsh.model.add("cylindrical_domain")
-            
+
                 # Create inner cylinder along z-axis
                 inner_tag = gmsh.model.occ.addCylinder(
-                    0, 0, -length/2,  # center of bottom face
-                    0, 0, length,      # axis direction and height
-                    inner_radius
+                    0,
+                    0,
+                    -length / 2,  # center of bottom face
+                    0,
+                    0,
+                    length,  # axis direction and height
+                    inner_radius,
                 )
-            
+
                 # Create outer cylinder
                 outer_tag = gmsh.model.occ.addCylinder(
-                    0, 0, -length/2,
-                    0, 0, length,
-                    outer_radius
+                    0, 0, -length / 2, 0, 0, length, outer_radius
                 )
-            
+
                 # Fragment to create separate volumes (inner and outer region)
-                ov, ovv = gmsh.model.occ.fragment(
-                    [(3, outer_tag)],
-                    [(3, inner_tag)]
-                )
+                ov, ovv = gmsh.model.occ.fragment([(3, outer_tag)], [(3, inner_tag)])
                 gmsh.model.occ.synchronize()
-            
+
                 # Get volumes and tag them
                 volumes = gmsh.model.getEntities(dim=3)
                 inner_volume = None
                 outer_volume = None
-            
+
                 for vol in volumes:
                     bbox = gmsh.model.getBoundingBox(vol[0], vol[1])
                     x_min, y_min, z_min, x_max, y_max, z_max = bbox
-                
+
                     # Check if this is the inner cylinder by radius
                     r_max = np.sqrt(max(x_max**2, y_max**2))
                     if r_max < (inner_radius + outer_radius) / 2:
                         inner_volume = vol[1]
                     else:
                         outer_volume = vol[1]
-            
+
                 # Add physical groups
                 if inner_volume:
                     gmsh.model.addPhysicalGroup(3, [inner_volume], tag=1)
                     gmsh.model.setPhysicalName(3, 1, "inner")
-            
+
                 if outer_volume:
                     gmsh.model.addPhysicalGroup(3, [outer_volume], tag=2)
                     gmsh.model.setPhysicalName(3, 2, "outer")
-            
+
                 # Tag boundaries
                 surfaces = gmsh.model.getEntities(dim=2)
                 outer_boundary_surfaces = []
                 inner_boundary_surfaces = []
-            
+
                 # `GEO-13`: the classification tolerance is a fraction of the radial
                 # gap, never `resolution` — a tolerance keyed to mesh size makes the
                 # margin geometry-over-mesh-size, and at `resolution >= 0.09` (the
@@ -1183,18 +1177,18 @@ class MeshGenerator:
                     # Inner cylinder surface
                     elif abs(r_max - inner_radius) < tol:
                         inner_boundary_surfaces.append(surf[1])
-            
+
                 if outer_boundary_surfaces:
                     gmsh.model.addPhysicalGroup(2, outer_boundary_surfaces, tag=1)
                     gmsh.model.setPhysicalName(2, 1, "outer_boundary")
-            
+
                 if inner_boundary_surfaces:
                     gmsh.model.addPhysicalGroup(2, inner_boundary_surfaces, tag=2)
                     gmsh.model.setPhysicalName(2, 2, "inner_boundary")
-            
+
                 # Set mesh size
                 gmsh.model.mesh.setSize(gmsh.model.getEntities(0), resolution)
-            
+
                 # Generate mesh
                 gmsh.model.mesh.generate(3)
                 gmsh.model.mesh.optimize("Netgen")
@@ -1208,17 +1202,15 @@ class MeshGenerator:
         # step 2a; the unwrapped throw deadlocked at 120 s instead of
         # failing in seconds).
         _raise_geometry_failure_on_every_rank(
-            comm, rank, 'cylindrical_domain', build_error, resolution
+            comm, rank, "cylindrical_domain", build_error, resolution
         )
-            
+
         # Convert to dolfinx mesh
-        mesh, cell_tags, facet_tags = _model_to_mesh(
-            gmsh.model, comm, rank, gdim=3
-        )
-        
+        mesh, cell_tags, facet_tags = _model_to_mesh(gmsh.model, comm, rank, gdim=3)
+
         if comm.rank == rank:
             gmsh.finalize()
-        
+
         return mesh, cell_tags, facet_tags
 
     @staticmethod
@@ -1228,7 +1220,7 @@ class MeshGenerator:
         length: float = 0.1,
         resolution: float = 0.02,
         comm: MPI.Intracomm = MPI.COMM_WORLD,
-        rank: int = 0
+        rank: int = 0,
     ) -> Tuple[dolfinx.mesh.Mesh, dolfinx.mesh.MeshTags, dolfinx.mesh.MeshTags]:
         """Generate mesh with two side-by-side cylinders inside a box domain.
 
@@ -1265,16 +1257,8 @@ class MeshGenerator:
 
             x_offset = separation / 2
 
-            cylinder_1 = gmsh.model.occ.addCylinder(
-                -x_offset, 0, -length / 2,
-                0, 0, length,
-                radius
-            )
-            cylinder_2 = gmsh.model.occ.addCylinder(
-                x_offset, 0, -length / 2,
-                0, 0, length,
-                radius
-            )
+            cylinder_1 = gmsh.model.occ.addCylinder(-x_offset, 0, -length / 2, 0, 0, length, radius)
+            cylinder_2 = gmsh.model.occ.addCylinder(x_offset, 0, -length / 2, 0, 0, length, radius)
 
             box_half_x = x_offset + 2.0 * radius
             box_half_y = 2.0 * radius
@@ -1307,9 +1291,12 @@ class MeshGenerator:
             for dim, surf in gmsh.model.getEntities(dim=2):
                 x_min, y_min, z_min, x_max, y_max, z_max = gmsh.model.getBoundingBox(dim, surf)
                 if (
-                    abs(abs(x_min) - box_half_x) < x_tol or abs(abs(x_max) - box_half_x) < x_tol
-                    or abs(abs(y_min) - box_half_y) < y_tol or abs(abs(y_max) - box_half_y) < y_tol
-                    or abs(abs(z_min) - (length / 2)) < z_tol or abs(abs(z_max) - (length / 2)) < z_tol
+                    abs(abs(x_min) - box_half_x) < x_tol
+                    or abs(abs(x_max) - box_half_x) < x_tol
+                    or abs(abs(y_min) - box_half_y) < y_tol
+                    or abs(abs(y_max) - box_half_y) < y_tol
+                    or abs(abs(z_min) - (length / 2)) < z_tol
+                    or abs(abs(z_max) - (length / 2)) < z_tol
                 ):
                     boundary_surfaces.append(surf)
 
@@ -1321,9 +1308,7 @@ class MeshGenerator:
             gmsh.model.mesh.generate(3)
             gmsh.model.mesh.optimize("Netgen")
 
-        mesh, cell_tags, facet_tags = _model_to_mesh(
-            gmsh.model, comm, rank, gdim=3
-        )
+        mesh, cell_tags, facet_tags = _model_to_mesh(gmsh.model, comm, rank, gdim=3)
 
         if comm.rank == rank:
             gmsh.finalize()
@@ -1570,13 +1555,9 @@ class MeshGenerator:
 
             if port_gap:
                 if not 0.0 < gap_angle < np.pi:
-                    raise ValueError(
-                        f"gap_angle must be in (0, pi), got {gap_angle!r}"
-                    )
+                    raise ValueError(f"gap_angle must be in (0, pi), got {gap_angle!r}")
                 burial = gap_clearance if gap_burial is None else float(gap_burial)
-                overhang = (
-                    gap_clearance if gap_overhang is None else float(gap_overhang)
-                )
+                overhang = gap_clearance if gap_overhang is None else float(gap_overhang)
                 if burial <= 0.0:
                     raise ValueError(
                         f"gap_burial must be positive, got {burial!r} "
@@ -1590,17 +1571,23 @@ class MeshGenerator:
                 # Partial torus: OCC sweeps from phi = 0 to phi = angle, so
                 # rotating by +gap_angle/2 leaves the wedge centred on +x.
                 wire_1 = gmsh.model.occ.addTorus(
-                    0, 0, -z_offset, major_radius, minor_radius,
+                    0,
+                    0,
+                    -z_offset,
+                    major_radius,
+                    minor_radius,
                     angle=2.0 * np.pi - gap_angle,
                 )
                 wire_2 = gmsh.model.occ.addTorus(
-                    0, 0, z_offset, major_radius, minor_radius,
+                    0,
+                    0,
+                    z_offset,
+                    major_radius,
+                    minor_radius,
                     angle=2.0 * np.pi - gap_angle,
                 )
                 for wire in (wire_1, wire_2):
-                    gmsh.model.occ.rotate(
-                        [(3, wire)], 0, 0, 0, 0, 0, 1, 0.5 * gap_angle
-                    )
+                    gmsh.model.occ.rotate([(3, wire)], 0, 0, 0, 0, 0, 1, 0.5 * gap_angle)
                 # The box must *cross* both arc ends, not stop short of them:
                 # a box face flush with a tilted arc end is not constructible
                 # (the two end planes meet at gap_angle), so the box buries
@@ -1703,11 +1690,8 @@ class MeshGenerator:
                     removeObject=True,
                     removeTool=False,
                 )
-                tool_dimtags = [(3, gap_1), (3, gap_2),
-                                (2, sheet_1), (2, sheet_2)]
-                _, fragment_map = gmsh.model.occ.fragment(
-                    air_pieces, tool_dimtags
-                )
+                tool_dimtags = [(3, gap_1), (3, gap_2), (2, sheet_1), (2, sheet_2)]
+                _, fragment_map = gmsh.model.occ.fragment(air_pieces, tool_dimtags)
                 gmsh.model.occ.synchronize()
                 input_dimtags = list(air_pieces) + tool_dimtags
             else:
@@ -1717,9 +1701,7 @@ class MeshGenerator:
                 tool_dimtags = [(3, tag) for tag in tool_tags]
                 if port_gap and emit_port_sheet:
                     tool_dimtags += [(2, sheet_1), (2, sheet_2)]
-                _, fragment_map = gmsh.model.occ.fragment(
-                    [(3, domain)], tool_dimtags
-                )
+                _, fragment_map = gmsh.model.occ.fragment([(3, domain)], tool_dimtags)
                 gmsh.model.occ.synchronize()
                 input_dimtags = [(3, domain)] + tool_dimtags
 
@@ -1749,8 +1731,7 @@ class MeshGenerator:
                 # input, so it is never an *ancestor* of a 3-D piece; the
                 # halves are told apart by centroid z against the box centre,
                 # the same mass/centroid discipline the ungapped branch uses.
-                gap_of = {(3, gap_1): (101, 111, -z_offset),
-                          (3, gap_2): (102, 112, z_offset)}
+                gap_of = {(3, gap_1): (101, 111, -z_offset), (3, gap_2): (102, 112, z_offset)}
                 group_of_piece: Dict[int, int] = {}
                 for piece, sources in ancestors.items():
                     # Gap wins over metal: the box IS the dielectric gap, and
@@ -1760,12 +1741,8 @@ class MeshGenerator:
                     if hit_gap:
                         lower, upper, z_c = gap_of[min(hit_gap)]
                         if emit_port_sheet:
-                            _, _, zc_piece = gmsh.model.occ.getCenterOfMass(
-                                3, piece
-                            )
-                            group_of_piece[piece] = (
-                                upper if zc_piece > z_c else lower
-                            )
+                            _, _, zc_piece = gmsh.model.occ.getCenterOfMass(3, piece)
+                            group_of_piece[piece] = upper if zc_piece > z_c else lower
                         else:
                             group_of_piece[piece] = lower
                     elif hit_wire:
@@ -1777,22 +1754,24 @@ class MeshGenerator:
                 for piece, group in sorted(group_of_piece.items()):
                     pieces_by_group.setdefault(group, []).append(piece)
 
-                group_names = {1: "wire_1", 2: "wire_2", 3: "domain",
-                               101: "gap_1", 102: "gap_2",
-                               111: "gap_1_upper", 112: "gap_2_upper"}
+                group_names = {
+                    1: "wire_1",
+                    2: "wire_2",
+                    3: "domain",
+                    101: "gap_1",
+                    102: "gap_2",
+                    111: "gap_1_upper",
+                    112: "gap_2_upper",
+                }
                 required_groups = (3, 101, 102) if as_hole else (1, 2, 3, 101, 102)
                 if emit_port_sheet:
                     required_groups = required_groups + (111, 112)
                 # The retained conductor solids are still in the model at this
                 # point (`removeTool=False`); they are not meshed volumes and
                 # must not enter the mass census or the ungrouped-entity check.
-                volumes = [
-                    vt for vt in gmsh.model.getEntities(dim=3)
-                    if vt[1] not in cond_of
-                ]
+                volumes = [vt for vt in gmsh.model.getEntities(dim=3) if vt[1] not in cond_of]
                 masses = {tag: gmsh.model.occ.getMass(3, tag) for _, tag in volumes}
-                missing = [group_names[g] for g in required_groups
-                           if g not in pieces_by_group]
+                missing = [group_names[g] for g in required_groups if g not in pieces_by_group]
                 if missing:
                     raise RuntimeError(
                         "two_torus_domain: occ.fragment left no piece for "
@@ -1810,9 +1789,7 @@ class MeshGenerator:
                 # not the out-map, so an unmentioned piece cannot hide.
                 grouped_volumes = set()
                 for _, group_tag in gmsh.model.getPhysicalGroups(dim=3):
-                    grouped_volumes.update(
-                        gmsh.model.getEntitiesForPhysicalGroup(3, group_tag)
-                    )
+                    grouped_volumes.update(gmsh.model.getEntitiesForPhysicalGroup(3, group_tag))
                 ungrouped = sorted({tag for _, tag in volumes} - grouped_volumes)
                 if ungrouped:
                     raise RuntimeError(
@@ -1824,8 +1801,7 @@ class MeshGenerator:
                 print(
                     f"[two-torus-mesh] gapped fragment volumes={len(volumes)} "
                     + " ".join(
-                        f"{group_names[g]}={sum(masses[p] for p in pieces):.6e}"
-                        f"({len(pieces)}p)"
+                        f"{group_names[g]}={sum(masses[p] for p in pieces):.6e}" f"({len(pieces)}p)"
                         for g, pieces in sorted(pieces_by_group.items())
                     )
                     + f" gap_box_analytic={gap_size[0] * gap_size[1] * gap_size[2]:.6e}",
@@ -1833,8 +1809,7 @@ class MeshGenerator:
                 )
 
                 wire_volumes = (
-                    {1: [], 2: []} if as_hole
-                    else {1: pieces_by_group[1], 2: pieces_by_group[2]}
+                    {1: [], 2: []} if as_hole else {1: pieces_by_group[1], 2: pieces_by_group[2]}
                 )
 
                 # `PORT-1` step 3b-iv: the port facet groups (`201` / `202`)
@@ -1873,8 +1848,7 @@ class MeshGenerator:
                     () if as_hole else ((101, 1, 201), (102, 2, 202))
                 ):
                     gap_boundary = _boundary_surfaces(
-                        gap_groups[gap_group] if emit_port_sheet
-                        else (gap_group,)
+                        gap_groups[gap_group] if emit_port_sheet else (gap_group,)
                     )
                     conductor_boundary = _boundary_surfaces((wire_group,))
                     shared = sorted(gap_boundary & conductor_boundary)
@@ -1906,12 +1880,8 @@ class MeshGenerator:
                     # the port interfaces above: OCC's own area, plus the
                     # bounding-box extents `R = Z_p * w / h` needs (h along the
                     # current direction y, w transverse in x).
-                    for lower, upper, facet_group in ((101, 111, 211),
-                                                      (102, 112, 212)):
-                        shared = sorted(
-                            _boundary_surfaces((lower,))
-                            & _boundary_surfaces((upper,))
-                        )
+                    for lower, upper, facet_group in ((101, 111, 211), (102, 112, 212)):
+                        shared = sorted(_boundary_surfaces((lower,)) & _boundary_surfaces((upper,)))
                         if not shared:
                             raise RuntimeError(
                                 "two_torus_domain: gap halves "
@@ -1920,9 +1890,7 @@ class MeshGenerator:
                                 "conform to the port-sheet mid-plane"
                             )
                         area = sum(gmsh.model.occ.getMass(2, s) for s in shared)
-                        boxes = np.array(
-                            [gmsh.model.getBoundingBox(2, s) for s in shared]
-                        )
+                        boxes = np.array([gmsh.model.getBoundingBox(2, s) for s in shared])
                         w_cad = boxes[:, 3].max() - boxes[:, 0].min()
                         h_cad = boxes[:, 4].max() - boxes[:, 1].min()
                         print(
@@ -1949,9 +1917,14 @@ class MeshGenerator:
                         bb = gmsh.model.getBoundingBox(2, surf)
                         return any(
                             abs(bb[i] - lo) < 1e-6 and abs(bb[i + 3] - lo) < 1e-6
-                            for i, lo in ((0, -box_half_x), (0, box_half_x),
-                                          (1, -box_half_y), (1, box_half_y),
-                                          (2, -box_half_z), (2, box_half_z))
+                            for i, lo in (
+                                (0, -box_half_x),
+                                (0, box_half_x),
+                                (1, -box_half_y),
+                                (1, box_half_y),
+                                (2, -box_half_z),
+                                (2, box_half_z),
+                            )
                         )
 
                     face_use: Dict[int, int] = {}
@@ -1961,8 +1934,7 @@ class MeshGenerator:
                         ):
                             face_use[surf] = face_use.get(surf, 0) + 1
                     cavity_surfaces = sorted(
-                        s for s, n in face_use.items()
-                        if n == 1 and not _face_on_wall(s)
+                        s for s, n in face_use.items() if n == 1 and not _face_on_wall(s)
                     )
                     if not cavity_surfaces:
                         raise RuntimeError(
@@ -1970,29 +1942,19 @@ class MeshGenerator:
                             "have no single-use non-wall boundary face, so the "
                             "conductor cavity surface is missing"
                         )
-                    cavity_area = sum(
-                        gmsh.model.occ.getMass(2, s) for s in cavity_surfaces
-                    )
+                    cavity_area = sum(gmsh.model.occ.getMass(2, s) for s in cavity_surfaces)
 
                     # Drop the conductor solids: the cavity IS the hole.
                     # `recursive=False` so the faces survive for the group.
-                    gmsh.model.occ.remove(
-                        [(3, t) for t in cond_of], recursive=False
-                    )
+                    gmsh.model.occ.remove([(3, t) for t in cond_of], recursive=False)
                     gmsh.model.occ.synchronize()
-                    still_present = [
-                        t for t in cond_of
-                        if (3, t) in gmsh.model.getEntities(dim=3)
-                    ]
+                    still_present = [t for t in cond_of if (3, t) in gmsh.model.getEntities(dim=3)]
                     if still_present:
                         # occ.remove + synchronize did not propagate; drop them
                         # model-side (step 0 needed this fallback).
-                        gmsh.model.removeEntities(
-                            [(3, t) for t in still_present], recursive=False
-                        )
+                        gmsh.model.removeEntities([(3, t) for t in still_present], recursive=False)
                     cavity_surfaces = [
-                        s for s in cavity_surfaces
-                        if (2, s) in gmsh.model.getEntities(dim=2)
+                        s for s in cavity_surfaces if (2, s) in gmsh.model.getEntities(dim=2)
                     ]
                     if not cavity_surfaces:
                         raise RuntimeError(
@@ -2070,12 +2032,18 @@ class MeshGenerator:
             for dim, surf in gmsh.model.getEntities(dim=2):
                 x_min, y_min, z_min, x_max, y_max, z_max = gmsh.model.getBoundingBox(dim, surf)
                 on_wall = (
-                    abs(x_min + box_half_x) < tol and abs(x_max + box_half_x) < tol
-                    or abs(x_min - box_half_x) < tol and abs(x_max - box_half_x) < tol
-                    or abs(y_min + box_half_y) < tol and abs(y_max + box_half_y) < tol
-                    or abs(y_min - box_half_y) < tol and abs(y_max - box_half_y) < tol
-                    or abs(z_min + box_half_z) < tol and abs(z_max + box_half_z) < tol
-                    or abs(z_min - box_half_z) < tol and abs(z_max - box_half_z) < tol
+                    abs(x_min + box_half_x) < tol
+                    and abs(x_max + box_half_x) < tol
+                    or abs(x_min - box_half_x) < tol
+                    and abs(x_max - box_half_x) < tol
+                    or abs(y_min + box_half_y) < tol
+                    and abs(y_max + box_half_y) < tol
+                    or abs(y_min - box_half_y) < tol
+                    and abs(y_max - box_half_y) < tol
+                    or abs(z_min + box_half_z) < tol
+                    and abs(z_max + box_half_z) < tol
+                    or abs(z_min - box_half_z) < tol
+                    and abs(z_max - box_half_z) < tol
                 )
                 if on_wall:
                     boundary_surfaces.append(surf)
@@ -2158,18 +2126,12 @@ class MeshGenerator:
                     # and sqrt of a square is exact for both.
                     h_gap = float(gap_arc_resolution)
                     if h_gap <= 0.0:
-                        raise ValueError(
-                            f"gap_arc_resolution must be positive, got {h_gap!r}"
-                        )
+                        raise ValueError(f"gap_arc_resolution must be positive, got {h_gap!r}")
                     tube = (
-                        4.0 * h_gap
-                        if gap_arc_tube_radius is None
-                        else float(gap_arc_tube_radius)
+                        4.0 * h_gap if gap_arc_tube_radius is None else float(gap_arc_tube_radius)
                     )
                     if tube <= 0.0:
-                        raise ValueError(
-                            f"gap_arc_tube_radius must be positive, got {tube!r}"
-                        )
+                        raise ValueError(f"gap_arc_tube_radius must be positive, got {tube!r}")
                     # Slope 0.3 in size per unit distance ~ 1.3x growth per
                     # cell. `SizeMax = h_far` (not h_wire) is what keeps the
                     # `Min` below from clamping the whole air box to the wire
@@ -2248,12 +2210,8 @@ class MeshGenerator:
                     # buying: it only stops the shell leaking into the air.
                     h_box = float(gap_box_resolution)
                     if h_box <= 0.0:
-                        raise ValueError(
-                            f"gap_box_resolution must be positive, got {h_box!r}"
-                        )
-                    box_thickness = min(
-                        max(h_far - h_box, 0.0) / 0.3, GAP_BOX_THICKNESS_CAP_M
-                    )
+                        raise ValueError(f"gap_box_resolution must be positive, got {h_box!r}")
+                    box_thickness = min(max(h_far - h_box, 0.0) / 0.3, GAP_BOX_THICKNESS_CAP_M)
                     for z_c in (-z_offset, z_offset):
                         box_field = gmsh.model.mesh.field.add("Box")
                         gmsh.model.mesh.field.setNumber(
@@ -2264,17 +2222,11 @@ class MeshGenerator:
                         )
                         gmsh.model.mesh.field.setNumber(box_field, "YMin", -gap_half_y)
                         gmsh.model.mesh.field.setNumber(box_field, "YMax", gap_half_y)
-                        gmsh.model.mesh.field.setNumber(
-                            box_field, "ZMin", z_c - gap_half_xz
-                        )
-                        gmsh.model.mesh.field.setNumber(
-                            box_field, "ZMax", z_c + gap_half_xz
-                        )
+                        gmsh.model.mesh.field.setNumber(box_field, "ZMin", z_c - gap_half_xz)
+                        gmsh.model.mesh.field.setNumber(box_field, "ZMax", z_c + gap_half_xz)
                         gmsh.model.mesh.field.setNumber(box_field, "VIn", h_box)
                         gmsh.model.mesh.field.setNumber(box_field, "VOut", h_far)
-                        gmsh.model.mesh.field.setNumber(
-                            box_field, "Thickness", box_thickness
-                        )
+                        gmsh.model.mesh.field.setNumber(box_field, "Thickness", box_thickness)
                         local_fields.append(box_field)
                     print(
                         "[two-torus-mesh] gap-box refinement h_box="
@@ -2288,9 +2240,7 @@ class MeshGenerator:
 
                 if local_fields:
                     background = gmsh.model.mesh.field.add("Min")
-                    gmsh.model.mesh.field.setNumbers(
-                        background, "FieldsList", [thr] + local_fields
-                    )
+                    gmsh.model.mesh.field.setNumbers(background, "FieldsList", [thr] + local_fields)
                 else:
                     background = thr
 
@@ -2318,9 +2268,7 @@ class MeshGenerator:
         # fixture here is — tetrahedra with each interior facet shared by
         # exactly two cells. Passing `None` would mean "no upper bound" and
         # is not what this mesh is.
-        partitioner = dolfinx.mesh.create_cell_partitioner(
-            dolfinx.mesh.GhostMode.shared_facet, 2
-        )
+        partitioner = dolfinx.mesh.create_cell_partitioner(dolfinx.mesh.GhostMode.shared_facet, 2)
         mesh, cell_tags, facet_tags = _model_to_mesh(
             gmsh.model, comm, rank, gdim=3, partitioner=partitioner
         )
@@ -2352,9 +2300,7 @@ class MeshGenerator:
                 }
             else:
                 interfaces = {201: (101, 1), 202: (102, 2)}
-            facet_tags = _interface_facet_tags(
-                mesh, cell_tags, interfaces, facet_tags
-            )
+            facet_tags = _interface_facet_tags(mesh, cell_tags, interfaces, facet_tags)
 
         return mesh, cell_tags, facet_tags
 
@@ -2487,12 +2433,18 @@ class MeshGenerator:
             for dim, surf in gmsh.model.getEntities(dim=2):
                 x0, y0, z0, x1, y1, z1 = gmsh.model.getBoundingBox(dim, surf)
                 on_wall = (
-                    abs(x0 + W) < tol and abs(x1 + W) < tol
-                    or abs(x0 - W) < tol and abs(x1 - W) < tol
-                    or abs(y0 + W) < tol and abs(y1 + W) < tol
-                    or abs(y0 - W) < tol and abs(y1 - W) < tol
-                    or abs(z0 + W) < tol and abs(z1 + W) < tol
-                    or abs(z0 - W) < tol and abs(z1 - W) < tol
+                    abs(x0 + W) < tol
+                    and abs(x1 + W) < tol
+                    or abs(x0 - W) < tol
+                    and abs(x1 - W) < tol
+                    or abs(y0 + W) < tol
+                    and abs(y1 + W) < tol
+                    or abs(y0 - W) < tol
+                    and abs(y1 - W) < tol
+                    or abs(z0 + W) < tol
+                    and abs(z1 + W) < tol
+                    or abs(z0 - W) < tol
+                    and abs(z1 - W) < tol
                 )
                 if on_wall:
                     boundary_surfaces.append(surf)
@@ -2540,9 +2492,7 @@ class MeshGenerator:
 
             gmsh.model.mesh.generate(3)
 
-        mesh, cell_tags, facet_tags = _model_to_mesh(
-            gmsh.model, comm, rank, gdim=3
-        )
+        mesh, cell_tags, facet_tags = _model_to_mesh(gmsh.model, comm, rank, gdim=3)
 
         if comm.rank == rank:
             gmsh.finalize()
@@ -2625,12 +2575,18 @@ class MeshGenerator:
             def _on_wall(dim: int, surf: int) -> bool:
                 x0, y0, z0, x1, y1, z1 = gmsh.model.getBoundingBox(dim, surf)
                 return (
-                    abs(x0 + W) < tol and abs(x1 + W) < tol
-                    or abs(x0 - W) < tol and abs(x1 - W) < tol
-                    or abs(y0 + W) < tol and abs(y1 + W) < tol
-                    or abs(y0 - W) < tol and abs(y1 - W) < tol
-                    or abs(z0 + W) < tol and abs(z1 + W) < tol
-                    or abs(z0 - W) < tol and abs(z1 - W) < tol
+                    abs(x0 + W) < tol
+                    and abs(x1 + W) < tol
+                    or abs(x0 - W) < tol
+                    and abs(x1 - W) < tol
+                    or abs(y0 + W) < tol
+                    and abs(y1 + W) < tol
+                    or abs(y0 - W) < tol
+                    and abs(y1 - W) < tol
+                    or abs(z0 + W) < tol
+                    and abs(z1 + W) < tol
+                    or abs(z0 - W) < tol
+                    and abs(z1 - W) < tol
                 )
 
             if as_hole:
@@ -2718,9 +2674,7 @@ class MeshGenerator:
 
             gmsh.model.mesh.generate(3)
 
-        mesh, cell_tags, facet_tags = _model_to_mesh(
-            gmsh.model, comm, rank, gdim=3
-        )
+        mesh, cell_tags, facet_tags = _model_to_mesh(gmsh.model, comm, rank, gdim=3)
 
         if comm.rank == rank:
             gmsh.finalize()
@@ -2772,9 +2726,7 @@ class MeshGenerator:
         value without ``oblate=True`` raises ``ValueError``.
         """
         if not as_hole:
-            raise NotImplementedError(
-                "spheroid_in_box_domain: only as_hole=True is implemented"
-            )
+            raise NotImplementedError("spheroid_in_box_domain: only as_hole=True is implemented")
         if not oblate and (oblate_rim != "balls" or oblate_netgen is not True):
             raise ValueError("oblate_rim / oblate_netgen need oblate=True")
         if oblate:
@@ -2820,12 +2772,18 @@ class MeshGenerator:
             def _on_wall(dim: int, surf: int) -> bool:
                 x0, y0, z0, x1, y1, z1 = gmsh.model.getBoundingBox(dim, surf)
                 return (
-                    abs(x0 + bx) < tol and abs(x1 + bx) < tol
-                    or abs(x0 - bx) < tol and abs(x1 - bx) < tol
-                    or abs(y0 + by) < tol and abs(y1 + by) < tol
-                    or abs(y0 - by) < tol and abs(y1 - by) < tol
-                    or abs(z0 + bz) < tol and abs(z1 + bz) < tol
-                    or abs(z0 - bz) < tol and abs(z1 - bz) < tol
+                    abs(x0 + bx) < tol
+                    and abs(x1 + bx) < tol
+                    or abs(x0 - bx) < tol
+                    and abs(x1 - bx) < tol
+                    or abs(y0 + by) < tol
+                    and abs(y1 + by) < tol
+                    or abs(y0 - by) < tol
+                    and abs(y1 - by) < tol
+                    or abs(z0 + bz) < tol
+                    and abs(z1 + bz) < tol
+                    or abs(z0 - bz) < tol
+                    and abs(z1 - bz) < tol
                 )
 
             cut_out, _ = gmsh.model.occ.cut([(3, box)], [(3, body)])
@@ -2986,12 +2944,18 @@ class MeshGenerator:
             def _on_wall(dim: int, surf: int) -> bool:
                 x0, y0, z0, x1, y1, z1 = gmsh.model.getBoundingBox(dim, surf)
                 return (
-                    abs(x0 + bx) < tol and abs(x1 + bx) < tol
-                    or abs(x0 - bx) < tol and abs(x1 - bx) < tol
-                    or abs(y0 + by) < tol and abs(y1 + by) < tol
-                    or abs(y0 - by) < tol and abs(y1 - by) < tol
-                    or abs(z0 + bz) < tol and abs(z1 + bz) < tol
-                    or abs(z0 - bz) < tol and abs(z1 - bz) < tol
+                    abs(x0 + bx) < tol
+                    and abs(x1 + bx) < tol
+                    or abs(x0 - bx) < tol
+                    and abs(x1 - bx) < tol
+                    or abs(y0 + by) < tol
+                    and abs(y1 + by) < tol
+                    or abs(y0 - by) < tol
+                    and abs(y1 - by) < tol
+                    or abs(z0 + bz) < tol
+                    and abs(z1 + bz) < tol
+                    or abs(z0 - bz) < tol
+                    and abs(z1 - bz) < tol
                 )
 
             cut_out, _ = gmsh.model.occ.cut([(3, box)], [(3, body)])
@@ -3172,9 +3136,7 @@ class MeshGenerator:
             gmsh.model.setPhysicalName(3, 1, "ball")
             surfaces = [
                 surf
-                for _, surf in gmsh.model.getBoundary(
-                    [(3, ball)], oriented=False, recursive=False
-                )
+                for _, surf in gmsh.model.getBoundary([(3, ball)], oriented=False, recursive=False)
             ]
             gmsh.model.addPhysicalGroup(2, surfaces, tag=1)
             gmsh.model.setPhysicalName(2, 1, "ball_surface")
@@ -3186,9 +3148,7 @@ class MeshGenerator:
             gmsh.option.setNumber("Mesh.MeshSizeMax", float(resolution))
             gmsh.model.mesh.generate(3)
 
-        mesh, cell_tags, facet_tags = _model_to_mesh(
-            gmsh.model, comm, rank, gdim=3
-        )
+        mesh, cell_tags, facet_tags = _model_to_mesh(gmsh.model, comm, rank, gdim=3)
 
         if comm.rank == rank:
             gmsh.finalize()
@@ -3225,8 +3185,7 @@ class MeshGenerator:
         b = float(outer_radius)
         if not (0.0 < a < b):
             raise ValueError(
-                f"need 0 < inner_radius < outer_radius, got {inner_radius!r}, "
-                f"{outer_radius!r}"
+                f"need 0 < inner_radius < outer_radius, got {inner_radius!r}, " f"{outer_radius!r}"
             )
         if resolution <= 0.0:
             raise ValueError(f"resolution must be positive, got {resolution!r}")
@@ -3254,19 +3213,13 @@ class MeshGenerator:
             # Outer surface: the boundary surface whose area is ≈ 4πb².
             area_b = 4.0 * np.pi * b**2
             shell_surfs = [
-                s
-                for _, s in gmsh.model.getBoundary(
-                    [(3, shell)], oriented=False, recursive=False
-                )
+                s for _, s in gmsh.model.getBoundary([(3, shell)], oriented=False, recursive=False)
             ]
             outer_surfs = [
-                s for s in shell_surfs
-                if abs(occ.getMass(2, s) - area_b) <= 1e-6 * area_b
+                s for s in shell_surfs if abs(occ.getMass(2, s) - area_b) <= 1e-6 * area_b
             ]
             if len(outer_surfs) != 1:
-                raise RuntimeError(
-                    f"could not identify the r = b surface among {shell_surfs}"
-                )
+                raise RuntimeError(f"could not identify the r = b surface among {shell_surfs}")
 
             gmsh.model.addPhysicalGroup(3, [core], tag=1)
             gmsh.model.setPhysicalName(3, 1, "core")
@@ -3284,9 +3237,7 @@ class MeshGenerator:
             if geometry_order == 2:
                 gmsh.model.mesh.setOrder(2)
 
-        mesh, cell_tags, facet_tags = _model_to_mesh(
-            gmsh.model, comm, rank, gdim=3
-        )
+        mesh, cell_tags, facet_tags = _model_to_mesh(gmsh.model, comm, rank, gdim=3)
 
         if comm.rank == rank:
             gmsh.finalize()
@@ -3364,13 +3315,13 @@ class MeshGenerator:
             "effective_air_padding_m": float(effective_air_padding),
             "is_domain_undersized": bool(air_padding < recommended_min_padding),
             "recommended_domain_half_width_m": float(recommended_domain_half_width),
-            "recommended_domain_half_height_m": float(z_extent_without_padding + recommended_min_padding),
+            "recommended_domain_half_height_m": float(
+                z_extent_without_padding + recommended_min_padding
+            ),
         }
 
     @staticmethod
-    def two_torus_box_padding(
-        tolerance_pp: float, *, quantum_m: float = 0.01
-    ) -> Dict[str, float]:
+    def two_torus_box_padding(tolerance_pp: float, *, quantum_m: float = 0.01) -> Dict[str, float]:
         """Air padding whose PEC-box term on the two-torus fixture is ≤ τ.
 
         `GEO-4` step 2.  The box term is ``B(W) = C·W^(−p)`` from `PORT-1`
@@ -3434,8 +3385,7 @@ class MeshGenerator:
 
         total_cells = int(sum(counts.values()))
         observed_cell_ratios = {
-            tag: (counts[tag] / total_cells if total_cells > 0 else 0.0)
-            for tag in required_tags
+            tag: (counts[tag] / total_cells if total_cells > 0 else 0.0) for tag in required_tags
         }
 
         sizing = MeshGenerator.coil_phantom_domain_sizing_diagnostics(
@@ -3470,7 +3420,11 @@ class MeshGenerator:
         }
         expected_total_volume = float(sum(expected_volumes.values()))
         expected_volume_ratios = {
-            tag: (expected_volumes[tag] / expected_total_volume if expected_total_volume > 0.0 else 0.0)
+            tag: (
+                expected_volumes[tag] / expected_total_volume
+                if expected_total_volume > 0.0
+                else 0.0
+            )
             for tag in required_tags
         }
 
@@ -3497,9 +3451,7 @@ class MeshGenerator:
                     )
 
         return {
-            "required_tag_counts": {
-                required_tags[tag]: counts[tag] for tag in required_tags
-            },
+            "required_tag_counts": {required_tags[tag]: counts[tag] for tag in required_tags},
             "expected_volume_ratios": {
                 required_tags[tag]: expected_volume_ratios[tag] for tag in required_tags
             },
@@ -3573,11 +3525,17 @@ class MeshGenerator:
                 f"{unknown_keys}; allowed keys are {sorted(allowed_mapping_keys)}"
             )
 
-        coil_h = float(coil_resolution if coil_resolution is not None else mapping.get("coil", resolution))
-        phantom_h = float(
-            phantom_resolution if phantom_resolution is not None else mapping.get("phantom", resolution)
+        coil_h = float(
+            coil_resolution if coil_resolution is not None else mapping.get("coil", resolution)
         )
-        air_h = float(air_resolution if air_resolution is not None else mapping.get("air", resolution))
+        phantom_h = float(
+            phantom_resolution
+            if phantom_resolution is not None
+            else mapping.get("phantom", resolution)
+        )
+        air_h = float(
+            air_resolution if air_resolution is not None else mapping.get("air", resolution)
+        )
 
         for name, h in (("coil", coil_h), ("phantom", phantom_h), ("air", air_h)):
             if h <= 0.0:
@@ -3692,8 +3650,12 @@ class MeshGenerator:
                 gmsh.model.add("coil_phantom_domain")
 
                 z_offset = coil_separation / 2
-                coil_1 = gmsh.model.occ.addTorus(0, 0, -z_offset, coil_major_radius, coil_minor_radius)
-                coil_2 = gmsh.model.occ.addTorus(0, 0, z_offset, coil_major_radius, coil_minor_radius)
+                coil_1 = gmsh.model.occ.addTorus(
+                    0, 0, -z_offset, coil_major_radius, coil_minor_radius
+                )
+                coil_2 = gmsh.model.occ.addTorus(
+                    0, 0, z_offset, coil_major_radius, coil_minor_radius
+                )
                 phantom = gmsh.model.occ.addCylinder(
                     phantom_cx,
                     phantom_cy,
@@ -3736,16 +3698,15 @@ class MeshGenerator:
                         "coil_phantom_domain: occ.fragment returned "
                         f"{len(volumes)} volumes, expected exactly 4 "
                         "(air + coil_1 + coil_2 + phantom); per-volume masses [m^3]: "
-                        + ", ".join(f"tag {tag}: {mass:.6e}" for tag, mass in sorted(masses.items()))
+                        + ", ".join(
+                            f"tag {tag}: {mass:.6e}" for tag, mass in sorted(masses.items())
+                        )
                     )
 
                 air_tag = max(masses, key=masses.get)
 
                 remaining = [tag for _, tag in volumes if tag != air_tag]
-                z_centers = {
-                    tag: gmsh.model.occ.getCenterOfMass(3, tag)[2]
-                    for tag in remaining
-                }
+                z_centers = {tag: gmsh.model.occ.getCenterOfMass(3, tag)[2] for tag in remaining}
 
                 coil_1_tag = min(remaining, key=lambda tag: z_centers[tag])
                 coil_2_tag = max(remaining, key=lambda tag: z_centers[tag])
@@ -3787,9 +3748,12 @@ class MeshGenerator:
                 for dim, surf in gmsh.model.getEntities(dim=2):
                     x_min, y_min, z_min, x_max, y_max, z_max = gmsh.model.getBoundingBox(dim, surf)
                     if (
-                        abs(abs(x_min) - box_half_x) < resolution or abs(abs(x_max) - box_half_x) < resolution
-                        or abs(abs(y_min) - box_half_x) < resolution or abs(abs(y_max) - box_half_x) < resolution
-                        or abs(abs(z_min) - box_half_z) < resolution or abs(abs(z_max) - box_half_z) < resolution
+                        abs(abs(x_min) - box_half_x) < resolution
+                        or abs(abs(x_max) - box_half_x) < resolution
+                        or abs(abs(y_min) - box_half_x) < resolution
+                        or abs(abs(y_max) - box_half_x) < resolution
+                        or abs(abs(z_min) - box_half_z) < resolution
+                        or abs(abs(z_max) - box_half_z) < resolution
                     ):
                         outer_boundary_surfaces.append(surf)
 
@@ -3884,12 +3848,10 @@ class MeshGenerator:
         # step 2a; the unwrapped throw deadlocked at 120 s instead of
         # failing in seconds).
         _raise_geometry_failure_on_every_rank(
-            comm, rank, 'coil_phantom_domain', build_error, resolution
+            comm, rank, "coil_phantom_domain", build_error, resolution
         )
 
-        mesh, cell_tags, facet_tags = _model_to_mesh(
-            gmsh.model, comm, rank, gdim=3
-        )
+        mesh, cell_tags, facet_tags = _model_to_mesh(gmsh.model, comm, rank, gdim=3)
 
         sanity_report = MeshGenerator.coil_phantom_geometry_sanity_report(
             cell_tags=cell_tags,
@@ -3966,10 +3928,12 @@ class MeshGenerator:
                 np.cos(angle) + np.cos(next_angle),
             )
             port_centers.append(
-                np.array([
-                    port_radius * np.cos(midpoint_angle),
-                    port_radius * np.sin(midpoint_angle),
-                ])
+                np.array(
+                    [
+                        port_radius * np.cos(midpoint_angle),
+                        port_radius * np.sin(midpoint_angle),
+                    ]
+                )
             )
 
         min_center_separation = float("inf")
@@ -4051,10 +4015,7 @@ class MeshGenerator:
         ring_inner_z = 0.5 * leg_spacing - ring_minor_radius
         ring_clearance = ring_inner_z - 0.5 * leg_gap_length
         if ring_clearance <= 0.0:
-            raise ValueError(
-                "Leg gap reaches the rings: "
-                f"clearance={ring_clearance:.6e} m"
-            )
+            raise ValueError("Leg gap reaches the rings: " f"clearance={ring_clearance:.6e} m")
 
         box_width = 2.0 * leg_radius_eff + 2.0 * port_clearance
         port_box_size = (box_width, box_width, leg_gap_length)
@@ -4075,9 +4036,7 @@ class MeshGenerator:
         theta = np.linspace(0.0, 2.0 * np.pi, leg_count, endpoint=False)
         if leg_azimuth_offsets_rad is not None:
             theta = theta + np.asarray(leg_azimuth_offsets_rad, dtype=float)
-        centers = [
-            np.array([ring_radius * np.cos(a), ring_radius * np.sin(a)]) for a in theta
-        ]
+        centers = [np.array([ring_radius * np.cos(a), ring_radius * np.sin(a)]) for a in theta]
         min_center_separation = float("inf")
         for idx in range(len(centers)):
             for jdx in range(idx + 1, len(centers)):
@@ -4097,9 +4056,7 @@ class MeshGenerator:
         # The box is axis-aligned, so its nearest corner to the axis is at
         # radius >= ring_radius - (sqrt(2)/2)*box_width; keep the phantom out of
         # it, or the port region is not the clean air+two-disks volume assumed.
-        phantom_radial_clearance = (
-            ring_radius - 0.5 * np.sqrt(2.0) * box_width - phantom_radius
-        )
+        phantom_radial_clearance = ring_radius - 0.5 * np.sqrt(2.0) * box_width - phantom_radius
         if phantom_radial_clearance <= 0.0:
             raise ValueError(
                 "Port/phantom radial overlap detected: "
@@ -4114,9 +4071,7 @@ class MeshGenerator:
             "conductor_radial_clearance_m": 0.0,
             "phantom_radial_clearance_m": float(phantom_radial_clearance),
             "port_radius_m": float(ring_radius),
-            "conductor_outer_radius_m": float(
-                ring_radius + max(leg_radius_eff, ring_minor_radius)
-            ),
+            "conductor_outer_radius_m": float(ring_radius + max(leg_radius_eff, ring_minor_radius)),
             "leg_gap_length_m": float(leg_gap_length),
             "leg_stub_length_m": float(stub_length),
             "leg_gap_ring_clearance_m": float(ring_clearance),
@@ -4175,14 +4130,9 @@ class MeshGenerator:
         # Arc clearance between the gap's end plane and the nearest leg's
         # surface, measured along the ring centreline. The port solid spans the
         # gap exactly, so this is also the metal the terminals sit on.
-        leg_arc_clearance = (
-            ring_radius * (leg_half_angle - half_angle) - leg_radius_eff
-        )
+        leg_arc_clearance = ring_radius * (leg_half_angle - half_angle) - leg_radius_eff
         if leg_arc_clearance <= 0.0:
-            raise ValueError(
-                "Ring gap reaches the legs: "
-                f"clearance={leg_arc_clearance:.6e} m"
-            )
+            raise ValueError("Ring gap reaches the legs: " f"clearance={leg_arc_clearance:.6e} m")
 
         port_face_area = np.pi * ring_minor_radius**2
         if port_face_area < min_port_face_area:
@@ -4216,9 +4166,7 @@ class MeshGenerator:
             "ring_port_box_width_m": float(box_width),
             "ring_port_count": int(2 * leg_count),
             # V = 2·R·w²·tan(alpha) — the wedge∩slab∩slab solid, exact.
-            "ring_port_volume_m3": float(
-                2.0 * ring_radius * box_width**2 * tan_half
-            ),
+            "ring_port_volume_m3": float(2.0 * ring_radius * box_width**2 * tan_half),
             # A = 2·w²/cos(alpha) + 8·R·w·tan(alpha) — two radial caps, two
             # z-faces, two u-faces, all planar.
             "ring_port_surface_m2": float(
@@ -4240,9 +4188,7 @@ class MeshGenerator:
             # extent along the drive direction phi_hat is the chord, i.e. the
             # `h` that the transverse mid-section above offers as exactly 0
             # (`PORT-13` step 1's blocker).
-            "ring_port_sheet_longitudinal_area_m2": float(
-                2.0 * ring_radius * tan_half * box_width
-            ),
+            "ring_port_sheet_longitudinal_area_m2": float(2.0 * ring_radius * tan_half * box_width),
             "ring_terminal_area_m2": float(2.0 * port_face_area),
             "ring_removed_mass_m3": float(
                 2 * leg_count * np.pi * ring_minor_radius**2 * ring_gap_length
@@ -4625,8 +4571,7 @@ class MeshGenerator:
             # `OPS-61` step 1b. Contradictions in the request.
             if not emit_port_sheets or leg_gap_length is None:
                 raise ValueError(
-                    "leg_sheet_strip_fraction requires emit_port_sheets=True "
-                    "and leg_gap_length"
+                    "leg_sheet_strip_fraction requires emit_port_sheets=True " "and leg_gap_length"
                 )
             if not (0.0 < float(leg_sheet_strip_fraction) < 1.0):
                 raise ValueError(
@@ -4699,8 +4644,7 @@ class MeshGenerator:
                     )
             else:
                 raise ValueError(
-                    "symmetry_quadrant requires leg_gap_length (L4) or "
-                    "ring_gap_length (LH)"
+                    "symmetry_quadrant requires leg_gap_length (L4) or " "ring_gap_length (LH)"
                 )
         if leg_count < 3:
             raise ValueError("leg_count must be >= 3 for a birdcage-like fixture")
@@ -4838,19 +4782,27 @@ class MeshGenerator:
                     phi_s = np.arctan2(np.sin(a_s) + np.sin(b_s), np.cos(a_s) + np.cos(b_s))
                     leg_box_corner = max(
                         leg_box_corner,
-                        float(np.hypot(abs(r_port * np.cos(phi_s)) + half_bx,
-                                       abs(r_port * np.sin(phi_s)) + half_by)),
+                        float(
+                            np.hypot(
+                                abs(r_port * np.cos(phi_s)) + half_bx,
+                                abs(r_port * np.sin(phi_s)) + half_by,
+                            )
+                        ),
                     )
             ring_box_corner = 0.0
             if ring_gap_length is not None:
                 ring_box_w = 2.0 * ring_minor_radius + 2.0 * port_clearance
                 ring_box_corner = (ring_radius + 0.5 * ring_box_w) / float(
-                    np.cos(0.5 * ring_gap_length / ring_radius))
-            shield_need = max(
-                ring_radius + max(leg_radius_eff, ring_minor_radius),
-                ring_box_corner,
-                leg_box_corner,
-            ) + port_clearance
+                    np.cos(0.5 * ring_gap_length / ring_radius)
+                )
+            shield_need = (
+                max(
+                    ring_radius + max(leg_radius_eff, ring_minor_radius),
+                    ring_box_corner,
+                    leg_box_corner,
+                )
+                + port_clearance
+            )
             if not float(shield_radius) > shield_need:
                 raise ValueError(
                     f"shield_radius {float(shield_radius)!r} must exceed {shield_need!r} "
@@ -4913,9 +4865,7 @@ class MeshGenerator:
         if comm.bcast(build_error is not None, root=rank):
             if build_error is not None:
                 raise build_error
-            raise RuntimeError(
-                f"birdcage_port_domain geometry generation failed on rank {rank}"
-            )
+            raise RuntimeError(f"birdcage_port_domain geometry generation failed on rank {rank}")
 
         # `GEO-24` step 2a, the same reason `two_torus_domain` was plumbed in
         # `PORT-1` step 3b-iv: gmshio's default partitioner is
@@ -4927,9 +4877,7 @@ class MeshGenerator:
         # integral over those facets needs. `max_facet_to_cell_links = 2` is
         # dolfinx 0.11's required second argument and the documented value for
         # a non-branching manifold mesh (`OPS-18` step 3).
-        partitioner = dolfinx.mesh.create_cell_partitioner(
-            dolfinx.mesh.GhostMode.shared_facet, 2
-        )
+        partitioner = dolfinx.mesh.create_cell_partitioner(dolfinx.mesh.GhostMode.shared_facet, 2)
         mesh, cell_tags, facet_tags = _model_to_mesh(
             gmsh.model, comm, rank, gdim=3, partitioner=partitioner
         )
@@ -4961,9 +4909,7 @@ class MeshGenerator:
         # The realised port geometry, so a caller never has to restate it: with
         # `leg_gap_length` the box size is *derived*, not the one passed in.
         diagnostics["port_box_size_m"] = tuple(float(s) for s in port_box_size)
-        diagnostics["leg_gap_length_m"] = (
-            None if leg_gap_length is None else float(leg_gap_length)
-        )
+        diagnostics["leg_gap_length_m"] = None if leg_gap_length is None else float(leg_gap_length)
         diagnostics["port_layout"] = dict(port_diagnostics)
         diagnostics["leg_azimuth_offsets_rad"] = (
             None
@@ -5013,16 +4959,13 @@ class MeshGenerator:
         """
         if implant_rod is not None:
             raise ValueError(
-                "implant_spheroid cannot be combined with implant_rod "
-                "(one implant per build)"
+                "implant_spheroid cannot be combined with implant_rod " "(one implant per build)"
             )
         if symmetry_quadrant:
             raise ValueError("implant_spheroid cannot be combined with symmetry_quadrant")
         keep_cells = implant_spheroid.get("keep_cells", False)
         if not isinstance(keep_cells, bool):
-            raise ValueError(
-                f"implant_spheroid 'keep_cells' must be a bool, got {keep_cells!r}"
-            )
+            raise ValueError(f"implant_spheroid 'keep_cells' must be a bool, got {keep_cells!r}")
         if as_hole and keep_cells is not True:
             raise ValueError(
                 "implant_spheroid under as_hole needs 'keep_cells': True "
@@ -5032,9 +4975,7 @@ class MeshGenerator:
             a = float(implant_spheroid["semi_major"])
             c = float(implant_spheroid["semi_minor"])
         except (KeyError, TypeError, ValueError) as exc:
-            raise ValueError(
-                "implant_spheroid needs 'semi_major' and 'semi_minor' [m]"
-            ) from exc
+            raise ValueError("implant_spheroid needs 'semi_major' and 'semi_minor' [m]") from exc
         if not (np.isfinite(a) and np.isfinite(c)) or c <= 0.0 or a <= c:
             raise ValueError(
                 "implant_spheroid needs finite semi_major > semi_minor > 0, got "
@@ -5144,9 +5085,7 @@ class MeshGenerator:
             radius = float(implant_rod["radius"])
             length = float(implant_rod["length"])
         except (KeyError, TypeError) as exc:
-            raise ValueError(
-                "implant_rod needs 'radius' and 'length' [m]"
-            ) from exc
+            raise ValueError("implant_rod needs 'radius' and 'length' [m]") from exc
         if not (radius > 0.0) or not (length > 0.0):
             raise ValueError(
                 f"implant_rod radius and length must be > 0, got radius={radius!r} "
@@ -5163,9 +5102,7 @@ class MeshGenerator:
         # `GEO-36` step 3: additive; absent or False is the step-2 hole.
         keep_cells = implant_rod.get("keep_cells", False)
         if not isinstance(keep_cells, bool):
-            raise ValueError(
-                f"implant_rod 'keep_cells' must be a bool, got {keep_cells!r}"
-            )
+            raise ValueError(f"implant_rod 'keep_cells' must be a bool, got {keep_cells!r}")
         # `GEO-36` step 4: additive cap-Ball ``VIn`` [m]; absent / None keeps
         # today's ``radius / 4``.  Refused before gmsh: bool, non-number,
         # non-finite, <= 0, or > radius / 4 (the knob only refines).
@@ -5174,13 +5111,9 @@ class MeshGenerator:
             if isinstance(tip_size, bool) or not isinstance(
                 tip_size, (int, float, np.integer, np.floating)
             ):
-                raise ValueError(
-                    f"implant_rod 'tip_size' must be a number [m], got {tip_size!r}"
-                )
+                raise ValueError(f"implant_rod 'tip_size' must be a number [m], got {tip_size!r}")
             tip_size = float(tip_size)
-            if not np.isfinite(tip_size) or not (tip_size > 0.0) or (
-                tip_size > radius / 4.0
-            ):
+            if not np.isfinite(tip_size) or not (tip_size > 0.0) or (tip_size > radius / 4.0):
                 raise ValueError(
                     "implant_rod 'tip_size' must be finite and in "
                     f"(0, radius/4 = {radius / 4.0!r}] m, got {tip_size!r}"
@@ -5207,8 +5140,7 @@ class MeshGenerator:
                 coat_radius, (int, float, np.integer, np.floating)
             ):
                 raise ValueError(
-                    "implant_rod 'coat_radius' must be a number [m], got "
-                    f"{coat_radius!r}"
+                    "implant_rod 'coat_radius' must be a number [m], got " f"{coat_radius!r}"
                 )
             coat_radius = float(coat_radius)
             if not np.isfinite(coat_radius) or not (coat_radius > radius):
@@ -5262,8 +5194,7 @@ class MeshGenerator:
                 if phantom_box is not None:
                     _box_refuse(end, tip_ball_radius, "tip ball")
                 elif not (
-                    float(np.hypot(end[0], end[1])) + tip_ball_radius
-                    < phantom_radius
+                    float(np.hypot(end[0], end[1])) + tip_ball_radius < phantom_radius
                     and abs(end[2]) + tip_ball_radius < 0.5 * phantom_height
                 ):
                     raise ValueError(
@@ -5378,9 +5309,7 @@ class MeshGenerator:
                         0, 0, z_sign * z_ring_offset, ring_radius, ring_minor_radius
                     )
                 )
-                ring_analytic_mass += (
-                    np.pi * ring_minor_radius**2 * ring_radius * 2.0 * np.pi
-                )
+                ring_analytic_mass += np.pi * ring_minor_radius**2 * ring_radius * 2.0 * np.pi
         else:
             # `GEO-20` step 1: `leg_count` arcs per ring instead of one torus.
             # The removed arcs are bounded by the radial half-planes
@@ -5413,13 +5342,9 @@ class MeshGenerator:
                         float(phi_mid[j]) + half_angle,
                     )
                     ring_tags.append(arc)
-                    ring_analytic_mass += (
-                        np.pi * ring_minor_radius**2 * ring_radius * arc_sweep
-                    )
+                    ring_analytic_mass += np.pi * ring_minor_radius**2 * ring_radius * arc_sweep
 
-        ring_cad_mass = float(
-            sum(gmsh.model.occ.getMass(3, tag) for tag in ring_tags)
-        )
+        ring_cad_mass = float(sum(gmsh.model.occ.getMass(3, tag) for tag in ring_tags))
 
         leg_tags: List[int] = []
         for angle in theta_leg:
@@ -5621,10 +5546,7 @@ class MeshGenerator:
                             z_ring - 0.5 * ring_w,
                         )
                     )
-                lines = [
-                    gmsh.model.occ.addLine(corners[k], corners[(k + 1) % 4])
-                    for k in range(4)
-                ]
+                lines = [gmsh.model.occ.addLine(corners[k], corners[(k + 1) % 4]) for k in range(4)]
                 loop = gmsh.model.occ.addCurveLoop(lines)
                 face = gmsh.model.occ.addPlaneSurface([loop])
                 extruded = gmsh.model.occ.extrude([(2, face)], 0.0, 0.0, ring_w)
@@ -5681,9 +5603,7 @@ class MeshGenerator:
                         ]
                         sheet_normal = np.array([-sin_c, cos_c, 0.0])
                     sheet_lines = [
-                        gmsh.model.occ.addLine(
-                            sheet_corners[k], sheet_corners[(k + 1) % 4]
-                        )
+                        gmsh.model.occ.addLine(sheet_corners[k], sheet_corners[(k + 1) % 4])
                         for k in range(4)
                     ]
                     sheet = gmsh.model.occ.addPlaneSurface(
@@ -5697,7 +5617,10 @@ class MeshGenerator:
                     )
 
         radial_extent = ring_radius + max(leg_radius_eff, ring_minor_radius) + port_dy + air_padding
-        z_extent = max(0.5 * coil_length, 0.5 * leg_spacing + ring_minor_radius, 0.5 * phantom_height) + air_padding
+        z_extent = (
+            max(0.5 * coil_length, 0.5 * leg_spacing + ring_minor_radius, 0.5 * phantom_height)
+            + air_padding
+        )
         if symmetry_quadrant:
             # `TH-16` step 3a: the quarter box. The leg-port sheets are not
             # fragment tools here — the kept port-box halves' faces on y = 0
@@ -5728,10 +5651,12 @@ class MeshGenerator:
                 # (the caps are flat at ±z_extent). 1e-5 absorbs the OCC bbox
                 # enlargement measured on curved faces (`TH-20` step 0a).
                 r_s = float(shield_radius)
-                return all(
-                    abs(bb[i] + r_s) < 1.0e-5 and abs(bb[i + 3] - r_s) < 1.0e-5
-                    for i in (0, 1)
-                ) and abs(bb[2] + z_extent) < 1.0e-5 and abs(bb[5] - z_extent) < 1.0e-5
+                return (
+                    all(abs(bb[i] + r_s) < 1.0e-5 and abs(bb[i + 3] - r_s) < 1.0e-5 for i in (0, 1))
+                    and abs(bb[2] + z_extent) < 1.0e-5
+                    and abs(bb[5] - z_extent) < 1.0e-5
+                )
+
         else:
             air_tag = gmsh.model.occ.addBox(
                 -radial_extent,
@@ -5751,10 +5676,7 @@ class MeshGenerator:
         # on them behaves as before when ``implant_spheroid`` is None.
         keep_rod_cells = bool(
             (implant_rod is not None and implant_rod.get("keep_cells", False))
-            or (
-                implant_spheroid is not None
-                and implant_spheroid.get("keep_cells", False)
-            )
+            or (implant_spheroid is not None and implant_spheroid.get("keep_cells", False))
         )
         spheroid_seam_bbox: Optional[Tuple[float, ...]] = None
         rod_tag: Optional[int] = None
@@ -5778,9 +5700,7 @@ class MeshGenerator:
             rod_a = np.asarray(implant_rod["axis"], dtype=float)
             end0 = rod_c - 0.5 * rod_l * rod_a
             end1 = rod_c + 0.5 * rod_l * rod_a
-            shaft = gmsh.model.occ.addCylinder(
-                *end0.tolist(), *(rod_l * rod_a).tolist(), rod_r
-            )
+            shaft = gmsh.model.occ.addCylinder(*end0.tolist(), *(rod_l * rod_a).tolist(), rod_r)
             cap0 = gmsh.model.occ.addSphere(*end0.tolist(), rod_r)
             cap1 = gmsh.model.occ.addSphere(*end1.tolist(), rod_r)
             rod_dimtags, _ = gmsh.model.occ.fuse([(3, shaft)], [(3, cap0), (3, cap1)])
@@ -5870,9 +5790,7 @@ class MeshGenerator:
             occ.remove([(2, profile)], recursive=True)
             occ.synchronize()
             if len(body) != 1:
-                raise RuntimeError(
-                    f"implant_spheroid: the revolve gave {revolved}, not one solid"
-                )
+                raise RuntimeError(f"implant_spheroid: the revolve gave {revolved}, not one solid")
             occ.rotate(body, 0, 0, 0, 0, 0, 1, 0.25 * np.pi)
             z_hat = np.array([0.0, 0.0, 1.0])
             rot_k = np.cross(z_hat, sph_ax)
@@ -5906,14 +5824,14 @@ class MeshGenerator:
                     f"{tuple(float(v) for v in cbb)}",
                     flush=True,
                 )
-                if spheroid_seam_bbox is None and abs(
-                    float(
-                        np.dot(
-                            np.asarray(cbb[3:]) - np.asarray(cbb[:3]), np.abs(sph_ax)
-                        )
+                if (
+                    spheroid_seam_bbox is None
+                    and abs(
+                        float(np.dot(np.asarray(cbb[3:]) - np.asarray(cbb[:3]), np.abs(sph_ax)))
+                        - 2.0 * sph_c
                     )
-                    - 2.0 * sph_c
-                ) < 1.0e-6:
+                    < 1.0e-6
+                ):
                     spheroid_seam_bbox = tuple(float(v) for v in cbb)
             phantom_out, _ = gmsh.model.occ.cut(
                 [(3, phantom_tag)], rod_dimtags, removeObject=True, removeTool=False
@@ -5968,8 +5886,7 @@ class MeshGenerator:
             gmsh.model.occ.synchronize()
             if not air_pieces:
                 raise RuntimeError(
-                    "birdcage_port_domain(as_hole=True): cutting the coil out "
-                    "left no air volume"
+                    "birdcage_port_domain(as_hole=True): cutting the coil out " "left no air volume"
                 )
             if phantom_box is not None and shield_radius is not None:
                 # `GEO-38` step 2: the conductor union's CAD mass, read as the
@@ -5984,9 +5901,11 @@ class MeshGenerator:
                     # conductor + body; remove the body (definition repair of
                     # item 470's diagnostic, not a band).
                     conductor_cad_mass = conductor_cad_mass - rod_occ_mass
-            tool_dimtags = [(3, phantom_tag)] + [(3, tag) for tag in port_tags] + [
-                (2, tag) for tag in sheet_tags
-            ]
+            tool_dimtags = (
+                [(3, phantom_tag)]
+                + [(3, tag) for tag in port_tags]
+                + [(2, tag) for tag in sheet_tags]
+            )
             if keep_rod_cells:
                 # `GEO-36` step 6: the kept rod, once (`GEO-9`).
                 tool_dimtags = tool_dimtags + [(3, rod_tag)]
@@ -6003,9 +5922,7 @@ class MeshGenerator:
             if coat_tag is not None:
                 # `GEO-36` step 5: the sleeve, once, beside the rod.
                 tool_tags = tool_tags + [coat_tag]
-            tool_dimtags = [(3, tag) for tag in tool_tags] + [
-                (2, tag) for tag in sheet_tags
-            ]
+            tool_dimtags = [(3, tag) for tag in tool_tags] + [(2, tag) for tag in sheet_tags]
             _, fragment_map = gmsh.model.occ.fragment(
                 [(3, air_tag)],
                 tool_dimtags,
@@ -6041,25 +5958,19 @@ class MeshGenerator:
                 cx, cy, _ = gmsh.model.occ.getCenterOfMass(3, piece)
                 if cx < 0.0 or cy < 0.0:
                     removed_pieces.add(piece)
-            gmsh.model.occ.remove(
-                [(3, p) for p in sorted(removed_pieces)], recursive=True
-            )
+            gmsh.model.occ.remove([(3, p) for p in sorted(removed_pieces)], recursive=True)
             gmsh.model.occ.synchronize()
             kept_surfaces = {
                 surf
                 for _, vol in gmsh.model.getEntities(dim=3)
-                for d, surf in gmsh.model.getBoundary(
-                    [(3, vol)], oriented=False, recursive=False
-                )
+                for d, surf in gmsh.model.getBoundary([(3, vol)], oriented=False, recursive=False)
                 if d == 2
             }
             orphan_surfaces = [
                 s for _, s in gmsh.model.getEntities(dim=2) if s not in kept_surfaces
             ]
             if orphan_surfaces:
-                gmsh.model.occ.remove(
-                    [(2, s) for s in orphan_surfaces], recursive=True
-                )
+                gmsh.model.occ.remove([(2, s) for s in orphan_surfaces], recursive=True)
                 gmsh.model.occ.synchronize()
 
         # Only dim-3 inputs are ancestors of a dim-3 piece; the sheets are dim-2
@@ -6081,9 +5992,7 @@ class MeshGenerator:
             # `GEO-35` step 1: explicit map, ring ordinals unchanged at
             # leg_count+1 .. 3·leg_count; 1..leg_count are reserved gaps, so
             # `group_names` / `expected_groups` skip them below.
-            port_ordinal = {
-                tag: idx for idx, tag in enumerate(port_tags, start=leg_count + 1)
-            }
+            port_ordinal = {tag: idx for idx, tag in enumerate(port_tags, start=leg_count + 1)}
 
         # Piece policy. Metal wins over everything (a leg∩ring piece is conductor
         # either way, and a port box grazing a conductor is metal, not an
@@ -6105,9 +6014,7 @@ class MeshGenerator:
             elif phantom_tag in sources:
                 group_of_piece[piece] = 3
             elif sources & port_ordinal.keys():
-                ordinal = min(
-                    port_ordinal[tag] for tag in sources if tag in port_ordinal
-                )
+                ordinal = min(port_ordinal[tag] for tag in sources if tag in port_ordinal)
                 if ordinal in sheet_of_ordinal:
                     # `GEO-18` step 2 / `GEO-16`: with the sheet in, each port box
                     # is two pieces, one either side of its own mid-plane. The
@@ -6125,9 +6032,7 @@ class MeshGenerator:
                     (nx, ny), (px, py) = sheet_of_ordinal[ordinal]
                     centre = gmsh.model.occ.getCenterOfMass(3, piece)
                     value = (centre[0] - px) * nx + (centre[1] - py) * ny
-                    group_of_piece[piece] = (
-                        200 + ordinal if value > 0.0 else 100 + ordinal
-                    )
+                    group_of_piece[piece] = 200 + ordinal if value > 0.0 else 100 + ordinal
                 elif ordinal in ring_sheet_of_ordinal:
                     # `GEO-20`: same discipline, but the sheet's plane is radial,
                     # so the side is the sign of (centroid - gap centre)·n. In
@@ -6162,6 +6067,7 @@ class MeshGenerator:
         cavity_surfaces: List[int] = []
         cavity_cad_area = float("nan")
         if as_hole:
+
             def _face_on_wall(surf: int) -> bool:
                 bb = gmsh.model.getBoundingBox(2, surf)
                 if symmetry_quadrant and any(
@@ -6177,9 +6083,12 @@ class MeshGenerator:
                 return any(
                     abs(bb[i] - lo) < 1e-6 and abs(bb[i + 3] - lo) < 1e-6
                     for i, lo in (
-                        (0, -radial_extent), (0, radial_extent),
-                        (1, -radial_extent), (1, radial_extent),
-                        (2, -z_extent), (2, z_extent),
+                        (0, -radial_extent),
+                        (0, radial_extent),
+                        (1, -radial_extent),
+                        (1, radial_extent),
+                        (2, -z_extent),
+                        (2, z_extent),
                     )
                 )
 
@@ -6200,40 +6109,28 @@ class MeshGenerator:
                     "no single-use non-wall boundary face, so the conductor "
                     "cavity surface is missing"
                 )
-            cavity_cad_area = float(
-                sum(gmsh.model.occ.getMass(2, s) for s in cavity_surfaces)
-            )
+            cavity_cad_area = float(sum(gmsh.model.occ.getMass(2, s) for s in cavity_surfaces))
 
             # Drop the conductor solids: the cavity IS the hole.
             # `recursive=False` so the cavity faces (which belong to the meshed
             # volumes, not to the tools) are untouched either way.
             gmsh.model.occ.remove([(3, t) for t in conductor_tags], recursive=False)
             gmsh.model.occ.synchronize()
-            still_present = [
-                t for t in conductor_tags
-                if (3, t) in gmsh.model.getEntities(dim=3)
-            ]
+            still_present = [t for t in conductor_tags if (3, t) in gmsh.model.getEntities(dim=3)]
             if still_present:
                 # occ.remove + synchronize did not propagate; drop them
                 # model-side (the two-torus route needed this fallback).
-                gmsh.model.removeEntities(
-                    [(3, t) for t in still_present], recursive=False
-                )
+                gmsh.model.removeEntities([(3, t) for t in still_present], recursive=False)
             cavity_surfaces = [
-                s for s in cavity_surfaces
-                if (2, s) in gmsh.model.getEntities(dim=2)
+                s for s in cavity_surfaces if (2, s) in gmsh.model.getEntities(dim=2)
             ]
             if not cavity_surfaces:
                 raise RuntimeError(
                     "birdcage_port_domain(as_hole=True): every cavity surface "
                     "was destroyed with the conductor solids"
                 )
-            gmsh.model.addPhysicalGroup(
-                2, cavity_surfaces, tag=BIRDCAGE_CONDUCTOR_SURFACE_TAG
-            )
-            gmsh.model.setPhysicalName(
-                2, BIRDCAGE_CONDUCTOR_SURFACE_TAG, "conductor_surface"
-            )
+            gmsh.model.addPhysicalGroup(2, cavity_surfaces, tag=BIRDCAGE_CONDUCTOR_SURFACE_TAG)
+            gmsh.model.setPhysicalName(2, BIRDCAGE_CONDUCTOR_SURFACE_TAG, "conductor_surface")
             print(
                 "[birdcage-mesh] conductor cavity (CAD) tag "
                 f"{BIRDCAGE_CONDUCTOR_SURFACE_TAG}: {len(cavity_surfaces)} "
@@ -6268,8 +6165,7 @@ class MeshGenerator:
                 implant_pieces = pieces_by_group.get(BIRDCAGE_IMPLANT_CELL_TAG, [])
                 if not implant_pieces:
                     raise RuntimeError(
-                        "implant_rod(keep_cells=True): occ.fragment left no "
-                        "implant piece"
+                        "implant_rod(keep_cells=True): occ.fragment left no " "implant piece"
                     )
                 rod_surfaces = sorted(
                     {
@@ -6281,16 +6177,15 @@ class MeshGenerator:
                         if dim == 2
                     }
                 )
-                bad_use = {s: rod_face_use.get(s, 0) for s in rod_surfaces
-                           if rod_face_use.get(s, 0) != 2}
+                bad_use = {
+                    s: rod_face_use.get(s, 0) for s in rod_surfaces if rod_face_use.get(s, 0) != 2
+                }
                 if bad_use:
                     raise RuntimeError(
                         "implant_rod(keep_cells=True): rod wall faces not "
                         f"bounded by exactly two meshed volumes: {bad_use}"
                     )
-                implant_kept_mass = float(
-                    sum(gmsh.model.occ.getMass(3, p) for p in implant_pieces)
-                )
+                implant_kept_mass = float(sum(gmsh.model.occ.getMass(3, p) for p in implant_pieces))
             for surf, uses in sorted(rod_face_use.items()):
                 if keep_rod_cells or uses != 1:
                     continue
@@ -6311,12 +6206,8 @@ class MeshGenerator:
                 rod_centroid += a * np.asarray(gmsh.model.occ.getCenterOfMass(2, s))
             rod_centroid /= rod_wall_area
             if not keep_rod_cells:
-                gmsh.model.addPhysicalGroup(
-                    2, rod_surfaces, tag=BIRDCAGE_IMPLANT_SURFACE_TAG
-                )
-                gmsh.model.setPhysicalName(
-                    2, BIRDCAGE_IMPLANT_SURFACE_TAG, "implant_surface"
-                )
+                gmsh.model.addPhysicalGroup(2, rod_surfaces, tag=BIRDCAGE_IMPLANT_SURFACE_TAG)
+                gmsh.model.setPhysicalName(2, BIRDCAGE_IMPLANT_SURFACE_TAG, "implant_surface")
             # With ``keep_cells`` the wall is an *interior* facet group, and a
             # dim-2 gmsh group on interior facets hangs `model_to_mesh` at
             # `-n 2` (`_interface_facet_tags`' docstring, known-issues 9), so
@@ -6377,9 +6268,7 @@ class MeshGenerator:
             # `GEO-36` step 5: the sleeve (``None`` when unset).
             coat_pieces = pieces_by_group.get(BIRDCAGE_IMPLANT_COAT_CELL_TAG, [])
             if coat_b is not None and not coat_pieces:
-                raise RuntimeError(
-                    "implant_rod(coat_radius): occ.fragment left no coat piece"
-                )
+                raise RuntimeError("implant_rod(coat_radius): occ.fragment left no coat piece")
             implant_rod_cad["coat_radius_m"] = coat_b
             implant_rod_cad["coat_cell_tag"] = (
                 None if coat_b is None else BIRDCAGE_IMPLANT_COAT_CELL_TAG
@@ -6389,9 +6278,7 @@ class MeshGenerator:
                 if coat_b is None
                 else float(sum(gmsh.model.occ.getMass(3, p) for p in coat_pieces))
             )
-            implant_rod_cad["coat_occ_mass_m3"] = (
-                None if coat_b is None else coat_occ_mass
-            )
+            implant_rod_cad["coat_occ_mass_m3"] = None if coat_b is None else coat_occ_mass
             coat_wall_area = None
             coat_centroid = None
             if coat_b is not None:
@@ -6405,9 +6292,7 @@ class MeshGenerator:
                         if dim == 2
                     }
                 )
-                coat_wall_area = float(
-                    sum(gmsh.model.occ.getMass(2, s) for s in coat_faces)
-                )
+                coat_wall_area = float(sum(gmsh.model.occ.getMass(2, s) for s in coat_faces))
                 c_mass = [float(gmsh.model.occ.getMass(3, p)) for p in coat_pieces]
                 c_sum = np.zeros(3)
                 for p, m in zip(coat_pieces, c_mass):
@@ -6434,9 +6319,7 @@ class MeshGenerator:
             group_names[BIRDCAGE_IMPLANT_COAT_CELL_TAG] = "implant_coat"
         for idx in port_ordinal.values():
             has_sheet = idx in sheet_of_ordinal or idx in ring_sheet_of_ordinal
-            group_names[100 + idx] = (
-                f"port_P{idx}_lower" if has_sheet else f"port_P{idx}"
-            )
+            group_names[100 + idx] = f"port_P{idx}_lower" if has_sheet else f"port_P{idx}"
             if has_sheet:
                 group_names[200 + idx] = f"port_P{idx}_upper"
 
@@ -6444,7 +6327,8 @@ class MeshGenerator:
             # `TH-16` step 3a: the quadrant keeps one half of P1 (y = 0 sheet)
             # and one of P2 (x = 0 sheet), and nothing of P3 / P4.
             sheeted_ordinals = [
-                o for o in sheeted_ordinals
+                o
+                for o in sheeted_ordinals
                 if (100 + o) in pieces_by_group or (200 + o) in pieces_by_group
             ]
             # `TH-20` step 0a: classify each kept ordinal. Straddling (one
@@ -6466,17 +6350,14 @@ class MeshGenerator:
                     )
             if as_hole:
                 quadrant_kept_ordinals = sorted(
-                    o for o in port_ordinal.values()
+                    o
+                    for o in port_ordinal.values()
                     if (100 + o) in pieces_by_group or (200 + o) in pieces_by_group
                 )
                 expected_groups = [2, 3] + [
                     g
                     for o in quadrant_kept_ordinals
-                    for g in (
-                        (100 + o, 200 + o)
-                        if o in quadrant_interior_ordinals
-                        else (100 + o,)
-                    )
+                    for g in ((100 + o, 200 + o) if o in quadrant_interior_ordinals else (100 + o,))
                 ]
             else:
                 quadrant_kept_ordinals = list(sheeted_ordinals)
@@ -6490,9 +6371,7 @@ class MeshGenerator:
             expected_groups.append(BIRDCAGE_IMPLANT_CELL_TAG)
         if coat_b is not None:
             expected_groups.append(BIRDCAGE_IMPLANT_COAT_CELL_TAG)
-        missing_groups = [
-            group_names[tag] for tag in expected_groups if tag not in pieces_by_group
-        ]
+        missing_groups = [group_names[tag] for tag in expected_groups if tag not in pieces_by_group]
         volumes = gmsh.model.getEntities(dim=3)
         masses = {tag: gmsh.model.occ.getMass(3, tag) for _, tag in volumes}
         if missing_groups:
@@ -6525,8 +6404,7 @@ class MeshGenerator:
         print(
             f"[birdcage-mesh] fragment volumes={len(volumes)} "
             + " ".join(
-                f"{group_names[group]}={sum(masses[p] for p in pieces):.6e}"
-                f"({len(pieces)}p)"
+                f"{group_names[group]}={sum(masses[p] for p in pieces):.6e}" f"({len(pieces)}p)"
                 for group, pieces in sorted(pieces_by_group.items())
             ),
             flush=True,
@@ -6539,9 +6417,7 @@ class MeshGenerator:
         # width `w = A/h` its extents.
         port_sheet_cad: Dict[str, object] = {}
         quadrant_layout_diag: Optional[Dict[str, object]] = None
-        cut_surfaces: Dict[int, List[int]] = {
-            BIRDCAGE_CUT_X0_TAG: [], BIRDCAGE_CUT_Y0_TAG: []
-        }
+        cut_surfaces: Dict[int, List[int]] = {BIRDCAGE_CUT_X0_TAG: [], BIRDCAGE_CUT_Y0_TAG: []}
         if symmetry_quadrant:
             # `TH-16` step 3a: a cut face is one whose bounding box is flat on
             # x = 0 (y = 0), read off the post-fragment, post-removal model.
@@ -6589,23 +6465,17 @@ class MeshGenerator:
                         "face on a cut plane; its faces' bboxes: "
                         + "; ".join(
                             f"{surf}: "
-                            + ",".join(
-                                f"{v:.3e}" for v in gmsh.model.getBoundingBox(2, surf)
-                            )
+                            + ",".join(f"{v:.3e}" for v in gmsh.model.getBoundingBox(2, surf))
                             for vol in pieces_by_group[group]
                             for _, surf in gmsh.model.getBoundary(
                                 [(3, vol)], oriented=False, recursive=False
                             )
                         )
                     )
-                boxes = np.array(
-                    [gmsh.model.getBoundingBox(2, surf) for surf in shared]
-                )
+                boxes = np.array([gmsh.model.getBoundingBox(2, surf) for surf in shared])
                 port_sheet_cad[f"P{ordinal}"] = {
                     "surfaces": len(shared),
-                    "area_m2": float(
-                        sum(gmsh.model.occ.getMass(2, surf) for surf in shared)
-                    ),
+                    "area_m2": float(sum(gmsh.model.occ.getMass(2, surf) for surf in shared)),
                     "extent_x_m": float(boxes[:, 3].max() - boxes[:, 0].min()),
                     "extent_y_m": float(boxes[:, 4].max() - boxes[:, 1].min()),
                     "extent_z_m": float(boxes[:, 5].max() - boxes[:, 2].min()),
@@ -6623,9 +6493,7 @@ class MeshGenerator:
                 "kept_ordinals": list(quadrant_kept_ordinals),
                 "interior_ordinals": list(quadrant_interior_ordinals),
                 "cut_cad_area_m2": {
-                    int(t): float(
-                        sum(gmsh.model.occ.getMass(2, s) for s in cut_surfaces[t])
-                    )
+                    int(t): float(sum(gmsh.model.occ.getMass(2, s) for s in cut_surfaces[t]))
                     for t in (BIRDCAGE_CUT_X0_TAG, BIRDCAGE_CUT_Y0_TAG)
                 },
             }
@@ -6667,14 +6535,10 @@ class MeshGenerator:
                         "surface; the fragment did not conform to the port-sheet "
                         "mid-plane"
                     )
-                boxes = np.array(
-                    [gmsh.model.getBoundingBox(2, surf) for surf in shared]
-                )
+                boxes = np.array([gmsh.model.getBoundingBox(2, surf) for surf in shared])
                 port_sheet_cad[f"P{ordinal}"] = {
                     "surfaces": len(shared),
-                    "area_m2": float(
-                        sum(gmsh.model.occ.getMass(2, surf) for surf in shared)
-                    ),
+                    "area_m2": float(sum(gmsh.model.occ.getMass(2, surf) for surf in shared)),
                     "extent_x_m": float(boxes[:, 3].max() - boxes[:, 0].min()),
                     "extent_y_m": float(boxes[:, 4].max() - boxes[:, 1].min()),
                     "extent_z_m": float(boxes[:, 5].max() - boxes[:, 2].min()),
@@ -6776,9 +6640,7 @@ class MeshGenerator:
                     f"({len(pieces_by_group.get(1, ()))} pieces, as_hole={as_hole})"
                 )
             distance_field = gmsh.model.mesh.field.add("Distance")
-            gmsh.model.mesh.field.setNumbers(
-                distance_field, "SurfacesList", conductor_surfaces
-            )
+            gmsh.model.mesh.field.setNumbers(distance_field, "SurfacesList", conductor_surfaces)
             gmsh.model.mesh.field.setNumber(distance_field, "Sampling", 20)
             threshold_field = gmsh.model.mesh.field.add("Threshold")
             gmsh.model.mesh.field.setNumber(threshold_field, "InField", distance_field)
@@ -6930,9 +6792,7 @@ class MeshGenerator:
                 background_field = size_fields[0]
             else:
                 background_field = gmsh.model.mesh.field.add("Min")
-                gmsh.model.mesh.field.setNumbers(
-                    background_field, "FieldsList", size_fields
-                )
+                gmsh.model.mesh.field.setNumbers(background_field, "FieldsList", size_fields)
             gmsh.model.mesh.field.setAsBackgroundMesh(background_field)
             gmsh.option.setNumber("Mesh.MeshSizeExtendFromBoundary", 0)
             gmsh.option.setNumber("Mesh.MeshSizeFromPoints", 0)

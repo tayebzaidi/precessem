@@ -1,6 +1,8 @@
 """Post-processing and analysis."""
 
 from .consistency import compute_field_consistency_diagnostics
+from .current_divergence import current_divergence_residual
+from .evaluation import evaluate_vector_field_parallel, point_owner_cells
 from .faraday import (
     b1_minus,
     b1_plus,
@@ -8,20 +10,18 @@ from .faraday import (
     project_to_cg1,
     project_to_cg1_restricted,
 )
-from .evaluation import evaluate_vector_field_parallel, point_owner_cells
-from .current_divergence import current_divergence_residual
-from .power_balance import poynting_power_balance
-from .sar import mean_sar, uniform_sphere_sar_closed_form
 from .phantom_fields import (
     compute_phantom_eb_metrics_and_export,
     compute_tagged_vector_magnitude_stats,
     export_tagged_field_samples_csv,
 )
+from .power_balance import poynting_power_balance
 from .quicklook import (
     build_phantom_quicklook_report,
     format_phantom_quicklook_report,
     write_phantom_quicklook_report,
 )
+from .sar import mean_sar, uniform_sphere_sar_closed_form
 
 __all__ = [
     "compute_field_consistency_diagnostics",

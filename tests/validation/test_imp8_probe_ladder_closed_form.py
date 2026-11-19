@@ -82,8 +82,10 @@ def test_lim_every_rung():
         phi_inf = _phi(0.0, z, np.inf)
         ax = _axis_steady(z)
         rel = abs(phi_inf / ax - 1.0)
-        _p(f"[imp8-18] (Lim) {_lab(k)}: Φ(0,z,inf) {phi_inf:.7g} axis steady {ax:.7g} rel {rel:.3e} "
-           f"(band {B1_BAND:g})")
+        _p(
+            f"[imp8-18] (Lim) {_lab(k)}: Φ(0,z,inf) {phi_inf:.7g} axis steady {ax:.7g} rel {rel:.3e} "
+            f"(band {B1_BAND:g})"
+        )
         worst = max(worst, rel)
     _p(f"[imp8-18] (Lim) worst {worst:.3e}")
     assert worst <= B1_BAND
@@ -95,9 +97,11 @@ def test_bq_every_rung():
         for t in (T_PRINT, np.inf):
             g_n, g_2n = _gl_line(z, t, N_GL), _gl_line(z, t, 2 * N_GL)
             e = abs(g_n / g_2n - 1.0)
-            _p(f"[imp8-18] (Bq) {_lab(k)} t={t:g}: GL{N_GL} {g_n:.7g} GL{2 * N_GL} {g_2n:.7g} "
-               f"|n/2n-1| {e:.3e} (band {BQ_BAND:g}); printed |GL2n/_phi-1| "
-               f"{abs(g_2n / _phi(0.0, z, t) - 1.0):.3e}")
+            _p(
+                f"[imp8-18] (Bq) {_lab(k)} t={t:g}: GL{N_GL} {g_n:.7g} GL{2 * N_GL} {g_2n:.7g} "
+                f"|n/2n-1| {e:.3e} (band {BQ_BAND:g}); printed |GL2n/_phi-1| "
+                f"{abs(g_2n / _phi(0.0, z, t) - 1.0):.3e}"
+            )
             worst = max(worst, e)
     _p(f"[imp8-18] (Bq) worst {worst:.3e}")
     assert worst <= BQ_BAND
@@ -110,8 +114,10 @@ def test_dut_every_rung():
             step = _duhamel(kern, 0.0, z, T_STAR, DUTY)
             conv = _convolution(kern_dot, 0.0, z, T_STAR, DUTY)
             e = abs(step - conv) / (SCALE * steady(z))
-            _p(f"[imp8-18] (Dut) {_lab(k)} {name}: step sum {step:.7g} conv {conv:.7g} "
-               f"|diff|/θ_ss {e:.3e} (band {B1_BAND:g})")
+            _p(
+                f"[imp8-18] (Dut) {_lab(k)} {name}: step sum {step:.7g} conv {conv:.7g} "
+                f"|diff|/θ_ss {e:.3e} (band {B1_BAND:g})"
+            )
             worst = max(worst, e)
     _p(f"[imp8-18] (Dut) worst {worst:.3e}")
     assert worst <= B1_BAND
@@ -124,9 +130,13 @@ def test_rep_i78_record_rungs_1_2():
         got = tuple(f"{x:.7g}" for x in _reads(kern, steady, RUNGS[k]))
         ok = got == want
         misses += 0 if ok else 1
-        _p(f"[imp8-18] (Rep) {name} {_lab(k)}: got {got} want {want} {'match' if ok else 'MISMATCH'}")
-    _p(f"[imp8-18] (Rep) {len(I78_RECORD) * 3 - 3 * misses}/{len(I78_RECORD) * 3} strings in matching rows; "
-       f"{misses} row mismatches")
+        _p(
+            f"[imp8-18] (Rep) {name} {_lab(k)}: got {got} want {want} {'match' if ok else 'MISMATCH'}"
+        )
+    _p(
+        f"[imp8-18] (Rep) {len(I78_RECORD) * 3 - 3 * misses}/{len(I78_RECORD) * 3} strings in matching rows; "
+        f"{misses} row mismatches"
+    )
     assert misses == 0
 
 
@@ -137,10 +147,12 @@ def test_control_ladder_monotone():
         for k in range(len(RUNGS) - 1):
             d_c = 1.0 - cont[k + 1] / cont[k]
             d_s = 1.0 - ss[k + 1] / ss[k]
-            _p(f"[imp8-18] (ctrl) {name} rung {k + 1}->{k + 2} ({RUNGS[k] / MM:g}->{RUNGS[k + 1] / MM:g} mm): "
-               f"drop θ(900 s) {d_c:.7g}  drop θ_ss {d_s:.7g} (review's steady prediction "
-               f"{CTRL_PRED[name][k]:.4f}; "
-               f"band > {INTERIOR_BAND:g}, < 1)")
+            _p(
+                f"[imp8-18] (ctrl) {name} rung {k + 1}->{k + 2} ({RUNGS[k] / MM:g}->{RUNGS[k + 1] / MM:g} mm): "
+                f"drop θ(900 s) {d_c:.7g}  drop θ_ss {d_s:.7g} (review's steady prediction "
+                f"{CTRL_PRED[name][k]:.4f}; "
+                f"band > {INTERIOR_BAND:g}, < 1)"
+            )
             assert cont[k + 1] < cont[k]
             assert ss[k + 1] < ss[k]
             assert INTERIOR_BAND < d_c < 1.0
@@ -148,8 +160,10 @@ def test_control_ladder_monotone():
 
 
 def test_printed_record():
-    _p("[imp8-18] the lumped probe-placement ladder — placement and time quoted from memory; W3 confirms "
-       "or corrects — K per watt per rod, infinite gel")
+    _p(
+        "[imp8-18] the lumped probe-placement ladder — placement and time quoted from memory; W3 confirms "
+        "or corrects — K per watt per rod, infinite gel"
+    )
     rec = {}
     for name, (kern, _kd, steady) in SHAPES.items():
         for k, z in enumerate(RUNGS):
@@ -159,12 +173,18 @@ def test_printed_record():
             cont, duty, ss = rec[(name, k)]
             c0, d0, s0 = rec[(name, 0)]
             sym = abs(SCALE * kern(0.0, z, T_STAR) - SCALE * kern(0.0, -z, T_STAR))
-            sym_d = abs(_duhamel(kern, 0.0, z, T_STAR, DUTY) - _duhamel(kern, 0.0, -z, T_STAR, DUTY))
-            _p(f"[imp8-18] {name} {_lab(k)}: θ(900 s) cont {cont:.7g}  D=0.5 {duty:.7g}  θ_ss {ss:.7g}  "
-               f"duty/cont {duty / cont:.7g}; /θ(16 mm) cont {cont / c0:.7g} D=0.5 {duty / d0:.7g} "
-               f"ss {ss / s0:.7g}; |θ(+z)-θ(-z)| cont {sym:.3e} D=0.5 {sym_d:.3e}")
+            sym_d = abs(
+                _duhamel(kern, 0.0, z, T_STAR, DUTY) - _duhamel(kern, 0.0, -z, T_STAR, DUTY)
+            )
+            _p(
+                f"[imp8-18] {name} {_lab(k)}: θ(900 s) cont {cont:.7g}  D=0.5 {duty:.7g}  θ_ss {ss:.7g}  "
+                f"duty/cont {duty / cont:.7g}; /θ(16 mm) cont {cont / c0:.7g} D=0.5 {duty / d0:.7g} "
+                f"ss {ss / s0:.7g}; |θ(+z)-θ(-z)| cont {sym:.3e} D=0.5 {sym_d:.3e}"
+            )
         tw, ln = rec[("twin", k)], rec[("line", k)]
-        _p(f"[imp8-18] twin/line {_lab(k)}: cont {tw[0] / ln[0]:.7g}  D=0.5 {tw[1] / ln[1]:.7g}  "
-           f"ss {tw[2] / ln[2]:.7g}")
+        _p(
+            f"[imp8-18] twin/line {_lab(k)}: cont {tw[0] / ln[0]:.7g}  D=0.5 {tw[1] / ln[1]:.7g}  "
+            f"ss {tw[2] / ln[2]:.7g}"
+        )
     for v in rec.values():
         assert all(np.isfinite(x) and x > 0.0 for x in v)

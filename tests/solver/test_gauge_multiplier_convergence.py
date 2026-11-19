@@ -82,9 +82,7 @@ def _lagrange_loop_spread(resolution: float, comm: MPI.Intracomm) -> tuple[float
         resolution=resolution,
         comm=comm,
     )
-    n_cells = comm.allreduce(
-        mesh.topology.index_map(mesh.topology.dim).size_local, op=MPI.SUM
-    )
+    n_cells = comm.allreduce(mesh.topology.index_map(mesh.topology.dim).size_local, op=MPI.SUM)
     solver = MagnetostaticSolver(
         MagnetostaticProblem(mesh=mesh, cell_tags=cell_tags, mu=MU_0), degree=1
     )
@@ -119,9 +117,7 @@ def multiplier_ladder():
         MagnetostaticProblem(mesh=mesh, cell_tags=cell_tags, mu=MU_0), degree=1
     )
     wire_solver.solve(
-        current_density=lambda x: ufl.as_vector(
-            [0.0, 0.0, 1.0 / (np.pi * WIRE_RADIUS**2)]
-        ),
+        current_density=lambda x: ufl.as_vector([0.0, 0.0, 1.0 / (np.pi * WIRE_RADIUS**2)]),
         subdomain_id=1,
         gauge=GaugeMethod.LAGRANGE,
     )
@@ -160,9 +156,9 @@ def test_multiplier_spread_converges_for_a_divergence_free_source(multiplier_lad
     rate = multiplier_ladder["rate"]
 
     assert np.all(np.isfinite(spreads)), f"non-finite spread on the ladder: {spreads}"
-    assert all(b < a for a, b in zip(spreads, spreads[1:])), (
-        f"multiplier spread is not monotone under refinement: {spreads}"
-    )
+    assert all(
+        b < a for a, b in zip(spreads, spreads[1:])
+    ), f"multiplier spread is not monotone under refinement: {spreads}"
     assert rate >= RATE_DISCRETE_SOURCE, (
         f"fitted log-log rate {rate:.4f} is below the {RATE_DISCRETE_SOURCE} "
         "DISCRETE-SOURCE band: the multiplier is not converging away with "

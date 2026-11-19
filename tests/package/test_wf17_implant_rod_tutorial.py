@@ -51,7 +51,6 @@ from mpi4py import MPI
 from fem_em_solver import FourPortBirdcageGeometry, Study
 from fem_em_solver.cli import main
 from fem_em_solver.study_yaml import StudyConfigError, load_study
-
 from tests.complex_mode import IS_COMPLEX
 from tests.mesh.test_birdcage_implant_rod import ROD, _build_rod
 from tests.mesh.test_birdcage_leg_offset import IDENTITY_BAND
@@ -211,8 +210,10 @@ def test_wf17_s25_docrefs_zero_dead():
     rc, counts = run_checker("--docs-root", "docs/guide", "--check-links")
     link = LINK_PASS_RE.search(_checker_stdout("--docs-root", "docs/guide", "--check-links"))
     assert link is not None, "(D) no 'Link pass:' line"
-    print(f"[WF-17 s25] (D) dead={counts['dead']} links={link.group(1)} pages={link.group(2)} "
-          f"link-dead={link.group(3)} rc={rc}")
+    print(
+        f"[WF-17 s25] (D) dead={counts['dead']} links={link.group(1)} pages={link.group(2)} "
+        f"link-dead={link.group(3)} rc={rc}"
+    )
     assert counts["dead"] == 0
     assert int(link.group(3)) == 0
     assert int(link.group(2)) >= MIN_GUIDE_PAGES
@@ -223,8 +224,10 @@ def test_wf17_s25_docrefs_zero_dead():
 
 def test_wf17_s25_implant_rod_blocks(monkeypatch):
     if not _knob():
-        pytest.skip(f"{S25_ENV} unset: the page's solve window is environment-selected "
-                    "(complex build, -n 2)")
+        pytest.skip(
+            f"{S25_ENV} unset: the page's solve window is environment-selected "
+            "(complex build, -n 2)"
+        )
     comm = MPI.COMM_WORLD
     assert IS_COMPLEX, "the four-port Study needs the complex build"
     assert comm.size == 2, comm.size
@@ -271,27 +274,40 @@ def test_wf17_s25_implant_rod_blocks(monkeypatch):
     rel_direct = _rel(s_py, s_direct)
     rel_yaml = _rel(s_yaml, s_py)
     miss = comm.allreduce(float(np.linalg.norm(s_off - s_py) / np.linalg.norm(s_py)), op=MPI.MIN)
-    _p0(f"[WF-17 s25] -n {comm.size}: rod block {t_rod:.1f} s, femem run {t_yaml:.1f} s, direct "
-        f"{t_direct:.1f} s, off block {t_off:.1f} s")
-    _p0(f"[WF-17 s25] (Cells) block {result.cells}, yaml {summary['cells']}, direct {case['cells']}, "
-        f"record {ROD_EXACT_CELL_RECORD}")
-    _p0(f"[WF-17 s25] (S) ||S_block - S_direct||/||S_direct|| {rel_direct:.3e}; (P=Y) "
-        f"||S_yaml - S_block||/||S_block|| {rel_yaml:.3e} (IDENTITY_BAND {IDENTITY_BAND:.0e}, ASSERTED)")
-    _p0(f"[WF-17 s25] (c-off) off block cells {ns_off['result'].cells}; miss {miss:.6e}, "
+    _p0(
+        f"[WF-17 s25] -n {comm.size}: rod block {t_rod:.1f} s, femem run {t_yaml:.1f} s, direct "
+        f"{t_direct:.1f} s, off block {t_off:.1f} s"
+    )
+    _p0(
+        f"[WF-17 s25] (Cells) block {result.cells}, yaml {summary['cells']}, direct {case['cells']}, "
+        f"record {ROD_EXACT_CELL_RECORD}"
+    )
+    _p0(
+        f"[WF-17 s25] (S) ||S_block - S_direct||/||S_direct|| {rel_direct:.3e}; (P=Y) "
+        f"||S_yaml - S_block||/||S_block|| {rel_yaml:.3e} (IDENTITY_BAND {IDENTITY_BAND:.0e}, ASSERTED)"
+    )
+    _p0(
+        f"[WF-17 s25] (c-off) off block cells {ns_off['result'].cells}; miss {miss:.6e}, "
         f"{miss / IDENTITY_BAND:.3e} x IDENTITY_BAND (POOLED_SEPARATION_FLOOR "
-        f"{POOLED_SEPARATION_FLOOR:g}, printed)")
+        f"{POOLED_SEPARATION_FLOOR:g}, printed)"
+    )
     tips = list(TIPS)
     for pid in sorted(ns["sar"]):
         row = []
         for i, tip in enumerate(tips):
             a = float(ns["sar"][pid][i]["averaged_sar_w_per_kg"])
             b = float(ns_off["sar"][pid][i]["averaged_sar_w_per_kg"])
-            row.append(f"{tip} {a / b if b != 0.0 else float('nan'):.6f} (rod {a:.6e}, off {b:.6e} W/kg)")
+            row.append(
+                f"{tip} {a / b if b != 0.0 else float('nan'):.6f} (rod {a:.6e}, off {b:.6e} W/kg)"
+            )
         _p0(f"[WF-17 s25] tip 1 g Q {pid} (a reading, no record): " + "; ".join(row))
 
     gates = {
-        "stdout": extract_tagged_block(text, EXPECTED_TAG, lang="text").strip() in out.splitlines()
-        if comm.rank == 0 else True,
+        "stdout": (
+            extract_tagged_block(text, EXPECTED_TAG, lang="text").strip() in out.splitlines()
+            if comm.rank == 0
+            else True
+        ),
         "cells_record": result.cells == ROD_EXACT_CELL_RECORD,
         "cells_direct": result.cells == case["cells"],
         "cells_yaml": summary["cells"] == ROD_EXACT_CELL_RECORD,
@@ -325,7 +341,6 @@ class _Reached(Exception):
 def test_wf17_s28_caps_blocks_and_refusals(monkeypatch):
     import fem_em_solver.study as study_mod
     from fem_em_solver import CapacitorSheets, LeontovichWall
-
     from tests.package.test_wf15_study_implant_rod import _phantom
     from tests.validation.test_ans7_exact_strip import C_F
     from tests.validation.test_port24_series_rc_sheet import ESR_OHM, FREQUENCY_HZ, PLANT_INDEX
@@ -361,18 +376,26 @@ def test_wf17_s28_caps_blocks_and_refusals(monkeypatch):
     assert expected == f"cells = {ROD_EXACT_CELL_RECORD}; ports = {ports}"
     assert bands == f"Python vs the direct build: {IDENTITY_BAND:.0e}"
     # The refused block is the caps block at degree 2, nothing else.
-    assert (refused.replace("degree=2,", "degree=1,").split("study.solve()")[0]
-            == caps.split("result = study.solve()")[0])
+    assert (
+        refused.replace("degree=2,", "degree=1,").split("study.solve()")[0]
+        == caps.split("result = study.solve()")[0]
+    )
 
     # Control: the page's degree-2 block raises the quoted ValueError, before any mesh.
     with pytest.raises(ValueError) as err2:
         exec(compile(refused, f"{PAGE_ID}#{CAPS_REFUSED_TAG}", "exec"), {"__name__": "__main__"})
     # Control: the copper-hole rod Study raises the quoted TypeError (item 802's control 2).
-    copper = FourPortBirdcageGeometry(as_hole=True, strip_fraction=GATED_WIDTH_FRACTION,
-                                      implant_rod=ROD)
-    st_cu = Study(copper, _phantom(), CapacitorSheets(C_F, esr_ohm=ESR_OHM, on=(sheet,)),
-                  frequency_hz=FREQUENCY_HZ, degree=1,
-                  conductor=LeontovichWall(study_mod.COPPER_SIGMA))
+    copper = FourPortBirdcageGeometry(
+        as_hole=True, strip_fraction=GATED_WIDTH_FRACTION, implant_rod=ROD
+    )
+    st_cu = Study(
+        copper,
+        _phantom(),
+        CapacitorSheets(C_F, esr_ohm=ESR_OHM, on=(sheet,)),
+        frequency_hz=FREQUENCY_HZ,
+        degree=1,
+        conductor=LeontovichWall(study_mod.COPPER_SIGMA),
+    )
     with pytest.raises(TypeError) as err_cu:
         st_cu.solve(MPI.COMM_WORLD)
     _p0(f"\n[WF-17 s28] (In) C_F {C_F!r}, esr {ESR_OHM!r}, sheet {sheet}; {expected}; {bands}")
@@ -383,8 +406,7 @@ def test_wf17_s28_caps_blocks_and_refusals(monkeypatch):
 
     # (c-page), by construction: the tag removed raises.
     with pytest.raises(LookupError):
-        extract_tagged_block(text.replace(f"```python {CAPS_TAG}\n", "```python other\n"),
-                             CAPS_TAG)
+        extract_tagged_block(text.replace(f"```python {CAPS_TAG}\n", "```python other\n"), CAPS_TAG)
 
 
 def test_wf17_s28_caps_block(monkeypatch):
@@ -413,14 +435,19 @@ def test_wf17_s28_caps_block(monkeypatch):
     s_direct = np.asarray(s_direct, dtype=np.complex128)
     t_direct = time.perf_counter() - t0
 
-    rel = comm.allreduce(float(np.linalg.norm(s_block - s_direct) / np.linalg.norm(s_direct)),
-                         op=MPI.MAX)
+    rel = comm.allreduce(
+        float(np.linalg.norm(s_block - s_direct) / np.linalg.norm(s_direct)), op=MPI.MAX
+    )
     ports = [p.port_id for p in result.port_definitions]
     _p0(f"[WF-17 s28] -n {comm.size}: caps block {t_block:.1f} s, direct {t_direct:.1f} s")
-    _p0(f"[WF-17 s28] (Cells) block {result.cells}, direct {direct_cells}, record "
-        f"{ROD_EXACT_CELL_RECORD}; ports {ports}")
-    _p0(f"[WF-17 s28] (Id) ||S_block - S_direct||/||S_direct|| {rel:.3e} (IDENTITY_BAND "
-        f"{IDENTITY_BAND:.0e}, ASSERTED; item 802 read 4.722e-16)")
+    _p0(
+        f"[WF-17 s28] (Cells) block {result.cells}, direct {direct_cells}, record "
+        f"{ROD_EXACT_CELL_RECORD}; ports {ports}"
+    )
+    _p0(
+        f"[WF-17 s28] (Id) ||S_block - S_direct||/||S_direct|| {rel:.3e} (IDENTITY_BAND "
+        f"{IDENTITY_BAND:.0e}, ASSERTED; item 802 read 4.722e-16)"
+    )
     expected = extract_tagged_block(text, CAPS_EXPECTED_TAG, lang="text").strip()
     gates = {
         "stdout": expected in out.splitlines() if comm.rank == 0 else True,

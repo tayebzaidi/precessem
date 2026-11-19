@@ -45,7 +45,6 @@ from mpi4py import MPI
 
 from fem_em_solver.thermal.dose import cem43, running_average
 from fem_em_solver.utils.analytical import robin_box_transient_temperature
-
 from tests.validation import test_geo38_f_clinical_box_heating as p61
 from tests.validation import test_geo38_f_clinical_box_loaded as c6
 from tests.validation import test_mat21_wall_uniform_source_probe_points_closed_form as p75
@@ -54,12 +53,9 @@ from tests.validation.test_mat21_box_closed_form import (
     B_BOX,
     C_BOX,
     HALF,
-    SERIES_TERMS,
-    H,
-    K,
-    Q,
 )
 from tests.validation.test_mat21_box_closed_form import RHO_C as RHO_C_0
+from tests.validation.test_mat21_box_closed_form import SERIES_TERMS, H, K, Q
 
 _hists, _u3, P_DEP = p75._hists, p75._u3, p75.P_DEP
 PROBE_PTS, PROBE_LABELS = p75.PROBE_PTS, p75.PROBE_LABELS
@@ -82,24 +78,38 @@ P51_SRC = (1.335697, 1.061827, 1.061827, 1.061678, 1.061678, 1.072345)
 REP52_TOL = 5e-7
 # (Rep): P75's printed digits (`20261108T134258Z_MAT-21-P75-W1.log:71–76`, `:86`, `:91`).
 REP_U3 = {0: 0.02718146, 1: 0.02160819, 3: 0.02160517, 5: 0.02182225}  # K/W, within 5e-9
-REP_WS = {0: (0.02701082, 5e-9), 5: (0.0211361, 5e-8)}                 # K/W
-REP_CEM = {0: 4.086591e-11, 5: 4.073623e-11}                           # s/W, within 5e-18
+REP_WS = {0: (0.02701082, 5e-9), 5: (0.0211361, 5e-8)}  # K/W
+REP_CEM = {0: 4.086591e-11, 5: 4.073623e-11}  # s/W, within 5e-18
 # (Id): the stub's cw factor (`…P61b-W0.log:129`).
 S_STUB = 2.858205069e-05
 PLANT = 1e-6
 
 _PFX = r"\[GEO-38 P61\] "
 _TUP = r"(\(1,[+-]1j\))"
-RE_SRC = re.compile(_PFX + r"sources, sense " + _TUP + r" \((cw|ccw), heated\): P_gel (\S+) W, "
-                    r"P_acc (\S+) W \(lumped line cut, ruling 2026-10-12\); per-accepted-watt "
-                    r"factor P_gel/P_acc \((cw|ccw)\) (\S+)$")
-RE_HOT = re.compile(_PFX + r"hotspot c\* (.+?) \((.+?)\), sense " + _TUP + r": theta\(t\*\) per "
-                    r"P_acc watt (\S+) K \(point; final-field read (\S+) K\); cem43 per P_acc "
-                    r"watt (\S+) s .*running mean \(W \d+ s\) max (\S+) K at t (\S+) s \(printed\)$")
-RE_PRB = re.compile(_PFX + r"probe (.+?), sense " + _TUP + r": theta\(t\*\) per P_acc watt (\S+) K "
-                    r"\(printed\)$")
-FMT = {"P_gel": ".12e", "P_acc": ".12e", "factor": ".9e", "th": ".9e", "final": ".9e",
-       "cem43": ".9e", "ra_max": ".9e", "ra_tmax": ".1f", "probe": "+.9e"}
+RE_SRC = re.compile(
+    _PFX + r"sources, sense " + _TUP + r" \((cw|ccw), heated\): P_gel (\S+) W, "
+    r"P_acc (\S+) W \(lumped line cut, ruling 2026-10-12\); per-accepted-watt "
+    r"factor P_gel/P_acc \((cw|ccw)\) (\S+)$"
+)
+RE_HOT = re.compile(
+    _PFX + r"hotspot c\* (.+?) \((.+?)\), sense " + _TUP + r": theta\(t\*\) per "
+    r"P_acc watt (\S+) K \(point; final-field read (\S+) K\); cem43 per P_acc "
+    r"watt (\S+) s .*running mean \(W \d+ s\) max (\S+) K at t (\S+) s \(printed\)$"
+)
+RE_PRB = re.compile(
+    _PFX + r"probe (.+?), sense " + _TUP + r": theta\(t\*\) per P_acc watt (\S+) K " r"\(printed\)$"
+)
+FMT = {
+    "P_gel": ".12e",
+    "P_acc": ".12e",
+    "factor": ".9e",
+    "th": ".9e",
+    "final": ".9e",
+    "cem43": ".9e",
+    "ra_max": ".9e",
+    "ra_tmax": ".1f",
+    "probe": "+.9e",
+}
 
 
 def _say(msg):
@@ -120,9 +130,24 @@ def _to_box(X, off):
 
 def _u3_at(pt, t):
     a, b, c = pt
-    return float(np.asarray(robin_box_transient_temperature(
-        np.array([a]), np.array([b]), np.array([c]), t, half_widths=HALF, k=K, q=Q, h=H,
-        rho_c=RHO_C_0, t_inf=0.0, n_terms=SERIES_TERMS), dtype=float)[0])
+    return float(
+        np.asarray(
+            robin_box_transient_temperature(
+                np.array([a]),
+                np.array([b]),
+                np.array([c]),
+                t,
+                half_widths=HALF,
+                k=K,
+                q=Q,
+                h=H,
+                rho_c=RHO_C_0,
+                t_inf=0.0,
+                n_terms=SERIES_TERMS,
+            ),
+            dtype=float,
+        )[0]
+    )
 
 
 def _u3_hist_at(pt):
@@ -150,8 +175,19 @@ def _parse_p61_text(text):
             tup, s, pg, pa, s2, fac = m.groups()
             if SENSE_KEY[tup] != s or s2 != s:
                 raise ValueError(f"line {n}: sense keys disagree {tup!r} {s!r} {s2!r}")
-            cur = [s, [n], [raw], {"tuple": tup, "P_gel": _tok(pg), "P_acc": _tok(pa),
-                                   "factor": _tok(fac), "hot": None, "probes": {}}]
+            cur = [
+                s,
+                [n],
+                [raw],
+                {
+                    "tuple": tup,
+                    "P_gel": _tok(pg),
+                    "P_acc": _tok(pa),
+                    "factor": _tok(fac),
+                    "hot": None,
+                    "probes": {},
+                },
+            ]
             blocks.append(cur)
             continue
         m = RE_HOT.search(raw) or RE_PRB.search(raw)
@@ -161,10 +197,16 @@ def _parse_p61_text(text):
                 raise ValueError(f"line {n}: hotspot sense {tup} inside {cur[3]['tuple']} block")
             cur[1].append(n)
             cur[2].append(raw)
-            cur[3]["hot"] = {"label": lab, "point_tok": pt,
-                             "point": tuple(float(v) for v in pt.split(",")),
-                             "th": _tok(th), "final": _tok(fin), "cem43": _tok(dose),
-                             "ra_max": _tok(ram), "ra_tmax": _tok(rat)}
+            cur[3]["hot"] = {
+                "label": lab,
+                "point_tok": pt,
+                "point": tuple(float(v) for v in pt.split(",")),
+                "th": _tok(th),
+                "final": _tok(fin),
+                "cem43": _tok(dose),
+                "ra_max": _tok(ram),
+                "ra_tmax": _tok(rat),
+            }
             continue
         if m and cur is not None and m.re is RE_PRB:
             lab, tup, th = m.groups()
@@ -180,8 +222,10 @@ def _parse_p61_text(text):
         text_b = "\n".join(raws)
         if s in out:
             if text_b != out[s]["_text"]:
-                raise ValueError(f"sense {s}: block at lines {nums} differs from the block at "
-                                 f"lines {out[s]['_lines'][0]}")
+                raise ValueError(
+                    f"sense {s}: block at lines {nums} differs from the block at "
+                    f"lines {out[s]['_lines'][0]}"
+                )
             out[s]["_lines"].append(nums)
             continue
         if rec["hot"] is None:
@@ -247,7 +291,9 @@ def _hot_row(parsed):
         X = lat[hot["label"]]
         dpt = max(abs(a - b) for a, b in zip(X, hot["point"]))
         if dpt > 5e-7:
-            raise ValueError(f"c* {hot['label']}: printed {hot['point']} vs lattice {X}, {dpt:.3e} m")
+            raise ValueError(
+                f"c* {hot['label']}: printed {hot['point']} vs lattice {X}, {dpt:.3e} m"
+            )
         pt, why = _to_box(X, off)
         if pt is None:
             out[s] = {"row": None, "reason": why}
@@ -255,15 +301,24 @@ def _hot_row(parsed):
         uh = _u3_hist_at(pt)
         fac = rec["factor"]["val"]
         comp = fac * uh[-1]
-        out[s] = {"row": {
-            "label": hot["label"], "fixture_pt": X, "box_pt": pt, "print_vs_lattice_m": dpt,
-            "U3_per_W": uh[-1],
-            "Wsrc_per_W_z0": float(h["Wsrc_raw"][-1, 2]) / P_DEP, "Wdrift_K": 0.0,
-            "s": fac, "theta_acc": hot["th"]["val"], "comparand": comp,
-            "ratio": hot["th"]["val"] / comp,
-            "cem43_e59": hot["cem43"]["val"],
-            "cem43_comp": float(cem43(T_GRID, T_INF + fac * uh)),
-        }, "reason": None}
+        out[s] = {
+            "row": {
+                "label": hot["label"],
+                "fixture_pt": X,
+                "box_pt": pt,
+                "print_vs_lattice_m": dpt,
+                "U3_per_W": uh[-1],
+                "Wsrc_per_W_z0": float(h["Wsrc_raw"][-1, 2]) / P_DEP,
+                "Wdrift_K": 0.0,
+                "s": fac,
+                "theta_acc": hot["th"]["val"],
+                "comparand": comp,
+                "ratio": hot["th"]["val"] / comp,
+                "cem43_e59": hot["cem43"]["val"],
+                "cem43_comp": float(cem43(T_GRID, T_INF + fac * uh)),
+            },
+            "reason": None,
+        }
     return out
 
 
@@ -290,10 +345,15 @@ def _p76_rows(parsed=None):
                 fac = rec["factor"]["val"]
                 th = rec["probes"][lab]["val"]
                 comp = fac * float(u3t[i])
-                row["e59"][s] = {"s": fac, "theta_acc": th, "comparand": comp,
-                                 "ratio": th / comp, "cem43_e59": None,
-                                 "cem43_e59_note": "not printed by P61 at the probes",
-                                 "cem43_comp": float(cem43(T_GRID, T_INF + fac * uh))}
+                row["e59"][s] = {
+                    "s": fac,
+                    "theta_acc": th,
+                    "comparand": comp,
+                    "ratio": th / comp,
+                    "cem43_e59": None,
+                    "cem43_e59_note": "not printed by P61 at the probes",
+                    "cem43_comp": float(cem43(T_GRID, T_INF + fac * uh)),
+                }
         rows[lab] = row
     return {"rows": rows, "hot": _hot_row(parsed)}
 
@@ -311,11 +371,26 @@ def _synthetic(s=S_STUB, plant=None):
     uh = _u3_hist_at(pt)
     d = float(cem43(T_GRID, T_INF + s * uh))
     f = lambda v: {"tok": repr(v), "val": v}  # noqa: E731
-    hot = {"label": lab, "point_tok": "", "point": tuple(round(v, 6) for v in X),
-           "th": f(s * uh[-1]), "final": f(s * uh[-1]), "cem43": f(d), "ra_max": f(0.0),
-           "ra_tmax": f(0.0)}
-    return {"cw": {"tuple": p61.SENSE_TUPLE["cw"], "P_gel": f(s), "P_acc": f(1.0), "factor": f(s),
-                   "hot": hot, "probes": probes}}
+    hot = {
+        "label": lab,
+        "point_tok": "",
+        "point": tuple(round(v, 6) for v in X),
+        "th": f(s * uh[-1]),
+        "final": f(s * uh[-1]),
+        "cem43": f(d),
+        "ra_max": f(0.0),
+        "ra_tmax": f(0.0),
+    }
+    return {
+        "cw": {
+            "tuple": p61.SENSE_TUPLE["cw"],
+            "P_gel": f(s),
+            "P_acc": f(1.0),
+            "factor": f(s),
+            "hot": hot,
+            "probes": probes,
+        }
+    }
 
 
 # ------------------------------------------------------------------ tests
@@ -327,8 +402,10 @@ def test_k_map_and_preconditions():
     for i, lab in enumerate(PROBE_LABELS):
         pt, why = _to_box(fx[lab], off)
         d = np.inf if pt is None else max(abs(a - b) for a, b in zip(pt, PROBE_PTS[i]))
-        _say(f"MAT21-43 (K-map) {lab}: fixture {fx[lab]} -> box {pt} vs {PROBE_PTS[i]}: |d| {d:.3e} m "
-             f"(bound {bound:.3e}, ASSERTED){'' if why is None else ' ' + why}")
+        _say(
+            f"MAT21-43 (K-map) {lab}: fixture {fx[lab]} -> box {pt} vs {PROBE_PTS[i]}: |d| {d:.3e} m "
+            f"(bound {bound:.3e}, ASSERTED){'' if why is None else ' ' + why}"
+        )
         gates.append((("K-map", lab), d <= bound, d))
     lat = c6._lattice()
     worst_c = 0.0
@@ -339,21 +416,27 @@ def test_k_map_and_preconditions():
             continue
         worst_c = max(worst_c, abs(pt[2]))
     gates.append((("lattice c=0",), worst_c <= bound, worst_c))
-    _say(f"MAT21-43 (K-map) off {off!r} m; {len(lat)} lattice points all inside the box, max |c| "
-         f"{worst_c:.3e} m (bound {bound:.3e}, ASSERTED)")
+    _say(
+        f"MAT21-43 (K-map) off {off!r} m; {len(lat)} lattice points all inside the box, max |c| "
+        f"{worst_c:.3e} m (bound {bound:.3e}, ASSERTED)"
+    )
     ref = np.arange(41) * p61.T_STAR_BOX / 40.0
     tg = float(np.max(np.abs(T_GRID - ref)) / p61.T_STAR_BOX)
     gates.append((("T_GRID",), T_GRID.size == 41 and tg <= 1e-12, tg))
     rw = p61.RUNNING_WINDOW_S == 360.0 == float(W_B2)
     gates.append((("window",), rw, (p61.RUNNING_WINDOW_S, W_B2)))
-    _say(f"MAT21-43 (pre) T_GRID {T_GRID.size} rows vs arange(41) T_STAR_BOX/40: max rel {tg:.3e} "
-         f"(bound 1e-12); RUNNING_WINDOW_S {p61.RUNNING_WINDOW_S} == 360.0 == W_B2 {W_B2}: {rw}")
+    _say(
+        f"MAT21-43 (pre) T_GRID {T_GRID.size} rows vs arange(41) T_STAR_BOX/40: max rel {tg:.3e} "
+        f"(bound 1e-12); RUNNING_WINDOW_S {p61.RUNNING_WINDOW_S} == 360.0 == W_B2 {W_B2}: {rw}"
+    )
     # (c-perm): the un-permuted inverse misses P1 by sqrt(2) B.
     X1 = fx[PROBE_LABELS[1]]
     up = (X1[0], X1[1] - off, X1[2])
     dp = float(np.linalg.norm(np.subtract(up, PROBE_PTS[1])))
-    _say(f"MAT21-43 (c-perm) un-permuted inverse at P1: {up} vs {PROBE_PTS[1]}, miss {dp:.6f} m "
-         f"(sqrt(2) B {np.sqrt(2) * B_BOX:.6f}; ASSERTED > 1e-6)")
+    _say(
+        f"MAT21-43 (c-perm) un-permuted inverse at P1: {up} vs {PROBE_PTS[1]}, miss {dp:.6f} m "
+        f"(sqrt(2) B {np.sqrt(2) * B_BOX:.6f}; ASSERTED > 1e-6)"
+    )
     gates.append((("c-perm",), dp > 1e-6, dp))
     bad = [g for g in gates if not g[1]]
     assert not bad, bad
@@ -373,10 +456,12 @@ def test_k_parse_on_the_stub_log():
     hr = _hot_row(parsed)
     reason = hr["cw"]["reason"]
     gates.append((("hot None",), hr["cw"]["row"] is None and "k8-1" in (reason or ""), reason))
-    _say(f"MAT21-43 (K-parse) {STUB_LOG.name}: senses {sorted(parsed)}; block lines {lines} "
-         f"(want {want}); {n} values re-formatted, misses {bad or 'none'}; P_gel(cw) "
-         f"{parsed['cw']['P_gel']['tok']} W, cem43(cw) {parsed['cw']['hot']['cem43']['tok']} s; "
-         f"probes cw {list(parsed['cw']['probes'])}; hotspot row: {reason} (ASSERTED)")
+    _say(
+        f"MAT21-43 (K-parse) {STUB_LOG.name}: senses {sorted(parsed)}; block lines {lines} "
+        f"(want {want}); {n} values re-formatted, misses {bad or 'none'}; P_gel(cw) "
+        f"{parsed['cw']['P_gel']['tok']} W, cem43(cw) {parsed['cw']['hot']['cem43']['tok']} s; "
+        f"probes cw {list(parsed['cw']['probes'])}; hotspot row: {reason} (ASSERTED)"
+    )
     # (c-dup): one digit changed in the second cw block.
     text = STUB_LOG.read_text().splitlines()
     old = text[187]
@@ -399,24 +484,32 @@ def test_rep_and_rep52():
     for i, v in REP_U3.items():
         d = abs(float(u[i]) / P_DEP - v)
         gates.append((("U3/P", i), d <= 5e-9, d))
-        _say(f"MAT21-43 (Rep) U3/P {PROBE_LABELS[i]} t*: {float(u[i]) / P_DEP:.12e} vs {v} |d| {d:.3e} "
-             f"(bound 5e-9)")
+        _say(
+            f"MAT21-43 (Rep) U3/P {PROBE_LABELS[i]} t*: {float(u[i]) / P_DEP:.12e} vs {v} |d| {d:.3e} "
+            f"(bound 5e-9)"
+        )
     for i, (v, tol) in REP_WS.items():
         d = abs(float(h["Wsrc"][-1, i]) - v)
         gates.append((("Wsrc/P", i), d <= tol, d))
-        _say(f"MAT21-43 (Rep) W_src/P {PROBE_LABELS[i]} t*: {float(h['Wsrc'][-1, i]):.12e} vs {v} "
-             f"|d| {d:.3e} (bound {tol:g})")
+        _say(
+            f"MAT21-43 (Rep) W_src/P {PROBE_LABELS[i]} t*: {float(h['Wsrc'][-1, i]):.12e} vs {v} "
+            f"|d| {d:.3e} (bound {tol:g})"
+        )
     for i, v in REP_CEM.items():
         c = float(cem43(T_GRID, T_INF + h["U3"][:, i]))
         d = abs(c - v)
         gates.append((("cem43/W", i), d <= 5e-18, d))
-        _say(f"MAT21-43 (Rep) cem43/W U3 {PROBE_LABELS[i]}: {c:.12e} s vs {v} |d| {d:.3e} "
-             f"(bound 5e-18)")
+        _say(
+            f"MAT21-43 (Rep) cem43/W U3 {PROBE_LABELS[i]}: {c:.12e} s vs {v} |d| {d:.3e} "
+            f"(bound 5e-18)"
+        )
     for i, lab in enumerate(PROBE_LABELS):
         d = abs(float(u[i]) - P51_SRC[i])
         gates.append((("Rep-52", lab), d <= REP52_TOL, d))
-        _say(f"MAT21-43 (Rep-52) {lab}: _u3(t*) {float(u[i]):.9f} K vs P52's P51 sourced "
-             f"{P51_SRC[i]:.6f} |d| {d:.3e} (bound {REP52_TOL:g})")
+        _say(
+            f"MAT21-43 (Rep-52) {lab}: _u3(t*) {float(u[i]):.9f} K vs P52's P51 sourced "
+            f"{P51_SRC[i]:.6f} |d| {d:.3e} (bound {REP52_TOL:g})"
+        )
     bad = [g for g in gates if not g[1]]
     assert not bad, bad
 
@@ -432,10 +525,12 @@ def test_id_and_c_plant_on_a_synthetic_entry59():
     hm = abs(hr["ratio"] - 1.0)
     gates.append((("Id cem43",), dm <= DOSE_BAR, dm))
     gates.append((("Id hot ratio",), hm <= B1_BAND, hm))
-    _say(f"MAT21-43 (Id) s {S_STUB:.9e}: max |ratio-1| over six points {w:.3e} (band {B1_BAND:g}, "
-         f"ASSERTED; predicted <= 1e-15); hotspot {hr['label']} box {hr['box_pt']}: |ratio-1| "
-         f"{hm:.3e}, cem43 pair {hr['cem43_e59']:.9e} / {hr['cem43_comp']:.9e} s rel {dm:.3e} "
-         f"(bar {DOSE_BAR:g}, ASSERTED)")
+    _say(
+        f"MAT21-43 (Id) s {S_STUB:.9e}: max |ratio-1| over six points {w:.3e} (band {B1_BAND:g}, "
+        f"ASSERTED; predicted <= 1e-15); hotspot {hr['label']} box {hr['box_pt']}: |ratio-1| "
+        f"{hm:.3e}, cem43 pair {hr['cem43_e59']:.9e} / {hr['cem43_comp']:.9e} s rel {dm:.3e} "
+        f"(bar {DOSE_BAR:g}, ASSERTED)"
+    )
     tp = _p76_rows(_synthetic(plant=(3, PLANT)))
     mp = {lab: r["e59"]["cw"]["ratio"] - 1.0 for lab, r in tp["rows"].items()}
     m3 = mp[PROBE_LABELS[3]]
@@ -443,9 +538,11 @@ def test_id_and_c_plant_on_a_synthetic_entry59():
     gates.append((("c-plant ceiling",), abs(m3 - PLANT) <= 1e-12, m3))
     gates.append((("c-plant > band",), m3 > B1_BAND, m3))
     gates.append((("c-plant others",), others <= B1_BAND, others))
-    _say(f"MAT21-43 (c-plant) P3 x (1 + {PLANT:g}): miss {m3:.12e} (|miss - plant| "
-         f"{abs(m3 - PLANT):.3e} <= 1e-12, > {B1_BAND:g}, ASSERTED); others max {others:.3e} "
-         f"(<= {B1_BAND:g}, ASSERTED)")
+    _say(
+        f"MAT21-43 (c-plant) P3 x (1 + {PLANT:g}): miss {m3:.12e} (|miss - plant| "
+        f"{abs(m3 - PLANT):.3e} <= 1e-12, > {B1_BAND:g}, ASSERTED); others max {others:.3e} "
+        f"(<= {B1_BAND:g}, ASSERTED)"
+    )
     bad = [g for g in gates if not g[1]]
     assert not bad, bad
 
@@ -458,23 +555,31 @@ def test_table_and_json():
     """The record (no band): entry 59's columns blank unless the knob names a log."""
     path, parsed = _knob()
     t = _p76_rows(parsed)
-    _say(f"MAT21-43 knob {KNOB}: {path!r}; P_dep {P_DEP:.6f} W; entry 59 normaliser: per accepted "
-         f"watt, factor s = P_gel/P_acc stated per row")
-    _say("MAT21-43 TABLE point | box pt (m) | U3/P K/W | W_src/P | W_src/P+W_drift | cem43/W U3 s "
-         "| max 360 s mean/W U3 K | P52 FEM/P | FEM/U3-1 | e59 sense | s | theta_acc | s U3/P | "
-         "ratio | cem43 e59 | cem43 s U3/P")
+    _say(
+        f"MAT21-43 knob {KNOB}: {path!r}; P_dep {P_DEP:.6f} W; entry 59 normaliser: per accepted "
+        f"watt, factor s = P_gel/P_acc stated per row"
+    )
+    _say(
+        "MAT21-43 TABLE point | box pt (m) | U3/P K/W | W_src/P | W_src/P+W_drift | cem43/W U3 s "
+        "| max 360 s mean/W U3 K | P52 FEM/P | FEM/U3-1 | e59 sense | s | theta_acc | s U3/P | "
+        "ratio | cem43 e59 | cem43 s U3/P"
+    )
     for lab, r in t["rows"].items():
         tag = f" ({r['tag']})" if r["tag"] else ""
-        head = (f"MAT21-43 TABLE {lab}{tag} | {r['box_pt']} | {_fmt(r['U3_per_W'])} | "
-                f"{_fmt(r['Wsrc_per_W'])} | {_fmt(r['Wsd_per_W'])} | {_fmt(r['cem43_per_W_U3'])} | "
-                f"{_fmt(r['ra_max_per_W_U3'])} | {_fmt(r['P52_FEM_per_W'])} | "
-                f"{r['P52_FEM_per_W'] / r['U3_per_W'] - 1.0:+.3e}")
+        head = (
+            f"MAT21-43 TABLE {lab}{tag} | {r['box_pt']} | {_fmt(r['U3_per_W'])} | "
+            f"{_fmt(r['Wsrc_per_W'])} | {_fmt(r['Wsd_per_W'])} | {_fmt(r['cem43_per_W_U3'])} | "
+            f"{_fmt(r['ra_max_per_W_U3'])} | {_fmt(r['P52_FEM_per_W'])} | "
+            f"{r['P52_FEM_per_W'] / r['U3_per_W'] - 1.0:+.3e}"
+        )
         if r["e59"] is None:
             _say(head + " | — | — | — | — | — | — | —")
             continue
         for s, e in r["e59"].items():
-            _say(head + f" | {s} | {e['s']:.9e} | {e['theta_acc']:+.7g} | {e['comparand']:.7g} | "
-                        f"{e['ratio']:.7g} | — ({e['cem43_e59_note']}) | {e['cem43_comp']:.7g}")
+            _say(
+                head + f" | {s} | {e['s']:.9e} | {e['theta_acc']:+.7g} | {e['comparand']:.7g} | "
+                f"{e['ratio']:.7g} | — ({e['cem43_e59_note']}) | {e['cem43_comp']:.7g}"
+            )
     if t["hot"] is None:
         _say("MAT21-43 TABLE hotspot c* | — (entry 59's log not given) | — | — | — | — | — | — | —")
     else:
@@ -483,21 +588,35 @@ def test_table_and_json():
             if r is None:
                 _say(f"MAT21-43 TABLE hotspot c* ({s}) | None: {hh['reason']}")
                 continue
-            _say(f"MAT21-43 TABLE hotspot c* {r['label']} ({s}) | {r['box_pt']} | {r['U3_per_W']:.7g} | "
-                 f"{r['Wsrc_per_W_z0']:.7g} (z = 0) | drift 0 | s {r['s']:.9e} | {r['theta_acc']:+.7g} "
-                 f"| {r['comparand']:.7g} | {r['ratio']:.7g} | {r['cem43_e59']:.7g} | "
-                 f"{r['cem43_comp']:.7g}")
+            _say(
+                f"MAT21-43 TABLE hotspot c* {r['label']} ({s}) | {r['box_pt']} | {r['U3_per_W']:.7g} | "
+                f"{r['Wsrc_per_W_z0']:.7g} (z = 0) | drift 0 | s {r['s']:.9e} | {r['theta_acc']:+.7g} "
+                f"| {r['comparand']:.7g} | {r['ratio']:.7g} | {r['cem43_e59']:.7g} | "
+                f"{r['cem43_comp']:.7g}"
+            )
     rows = t["rows"]
-    _say("MAT21-43 U3/P vs P52 FEM/P, FEM/U3-1: " + ", ".join(
-        f"{lab.split()[0]} {r['P52_FEM_per_W']:.7g}/{r['U3_per_W']:.7g} "
-        f"{r['P52_FEM_per_W'] / r['U3_per_W'] - 1.0:+.3e}" for lab, r in rows.items()))
-    doc = {"entry59_log": path, "P_dep_W": P_DEP, "T_STAR_s": T_STAR,
-           "normaliser": "P75 per deposited gel watt; entry 59 per accepted watt, s = P_gel/P_acc",
-           "rows": rows, "hot": t["hot"]}
+    _say(
+        "MAT21-43 U3/P vs P52 FEM/P, FEM/U3-1: "
+        + ", ".join(
+            f"{lab.split()[0]} {r['P52_FEM_per_W']:.7g}/{r['U3_per_W']:.7g} "
+            f"{r['P52_FEM_per_W'] / r['U3_per_W'] - 1.0:+.3e}"
+            for lab, r in rows.items()
+        )
+    )
+    doc = {
+        "entry59_log": path,
+        "P_dep_W": P_DEP,
+        "T_STAR_s": T_STAR,
+        "normaliser": "P75 per deposited gel watt; entry 59 per accepted watt, s = P_gel/P_acc",
+        "rows": rows,
+        "hot": t["hot"],
+    }
     if MPI.COMM_WORLD.rank == 0:
         JSON_PATH.parent.mkdir(parents=True, exist_ok=True)
         JSON_PATH.write_text(json.dumps(doc, indent=1, default=list))
     MPI.COMM_WORLD.barrier()
     back = json.loads(JSON_PATH.read_text())
-    _say(f"MAT21-43 JSON {JSON_PATH} keys {sorted(back)}; row keys {sorted(back['rows'][PROBE_LABELS[0]])}")
+    _say(
+        f"MAT21-43 JSON {JSON_PATH} keys {sorted(back)}; row keys {sorted(back['rows'][PROBE_LABELS[0]])}"
+    )
     assert back["entry59_log"] == path and sorted(back["rows"]) == sorted(PROBE_LABELS)

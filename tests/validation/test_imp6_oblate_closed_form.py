@@ -78,8 +78,7 @@ def _l1_projection(phi_fn, radius, drive, n=64):
     M, P = np.meshgrid(mu, ang, indexing="ij")
     W = np.repeat(w[:, None], n, axis=1) * (2.0 * np.pi / n)
     S = np.sqrt(1.0 - M**2)
-    pts = radius * np.column_stack(
-        [(S * np.cos(P)).ravel(), (S * np.sin(P)).ravel(), M.ravel()])
+    pts = radius * np.column_stack([(S * np.cos(P)).ravel(), (S * np.sin(P)).ravel(), M.ravel()])
     vals = phi_fn(pts).reshape(M.shape)
     return radius**2 * 3.0 / (4.0 * np.pi) * np.sum(W * vals * S * np.cos(P))
 
@@ -92,9 +91,11 @@ def test_depolarisation_forms_and_sum(aspect):
     lz_asin = (1.0 / e**2) * (1.0 - np.sqrt(1.0 - e**2) * np.arcsin(e) / e)
     d_l = abs(lz - lz_asin)
     d_sum = abs(2.0 * lx + lz - 1.0)
-    print(f"[IMP-6 L] aspect={aspect}: L_x={lx:.6f} L_z={lz:.6f} "
-          f"1/L_x={1/lx:.4f} 1/L_z={1/lz:.4f} rim (1/L_x)^2={1/lx**2:.2f}; "
-          f"|L_z - asin form|={d_l:.3e} |2L_x+L_z-1|={d_sum:.3e}")
+    print(
+        f"[IMP-6 L] aspect={aspect}: L_x={lx:.6f} L_z={lz:.6f} "
+        f"1/L_x={1/lx:.4f} 1/L_z={1/lz:.4f} rim (1/L_x)^2={1/lx**2:.2f}; "
+        f"|L_z - asin form|={d_l:.3e} |2L_x+L_z-1|={d_sum:.3e}"
+    )
     assert d_l <= 1e-13
     assert d_sum <= 1e-13
 
@@ -102,13 +103,17 @@ def test_depolarisation_forms_and_sum(aspect):
 def test_printed_values_disc_side():
     for aspect, lz_p, lx_p in [(2.0, 0.527200, 0.236400), (5.0, 0.750484, 0.124758)]:
         lx, lz = oblate_spheroid_depolarisation(_ecc(aspect))
-        print(f"[IMP-6 P] aspect={aspect}: L_z={lz:.6f} (predicted {lz_p}) "
-              f"L_x={lx:.6f} (predicted {lx_p})")
+        print(
+            f"[IMP-6 P] aspect={aspect}: L_z={lz:.6f} (predicted {lz_p}) "
+            f"L_x={lx:.6f} (predicted {lx_p})"
+        )
     lx, _ = oblate_spheroid_depolarisation(_ecc(100.0))
     c = A / 100.0
-    print(f"[IMP-6 P] aspect=100: L_x={lx:.6f} vs pi c/(4a)={np.pi*c/(4*A):.6f}; "
-          f"p_x/a^3={c/(3*lx):.6f} vs 4/(3pi)={4/(3*np.pi):.6f} "
-          f"(predicted 0.007755 / 0.429822)")
+    print(
+        f"[IMP-6 P] aspect=100: L_x={lx:.6f} vs pi c/(4a)={np.pi*c/(4*A):.6f}; "
+        f"p_x/a^3={c/(3*lx):.6f} vs 4/(3pi)={4/(3*np.pi):.6f} "
+        f"(predicted 0.007755 / 0.429822)"
+    )
 
 
 # -------------------------------------------------------------------- (Int)
@@ -123,12 +128,14 @@ def test_ellipsoid_integral(aspect):
 
     out = {}
     for name, ai2, ref in (("L_x", A * A, lx), ("L_z", c * c, lz)):
-        val, err = quad(integrand, 0.0, np.inf, args=(ai2,), epsabs=0.0,
-                        epsrel=1e-13, limit=500)
+        val, err = quad(integrand, 0.0, np.inf, args=(ai2,), epsabs=0.0, epsrel=1e-13, limit=500)
         out[name] = (pre * val, abs(pre * val - ref) / ref, pre * err)
-    print(f"[IMP-6 Int] aspect={aspect}: " + "; ".join(
-        f"{k} quad={v[0]:.15f} rel={v[1]:.3e} (quad err est {v[2]:.1e})"
-        for k, v in out.items()))
+    print(
+        f"[IMP-6 Int] aspect={aspect}: "
+        + "; ".join(
+            f"{k} quad={v[0]:.15f} rel={v[1]:.3e} (quad err est {v[2]:.1e})" for k, v in out.items()
+        )
+    )
     for v in out.values():
         assert v[1] <= 1e-10
 
@@ -148,8 +155,10 @@ def test_branches():
     _, dh, _, dg = oblate_spheroid_d_functions(xx)
     fh = np.max(np.abs((hp - hm) / (2 * dd) - dh) / np.abs(dh))
     fg = np.max(np.abs((gp - gm) / (2 * dd) - dg) / np.abs(dg))
-    print(f"[IMP-6 Br] xi in [5, 20]: closed vs series h {rh:.3e}, g {rg:.3e}; "
-          f"h' vs FD {fh:.3e}, g' vs FD {fg:.3e} (printed)")
+    print(
+        f"[IMP-6 Br] xi in [5, 20]: closed vs series h {rh:.3e}, g {rg:.3e}; "
+        f"h' vs FD {fh:.3e}, g' vs FD {fg:.3e} (printed)"
+    )
     assert rh <= 1e-13
     assert rg <= 1e-13
 
@@ -171,14 +180,15 @@ def test_boundary_and_tangential(aspect, drive):
     phi = -E0 * pts[:, ax] * (1.0 - ratio)
     bd = np.max(np.abs(phi)) / (E0 * A)
     # (Tg) tangential E from the public field on the surface.
-    E = pec_oblate_spheroid_field(pts, semi_major=A, semi_minor=c, drive=drive,
-                                  interior="continue")
+    E = pec_oblate_spheroid_field(pts, semi_major=A, semi_minor=c, drive=drive, interior="continue")
     n = pts / np.array([A**2, A**2, c**2])
     n /= np.linalg.norm(n, axis=1)[:, None]
     en = np.sum(E * n, axis=1)
     tg = np.max(np.linalg.norm(E - en[:, None] * n, axis=1)) / E0
-    print(f"[IMP-6 Bd/Tg] aspect={aspect} {drive}: max|phi|/(E0 a)={bd:.3e} "
-          f"max|E_t|/E0={tg:.3e} max|E_n|/E0={np.max(np.abs(en)):.4f}")
+    print(
+        f"[IMP-6 Bd/Tg] aspect={aspect} {drive}: max|phi|/(E0 a)={bd:.3e} "
+        f"max|E_t|/E0={tg:.3e} max|E_n|/E0={np.max(np.abs(en)):.4f}"
+    )
     assert bd <= 1e-12
     assert tg <= 1e-12
 
@@ -197,9 +207,11 @@ def test_rim_and_pole(aspect):
     r_rim = np.max(np.abs(Er[:, 0] * lx - 1.0))
     r_side = np.max(np.linalg.norm(Es, axis=1)) / E0
     r_pole = np.max(np.abs(Ep[:, 2] * lz - 1.0))
-    print(f"[IMP-6 Rim/Pole] aspect={aspect}: E_x(rim)={Er[0, 0]:.6f} (1/L_x="
-          f"{1/lx:.6f}) |E_x L_x-1|={r_rim:.3e}; |E(0,±a,0)|={r_side:.3e}; "
-          f"E_z(pole)={Ep[0, 2]:.6f} (1/L_z={1/lz:.6f}) |E_z L_z-1|={r_pole:.3e}")
+    print(
+        f"[IMP-6 Rim/Pole] aspect={aspect}: E_x(rim)={Er[0, 0]:.6f} (1/L_x="
+        f"{1/lx:.6f}) |E_x L_x-1|={r_rim:.3e}; |E(0,±a,0)|={r_side:.3e}; "
+        f"E_z(pole)={Ep[0, 2]:.6f} (1/L_z={1/lz:.6f}) |E_z L_z-1|={r_pole:.3e}"
+    )
     assert r_rim <= 1e-12
     assert r_side <= 1e-12
     assert r_pole <= 1e-12
@@ -239,9 +251,11 @@ def test_field_vs_fd_gradient(aspect, drive):
     rich_half = np.max(np.linalg.norm(E - (4 * d0 - d1) / 3, axis=1)) / E0
     ratio = e2 / e1
     r4 = rich / rich_half
-    print(f"[IMP-6 F] aspect={aspect} {drive}: |E-FD| {e1:.3e} (2e-3a) "
-          f"{e2:.3e} (4e-3a) ratio {ratio:.3f}; Richardson residual/E0 {rich:.3e} "
-          f"(2e-3a/4e-3a pair), {rich_half:.3e} (1e-3a/2e-3a pair), ratio {r4:.2f}")
+    print(
+        f"[IMP-6 F] aspect={aspect} {drive}: |E-FD| {e1:.3e} (2e-3a) "
+        f"{e2:.3e} (4e-3a) ratio {ratio:.3f}; Richardson residual/E0 {rich:.3e} "
+        f"(2e-3a/4e-3a pair), {rich_half:.3e} (1e-3a/2e-3a pair), ratio {r4:.2f}"
+    )
     assert 3.8 <= ratio <= 4.2
     if aspect == 2.0:
         assert rich <= 1e-7
@@ -278,9 +292,11 @@ def test_fd_laplacian(aspect, drive):
     l1, l2 = lap(2e-3 * A), lap(4e-3 * A)
     ratio = np.max(np.abs(l2)) / np.max(np.abs(l1))
     rich = np.max(np.abs((4 * l1 - l2) / 3)) * A / E0
-    print(f"[IMP-6 Lap] aspect={aspect} {drive}: max|lap| a/E0 {np.max(np.abs(l1)):.3e} "
-          f"(2e-3a) {np.max(np.abs(l2)):.3e} (4e-3a) ratio {ratio:.3f}; "
-          f"Richardson residual a/E0 {rich:.3e}")
+    print(
+        f"[IMP-6 Lap] aspect={aspect} {drive}: max|lap| a/E0 {np.max(np.abs(l1)):.3e} "
+        f"(2e-3a) {np.max(np.abs(l2)):.3e} (4e-3a) ratio {ratio:.3f}; "
+        f"Richardson residual a/E0 {rich:.3e}"
+    )
     assert 3.8 <= ratio <= 4.2
     assert rich <= 1e-7
 
@@ -295,13 +311,16 @@ def test_far_dipole_and_control_c2(aspect, drive):
     p = E0 * A * A * c / (3.0 * li)
 
     def phi_s(pts):
-        return pec_oblate_spheroid_potential(pts, semi_major=A, semi_minor=c,
-                                             drive=drive, scattered_only=True)
+        return pec_oblate_spheroid_potential(
+            pts, semi_major=A, semi_minor=c, drive=drive, scattered_only=True
+        )
 
     vals = [_l1_projection(phi_s, R * A, drive) for R in (2.0, 4.0)]
     rel = max(abs(v - p) / p for v in vals)
-    print(f"[IMP-6 Far] aspect={aspect} {drive}: p={p:.12f}; projections "
-          f"{vals[0]:.12f} {vals[1]:.12f}; max rel {rel:.3e}")
+    print(
+        f"[IMP-6 Far] aspect={aspect} {drive}: p={p:.12f}; projections "
+        f"{vals[0]:.12f} {vals[1]:.12f}; max rel {rel:.3e}"
+    )
     assert rel <= 1e-12
 
     # (c2), 10:30 ruling (Q2): the regular solution's ratio in place of
@@ -322,9 +341,11 @@ def test_far_dipole_and_control_c2(aspect, drive):
     w = [_l1_projection(phi_reg, R * A, drive) for R in (2.0, 4.0)]
     w1 = [_l1_projection(phi_one, R * A, drive) for R in (2.0, 4.0)]
     ratio, ratio1 = w[1] / w[0], w1[1] / w1[0]
-    print(f"[IMP-6 c2] aspect={aspect} {drive}: regular ratio in place of D/D0: "
-          f"4a/2a projection ratio {ratio:.4f} (predicted ~16, R^4 leading order; "
-          f"10:30 ruling text says ~8); D=1 variant {ratio1:.4f} (derived 8, R^3)")
+    print(
+        f"[IMP-6 c2] aspect={aspect} {drive}: regular ratio in place of D/D0: "
+        f"4a/2a projection ratio {ratio:.4f} (predicted ~16, R^4 leading order; "
+        f"10:30 ruling text says ~8); D=1 variant {ratio1:.4f} (derived 8, R^3)"
+    )
     assert abs(ratio - 1.0) > 1e-3
     assert abs(ratio1 - 1.0) > 1e-3
 
@@ -335,8 +356,10 @@ def test_sphere_limit():
     lx, lz = oblate_spheroid_depolarisation(e)
     cz = (lz - 1.0 / 3.0) / e**2
     cx = (lx - 1.0 / 3.0) / e**2
-    print(f"[IMP-6 Sph] e=1e-2: (L_z-1/3)/e^2={cz:.8f} (2/15={2/15:.8f}); "
-          f"(L_x-1/3)/e^2={cx:.8f} (-1/15={-1/15:.8f})")
+    print(
+        f"[IMP-6 Sph] e=1e-2: (L_z-1/3)/e^2={cz:.8f} (2/15={2/15:.8f}); "
+        f"(L_x-1/3)/e^2={cx:.8f} (-1/15={-1/15:.8f})"
+    )
     assert abs(cz - 2.0 / 15.0) <= 1e-3
     assert abs(cx + 1.0 / 15.0) <= 1e-3
 
@@ -363,9 +386,11 @@ def test_disc_limit():
     xi0 = c / np.sqrt((A - c) * (A + c))
     lx, lz = oblate_spheroid_depolarisation(e)
     coef = (lx - np.pi * xi0 / 4.0) / xi0**2 + 1.0
-    print(f"[IMP-6 Disc] c/a=1e-3: xi0={xi0:.6e} L_x={lx:.6e} L_z={lz:.9f}; "
-          f"(L_x - pi xi0/4)/xi0^2 + 1 = {coef:.4e} (next term (pi/4)xi0 = "
-          f"{np.pi*xi0/4:.4e}); p_x/a^3={c/(3*lx):.6f} (4/(3pi)={4/(3*np.pi):.6f})")
+    print(
+        f"[IMP-6 Disc] c/a=1e-3: xi0={xi0:.6e} L_x={lx:.6e} L_z={lz:.9f}; "
+        f"(L_x - pi xi0/4)/xi0^2 + 1 = {coef:.4e} (next term (pi/4)xi0 = "
+        f"{np.pi*xi0/4:.4e}); p_x/a^3={c/(3*lx):.6f} (4/(3pi)={4/(3*np.pi):.6f})"
+    )
     assert abs(coef) <= 2e-3
 
 
@@ -377,10 +402,13 @@ def test_control_c1_prolate_formula(aspect, pred_x, pred_z):
     lx_obl, lz_obl = oblate_spheroid_depolarisation(e)
     lz_pro = prolate_spheroid_depolarisation(e)
     lx_pro = (1.0 - lz_pro) / 2.0
-    Er = pec_oblate_spheroid_field(np.array([[A, 0.0, 0.0]]), semi_major=A,
-                                   semi_minor=c, drive="inplane")
+    Er = pec_oblate_spheroid_field(
+        np.array([[A, 0.0, 0.0]]), semi_major=A, semi_minor=c, drive="inplane"
+    )
     rim = Er[0, 0] * lx_pro
-    print(f"[IMP-6 c1] aspect={aspect}: E_x(rim)*L_x^pro = {rim:.4f} "
-          f"(predicted {pred_x}); L_z^pro/L_z^obl = {lz_pro/lz_obl:.4f} "
-          f"(predicted {pred_z}, printed)")
+    print(
+        f"[IMP-6 c1] aspect={aspect}: E_x(rim)*L_x^pro = {rim:.4f} "
+        f"(predicted {pred_x}); L_z^pro/L_z^obl = {lz_pro/lz_obl:.4f} "
+        f"(predicted {pred_z}, printed)"
+    )
     assert abs(rim - 1.0) > 0.1

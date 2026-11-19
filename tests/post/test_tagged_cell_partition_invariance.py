@@ -49,7 +49,6 @@ from fem_em_solver.post.phantom_fields import (
     _tagged_cells,
     compute_tagged_vector_magnitude_stats,
 )
-
 from tests.complex_mode import complex_only
 from tests.post.test_phantom_phasor_semantics import (
     FIXTURE_N,
@@ -122,9 +121,7 @@ def _all_tagged_cells(cell_tags, tag: int) -> np.ndarray:
 @pytest.mark.integration
 @pytest.mark.parametrize("tag", TAGS)
 @pytest.mark.parametrize("prefer_interior", PREFER_INTERIOR)
-def test_statistics_are_owned_cell_partition_invariant(
-    piecewise_sigma_field, tag, prefer_interior
-):
+def test_statistics_are_owned_cell_partition_invariant(piecewise_sigma_field, tag, prefer_interior):
     """Anchor: production statistics equal the owned-cells-only reference.
 
     Owned cells partition the mesh exactly once across ranks, so the reference
@@ -148,8 +145,7 @@ def test_statistics_are_owned_cell_partition_invariant(
 
     if comm.rank == 0:
         print(
-            f"\n[POST-1 step 1] tag {tag}, prefer_interior={prefer_interior}, "
-            f"-n {comm.size}:"
+            f"\n[POST-1 step 1] tag {tag}, prefer_interior={prefer_interior}, " f"-n {comm.size}:"
         )
         for key in ("count", "min", "max", "mean"):
             print(
@@ -165,9 +161,7 @@ def test_statistics_are_owned_cell_partition_invariant(
         "sampled by more than one rank, so the statistic depends on the rank count"
     )
     for key in ("min", "max", "mean"):
-        assert np.isclose(
-            production[key], owned_reference[key], rtol=IDENTITY_RTOL, atol=0.0
-        ), (
+        assert np.isclose(production[key], owned_reference[key], rtol=IDENTITY_RTOL, atol=0.0), (
             f"production '{key}' = {production[key]:.15e} vs owned-cells-only "
             f"{owned_reference[key]:.15e} at -n {comm.size} — the aggregation is "
             "not partition invariant"
@@ -177,9 +171,7 @@ def test_statistics_are_owned_cell_partition_invariant(
 @complex_only
 @pytest.mark.integration
 @pytest.mark.parametrize("tag", TAGS)
-def test_production_default_samples_the_full_owned_tagged_set(
-    piecewise_sigma_field, tag
-):
+def test_production_default_samples_the_full_owned_tagged_set(piecewise_sigma_field, tag):
     """`POST-1` step 5: the *default* path is the full owned tagged set.
 
     Every other test in this file passes ``prefer_interior_samples`` explicitly,
@@ -208,9 +200,7 @@ def test_production_default_samples_the_full_owned_tagged_set(
         e_field, cell_tags, tag, comm=comm, prefer_interior_samples=True
     )
     interior = _interior_tagged_cells(mesh, cell_tags, tag)
-    n_dropped = comm.allreduce(
-        int(_tagged_cells(cell_tags, tag).size - interior.size), op=MPI.SUM
-    )
+    n_dropped = comm.allreduce(int(_tagged_cells(cell_tags, tag).size - interior.size), op=MPI.SUM)
 
     if comm.rank == 0:
         print(f"\n[POST-1 step 5] tag {tag}, -n {comm.size}, default sampling:")
@@ -233,9 +223,7 @@ def test_production_default_samples_the_full_owned_tagged_set(
         "does not default to False"
     )
     for key in ("min", "max", "mean"):
-        assert np.isclose(
-            production[key], full_owned[key], rtol=IDENTITY_RTOL, atol=0.0
-        ), (
+        assert np.isclose(production[key], full_owned[key], rtol=IDENTITY_RTOL, atol=0.0), (
             f"default '{key}' = {production[key]:.15e} vs full-owned-set "
             f"{full_owned[key]:.15e} — the default path is not sampling the "
             "full owned tagged set"
@@ -256,9 +244,7 @@ def test_production_default_samples_the_full_owned_tagged_set(
 @complex_only
 @pytest.mark.integration
 @pytest.mark.parametrize("tag", TAGS)
-def test_ghost_inclusive_control_overcounts_by_exactly_the_ghost_count(
-    piecewise_sigma_field, tag
-):
+def test_ghost_inclusive_control_overcounts_by_exactly_the_ghost_count(piecewise_sigma_field, tag):
     """Negative control: the pre-fix aggregation, reproduced beside the fix.
 
     Summing over *every* tagged cell (the old ``_tagged_cells`` body) counts each

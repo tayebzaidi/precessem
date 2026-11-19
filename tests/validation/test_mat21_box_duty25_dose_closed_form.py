@@ -17,7 +17,6 @@ from __future__ import annotations
 import numpy as np
 
 from fem_em_solver.thermal.dose import cem43, running_average
-
 from tests.validation.test_mat21_box_closed_form import T_INF as T_INF_0
 from tests.validation.test_mat21_box_dose_closed_form import (
     AVG_BAR,
@@ -32,7 +31,7 @@ from tests.validation.test_mat21_box_dose_closed_form import (
     _series_hist,
     _win_check,
 )
-from tests.validation.test_mat21_box_duty_closed_form import DT_BOX, DUTY, HALF_T, T_STAR, T_SW
+from tests.validation.test_mat21_box_duty_closed_form import DT_BOX, DUTY, HALF_T, T_STAR
 from tests.validation.test_mat21_box_duty_dose_closed_form import (
     P39P_SERIES_DOSE,
     _duty_hist,
@@ -94,8 +93,10 @@ def test_g25_schedule_consistency():
         assert _chi25(t) == float(n_before % 2), (t, n_before)
     on = sum(T_SW25[2 * j + 1] - T_SW25[2 * j] for j in range(len(T_SW25) // 2))
     rel = abs(on - DUTY25 * T_STAR) / (DUTY25 * T_STAR)
-    _p(f"MAT21-14s (G25) on-time {on:.12f} s vs DUTY25*T_STAR {DUTY25 * T_STAR:.12f} s rel "
-       f"{rel:.3e} (bar 1e-12)")
+    _p(
+        f"MAT21-14s (G25) on-time {on:.12f} s vs DUTY25*T_STAR {DUTY25 * T_STAR:.12f} s rel "
+        f"{rel:.3e} (bar 1e-12)"
+    )
     assert rel <= 1e-12
     for k, tm in zip((0, 2, 8, 10, 16, 18, 24, 26, 32, 34), T_SW25):
         assert tm == T_GRID[k], (k, tm, T_GRID[k])
@@ -105,8 +106,10 @@ def test_g25_schedule_consistency():
 def test_g_ctl_planted_schedule_fails():
     s = _sched_string(_chi25_planted)
     flagged = s != SCHEDULE_25
-    _p(f"MAT21-14s (G-ctl) planted (% 8 < 3) schedule {s}: comparator flags it {flagged} "
-       f"(ASSERTED by construction)")
+    _p(
+        f"MAT21-14s (G-ctl) planted (% 8 < 3) schedule {s}: comparator flags it {flagged} "
+        f"(ASSERTED by construction)"
+    )
     assert flagged
 
 
@@ -117,7 +120,9 @@ def test_c100_s_full_schedule_bitwise_p39p():
     assert eq
     for j, pt in enumerate(DOSE_PTS):
         d1 = cem43(T_GRID, T_INF_0 + th_s1[:, j])
-        _p(f"MAT21-14s (C100-s) {HIST_LABELS[j]}: dose(100 %) {d1:.15e} s; P39' {P39P_SERIES_DOSE[j]}")
+        _p(
+            f"MAT21-14s (C100-s) {HIST_LABELS[j]}: dose(100 %) {d1:.15e} s; P39' {P39P_SERIES_DOSE[j]}"
+        )
         assert f"{d1:.15e}" == P39P_SERIES_DOSE[j], (pt, f"{d1:.15e}")
 
 
@@ -141,14 +146,20 @@ def test_q_s25_win_s25_and_rc_s25():
             assert float(np.max(T)) < T_REF, (lab, pt, float(np.max(T)))
             dose, ref, rel, swap, miss = _q_check(T)
             mx, t_mx, lo, hi, wref, wrel = _win_check(th)
-            _p(f"MAT21-14s (Q-s25) {lab} {HIST_LABELS[j]}: CEM43 {dose:.15e} s vs quad {ref:.15e} s "
-               f"rel {rel:.3e} (bar {DOSE_BAR:g}, ASSERTED; predicted <= 1e-14); max T "
-               f"{np.max(T):.9f} C < 43 ASSERTED")
-            _p(f"MAT21-14s (Win-s25) {lab} {HIST_LABELS[j]}: max six-minute mean {mx:.15e} K at "
-               f"t_max {t_mx:.4f} s ({t_mx / DT_BOX:.2f} DT_BOX); (ii) [{lo:.12e}, {hi:.12e}]; "
-               f"(iii) quad {wref:.15e} rel {wrel:.3e} (bar {AVG_BAR:g}, ASSERTED; predicted <= 1e-15)")
-            _p(f"MAT21-14s (Rc'-s25) {lab} {HIST_LABELS[j]}: R swap miss {miss:.4e} (asserted > "
-               f"{DOSE_BAR:g}); factor {swap / ref:.4e}")
+            _p(
+                f"MAT21-14s (Q-s25) {lab} {HIST_LABELS[j]}: CEM43 {dose:.15e} s vs quad {ref:.15e} s "
+                f"rel {rel:.3e} (bar {DOSE_BAR:g}, ASSERTED; predicted <= 1e-14); max T "
+                f"{np.max(T):.9f} C < 43 ASSERTED"
+            )
+            _p(
+                f"MAT21-14s (Win-s25) {lab} {HIST_LABELS[j]}: max six-minute mean {mx:.15e} K at "
+                f"t_max {t_mx:.4f} s ({t_mx / DT_BOX:.2f} DT_BOX); (ii) [{lo:.12e}, {hi:.12e}]; "
+                f"(iii) quad {wref:.15e} rel {wrel:.3e} (bar {AVG_BAR:g}, ASSERTED; predicted <= 1e-15)"
+            )
+            _p(
+                f"MAT21-14s (Rc'-s25) {lab} {HIST_LABELS[j]}: R swap miss {miss:.4e} (asserted > "
+                f"{DOSE_BAR:g}); factor {swap / ref:.4e}"
+            )
             assert rel <= DOSE_BAR, (lab, pt, rel)
             assert T_GRID[0] + W_B2 <= t_mx <= T_GRID[-1], (lab, t_mx)
             assert lo <= mx <= hi, (lab, lo, mx, hi)
@@ -171,13 +182,15 @@ def test_printed_duty25_ratio_table():
         r_mean = _trap(th_d[:, j]) / _trap(th_s[:, j])
         _a, mx_c, t_c = running_average(T_GRID, th_s[:, j], window=W)
         _a, mx_d, t_d = running_average(T_GRID, th_d[:, j], window=W)
-        _p(f"MAT21-14s DUTY25 DOSE {HIST_LABELS[j]}: D_cont {d_c:.15e} s; D25(peak) {d_pk:.15e} s; "
-           f"D25(equal mean) {d_eq:.15e} s; ratio equal-mean {d_eq / d_c:.6f} (predicted "
-           f"{PRED_EQ[kind]}; D = 0.5 P41 {P41_EQ_RATIO[j]}); ratio peak {d_pk / d_c:.6f} (predicted "
-           f"{PRED_PEAK[kind]}; D = 0.5 {d50_pk / d_c:.6f}); convexity D25,eq/D50,eq "
-           f"{d_eq / d50_eq:.6f} (predicted {PRED_CONVEX} at the walls); theta ratio at t* {r_t:.5f} "
-           f"(x4 {r_t / DUTY25:.5f}); time-mean theta ratio {r_mean:.5f} (x4 {r_mean / DUTY25:.5f}); "
-           f"six-minute peak cont {mx_c:.6f} K at {t_c:.2f} s, D25 {mx_d:.6f} K at {t_d:.2f} s "
-           f"({t_d / DT_BOX:.2f} DT_BOX; predicted {PRED_TMAX} at the walls, no weight; equal mean "
-           f"{mx_d / DUTY25:.6f} K)")
+        _p(
+            f"MAT21-14s DUTY25 DOSE {HIST_LABELS[j]}: D_cont {d_c:.15e} s; D25(peak) {d_pk:.15e} s; "
+            f"D25(equal mean) {d_eq:.15e} s; ratio equal-mean {d_eq / d_c:.6f} (predicted "
+            f"{PRED_EQ[kind]}; D = 0.5 P41 {P41_EQ_RATIO[j]}); ratio peak {d_pk / d_c:.6f} (predicted "
+            f"{PRED_PEAK[kind]}; D = 0.5 {d50_pk / d_c:.6f}); convexity D25,eq/D50,eq "
+            f"{d_eq / d50_eq:.6f} (predicted {PRED_CONVEX} at the walls); theta ratio at t* {r_t:.5f} "
+            f"(x4 {r_t / DUTY25:.5f}); time-mean theta ratio {r_mean:.5f} (x4 {r_mean / DUTY25:.5f}); "
+            f"six-minute peak cont {mx_c:.6f} K at {t_c:.2f} s, D25 {mx_d:.6f} K at {t_d:.2f} s "
+            f"({t_d / DT_BOX:.2f} DT_BOX; predicted {PRED_TMAX} at the walls, no weight; equal mean "
+            f"{mx_d / DUTY25:.6f} K)"
+        )
         assert np.isfinite(d_eq / d_c)

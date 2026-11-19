@@ -75,11 +75,11 @@ from fem_em_solver.io.mesh import BIRDCAGE_CUT_X0_TAG, BIRDCAGE_CUT_Y0_TAG
 from fem_em_solver.ports.definitions import PortDefinition
 from fem_em_solver.ports.lumped import LumpedSheetPortSpec
 from fem_em_solver.ports.sparameters import run_n_port_sparameter_sweep
-
 from tests.complex_mode import complex_only
 from tests.mesh.test_birdcage_port_sheets import _build
 from tests.mesh.test_birdcage_symmetry_quadrant import EXACT_IDENTITY_RTOL
 from tests.mesh.test_two_torus_port_sheet import _sheet_extents, _sheet_facet_count
+from tests.validation.test_lossy_sphere_fullwave import SALINE_EPSILON_R, SALINE_SIGMA
 from tests.validation.test_port21_feed_sensitivity import _class_means, _rss_report
 from tests.validation.test_port_birdcage_four_port import (
     LEG_D0_REPRODUCTION_BAND,
@@ -93,7 +93,6 @@ from tests.validation.test_port_birdcage_lumped_column import (
     _sheet_bbox_centre,
 )
 from tests.validation.test_port_circuit_layer_field import S_10MHZ_EPS0_RECORD
-from tests.validation.test_lossy_sphere_fullwave import SALINE_EPSILON_R, SALINE_SIGMA
 from tests.validation.test_port_gap_voltage_impedance import (
     FREQUENCY_HZ,
     SIGMA_WIRE_S_PER_M,
@@ -145,6 +144,7 @@ CLASSES = {
     "(-,+)": ((1, BIRDCAGE_CUT_X0_TAG), (1,)),
     "(+,-)": ((1, BIRDCAGE_CUT_Y0_TAG), (2,)),
 }
+
 
 def _say(comm, msg):
     if comm.rank == 0:
@@ -296,9 +296,7 @@ def run():
     msh.topology.create_entity_permutations()
     n_owned_f = msh.topology.index_map(fdim).size_local
     out["cells"] = int(msh.topology.index_map(tdim).size_global)
-    out["cut_facets"] = {
-        t: _owned_count(comm, facets, t, n_owned_f) for t in CUT_FACET_RECORD
-    }
+    out["cut_facets"] = {t: _owned_count(comm, facets, t, n_owned_f) for t in CUT_FACET_RECORD}
 
     # Sheet meshtags, separate from the problem's facet tags.
     sheet_idx, sheet_val, unnarrowed = [], [], {}
@@ -334,10 +332,16 @@ def run():
         ext = _sheet_extents(msh, tags_s, tag, comm)
         h = float(ext[2])
         mids = np.vstack(comm.allgather(_facet_midpoints(msh, f_owned)))
-        sheets[p] = {"facets": int(n), "area": area, "h": h, "w": area / h, "mid": mids,
-                     "ds_area": _sheet_integral_area(msh, tags_s, tag, False),
-                     "w_bbox": float(ext[SHEET_TRANSVERSE_AXIS[p]]),
-                     "flat": float(ext[SHEET_PLANE_AXIS[p]])}
+        sheets[p] = {
+            "facets": int(n),
+            "area": area,
+            "h": h,
+            "w": area / h,
+            "mid": mids,
+            "ds_area": _sheet_integral_area(msh, tags_s, tag, False),
+            "w_bbox": float(ext[SHEET_TRANSVERSE_AXIS[p]]),
+            "flat": float(ext[SHEET_PLANE_AXIS[p]]),
+        }
     out["sheets"] = sheets
 
     base = TimeHarmonicProblem(
@@ -424,9 +428,21 @@ def run():
     rec_circ_floor = float(
         np.linalg.norm(
             S_10MHZ_EPS0_RECORD
-            - np.array([[rec["s"] if (r - c) % 4 == 0 else (rec["o"] if (r - c) % 4 == 2 else rec["a"])
-                         for c in range(4)] for r in range(4)])
-        ) / np.linalg.norm(S_10MHZ_EPS0_RECORD)
+            - np.array(
+                [
+                    [
+                        (
+                            rec["s"]
+                            if (r - c) % 4 == 0
+                            else (rec["o"] if (r - c) % 4 == 2 else rec["a"])
+                        )
+                        for c in range(4)
+                    ]
+                    for r in range(4)
+                ]
+            )
+        )
+        / np.linalg.norm(S_10MHZ_EPS0_RECORD)
     )
     circ_rel = float(
         np.linalg.norm(circ - S_10MHZ_EPS0_RECORD) / np.linalg.norm(S_10MHZ_EPS0_RECORD)
@@ -435,13 +451,21 @@ def run():
     # ΔM_q is fixed here, before the mirrored mesh exists (ru_maxrss is a
     # high-water mark); the full mesh's RSS goes in the `full` fixture's dict.
     out.update(
-        sig_p=sig_p, sig_m=sig_m, alpha=alpha, q=q, rec=rec, miss=miss,
-        circ_rel=circ_rel, s_mp=s_mp, s_pm=s_pm,
+        sig_p=sig_p,
+        sig_m=sig_m,
+        alpha=alpha,
+        q=q,
+        rec=rec,
+        miss=miss,
+        circ_rel=circ_rel,
+        s_mp=s_mp,
+        s_pm=s_pm,
         R=_full_matrix_from_quarter(spp, s_mp, s_pm),
         rec_circ_floor=rec_circ_floor,
         recip=float(abs(spp[0, 1] - spp[1, 0]) / abs(spp[1, 0])),
         sigma_pp=float(np.linalg.svd(spp, compute_uv=False).max()),
-        abs_mp=abs(s_mp), abs_pm=abs(s_pm),
+        abs_mp=abs(s_mp),
+        abs_pm=abs(s_pm),
         mirror_pp=abs(spp[0, 0] - spp[1, 1]) / abs(0.5 * (spp[0, 0] + spp[1, 1])),
         mirror_m=abs(s_mp - s_pm) / abs(0.5 * (s_mp + s_pm)),
         delta_m=peak - out["rss"]["start"]["peak_sum_gib"],
@@ -534,7 +558,9 @@ def full(run):
     local_entities, local_values = dolfinx.io.distribute_entity_data(msh, tdim, ents, vals)
     msh.topology.create_connectivity(tdim, tdim)
     cells = dolfinx.mesh.meshtags_from_entities(
-        msh, tdim, dolfinx.graph.adjacencylist(local_entities),
+        msh,
+        tdim,
+        dolfinx.graph.adjacencylist(local_entities),
         local_values.astype(np.int32, copy=False),
     )
     del x, c, t, ents, vals
@@ -557,9 +583,11 @@ def full(run):
         n_on = 0
         if ext.size:
             nodes = dolfinx.cpp.mesh.entities_to_geometry(msh._cpp_object, fdim, ext, False)
-            n_on = int(np.count_nonzero(
-                np.all(np.abs(msh.geometry.x[nodes][:, :, axis]) < PLANE_TOL, axis=1)
-            ))
+            n_on = int(
+                np.count_nonzero(
+                    np.all(np.abs(msh.geometry.x[nodes][:, :, axis]) < PLANE_TOL, axis=1)
+                )
+            )
         out["exterior_on_plane"][axis] = comm.allreduce(n_on, op=MPI.SUM)
 
     # Sheets 211-214: the quarter's narrowed facets (now interior) or their
@@ -670,9 +698,15 @@ def full(run):
     ctrl_self = float(abs(run["sig_p"] - cm_f["self"]) / abs(cm_f["self"]))
     ctrl_opp = float(abs(0.0 - cm_f["opposite"]) / abs(cm_f["opposite"]))
     out.update(
-        S=sf, entry=entry, A=float(entry.max()), recip=recip, d2=d2,
+        S=sf,
+        entry=entry,
+        A=float(entry.max()),
+        recip=recip,
+        d2=d2,
         sigma=float(np.linalg.svd(sf, compute_uv=False).max()),
-        class_miss=class_miss, ctrl_self=ctrl_self, ctrl_opp=ctrl_opp,
+        class_miss=class_miss,
+        ctrl_self=ctrl_self,
+        ctrl_opp=ctrl_opp,
         delta_m=out["rss"]["sweep"]["peak_sum_gib"] - out["rss"]["start"]["peak_sum_gib"],
     )
 

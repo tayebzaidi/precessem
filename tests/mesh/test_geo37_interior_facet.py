@@ -39,9 +39,11 @@ def _load(w):
 @pytest.fixture(scope="module")
 def records():
     recs = {w: _load(w) for w in WIDTHS}
-    print("\n[GEO-37] width | cells | N_gmsh | count_201 | area_201-0.48 | "
-          "local excess (c2) | per-rank owned 201 | count_101 | area_101-6 | "
-          "s_mesh/s_import/s_measure")
+    print(
+        "\n[GEO-37] width | cells | N_gmsh | count_201 | area_201-0.48 | "
+        "local excess (c2) | per-rank owned 201 | count_101 | area_101-6 | "
+        "s_mesh/s_import/s_measure"
+    )
     for w, r in recs.items():
         if r is None:
             print(f"[GEO-37] {w} | MISSING RECORD")
@@ -62,14 +64,18 @@ def records():
             f"(one-facet share ~1/N_gmsh={1.0 / r['N_gmsh']:.3e}) | "
             f"cells_ghost={r['cells_ghost']}"
         )
-    green = all(
-        r is not None and r.get("completed") and r["comm_size"] == w
-        and r["count_201"] == r["N_gmsh"]
-        and abs(r["area_201"] / RECT_AREA - 1) <= BAND
-        for w, r in recs.items()
-    ) and len({recs[w]["count_201"] for w in WIDTHS if recs[w]}) == 1
-    print(f"[GEO-37] VERDICT native interior facet tags on 0.11: "
-          f"{'GREEN' if green else 'RED'}")
+    green = (
+        all(
+            r is not None
+            and r.get("completed")
+            and r["comm_size"] == w
+            and r["count_201"] == r["N_gmsh"]
+            and abs(r["area_201"] / RECT_AREA - 1) <= BAND
+            for w, r in recs.items()
+        )
+        and len({recs[w]["count_201"] for w in WIDTHS if recs[w]}) == 1
+    )
+    print(f"[GEO-37] VERDICT native interior facet tags on 0.11: " f"{'GREEN' if green else 'RED'}")
     return recs
 
 

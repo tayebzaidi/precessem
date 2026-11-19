@@ -63,9 +63,8 @@ import time
 import numpy as np
 import pytest
 import ufl
-from mpi4py import MPI
-
 from dolfinx import fem
+from mpi4py import MPI
 
 from fem_em_solver.core.resonance import stored_electric_energy
 from fem_em_solver.io.mesh import MeshGenerator
@@ -148,10 +147,7 @@ def _richardson(d_coarse: float, d_fine: float, ratio: float = 2.0) -> dict:
     would show if the limit were zero (``d_coarse/d_fine = ratioᵖ``).  Printed,
     never gated.
     """
-    out = {
-        f"p{int(p)}": d_fine + (d_fine - d_coarse) / (ratio**p - 1.0)
-        for p in (1.0, 2.0)
-    }
+    out = {f"p{int(p)}": d_fine + (d_fine - d_coarse) / (ratio**p - 1.0) for p in (1.0, 2.0)}
     ratio_of_devs = d_coarse / d_fine if d_fine != 0.0 else np.inf
     out["p_eff"] = (
         float(np.log(abs(ratio_of_devs)) / np.log(ratio))
@@ -192,23 +188,17 @@ def ladder_rung(request):
     )
     comm.Barrier()
     t_mesh = time.perf_counter() - t_mesh
-    ncells = comm.allreduce(
-        msh.topology.index_map(msh.topology.dim).size_local, op=MPI.SUM
-    )
+    ncells = comm.allreduce(msh.topology.index_map(msh.topology.dim).size_local, op=MPI.SUM)
 
     fields_loaded, j_prime, t_loaded = _solve_projected_at(
         msh, cell_tags, FEM_SIGMA_SLAB, frequency_hz, comm
     )
-    fields_free, j_prime_free, t_free = _solve_projected_at(
-        msh, cell_tags, 0.0, frequency_hz, comm
-    )
+    fields_free, j_prime_free, t_free = _solve_projected_at(msh, cell_tags, 0.0, frequency_hz, comm)
     e_loaded, e_free = fields_loaded.e_complex, fields_free.e_complex
 
     x = ufl.SpatialCoordinate(msh)
     phi_hat = _azimuthal_current_density(1.0)(x)
-    dx_wire = ufl.Measure(
-        "dx", domain=msh, subdomain_data=cell_tags, subdomain_id=(WIRE_TAG,)
-    )
+    dx_wire = ufl.Measure("dx", domain=msh, subdomain_data=cell_tags, subdomain_id=(WIRE_TAG,))
     current = _reduced_real(ufl.inner(j_prime, phi_hat) * dx_wire, comm) / (
         2.0 * np.pi * FEM_LOOP_RADIUS
     )
@@ -226,9 +216,7 @@ def ladder_rung(request):
 
     z_loaded, z_free = _reaction_z(e_loaded), _reaction_z(e_free)
     dz = z_loaded - z_free
-    dz_ref = coil_impedance_change(
-        frequency_hz, FEM_LOOP_RADIUS, FEM_LIFTOFF, FEM_SIGMA_SLAB
-    )
+    dz_ref = coil_impedance_change(frequency_hz, FEM_LOOP_RADIUS, FEM_LIFTOFF, FEM_SIGMA_SLAB)
 
     omega = 2.0 * np.pi * frequency_hz
     identities = {}

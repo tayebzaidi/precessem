@@ -30,7 +30,6 @@ from fem_em_solver.utils.analytical import (
     robin_box_separable_steady_temperature,
     robin_box_separable_transient_temperature,
 )
-
 from tests.complex_mode import complex_only
 from tests.validation.test_mat10_sar_to_heat_sphere import ROBIN_TAG, _allsum, _say
 from tests.validation.test_mat12_transient_sar_heating_sphere import E_BAND, RHO_C
@@ -43,9 +42,10 @@ from tests.validation.test_mat15_coil_driven_heating_phantom import (
     _cell_average_dg0_tag,
 )
 from tests.validation.test_mat15_finite_cylinder_fem import S2_GAUSS_BAND, _max_imag
-from tests.validation.test_mat21_box_closed_form import A_BOX, HALF, H, K, Q
+from tests.validation.test_mat21_box_closed_form import A_BOX, HALF
 from tests.validation.test_mat21_box_closed_form import RHO_C as RHO_C_0
-from tests.validation.test_mat21_box_fem import T_STAR, V_BOX, _interior_chi, _steady_ex, _trans_ex
+from tests.validation.test_mat21_box_closed_form import H, K, Q
+from tests.validation.test_mat21_box_fem import T_STAR, V_BOX, _interior_chi, _steady_ex
 from tests.validation.test_mat21_box_fem_p2 import (
     CMP_DEGREE,
     DEGREE,
@@ -92,8 +92,9 @@ def _sep_ex_a(a_h):
 
     def f(x, y, z):
         return robin_box_separable_steady_temperature(
-            x, y, z, half_widths=HALF, k=K, q=Q, h=H, profiles=prof, t_inf=0.0,
-            n_terms=SEP_TERMS)
+            x, y, z, half_widths=HALF, k=K, q=Q, h=H, profiles=prof, t_inf=0.0, n_terms=SEP_TERMS
+        )
+
     return f
 
 
@@ -102,8 +103,20 @@ def _sep_trans_ex_a(a_h, t):
 
     def f(x, y, z):
         return robin_box_separable_transient_temperature(
-            x, y, z, t, half_widths=HALF, k=K, q=Q, h=H, rho_c=RHO_C_0, profiles=prof,
-            t_inf=0.0, n_terms=SEP_TERMS)
+            x,
+            y,
+            z,
+            t,
+            half_widths=HALF,
+            k=K,
+            q=Q,
+            h=H,
+            rho_c=RHO_C_0,
+            profiles=prof,
+            t_inf=0.0,
+            n_terms=SEP_TERMS,
+        )
+
     return f
 
 
@@ -113,8 +126,10 @@ def dg0_m4():
     t0 = time.perf_counter()
     clk = _Clock7("dg0")
     out = {"imag": 0.0}
-    _say(f"\nMAT21-7 DEGREE = {DEGREE}, comparand P{CMP_DEGREE}, quadrature {QDEG_P}; m = {M4}; "
-         f"profiles {PROFILES}; SEP_TERMS {SEP_TERMS}; ranks {comm.size}")
+    _say(
+        f"\nMAT21-7 DEGREE = {DEGREE}, comparand P{CMP_DEGREE}, quadrature {QDEG_P}; m = {M4}; "
+        f"profiles {PROFILES}; SEP_TERMS {SEP_TERMS}; ranks {comm.size}"
+    )
 
     # (i) Uniform control (U), step 3's exact code path.
     msh, ft, ns, n, v_h, st = _rung_p(M4, clk, DEGREE)
@@ -127,16 +142,19 @@ def dg0_m4():
     clk.lap(f"uniform series interpolation ({npts} P3 points) + chi")
     out["u_whole"] = _rel_p(msh, th_u, ex_u)
     out["u_int"] = _rel_p(msh, th_u, ex_u, chi)
-    _say(f"MAT21-7 (U) m = {M4} {tuple(ns)}: cells {n}; P2 dofs {out['ndof_u']}; whole "
-         f"{out['u_whole']:.6e} (step 3 {STEP3_M4['whole']}); interior {out['u_int']:.6e} "
-         f"(step 3 {STEP3_M4['interior']})")
+    _say(
+        f"MAT21-7 (U) m = {M4} {tuple(ns)}: cells {n}; P2 dofs {out['ndof_u']}; whole "
+        f"{out['u_whole']:.6e} (step 3 {STEP3_M4['whole']}); interior {out['u_int']:.6e} "
+        f"(step 3 {STEP3_M4['interior']})"
+    )
     clk.lap("uniform readings")
 
     # (ii) UFL-source separable steady solve, exactly as step 6.
     xs = ufl.SpatialCoordinate(msh)
     q_sep = Q * (1.0 - ufl.cos(ufl.pi * xs[0] / A_BOX))
-    ss = solve_steady_conduction(msh, ft, k=K_GEL, q=q_sep, h=H_GEL, t_inf=T_INF,
-                                 robin_tag=ROBIN_TAG, degree=DEGREE)
+    ss = solve_steady_conduction(
+        msh, ft, k=K_GEL, q=q_sep, h=H_GEL, t_inf=T_INF, robin_tag=ROBIN_TAG, degree=DEGREE
+    )
     clk.lap("UFL-source steady solve")
     out["ndof_s"] = int(ss.temperature.function_space.dofmap.index_map.size_global)
     out["imag"] = max(out["imag"], _max_imag(ss.temperature))
@@ -145,15 +163,16 @@ def dg0_m4():
     clk.lap(f"separable series interpolation ({npts_s} P3 points, {SEP_TERMS})")
     out["s6_int"] = _rel_p(msh, th_s, ex_s, chi)
     out["s6_whole"] = _rel_p(msh, th_s, ex_s)
-    _say(f"MAT21-7 (S6) UFL-source steady interior {out['s6_int']:.6e} (step 6 "
-         f"{STEP6_S1['interior']}); whole {out['s6_whole']:.6e} (step 6 {STEP6_S1['whole']})")
+    _say(
+        f"MAT21-7 (S6) UFL-source steady interior {out['s6_int']:.6e} (step 6 "
+        f"{STEP6_S1['interior']}); whole {out['s6_whole']:.6e} (step 6 {STEP6_S1['whole']})"
+    )
     clk.lap("UFL-source readings")
 
     # (iii) The DG0 hand-off: cell average of cos(pi x / A) over every cell.
     tdim = msh.topology.dim
     n_loc = msh.topology.index_map(tdim).size_local
-    ct = dmesh.meshtags(msh, tdim, np.arange(n_loc, dtype=np.int32),
-                        np.ones(n_loc, dtype=np.int32))
+    ct = dmesh.meshtags(msh, tdim, np.arange(n_loc, dtype=np.int32), np.ones(n_loc, dtype=np.int32))
     W, cbar = _cell_average_dg0_tag(msh, ct, 1, ufl.cos(ufl.pi * xs[0] / A_BOX))
     q_h = fem.Function(W)
     q_h.x.array[:] = Q * (1.0 - cbar)
@@ -170,14 +189,17 @@ def dg0_m4():
     a_h = comm.allreduce(a_loc, op=MPI.SUM) / (V_BOX / 2.0)
     vol_tot = comm.allreduce(float(np.sum(vol)), op=MPI.SUM)
     out["a_h"] = a_h
-    _say(f"MAT21-7 a_h = {a_h:.9f}; 1 - a_h = {1.0 - a_h:.4e} (predicted 6.08e-4, range "
-         f"3e-4 to 1.22e-3; printed, not asserted); sum owned vol_K / V - 1 = "
-         f"{vol_tot / V_BOX - 1.0:+.3e}; owned cells this rank {n_own}")
+    _say(
+        f"MAT21-7 a_h = {a_h:.9f}; 1 - a_h = {1.0 - a_h:.4e} (predicted 6.08e-4, range "
+        f"3e-4 to 1.22e-3; printed, not asserted); sum owned vol_K / V - 1 = "
+        f"{vol_tot / V_BOX - 1.0:+.3e}; owned cells this rank {n_own}"
+    )
     clk.lap("DG0 cell average + a_h")
 
     # (iv) DG0-source steady solve.
-    sd = solve_steady_conduction(msh, ft, k=K_GEL, q=q_h, h=H_GEL, t_inf=T_INF,
-                                 robin_tag=ROBIN_TAG, degree=DEGREE)
+    sd = solve_steady_conduction(
+        msh, ft, k=K_GEL, q=q_h, h=H_GEL, t_inf=T_INF, robin_tag=ROBIN_TAG, degree=DEGREE
+    )
     clk.lap("DG0-source steady solve")
     out["ndof_d"] = int(sd.temperature.function_space.dofmap.index_map.size_global)
     out["imag"] = max(out["imag"], _max_imag(sd.temperature))
@@ -185,10 +207,12 @@ def dg0_m4():
     conv = float(np.real(_allsum(comm, H_GEL * th_d * ds)))
     sp = float(np.real(sd.source_power))
     out["gauss_d"] = abs(conv - sp) / sp
-    _say(f"MAT21-7 (S2-dg0) Gauss |h oint theta_h - source_power|/source_power = "
-         f"{out['gauss_d']:.3e} (bound {S2_GAUSS_BAND:.0e}, predicted <= 5e-12); "
-         f"source_power/(Q V_h) - 1 = {sp / (Q * v_h) - 1.0:+.3e}; V_h/V - 1 = "
-         f"{v_h / V_BOX - 1.0:+.3e}")
+    _say(
+        f"MAT21-7 (S2-dg0) Gauss |h oint theta_h - source_power|/source_power = "
+        f"{out['gauss_d']:.3e} (bound {S2_GAUSS_BAND:.0e}, predicted <= 5e-12); "
+        f"source_power/(Q V_h) - 1 = {sp / (Q * v_h) - 1.0:+.3e}; V_h/V - 1 = "
+        f"{v_h / V_BOX - 1.0:+.3e}"
+    )
 
     # (v) Comparands and readings.
     ex_a, npts_a = _exact_p(msh, _sep_ex_a(a_h))
@@ -199,22 +223,40 @@ def dg0_m4():
     out["c_dg0"] = _rel_p(msh, th_d, ex_u, chi)
     out["c_a"] = _rel_p(msh, th_s, ex_a, chi)
     pv = _point_vals(sd.temperature, [[0.0, 0.0, 0.0], [0.9 * A_BOX, 0.0, 0.0]])
-    _say(f"MAT21-7 (S1-dg0) DG0 steady interior vs P32 series {out['d_int']:.6e} (bound "
-         f"{INTERIOR_BAND:.0e}, predicted 2.9e-4 to 3.6e-4, range 1.2e-4 to 7e-4); whole "
-         f"{d_whole:.6e}; theta_h(0) {pv[0]:.6f} K (series 2.741147), theta_h(0.9A,0,0) "
-         f"{pv[1]:.6f} K (series 14.919189)")
-    _say(f"MAT21-7 (S1-dg0a) DG0 steady interior vs a_h series {out['da_int']:.6e} (bound "
-         f"{INTERIOR_BAND:.0e}, predicted 3e-5 to 6e-5, range 1.5e-5 to 1.5e-4)")
-    _say(f"MAT21-7 control (c-dg0) DG0 run vs uniform series {out['c_dg0']:.4e} (predicted 0.512, "
-         f"range 0.50-0.53); (c-a) UFL run vs a_h series {out['c_a']:.4e} (predicted approx "
-         f"3.2e-4; asserted only (c-a) > (S1-dg0a))")
+    _say(
+        f"MAT21-7 (S1-dg0) DG0 steady interior vs P32 series {out['d_int']:.6e} (bound "
+        f"{INTERIOR_BAND:.0e}, predicted 2.9e-4 to 3.6e-4, range 1.2e-4 to 7e-4); whole "
+        f"{d_whole:.6e}; theta_h(0) {pv[0]:.6f} K (series 2.741147), theta_h(0.9A,0,0) "
+        f"{pv[1]:.6f} K (series 14.919189)"
+    )
+    _say(
+        f"MAT21-7 (S1-dg0a) DG0 steady interior vs a_h series {out['da_int']:.6e} (bound "
+        f"{INTERIOR_BAND:.0e}, predicted 3e-5 to 6e-5, range 1.5e-5 to 1.5e-4)"
+    )
+    _say(
+        f"MAT21-7 control (c-dg0) DG0 run vs uniform series {out['c_dg0']:.4e} (predicted 0.512, "
+        f"range 0.50-0.53); (c-a) UFL run vs a_h series {out['c_a']:.4e} (predicted approx "
+        f"3.2e-4; asserted only (c-a) > (S1-dg0a))"
+    )
     clk.lap("DG0 steady readings")
 
     # CN N = N_MAIN to t* with the DG0 source.
     res = solve_transient_conduction(
-        msh, ft, k=K_GEL, rho_c=RHO_C, q=q_h, h=H_GEL, t_inf=T_INF, t_init=T_INF,
-        robin_tag=ROBIN_TAG, dt=T_STAR / N_MAIN, n_steps=N_MAIN, theta=0.5,
-        startup_half_steps=2, degree=DEGREE)
+        msh,
+        ft,
+        k=K_GEL,
+        rho_c=RHO_C,
+        q=q_h,
+        h=H_GEL,
+        t_inf=T_INF,
+        t_init=T_INF,
+        robin_tag=ROBIN_TAG,
+        dt=T_STAR / N_MAIN,
+        n_steps=N_MAIN,
+        theta=0.5,
+        startup_half_steps=2,
+        degree=DEGREE,
+    )
     clk.lap(f"CN N={N_MAIN} (DG0 source)")
     out["imag"] = max(out["imag"], _max_imag(res.temperature))
     out["E"] = float(res.max_balance_residual)
@@ -227,17 +269,23 @@ def dg0_m4():
     clk.lap("transient interpolations + readings")
     tc = _point_vals(res.temperature, np.zeros((1, 3)))[0]
     sp_t = getattr(res, "source_power", float("nan"))
-    _say(f"MAT21-7 (T-dg0) CN N={N_MAIN} at t*: interior vs P32 series {out['t_int']:.6e} "
-         f"(bound {INTERIOR_BAND:.0e}, predicted 3e-4 to 5e-4, range 1.5e-4 to 1e-3); whole "
-         f"{t_whole:.6e}; vs a_h series {out['ta_int']:.6e} (printed); theta_h(0, t*) "
-         f"{tc:.6f} K (series 0.024797)")
-    _say(f"MAT21-7 (E-dg0) CN max balance residual {out['E']:.3e} (bound {E_BAND:.0e}, predicted "
-         f"<= 5e-13); transient source_power/(Q V_h) - 1 = "
-         f"{float(np.real(sp_t)) / (Q * v_h) - 1.0:+.3e}")
+    _say(
+        f"MAT21-7 (T-dg0) CN N={N_MAIN} at t*: interior vs P32 series {out['t_int']:.6e} "
+        f"(bound {INTERIOR_BAND:.0e}, predicted 3e-4 to 5e-4, range 1.5e-4 to 1e-3); whole "
+        f"{t_whole:.6e}; vs a_h series {out['ta_int']:.6e} (printed); theta_h(0, t*) "
+        f"{tc:.6f} K (series 0.024797)"
+    )
+    _say(
+        f"MAT21-7 (E-dg0) CN max balance residual {out['E']:.3e} (bound {E_BAND:.0e}, predicted "
+        f"<= 5e-13); transient source_power/(Q V_h) - 1 = "
+        f"{float(np.real(sp_t)) / (Q * v_h) - 1.0:+.3e}"
+    )
 
     fl = _sep_floor()
-    _say(f"MAT21-7 comparand floor 1 - prod S' at SEP_TERMS {fl:.4e} (step 6 2.2196e-6); "
-         f"max|Im theta| {out['imag']:.3e}; fixture elapsed {time.perf_counter() - t0:.1f} s")
+    _say(
+        f"MAT21-7 comparand floor 1 - prod S' at SEP_TERMS {fl:.4e} (step 6 2.2196e-6); "
+        f"max|Im theta| {out['imag']:.3e}; fixture elapsed {time.perf_counter() - t0:.1f} s"
+    )
     return out
 
 
@@ -248,8 +296,10 @@ def test_precondition_constants():
 @complex_only
 def test_precondition_degree_dofs_m4(dg0_m4):
     pred = _dofs_pred(M4)
-    _say(f"MAT21-7 (Pdeg) P2 dofs uniform {dg0_m4['ndof_u']} / UFL {dg0_m4['ndof_s']} / DG0 "
-         f"{dg0_m4['ndof_d']} (predicted {pred} = 116025)")
+    _say(
+        f"MAT21-7 (Pdeg) P2 dofs uniform {dg0_m4['ndof_u']} / UFL {dg0_m4['ndof_s']} / DG0 "
+        f"{dg0_m4['ndof_d']} (predicted {pred} = 116025)"
+    )
     assert pred == 116025
     assert dg0_m4["ndof_u"] == pred and dg0_m4["ndof_s"] == pred and dg0_m4["ndof_d"] == pred
 

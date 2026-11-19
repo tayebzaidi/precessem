@@ -43,7 +43,6 @@ from fem_em_solver.post.sar import (
     mass_averaged_sar,
     mean_sar,
 )
-
 from tests.complex_mode import complex_only
 from tests.mesh.helpers import global_cell_tag_set
 from tests.mesh.test_birdcage_port_sheet_prerequisite import CELL_COUNT_BAND
@@ -93,13 +92,21 @@ MAT4_STEP5B_ONE_GRAM_CONTROL_K0 = 0.870143
 # Predictions (written before W0; printed, never asserted — rule (e)).
 PRED = {
     "h005": {
-        "cells": (128_000, 136_000), "tag3": 8_500, "dofs": (780_000, 900_000),
-        "sweep_s": (130.0, 150.0), "rss_gib": (22.0, 30.0), "window_s": (190.0, 320.0),
+        "cells": (128_000, 136_000),
+        "tag3": 8_500,
+        "dofs": (780_000, 900_000),
+        "sweep_s": (130.0, 150.0),
+        "rss_gib": (22.0, 30.0),
+        "window_s": (190.0, 320.0),
         "c4_1g": (5.0e-4, 3.0e-2),
     },
     "h0025": {
-        "cells": (201_072, 201_072), "tag3": None, "dofs": (1_284_856, 1_284_856),
-        "sweep_s": (230.0, 330.0), "rss_gib": (42.0, 50.0), "window_s": (330.0, 520.0),
+        "cells": (201_072, 201_072),
+        "tag3": None,
+        "dofs": (1_284_856, 1_284_856),
+        "sweep_s": (230.0, 330.0),
+        "rss_gib": (42.0, 50.0),
+        "window_s": (330.0, 520.0),
         "c4_1g": (1.0e-4, 5.0e-3),
     },
 }
@@ -164,18 +171,25 @@ def test_geo27_one_gram_rung_degree2():
     freq = float(case["problem"].frequency_hz)
 
     # 2. Before the sweep: cells, (D) via the space after the sweep, (G2), (R).
-    _say(f"\n{TAG} mode {mode}: h_p = {h_p} m, f = {freq:.3e} Hz, degree {DEGREE}, "
-         f"{cells} cells ({tag3} tag-3), E = {n_e}, F = {n_f}, 2E+2F = {2 * (n_e + n_f)}, "
-         f"build {t_build:.2f} s, ranks {comm.size}")
-    _say(f"{TAG} (G2) N_i areas " + ", ".join(f"{k} {a:.12e}" for k, a in areas.items())
-         + f" vs NOMINAL_STRIP_AREA {NOMINAL_STRIP_AREA:.6e} at STRIP_BAND {STRIP_BAND:.0e}")
+    _say(
+        f"\n{TAG} mode {mode}: h_p = {h_p} m, f = {freq:.3e} Hz, degree {DEGREE}, "
+        f"{cells} cells ({tag3} tag-3), E = {n_e}, F = {n_f}, 2E+2F = {2 * (n_e + n_f)}, "
+        f"build {t_build:.2f} s, ranks {comm.size}"
+    )
+    _say(
+        f"{TAG} (G2) N_i areas "
+        + ", ".join(f"{k} {a:.12e}" for k, a in areas.items())
+        + f" vs NOMINAL_STRIP_AREA {NOMINAL_STRIP_AREA:.6e} at STRIP_BAND {STRIP_BAND:.0e}"
+    )
     assert len(areas) == 4, areas
     for k, a in areas.items():
         assert abs(a / NOMINAL_STRIP_AREA - 1.0) <= STRIP_BAND, (k, a)
     if mode == "h0025":
-        _say(f"{TAG} (R) cells {cells} vs I14_OFF_CELLS {I14_OFF_CELLS} "
-             f"(rel {abs(cells / I14_OFF_CELLS - 1.0):.3e}, band {CELL_COUNT_BAND}); "
-             f"2E+2F {2 * (n_e + n_f)} vs I14_OFF_DOFS {I14_OFF_DOFS}")
+        _say(
+            f"{TAG} (R) cells {cells} vs I14_OFF_CELLS {I14_OFF_CELLS} "
+            f"(rel {abs(cells / I14_OFF_CELLS - 1.0):.3e}, band {CELL_COUNT_BAND}); "
+            f"2E+2F {2 * (n_e + n_f)} vs I14_OFF_DOFS {I14_OFF_DOFS}"
+        )
         assert abs(cells / I14_OFF_CELLS - 1.0) <= CELL_COUNT_BAND, (cells, I14_OFF_CELLS)
         assert 2 * (n_e + n_f) == I14_OFF_DOFS, (2 * (n_e + n_f), I14_OFF_DOFS)
 
@@ -209,20 +223,19 @@ def test_geo27_one_gram_rung_degree2():
     for pid in port_ids:
         ex = _exact_shares(case, {"driven": pid, "omega": omega, "fields": result.fields[pid]})
         p_rel[pid] = abs(ex["p_src"] - ex["p_vol"] - ex["sheet_field_total"]) / abs(ex["p_src"])
-    _say(f"{TAG} (P) |P_src - P_vol - P_sheet|/|P_src| "
-         + ", ".join(f"{p} {r:.3e}" for p, r in p_rel.items())
-         + f" (band {DISCRETE_IDENTITY_RTOL:.0e})")
+    _say(
+        f"{TAG} (P) |P_src - P_vol - P_sheet|/|P_src| "
+        + ", ".join(f"{p} {r:.3e}" for p, r in p_rel.items())
+        + f" (band {DISCRETE_IDENTITY_RTOL:.0e})"
+    )
     for pid, r in p_rel.items():
         assert r <= DISCRETE_IDENTITY_RTOL, (pid, r)
 
     # 4. The copied MAT-4 block (test_birdcage_sar_mass_averaged.py:239-331 @ cabfed7e).
-    azimuths = {
-        f"P{s['tag'] - SHEET_IFACE}": float(s["azimuth_deg"]) for s in case["sheets"]
-    }
+    azimuths = {f"P{s['tag'] - SHEET_IFACE}": float(s["azimuth_deg"]) for s in case["sheets"]}
     order = sorted(azimuths)
     indices = {
-        pid: _port_index(azimuths[pid], azimuths["P1"], QUADRATURE_STEP_DEG)
-        for pid in order
+        pid: _port_index(azimuths[pid], azimuths["P1"], QUADRATURE_STEP_DEG) for pid in order
     }
     by_k = {indices[pid]: pid for pid in order}
     assert sorted(by_k) == [0, 1, 2, 3], by_k
@@ -289,10 +302,15 @@ def test_geo27_one_gram_rung_degree2():
     one_pairs = {k: _pair(one, ((k + 1) % 4, (k + 1) % 4), (k, k)) for k in range(4)}
     ten_pairs = {k: _pair(ten, ((k + 1) % 4, (k + 1) % 4), (k, k)) for k in range(4)}
     n1g = {k: _pair(one, (k, (k + 2) % 4), (k, k)) for k in range(4)}
-    ii_power = abs(float(np.real(whole["dissipated_power_w"]))
-                   / float(np.real(tagged["dissipated_power_w"])) - 1.0)
-    ii_mass = abs(float(np.real(whole["mass_kg"]))
-                  / (PHANTOM_RHO_KG_PER_M3 * float(np.real(tagged["volume_m3"]))) - 1.0)
+    ii_power = abs(
+        float(np.real(whole["dissipated_power_w"])) / float(np.real(tagged["dissipated_power_w"]))
+        - 1.0
+    )
+    ii_mass = abs(
+        float(np.real(whole["mass_kg"]))
+        / (PHANTOM_RHO_KG_PER_M3 * float(np.real(tagged["volume_m3"])))
+        - 1.0
+    )
     separation = min(n1g.values()) / max(one_pairs.values())
 
     t_total = time.perf_counter() - t_body
@@ -300,35 +318,54 @@ def test_geo27_one_gram_rung_degree2():
     pr = PRED[mode]
 
     # 5-7. Print everything, then assert.
-    _say(f"{TAG} (ii) whole-phantom ball vs tag-3 mean_sar, P1: power {ii_power:.3e}, "
-         f"mass vs rho*V {ii_mass:.3e} (band {EXACT_IDENTITY_RTOL:.0e}; predicted <= {PRED_II_MAX:.0e})")
-    _say(f"{TAG} balls a_1g = {radii['1 g'] * 1e3:.4f} mm, a_10g = {radii['10 g'] * 1e3:.4f} mm, "
-         f"centres at r0 = {CENTRE_RADIUS_M * 1e3:.1f} mm; by_k = {by_k}; "
-         f"2a_1g/h = {2 * radii['1 g'] / h_p:.2f}")
+    _say(
+        f"{TAG} (ii) whole-phantom ball vs tag-3 mean_sar, P1: power {ii_power:.3e}, "
+        f"mass vs rho*V {ii_mass:.3e} (band {EXACT_IDENTITY_RTOL:.0e}; predicted <= {PRED_II_MAX:.0e})"
+    )
+    _say(
+        f"{TAG} balls a_1g = {radii['1 g'] * 1e3:.4f} mm, a_10g = {radii['10 g'] * 1e3:.4f} mm, "
+        f"centres at r0 = {CENTRE_RADIUS_M * 1e3:.1f} mm; by_k = {by_k}; "
+        f"2a_1g/h = {2 * radii['1 g'] / h_p:.2f}"
+    )
     for k in range(4):
-        _say(f"{TAG}   k={k}->{(k + 1) % 4}  1 g C4 {one_pairs[k] * 100:9.4f}%   "
-             f"10 g C4 {ten_pairs[k] * 100:9.4f}% (printed)   N1g (c_{(k + 2) % 4}; {k}) "
-             f"{n1g[k] * 100:9.4f}%   MAT-4 5b d1 ragged 1 g {MAT4_STEP5B_ONE_GRAM_PAIRS[k] * 100:.4f}%")
-    _say(f"{TAG}   SAR_1g diag " + ", ".join(f"{one[(k, k)]:.9e}" for k in range(4))
-         + " W/kg; SAR_10g diag " + ", ".join(f"{ten[(k, k)]:.9e}" for k in range(4)) + " W/kg")
-    _say(f"{TAG}   worst 1 g C4 {max(one_pairs.values()) * 100:.4f}% "
-         f"({'GATED' if mode == 'h0025' else 'PRINTED'} at band {C4_COVARIANCE_BAND * 100:.1f}%; "
-         f"predicted [{pr['c4_1g'][0] * 100:.2f}, {pr['c4_1g'][1] * 100:.2f}]%); "
-         f"N1g min {min(n1g.values()) * 100:.4f}% (predicted ~{PRED_N1G * 100:.0f}%, ceiling "
-         f"{PRED_N1G_CEILING * 100:.0f}%, MAT-4 5b k=0 {MAT4_STEP5B_ONE_GRAM_CONTROL_K0 * 100:.4f}%); "
-         f"N-sep {separation:.1f}x (predicted >= {PRED_SEPARATION:.0f}x)")
-    _say(f"{TAG} PRICE h_p={h_p} cells={cells} tag3={tag3} E={n_e} F={n_f} d2dofs={ndofs} "
-         f"build_s={t_build:.2f} sweep_s={t_sweep:.2f} balls_s={t_balls:.2f} "
-         f"body_s={t_total:.2f} peak_rss_sum_gib={rss:.2f} ranks={comm.size}")
-    _say(f"{TAG} predicted: cells {pr['cells']}, tag3 {pr['tag3']}, dofs {pr['dofs']}, "
-         f"sweep {pr['sweep_s']} s, rss {pr['rss_gib']} GiB, window {pr['window_s']} s")
+        _say(
+            f"{TAG}   k={k}->{(k + 1) % 4}  1 g C4 {one_pairs[k] * 100:9.4f}%   "
+            f"10 g C4 {ten_pairs[k] * 100:9.4f}% (printed)   N1g (c_{(k + 2) % 4}; {k}) "
+            f"{n1g[k] * 100:9.4f}%   MAT-4 5b d1 ragged 1 g {MAT4_STEP5B_ONE_GRAM_PAIRS[k] * 100:.4f}%"
+        )
+    _say(
+        f"{TAG}   SAR_1g diag "
+        + ", ".join(f"{one[(k, k)]:.9e}" for k in range(4))
+        + " W/kg; SAR_10g diag "
+        + ", ".join(f"{ten[(k, k)]:.9e}" for k in range(4))
+        + " W/kg"
+    )
+    _say(
+        f"{TAG}   worst 1 g C4 {max(one_pairs.values()) * 100:.4f}% "
+        f"({'GATED' if mode == 'h0025' else 'PRINTED'} at band {C4_COVARIANCE_BAND * 100:.1f}%; "
+        f"predicted [{pr['c4_1g'][0] * 100:.2f}, {pr['c4_1g'][1] * 100:.2f}]%); "
+        f"N1g min {min(n1g.values()) * 100:.4f}% (predicted ~{PRED_N1G * 100:.0f}%, ceiling "
+        f"{PRED_N1G_CEILING * 100:.0f}%, MAT-4 5b k=0 {MAT4_STEP5B_ONE_GRAM_CONTROL_K0 * 100:.4f}%); "
+        f"N-sep {separation:.1f}x (predicted >= {PRED_SEPARATION:.0f}x)"
+    )
+    _say(
+        f"{TAG} PRICE h_p={h_p} cells={cells} tag3={tag3} E={n_e} F={n_f} d2dofs={ndofs} "
+        f"build_s={t_build:.2f} sweep_s={t_sweep:.2f} balls_s={t_balls:.2f} "
+        f"body_s={t_total:.2f} peak_rss_sum_gib={rss:.2f} ranks={comm.size}"
+    )
+    _say(
+        f"{TAG} predicted: cells {pr['cells']}, tag3 {pr['tag3']}, dofs {pr['dofs']}, "
+        f"sweep {pr['sweep_s']} s, rss {pr['rss_gib']} GiB, window {pr['window_s']} s"
+    )
     if mode == "h005":
         ratio = (I14_OFF_DOFS / ndofs) ** STOP_EXPONENT
         t_hat, r_hat = t_total * ratio, rss * ratio
         fires = r_hat > STOP_RSS_GIB or t_hat > STOP_T_S
-        _say(f"{TAG} STOP RULE: T2_hat = {t_hat:.1f} s (limit {STOP_T_S:.0f}), R2_hat = "
-             f"{r_hat:.2f} GiB (limit {STOP_RSS_GIB:.0f}); I14 measured {I14_WINDOW_S:.0f} s / "
-             f"{I14_RSS_GIB:.2f} GiB -> {'FIRES (do not start W2)' if fires else 'does not fire'}")
+        _say(
+            f"{TAG} STOP RULE: T2_hat = {t_hat:.1f} s (limit {STOP_T_S:.0f}), R2_hat = "
+            f"{r_hat:.2f} GiB (limit {STOP_RSS_GIB:.0f}); I14 measured {I14_WINDOW_S:.0f} s / "
+            f"{I14_RSS_GIB:.2f} GiB -> {'FIRES (do not start W2)' if fires else 'does not fire'}"
+        )
 
     assert ii_power <= EXACT_IDENTITY_RTOL, ii_power
     assert ii_mass <= EXACT_IDENTITY_RTOL, ii_mass

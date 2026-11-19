@@ -35,11 +35,7 @@ from fem_em_solver import Study, StudyConfigError, cli, load_study, run_study_fi
 from fem_em_solver import study as study_mod
 from fem_em_solver import study_yaml
 from fem_em_solver.ports.circuit import z_to_s
-
 from tests.complex_mode import complex_only
-from tests.package.test_wf13_estimate_f_clinical import FC
-from tests.package.test_wf16_load_result_f_clinical import C10_C_MODE_PF_RECORD, N_SLOTS
-from tests.package.test_wf16_load_result_f_human import _swap12_n, _write_named
 from tests.package.test_wf1_study_yaml import _fresh_dir, _mapping, _rc_all
 from tests.package.test_wf1_yaml_load_result import (
     _hex,
@@ -48,6 +44,9 @@ from tests.package.test_wf1_yaml_load_result import (
     _tune_block_hex_equal,
     _write_yaml,
 )
+from tests.package.test_wf13_estimate_f_clinical import FC
+from tests.package.test_wf16_load_result_f_clinical import C10_C_MODE_PF_RECORD, N_SLOTS
+from tests.package.test_wf16_load_result_f_human import _swap12_n, _write_named
 from tests.validation.test_birdcage_sar_mass_averaged import EXACT_IDENTITY_RTOL
 from tests.validation.test_geo38_f_clinical_c_mode import (
     C10_JSON,
@@ -124,8 +123,10 @@ def test_wf1_s25_coding_and_refusals(monkeypatch, capsys):
             js = json.load(fh)
         bad_js = _tune_block_hex_equal(js["tune"], api)
         e1 = abs(run.summary["tune"]["c_mode_farad"] / c_ref - 1.0)
-        say(f"[WF-1 s25 W0] synthetic (I=): C {run.summary['tune']['c_mode_farad'].hex()} vs api "
-            f"{_hex(api.c_mode_farad)}; differing {bad} (json {bad_js}); closed form rel {e1:.3e}")
+        say(
+            f"[WF-1 s25 W0] synthetic (I=): C {run.summary['tune']['c_mode_farad'].hex()} vs api "
+            f"{_hex(api.c_mode_farad)}; differing {bad} (json {bad_js}); closed form rel {e1:.3e}"
+        )
         assert bad == [] and bad_js == []
         assert e1 <= EXACT_IDENTITY_RTOL
         assert isinstance(run.study.result, study_mod.LoadedPortResult)
@@ -147,20 +148,26 @@ def test_wf1_s25_coding_and_refusals(monkeypatch, capsys):
         del m["tune"]
         variants["<no tune>"] = m
         for label, mm in variants.items():
-            f = _write_yaml(d / f"refused_{label.replace('.', '_').strip('<>').replace(' ', '_')}.yaml", mm)
+            f = _write_yaml(
+                d / f"refused_{label.replace('.', '_').strip('<>').replace(' ', '_')}.yaml", mm
+            )
             with pytest.raises(StudyConfigError) as ei:
                 load_study(f)
             o = d / f"out_{f.stem}"
             rc_run = _rc_all(cli.main(["run", str(f), "--output-dir", str(o)]), comm)
             exists = comm.allreduce(int(o.exists()), op=MPI.MAX)
-            say(f"  (Ref) {label}: field {ei.value.field!r}, run rc {rc_run}, out exists {exists}; "
-                f"{ei.value}")
+            say(
+                f"  (Ref) {label}: field {ei.value.field!r}, run rc {rc_run}, out exists {exists}; "
+                f"{ei.value}"
+            )
             assert "load_result" in str(ei.value)
             assert rc_run == (2, 2) and exists == 0
 
         # --backend palace is refused before any mesh (the xl refusal, ahead of Palace's own).
         o = d / "out_palace"
-        rc_p = _rc_all(cli.main(["run", str(yml), "--backend", "palace", "--output-dir", str(o)]), comm)
+        rc_p = _rc_all(
+            cli.main(["run", str(yml), "--backend", "palace", "--output-dir", str(o)]), comm
+        )
         with pytest.raises(StudyConfigError) as ei:
             study_yaml._run_study_file_palace(yml, output_dir=o, comm=comm)
         say(f"  (Ref) --backend palace: rc {rc_p}; field {ei.value.field!r}; {ei.value}")
@@ -241,16 +248,24 @@ def test_wf1_s25_yaml_load_result_equals_api(capsys):
     diff = _summary_diff(js_api, js_cli)
     c = run.summary["tune"]["c_mode_farad"]
     pf = f"{c * 1e12:.4f}"
-    say(f"\n[WF-1 s25 S0] Study.solve / _solve_ports / build / gmsh.initialize patched to raise: "
-        f"{n_calls} calls")
-    say(f"[WF-1 s25 I=] summary C {c.hex()} vs api {_hex(api.c_mode_farad)}; z_k {len(api.z_k)}; "
-        f"differing {bad} (json {bad_js}); rel to C10 {abs(c / c10 - 1.0):.3e} (printed)")
+    say(
+        f"\n[WF-1 s25 S0] Study.solve / _solve_ports / build / gmsh.initialize patched to raise: "
+        f"{n_calls} calls"
+    )
+    say(
+        f"[WF-1 s25 I=] summary C {c.hex()} vs api {_hex(api.c_mode_farad)}; z_k {len(api.z_k)}; "
+        f"differing {bad} (json {bad_js}); rel to C10 {abs(c / c10 - 1.0):.3e} (printed)"
+    )
     say(f"[WF-1 s25 CM-r] {pf} pF vs record {C10_C_MODE_PF_RECORD}")
     say(f"[WF-1 s25 CLI] femem run rc {rc}; summary diff against the API run {diff}")
-    say(f"[WF-1 s25 K2] tune k = 2: C {c_k2:.12e} F, miss {miss_k2:.6e} vs "
-        f"LEG_D0_REPRODUCTION_BAND {LEG_D0_REPRODUCTION_BAND:.1e}")
-    say(f"[WF-1 s25 Sw] ports 1 and 2 swapped: C {c_sw:.12e} F, miss {miss_sw:.6e} vs "
-        f"LEG_D0_REPRODUCTION_BAND {LEG_D0_REPRODUCTION_BAND:.1e}")
+    say(
+        f"[WF-1 s25 K2] tune k = 2: C {c_k2:.12e} F, miss {miss_k2:.6e} vs "
+        f"LEG_D0_REPRODUCTION_BAND {LEG_D0_REPRODUCTION_BAND:.1e}"
+    )
+    say(
+        f"[WF-1 s25 Sw] ports 1 and 2 swapped: C {c_sw:.12e} F, miss {miss_sw:.6e} vs "
+        f"LEG_D0_REPRODUCTION_BAND {LEG_D0_REPRODUCTION_BAND:.1e}"
+    )
     with capsys.disabled():
         _p0("\n".join(lines))
     assert n_calls == 0

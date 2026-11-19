@@ -45,9 +45,7 @@ from mpi4py import MPI
 
 from fem_em_solver.io.mesh import _interface_facet_tags
 from tests.mesh.helpers import global_cell_tag_set
-from tests.mesh.test_coil_phantom_conforming import _tag_volume, _total_volume
 from tests.mesh.test_birdcage_leg_gaps import _analytic_box_volume
-from tests.mesh.test_birdcage_port_terminals import _interface_area_or_zero
 from tests.mesh.test_birdcage_port_sheets import (
     LEG_COUNT,
     PORT_LOWER,
@@ -55,6 +53,8 @@ from tests.mesh.test_birdcage_port_sheets import (
     SHEET_IFACE,
     _build,
 )
+from tests.mesh.test_birdcage_port_terminals import _interface_area_or_zero
+from tests.mesh.test_coil_phantom_conforming import _tag_volume, _total_volume
 
 # The default four-port fixture's records, restated (they are printed records
 # in the §7 `GEO-19` step B / `WF-6` entries and their logs, not constants some
@@ -95,9 +95,7 @@ def _global_tag_cell_count(mesh, cell_tags, tag, comm):
 
 def _read(phantom_resolution, comm):
     """One build, reduced to the numbers this module asserts on."""
-    mesh, cells, _facets, diag, elapsed = _build(
-        True, phantom_resolution=phantom_resolution
-    )
+    mesh, cells, _facets, diag, elapsed = _build(True, phantom_resolution=phantom_resolution)
     ports = list(range(1, LEG_COUNT + 1))
     halves = {i: (PORT_LOWER + i, PORT_UPPER + i) for i in ports}
     n_cells = int(mesh.topology.index_map(mesh.topology.dim).size_global)
@@ -108,12 +106,9 @@ def _read(phantom_resolution, comm):
     volumes = {t: _tag_volume(mesh, cells, t, comm) for t in all_tags}
     v_total = _total_volume(mesh, comm)
 
-    sheet_tags = _interface_facet_tags(
-        mesh, cells, {SHEET_IFACE + i: halves[i] for i in ports}
-    )
+    sheet_tags = _interface_facet_tags(mesh, cells, {SHEET_IFACE + i: halves[i] for i in ports})
     sheet_area = {
-        i: _interface_area_or_zero(mesh, sheet_tags, SHEET_IFACE + i, comm)
-        for i in ports
+        i: _interface_area_or_zero(mesh, sheet_tags, SHEET_IFACE + i, comm) for i in ports
     }
     return {
         "cells": n_cells,
@@ -237,8 +232,7 @@ def test_phantom_resolution_is_a_confined_knob_with_a_no_op_default():
             "and cannot be broken by refinement unless the tagging broke"
         )
         assert abs(r["box_closure"] - 1.0) < 1e-9, (
-            f"{label}: the meshed domain is {r['box_closure']:.12f} of the "
-            "analytic air box"
+            f"{label}: the meshed domain is {r['box_closure']:.12f} of the " "analytic air box"
         )
         for i, area in sorted(r["sheet_area"].items()):
             assert abs(area / SHEET_AREA_M2 - 1.0) < SHEET_AREA_TOL, (

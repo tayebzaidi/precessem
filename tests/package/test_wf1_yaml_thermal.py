@@ -27,7 +27,6 @@ import copy
 import dataclasses
 import json
 import time
-from pathlib import Path
 
 import numpy as np
 import pytest
@@ -39,15 +38,7 @@ from fem_em_solver.post.sar import uniform_sphere_sar_closed_form
 from fem_em_solver.study_yaml import _parse_mapping
 from fem_em_solver.thermal.steady import solve_steady_conduction
 from fem_em_solver.utils.constants import EPSILON_0
-
 from tests.complex_mode import complex_only
-from tests.package.test_wf15_study_lossy_sphere import _study
-from tests.package.test_wf15_study_temperature import (
-    MAT10_A_PRINT,
-    MAT10_P_PRINT,
-    MAT10_SUB_CELLS,
-    _theta_owned_rel,
-)
 from tests.package.test_wf1_study_yaml import (
     LOGS,
     WF1,
@@ -56,6 +47,13 @@ from tests.package.test_wf1_study_yaml import (
     _rc_all,
     _spec_diff,
 )
+from tests.package.test_wf15_study_lossy_sphere import _study
+from tests.package.test_wf15_study_temperature import (
+    MAT10_A_PRINT,
+    MAT10_P_PRINT,
+    MAT10_SUB_CELLS,
+    _theta_owned_rel,
+)
 from tests.validation.test_lossy_sphere_sar import (
     E0,
     EPSILON_R_SPHERE,
@@ -63,22 +61,22 @@ from tests.validation.test_lossy_sphere_sar import (
     RHO_KG_M3,
     SIGMA_HIGH,
 )
+from tests.validation.test_mat5_em_coupled_sphere import L0_BAND
 from tests.validation.test_mat10_sar_to_heat_sphere import (
     A_BAND,
     B_BAND,
     C_BAND,
-    G,
-    H,
-    K,
     P_BAND,
     ROBIN_TAG,
     T_INF,
+    G,
+    H,
+    K,
     _allsum,
     _interior_indicator,
     _interior_rel,
     _theta_cf,
 )
-from tests.validation.test_mat5_em_coupled_sphere import L0_BAND
 
 THERMAL_FILE = WF1 / "sphere_mat10_thermal.yaml"
 CONTROL_2G_FILE = WF1 / "sphere_mat10_thermal_control_2g.yaml"
@@ -120,9 +118,11 @@ def test_wf1_thermal_yaml_parse_and_refusals():
     d_spec = _spec_diff(load_study(THERMAL_FILE), _study(degree=1))
     c2 = _cooling(CONTROL_2G_FILE)
     d_c2 = _hex_diff(c2, ref)
-    _p0(f"\n[WF-1 s3] (K) cooling {c_yaml}; diff vs RobinCooling(K, H, T_INF, G) {d_cool}; "
+    _p0(
+        f"\n[WF-1 s3] (K) cooling {c_yaml}; diff vs RobinCooling(K, H, T_INF, G) {d_cool}; "
         f"spec diff vs _study(degree=1) {d_spec}; control diff {d_c2} "
-        f"(source_scale {c2.source_scale!r} vs 2G {2.0 * G!r})")
+        f"(source_scale {c2.source_scale!r} vs 2G {2.0 * G!r})"
+    )
     assert d_cool == [], d_cool
     assert d_spec == [], d_spec
     assert d_c2 == ["source_scale"] and c2.source_scale == 2.0 * G
@@ -132,8 +132,10 @@ def test_wf1_thermal_yaml_parse_and_refusals():
     del m["thermal"]["source_scale"]
     c_def = _parse_mapping(m, "<omitted>")[3]
     defaults = RobinCooling(K, H, T_INF)
-    _p0(f"  (K) omitted source_scale / degree: {c_def.source_scale!r} / {c_def.degree!r} "
-        f"(defaults {defaults.source_scale!r} / {defaults.degree!r})")
+    _p0(
+        f"  (K) omitted source_scale / degree: {c_def.source_scale!r} / {c_def.degree!r} "
+        f"(defaults {defaults.source_scale!r} / {defaults.degree!r})"
+    )
     assert _hex_diff(c_def, defaults) == []
     assert c_def.degree == 1 and c_def.source_scale == 1.0
     # No thermal section: no cooling.
@@ -177,8 +179,10 @@ def test_wf1_thermal_yaml_reproduces_mat10_record():
     assert study.result is res, "(Once) a second EM solve happened"
     with open(out / "summary.json") as fh:
         summary = json.load(fh)
-    _p0(f"\n[WF-1 s3] run_study_file {t_yaml:.1f} s (summary elapsed "
-        f"{summary['elapsed_s']:.1f} s); summary['temperature'] {summary['temperature']}")
+    _p0(
+        f"\n[WF-1 s3] run_study_file {t_yaml:.1f} s (summary elapsed "
+        f"{summary['elapsed_s']:.1f} s); summary['temperature'] {summary['temperature']}"
+    )
 
     # (R) JSON round trip equals the in-memory values exactly.
     T = th.temperature
@@ -196,8 +200,12 @@ def test_wf1_thermal_yaml_reproduces_mat10_record():
 
     # (R) MAT-10's gates on the YAML θ.
     cf = uniform_sphere_sar_closed_form(
-        e0=E0, epsilon_r=EPSILON_R_SPHERE, sigma=SIGMA_HIGH, omega=OMEGA,
-        rho=RHO_KG_M3, epsilon_0=EPSILON_0,
+        e0=E0,
+        epsilon_r=EPSILON_R_SPHERE,
+        sigma=SIGMA_HIGH,
+        omega=OMEGA,
+        rho=RHO_KG_M3,
+        epsilon_0=EPSILON_0,
     )
     q_cf = G * RHO_KG_M3 * cf["sar_w_per_kg"]
     sub, ft = th.submesh, th.facet_tags
@@ -205,17 +213,20 @@ def test_wf1_thermal_yaml_reproduces_mat10_record():
     chi = _interior_indicator(sub)
     theta = _theta_cf(sub, q_cf)
     err_A = _interior_rel(sub, chi, (T - T_INF) - theta, theta)
-    res_P = solve_steady_conduction(sub, ft, k=K, q=q_cf, h=H, t_inf=T_INF,
-                                    robin_tag=ROBIN_TAG, degree=1)
+    res_P = solve_steady_conduction(
+        sub, ft, k=K, q=q_cf, h=H, t_inf=T_INF, robin_tag=ROBIN_TAG, degree=1
+    )
     err_P = _interior_rel(sub, chi, (res_P.temperature - T_INF) - theta, theta)
     int_q = float(np.real(_allsum(comm, th.heat_source * ufl.dx(domain=sub))))
     p_parent = th.cooling.source_scale * study.mean_sar()["dissipated_power_w"]
     err_B = abs(int_q - p_parent) / abs(p_parent)
     err_C = abs(th.convected_power - th.source_power) / abs(th.source_power)
-    _p0(f"  (R) sub cells {n_sub} (record {MAT10_SUB_CELLS}); (A) = {err_A:.10e} [{err_A:.4e}] "
+    _p0(
+        f"  (R) sub cells {n_sub} (record {MAT10_SUB_CELLS}); (A) = {err_A:.10e} [{err_A:.4e}] "
         f"vs {MAT10_A_PRINT} (band {A_BAND}); (P) = {err_P:.10e} [{err_P:.4e}] vs "
         f"{MAT10_P_PRINT} (band {P_BAND:.0e}); (B) = {err_B:.3e} (band {B_BAND:.0e}); "
-        f"(C) = {err_C:.3e} (band {C_BAND:.0e})")
+        f"(C) = {err_C:.3e} (band {C_BAND:.0e})"
+    )
 
     # (c1) missing ½: the control file's cooling on the already-solved Study.
     c2 = _cooling(CONTROL_2G_FILE)
@@ -224,8 +235,10 @@ def test_wf1_thermal_yaml_reproduces_mat10_record():
     sub2 = th2.submesh
     theta2 = _theta_cf(sub2, q_cf)
     c1 = _interior_rel(sub2, _interior_indicator(sub2), (th2.temperature - T_INF) - theta2, theta2)
-    _p0(f"  (c1) control file source_scale {c2.source_scale!r}: (A) comparator {c1:.4e} "
-        f"(band {A_BAND}); no re-solve {once_c1}")
+    _p0(
+        f"  (c1) control file source_scale {c2.source_scale!r}: (A) comparator {c1:.4e} "
+        f"(band {A_BAND}); no re-solve {once_c1}"
+    )
 
     # (IT) an independently solved Python Study.
     t0 = time.perf_counter()
@@ -234,8 +247,10 @@ def test_wf1_thermal_yaml_reproduces_mat10_record():
     th_py = study_py.temperature(RobinCooling(K, H, T_INF, source_scale=G))
     t_py = time.perf_counter() - t0
     it, th_max = _theta_owned_rel(T, th_py.temperature, comm)
-    _p0(f"  (IT) owned max|dT| / max|T - Tinf| = {it:.3e} (band {L0_BAND:.0e}); "
-        f"theta_py max {th_max:.6f} K; Python Study + thermal {t_py:.1f} s")
+    _p0(
+        f"  (IT) owned max|dT| / max|T - Tinf| = {it:.3e} (band {L0_BAND:.0e}); "
+        f"theta_py max {th_max:.6f} K; Python Study + thermal {t_py:.1f} s"
+    )
 
     assert summary["family"] == "sphere_in_box" and summary["degree"] == 1
     assert same_json, (summary["temperature"], mem)

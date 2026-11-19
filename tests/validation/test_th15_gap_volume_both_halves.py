@@ -61,22 +61,21 @@ import time
 
 import numpy as np
 import pytest
-from mpi4py import MPI
-
 from dolfinx import default_scalar_type
+from mpi4py import MPI
 
 from fem_em_solver.core import HomogeneousMaterial, TimeHarmonicProblem
 from fem_em_solver.ports.definitions import PortDefinition
 from fem_em_solver.ports.gap_voltage import GapVoltagePortSpec, _tag_volume
 from fem_em_solver.ports.sparameters import run_n_port_sparameter_sweep
 from fem_em_solver.ports.systematics import mutual_systematics_ladder
+from tests.validation.test_port_lumped_two_torus import _build
 
 # Every fixture parameter and every band below is imported, never restated
 # (`ANS-1`), except the two pre-registered here with their provenance.
 from tests.validation.test_port_package_sparameters import (
     DRIVE_CURRENT_A,
     FREQUENCY_HZ,
-    GAP_OVERHANG,
     GAP_TAGS,
     MAJOR_RADIUS,
     MINOR_RADIUS,
@@ -85,16 +84,15 @@ from tests.validation.test_port_package_sparameters import (
     PATH_QUADRATURE_ORDER,
     RECORDED_CORRECTED_RATIO,
     REFERENCE_IMPEDANCE_OHM,
+    S_SYMMETRY_BAND,
     SEPARATION,
     SIGMA_WIRE_S_PER_M,
-    S_SYMMETRY_BAND,
     WIRE_TAGS,
     _arc_quadrature,
     _azimuthal_unit,
     _gap_half_extents,
     _mutual_inductance,
 )
-from tests.validation.test_port_lumped_two_torus import _build
 
 # --- the upper halves, from the generator's own tag map ----------------------
 # io/mesh.py:1425-1426 — gap 1 is (101, 111), gap 2 is (102, 112), below/above
@@ -138,9 +136,7 @@ def _specs(both_halves: bool):
             GapVoltagePortSpec(
                 port_id=f"P{k + 1}",
                 gap_cell_tag=GAP_TAGS[k],
-                gap_cell_tags=(
-                    (GAP_TAGS[k], UPPER_GAP_TAGS[k]) if both_halves else None
-                ),
+                gap_cell_tags=((GAP_TAGS[k], UPPER_GAP_TAGS[k]) if both_halves else None),
                 gap_length_m=2.0 * half_y,
                 conductor_cell_tag=WIRE_TAGS[k],
                 conductor_sigma_s_per_m=SIGMA_WIRE_S_PER_M,
@@ -300,17 +296,14 @@ def test_print_the_six_numbers_both_ways(gapped_solid):
     readings = {}
     for label, both in (("single-half (today's default)", False), ("both-halves", True)):
         t0 = time.perf_counter()
-        result = run_n_port_sparameter_sweep(
-            problem, _ports(), gap_voltage_ports=_specs(both)
-        )
+        result = run_n_port_sparameter_sweep(problem, _ports(), gap_voltage_ports=_specs(both))
         elapsed = time.perf_counter() - t0
         s = result.s_matrix
         symmetry = float(np.linalg.norm(s - s.T) / np.linalg.norm(s))
         im_z12 = float(result.z_matrix[1, 0].imag)
         ladder = mutual_systematics_ladder(im_z12, omega_m12)
         v_driven = [
-            complex(result.excitation_results[pid].responses[pid].voltage_v)
-            for pid in ("P1", "P2")
+            complex(result.excitation_results[pid].responses[pid].voltage_v) for pid in ("P1", "P2")
         ]
         v_bar = float(np.mean([abs(v) for v in v_driven]))
         readings[label] = (v_bar, ladder, symmetry)

@@ -30,7 +30,6 @@ import pytest
 from mpi4py import MPI
 
 from fem_em_solver.ports.sparameters import run_n_port_sparameter_sweep
-
 from tests.complex_mode import complex_only
 from tests.mesh.test_birdcage_port_sheet_prerequisite import CELL_COUNT_BAND
 from tests.mesh.test_birdcage_port_sheets import _build
@@ -71,22 +70,47 @@ RUNG_MAP = {"x1": None, **RUNGS}
 # --- Printed comparands (never bands), each with its log line -------------------
 # 371a / 371b, item 192's fixture through `_four_port_rung`, x1 phantom (537 tag-3):
 # docs/testing/logs/20261011T185145Z_ANS-9-step1b-W2b-d2x-thermal.log
-P21_D2X_SAR = {"A": 3.696839972e-01, "B": 1.848801809e+01, "C": 7.033595117e-03,   # :1978-1982
-               "D": 3.064054166e+00, "E": 2.584895127e+00}
-P21_D1X_SAR = {"A": 5.858834833e-01, "B": 1.771392340e+01, "C": 3.028258304e-01,   # :2035-2039
-               "D": 3.094049586e+00, "E": 2.283028850e+00}
-P21_D2X_THETA40 = {"A": 1.070257, "B": 3.166010, "C": 0.929158, "D": 0.723341,      # :2046
-                   "E": 1.195038}
-P21_D1X_THETA40 = {"A": 1.050658, "B": 3.189674, "C": 0.914637, "D": 0.620227,      # :2052
-                   "E": 1.203214}
-P21_ROW2_D2X = {10: 0.327896, 20: 0.633639, 30: 0.920643, 40: 1.190592}            # :2043
-P21_ROW2_D1X = {10: 0.327423, 20: 0.632311, 30: 0.918342, 40: 1.187285}            # :2049
-P21_DC_D2X, P21_DA_D2X = 435.631297, 8.288306                                       # :1983
-P21_DC_D1X, P21_DA_D1X = 10.217258, 5.280998                                        # :2040
+P21_D2X_SAR = {
+    "A": 3.696839972e-01,
+    "B": 1.848801809e01,
+    "C": 7.033595117e-03,  # :1978-1982
+    "D": 3.064054166e00,
+    "E": 2.584895127e00,
+}
+P21_D1X_SAR = {
+    "A": 5.858834833e-01,
+    "B": 1.771392340e01,
+    "C": 3.028258304e-01,  # :2035-2039
+    "D": 3.094049586e00,
+    "E": 2.283028850e00,
+}
+P21_D2X_THETA40 = {
+    "A": 1.070257,
+    "B": 3.166010,
+    "C": 0.929158,
+    "D": 0.723341,  # :2046
+    "E": 1.195038,
+}
+P21_D1X_THETA40 = {
+    "A": 1.050658,
+    "B": 3.189674,
+    "C": 0.914637,
+    "D": 0.620227,  # :2052
+    "E": 1.203214,
+}
+P21_ROW2_D2X = {10: 0.327896, 20: 0.633639, 30: 0.920643, 40: 1.190592}  # :2043
+P21_ROW2_D1X = {10: 0.327423, 20: 0.632311, 30: 0.918342, 40: 1.187285}  # :2049
+P21_DC_D2X, P21_DA_D2X = 435.631297, 8.288306  # :1983
+P21_DC_D1X, P21_DA_D1X = 10.217258, 5.280998  # :2040
 # ans:9's own degree-1 ragged column on its 0.0025 m phantom (199 920 cells):
 # docs/testing/logs/20261011T184301Z_ANS-9-step1b-W1-d1.log:2013-2018
-ANS9_D1_SAR = {"A": 4.642360792e-01, "B": 1.717658032e+01, "C": 1.289384239e-02,
-               "D": 2.650515686e+00, "E": 2.551981669e+00}
+ANS9_D1_SAR = {
+    "A": 4.642360792e-01,
+    "B": 1.717658032e01,
+    "C": 1.289384239e-02,
+    "D": 2.650515686e00,
+    "E": 2.551981669e00,
+}
 ANS9_D1_DC = 205.564455
 P21_RHO = 2.119196
 # docs/testing/logs/20261012T034731Z_GEO-27-step2-W1-h005.log:1942
@@ -173,12 +197,17 @@ def rung():
     n_f = int(msh.topology.index_map(2).size_global)
     areas = _sheet_areas(msh, case["facet_tags"], comm)
     out.update(cells=cells, tag3=tag3, n_e=n_e, n_f=n_f, areas=areas)
-    _say(f"\n{TAG} rung {mode}: h_p = {h_p} m, {cells} cells ({tag3} tag-3; predicted "
-         f"{PRED_CELLS[mode][0]} / {PRED_CELLS[mode][1]}), E = {n_e}, F = {n_f}, build {t_build:.2f} s")
+    _say(
+        f"\n{TAG} rung {mode}: h_p = {h_p} m, {cells} cells ({tag3} tag-3; predicted "
+        f"{PRED_CELLS[mode][0]} / {PRED_CELLS[mode][1]}), E = {n_e}, F = {n_f}, build {t_build:.2f} s"
+    )
     if mode == "h005":
         _say(f"{TAG} cells / tag-3 vs GEO27_H005_CELLS {GEO27_H005_CELLS} (printed)")
-    _say(f"{TAG} (G2) N_i areas " + ", ".join(f"{k} {a:.12e}" for k, a in areas.items())
-         + f" vs {NOMINAL_STRIP_AREA:.6e} (STRIP_BAND {STRIP_BAND:.0e})")
+    _say(
+        f"{TAG} (G2) N_i areas "
+        + ", ".join(f"{k} {a:.12e}" for k, a in areas.items())
+        + f" vs {NOMINAL_STRIP_AREA:.6e} (STRIP_BAND {STRIP_BAND:.0e})"
+    )
 
     # 3. d2x sweep, one factorisation.
     comm.Barrier()
@@ -192,8 +221,10 @@ def rung():
     v = r2.fields["P1"].e_complex.function_space
     out["dofs2"] = int(v.dofmap.index_map.size_global * v.dofmap.index_map_bs)
     out["recip2"] = _recip(s2)
-    _say(f"{TAG} d2x sweep {t_s2:.2f} s, port_ids {out['port_ids']}, d2 dofs {out['dofs2']}; "
-         f"(i) ||S-S^T||/||S|| = {out['recip2']:.3e} (band {RECIPROCITY_BAND:.0e})")
+    _say(
+        f"{TAG} d2x sweep {t_s2:.2f} s, port_ids {out['port_ids']}, d2 dofs {out['dofs2']}; "
+        f"(i) ||S-S^T||/||S|| = {out['recip2']:.3e} (band {RECIPROCITY_BAND:.0e})"
+    )
 
     # 4-5. d2x readout + thermal half.
     f2 = r2.fields["P1"]
@@ -201,17 +232,32 @@ def rung():
     t0 = time.perf_counter()
     sub, parent_ids = _tag_submesh(msh, ct, PHANTOM_CELL_TAG)
     ft = _robin_tags(sub)
-    out["th_d2x"] = _thermal_readout(f"{mode}-d2x", msh, ct, f2.e_complex, f2.sigma_field,
-                                     out["d2x"]["G"], out["d2x"]["pts"], sub, parent_ids, ft, comm,
-                                     control=True)
+    out["th_d2x"] = _thermal_readout(
+        f"{mode}-d2x",
+        msh,
+        ct,
+        f2.e_complex,
+        f2.sigma_field,
+        out["d2x"]["G"],
+        out["d2x"]["pts"],
+        sub,
+        parent_ids,
+        ft,
+        comm,
+        control=True,
+    )
     t_th = time.perf_counter() - t0
     del f2, r2
     gc.collect()
 
     # 6. d1x on the same mesh.
     case1 = build_four_port_sweep(
-        reuse={k: case[k] for k in ("mesh", "cell_tags", "facet_tags", "sheets", "halves", "cells")},
-        build_only=True, degree=1)
+        reuse={
+            k: case[k] for k in ("mesh", "cell_tags", "facet_tags", "sheets", "halves", "cells")
+        },
+        build_only=True,
+        degree=1,
+    )
     comm.Barrier()
     t0 = time.perf_counter()
     r1 = _sweep(case1, 1)
@@ -222,10 +268,23 @@ def rung():
     out["recip1"] = _recip(s1)
     _say(f"{TAG} d1x sweep {t_s1:.2f} s; (i) ||S-S^T||/||S|| = {out['recip1']:.3e}")
     f1 = r1.fields["P1"]
-    out["d1x"] = _column_readout(f"{mode}-d1x", f1.e_complex, f1.sigma_field, case1["cell_tags"], comm)
+    out["d1x"] = _column_readout(
+        f"{mode}-d1x", f1.e_complex, f1.sigma_field, case1["cell_tags"], comm
+    )
     t0 = time.perf_counter()
-    out["th_d1x"] = _thermal_readout(f"{mode}-d1x", msh, ct, f1.e_complex, f1.sigma_field,
-                                     out["d1x"]["G"], out["d1x"]["pts"], sub, parent_ids, ft, comm)
+    out["th_d1x"] = _thermal_readout(
+        f"{mode}-d1x",
+        msh,
+        ct,
+        f1.e_complex,
+        f1.sigma_field,
+        out["d1x"]["G"],
+        out["d1x"]["pts"],
+        sub,
+        parent_ids,
+        ft,
+        comm,
+    )
     t_th += time.perf_counter() - t0
     del f1, r1
     gc.collect()
@@ -233,51 +292,77 @@ def rung():
     # 7. Prints.
     d2, d1 = out["d2x"], out["d1x"]
     t2, t1 = out["th_d2x"], out["th_d1x"]
-    _say(f"{TAG} [{mode}] order effect point SAR d2x/d1x: "
-         + "  ".join(f"{k}={d2['sar'][k] / d1['sar'][k]:.6f}" for k in PROBE_NAMES)
-         + f"  (x1 P21: D=0.990)")
-    _say(f"{TAG} [{mode}] order effect theta40 d2x/d1x: "
-         + "  ".join(f"{k}={t2['row4'][k] / t1['row4'][k]:.6f}" for k in PROBE_NAMES)
-         + f"; <theta>40 {t2['row2'][40] / t1['row2'][40]:.6f} (predicted in "
-         f"[{PRED_MEAN_ORDER[0]:.4f}, {PRED_MEAN_ORDER[1]:.4f}]; x1 P21 theta_D 1.166252)")
-    _say(f"{TAG} [{mode}] theta40 D/C: d2x {t2['row4']['D'] / t2['row4']['C']:.6f}, "
-         f"d1x {t1['row4']['D'] / t1['row4']['C']:.6f};  D/A: d2x {t2['row4']['D'] / t2['row4']['A']:.6f}, "
-         f"d1x {t1['row4']['D'] / t1['row4']['A']:.6f}")
-    _say(f"{TAG} [{mode}] h_p move SAR vs P21 (value/P21 - 1): d2x "
-         + "  ".join(f"{k}={d2['sar'][k] / P21_D2X_SAR[k] - 1:+.6e}" for k in PROBE_NAMES)
-         + ";  d1x " + "  ".join(f"{k}={d1['sar'][k] / P21_D1X_SAR[k] - 1:+.6e}" for k in PROBE_NAMES))
-    _say(f"{TAG} [{mode}] h_p move theta40 vs P21: d2x "
-         + "  ".join(f"{k}={t2['row4'][k] / P21_D2X_THETA40[k] - 1:+.6e}" for k in PROBE_NAMES)
-         + ";  d1x " + "  ".join(f"{k}={t1['row4'][k] / P21_D1X_THETA40[k] - 1:+.6e}" for k in PROBE_NAMES))
-    _say(f"{TAG} [{mode}] h_p move row2 <theta>40 vs P21: d2x {t2['row2'][40] / P21_ROW2_D2X[40] - 1:+.6e}, "
-         f"d1x {t1['row2'][40] / P21_ROW2_D1X[40] - 1:+.6e}")
-    _say(f"{TAG} [{mode}] h_p move D/C: d2x {d2['DC'] / P21_DC_D2X - 1:+.6e}, d1x {d1['DC'] / P21_DC_D1X - 1:+.6e};"
-         f"  D/A: d2x {d2['DA'] / P21_DA_D2X - 1:+.6e}, d1x {d1['DA'] / P21_DA_D1X - 1:+.6e}")
+    _say(
+        f"{TAG} [{mode}] order effect point SAR d2x/d1x: "
+        + "  ".join(f"{k}={d2['sar'][k] / d1['sar'][k]:.6f}" for k in PROBE_NAMES)
+        + "  (x1 P21: D=0.990)"
+    )
+    _say(
+        f"{TAG} [{mode}] order effect theta40 d2x/d1x: "
+        + "  ".join(f"{k}={t2['row4'][k] / t1['row4'][k]:.6f}" for k in PROBE_NAMES)
+        + f"; <theta>40 {t2['row2'][40] / t1['row2'][40]:.6f} (predicted in "
+        f"[{PRED_MEAN_ORDER[0]:.4f}, {PRED_MEAN_ORDER[1]:.4f}]; x1 P21 theta_D 1.166252)"
+    )
+    _say(
+        f"{TAG} [{mode}] theta40 D/C: d2x {t2['row4']['D'] / t2['row4']['C']:.6f}, "
+        f"d1x {t1['row4']['D'] / t1['row4']['C']:.6f};  D/A: d2x {t2['row4']['D'] / t2['row4']['A']:.6f}, "
+        f"d1x {t1['row4']['D'] / t1['row4']['A']:.6f}"
+    )
+    _say(
+        f"{TAG} [{mode}] h_p move SAR vs P21 (value/P21 - 1): d2x "
+        + "  ".join(f"{k}={d2['sar'][k] / P21_D2X_SAR[k] - 1:+.6e}" for k in PROBE_NAMES)
+        + ";  d1x "
+        + "  ".join(f"{k}={d1['sar'][k] / P21_D1X_SAR[k] - 1:+.6e}" for k in PROBE_NAMES)
+    )
+    _say(
+        f"{TAG} [{mode}] h_p move theta40 vs P21: d2x "
+        + "  ".join(f"{k}={t2['row4'][k] / P21_D2X_THETA40[k] - 1:+.6e}" for k in PROBE_NAMES)
+        + ";  d1x "
+        + "  ".join(f"{k}={t1['row4'][k] / P21_D1X_THETA40[k] - 1:+.6e}" for k in PROBE_NAMES)
+    )
+    _say(
+        f"{TAG} [{mode}] h_p move row2 <theta>40 vs P21: d2x {t2['row2'][40] / P21_ROW2_D2X[40] - 1:+.6e}, "
+        f"d1x {t1['row2'][40] / P21_ROW2_D1X[40] - 1:+.6e}"
+    )
+    _say(
+        f"{TAG} [{mode}] h_p move D/C: d2x {d2['DC'] / P21_DC_D2X - 1:+.6e}, d1x {d1['DC'] / P21_DC_D1X - 1:+.6e};"
+        f"  D/A: d2x {d2['DA'] / P21_DA_D2X - 1:+.6e}, d1x {d1['DA'] / P21_DA_D1X - 1:+.6e}"
+    )
     if mode == "h0025":
-        _say(f"{TAG} [h0025] three-way split, point SAR: sheet step d1x/ans9-d1 "
-             + "  ".join(f"{k}={d1['sar'][k] / ANS9_D1_SAR[k]:.6f}" for k in PROBE_NAMES)
-             + ";  order step d2x/d1x "
-             + "  ".join(f"{k}={d2['sar'][k] / d1['sar'][k]:.6f}" for k in PROBE_NAMES))
-        _say(f"{TAG} [h0025] three-way split, theta40: sheet step d1x/ROW4 "
-             + "  ".join(f"{k}={t1['row4'][k] / ROW4_POINT_K[k]:.6f}" for k in PROBE_NAMES)
-             + ";  order step d2x/d1x "
-             + "  ".join(f"{k}={t2['row4'][k] / t1['row4'][k]:.6f}" for k in PROBE_NAMES)
-             + f";  row2 d1x/ans9 {t1['row2'][40] / ROW2_MEAN_K[40]:.6f}")
+        _say(
+            f"{TAG} [h0025] three-way split, point SAR: sheet step d1x/ans9-d1 "
+            + "  ".join(f"{k}={d1['sar'][k] / ANS9_D1_SAR[k]:.6f}" for k in PROBE_NAMES)
+            + ";  order step d2x/d1x "
+            + "  ".join(f"{k}={d2['sar'][k] / d1['sar'][k]:.6f}" for k in PROBE_NAMES)
+        )
+        _say(
+            f"{TAG} [h0025] three-way split, theta40: sheet step d1x/ROW4 "
+            + "  ".join(f"{k}={t1['row4'][k] / ROW4_POINT_K[k]:.6f}" for k in PROBE_NAMES)
+            + ";  order step d2x/d1x "
+            + "  ".join(f"{k}={t2['row4'][k] / t1['row4'][k]:.6f}" for k in PROBE_NAMES)
+            + f";  row2 d1x/ans9 {t1['row2'][40] / ROW2_MEAN_K[40]:.6f}"
+        )
     rho = d2["DC"] / ANS9_D1_DC
-    _say(f"{TAG} [{mode}] rho(h) = (D/C)_d2x / {ANS9_D1_DC} = {rho:.6f} (P21: {P21_RHO}; printed only, "
-         f"no branch read)")
+    _say(
+        f"{TAG} [{mode}] rho(h) = (D/C)_d2x / {ANS9_D1_DC} = {rho:.6f} (P21: {P21_RHO}; printed only, "
+        f"no branch read)"
+    )
     if mode != "x1":
         live = _rel(s2, ANS4_EXACT_STRIP_S_P2_X1["10"])
         out["live"] = live
         _say(f"{TAG} [{mode}] (Live-h) ||S(h_p) - S_x1||/||S_x1|| = {live:.3e} (predicted > 1e-6)")
-        _say(f"{TAG} [{mode}] (d6', printed per ruling Q5) {t2.get('ctl_d', float('nan')):.6f} "
-             f"(predicted {PRED_D6:.3f})")
+        _say(
+            f"{TAG} [{mode}] (d6', printed per ruling Q5) {t2.get('ctl_d', float('nan')):.6f} "
+            f"(predicted {PRED_D6:.3f})"
+        )
     body = time.perf_counter() - t_body
     out["body"] = body
     rss = _peak_rss_gib()
-    _say(f"{TAG} PRICE rung {mode} h_p {h_p} cells {cells} tag3 {tag3} E {n_e} F {n_f} d2dofs {out['dofs2']} "
-         f"build {t_build:.2f} s d2sweep {t_s2:.2f} s d1sweep {t_s1:.2f} s thermal {t_th:.2f} s "
-         f"body {body:.2f} s peakRSS {rss:.2f} GiB ranks {comm.size}")
+    _say(
+        f"{TAG} PRICE rung {mode} h_p {h_p} cells {cells} tag3 {tag3} E {n_e} F {n_f} d2dofs {out['dofs2']} "
+        f"build {t_build:.2f} s d2sweep {t_s2:.2f} s d1sweep {t_s1:.2f} s thermal {t_th:.2f} s "
+        f"body {body:.2f} s peakRSS {rss:.2f} GiB ranks {comm.size}"
+    )
     return out
 
 
@@ -316,11 +401,13 @@ def test_x1_route_tie(rung):
     r1 = _rel(rung["s_d1x"], ANS4_EXACT_STRIP_S_P1_RECORDS["10"])
     ctl = _rel(rung["s_d2x"], ANS4_EXACT_STRIP_S_P1_RECORDS["10"])
     cell_rel = abs(rung["cells"] / ANS4_EXACT_STRIP_CELL_RECORD - 1.0)
-    _say(f"\n{TAG} (F0') d2x vs P2 x1 record {r2:.3e}; d1x vs P1 record {r1:.3e} "
-         f"(band {STEP3A_RECORD_RTOL:.0e}, predicted <= {PRED_F0:.0e}); (F0-ctl) {ctl:.3e} "
-         f"(asserted > band, predicted {PRED_F0_CTL:.2e}); (X1c) cells {rung['cells']} vs "
-         f"{ANS4_EXACT_STRIP_CELL_RECORD} rel {cell_rel:.3e} (band {CELL_COUNT_BAND}); "
-         f"(d6') {rung['th_d2x']['ctl_d']:.6f} (asserted > {D_CONTROL_FLOOR:.0e})")
+    _say(
+        f"\n{TAG} (F0') d2x vs P2 x1 record {r2:.3e}; d1x vs P1 record {r1:.3e} "
+        f"(band {STEP3A_RECORD_RTOL:.0e}, predicted <= {PRED_F0:.0e}); (F0-ctl) {ctl:.3e} "
+        f"(asserted > band, predicted {PRED_F0_CTL:.2e}); (X1c) cells {rung['cells']} vs "
+        f"{ANS4_EXACT_STRIP_CELL_RECORD} rel {cell_rel:.3e} (band {CELL_COUNT_BAND}); "
+        f"(d6') {rung['th_d2x']['ctl_d']:.6f} (asserted > {D_CONTROL_FLOOR:.0e})"
+    )
     assert cell_rel <= CELL_COUNT_BAND, (rung["cells"], ANS4_EXACT_STRIP_CELL_RECORD)
     assert r2 <= STEP3A_RECORD_RTOL, r2
     assert r1 <= STEP3A_RECORD_RTOL, r1
@@ -333,7 +420,9 @@ def test_x1_route_tie(rung):
 def test_h0025_reaches_i14_fixture(rung):
     if rung["mode"] != "h0025":
         pytest.skip("(R) is the h0025 window's")
-    _say(f"\n{TAG} (R) cells {rung['cells']} vs I14_OFF_CELLS {I14_OFF_CELLS}; d2 dofs "
-         f"{rung['dofs2']} vs I14_OFF_DOFS {I14_OFF_DOFS}")
+    _say(
+        f"\n{TAG} (R) cells {rung['cells']} vs I14_OFF_CELLS {I14_OFF_CELLS}; d2 dofs "
+        f"{rung['dofs2']} vs I14_OFF_DOFS {I14_OFF_DOFS}"
+    )
     assert abs(rung["cells"] / I14_OFF_CELLS - 1.0) <= CELL_COUNT_BAND, rung["cells"]
     assert rung["dofs2"] == I14_OFF_DOFS, rung["dofs2"]

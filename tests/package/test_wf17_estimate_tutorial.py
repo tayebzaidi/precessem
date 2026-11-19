@@ -33,7 +33,6 @@ import pytest
 from mpi4py import MPI
 
 from fem_em_solver.study import PRICE_TABLE, ResourceEstimate, _predict
-
 from tests.complex_mode import IS_COMPLEX
 from tests.package.test_wf13_cli_estimate import _diff, _parse, _patch_solves
 from tests.package.test_wf13_study_estimate import F_SMALL_DEG2_UNKNOWNS_RECORD
@@ -93,7 +92,8 @@ def _calls_named(block: str, name: str) -> list:
 
 def _attr_calls(block: str, name: str) -> list:
     return [
-        n for n in ast.walk(ast.parse(block))
+        n
+        for n in ast.walk(ast.parse(block))
         if isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute) and n.func.attr == name
     ]
 
@@ -147,9 +147,11 @@ def test_wf17_s10_blocks_and_fields(tmp_path):
     n_est = len(_attr_calls(block, "estimate"))
     used = _names_used(block)
     name = _file_arg(block)
-    _p0(f"[WF-17 s10] (X) {PY_TAG}: load_study calls {n_load}, .estimate calls {n_est}; "
+    _p0(
+        f"[WF-17 s10] (X) {PY_TAG}: load_study calls {n_load}, .estimate calls {n_est}; "
         f"file {name!r} (want {YAML.name!r}); solve names "
-        f"{sorted(used & {'solve', 'run_study_file'})}")
+        f"{sorted(used & {'solve', 'run_study_file'})}"
+    )
     assert block.count("load_study(") == 1 and n_load == 1
     assert block.count(".estimate(") == 1 and n_est == 1
     assert not (used & {"solve", "run_study_file"})
@@ -174,10 +176,16 @@ def test_wf17_s10_blocks_and_fields(tmp_path):
     # (c-page), by construction: removed / doubled tags raise
     for tag, lang in ((PY_TAG, "python"), (CLI_TAG, "bash"), (FIELDS_TAG, "text")):
         with pytest.raises(LookupError):
-            extract_tagged_block(text.replace(f"```{lang} {tag}\n", f"```{lang} other\n"), tag,
-                                 lang=lang)
-        doubled = (text + "\n" + f"```{lang} {tag}\n"
-                   + extract_tagged_block(text, tag, lang=lang) + "```\n")
+            extract_tagged_block(
+                text.replace(f"```{lang} {tag}\n", f"```{lang} other\n"), tag, lang=lang
+            )
+        doubled = (
+            text
+            + "\n"
+            + f"```{lang} {tag}\n"
+            + extract_tagged_block(text, tag, lang=lang)
+            + "```\n"
+        )
         with pytest.raises(LookupError):
             extract_tagged_block(doubled, tag, lang=lang)
     _p0("[WF-17 s10] (c-page) removed / doubled tags raise LookupError for all three blocks")
@@ -191,8 +199,17 @@ def test_wf17_s10_blocks_and_fields(tmp_path):
 
     # no reading, no artifact-shaped token on the page
     p3 = _p3()
-    for token in (".json", ".npz", ".xdmf", ".s4p", "Study(", str(p3["unknowns"]),
-                  str(p3["cells"]), str(ANS4_EXACT_STRIP_CELL_RECORD), "GiB"):
+    for token in (
+        ".json",
+        ".npz",
+        ".xdmf",
+        ".s4p",
+        "Study(",
+        str(p3["unknowns"]),
+        str(p3["cells"]),
+        str(ANS4_EXACT_STRIP_CELL_RECORD),
+        "GiB",
+    ):
         assert token not in text, token
 
 
@@ -202,9 +219,11 @@ def test_wf17_s10_docrefs_zero_dead():
     rc, counts = run_checker("--docs-root", "docs/guide", "--check-links")
     link = LINK_RE.search(_checker_stdout("--docs-root", "docs/guide", "--check-links"))
     assert link is not None, "(D) no 'Link pass:' line"
-    print(f"[WF-17 s10] (D) dead={counts['dead']} links={link.group(1)} pages={link.group(2)} "
-          f"link-dead={link.group(3)} guide={counts['guide']} stale={counts['stale']} "
-          f"exit={counts['exit']} rc={rc}")
+    print(
+        f"[WF-17 s10] (D) dead={counts['dead']} links={link.group(1)} pages={link.group(2)} "
+        f"link-dead={link.group(3)} guide={counts['guide']} stale={counts['stale']} "
+        f"exit={counts['exit']} rc={rc}"
+    )
     assert counts["dead"] == 0
     assert int(link.group(3)) == 0
     assert int(link.group(2)) >= MIN_GUIDE_PAGES
@@ -215,8 +234,10 @@ def test_wf17_s10_docrefs_zero_dead():
 
 def test_wf17_s10_estimate_block_reproduces_p3(monkeypatch, capsys):
     if not _knob():
-        pytest.skip(f"{S10_ENV} unset: the tutorial estimate window is environment-selected "
-                    "(complex build, -n 2)")
+        pytest.skip(
+            f"{S10_ENV} unset: the tutorial estimate window is environment-selected "
+            "(complex build, -n 2)"
+        )
     comm = MPI.COMM_WORLD
     assert IS_COMPLEX, "the four-port port Study needs the complex build"
     assert comm.size == RANKS, comm.size
@@ -227,15 +248,21 @@ def test_wf17_s10_estimate_block_reproduces_p3(monkeypatch, capsys):
     block = extract_tagged_block(raw.decode(), PY_TAG)
     name = _file_arg(block)
     if comm.rank == 0:
-        print(f"[WF-17 s10] page sha256 {_sha(raw)}; block {PY_TAG} sha256 "
-              f"{_sha(block.encode())}", flush=True)
+        print(
+            f"[WF-17 s10] page sha256 {_sha(raw)}; block {PY_TAG} sha256 "
+            f"{_sha(block.encode())}",
+            flush=True,
+        )
         if SCRATCH.exists():
             shutil.rmtree(SCRATCH)
         SCRATCH.mkdir(parents=True)
         data = YAML.read_bytes()
         (SCRATCH / name).write_bytes(data)
-        print(f"[WF-17 s10] copied {name} sha256 {_sha(data)} (source sha256 "
-              f"{_sha(YAML.read_bytes())})", flush=True)
+        print(
+            f"[WF-17 s10] copied {name} sha256 {_sha(data)} (source sha256 "
+            f"{_sha(YAML.read_bytes())})",
+            flush=True,
+        )
     comm.Barrier()
     monkeypatch.chdir(SCRATCH)
 
@@ -281,23 +308,35 @@ def test_wf17_s10_estimate_block_reproduces_p3(monkeypatch, capsys):
     width_ratio = pred_w1[1] / est.predicted_seconds
 
     _p0(f"[WF-17 s10] API estimate: {est!r}")
-    _p0(f"[WF-17 s10] (U) cells {est.cells} (record ANS4_EXACT_STRIP_CELL_RECORD "
+    _p0(
+        f"[WF-17 s10] (U) cells {est.cells} (record ANS4_EXACT_STRIP_CELL_RECORD "
         f"{ANS4_EXACT_STRIP_CELL_RECORD}; predicted 117206); unknowns {est.unknowns} (P3 "
-        f"{p3['unknowns']}; predicted 140460); degree {est.degree}; ranks {est.ranks}")
-    _p0(f"[WF-17 s10] (P) estimate ({est.predicted_peak_gib!r}, {est.predicted_seconds!r}, "
-        f"{est.rows_used!r}) vs _predict {pred!r}")
+        f"{p3['unknowns']}; predicted 140460); degree {est.degree}; ranks {est.ranks}"
+    )
+    _p0(
+        f"[WF-17 s10] (P) estimate ({est.predicted_peak_gib!r}, {est.predicted_seconds!r}, "
+        f"{est.rows_used!r}) vs _predict {pred!r}"
+    )
     _p0(f"[WF-17 s10] not_priced {est.not_priced!r} (predicted ())")
     _p0(f"[WF-17 s10] (K) study.result is None {study.result is None}")
-    _p0(f"[WF-17 s10] (CLI = API) rc per rank {rcs}; complete {verdict['complete']}; differing "
-        f"{verdict['differ']}; {out_dir.name} exists {bool(out_exists)}")
-    _p0(f"[WF-17 s10] (c-deg) deg-2 unknowns {F_SMALL_DEG2_UNKNOWNS_RECORD} vs {est.unknowns}; "
-        f"_predict deg 2 {deg2[:2]!r} vs {(est.predicted_peak_gib, est.predicted_seconds)!r}")
+    _p0(
+        f"[WF-17 s10] (CLI = API) rc per rank {rcs}; complete {verdict['complete']}; differing "
+        f"{verdict['differ']}; {out_dir.name} exists {bool(out_exists)}"
+    )
+    _p0(
+        f"[WF-17 s10] (c-deg) deg-2 unknowns {F_SMALL_DEG2_UNKNOWNS_RECORD} vs {est.unknowns}; "
+        f"_predict deg 2 {deg2[:2]!r} vs {(est.predicted_peak_gib, est.predicted_seconds)!r}"
+    )
     _p0(f"[WF-17 s10] (c-width) _predict(N, 1, 1) seconds / estimate seconds = {width_ratio!r}")
-    _p0(f"[WF-17 s10] printed, never asserted: predicted_seconds / P3 seconds = "
+    _p0(
+        f"[WF-17 s10] printed, never asserted: predicted_seconds / P3 seconds = "
         f"{est.predicted_seconds / p3['seconds']:.4f}; predicted_peak_gib / P3 peak_gib = "
-        f"{est.predicted_peak_gib / p3['peak_gib']:.4f} (in-sample; P3 is a fitted row)")
-    _p0(f"[WF-17 s10] build times: block (mesh 1) {t_block:.2f} s; CLI (mesh 2) {t_cli:.2f} s; "
-        f"node {time.perf_counter() - t0:.1f} s")
+        f"{est.predicted_peak_gib / p3['peak_gib']:.4f} (in-sample; P3 is a fitted row)"
+    )
+    _p0(
+        f"[WF-17 s10] build times: block (mesh 1) {t_block:.2f} s; CLI (mesh 2) {t_cli:.2f} s; "
+        f"node {time.perf_counter() - t0:.1f} s"
+    )
 
     # (U)
     assert est.cells == ANS4_EXACT_STRIP_CELL_RECORD

@@ -80,12 +80,8 @@ def _build(comm, install):
 def test_wire_surface_size_field_removes_the_meshing_fallback():
     comm = MPI.COMM_WORLD
 
-    patched_ok, patched_cells, patched_message, patched_fallbacks = _build(
-        comm, install=True
-    )
-    control_ok, control_cells, control_message, control_fallbacks = _build(
-        comm, install=False
-    )
+    patched_ok, patched_cells, patched_message, patched_fallbacks = _build(comm, install=True)
+    control_ok, control_cells, control_message, control_fallbacks = _build(comm, install=False)
 
     if comm.rank == 0:
         print(

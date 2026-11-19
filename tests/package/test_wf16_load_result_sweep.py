@@ -32,7 +32,6 @@ from fem_em_solver import LumpedPortDrive, Study, run_study_file
 from fem_em_solver.ports.circuit import s_to_z
 from fem_em_solver.ports.touchstone import load_touchstone
 from fem_em_solver.study import FourPortBirdcageGeometry, _four_port_dft
-
 from tests.complex_mode import complex_only
 from tests.package.test_wf1_yaml_load_result import _loaded_mapping, _write_yaml
 from tests.package.test_wf16_study_load_result import _synthetic_s, _write
@@ -85,14 +84,18 @@ def _sweep_checks(path, tmp, tag):
             r = st.tune(k=1, comm=comm, at_hz=f)
             assert r.frequency_hz == f, (f, r.frequency_hz)  # (Sel), exact
             tunes[f] = r
-            _p0(f"[WF-16 s17 {tag} Sel] at_hz {f:.3e}: selected {r.frequency_hz:.3e}, C_mode "
-                f"{r.c_mode_farad:.9e} F, Im z_1 {r.z_k[1].imag:.6f} ohm")
+            _p0(
+                f"[WF-16 s17 {tag} Sel] at_hz {f:.3e}: selected {r.frequency_hz:.3e}, C_mode "
+                f"{r.c_mode_farad:.9e} F, Im z_1 {r.z_k[1].imag:.6f} ohm"
+            )
         for lo, hi in zip(FREQS[:-1], FREQS[1:]):
             below, above = lo + 0.4 * (hi - lo), lo + 0.6 * (hi - lo)
             assert st.tune(k=1, comm=comm, at_hz=below).frequency_hz == lo, below
             assert st.tune(k=1, comm=comm, at_hz=above).frequency_hz == hi, above
-    _p0(f"[WF-16 s17 {tag} S0] solve, build and gmsh.initialize patched to raise; every tune "
-        "returned")
+    _p0(
+        f"[WF-16 s17 {tag} S0] solve, build and gmsh.initialize patched to raise; every tune "
+        "returned"
+    )
 
     worst = 0.0
     for i, f in enumerate(FREQS):  # (C=) one file per rank: the write is COMM_SELF
@@ -102,31 +105,41 @@ def _sweep_checks(path, tmp, tag):
         c1 = st1.tune(k=1, comm=comm).c_mode_farad
         rel = abs(tunes[f].c_mode_farad / c1 - 1.0)
         worst = max(worst, rel)
-        _p0(f"[WF-16 s17 {tag} C=] {f:.3e} Hz: sweep {tunes[f].c_mode_farad:.12e} vs one-frequency "
-            f"{c1:.12e}, rel {rel:.3e} (REDUCTION_BAND {REDUCTION_BAND:.0e})")
+        _p0(
+            f"[WF-16 s17 {tag} C=] {f:.3e} Hz: sweep {tunes[f].c_mode_farad:.12e} vs one-frequency "
+            f"{c1:.12e}, rel {rel:.3e} (REDUCTION_BAND {REDUCTION_BAND:.0e})"
+        )
     assert comm.allreduce(worst, op=MPI.MAX) <= REDUCTION_BAND
 
     f0 = FREQS[0]
     c_w = 1.0 / (2.0 * np.pi * f0 * _zk(stack[0])[1].imag)
     rel_w = abs(tunes[f0].c_mode_farad / c_w - 1.0)
-    _p0(f"[WF-16 s17 {tag} omega] {f0:.3e} Hz: C {tunes[f0].c_mode_farad:.12e} vs "
-        f"1/(2 pi f Im z_1) {c_w:.12e}, rel {rel_w:.3e} (REDUCTION_BAND {REDUCTION_BAND:.0e})")
+    _p0(
+        f"[WF-16 s17 {tag} omega] {f0:.3e} Hz: C {tunes[f0].c_mode_farad:.12e} vs "
+        f"1/(2 pi f Im z_1) {c_w:.12e}, rel {rel_w:.3e} (REDUCTION_BAND {REDUCTION_BAND:.0e})"
+    )
     assert rel_w <= REDUCTION_BAND
 
     # Controls.  The 64 MHz column at 128 MHz's ω: the ceiling, from the file's own z_k.
     c64 = tunes[FREQS[1]].c_mode_farad
     ceil = abs(1.0 / (2.0 * np.pi * FREQS[2] * _zk(stack[1])[1].imag) / c64 - 1.0)
-    _p0(f"[WF-16 s17 {tag} ctl] 64 MHz column at 128 MHz's omega: miss {ceil:.6f} (asserted > "
-        f"{REDUCTION_BAND:.0e})")
+    _p0(
+        f"[WF-16 s17 {tag} ctl] 64 MHz column at 128 MHz's omega: miss {ceil:.6f} (asserted > "
+        f"{REDUCTION_BAND:.0e})"
+    )
     assert ceil > REDUCTION_BAND
-    swapped = _write(tmp / f"{tag}_swapped.s4p",
-                     [(FREQS[0], stack[0]), (FREQS[1], stack[2]), (FREQS[2], stack[1])],
-                     comm=MPI.COMM_SELF)
+    swapped = _write(
+        tmp / f"{tag}_swapped.s4p",
+        [(FREQS[0], stack[0]), (FREQS[1], stack[2]), (FREQS[2], stack[1])],
+        comm=MPI.COMM_SELF,
+    )
     st2 = _four_port(LumpedPortDrive())
     st2.load_result(swapped)
     miss = abs(st2.tune(k=1, comm=comm, at_hz=FREQS[1]).c_mode_farad / c64 - 1.0)
-    _p0(f"[WF-16 s17 {tag} ctl] 64 and 128 MHz columns exchanged: miss {miss:.6f} (asserted > "
-        f"{LEG_D0_REPRODUCTION_BAND:.0e})")
+    _p0(
+        f"[WF-16 s17 {tag} ctl] 64 and 128 MHz columns exchanged: miss {miss:.6f} (asserted > "
+        f"{LEG_D0_REPRODUCTION_BAND:.0e})"
+    )
     assert miss > LEG_D0_REPRODUCTION_BAND
 
 
@@ -135,8 +148,9 @@ def test_wf16_s17_w0_synthetic_and_refusals(tmp_path):
     comm = MPI.COMM_WORLD
     s = _synthetic_s()
     tag = f"r{comm.size}"
-    path = _write(OUT_DIR / f"synthetic_{tag}.s4p",
-                  [(FREQS[0], s), (FREQS[1], 0.9 * s), (FREQS[2], 0.8 * s)])
+    path = _write(
+        OUT_DIR / f"synthetic_{tag}.s4p", [(FREQS[0], s), (FREQS[1], 0.9 * s), (FREQS[2], 0.8 * s)]
+    )
     _sweep_checks(path, tmp_path, "W0")
 
     st = _four_port(LumpedPortDrive())
@@ -174,8 +188,10 @@ def test_wf16_s17_w0_synthetic_and_refusals(tmp_path):
     with pytest.raises(ValueError, match="span"):
         out.load_result(path)
     assert out.result is None
-    _p0("[WF-16 s17 W0 Ref] a multi-frequency .s32p and a Study outside the span: ValueError, "
-        "nothing stored")
+    _p0(
+        "[WF-16 s17 W0 Ref] a multi-frequency .s32p and a Study outside the span: ValueError, "
+        "nothing stored"
+    )
 
     # YAML with no `tune.at_hz` (`WF-1` step 27 adds the key): the by-field refusal, a `ValueError` subclass (`OPS-76`).
     yml = _write_yaml(OUT_DIR / f"yaml_{tag}" / "loaded.yaml", _loaded_mapping(str(path)))

@@ -140,8 +140,10 @@ def _run_step2(n_drives=32, run_pec=True, *, field_hook=None):
         if comm.rank == 0:
             print(f"[WF-12 step2] {msg}", flush=True)
 
-    say(f"start: -n {comm.size}, degree {DEGREE}, drives {n_drives} from {DRIVEN}, "
-        f"PEC column {'on' if run_pec else 'off'}")
+    say(
+        f"start: -n {comm.size}, degree {DEGREE}, drives {n_drives} from {DRIVEN}, "
+        f"PEC column {'on' if run_pec else 'off'}"
+    )
 
     # ---- fixture, (A0), (iv) ---------------------------------------------
     t0 = time.perf_counter()
@@ -153,13 +155,17 @@ def _run_step2(n_drives=32, run_pec=True, *, field_hook=None):
     census_fails = _census_checks(census, built["cells"], _ring_ports())
     oc = built["outer_census"]
     cell_rel = built["cells"] / HOLE_CELL_RECORD - 1.0
-    say(f"(A0) hole cells {built['cells']} vs record {HOLE_CELL_RECORD}, rel {cell_rel:.3e} "
+    say(
+        f"(A0) hole cells {built['cells']} vs record {HOLE_CELL_RECORD}, rel {cell_rel:.3e} "
         f"(band {CELL_COUNT_BAND}, ASSERTED); build {t_build:.1f} s; (iv) failures "
-        f"{census_fails or 'none'}; outer census {oc}")
+        f"{census_fails or 'none'}; outer census {oc}"
+    )
     assert abs(cell_rel) <= CELL_COUNT_BAND, cell_rel
     assert not census_fails, census_fails
     assert oc["tag_collision"] == 0 and oc["cavity"] > 0, oc
-    assert oc["cavity_exterior"] == oc["cavity"] and oc["outer"] + oc["cavity"] == oc["exterior"], oc
+    assert (
+        oc["cavity_exterior"] == oc["cavity"] and oc["outer"] + oc["cavity"] == oc["exterior"]
+    ), oc
 
     z_s = (1.0 + 1.0j) * surface_resistance_ohm(omega, COPPER_SIGMA)
     wall = _leontovich_term(msh, built["facets"], z_s, omega)
@@ -173,20 +179,30 @@ def _run_step2(n_drives=32, run_pec=True, *, field_hook=None):
         (P) block (`test_wf12_f_human_hole.py:464–481`)."""
         sheets = [sp.sheet(driven=(sp.port_id == driven_id)) for sp in ctx["specs"]]
         dsheet = next(s for s in sheets if s.port_id == driven_id)
-        linear = [lambda test, _s=dsheet: lumped_port_linear_term(
-            msh, tags_f, _s, test, omega_rad_per_s=omega)]
+        linear = [
+            lambda test, _s=dsheet: lumped_port_linear_term(
+                msh, tags_f, _s, test, omega_rad_per_s=omega
+            )
+        ]
         comm.Barrier()
         t0 = time.perf_counter()
         if held:
             fields = solver.solve_with_held_factorization(extra_linear_terms=linear)
         else:
             bil = ([wall_term] if wall_term is not None else []) + [
-                (lambda trial, test, _s=s: lumped_port_bilinear_term(
-                    msh, tags_f, _s, trial, test, omega_rad_per_s=omega))
+                (
+                    lambda trial, test, _s=s: lumped_port_bilinear_term(
+                        msh, tags_f, _s, trial, test, omega_rad_per_s=omega
+                    )
+                )
                 for s in sheets
             ]
-            fields = solver.solve(current_density=None, project_source=False,
-                                  extra_bilinear_terms=bil, extra_linear_terms=linear)
+            fields = solver.solve(
+                current_density=None,
+                project_source=False,
+                extra_bilinear_terms=bil,
+                extra_linear_terms=linear,
+            )
         comm.Barrier()
         t_solve = time.perf_counter() - t0
         t1 = time.perf_counter()
@@ -209,14 +225,25 @@ def _run_step2(n_drives=32, run_pec=True, *, field_hook=None):
         p_phantom = _vol(dx(PHANTOM_CELL_TAG))
         p_surf = _surface_loss_w(msh, built["facets"], z_s, e, comm)
         if field_hook is not None:
-            field_hook("cu" if wall_term is not None else "pec", driven_id, e, sigma_f,
-                       z_s if wall_term is not None else None)
+            field_hook(
+                "cu" if wall_term is not None else "pec",
+                driven_id,
+                e,
+                sigma_f,
+                z_s if wall_term is not None else None,
+            )
         del fields
         t_post = time.perf_counter() - t1
         return {
-            "s": s_col, "kind": "held" if held else "solve", "t_solve": t_solve,
-            "t_post": t_post, "p_src": p_src, "p_sheets": p_sheets,
-            "p_phantom": p_phantom, "p_rest": p_total - p_phantom, "p_surf": p_surf,
+            "s": s_col,
+            "kind": "held" if held else "solve",
+            "t_solve": t_solve,
+            "t_post": t_post,
+            "p_src": p_src,
+            "p_sheets": p_sheets,
+            "p_phantom": p_phantom,
+            "p_rest": p_total - p_phantom,
+            "p_surf": p_surf,
         }
 
     # ---- Cu drives -------------------------------------------------------
@@ -232,44 +259,54 @@ def _run_step2(n_drives=32, run_pec=True, *, field_hook=None):
         d["blind"] = abs(d["p_src"] - d["p_sheets"] - p_vol) / abs(d["p_src"])
         d["share"] = d["p_surf"] / (d["p_src"] - d["p_sheets"])
         cols[pid] = d
-        say(f"Cu drive {k + 1:2d}/{n_drives} {pid}: {d['kind']} {d['t_solve']:.2f} s + post "
+        say(
+            f"Cu drive {k + 1:2d}/{n_drives} {pid}: {d['kind']} {d['t_solve']:.2f} s + post "
             f"{d['t_post']:.2f} s; S_driven {d['s'][pid]:.6f}; sum|S|^2 "
             f"{sum(abs(v) ** 2 for v in d['s'].values()):.6f} | P_src {d['p_src']:.9e} W "
             f"sumP_sheet {d['p_sheets']:.9e} P_phantom {d['p_phantom']:.9e} P_rest "
             f"{d['p_rest']:.9e} P_surf {d['p_surf']:.9e} W; (P) rel {d['rel']:.3e}; NEG blind "
             f"{d['blind']:.4e} = {d['blind'] / DISCRETE_IDENTITY_RTOL:.1f}x band; coil share "
             f"P_surf/(P_src-sumP_sheet) {d['share']:.4f} (PREDICTED ≈{PREDICTED_COIL_SHARE}; "
-            f"sigma=800 {SIGMA800_COIL_SHARE}) t={time.perf_counter() - t_window:.1f} s")
+            f"sigma=800 {SIGMA800_COIL_SHARE}) t={time.perf_counter() - t_window:.1f} s"
+        )
     kinds = [cols[p]["kind"] for p in driven_ids]
     rss_mine, rss_per, rss_sum = _rss_gib(comm)
     held_cad = [cols[p]["t_solve"] + cols[p]["t_post"] for p in driven_ids[1:]]
     first = cols[DRIVEN]
     t_first = first["t_solve"] + first["t_post"]
     max_cad = max(held_cad) if held_cad else float("nan")
-    say(f"solve kinds: {kinds.count('solve')} factorising, {kinds.count('held')} held; "
+    say(
+        f"solve kinds: {kinds.count('solve')} factorising, {kinds.count('held')} held; "
         f"held cadence (solve + post) max {max_cad:.2f} s, mean "
         f"{(np.mean(held_cad) if held_cad else float('nan')):.2f} s (proxy 3.75 s at sigma=800); "
-        f"RSS per rank {', '.join(f'{r:.2f}' for r in (rss_per or []))} GiB, summed {rss_sum:.2f} GiB")
+        f"RSS per rank {', '.join(f'{r:.2f}' for r in (rss_per or []))} GiB, summed {rss_sum:.2f} GiB"
+    )
     if held_cad:
         projection = t_build + t_first + 31 * max_cad + t_first + 50.0
         projection_nopec = t_build + t_first + 31 * max_cad + 50.0
-        say(f"PROJECTED W2: build {t_build:.1f} + Cu factor {t_first:.1f} + 31 x {max_cad:.2f} "
+        say(
+            f"PROJECTED W2: build {t_build:.1f} + Cu factor {t_first:.1f} + 31 x {max_cad:.2f} "
             f"+ PEC {t_first:.1f} + 50 = {projection:.0f} s (Cu-only {projection_nopec:.0f} s; "
-            f"ceiling {W2_PRICE_CEILING_S:.0f} s; predicted W2 320-420 s)")
+            f"ceiling {W2_PRICE_CEILING_S:.0f} s; predicted W2 320-420 s)"
+        )
 
     # (R), (P), NEG
     r_src = abs(first["p_src"] / P17_P_SRC_RECORD_W - 1.0)
     r_surf = abs(first["p_surf"] / P17_P_SURF_RECORD_W - 1.0)
-    say(f"(R) P17 P_src {first['p_src']:.9e} vs {P17_P_SRC_RECORD_W:.9e} rel {r_src:.3e}; "
+    say(
+        f"(R) P17 P_src {first['p_src']:.9e} vs {P17_P_SRC_RECORD_W:.9e} rel {r_src:.3e}; "
         f"P_surf {first['p_surf']:.9e} vs {P17_P_SURF_RECORD_W:.9e} rel {r_surf:.3e} "
-        f"(band {REUSE_REPRODUCTION_RTOL:g}, ASSERTED)")
+        f"(band {REUSE_REPRODUCTION_RTOL:g}, ASSERTED)"
+    )
     worst_rel = max(cols[p]["rel"] for p in driven_ids)
     min_blind = min(cols[p]["blind"] for p in driven_ids)
     shares = [cols[p]["share"] for p in driven_ids]
-    say(f"(P) worst rel over {n_drives} Cu drives {worst_rel:.3e} (band "
+    say(
+        f"(P) worst rel over {n_drives} Cu drives {worst_rel:.3e} (band "
         f"{DISCRETE_IDENTITY_RTOL:g}, ASSERTED); NEG min blind miss {min_blind:.4e} = "
         f"{min_blind / DISCRETE_IDENTITY_RTOL:.1f}x the band (bar {BLIND_FACTOR:.0f}x, ASSERTED; "
-        f"ceiling ≈124x); coil share min {min(shares):.4f} max {max(shares):.4f}")
+        f"ceiling ≈124x); coil share min {min(shares):.4f} max {max(shares):.4f}"
+    )
     assert kinds.count("solve") == 1 and kinds.count("held") == n_drives - 1, kinds
     assert r_src <= REUSE_REPRODUCTION_RTOL, r_src
     assert r_surf <= REUSE_REPRODUCTION_RTOL, r_surf
@@ -280,8 +317,7 @@ def _run_step2(n_drives=32, run_pec=True, *, field_hook=None):
     matrix = None
     pec = None
     if n_drives == 32:
-        s = np.array([[cols[pj]["s"][pi] for pj in driven_ids] for pi in driven_ids],
-                     dtype=complex)
+        s = np.array([[cols[pj]["s"][pi] for pj in driven_ids] for pi in driven_ids], dtype=complex)
         ratio = _reciprocity_ratio(s)
         control = s.copy()
         control[:, 0] *= CONTROL_COLUMN_SCALE
@@ -301,55 +337,81 @@ def _run_step2(n_drives=32, run_pec=True, *, field_hook=None):
                 steps, residual_deg = _azimuth_class(az[i], az[j])
                 worst_residual_deg = max(worst_residual_deg, residual_deg)
                 classes.setdefault((bool(zc[i] * zc[j] > 0.0), steps), []).append(
-                    float(abs(s[i, j])))
+                    float(abs(s[i, j]))
+                )
         spreads = {}
         for key, mags in classes.items():
             m = np.array(mags)
             spreads[key] = (float((m.max() - m.min()) / m.mean()), len(m), float(m.mean()))
         worst = max(spreads, key=lambda key: spreads[key][0])
-        say(f"(ii) reciprocity {ratio:.6e} (band {RECIPROCITY_BAND:.0e}, ASSERTED; PREDICTED "
-            f"≈{PREDICTED_RECIPROCITY:.0e}, sigma=800 1.29e-14)")
-        say(f"(iii) sigma_max {sigma_max:.12f} (ceiling {MATRIX_PASSIVITY_CEILING}, ASSERTED), "
+        say(
+            f"(ii) reciprocity {ratio:.6e} (band {RECIPROCITY_BAND:.0e}, ASSERTED; PREDICTED "
+            f"≈{PREDICTED_RECIPROCITY:.0e}, sigma=800 1.29e-14)"
+        )
+        say(
+            f"(iii) sigma_max {sigma_max:.12f} (ceiling {MATRIX_PASSIVITY_CEILING}, ASSERTED), "
             f"1-sigma_max {MATRIX_PASSIVITY_CEILING - sigma_max:+.3e} (PREDICTED "
             f"{PREDICTED_SMAX_MARGIN}); column sum|S|^2 min {col_norms.min():.6f} max "
-            f"{col_norms.max():.6f} (ASSERTED <= 1; PREDICTED {PREDICTED_COLSUM})")
-        say(f"(iv') classes {len(classes)} (expected {N_SYMMETRY_CLASSES}, ASSERTED); worst "
-            f"azimuth residual {worst_residual_deg:.3e} deg (< {AZIMUTH_MATCH_DEG:.0e}, ASSERTED)")
+            f"{col_norms.max():.6f} (ASSERTED <= 1; PREDICTED {PREDICTED_COLSUM})"
+        )
+        say(
+            f"(iv') classes {len(classes)} (expected {N_SYMMETRY_CLASSES}, ASSERTED); worst "
+            f"azimuth residual {worst_residual_deg:.3e} deg (< {AZIMUTH_MATCH_DEG:.0e}, ASSERTED)"
+        )
         for same_ring in (True, False):
             for steps in range(N_AZIMUTH_CLASSES):
                 if (same_ring, steps) not in spreads:
                     say(f"     {'same ' if same_ring else 'other'} ring, {steps} steps: EMPTY")
                     continue
                 sp, cnt, mean = spreads[(same_ring, steps)]
-                say(f"     {'same ' if same_ring else 'other'} ring, {steps} steps  n = {cnt:4d}"
+                say(
+                    f"     {'same ' if same_ring else 'other'} ring, {steps} steps  n = {cnt:4d}"
                     f"  mean |S| = {mean:.9e}  spread {sp * 100:8.4f}%"
-                    + ("   <-- worst" if (same_ring, steps) == worst else ""))
-        say(f"     worst class spread {spreads[worst][0]:.4e} (band {OPPOSITE_SPREAD_BAND}, "
-            f"ASSERTED; PREDICTED {PREDICTED_SPREAD}, sigma=800 3.70%)")
-        say(f"S_driven(P17) {cols[DRIVEN]['s'][DRIVEN]:.6f} beside sigma=800 record "
-            f"{S_DRIVEN_STEP0_RECORD} (printed)")
-        say(f"control (predicted, printed): column {driven_ids[0]} x {CONTROL_COLUMN_SCALE}: "
+                    + ("   <-- worst" if (same_ring, steps) == worst else "")
+                )
+        say(
+            f"     worst class spread {spreads[worst][0]:.4e} (band {OPPOSITE_SPREAD_BAND}, "
+            f"ASSERTED; PREDICTED {PREDICTED_SPREAD}, sigma=800 3.70%)"
+        )
+        say(
+            f"S_driven(P17) {cols[DRIVEN]['s'][DRIVEN]:.6f} beside sigma=800 record "
+            f"{S_DRIVEN_STEP0_RECORD} (printed)"
+        )
+        say(
+            f"control (predicted, printed): column {driven_ids[0]} x {CONTROL_COLUMN_SCALE}: "
             f"ratio {control_ratio:.6e} = {control_ratio / max(ratio, 1e-300):.3e}x the measured "
-            f"(PREDICTED > {PREDICTED_LIFT:.0e}x; sigma=800 1.6e11x)")
+            f"(PREDICTED > {PREDICTED_LIFT:.0e}x; sigma=800 1.6e11x)"
+        )
         assert ratio <= RECIPROCITY_BAND, ratio
         assert sigma_max <= MATRIX_PASSIVITY_CEILING, sigma_max
         assert float(col_norms.max()) <= MATRIX_PASSIVITY_CEILING, col_norms.max()
         assert len(classes) == N_SYMMETRY_CLASSES, len(classes)
         assert worst_residual_deg < AZIMUTH_MATCH_DEG, worst_residual_deg
         assert spreads[worst][0] <= OPPOSITE_SPREAD_BAND, spreads[worst]
-        matrix = {"s": s, "ratio": ratio, "control_ratio": control_ratio,
-                  "sigma_max": sigma_max, "col_norms": col_norms, "n_classes": len(classes),
-                  "worst_residual_deg": worst_residual_deg, "spreads": spreads, "worst": worst}
+        matrix = {
+            "s": s,
+            "ratio": ratio,
+            "control_ratio": control_ratio,
+            "sigma_max": sigma_max,
+            "col_norms": col_norms,
+            "n_classes": len(classes),
+            "worst_residual_deg": worst_residual_deg,
+            "spreads": spreads,
+            "worst": worst,
+        }
     else:
-        say(f"(ii), (iii), (iv') and the column-scale control: SKIPPED "
-            f"({DRIVES_ENV}={n_drives} < 32)")
+        say(
+            f"(ii), (iii), (iv') and the column-scale control: SKIPPED "
+            f"({DRIVES_ENV}={n_drives} < 32)"
+        )
 
     # ---- PEC column ------------------------------------------------------
     if run_pec:
         del ctx["solver"]
         t0 = time.perf_counter()
         pec_solver = TimeHarmonicSolver(
-            _problem(msh, cell_tags, 64e6, built["facets"], None), degree=DEGREE)
+            _problem(msh, cell_tags, 64e6, built["facets"], None), degree=DEGREE
+        )
         d = _drive(pec_solver, DRIVEN, held=False, wall_term=None)
         t_pec = time.perf_counter() - t0
         p_vol = d["p_phantom"] + d["p_rest"]
@@ -358,27 +420,47 @@ def _run_step2(n_drives=32, run_pec=True, *, field_hook=None):
         sum_cu = sum(abs(v) ** 2 for v in first["s"].values())
         sum_pec = sum(abs(v) ** 2 for v in d["s"].values())
         max_ds = max(abs(d["s"][p] - first["s"][p]) for p in first["s"])
-        say(f"(PEC) P17 fresh solver {t_pec:.1f} s (solve {d['t_solve']:.1f} s): P_src "
+        say(
+            f"(PEC) P17 fresh solver {t_pec:.1f} s (solve {d['t_solve']:.1f} s): P_src "
             f"{d['p_src']:.9e} sumP_sheet {d['p_sheets']:.9e} P_phantom {d['p_phantom']:.9e} "
             f"P_rest {d['p_rest']:.9e} W; identity w/o P_surf rel {rel_pec:.3e} (band "
             f"{DISCRETE_IDENTITY_RTOL:g}, ASSERTED); P_surf(PEC field) {d['p_surf']:.3e} W = "
-            f"{surf_ratio:.3e} x Cu (ceiling {PEC_SURF_RATIO_CEILING:g}, ASSERTED)")
-        say(f"Cu != PEC (predicted, printed): sum|S_i,17|^2 PEC {sum_pec:.9f} - Cu {sum_cu:.9f} "
+            f"{surf_ratio:.3e} x Cu (ceiling {PEC_SURF_RATIO_CEILING:g}, ASSERTED)"
+        )
+        say(
+            f"Cu != PEC (predicted, printed): sum|S_i,17|^2 PEC {sum_pec:.9f} - Cu {sum_cu:.9f} "
             f"= {sum_pec - sum_cu:.4e} (PREDICTED ≈3.4e-4 in {PREDICTED_DSUM}); max_i|dS| "
-            f"{max_ds:.4e} (PREDICTED in {PREDICTED_MAXDS}); S_driven PEC {d['s'][DRIVEN]:.6f}")
+            f"{max_ds:.4e} (PREDICTED in {PREDICTED_MAXDS}); S_driven PEC {d['s'][DRIVEN]:.6f}"
+        )
         assert rel_pec <= DISCRETE_IDENTITY_RTOL, rel_pec
         assert surf_ratio <= PEC_SURF_RATIO_CEILING, surf_ratio
-        pec = {"d": d, "rel_pec": rel_pec, "surf_ratio": surf_ratio,
-               "dsum": sum_pec - sum_cu, "max_ds": max_ds}
+        pec = {
+            "d": d,
+            "rel_pec": rel_pec,
+            "surf_ratio": surf_ratio,
+            "dsum": sum_pec - sum_cu,
+            "max_ds": max_ds,
+        }
     else:
         say(f"(PEC) SKIPPED ({PEC_ENV}=0)")
     _m, rss_per, rss_sum = _rss_gib(comm)
     say(f"window {time.perf_counter() - t_window:.1f} s; RSS summed {rss_sum:.2f} GiB")
     return {
-        "cells": built["cells"], "t_build": t_build, "cols": cols, "kinds": kinds,
-        "r_src": r_src, "r_surf": r_surf, "worst_rel": worst_rel, "min_blind": min_blind,
-        "shares": shares, "matrix": matrix, "pec": pec, "msh": msh, "cell_tags": cell_tags,
-        "facets": built["facets"], "specs": ctx["specs"],
+        "cells": built["cells"],
+        "t_build": t_build,
+        "cols": cols,
+        "kinds": kinds,
+        "r_src": r_src,
+        "r_surf": r_surf,
+        "worst_rel": worst_rel,
+        "min_blind": min_blind,
+        "shares": shares,
+        "matrix": matrix,
+        "pec": pec,
+        "msh": msh,
+        "cell_tags": cell_tags,
+        "facets": built["facets"],
+        "specs": ctx["specs"],
     }
 
 

@@ -32,10 +32,9 @@ from __future__ import annotations
 import numpy as np
 import pytest
 import ufl
+from dolfinx import fem
 from mpi4py import MPI
 from petsc4py import PETSc
-
-from dolfinx import fem
 
 from fem_em_solver.core import (
     HomogeneousMaterial,
@@ -45,7 +44,6 @@ from fem_em_solver.core import (
 from fem_em_solver.io.mesh import MeshGenerator
 from fem_em_solver.post.evaluation import evaluate_vector_field_parallel
 from fem_em_solver.post.sar import point_sar
-
 from tests.complex_mode import complex_only
 from tests.validation.test_lossy_sphere_sar import (
     FREQUENCY_HZ,
@@ -161,9 +159,7 @@ def _shell_mask(msh):
     c = SHELL_OUTER_FACTOR * SPHERE_RADIUS
     dg0 = fem.functionspace(msh, ("DG", 0))
     chi = fem.Function(dg0)
-    chi.interpolate(
-        lambda x: ((x[0] ** 2 + x[1] ** 2 + x[2] ** 2) < c * c).astype(np.float64)
-    )
+    chi.interpolate(lambda x: ((x[0] ** 2 + x[1] ** 2 + x[2] ** 2) < c * c).astype(np.float64))
     return chi
 
 
@@ -179,9 +175,7 @@ def _phi_closed_form_on_mask(msh, chi, beta: float) -> float:
     r2 = ufl.dot(x, x)
     r = ufl.sqrt(r2)
     z_hat = ufl.as_vector((0.0, 0.0, 1.0))
-    e_cf = E0 * z_hat + beta * E0 * SPHERE_RADIUS**3 * (
-        3.0 * x[2] * x / r**5 - z_hat / r**3
-    )
+    e_cf = E0 * z_hat + beta * E0 * SPHERE_RADIUS**3 * (3.0 * x[2] * x / r**5 - z_hat / r**3)
     dx = ufl.Measure("dx", domain=msh, metadata={"quadrature_degree": 8})
     num = _assemble_real(chi * ufl.dot(e_cf, e_cf) * dx, comm)
     vol = _assemble_real(chi * dx, comm)
@@ -195,8 +189,13 @@ def _cavity_dofs(msh, facet_tags, v_space) -> np.ndarray:
     return fem.locate_dofs_topological(v_space, fdim, facets)
 
 
-def _solve(pec_facet_tags, degree, resolution_sphere=RESOLUTION_SPHERE,
-           resolution_far=RESOLUTION_FAR, dirichlet_e_field=None):
+def _solve(
+    pec_facet_tags,
+    degree,
+    resolution_sphere=RESOLUTION_SPHERE,
+    resolution_far=RESOLUTION_FAR,
+    dirichlet_e_field=None,
+):
     """``dirichlet_e_field=None`` is the quasi-static trace ``_pec_exterior_numpy()``
     (byte-identical to the pre-step-3(b) behaviour); step 3(b) passes the exact
     finite-k trace (§9 item 146)."""
@@ -247,9 +246,7 @@ def _solve(pec_facet_tags, degree, resolution_sphere=RESOLUTION_SPHERE,
     local_max = float(np.max(np.abs(solution[cavity_dofs]))) if cavity_dofs.size else 0.0
     cavity_max = float(comm.allreduce(local_max, op=MPI.MAX))
 
-    ncells = int(
-        comm.allreduce(msh.topology.index_map(msh.topology.dim).size_local, op=MPI.SUM)
-    )
+    ncells = int(comm.allreduce(msh.topology.index_map(msh.topology.dim).size_local, op=MPI.SUM))
     return dict(
         beta=beta,
         imag_ratio=imag_ratio,
@@ -270,11 +267,15 @@ def _sar_ratio_records(fields):
     for theta_deg in (3.0, 87.0):
         th = np.deg2rad(theta_deg)
         p = np.array(
-            [[rr * np.sin(th) * np.cos(azimuth), rr * np.sin(th) * np.sin(azimuth), rr * np.cos(th)]]
+            [
+                [
+                    rr * np.sin(th) * np.cos(azimuth),
+                    rr * np.sin(th) * np.sin(azimuth),
+                    rr * np.cos(th),
+                ]
+            ]
         )
-        sar = point_sar(
-            fields.e_real, fields.e_imag, p, sigma=SIGMA_HIGH, rho=RHO_KG_M3
-        )
+        sar = point_sar(fields.e_real, fields.e_imag, p, sigma=SIGMA_HIGH, rho=RHO_KG_M3)
         sar0 = SIGMA_HIGH * E0**2 / (2.0 * RHO_KG_M3)
         q = (SPHERE_RADIUS / rr) ** 3
         closed = (np.cos(th) * (1.0 + 2.0 * q)) ** 2 + (np.sin(th) * (1.0 - q)) ** 2
@@ -366,9 +367,9 @@ def test_natural_cavity_negative_control():
             f"vs Phi_cf,h(PEC) = {ctl['phi_cf_h']:.6f}: miss {phi_miss:.4%} "
             f"(predicted 27.9 %)"
         )
-    assert delta_beta > TH15_BETA_BAND, (
-        f"natural cavity beta = {ctl['beta']:.6f} within the band of 1"
-    )
+    assert (
+        delta_beta > TH15_BETA_BAND
+    ), f"natural cavity beta = {ctl['beta']:.6f} within the band of 1"
     assert phi_miss > MAT4_BAND, (
         f"natural cavity Phi miss {phi_miss:.4%} not over {MAT4_BAND:.0%}: the Phi "
         "gate does not resolve the PEC condition"

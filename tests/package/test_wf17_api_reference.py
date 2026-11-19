@@ -143,7 +143,9 @@ def test_wf17_every_public_name_has_a_page():
     """(N)"""
     surface = _surface()
     stems = page_stems(API_DIR)
-    print(f"\nWF-17 (N): pages={len(stems)} (+ index) surface={len(surface)} tree sha256={_sha_tree(API_DIR)}")
+    print(
+        f"\nWF-17 (N): pages={len(stems)} (+ index) surface={len(surface)} tree sha256={_sha_tree(API_DIR)}"
+    )
     assert page_violations(stems, surface) == []
     assert stems == set(surface) == set(_load_snapshot())
     lowered = [s.lower() for s in stems]
@@ -162,7 +164,9 @@ def test_wf17_pages_are_what_the_generator_emits(tmp_path):
     generate(t2)
     d12 = gen.diff_trees(t1, t2)
     dc = gen.diff_trees(t1, API_DIR)
-    print(f"\nWF-17 (G): gen1 vs gen2 diff={d12}; gen1 vs committed diff={dc}; files={len(list(t1.glob('*.md')))}")
+    print(
+        f"\nWF-17 (G): gen1 vs gen2 diff={d12}; gen1 vs committed diff={dc}; files={len(list(t1.glob('*.md')))}"
+    )
     assert d12 == []
     assert dc == [], f"first differing file: {dc[0] if dc else None}"
 

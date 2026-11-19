@@ -86,14 +86,13 @@ from fem_em_solver.post import (
     magnetic_flux_density_from_e,
     project_to_cg1,
 )
-
 from tests.complex_mode import complex_only
 from tests.validation.test_birdcage_b1_plus_map import (  # noqa: F401 — fixtures
     C4_COVARIANCE_BAND,
     CG1_RECORD_RTOL,
     RECORD_RTOL,
-    STEP1B_CG1_RECORDS,
     STEP1_GATE_I_P1_RESIDUAL,
+    STEP1B_CG1_RECORDS,
     TERMINATED_PORT_IMPEDANCE_OHM,
     _relative_l2,
     _ring_points,
@@ -249,17 +248,17 @@ def quadrature_map(b1_plus_map):
 
     order = sorted(solves)
     indices = {
-        pid: _port_index(azimuths[pid], azimuths["P1"], QUADRATURE_STEP_DEG)
-        for pid in order
+        pid: _port_index(azimuths[pid], azimuths["P1"], QUADRATURE_STEP_DEG) for pid in order
     }
-    assert sorted(indices.values()) == [0, 1, 2, 3], (
-        f"the four sheets do not occupy the four quadrature slots: {indices}"
-    )
+    assert sorted(indices.values()) == [
+        0,
+        1,
+        2,
+        3,
+    ], f"the four sheets do not occupy the four quadrature slots: {indices}"
 
     b_dg0 = {
-        pid: magnetic_flux_density_from_e(
-            solves[pid]["fields"].e_complex, solves[pid]["omega"]
-        )
+        pid: magnetic_flux_density_from_e(solves[pid]["fields"].e_complex, solves[pid]["omega"])
         for pid in order
     }
     fields = [b_dg0[pid] for pid in order]
@@ -313,9 +312,7 @@ def quadrature_map(b1_plus_map):
     # is what makes ``b1_minus`` usable by an example (`EX-38`) rather than only
     # by this module's arithmetic.
     dg0_minus_fn = b1_minus(dg0_cw)
-    dg0_minus_values, dg0_minus_valid = evaluate_vector_field_parallel(
-        dg0_minus_fn, points
-    )
+    dg0_minus_values, dg0_minus_valid = evaluate_vector_field_parallel(dg0_minus_fn, points)
     dg0_minus_values = np.real(np.asarray(dg0_minus_values).reshape(-1))
     raw_values, _ = evaluate_vector_field_parallel(dg0_cw, points)
     raw_values = np.asarray(raw_values).reshape(-1, 3)

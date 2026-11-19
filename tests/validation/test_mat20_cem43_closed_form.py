@@ -117,7 +117,9 @@ def test_sc_no_split_printed():
         ref = ramp_dose(a, b_end, tau)
         r = 0.5 if a >= 43.0 else 0.25  # one R (the start side) over the whole crossing segment
         nosplit = _side(a, b_end, tau, r)
-        print(f"MAT20s1 Sc {name:28s} no_split_miss={_rel(nosplit, ref):.4f} (printed, not asserted)")
+        print(
+            f"MAT20s1 Sc {name:28s} no_split_miss={_rel(nosplit, ref):.4f} (printed, not asserted)"
+        )
 
 
 def test_complex_nonzero_imag_raises():
@@ -139,7 +141,9 @@ def test_a2_mat9_step_response():
     T0, T1 = _T_centre([0.0, T_END])
     print(f"MAT20s1 A2 bracket T(0)={T0:.12f} T(T_END={T_END:g})={T1:.12f}")
     assert T0 < 43.0 < T1, "brentq bracket"
-    t43 = brentq(lambda s: _T_centre(s)[0] - 43.0, 0.0, T_END, xtol=1e-12, rtol=4 * np.finfo(float).eps)
+    t43 = brentq(
+        lambda s: _T_centre(s)[0] - 43.0, 0.0, T_END, xtol=1e-12, rtol=4 * np.finfo(float).eps
+    )
 
     def f(s):
         T = _T_centre(s)[0]
@@ -156,7 +160,7 @@ def test_a2_mat9_step_response():
     k_max = 19
     t_fine = np.linspace(0.0, T_END, 2**k_max + 1)
     T_fine = _T_centre(t_fine)
-    prev = None
+    prev = prev2 = None
     asserted = None
     for k in range(10, k_max + 1):
         stride = 2 ** (k_max - k)

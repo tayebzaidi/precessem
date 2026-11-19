@@ -192,7 +192,6 @@ def test_box_enlargement_discriminates_between_the_two_routes(gap_ports_padded):
     deviation is insensitive to the box, which is disposition (b): a real
     estimator bias, and a finding in its own right.
     """
-    omega_m = gap_ports_padded["omega_m"]
     routes = _routes(gap_ports_padded)
     deviations = []
     for r in routes:

@@ -93,7 +93,6 @@ from __future__ import annotations
 import pytest
 
 from fem_em_solver.post.sar import mass_averaged_sar
-
 from tests.complex_mode import complex_only
 from tests.mesh.test_birdcage_port_sheet_prerequisite import CELL_COUNT_BAND
 from tests.mesh.test_birdcage_port_tags import PHANTOM_HEIGHT, PHANTOM_RADIUS
@@ -322,8 +321,8 @@ def rung():
                 flush=True,
             )
         print(
-            f"    (2) PRINTED, PREDICTED — the per-drive peaks, rung to rung.  "
-            f"NOT a C95.3 compliance figure on either rung:",
+            "    (2) PRINTED, PREDICTED — the per-drive peaks, rung to rung.  "
+            "NOT a C95.3 compliance figure on either rung:",
             flush=True,
         )
         for k in range(4):
@@ -415,9 +414,7 @@ def test_the_whole_phantom_ball_reproduces_the_tagged_integral_on_this_rung(rung
         f"{tagged['dissipated_power_w']:.12e} W — relative {power_miss:.6e} > "
         f"{EXACT_IDENTITY_RTOL:.0e}"
     )
-    mass_miss = abs(
-        whole["mass_kg"] / (PHANTOM_RHO_KG_PER_M3 * tagged["volume_m3"]) - 1.0
-    )
+    mass_miss = abs(whole["mass_kg"] / (PHANTOM_RHO_KG_PER_M3 * tagged["volume_m3"]) - 1.0)
     assert mass_miss <= EXACT_IDENTITY_RTOL, (
         f"the ball's mass {whole['mass_kg']:.12e} kg is not rho times this rung's "
         f"phantom meshed volume {PHANTOM_RHO_KG_PER_M3 * tagged['volume_m3']:.12e} "
@@ -525,9 +522,7 @@ def test_the_rung_meshes_to_its_registered_cell_counts(rung):
         f"cells against the registered {ONE_GRAM_RUNG_CELL_RECORD} — relative "
         f"{cell_miss:.6f} >= {CELL_COUNT_BAND}"
     )
-    phantom_miss = abs(
-        rung["phantom_cells"] / ONE_GRAM_RUNG_PHANTOM_CELL_RECORD - 1.0
-    )
+    phantom_miss = abs(rung["phantom_cells"] / ONE_GRAM_RUNG_PHANTOM_CELL_RECORD - 1.0)
     assert phantom_miss < CELL_COUNT_BAND, (
         f"the phantom (tag 3) carries {rung['phantom_cells']} cells against the "
         f"registered {ONE_GRAM_RUNG_PHANTOM_CELL_RECORD} — relative "

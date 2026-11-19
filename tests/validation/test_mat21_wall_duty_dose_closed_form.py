@@ -31,10 +31,9 @@ from fem_em_solver.utils.analytical import (
     two_layer_slab_duty_cycle_temperature,
     two_layer_slab_transient_temperature,
 )
-
 from tests.validation.test_imp7_duty_cycle_fem import DUTY
 from tests.validation.test_mat15_coil_driven_heating_phantom import N_MAIN
-from tests.validation.test_mat15_finite_cylinder_closed_form import H, Q, T_INF
+from tests.validation.test_mat15_finite_cylinder_closed_form import T_INF, H, Q
 from tests.validation.test_mat20_cem43_closed_form import BAR as DOSE_BAR
 from tests.validation.test_mat20_cem43_closed_form import _rel
 from tests.validation.test_mat20_running_average import BAR as AVG_BAR
@@ -70,8 +69,18 @@ def _duty_hist(rho_c_w, duty=DUTY):
     out = np.zeros((T_GRID.size, z.size))
     for n in range(1, T_GRID.size):
         out[n] = two_layer_slab_duty_cycle_temperature(
-            z, T_GRID[n], q=Q, h=H, t_inf=0.0, rho_c_w=rho_c_w, period=PERIOD, duty=duty,
-            n_terms=N_SERIES, eigenvalues=lam, **SLAB)
+            z,
+            T_GRID[n],
+            q=Q,
+            h=H,
+            t_inf=0.0,
+            rho_c_w=rho_c_w,
+            period=PERIOD,
+            duty=duty,
+            n_terms=N_SERIES,
+            eigenvalues=lam,
+            **SLAB,
+        )
     return out
 
 
@@ -81,8 +90,16 @@ def _cont_hist():
     out = np.zeros((T_GRID.size, z.size))
     for n in range(1, T_GRID.size):
         out[n] = two_layer_slab_transient_temperature(
-            z, T_GRID[n], q=Q, h=H, t_inf=0.0, rho_c_w=RHO_C_W, n_terms=N_SERIES, eigenvalues=lam,
-            **SLAB)
+            z,
+            T_GRID[n],
+            q=Q,
+            h=H,
+            t_inf=0.0,
+            rho_c_w=RHO_C_W,
+            n_terms=N_SERIES,
+            eigenvalues=lam,
+            **SLAB,
+        )
     return out
 
 
@@ -103,8 +120,15 @@ def _win_check(t, th, window=float(W_B2)):
     pts = np.concatenate([[np.interp(s, t, th)], np.interp(inside, t, th)])
     lo, hi = float(np.min(pts)), float(np.max(pts))
     brk = [x for x in t if s < x < t_mx]
-    ref, _err = quad(lambda x: np.interp(x, t, th), s, t_mx, points=brk or None,
-                     epsabs=0.0, epsrel=1e-13, limit=200)
+    ref, _err = quad(
+        lambda x: np.interp(x, t, th),
+        s,
+        t_mx,
+        points=brk or None,
+        epsabs=0.0,
+        epsrel=1e-13,
+        limit=200,
+    )
     ref /= window
     return float(mx), float(t_mx), lo, hi, ref, _rel(mx, ref)
 
@@ -132,14 +156,18 @@ def test_precondition_grid():
 def test_c100_w_full_duty_equals_transient():
     h = _hists()
     worst = float(np.max(np.abs(h["d1"][1:] - h["cont"][1:]) / np.abs(h["cont"][1:])))
-    _p(f"MAT21-22 (C100-w) duty = 1.0 vs transient over {h['cont'].shape}: worst row/point rel "
-       f"{worst:.3e} (band {DUH_BAND:g}, ASSERTED)")
+    _p(
+        f"MAT21-22 (C100-w) duty = 1.0 vs transient over {h['cont'].shape}: worst row/point rel "
+        f"{worst:.3e} (band {DUH_BAND:g}, ASSERTED)"
+    )
     assert worst <= DUH_BAND, worst
     for j, lab in enumerate(LABELS):
         d1 = cem43(T_GRID, T_INF + h["d1"][:, j])
         d0 = cem43(T_GRID, T_INF + h["cont"][:, j])
-        _p(f"MAT21-22 (C100-w) {lab}: dose(100 %) {d1:.15e} s, dose(continuous) {d0:.15e} s, rel "
-           f"{_rel(d1, d0):.3e} (bar {DOSE_BAR:g}, ASSERTED)")
+        _p(
+            f"MAT21-22 (C100-w) {lab}: dose(100 %) {d1:.15e} s, dose(continuous) {d0:.15e} s, rel "
+            f"{_rel(d1, d0):.3e} (bar {DOSE_BAR:g}, ASSERTED)"
+        )
         assert _rel(d1, d0) <= DOSE_BAR, (lab, d1, d0)
 
 
@@ -151,13 +179,19 @@ def test_q_wd_win_wd_and_rc_wd():
             T = T_INF + th
             dose, ref, rel, swap, miss = _q_check(T_GRID, T)
             mx, t_mx, lo, hi, wref, wrel = _win_check(T_GRID, th)
-            _p(f"MAT21-22 (Q-wd) {lab} {name}: duty CEM43 {dose:.15e} s vs quad {ref:.15e} s rel "
-               f"{rel:.3e} (bar {DOSE_BAR:g}, ASSERTED); max T {np.max(T):.9f} C < {T_REF} ASSERTED")
-            _p(f"MAT21-22 (Win-wd) {lab} {name}: max six-minute mean {mx:.15e} K at t_max {t_mx:.4f} s; "
-               f"(i) [{T_GRID[0] + W_B2:.3f}, {T_GRID[-1]:.3f}]; (ii) [{lo:.12e}, {hi:.12e}]; (iii) "
-               f"quad {wref:.15e} rel {wrel:.3e} (bar {AVG_BAR:g}, ASSERTED)")
-            _p(f"MAT21-22 (Rc-wd) {lab} {name}: R swap miss {miss:.4e} (asserted > {DOSE_BAR:g}); "
-               f"factor {swap / ref:.4e}")
+            _p(
+                f"MAT21-22 (Q-wd) {lab} {name}: duty CEM43 {dose:.15e} s vs quad {ref:.15e} s rel "
+                f"{rel:.3e} (bar {DOSE_BAR:g}, ASSERTED); max T {np.max(T):.9f} C < {T_REF} ASSERTED"
+            )
+            _p(
+                f"MAT21-22 (Win-wd) {lab} {name}: max six-minute mean {mx:.15e} K at t_max {t_mx:.4f} s; "
+                f"(i) [{T_GRID[0] + W_B2:.3f}, {T_GRID[-1]:.3f}]; (ii) [{lo:.12e}, {hi:.12e}]; (iii) "
+                f"quad {wref:.15e} rel {wrel:.3e} (bar {AVG_BAR:g}, ASSERTED)"
+            )
+            _p(
+                f"MAT21-22 (Rc-wd) {lab} {name}: R swap miss {miss:.4e} (asserted > {DOSE_BAR:g}); "
+                f"factor {swap / ref:.4e}"
+            )
             assert float(np.max(T)) < T_REF, (lab, name, float(np.max(T)))
             assert rel <= DOSE_BAR, (lab, name, rel)
             assert T_GRID[0] + W_B2 <= t_mx <= T_GRID[-1], (lab, t_mx)
@@ -171,9 +205,11 @@ def test_mw_wd_massless_wall_control():
     d_w = cem43(T_GRID, T_INF + h["d"][:, INTERFACE])
     d_m = cem43(T_GRID, T_INF + h["m"][:, INTERFACE])
     miss = _rel(d_m, d_w)
-    _p(f"MAT21-22 (Mw-wd) interface: walled {d_w:.15e} s, massless wall {d_m:.15e} s, ratio "
-       f"{d_w / d_m:.9f}, miss {miss:.4e} (asserted > {DOSE_BAR:g}; separation "
-       f"{miss / DOSE_BAR:.3e} x the bar)")
+    _p(
+        f"MAT21-22 (Mw-wd) interface: walled {d_w:.15e} s, massless wall {d_m:.15e} s, ratio "
+        f"{d_w / d_m:.9f}, miss {miss:.4e} (asserted > {DOSE_BAR:g}; separation "
+        f"{miss / DOSE_BAR:.3e} x the bar)"
+    )
     assert miss > DOSE_BAR, miss
 
 
@@ -188,8 +224,10 @@ def test_printed_duty_dose_records():
         d_m = cem43(T_GRID, T_INF + h["m"][:, j])
         _a, mx_c, t_c = running_average(T_GRID, h["cont"][:, j], window=W)
         _a, mx_d, t_d = running_average(T_GRID, h["d"][:, j], window=W)
-        _p(f"MAT21-22 DUTY DOSE {lab}: D_cont {d_c:.15e} s; D_duty(peak) {d_pk:.15e} s; D_duty(equal "
-           f"mean) {d_eq:.15e} s; equal-mean ratio {d_eq / d_c:.6f} (bare box {BARE_EQ_RATIO}, its own "
-           f"schedule, printed); peak ratio {d_pk / d_c:.6f}; walled / massless {d_pk / d_m:.6f}; "
-           f"six-minute peak cont {mx_c:.6f} K at {t_c:.2f} s, duty {mx_d:.6f} K at {t_d:.2f} s")
+        _p(
+            f"MAT21-22 DUTY DOSE {lab}: D_cont {d_c:.15e} s; D_duty(peak) {d_pk:.15e} s; D_duty(equal "
+            f"mean) {d_eq:.15e} s; equal-mean ratio {d_eq / d_c:.6f} (bare box {BARE_EQ_RATIO}, its own "
+            f"schedule, printed); peak ratio {d_pk / d_c:.6f}; walled / massless {d_pk / d_m:.6f}; "
+            f"six-minute peak cont {mx_c:.6f} K at {t_c:.2f} s, duty {mx_d:.6f} K at {t_d:.2f} s"
+        )
         assert np.isfinite(d_eq / d_c)

@@ -48,7 +48,7 @@ WEEKLY_P2_PREDICTION = 0.185
 #: `xl` entry 30's decision rule, first branch (xl-pending.md:1609): max self Δ₂ ≤ 0.10 %.
 #: The rule's own threshold, used to reproduce the weekly's reading — not a new band.
 F27_SELF_CHANGE_CEILING = 1e-3
-PCT_TOL = 5e-5   # %-points: the printed 4 dp
+PCT_TOL = 5e-5  # %-points: the printed 4 dp
 RATIO_TOL = 5e-4  # the printed 3 dp
 FREQS = (10, 64, 128)
 CLASSES = ("self", "adjacent", "opposite")
@@ -84,13 +84,20 @@ def _logs(mod, scratch: Path):
 def _printed_moves(log: Path, tag: str):
     """{f: {class: pct}} from the log's own `S class move` print lines."""
     text = read_log_text(log)
-    pat = re.compile(r"\[ANS-4 step6a\] knobbed vs item 192 x1 \(ANS4_EXACT_STRIP_S_P2_X1\) "
-                     r"(\d+) MHz S class move self ([\d.]+)%\s+adjacent ([\d.]+)%\s+opposite ([\d.]+)%")
+    pat = re.compile(
+        r"\[ANS-4 step6a\] knobbed vs item 192 x1 \(ANS4_EXACT_STRIP_S_P2_X1\) "
+        r"(\d+) MHz S class move self ([\d.]+)%\s+adjacent ([\d.]+)%\s+opposite ([\d.]+)%"
+    )
     out = {}
     for m in pat.finditer(text):
-        out.setdefault(int(m.group(1)), {"self": float(m.group(2)),
-                                         "adjacent": float(m.group(3)),
-                                         "opposite": float(m.group(4))})
+        out.setdefault(
+            int(m.group(1)),
+            {
+                "self": float(m.group(2)),
+                "adjacent": float(m.group(3)),
+                "opposite": float(m.group(4)),
+            },
+        )
     print(f"({tag}) printed moves parsed from {log.name}: {out}")
     return out
 
@@ -119,21 +126,29 @@ def test_h_table(mod, tmp_path):
     for f in FREQS:
         got = mod._h_matrix(x1["freqs"][str(f)])
         ref = np.asarray(ANS4_EXACT_STRIP_S_P2_X1[str(f)], dtype=np.complex128)
-        print(f"(X) x1 {f} MHz rows equal ANS4_EXACT_STRIP_S_P2_X1 exactly: {np.array_equal(got, ref)}")
+        print(
+            f"(X) x1 {f} MHz rows equal ANS4_EXACT_STRIP_S_P2_X1 exactly: {np.array_equal(got, ref)}"
+        )
         assert np.array_equal(got, ref)
 
     # (L)
-    means = [{f: _class_means(mod._h_matrix(r["freqs"][str(f)])) for f in FREQS}
-             for r in numbers["rungs"]]
-    for fine, log in ((1, LOGS / "20261005T070009Z_ANS-4-step6b.log"),
-                      (2, LOGS / "20261011T070008Z_ANS-4-step6c.log")):
+    means = [
+        {f: _class_means(mod._h_matrix(r["freqs"][str(f)])) for f in FREQS}
+        for r in numbers["rungs"]
+    ]
+    for fine, log in (
+        (1, LOGS / "20261005T070009Z_ANS-4-step6b.log"),
+        (2, LOGS / "20261011T070008Z_ANS-4-step6c.log"),
+    ):
         printed = _printed_moves(log, "L")
         for f in FREQS:
             mv = _relative_move(means[fine][f], means[0][f])
             for c in CLASSES:
                 d = abs(100 * mv[c] - printed[f][c])
-                print(f"(L) x1->rung{fine} {f} MHz {c}: {100 * mv[c]:.6f} % vs printed "
-                      f"{printed[f][c]:.4f} % (|d| {d:.2e})")
+                print(
+                    f"(L) x1->rung{fine} {f} MHz {c}: {100 * mv[c]:.6f} % vs printed "
+                    f"{printed[f][c]:.4f} % (|d| {d:.2e})"
+                )
                 assert d <= PCT_TOL
 
     # (W)
@@ -141,8 +156,10 @@ def test_h_table(mod, tmp_path):
     for i, f in enumerate(FREQS):
         for c in CLASSES:
             d = abs(100 * vals[f][c]["d2"] - WEEKLY_D2_PCT[c][i])
-            print(f"(W) {f} MHz {c} Δ₂ {100 * vals[f][c]['d2']:.6f} % vs weekly "
-                  f"{WEEKLY_D2_PCT[c][i]} (|d| {d:.2e}); ratio {vals[f][c]['ratio']:.5f}")
+            print(
+                f"(W) {f} MHz {c} Δ₂ {100 * vals[f][c]['d2']:.6f} % vs weekly "
+                f"{WEEKLY_D2_PCT[c][i]} (|d| {d:.2e}); ratio {vals[f][c]['ratio']:.5f}"
+            )
             assert d <= PCT_TOL
         dr = abs(vals[f]["self"]["ratio"] - WEEKLY_SELF_RATIO[i])
         assert dr <= RATIO_TOL
@@ -163,8 +180,10 @@ def test_h_table(mod, tmp_path):
         mod.CASE_DIR = old
     render = (tmp_path / "COMPARISON.md").read_bytes()
     n_head = render.decode().count(mod.H_TABLE_HEADING)
-    print(f"(R) render {len(render)} B vs committed {len(committed_md)} B: "
-          f"identical={render == committed_md}; heading count {n_head}")
+    print(
+        f"(R) render {len(render)} B vs committed {len(committed_md)} B: "
+        f"identical={render == committed_md}; heading count {n_head}"
+    )
     assert n_head == 1
     assert render == committed_md
 
@@ -183,12 +202,16 @@ def test_h_table(mod, tmp_path):
     bad_text = committed_json.decode().replace("+7.347852893e-02", "+7.357852893e-02", 1)
     assert bad_text != committed_json.decode()
     bad = json.loads(bad_text)
-    print(f"(N-digit-data) planted numbers file equals re-extraction = "
-          f"{bad_text.encode() == regen}")
+    print(
+        f"(N-digit-data) planted numbers file equals re-extraction = "
+        f"{bad_text.encode() == regen}"
+    )
     assert bad_text.encode() != regen
     bad_d2 = 100 * mod.h_table_values(bad)[64]["self"]["d2"]
-    print(f"(N-digit-data) 64 MHz self Δ₂ {bad_d2:.6f} % (predicted ≈ 0.0528 %, printed); "
-          f"|d| from 0.0569 = {abs(bad_d2 - 0.0569):.2e} > {PCT_TOL}")
+    print(
+        f"(N-digit-data) 64 MHz self Δ₂ {bad_d2:.6f} % (predicted ≈ 0.0528 %, printed); "
+        f"|d| from 0.0569 = {abs(bad_d2 - 0.0569):.2e} > {PCT_TOL}"
+    )
     assert abs(bad_d2 - WEEKLY_D2_PCT["self"][1]) > PCT_TOL
 
     # (N-old) the pinned pre-change writer renders no h-table section
@@ -201,7 +224,9 @@ def test_h_table(mod, tmp_path):
     old_mod._write_comparison(json.loads(metrics_before))
     old_render = (tmp_path / "old" / "COMPARISON.md").read_bytes()
     n_old = old_render.decode().count(mod.H_TABLE_HEADING)
-    print(f"(N-old) pinned render heading count {n_old}; differs from committed = "
-          f"{old_render != committed_md}")
+    print(
+        f"(N-old) pinned render heading count {n_old}; differs from committed = "
+        f"{old_render != committed_md}"
+    )
     assert n_old == 0
     assert old_render != committed_md

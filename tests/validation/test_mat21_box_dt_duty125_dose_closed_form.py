@@ -23,13 +23,13 @@ from scipy.integrate import quad
 
 from fem_em_solver.thermal.dose import cem43, running_average
 from fem_em_solver.utils.analytical import robin_box_quadratic_transient_temperature
-
 from tests.validation.test_mat13_transient_perfusion_sphere import INTERIOR_BAND
 from tests.validation.test_mat20_cem43_closed_form import _rel
 from tests.validation.test_mat20_tuned_heating_dose import R_BELOW, _quad_dose
-from tests.validation.test_mat21_box_closed_form import HALF, H, K, Q
+from tests.validation.test_mat21_box_closed_form import HALF
 from tests.validation.test_mat21_box_closed_form import RHO_C as RHO_C_0
 from tests.validation.test_mat21_box_closed_form import T_INF as T_INF_0
+from tests.validation.test_mat21_box_closed_form import H, K, Q
 from tests.validation.test_mat21_box_dose_closed_form import (
     AVG_BAR,
     DOSE_BAR,
@@ -74,8 +74,14 @@ T_GRID80 = DT80 * np.arange(N80 + 1)
 MID_T80 = (0.25 * DT80, 0.75 * DT80) + tuple((k - 0.5) * DT80 for k in range(2, 81))
 # P44's W1 D = 0.25 series doses (peak) at :.15e, SIX_LABELS order, copied from
 # docs/testing/logs/20261021T005053Z_MAT-21-step16-W1-probe-duty-dose-closed-form.log:181-186.
-P44_D25_SERIES_DOSE = ("7.275169262715064e-11", "7.275169262715064e-11", "4.047569053358871e-11",
-                       "4.039333276168868e-11", "4.039333276168868e-11", "4.094517681689437e-11")
+P44_D25_SERIES_DOSE = (
+    "7.275169262715064e-11",
+    "7.275169262715064e-11",
+    "4.047569053358871e-11",
+    "4.039333276168868e-11",
+    "4.039333276168868e-11",
+    "4.094517681689437e-11",
+)
 # P41 / P42 / P44 recorded equal-mean ratios (printed beside), SIX_LABELS order (wall, wall,
 # centre from P41 / P42 HIST_PTS logs; P3-P5 from P44 W1).
 REC_EQ = {"d50": ("1.186312", "1.186312", "1.004475"), "d25": ("1.276608", "1.276608", "1.006916")}
@@ -85,7 +91,8 @@ PRED_PEAK = ((0.06, 0.11), (0.970, 0.980), (0.968, 0.985), (0.915, 0.945))
 PRED_RC = (1e6, 1e7)
 PRED_XGRID = 1e-14
 SIX = tuple(("h", j, HIST_LABELS[j]) for j in range(len(DOSE_PTS))) + tuple(
-    ("n", j, NEW_LABELS[j]) for j in range(len(NEW_PTS)))
+    ("n", j, NEW_LABELS[j]) for j in range(len(NEW_PTS))
+)
 SIX_KIND = (0, 0, 1, 2, 2, 3)
 BATCHES = (("h", HIST_PTS), ("n", NEW_PTS))
 
@@ -113,8 +120,19 @@ def _series_hist_g(pts, t, weights=WEIGHTS, n_terms=QUAD_TERMS):
     out = np.zeros((t.size, P.shape[0]))
     for n in range(1, t.size):
         out[n] = robin_box_quadratic_transient_temperature(
-            P[:, 0], P[:, 1], P[:, 2], t[n], half_widths=HALF, k=K, q=Q, h=H,
-            rho_c=RHO_C_0, weights=weights, t_inf=0.0, n_terms=n_terms)
+            P[:, 0],
+            P[:, 1],
+            P[:, 2],
+            t[n],
+            half_widths=HALF,
+            k=K,
+            q=Q,
+            h=H,
+            rho_c=RHO_C_0,
+            weights=weights,
+            t_inf=0.0,
+            n_terms=n_terms,
+        )
     return out
 
 
@@ -123,8 +141,9 @@ def _duty_hist_g(pts, t, switch_times):
     P = np.asarray(pts, dtype=float)
     out = np.zeros((t.size, P.shape[0]))
     for n in range(1, t.size):
-        out[n] = _quad_duty(P[:, 0], P[:, 1], P[:, 2], t[n], switch_times=switch_times,
-                            n_terms=QUAD_TERMS)
+        out[n] = _quad_duty(
+            P[:, 0], P[:, 1], P[:, 2], t[n], switch_times=switch_times, n_terms=QUAD_TERMS
+        )
     return out
 
 
@@ -144,8 +163,15 @@ def _win_check_g(th, t, window=float(W_B2)):
     pts = np.concatenate([[np.interp(s, t, th)], np.interp(inside, t, th)])
     lo, hi = float(np.min(pts)), float(np.max(pts))
     brk = [x for x in t if s < x < t_mx]
-    ref, _err = quad(lambda x: np.interp(x, t, th), s, t_mx, points=brk or None,
-                     epsabs=0.0, epsrel=1e-13, limit=200)
+    ref, _err = quad(
+        lambda x: np.interp(x, t, th),
+        s,
+        t_mx,
+        points=brk or None,
+        epsabs=0.0,
+        epsrel=1e-13,
+        limit=200,
+    )
     ref /= window
     return float(mx), float(t_mx), lo, hi, ref, _rel(mx, ref)
 
@@ -200,14 +226,17 @@ def test_g_copy_local_copies_bitwise_on_41_point_grid():
     c = _hists()
     res = {}
     for b, P in BATCHES:
-        res[f"_series_hist_g {b}"] = bool(np.array_equal(_series_hist_g(P, T_GRID), c[40]["cont"][b]))
-        res[f"_duty_hist_g {b}"] = bool(np.array_equal(_duty_hist_g(P, T_GRID, T_SW125),
-                                                       c[40]["d125"][b]))
+        res[f"_series_hist_g {b}"] = bool(
+            np.array_equal(_series_hist_g(P, T_GRID), c[40]["cont"][b])
+        )
+        res[f"_duty_hist_g {b}"] = bool(
+            np.array_equal(_duty_hist_g(P, T_GRID, T_SW125), c[40]["d125"][b])
+        )
     th = c[40]["d125"]["n"][:, 2]
     res["_q_check_g"] = _q_check_g(T_INF_0 + th, T_GRID) == _q_check(T_INF_0 + th)
     res["_win_check_g"] = _win_check_g(th, T_GRID) == _win_check(th)
     res["_trap_g"] = _trap_g(th, T_GRID) == _trap(th)
-    res["_sched_string_g"] = (_sched_string_g(_chi25, MID_T) == _sched_string(_chi25))
+    res["_sched_string_g"] = _sched_string_g(_chi25, MID_T) == _sched_string(_chi25)
     from tests.validation.test_mat21_box_dose_fem import _bd
 
     th_s = c[40]["cont"]["h"]
@@ -220,16 +249,22 @@ def test_g_copy_local_copies_bitwise_on_41_point_grid():
 def test_g125_schedule_strings_and_planted_control():
     s40 = _sched_string_g(_chi125, MID_T)
     s80 = _sched_string_g(_chi125, MID_T80)
-    _p(f"MAT21-17s (G125) N=40 {s40} (len {len(s40)}, on {s40.count('1')}); expected "
-       f"{SCHEDULE_125}")
-    _p(f"MAT21-17s (G125) N=80 {s80} (len {len(s80)}, on {s80.count('1')}); expected "
-       f"{SCHEDULE_125_80}")
+    _p(
+        f"MAT21-17s (G125) N=40 {s40} (len {len(s40)}, on {s40.count('1')}); expected "
+        f"{SCHEDULE_125}"
+    )
+    _p(
+        f"MAT21-17s (G125) N=80 {s80} (len {len(s80)}, on {s80.count('1')}); expected "
+        f"{SCHEDULE_125_80}"
+    )
     assert s40 == SCHEDULE_125 and s80 == SCHEDULE_125_80
     assert (len(s40), s40.count("1"), len(s80), s80.count("1")) == (41, 6, 81, 11)
     p40 = _sched_string_g(_chi125_planted, MID_T)
     p80 = _sched_string_g(_chi125_planted, MID_T80)
-    _p(f"MAT21-17s (G-ctl) planted (% 8 < 2) N=40 {p40} (== SCHEDULE_25 {p40 == SCHEDULE_25}); "
-       f"N=80 {p80}")
+    _p(
+        f"MAT21-17s (G-ctl) planted (% 8 < 2) N=40 {p40} (== SCHEDULE_25 {p40 == SCHEDULE_25}); "
+        f"N=80 {p80}"
+    )
     assert p40 != SCHEDULE_125 and p80 != SCHEDULE_125_80
     assert p40 == SCHEDULE_25
 
@@ -267,14 +302,22 @@ def test_q_s_win_s_d125_both_dt_six_points():
                     assert float(np.max(T_INF_0 + c[n][key][b][:, j] * sc)) < T_REF, (n, key, name)
                 dose, ref, rel, swap, miss = _q_check_g(T, t)
                 mx, t_mx, lo, hi, wref, wrel = _win_check_g(th, t)
-                _p(f"MAT21-17s (Q-s) t*/{n} d125 {lab} {name}: CEM43 {dose:.15e} s vs quad "
-                   f"{ref:.15e} s rel {rel:.3e} (bar {DOSE_BAR:g}, ASSERTED; predicted <= 1e-14); "
-                   f"max T {np.max(T):.9f} C < 43 ASSERTED")
-                _p(f"MAT21-17s (Win-s) t*/{n} d125 {lab} {name}: max six-minute mean {mx:.15e} K "
-                   f"at t_max {t_mx:.4f} s; (ii) [{lo:.12e}, {hi:.12e}]; (iii) quad {wref:.15e} "
-                   f"rel {wrel:.3e} (bar {AVG_BAR:g}, ASSERTED; predicted <= 1e-15)")
-                if not (rel <= DOSE_BAR and t[0] + W_B2 <= t_mx <= t[-1] and lo <= mx <= hi
-                        and wrel <= AVG_BAR):
+                _p(
+                    f"MAT21-17s (Q-s) t*/{n} d125 {lab} {name}: CEM43 {dose:.15e} s vs quad "
+                    f"{ref:.15e} s rel {rel:.3e} (bar {DOSE_BAR:g}, ASSERTED; predicted <= 1e-14); "
+                    f"max T {np.max(T):.9f} C < 43 ASSERTED"
+                )
+                _p(
+                    f"MAT21-17s (Win-s) t*/{n} d125 {lab} {name}: max six-minute mean {mx:.15e} K "
+                    f"at t_max {t_mx:.4f} s; (ii) [{lo:.12e}, {hi:.12e}]; (iii) quad {wref:.15e} "
+                    f"rel {wrel:.3e} (bar {AVG_BAR:g}, ASSERTED; predicted <= 1e-15)"
+                )
+                if not (
+                    rel <= DOSE_BAR
+                    and t[0] + W_B2 <= t_mx <= t[-1]
+                    and lo <= mx <= hi
+                    and wrel <= AVG_BAR
+                ):
                     bad.append((n, lab, name, rel, t_mx, lo, mx, hi, wrel))
     assert not bad, bad
 
@@ -286,10 +329,15 @@ def test_rc_s_controls():
         for scale, lab in ((1.0, "peak"), (1.0 / DUTY125, "equal-mean")):
             for b, j, name in SIX:
                 _d, ref, _r, swap, miss = _q_check_g(T_INF_0 + c[n]["d125"][b][:, j] * scale, t)
-                tag = (f"asserted > {DOSE_BAR:g}" if n == 40 else
-                       f"PREDICTED factor {PRED_RC}; printed only, ruling 03:00 (6)")
-                _p(f"MAT21-17s (Rc'-s) t*/{n} d125 {lab} {name}: R swap miss {miss:.4e} ({tag}); "
-                   f"factor {swap / ref:.4e}")
+                tag = (
+                    f"asserted > {DOSE_BAR:g}"
+                    if n == 40
+                    else f"PREDICTED factor {PRED_RC}; printed only, ruling 03:00 (6)"
+                )
+                _p(
+                    f"MAT21-17s (Rc'-s) t*/{n} d125 {lab} {name}: R swap miss {miss:.4e} ({tag}); "
+                    f"factor {swap / ref:.4e}"
+                )
                 if n == 40 and not miss > DOSE_BAR:
                     bad.append((lab, name, miss))
     assert not bad, bad
@@ -304,9 +352,11 @@ def test_printed_tables():
             a40 = c[40][key][b]
             a80 = c[80][key][b]
             x = float(np.max(np.abs(a80[::2] - a40)) / np.max(a40))
-            _p(f"MAT21-17s (X-grid) {key} {b}: max_n |theta80[2n] - theta40[n]| / max theta40 "
-               f"{x:.3e} (predicted <= {PRED_XGRID:g}); T_GRID80[::2] == T_GRID "
-               f"{bool(np.array_equal(T_GRID80[::2], T_GRID))}")
+            _p(
+                f"MAT21-17s (X-grid) {key} {b}: max_n |theta80[2n] - theta40[n]| / max theta40 "
+                f"{x:.3e} (predicted <= {PRED_XGRID:g}); T_GRID80[::2] == T_GRID "
+                f"{bool(np.array_equal(T_GRID80[::2], T_GRID))}"
+            )
     eqs = {}
     for n, t in GRIDS:
         for b, j, name in SIX:
@@ -325,25 +375,31 @@ def test_printed_tables():
                 _a, mx_c, t_c = running_average(t, th_s, window=W)
                 _a, mx_d, t_d = running_average(t, th_d, window=W)
                 rec = REC_EQ["d50"][j] + " / " + REC_EQ["d25"][j] if b == "h" else "P44 W1 log"
-                _p(f"MAT21-17s DUTY DOSE t*/{n} d125 {name}: D_cont {d_c:.15e} s; D(peak) "
-                   f"{d_pk:.15e} s; D(equal mean) {d_eq:.15e} s; ratio equal-mean "
-                   f"{d_eq / d_c:.6f} (predicted {PRED_EQ[k]}; d50 / d25 recorded {rec}); ratio "
-                   f"peak {d_pk / d_c:.6f} (predicted {PRED_PEAK[k]}); theta ratio at t* "
-                   f"{r_t:.5f} (x8 {r_t / DUTY125:.5f}); time-mean theta ratio {r_mean:.5f} "
-                   f"(x8 {r_mean / DUTY125:.5f}); six-minute peak cont {mx_c:.6f} K at {t_c:.2f} "
-                   f"s, d125 {mx_d:.6f} K at {t_d:.2f} s ({t_d / DT_BOX:.2f} DT_BOX)")
+                _p(
+                    f"MAT21-17s DUTY DOSE t*/{n} d125 {name}: D_cont {d_c:.15e} s; D(peak) "
+                    f"{d_pk:.15e} s; D(equal mean) {d_eq:.15e} s; ratio equal-mean "
+                    f"{d_eq / d_c:.6f} (predicted {PRED_EQ[k]}; d50 / d25 recorded {rec}); ratio "
+                    f"peak {d_pk / d_c:.6f} (predicted {PRED_PEAK[k]}); theta ratio at t* "
+                    f"{r_t:.5f} (x8 {r_t / DUTY125:.5f}); time-mean theta ratio {r_mean:.5f} "
+                    f"(x8 {r_mean / DUTY125:.5f}); six-minute peak cont {mx_c:.6f} K at {t_c:.2f} "
+                    f"s, d125 {mx_d:.6f} K at {t_d:.2f} s ({t_d / DT_BOX:.2f} DT_BOX)"
+                )
                 assert np.isfinite(d_eq / d_c)
     for n, _t in GRIDS:
         for _b, _j, name in SIX:
-            _p(f"MAT21-17s convexity t*/{n} D12.5,eq/D25,eq {name}: "
-               f"{eqs[(n, 'd125', name)] / eqs[(n, 'd25', name)]:.6f}")
+            _p(
+                f"MAT21-17s convexity t*/{n} D12.5,eq/D25,eq {name}: "
+                f"{eqs[(n, 'd125', name)] / eqs[(n, 'd25', name)]:.6f}"
+            )
     for key in ("cont", "d25", "d125"):
         for b, j, name in SIX:
             D = {"cont": 1.0, "d25": 0.25, "d125": DUTY125}[key]
             d41 = cem43(T_GRID, T_INF_0 + c[40][key][b][:, j])
             d81 = cem43(T_GRID80, T_INF_0 + c[80][key][b][:, j])
-            _p(f"MAT21-17s SAMPLING (41 vs 81 samples) {key} {name}: D41 {d41:.15e} s, D81 "
-               f"{d81:.15e} s, D41/D81 - 1 {d41 / d81 - 1.0:+.4e} (D = {D})")
+            _p(
+                f"MAT21-17s SAMPLING (41 vs 81 samples) {key} {name}: D41 {d41:.15e} s, D81 "
+                f"{d81:.15e} s, D41/D81 - 1 {d41 / d81 - 1.0:+.4e} (D = {D})"
+            )
     for n, t in GRIDS:
         for norm in ("peak", "equal-mean"):
             for b, j, name in SIX:
@@ -351,10 +407,14 @@ def test_printed_tables():
                 for key, D in (("cont", 1.0), ("d25", 0.25), ("d125", DUTY125)):
                     sc = 1.0 if norm == "peak" else 1.0 / D
                     row.append(f"{key} {cem43(t, T_INF_0 + c[n][key][b][:, j] * sc):.15e}")
-                _p(f"MAT21-17s SIX-POINT x THREE-SCHEDULE SERIES DOSE TABLE t*/{n} ({norm}) "
-                   f"{name}: " + "; ".join(row) + " s")
+                _p(
+                    f"MAT21-17s SIX-POINT x THREE-SCHEDULE SERIES DOSE TABLE t*/{n} ({norm}) "
+                    f"{name}: " + "; ".join(row) + " s"
+                )
     for n, _t in GRIDS:
         a = c[n]["d125"]["n"]
-        _p(f"MAT21-17s P3 / P4 d125 t*/{n} series histories np.array_equal: "
-           f"{bool(np.array_equal(a[:, 0], a[:, 1]))} (predicted True)")
+        _p(
+            f"MAT21-17s P3 / P4 d125 t*/{n} series histories np.array_equal: "
+            f"{bool(np.array_equal(a[:, 0], a[:, 1]))} (predicted True)"
+        )
     _p(f"MAT21-17s labels {SIX_LABELS}; SIX order {[x[2] for x in SIX]}")

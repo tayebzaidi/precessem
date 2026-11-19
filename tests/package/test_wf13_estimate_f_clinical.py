@@ -90,13 +90,15 @@ def test_wf13_s12_fc1_estimate_reads_records(no_build):
     assert isinstance(study.geometry, FClinicalBirdcageGeometry)
     g = study.geometry
     assert (g.leg_count, g.ring_radius, g.shield_radius) == (
-        geo38.LEG_COUNT, geo38.F_CLINICAL_15T_KWARGS["ring_radius"],
-        geo38.F_CLINICAL_15T_KWARGS["shield_radius"])
+        geo38.LEG_COUNT,
+        geo38.F_CLINICAL_15T_KWARGS["ring_radius"],
+        geo38.F_CLINICAL_15T_KWARGS["shield_radius"],
+    )
     assert g.resolution == geo38.F_CLINICAL_15T_KWARGS["resolution"]
     assert g.conductor_resolution == geo38.CONDUCTOR_RESOLUTION["r1"]
 
     est = study.estimate(MPI.COMM_WORLD)
-    (row, _fc2) = PRICE_TABLE_CLINICAL  # FC2: `WF-13` step 13 (§9 item 715)
+    row, _fc2 = PRICE_TABLE_CLINICAL  # FC2: `WF-13` step 13 (§9 item 715)
     _say(f"\n[WF-13 s12] FC1: {est}")
     assert est.cells == 1_147_366
     assert est.unknowns == 1_525_193 == geo38.F_CLINICAL_R1_UNKNOWNS_RECORD[0]
@@ -123,8 +125,10 @@ def test_wf13_s12_negative_controls(no_build, monkeypatch):
     # fit would give a finite number).
     est2 = _study(degree=3).estimate(MPI.COMM_WORLD)
     fitted = study_mod._predict(7_885_674, 2, 16)
-    _say(f"\n[WF-13 s12] degree 3: {est2}; the per-degree fit would have said "
-         f"{fitted[0]:.3f} GiB / {fitted[1]:.3f} s")
+    _say(
+        f"\n[WF-13 s12] degree 3: {est2}; the per-degree fit would have said "
+        f"{fitted[0]:.3f} GiB / {fitted[1]:.3f} s"
+    )
     assert est2.rows_used == ()
     assert est2.unknowns == 22_523_541  # U_3 from E, F, T, not degree 2's record (§9 item 731)
     assert any("degree 3" in s for s in est2.not_priced)
@@ -134,11 +138,14 @@ def test_wf13_s12_negative_controls(no_build, monkeypatch):
     # Planted second clinical row: the estimate moves to it.
     base = _study().estimate(MPI.COMM_WORLD)
     plant = dict(study_mod.PRICE_TABLE_CLINICAL[0], row="PLANT", peak_gib=99.0)
-    monkeypatch.setattr(study_mod, "PRICE_TABLE_CLINICAL",
-                        study_mod.PRICE_TABLE_CLINICAL + (plant,))
+    monkeypatch.setattr(
+        study_mod, "PRICE_TABLE_CLINICAL", study_mod.PRICE_TABLE_CLINICAL + (plant,)
+    )
     moved = _study().estimate(MPI.COMM_WORLD)
-    _say(f"[WF-13 s12] planted row: peak {base.predicted_peak_gib} -> {moved.predicted_peak_gib}, "
-         f"rows {base.rows_used} -> {moved.rows_used}")
+    _say(
+        f"[WF-13 s12] planted row: peak {base.predicted_peak_gib} -> {moved.predicted_peak_gib}, "
+        f"rows {base.rows_used} -> {moved.rows_used}"
+    )
     assert moved.predicted_peak_gib == 99.0 != base.predicted_peak_gib
     assert moved.rows_used == ("PLANT",)
 

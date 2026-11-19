@@ -34,9 +34,7 @@ from mpi4py import MPI
 
 from fem_em_solver.io.mesh import MeshGenerator, _interface_facet_tags
 from tests.mesh.helpers import global_cell_tag_set
-from tests.mesh.test_coil_phantom_conforming import _tag_volume, _total_volume
 from tests.mesh.test_birdcage_conductor_sizing import CAD_MASS_GATE
-from tests.mesh.test_two_torus_port_facets import _facet_group_area
 from tests.mesh.test_birdcage_port_sheet_prerequisite import (
     CELL_COUNT_BAND,
     CONDUCTOR_RESOLUTION,
@@ -56,6 +54,8 @@ from tests.mesh.test_birdcage_port_tags import (
     RING_RADIUS,
     _analytic_box_volume,
 )
+from tests.mesh.test_coil_phantom_conforming import _tag_volume, _total_volume
+from tests.mesh.test_two_torus_port_facets import _facet_group_area
 
 # Facet tags this module invents for the audit only — they exist for the length
 # of the test and never reach the mesh generator. 300+i is port i against the
@@ -167,12 +167,8 @@ def test_birdcage_port_boxes_touch_no_conductor():
     interfaces[999] = (3, 2)
     audit_tags = _interface_facet_tags(mesh, cell_tags, interfaces)
 
-    counts = {
-        tag: _global_facet_count(mesh, audit_tags, tag, comm) for tag in interfaces
-    }
-    areas = {
-        tag: _interface_area_or_zero(mesh, audit_tags, tag, comm) for tag in interfaces
-    }
+    counts = {tag: _global_facet_count(mesh, audit_tags, tag, comm) for tag in interfaces}
+    areas = {tag: _interface_area_or_zero(mesh, audit_tags, tag, comm) for tag in interfaces}
 
     box_area = _analytic_port_box_area()
     phantom_area_ratio = areas[999] / _analytic_phantom_area()
@@ -228,11 +224,7 @@ def test_birdcage_port_boxes_touch_no_conductor():
 
     # 3. Closure — the three regions exhaust each port box's boundary.
     for i in range(1, LEG_COUNT + 1):
-        total = (
-            areas[CONDUCTOR_IFACE + i]
-            + areas[AIR_IFACE + i]
-            + areas[PHANTOM_IFACE + i]
-        )
+        total = areas[CONDUCTOR_IFACE + i] + areas[AIR_IFACE + i] + areas[PHANTOM_IFACE + i]
         assert abs(total / box_area - 1.0) < 1e-9, (
             f"port P{i} boundary areas sum to {total:.9e} m^2 against the "
             f"analytic box surface {box_area:.9e} m^2 (ratio "

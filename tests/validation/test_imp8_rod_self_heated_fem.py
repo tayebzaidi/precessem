@@ -27,29 +27,25 @@ import os
 import time
 
 import numpy as np
+import pytest
 from dolfinx import fem
 from mpi4py import MPI
 
-import pytest
-
 from fem_em_solver.thermal import solve_transient_conduction
-
 from tests.mesh.test_birdcage_implant_rod import ROD_RADIUS
-from tests.validation.test_imp8_composite_cylinder_closed_form import (
-    ROD_K,  # nominal
-    ROD_RHO_C,  # nominal
-)
-from tests.validation.test_imp8_rod_line_source_closed_form import L, MM, T_PRINT, _phi
-from tests.validation.test_imp8_rod_line_source_fem import (  # noqa: F401  (box: fixture)
+from tests.validation.test_imp8_composite_cylinder_closed_form import ROD_K  # nominal
+from tests.validation.test_imp8_composite_cylinder_closed_form import ROD_RHO_C  # nominal
+from tests.validation.test_imp8_rod_line_source_closed_form import MM, T_PRINT, _phi
+from tests.validation.test_imp8_rod_line_source_fem import (  # noqa: F401  (called through _source_and_s0); noqa: F401  (box: fixture)
     DEGREE,
     GATE_PTS,
-    P,
     PRINT_PTS,
     QP,
     T_INF,
     W0C_CELLS,
+    P,
     _need,
-    _rod_source,  # noqa: F401  (called through _source_and_s0)
+    _rod_source,
     _source_and_s0,
     _theta_pts,
     box,
@@ -111,7 +107,9 @@ def _coefficients(msh, q, arm):
         rho_c.x.array[body] = ROD_RHO_C
     k.x.scatter_forward()
     rho_c.x.scatter_forward()
-    bad = int(np.count_nonzero(~np.isfinite(k.x.array)) + np.count_nonzero(~np.isfinite(rho_c.x.array)))
+    bad = int(
+        np.count_nonzero(~np.isfinite(k.x.array)) + np.count_nonzero(~np.isfinite(rho_c.x.array))
+    )
     return k, rho_c, n_body, msh.comm.allreduce(bad, op=MPI.SUM)
 
 
@@ -124,20 +122,38 @@ def body_run(box):
     k, rho_c, n_body, n_bad = _coefficients(msh, q, arm)
     out.update({"arm": arm, "n": n, "n_body": n_body, "n_bad": n_bad})
     v_ratio = (out["a_eff"] / ROD_RADIUS) ** 2  # V_body / (pi a^2 L)
-    _say(f"[imp8-i73] arm {arm}; ROD_K {ROD_K:g} W/(m K), ROD_RHO_C {ROD_RHO_C:.6g} J/(m3 K) "
-         f"(nominal); K_GEL {K_GEL:g}, RHO_C {RHO_C:.6g}")
-    _say(f"[imp8-i73] body cells (positive q dofs, owned, allreduced) {n_body} (I55 W0c "
-         f"{BODY_CELLS}); source-selected cells {out['n_sel']}; V_body/(pi a^2 L) {v_ratio:.6f}")
+    _say(
+        f"[imp8-i73] arm {arm}; ROD_K {ROD_K:g} W/(m K), ROD_RHO_C {ROD_RHO_C:.6g} J/(m3 K) "
+        f"(nominal); K_GEL {K_GEL:g}, RHO_C {RHO_C:.6g}"
+    )
+    _say(
+        f"[imp8-i73] body cells (positive q dofs, owned, allreduced) {n_body} (I55 W0c "
+        f"{BODY_CELLS}); source-selected cells {out['n_sel']}; V_body/(pi a^2 L) {v_ratio:.6f}"
+    )
     dt = T_PRINT / N_MAIN
     t1 = time.perf_counter()
     res = solve_transient_conduction(
-        msh, ft, k=k, rho_c=rho_c, q=q, h=H_GEL, t_inf=T_INF, t_init=T_INF,
-        robin_tag=ROBIN_TAG, dt=dt, n_steps=N_MAIN, theta=0.5, startup_half_steps=2,
-        degree=DEGREE)
+        msh,
+        ft,
+        k=k,
+        rho_c=rho_c,
+        q=q,
+        h=H_GEL,
+        t_inf=T_INF,
+        t_init=T_INF,
+        robin_tag=ROBIN_TAG,
+        dt=dt,
+        n_steps=N_MAIN,
+        theta=0.5,
+        startup_half_steps=2,
+        degree=DEGREE,
+    )
     out["t_call"] = time.perf_counter() - t1
     out["E"] = float(res.max_balance_residual)
-    _say(f"[imp8-i73] CN N={N_MAIN} dt={dt:g} s: t_call {out['t_call']:.1f} s; "
-         f"n_factorizations {res.n_factorizations}; ranks {msh.comm.size}")
+    _say(
+        f"[imp8-i73] CN N={N_MAIN} dt={dt:g} s: t_call {out['t_call']:.1f} s; "
+        f"n_factorizations {res.n_factorizations}; ranks {msh.comm.size}"
+    )
     th = _theta_pts(res.temperature, READ_PTS)  # one batch
     out["theta"] = dict(zip(READ_PTS, th))
     out["I"] = []
@@ -149,23 +165,34 @@ def body_run(box):
         ref = I55_THETA.get((r, z))
         if ref is not None:
             tol = 10.0 ** (math.floor(math.log10(abs(ref))) - 5)
-            cmp = (f"I55 {ref:.6e}; theta/theta_55 {v / ref:.7f} (|diff| {abs(v - ref):.3e}, "
-                   f"6th-digit unit {tol:.0e})")
+            cmp = (
+                f"I55 {ref:.6e}; theta/theta_55 {v / ref:.7f} (|diff| {abs(v - ref):.3e}, "
+                f"6th-digit unit {tol:.0e})"
+            )
         else:
             cmp = "I55 not read here (new point)"
-        lab = ("(I) gated on arm gel" if arm == "gel" and (r, z) in GATE_PTS
-               else "not a gate: the comparand has no rod" if arm == "ti" else "printed only")
-        _say(f"[imp8-i73] ({r:g}, {z:g}) mm t*={T_PRINT:g} s arm {arm}: theta {v:.6e} K/W; {cmp}; "
-             f"vs q'/(4 pi k) Phi {cf:.6e}: rel {rel:.3e} ({lab}, band {INTERIOR_BAND:.0e})")
+        lab = (
+            "(I) gated on arm gel"
+            if arm == "gel" and (r, z) in GATE_PTS
+            else "not a gate: the comparand has no rod" if arm == "ti" else "printed only"
+        )
+        _say(
+            f"[imp8-i73] ({r:g}, {z:g}) mm t*={T_PRINT:g} s arm {arm}: theta {v:.6e} K/W; {cmp}; "
+            f"vs q'/(4 pi k) Phi {cf:.6e}: rel {rel:.3e} ({lab}, band {INTERIOR_BAND:.0e})"
+        )
     ax = out["theta"][(2.0, 15.0)] / out["theta"][(2.0, 0.0)]
     move = out["theta"][(2.0, 0.0)] / I55_THETA[(2.0, 0.0)] - 1.0
     out["move"] = move
     _say(f"[imp8-i73] axial ratio theta(2,15)/theta(2,0) arm {arm}: {ax:.6f}")
-    _say(f"[imp8-i73] (2, 0) mm move theta/theta_55 - 1 = {move:.4e} (control floor "
-         f"{CONTROL_FLOOR:.0e}, asserted on arm ti; predicted sign (not asserted): theta(2,0) "
-         f"falls and the axial ratio moves toward 1 on arm ti)")
-    _say(f"[imp8-i73] (E) {out['E']:.3e} (band {E_BAND:.0e}); (S0) {out['S0']:.3e} (band "
-         f"{B_BAND:.0e}); cells {n} (W0c {W0C_CELLS}); non-finite coefficient dofs {n_bad}")
+    _say(
+        f"[imp8-i73] (2, 0) mm move theta/theta_55 - 1 = {move:.4e} (control floor "
+        f"{CONTROL_FLOOR:.0e}, asserted on arm ti; predicted sign (not asserted): theta(2,0) "
+        f"falls and the axial ratio moves toward 1 on arm ti)"
+    )
+    _say(
+        f"[imp8-i73] (E) {out['E']:.3e} (band {E_BAND:.0e}); (S0) {out['S0']:.3e} (band "
+        f"{B_BAND:.0e}); cells {n} (W0c {W0C_CELLS}); non-finite coefficient dofs {n_bad}"
+    )
     return out
 
 

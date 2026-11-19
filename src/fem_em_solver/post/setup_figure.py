@@ -87,6 +87,7 @@ def check_title_length(title: str, limit: int = MAX_TITLE_CHARS) -> str:
         )
     return title
 
+
 # One colour per region *class*, keyed by the name the caller gives the tag,
 # so a "conductor" is copper in every figure in the tree whatever its tag
 # number is. Anything unnamed cycles through the fallback palette.
@@ -106,7 +107,12 @@ CLASS_COLOURS: dict[str, str] = {
     "wall": "#7f7f7f",
 }
 FALLBACK_PALETTE: Sequence[str] = (
-    "#ff7f0e", "#2ca02c", "#9467bd", "#8c564b", "#e377c2", "#17becf",
+    "#ff7f0e",
+    "#2ca02c",
+    "#9467bd",
+    "#8c564b",
+    "#e377c2",
+    "#17becf",
 )
 
 
@@ -291,9 +297,7 @@ def _render(
     present = sorted(int(t) for t in np.unique(grid.cell_data["region"]))
     names = {int(t): str(n) for t, n in region_names.items()}
     ordered = [t for t in present if t in names] + [t for t in present if t not in names]
-    colours = {
-        tag: colour_for(names.get(tag, f"tag {tag}"), i) for i, tag in enumerate(ordered)
-    }
+    colours = {tag: colour_for(names.get(tag, f"tag {tag}"), i) for i, tag in enumerate(ordered)}
 
     bounds = np.asarray(grid.bounds).reshape(3, 2)
     centre = bounds.mean(axis=1)
@@ -332,7 +336,9 @@ def _render(
     by_colour: dict[str, list[str]] = {}
     for tag in ordered:
         if tag in names:
-            by_colour.setdefault(colours[tag], []).append(names[tag] + (" (hidden)" if tag in hide else ""))
+            by_colour.setdefault(colours[tag], []).append(
+                names[tag] + (" (hidden)" if tag in hide else "")
+            )
     grouped = []
     for colour, labels in by_colour.items():
         if len(labels) <= 2:
@@ -360,12 +366,16 @@ def _render(
         max_chars = max((len(text) for text, _ in grouped), default=0)
         legend_width = min(0.6, max(0.24, 0.05 + 0.011 * max_chars))
         plotter.add_legend(
-            grouped, bcolor="white", face=None,
-            size=(legend_width, 0.035 * len(grouped) + 0.02), loc="center left",
+            grouped,
+            bcolor="white",
+            face=None,
+            size=(legend_width, 0.035 * len(grouped) + 0.02),
+            loc="center left",
         )
     plotter.add_text(title or path.stem, position="upper_left", font_size=11, color="black")
     plotter.add_text(
-        "3-D: tagged regions" + (", half-space clipped" if clip_normal is not None and tdim == 3 else ""),
+        "3-D: tagged regions"
+        + (", half-space clipped" if clip_normal is not None and tdim == 3 else ""),
         position="lower_right",
         font_size=9,
         color="#444444",
@@ -404,7 +414,11 @@ def _render(
     if tdim == 3:
         normal = np.asarray(slice_normal, dtype=float)
         normal = normal / np.linalg.norm(normal)
-        plotter.camera_position = [tuple(origin + normal * 10.0 * np.ptp(bounds, axis=1).max()), tuple(origin), (0.0, 1.0, 0.0) if abs(normal[1]) < 0.9 else (1.0, 0.0, 0.0)]
+        plotter.camera_position = [
+            tuple(origin + normal * 10.0 * np.ptp(bounds, axis=1).max()),
+            tuple(origin),
+            (0.0, 1.0, 0.0) if abs(normal[1]) < 0.9 else (1.0, 0.0, 0.0),
+        ]
         plotter.reset_camera()
     else:
         plotter.view_xy()

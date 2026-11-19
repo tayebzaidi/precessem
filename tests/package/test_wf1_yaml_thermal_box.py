@@ -49,7 +49,6 @@ from fem_em_solver import (
     run_study_file,
 )
 from fem_em_solver.study_yaml import _load, _study_from_mapping
-
 from tests.complex_mode import IS_COMPLEX
 from tests.package.test_wf1_study_yaml import (
     LOGS,
@@ -170,8 +169,13 @@ def test_wf1_s15_parse_and_refusals(monkeypatch, capsys):
         calls["n"] += 1
         raise AssertionError("build must not be called by a parse")
 
-    for cls in (SphereInBoxGeometry, FHumanBirdcageGeometry, FourPortBirdcageGeometry,
-                ThermalBallGeometry, ThermalBoxGeometry):
+    for cls in (
+        SphereInBoxGeometry,
+        FHumanBirdcageGeometry,
+        FourPortBirdcageGeometry,
+        ThermalBallGeometry,
+        ThermalBoxGeometry,
+    ):
         monkeypatch.setattr(cls, "build", stub)
 
     # (K) the Study spec
@@ -188,8 +192,11 @@ def test_wf1_s15_parse_and_refusals(monkeypatch, capsys):
     want = {
         STEADY: (RobinCooling(K_GEL, H_GEL, T_INF), None, None),
         WRONG_WALL: (RobinCooling(K_GEL, 2.0 * H_GEL, T_INF), None, None),
-        DUTY: (RobinCooling(K_GEL, H_GEL, T_INF), TransientSpec(DT_BOX, N_MAIN, RHO_C),
-               DutyCycle(2.0 * HALF_T, 0.5)),
+        DUTY: (
+            RobinCooling(K_GEL, H_GEL, T_INF),
+            TransientSpec(DT_BOX, N_MAIN, RHO_C),
+            DutyCycle(2.0 * HALF_T, 0.5),
+        ),
     }
     for f, (cool, tr, du) in want.items():
         _, kind, outputs, th = _load(f)
@@ -203,8 +210,11 @@ def test_wf1_s15_parse_and_refusals(monkeypatch, capsys):
         assert out == [], (f.name, out)
     assert _load(STEADY)[3].transient is None and _load(STEADY)[3].duty is None
     th_d = _load(DUTY)[3]
-    _say(capsys, f"  (K) duty dt_s {th_d.transient.dt_s.hex()} (DT_BOX {DT_BOX.hex()}); period "
-         f"{th_d.duty.period_s.hex()} (2 HALF_T {(2.0 * HALF_T).hex()})")
+    _say(
+        capsys,
+        f"  (K) duty dt_s {th_d.transient.dt_s.hex()} (DT_BOX {DT_BOX.hex()}); period "
+        f"{th_d.duty.period_s.hex()} (2 HALF_T {(2.0 * HALF_T).hex()})",
+    )
 
     # (K) femem check
     for f in (STEADY, WRONG_WALL, DUTY):
@@ -228,8 +238,11 @@ def test_wf1_s15_parse_and_refusals(monkeypatch, capsys):
     capsys.readouterr()
     run_all, check_all = _rc_all(rc_run, comm), _rc_all(rc_check, comm)
     exists = comm.allreduce(bool(d.exists()), op=MPI.LOR)
-    _say(capsys, f"  (X) malformed duty without transient: run rc {run_all}, check rc "
-         f"{check_all}, out exists {exists}")
+    _say(
+        capsys,
+        f"  (X) malformed duty without transient: run rc {run_all}, check rc "
+        f"{check_all}, out exists {exists}",
+    )
     assert run_all == (2, 2)
     assert check_all == (2, 2)
     assert not exists
@@ -247,8 +260,15 @@ def test_wf1_s15_parse_and_refusals(monkeypatch, capsys):
         (_with(s, [0.325, "a", 0.045], "geometry", "half_widths_m"), "geometry.half_widths_m"),
         (_with(s, [52, 0, 8], "geometry", "divisions"), "geometry.divisions"),
         (_with(s, [52, 32.0, 8], "geometry", "divisions"), "geometry.divisions"),
-        (_with(s, {"thickness_m": 0.005, "k_w_per_m_k": 0.19, "rho_c_j_per_m3_k": 1.0e6},
-               "geometry", "wall"), "geometry.wall"),
+        (
+            _with(
+                s,
+                {"thickness_m": 0.005, "k_w_per_m_k": 0.19, "rho_c_j_per_m3_k": 1.0e6},
+                "geometry",
+                "wall",
+            ),
+            "geometry.wall",
+        ),
         (_with(s, 0.1, "geometry", "radius"), "geometry.radius"),
         (_with(s, 0.0, "excitation", "q_w_per_m3"), "excitation.q_w_per_m3"),
         (_with(s, 2.0, "thermal", "source_scale"), "thermal.source_scale"),
@@ -263,16 +283,21 @@ def test_wf1_s15_parse_and_refusals(monkeypatch, capsys):
         _say(capsys, f"  (X) want {want_f!r} got {g!r}")
     assert got == [f for _, f in rows], [(f, g) for (_, f), g in zip(rows, got) if f != g]
     # The ball still refuses a missing transient (item 500's pinned row, beside the box).
-    assert _field(lambda: _study_from_mapping(_without(_mapping(BALL), "thermal", "transient"))) \
+    assert (
+        _field(lambda: _study_from_mapping(_without(_mapping(BALL), "thermal", "transient")))
         == "thermal"
+    )
     assert _field(lambda: _study_from_mapping(_without(du, "thermal", "duty"))) is None
 
     # (c0) by construction: the wall rides in the cooling, not the Study
     d_ww = _spec_diff(load_study(STEADY), load_study(WRONG_WALL))
     cw = []
     _cmp(_load(STEADY)[3].cooling, _load(WRONG_WALL)[3].cooling, "cooling", cw)
-    _say(capsys, f"  (c0) steady vs wrong wall: spec diff {d_ww}; cooling diff {cw}; build "
-         f"calls {calls['n']}")
+    _say(
+        capsys,
+        f"  (c0) steady vs wrong wall: spec diff {d_ww}; cooling diff {cw}; build "
+        f"calls {calls['n']}",
+    )
     assert d_ww == []
     assert cw == ["cooling.h_w_per_m2_k"]
     assert calls["n"] == 0
@@ -283,8 +308,10 @@ def test_wf1_s15_parse_and_refusals(monkeypatch, capsys):
 
 def _solve_preamble():
     if not _knob():
-        pytest.skip(f"{S15_ENV} unset: the thermal-box solve legs are environment-selected "
-                    "(complex build, -n 2)")
+        pytest.skip(
+            f"{S15_ENV} unset: the thermal-box solve legs are environment-selected "
+            "(complex build, -n 2)"
+        )
     comm = MPI.COMM_WORLD
     assert IS_COMPLEX, "the MAT-21 records are complex-build records"
     assert comm.size == 2, comm.size
@@ -304,11 +331,14 @@ def _check_summary(run, comm, label, transient):
     # 20261017T004010Z_WF-1-s14-W1a-duty.log:108).
     rest = {k: v for k, v in s.items() if k != "elapsed_s"}
     js_rest = {k: v for k, v in js.items() if k != "elapsed_s"}
-    same_json = _all(comm, _hex_tree_equal(js_rest, rest)
-                     and (comm.rank != 0 or _hex_tree_equal(js, s)))
-    _p0(f"  (I=) {label}: theta_max {st['theta_max_k']!r} vs recomputed {tmax!r}; power "
+    same_json = _all(
+        comm, _hex_tree_equal(js_rest, rest) and (comm.rank != 0 or _hex_tree_equal(js, s))
+    )
+    _p0(
+        f"  (I=) {label}: theta_max {st['theta_max_k']!r} vs recomputed {tmax!r}; power "
         f"{st['source_power_w']!r}; JSON == summary {same_json}; keys {sorted(s)}; "
-        f"temperature keys {sorted(st)}")
+        f"temperature keys {sorted(st)}"
+    )
     assert st["theta_max_k"].hex() == tmax.hex()
     assert st["source_power_w"].hex() == float(np.real(th.source_power)).hex()
     assert same_json
@@ -343,8 +373,12 @@ def test_wf1_s15_steady_reproduces_mat21_m4():
     T_py = _on(msh, py.temperature)
     ip = _theta_owned_rel(T_py, th.temperature, comm)
     n_own = th.temperature.function_space.dofmap.index_map.size_local
-    hx = _all(comm, np.array_equal(np.asarray(T_py.x.array[:n_own]),
-                                   np.asarray(th.temperature.x.array[:n_own])))
+    hx = _all(
+        comm,
+        np.array_equal(
+            np.asarray(T_py.x.array[:n_own]), np.asarray(th.temperature.x.array[:n_own])
+        ),
+    )
     # (R)
     th_h = th.temperature - T_INF
     ex, npts = _exact(msh, _steady_ex())
@@ -362,15 +396,23 @@ def test_wf1_s15_steady_reproduces_mat21_m4():
     run_w = run_study_file(WRONG_WALL, output_dir=out_w, comm=comm)
     ca_w, _cb_w, geo_w = _same_mesh(run_w.thermal.submesh, msh, comm)
     c_wall = _rel(msh, _on(msh, run_w.thermal.temperature) - T_INF, ex, chi)
-    _p0(f"WF1S15 (UT) steady: summary cells {run.summary['cells']}, cells {ca} / {cb} (record "
-        f"{STEP1_M4_CELLS}); geometry equal {geo}; file run {t_file:.1f}s")
-    _p0(f"WF1S15 (I-Py) steady: owned max|dθ|/max|θ| = {ip:.3e} (hex {float(ip).hex()}; band "
-        f"{L0_BAND:.0e}); owned arrays bitwise equal {hx} (printed, not asserted)")
-    _p0(f"WF1S15 (R) steady: whole L2 rel = {whole:.6e} -> {whole:.4e} (record {STEP1_M4_WHOLE}); "
+    _p0(
+        f"WF1S15 (UT) steady: summary cells {run.summary['cells']}, cells {ca} / {cb} (record "
+        f"{STEP1_M4_CELLS}); geometry equal {geo}; file run {t_file:.1f}s"
+    )
+    _p0(
+        f"WF1S15 (I-Py) steady: owned max|dθ|/max|θ| = {ip:.3e} (hex {float(ip).hex()}; band "
+        f"{L0_BAND:.0e}); owned arrays bitwise equal {hx} (printed, not asserted)"
+    )
+    _p0(
+        f"WF1S15 (R) steady: whole L2 rel = {whole:.6e} -> {whole:.4e} (record {STEP1_M4_WHOLE}); "
         f"interior {interior:.6e} (band {INTERIOR_BAND:.0e}); Gauss {gauss:.3e} (band "
-        f"{S2_GAUSS_BAND:.0e}); {npts} P2 points")
-    _p0(f"WF1S15 control (c-wall) wrong-wall file: interior miss {c_wall:.4e} (521a API "
-        f"{WF15_S5_C_WALL:.4e}; asserted > {INTERIOR_BAND:.0e}); mesh equal {geo_w}, cells {ca_w}")
+        f"{S2_GAUSS_BAND:.0e}); {npts} P2 points"
+    )
+    _p0(
+        f"WF1S15 control (c-wall) wrong-wall file: interior miss {c_wall:.4e} (521a API "
+        f"{WF15_S5_C_WALL:.4e}; asserted > {INTERIOR_BAND:.0e}); mesh equal {geo_w}, cells {ca_w}"
+    )
     _check_summary(run, comm, "steady", transient=False)
     assert run.summary["cells"] == ca == cb == STEP1_M4_CELLS
     assert geo and geo_w
@@ -408,16 +450,24 @@ def test_wf1_s15_duty_reproduces_p26():
     ex_s, _ = _exact(msh, _trans_ex(T_STAR))
     c3 = _rel(msh, th_h, ex_s, chi)
     bal = run.summary["temperature"]["max_balance_residual"]
-    _p0(f"WF1S15 (UT) duty: summary cells {run.summary['cells']}, cells {ca} / {cb} (record "
+    _p0(
+        f"WF1S15 (UT) duty: summary cells {run.summary['cells']}, cells {ca} / {cb} (record "
         f"{STEP1_M6_CELLS}); geometry equal {geo}; multipliers equal {mult} "
-        f"({len(th.source_multipliers)} entries); file run {t_file:.1f}s")
-    _p0(f"WF1S15 (I-Py) duty: owned max|dθ|/max|θ| = {ip:.3e} (hex {float(ip).hex()}; band "
-        f"{L0_BAND:.0e})")
-    _p0(f"WF1S15 (R) duty: (T-duty) interior rel = {t_duty:.6e} -> {t_duty:.4e} (record "
+        f"({len(th.source_multipliers)} entries); file run {t_file:.1f}s"
+    )
+    _p0(
+        f"WF1S15 (I-Py) duty: owned max|dθ|/max|θ| = {ip:.3e} (hex {float(ip).hex()}; band "
+        f"{L0_BAND:.0e})"
+    )
+    _p0(
+        f"WF1S15 (R) duty: (T-duty) interior rel = {t_duty:.6e} -> {t_duty:.4e} (record "
         f"{P26_T_DUTY}; band {INTERIOR_BAND:.0e}); balance {bal:.3e} (band {E_BAND:.0e}); "
-        f"{npts} P2 points")
-    _p0(f"WF1S15 control (c3) step response vs duty file: miss {c3:.4e} (P26 {P26_C3:.4e}; "
-        f"asserted > {INTERIOR_BAND:.0e})")
+        f"{npts} P2 points"
+    )
+    _p0(
+        f"WF1S15 control (c3) step response vs duty file: miss {c3:.4e} (P26 {P26_C3:.4e}; "
+        f"asserted > {INTERIOR_BAND:.0e})"
+    )
     _check_summary(run, comm, "duty", transient=True)
     assert run.summary["cells"] == ca == cb == STEP1_M6_CELLS
     assert geo

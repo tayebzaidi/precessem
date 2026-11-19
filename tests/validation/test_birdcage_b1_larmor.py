@@ -63,7 +63,6 @@ from fem_em_solver.post import (
     magnetic_flux_density_from_e,
     project_to_cg1,
 )
-
 from tests.complex_mode import complex_only
 from tests.mesh.test_birdcage_port_sheets import SHEET_IFACE
 from tests.validation.test_birdcage_b1_plus_map import (
@@ -91,8 +90,8 @@ from tests.validation.test_birdcage_b1_quadrature import (
     _superpose_dg0,
 )
 from tests.validation.test_lossy_sphere_fullwave import (
-    FREQUENCY_128_HZ,
     FREQUENCY_64_HZ,
+    FREQUENCY_128_HZ,
 )
 from tests.validation.test_port_birdcage_four_port import (
     TERMINATED_PORT_IMPEDANCE_OHM,
@@ -174,9 +173,7 @@ def _read_rung(sweep, label):
     object escapes (the `TH-13` step-2 teardown deadlock).
     """
     comm = sweep["mesh"].comm
-    azimuths = {
-        f"P{s['tag'] - SHEET_IFACE}": float(s["azimuth_deg"]) for s in sweep["sheets"]
-    }
+    azimuths = {f"P{s['tag'] - SHEET_IFACE}": float(s["azimuth_deg"]) for s in sweep["sheets"]}
     delta_deg = (azimuths["P2"] - azimuths["P1"]) % 360.0
     delta = np.radians(delta_deg)
 
@@ -195,17 +192,13 @@ def _read_rung(sweep, label):
             "conductor": float(sh["conductor"]),
             "sheet_total": float(sh["sheet_total"]),
             "residual": float(abs(sh["supplied"] - total) / abs(sh["supplied"])),
-            "blind": float(
-                abs(sh["supplied"] - (total - sh["conductor"])) / abs(sh["supplied"])
-            ),
+            "blind": float(abs(sh["supplied"] - (total - sh["conductor"])) / abs(sh["supplied"])),
         }
 
     # --- gate (ii): the single-drive CG1 covariance table (step 1d's form) ---
     projections = {
         pid: project_to_cg1(
-            magnetic_flux_density_from_e(
-                solves[pid]["fields"].e_complex, solves[pid]["omega"]
-            )
+            magnetic_flux_density_from_e(solves[pid]["fields"].e_complex, solves[pid]["omega"])
         )
         for pid in order
     }
@@ -230,17 +223,13 @@ def _read_rung(sweep, label):
 
     # --- step 2: the quadrature drive by exact superposition -----------------
     indices = {
-        pid: _port_index(azimuths[pid], azimuths["P1"], QUADRATURE_STEP_DEG)
-        for pid in order
+        pid: _port_index(azimuths[pid], azimuths["P1"], QUADRATURE_STEP_DEG) for pid in order
     }
     assert sorted(indices.values()) == [0, 1, 2, 3], (
-        f"[{label}] the four sheets do not occupy the four quadrature slots: "
-        f"{indices}"
+        f"[{label}] the four sheets do not occupy the four quadrature slots: " f"{indices}"
     )
     b_dg0 = [
-        magnetic_flux_density_from_e(
-            solves[pid]["fields"].e_complex, solves[pid]["omega"]
-        )
+        magnetic_flux_density_from_e(solves[pid]["fields"].e_complex, solves[pid]["omega"])
         for pid in order
     ]
     ks = np.array([indices[pid] for pid in order], dtype=float)
@@ -250,9 +239,7 @@ def _read_rung(sweep, label):
         "ccw": project_to_cg1(
             _superpose_dg0(b_dg0, np.exp(-1j * ks * np.pi / 2.0), "B_phasor_ccw")
         ),
-        "cw": project_to_cg1(
-            _superpose_dg0(b_dg0, np.exp(+1j * ks * np.pi / 2.0), "B_phasor_cw")
-        ),
+        "cw": project_to_cg1(_superpose_dg0(b_dg0, np.exp(+1j * ks * np.pi / 2.0), "B_phasor_cw")),
     }
     rotated = _rotate_z(points, delta)
     mirrored = _mirror_xy(points, azimuths["P1"])
@@ -368,16 +355,11 @@ def _read_rung(sweep, label):
                 flush=True,
             )
         print(
-            f"    step-2 quadrature identities on {row['n_quad_valid']} centroids "
-            f"(same band):",
+            f"    step-2 quadrature identities on {row['n_quad_valid']} centroids " f"(same band):",
             flush=True,
         )
         for name, value in identities.items():
-            role = (
-                "control, ASSERTED > band"
-                if name.startswith("control")
-                else "ASSERTED <= band"
-            )
+            role = "control, ASSERTED > band" if name.startswith("control") else "ASSERTED <= band"
             print(f"        {name:<20} {value * 100:9.4f}%   {role}", flush=True)
         print(
             "    centre polarisation purity |B1+|/|B1-| (REPORTED, UNGATED):",
@@ -454,14 +436,10 @@ def larmor_rungs():
                 flush=True,
             )
         print(
-            f"    10 MHz reproduction control: step 1d recorded "
-            + ", ".join(
-                f"{k} {v * 100:.4f}%" for k, v in STEP1B_CG1_RECORDS.items()
-            )
+            "    10 MHz reproduction control: step 1d recorded "
+            + ", ".join(f"{k} {v * 100:.4f}%" for k, v in STEP1B_CG1_RECORDS.items())
             + "; step 2 recorded "
-            + ", ".join(
-                f"{k} {v * 100:.4f}%" for k, v in STEP2_QUADRATURE_RECORDS.items()
-            )
+            + ", ".join(f"{k} {v * 100:.4f}%" for k, v in STEP2_QUADRATURE_RECORDS.items())
             + f", mis-paired {STEP2_MISPAIRED_CONTROL_10MHZ * 100:.4f}%",
             flush=True,
         )
@@ -477,9 +455,7 @@ def test_the_three_rungs_ran_on_one_mesh_at_the_three_frequencies(larmor_rungs):
     `PORT-9` cell record, three distinct frequencies, the same C4 sheet layout
     and enough evaluated points for a map reading rather than a few cells.
     """
-    assert larmor_rungs["cells"] == pytest.approx(
-        STEP2_CELL_COUNT, rel=STEP2_CELL_COUNT_BAND
-    ), (
+    assert larmor_rungs["cells"] == pytest.approx(STEP2_CELL_COUNT, rel=STEP2_CELL_COUNT_BAND), (
         f"the fixture meshed {larmor_rungs['cells']} cells, not the "
         f"{STEP2_CELL_COUNT} `PORT-9` record — this is not the gated fixture"
     )
@@ -512,9 +488,9 @@ def test_the_three_rungs_ran_on_one_mesh_at_the_three_frequencies(larmor_rungs):
         )
         values = row["b1_plus_p1"]
         assert np.all(np.isfinite(values)), f"[{label}] |B1+| is not finite"
-        assert float(np.min(values)) > 0.0, (
-            f"[{label}] |B1+| vanishes identically on the sample set"
-        )
+        assert (
+            float(np.min(values)) > 0.0
+        ), f"[{label}] |B1+| vanishes identically on the sample set"
         # The premise superposition rests on, asserted at every frequency: one
         # operator across the four solves (`WF-6` step 2's leading test).
         assert row["port_impedances"] == [complex(TERMINATED_PORT_IMPEDANCE_OHM)], (
@@ -533,9 +509,9 @@ def test_the_three_rungs_ran_on_one_mesh_at_the_three_frequencies(larmor_rungs):
 
         frequencies[label] = row["frequency_hz"]
 
-    assert len(set(frequencies.values())) == len(RUNGS), (
-        f"the three rungs did not run at three distinct frequencies: {frequencies}"
-    )
+    assert len(set(frequencies.values())) == len(
+        RUNGS
+    ), f"the three rungs did not run at three distinct frequencies: {frequencies}"
 
 
 @complex_only
@@ -578,9 +554,7 @@ def test_single_drive_c4_covariance_holds_at_every_frequency(larmor_rungs):
     """
     for label, _f in RUNGS:
         row = larmor_rungs["rows"][label]
-        per_lambda = larmor_rungs["resolution"]["table"][label][
-            "cells_per_lambda_phantom"
-        ]
+        per_lambda = larmor_rungs["resolution"]["table"][label]["cells_per_lambda_phantom"]
         for name in STEP1B_CG1_RECORDS:
             reading = row["covariance"][name]
             assert reading <= C4_COVARIANCE_BAND, (
@@ -614,9 +588,7 @@ def test_quadrature_identities_hold_at_every_frequency(larmor_rungs):
     """
     for label, _f in RUNGS:
         row = larmor_rungs["rows"][label]
-        per_lambda = larmor_rungs["resolution"]["table"][label][
-            "cells_per_lambda_phantom"
-        ]
+        per_lambda = larmor_rungs["resolution"]["table"][label]["cells_per_lambda_phantom"]
         for name in ("(a) C4", "(b) mirror"):
             reading = row["identities"][name]
             assert reading <= C4_COVARIANCE_BAND, (

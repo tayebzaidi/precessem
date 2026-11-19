@@ -33,7 +33,6 @@ from fem_em_solver.utils.analytical import (
     pec_sphere_l1_tm_parts,
 )
 from fem_em_solver.utils.constants import C_0
-
 from tests.validation.test_imp1_pec_sphere_lossy_host import (
     BOX_HALF_WIDTH,
     E0,
@@ -141,8 +140,10 @@ def test_fixture_wavenumber():
     assert EPSILON_R_HOST == 78.0 and SIGMA_HIGH == 0.57 and FREQUENCY_HZ == 64e6
     assert K_FIXTURE.real > 0.0 and K_FIXTURE.imag < 0.0
     assert abs(abs(K_H) * A - 1.0) < 1e-14
-    _say(f"\n[IMP-1 3a] eps_c {EPS_C:.6f}; k {K_FIXTURE:.6f} 1/m; |k|a {abs(K_FIXTURE) * A:.6f}; "
-         f"arg k {np.degrees(np.angle(K_FIXTURE)):.4f} deg")
+    _say(
+        f"\n[IMP-1 3a] eps_c {EPS_C:.6f}; k {K_FIXTURE:.6f} 1/m; |k|a {abs(K_FIXTURE) * A:.6f}; "
+        f"arg k {np.degrees(np.angle(K_FIXTURE)):.4f} deg"
+    )
 
 
 def test_x_real_k_identity_with_th5_dipole():
@@ -152,10 +153,16 @@ def test_x_real_k_identity_with_th5_dipole():
     d = _dipole_e(pts, k=k)
     ref_out = 1j * (k * a) ** 3 * d
     ref_reg = -1.5 * np.real(d)
-    err_out = float(np.max(np.linalg.norm(e_out - ref_out, axis=1) / np.linalg.norm(ref_out, axis=1)))
-    err_reg = float(np.max(np.linalg.norm(e_reg - ref_reg, axis=1) / np.linalg.norm(ref_reg, axis=1)))
-    _say(f"\n[IMP-1 3a] (X) k = 2pi, a = 0.1, 40 points: |E_out - j(ka)^3 dipole|/|.| {err_out:.3e}; "
-         f"|E_reg + 1.5 Re dipole|/|.| {err_reg:.3e} (bound 1e-12)")
+    err_out = float(
+        np.max(np.linalg.norm(e_out - ref_out, axis=1) / np.linalg.norm(ref_out, axis=1))
+    )
+    err_reg = float(
+        np.max(np.linalg.norm(e_reg - ref_reg, axis=1) / np.linalg.norm(ref_reg, axis=1))
+    )
+    _say(
+        f"\n[IMP-1 3a] (X) k = 2pi, a = 0.1, 40 points: |E_out - j(ka)^3 dipole|/|.| {err_out:.3e}; "
+        f"|E_reg + 1.5 Re dipole|/|.| {err_reg:.3e} (bound 1e-12)"
+    )
     assert err_out <= 1e-12, f"(X) outgoing part {err_out:.3e}"
     assert err_reg <= 1e-12, f"(X) regular part {err_reg:.3e}"
 
@@ -169,8 +176,10 @@ def test_p_tangential_e_vanishes_on_sphere():
         assert float(np.max(np.abs(e))) > 1.0, f"(P) {label}: points masked as interior"
         results[label] = _tangential_max(e, pts) / E0
     c2 = _tangential_max(_exact(K_FIXTURE, beta=0.0)(pts), pts) / E0
-    _say(f"\n[IMP-1 3a] (P) max |r x E|/E0 on 200 points at r = a: fixture {results['fixture']:.3e}; "
-         f"k_H {results['k_H']:.3e} (bound 1e-12); (c2) beta = 0: {c2:.4f} (asserted > 0.5)")
+    _say(
+        f"\n[IMP-1 3a] (P) max |r x E|/E0 on 200 points at r = a: fixture {results['fixture']:.3e}; "
+        f"k_H {results['k_H']:.3e} (bound 1e-12); (c2) beta = 0: {c2:.4f} (asserted > 0.5)"
+    )
     for label, val in results.items():
         assert val <= 1e-12, f"(P) {label}: {val:.3e}"
     assert c2 > 0.5, f"(c2) control {c2:.4f}"
@@ -184,12 +193,16 @@ def test_h_curl_curl_residual():
     c1 = _curlcurl_residual(_qs_field, K_H, pts, DELTA_H)
     k_wrong_h = np.conj(K_H)  # the wrong-sign ε_c field (k* on the principal root)
     c3 = _curlcurl_residual(_exact(k_wrong_h), K_H, pts, DELTA_H)
-    _say(f"\n[IMP-1 3a] (H) max |curl curl E - k^2 E|/|k^2 E| at k_H, 1.1a..3.4a, 20 points: "
-         f"delta 1e-3a {res[DELTA_H]:.3e}; 2e-3a {res[2 * DELTA_H]:.3e}; ratio {ratio:.3f} "
-         f"(predicted 1-2e-5, bound 1e-4, ratio in [3.8, 4.2])")
+    _say(
+        f"\n[IMP-1 3a] (H) max |curl curl E - k^2 E|/|k^2 E| at k_H, 1.1a..3.4a, 20 points: "
+        f"delta 1e-3a {res[DELTA_H]:.3e}; 2e-3a {res[2 * DELTA_H]:.3e}; ratio {ratio:.3f} "
+        f"(predicted 1-2e-5, bound 1e-4, ratio in [3.8, 4.2])"
+    )
     _say(f"[IMP-1 3a] (H) at the fixture's k (printed only): {fixture:.3e}")
-    _say(f"[IMP-1 3a] (c1) quasi-static field in (H): {c1:.4f} (predicted 1.000); "
-         f"(c3) wrong-sign eps_c field: {c3:.4f} (predicted 1.798); asserted > 0.5")
+    _say(
+        f"[IMP-1 3a] (c1) quasi-static field in (H): {c1:.4f} (predicted 1.000); "
+        f"(c3) wrong-sign eps_c field: {c3:.4f} (predicted 1.798); asserted > 0.5"
+    )
     assert 3.8 <= ratio <= 4.2, f"(H) ratio {ratio:.3f}"
     assert res[DELTA_H] <= 1e-4, f"(H) residual {res[DELTA_H]:.3e}"
     assert c1 > 0.5, f"(c1) {c1:.4f}"
@@ -203,17 +216,21 @@ def test_q_quasi_static_limit_second_order():
     for s in (1e-2, 5e-3):
         err[s] = float(np.max(np.linalg.norm(_exact(s * K_FIXTURE)(pts) - qs, axis=1)))
     ratio = err[1e-2] / err[5e-3]
-    _say(f"\n[IMP-1 3a] (Q) max |E - (z + dipole_basis)| on the probe shells: s = 1e-2 "
-         f"{err[1e-2]:.3e}; s = 5e-3 {err[5e-3]:.3e}; ratio {ratio:.3f} "
-         f"(bound 1e-5, ratio in [3.8, 4.2])")
+    _say(
+        f"\n[IMP-1 3a] (Q) max |E - (z + dipole_basis)| on the probe shells: s = 1e-2 "
+        f"{err[1e-2]:.3e}; s = 5e-3 {err[5e-3]:.3e}; ratio {ratio:.3f} "
+        f"(bound 1e-5, ratio in [3.8, 4.2])"
+    )
     assert err[1e-2] <= 1e-5 and err[5e-3] <= 1e-5, f"(Q) {err}"
     assert 3.8 <= ratio <= 4.2, f"(Q) ratio {ratio:.3f}"
 
 
 def test_phi0_static_shell_mean():
     phi = _shell_mean(_exact(1e-6 * K_FIXTURE))
-    _say(f"\n[IMP-1 3a] (Phi0) shell mean at s = 1e-6: {phi:.12f} vs {PHI_STATIC:.12f}, "
-         f"|diff| {abs(phi - PHI_STATIC):.3e} (bound 1e-10)")
+    _say(
+        f"\n[IMP-1 3a] (Phi0) shell mean at s = 1e-6: {phi:.12f} vs {PHI_STATIC:.12f}, "
+        f"|diff| {abs(phi - PHI_STATIC):.3e} (bound 1e-10)"
+    )
     assert abs(phi - PHI_STATIC) <= 1e-10
 
 
@@ -225,21 +242,30 @@ def test_printed_model_error_readout():
     uniform = np.zeros_like(pts)
     uniform[:, 2] = E0
     beta_fit = float(np.sum((np.real(e) - uniform) * basis) / np.sum(basis * basis))
-    imag_ratio = float(np.max(np.linalg.norm(np.imag(e), axis=1))
-                       / np.max(np.linalg.norm(np.real(e), axis=1)))
+    imag_ratio = float(
+        np.max(np.linalg.norm(np.imag(e), axis=1)) / np.max(np.linalg.norm(np.real(e), axis=1))
+    )
     face = _box_face_points()
     face_dev = float(np.max(np.linalg.norm(_exact(K_FIXTURE)(face) - _qs_field(face), axis=1)))
     phi_exact = _shell_mean(_exact(K_FIXTURE))
     phi_qs_fit = 1.0 + 2.0 * beta_fit**2 / SHELL_OUTER_FACTOR**3
     rho_model = phi_exact / phi_qs_fit - 1.0
-    _say(f"\n[IMP-1 3a] beta_k - 1 = {beta_k - 1:.4e} (|.| {abs(beta_k - 1) * 100:.4f} %; "
-         f"predicted +5.7e-4 - 2.1e-3j, 0.22 %)")
+    _say(
+        f"\n[IMP-1 3a] beta_k - 1 = {beta_k - 1:.4e} (|.| {abs(beta_k - 1) * 100:.4f} %; "
+        f"predicted +5.7e-4 - 2.1e-3j, 0.22 %)"
+    )
     _say(f"[IMP-1 3a] IMP-1's Re-E LSQ beta on the exact field: {beta_fit:.6f}")
-    _say(f"[IMP-1 3a] max|Im E|/|Re E| on the probe shells: {imag_ratio:.3e} "
-         f"(step 1 FEM record 1.21e-2; predicted 3e-3)")
-    _say(f"[IMP-1 3a] max|E_exact - E_qs| on the box faces ({face.shape[0]} points): {face_dev:.3e} "
-         f"(predicted 3e-3)")
+    _say(
+        f"[IMP-1 3a] max|Im E|/|Re E| on the probe shells: {imag_ratio:.3e} "
+        f"(step 1 FEM record 1.21e-2; predicted 3e-3)"
+    )
+    _say(
+        f"[IMP-1 3a] max|E_exact - E_qs| on the box faces ({face.shape[0]} points): {face_dev:.3e} "
+        f"(predicted 3e-3)"
+    )
     _say(f"[IMP-1 3a] Phi_exact {phi_exact:.9f}; Phi_qs(beta_fit) {phi_qs_fit:.9f}")
-    _say(f"[IMP-1 3a] rho_model = {rho_model * 100:+.4f} % beside banked rho "
-         f"{BANKED_RHO_PERCENT[0]} / {BANKED_RHO_PERCENT[1]} % (a/10 / a/12); predicted <= 0.35 %")
+    _say(
+        f"[IMP-1 3a] rho_model = {rho_model * 100:+.4f} % beside banked rho "
+        f"{BANKED_RHO_PERCENT[0]} / {BANKED_RHO_PERCENT[1]} % (a/10 / a/12); predicted <= 0.35 %"
+    )
     assert np.isfinite(rho_model)  # printed readout; the anchors above carry the gate

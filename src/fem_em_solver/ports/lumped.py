@@ -71,12 +71,11 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Optional
 
+import dolfinx
 import numpy as np
 import ufl
-from mpi4py import MPI
-
-import dolfinx
 from dolfinx import default_scalar_type, fem
+from mpi4py import MPI
 
 from ..utils.constants import MU_0
 
@@ -359,7 +358,9 @@ def sheet_terminal_current(
     h_hat = ufl.as_vector([default_scalar_type(c) for c in unit])
     e_src = complex(sheet.source_voltage_v) / sheet.gap_height_m
     e_restricted = _restrict(lambda r: r(e_field), sheet)
-    integrand = (ufl.inner(e_restricted, h_hat) + default_scalar_type(e_src)) / sheet.sheet_resistivity
+    integrand = (
+        ufl.inner(e_restricted, h_hat) + default_scalar_type(e_src)
+    ) / sheet.sheet_resistivity
     local = fem.assemble_scalar(fem.form(integrand * ds_sheet))
     return complex(comm.allreduce(local, op=MPI.SUM)) / sheet.gap_height_m
 
@@ -422,18 +423,14 @@ class LumpedSheetPortSpec:
             source_voltage_v=complex(self.drive_voltage_v) if driven else 0.0 + 0.0j,
             interior=bool(self.interior),
             width_correction_kappa=(
-                None
-                if self.width_correction_kappa is None
-                else float(self.width_correction_kappa)
+                None if self.width_correction_kappa is None else float(self.width_correction_kappa)
             ),
         )
 
     def validate(self) -> None:
         self.sheet(driven=False).validate()
         given = [
-            x
-            for x in (self.path_points, self.path_tangents, self.path_weights)
-            if x is not None
+            x for x in (self.path_points, self.path_tangents, self.path_weights) if x is not None
         ]
         if given and len(given) != 3:
             raise ValueError(
@@ -509,9 +506,7 @@ def run_lumped_sheet_port_case(
     from .gap_voltage import _path_voltage
 
     if facet_tags is None:
-        raise ValueError(
-            "the lumped-sheet route needs facet tags to find the port sheets"
-        )
+        raise ValueError("the lumped-sheet route needs facet tags to find the port sheets")
     spec_by_id = {spec.port_id: spec for spec in specs}
     for spec in specs:
         spec.validate()
@@ -527,9 +522,7 @@ def run_lumped_sheet_port_case(
     omega = 2.0 * np.pi * float(problem.frequency_hz)
     driven_index = port_ids.index(driven_port_id)
 
-    sheets = {
-        pid: spec_by_id[pid].sheet(driven=(pid == driven_port_id)) for pid in port_ids
-    }
+    sheets = {pid: spec_by_id[pid].sheet(driven=(pid == driven_port_id)) for pid in port_ids}
 
     if solver is None:
         solver = TimeHarmonicSolver(problem, degree=degree)
@@ -544,9 +537,7 @@ def run_lumped_sheet_port_case(
         )
     ]
     if getattr(solver, "_linear_problem", None) is not None:
-        fields = solver.solve_with_held_factorization(
-            extra_linear_terms=extra_linear_terms
-        )
+        fields = solver.solve_with_held_factorization(extra_linear_terms=extra_linear_terms)
     else:
         fields = solver.solve(
             current_density=None,
@@ -569,9 +560,7 @@ def run_lumped_sheet_port_case(
         spec = spec_by_id[port.port_id]
         sheet = sheets[port.port_id]
         current = sheet_terminal_current(msh, facet_tags, sheet, e, comm)
-        voltage = complex(sheet.source_voltage_v) - current * complex(
-            spec.port_impedance_ohm
-        )
+        voltage = complex(sheet.source_voltage_v) - current * complex(spec.port_impedance_ohm)
         path_voltage = _path_voltage(e, spec, comm) if spec.has_path else None
         is_driven = port.port_id == driven_port_id
         responses[port.port_id] = PortVoltageCurrentEstimate(

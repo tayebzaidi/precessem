@@ -105,9 +105,11 @@ def test_wf10_step3_refined_kwargs_contract():
     dflt = _f_human_kwargs(as_hole=True)
     extra = {k: ref[k] for k in ref if k not in dflt}
     same = all(ref[k] == dflt[k] for k in dflt)
-    print(f"[WF-10 step3a K] PHANTOM_RESOLUTION_M {PHANTOM_RESOLUTION_M}; extra keys {extra}; "
-          f"default keys all equal {same}; default has phantom_resolution "
-          f"{'phantom_resolution' in dflt} (ASSERTED False)")
+    print(
+        f"[WF-10 step3a K] PHANTOM_RESOLUTION_M {PHANTOM_RESOLUTION_M}; extra keys {extra}; "
+        f"default keys all equal {same}; default has phantom_resolution "
+        f"{'phantom_resolution' in dflt} (ASSERTED False)"
+    )
     assert "phantom_resolution" not in dflt, "negative control: default dict carries the key"
     assert set(dflt) <= set(ref) and same
     assert extra == {"phantom_resolution": 0.0075}, extra
@@ -173,13 +175,16 @@ def build_refined_fixture(comm):
         if comm.rank == 0:
             print(f"[WF-10 step3a] {msg}", flush=True)
 
-    assert os.path.exists(NPZ_PATH), (
-        f"{NPZ_PATH} absent: item 367a stops (BLOCKED, rule (d)); never re-solve")
+    assert os.path.exists(
+        NPZ_PATH
+    ), f"{NPZ_PATH} absent: item 367a stops (BLOCKED, rule (d)); never re-solve"
     with np.load(NPZ_PATH, allow_pickle=False) as npz:
         order_npz = [str(p) for p in npz["order"]]
-    say(f"start: -n {comm.size}, f = {FREQUENCY_HZ:.3e} Hz, degree {DEGREE}, kappa off, r = "
+    say(
+        f"start: -n {comm.size}, f = {FREQUENCY_HZ:.3e} Hz, degree {DEGREE}, kappa off, r = "
         f"{ESR_OHM} Ohm on all 32 gaps; phantom_resolution {PHANTOM_RESOLUTION_M} m; nodes "
-        f"{REROOT_NODES_PF} pF")
+        f"{REROOT_NODES_PF} pF"
+    )
 
     # ---- fixture, (A0′), (iv) -------------------------------------------------
     t0 = time.perf_counter()
@@ -193,17 +198,21 @@ def build_refined_fixture(comm):
     census = _owned_census(msh, cell_tags, comm)
     census_fails = _census_checks(census, built["cells"], _ring_ports())
     _m, rss_per, rss_sum = _rss_gib(comm)
-    say(f"(A0′) hole cells {built['cells']} (index map {n_cells_global}) beside default "
+    say(
+        f"(A0′) hole cells {built['cells']} (index map {n_cells_global}) beside default "
         f"{DEFAULT_HOLE_CELLS} ({built['cells'] / DEFAULT_HOLE_CELLS - 1.0:+.4%}; PREDICTED ≈ "
         f"{PREDICTED_CELLS}; printed, no record); phantom cells {phantom_cells} beside refined-solid "
         f"{REFINED_SOLID_PHANTOM_CELLS} (PREDICTED ≈ {PREDICTED_PHANTOM_CELLS}; printed); build "
         f"{times['build']:.1f} s (stop {BUILD_STOP_S:g} s); summed RSS {rss_sum:.2f} GiB (stop "
-        f"{RSS_STOP_GIB:g} GiB); (iv) failures {census_fails or 'none'} (ASSERTED none)")
+        f"{RSS_STOP_GIB:g} GiB); (iv) failures {census_fails or 'none'} (ASSERTED none)"
+    )
     assert not census_fails, census_fails
-    assert times["build"] <= BUILD_STOP_S, (
-        f"cost gate: build {times['build']:.1f} s > {BUILD_STOP_S} s — park, the review re-prices")
-    assert rss_sum <= RSS_STOP_GIB, (
-        f"cost gate: summed RSS {rss_sum:.2f} GiB > {RSS_STOP_GIB} GiB — park")
+    assert (
+        times["build"] <= BUILD_STOP_S
+    ), f"cost gate: build {times['build']:.1f} s > {BUILD_STOP_S} s — park, the review re-prices"
+    assert (
+        rss_sum <= RSS_STOP_GIB
+    ), f"cost gate: summed RSS {rss_sum:.2f} GiB > {RSS_STOP_GIB} GiB — park"
 
     z_s = (1.0 + 1.0j) * surface_resistance_ohm(omega, COPPER_SIGMA)
     wall = _leontovich_term(msh, built["facets"], z_s, omega)
@@ -222,20 +231,30 @@ def build_refined_fixture(comm):
     def _drive(specs, driven_id, *, held, partition, keep_as=None):
         sheets = [sp.sheet(driven=(sp.port_id == driven_id)) for sp in specs]
         dsheet = next(s for s in sheets if s.port_id == driven_id)
-        linear = [lambda test, _s=dsheet: lumped_port_linear_term(
-            msh, tags_f, _s, test, omega_rad_per_s=omega)]
+        linear = [
+            lambda test, _s=dsheet: lumped_port_linear_term(
+                msh, tags_f, _s, test, omega_rad_per_s=omega
+            )
+        ]
         comm.Barrier()
         t0 = time.perf_counter()
         if held:
             fields = solver.solve_with_held_factorization(extra_linear_terms=linear)
         else:
             bil = [wall] + [
-                (lambda trial, test, _s=s: lumped_port_bilinear_term(
-                    msh, tags_f, _s, trial, test, omega_rad_per_s=omega))
+                (
+                    lambda trial, test, _s=s: lumped_port_bilinear_term(
+                        msh, tags_f, _s, trial, test, omega_rad_per_s=omega
+                    )
+                )
                 for s in sheets
             ]
-            fields = solver.solve(current_density=None, project_source=False,
-                                  extra_bilinear_terms=bil, extra_linear_terms=linear)
+            fields = solver.solve(
+                current_density=None,
+                project_source=False,
+                extra_bilinear_terms=bil,
+                extra_linear_terms=linear,
+            )
         comm.Barrier()
         t_solve = time.perf_counter() - t0
         t1 = time.perf_counter()
@@ -246,14 +265,19 @@ def build_refined_fixture(comm):
         for s in sheets:
             v = complex(s.source_voltage_v) - currents[s.port_id] * z_p
             s_col[s.port_id] = (v - z_p * currents[s.port_id]) / v_src
-        out = {"s": s_col, "currents": currents, "kind": "held" if held else "solve",
-               "t_solve": t_solve}
+        out = {
+            "s": s_col,
+            "currents": currents,
+            "kind": "held" if held else "solve",
+            "t_solve": t_solve,
+        }
         if "sigma" not in keep:
             keep["sigma"] = fields.sigma_field
         if partition:
             sigma_f = fields.sigma_field
-            by_id = {s.port_id: float(_sheet_field_dissipation_w(acct, s, e, omega))
-                     for s in sheets}
+            by_id = {
+                s.port_id: float(_sheet_field_dissipation_w(acct, s, e, omega)) for s in sheets
+            }
             out["p_sheet_by_id"] = by_id
             out["p_sheets"] = float(sum(by_id.values()))
             out["p_src"] = float(_source_power_w(acct, dsheet, e, omega))
@@ -273,10 +297,12 @@ def build_refined_fixture(comm):
     # ---- order (H17's: [P17, feed2] + rest by number) -------------------------
     az_ref, slots = _ring_quadrature_slots(built["sheets"])
     ref_k, ref_sign = slots[DRIVEN]
-    feed2 = next(pid for pid, (k, sg) in slots.items()
-                 if sg == ref_sign and k == (ref_k + QUADRATURE_SLOT_OFFSET) % 16)
-    others = sorted((pid for pid in slots if pid not in (DRIVEN, feed2)),
-                    key=lambda p: int(p[1:]))
+    feed2 = next(
+        pid
+        for pid, (k, sg) in slots.items()
+        if sg == ref_sign and k == (ref_k + QUADRATURE_SLOT_OFFSET) % 16
+    )
+    others = sorted((pid for pid in slots if pid not in (DRIVEN, feed2)), key=lambda p: int(p[1:]))
     order = [DRIVEN, feed2] + others
     feeds = order[:2]
     feeds_idx = [0, 1]
@@ -286,10 +312,12 @@ def build_refined_fixture(comm):
     az_feeds = (az_by[feeds[0]], az_by[feeds[1]])
     d_az = (az_feeds[1] - az_feeds[0]) % 360.0
     az_mirror = az_feeds[0] + 45.0
-    say(f"feeds: {feeds[0]} (slot {ref_k}, ring {ref_sign:+.0f}, az {az_feeds[0]:.9f} deg) and "
+    say(
+        f"feeds: {feeds[0]} (slot {ref_k}, ring {ref_sign:+.0f}, az {az_feeds[0]:.9f} deg) and "
         f"{feeds[1]} (slot {slots[feeds[1]][0]}, az {az_feeds[1]:.9f} deg); az21 - az17 = "
         f"{d_az:.9f} deg (90 within {AZIMUTH_MATCH_DEG:g}, ASSERTED); npz port order equal "
-        f"(ASSERTED); mirror plane az {az_mirror:.9f} deg; az_ref {az_ref:.9f} deg")
+        f"(ASSERTED); mirror plane az {az_mirror:.9f} deg; az_ref {az_ref:.9f} deg"
+    )
     assert abs(d_az - 90.0) < AZIMUTH_MATCH_DEG, d_az
     assert slots[feeds[0]][0] == 0 and slots[feeds[1]][0] == 4, (slots[feeds[0]], slots[feeds[1]])
 
@@ -299,8 +327,13 @@ def build_refined_fixture(comm):
         assert all(sp.width_correction_kappa is None for sp in specs_x)
         cur, knd, tt, parts = [], [], [], []
         for n_drive, pid in enumerate(feeds):
-            d = _drive(specs_x, pid, held=(n_drive > 0), partition=(n_drive == 0),
-                       keep_as=(f"E_{pid}" if keep_fields else None))
+            d = _drive(
+                specs_x,
+                pid,
+                held=(n_drive > 0),
+                partition=(n_drive == 0),
+                keep_as=(f"E_{pid}" if keep_fields else None),
+            )
             knd.append(d["kind"])
             tt.append(d["t_solve"] + d["t_post"])
             cur.append(np.array([d["currents"][p] for p in order], dtype=np.complex128))
@@ -323,38 +356,53 @@ def build_refined_fixture(comm):
         z_rc = _z_rc(c_f, FREQUENCY_HZ)
         z_th = _thevenin_feed_impedance(z_rc, z0)
         v_s = _source_voltage(z_rc, z0)
-        say(f"node C = {c_f:.12e} F ({c_pf:.4f} pF): Z_RC {z_rc:.9e} Ohm, Z_th {z_th:.9e} Ohm, "
-            f"V_s {v_s:.9e} V")
+        say(
+            f"node C = {c_f:.12e} F ({c_pf:.4f} pF): Z_RC {z_rc:.9e} Ohm, Z_th {z_th:.9e} Ohm, "
+            f"V_s {v_s:.9e} V"
+        )
         imp = {pid: z_rc for pid in others}
         imp.update({pid: z_th for pid in feeds})
-        s_node, cur_node, kinds_n, t_n, pn, specs_n = _pair(imp, z_th, v_s,
-                                                            keep_fields=keep_fields)
+        s_node, cur_node, kinds_n, t_n, pn, specs_n = _pair(imp, z_th, v_s, keep_fields=keep_fields)
         t_pair = float(sum(t_n))
         rel_prc, blind_n = _partition(pn)
         p_rc = sum(v for pid, v in pn["p_sheet_by_id"].items() if pid not in feeds)
         p_vol = pn["p_phantom"] + pn["p_rest"]
         dz = abs(pn["p_src"] - (pn["p_sheets"] - p_rc) - p_vol - pn["p_surf"]) / abs(pn["p_src"])
         say(f"node pair {kinds_n}, {', '.join(f'{t:.2f}' for t in t_n)} s (sum {t_pair:.1f} s)")
-        say(f"(P_RC) P17 drive: P_src {pn['p_src']:.9e} sumP_sheet {pn['p_sheets']:.9e} (30 RC "
+        say(
+            f"(P_RC) P17 drive: P_src {pn['p_src']:.9e} sumP_sheet {pn['p_sheets']:.9e} (30 RC "
             f"{p_rc:.9e}) P_phantom {pn['p_phantom']:.9e} P_rest {pn['p_rest']:.9e} P_surf "
             f"{pn['p_surf']:.9e} W; rel {rel_prc:.3e} (band {DISCRETE_IDENTITY_RTOL:g}, ASSERTED; "
-            f"default mesh 7.236e-13 … 7.946e-13)")
-        say(f"NEG P_surf-blind miss {blind_n:.4e} = {blind_n / DISCRETE_IDENTITY_RTOL:.1f}x the band "
+            f"default mesh 7.236e-13 … 7.946e-13)"
+        )
+        say(
+            f"NEG P_surf-blind miss {blind_n:.4e} = {blind_n / DISCRETE_IDENTITY_RTOL:.1f}x the band "
             f"(bar {BLIND_FACTOR:.0f}x; PREDICTED ≈ {PREDICTED_BLIND:g}, printed); (Dz) "
-            f"{dz:.4e} (PREDICTED ≈ {PREDICTED_DZ}, printed)")
+            f"{dz:.4e} (PREDICTED ≈ {PREDICTED_DZ}, printed)"
+        )
         assert kinds_n == ["solve", "held"], kinds_n
-        assert rel_prc <= DISCRETE_IDENTITY_RTOL, f"(P_RC) {rel_prc:.3e} at {c_pf} pF — never re-band"
+        assert (
+            rel_prc <= DISCRETE_IDENTITY_RTOL
+        ), f"(P_RC) {rel_prc:.3e} at {c_pf} pF — never re-band"
         if "sigma" not in out and "sigma" in keep:
             out["sigma"] = keep["sigma"]
         rec = {
-            "c_f": c_f, "r_ohm": ESR_OHM, "freq_hz": float(FREQUENCY_HZ), "order": order,
+            "c_f": c_f,
+            "r_ohm": ESR_OHM,
+            "freq_hz": float(FREQUENCY_HZ),
+            "order": order,
             "s_node": [[[complex(v).real, complex(v).imag] for v in row] for row in s_node],
-            "y_in": {lbl: [[y.real, y.imag] for y in _active_y_in(s_node, a, z0)]
-                     for lbl, a in SENSES.items()},
+            "y_in": {
+                lbl: [[y.real, y.imag] for y in _active_y_in(s_node, a, z0)]
+                for lbl, a in SENSES.items()
+            },
             "partition": {k: v for k, v in pn.items()},
-            "rel_p_rc": rel_prc, "dz": dz, "blind": blind_n,
+            "rel_p_rc": rel_prc,
+            "dz": dz,
+            "blind": blind_n,
             "times_s": {"pair": t_n, "build": times["build"]},
-            "cells": int(built["cells"]), "phantom_cells": int(phantom_cells),
+            "cells": int(built["cells"]),
+            "phantom_cells": int(phantom_cells),
             "phantom_resolution_m": float(PHANTOM_RESOLUTION_M),
         }
         if comm.rank == 0:
@@ -364,20 +412,43 @@ def build_refined_fixture(comm):
                 json.dump(rec, fh, indent=1)
             print(f"[WF-10 step3a] wrote {path}", flush=True)
         comm.Barrier()
-        res = {"s_node": s_node, "currents": cur_node, "partition": pn, "rel_p_rc": rel_prc,
-               "dz": dz, "blind": blind_n, "kinds": kinds_n, "t_pair": t_pair,
-               "specs": specs_n}
+        res = {
+            "s_node": s_node,
+            "currents": cur_node,
+            "partition": pn,
+            "rel_p_rc": rel_prc,
+            "dz": dz,
+            "blind": blind_n,
+            "kinds": kinds_n,
+            "t_pair": t_pair,
+            "specs": specs_n,
+        }
         if keep_fields:
             res["e17"] = keep.pop(f"E_{feeds[0]}")
             res["e21"] = keep.pop(f"E_{feeds[1]}")
         return res
 
-    out.update({
-        "built": built, "ctx": ctx, "order": order, "slots": slots, "feeds": feeds,
-        "others": others, "az_feeds": az_feeds, "az_mirror": az_mirror, "wall": wall,
-        "z_s": z_s, "node": node, "say": say, "times": times, "cells": built["cells"],
-        "phantom_cells": phantom_cells, "omega": omega, "t_window": t_window,
-    })
+    out.update(
+        {
+            "built": built,
+            "ctx": ctx,
+            "order": order,
+            "slots": slots,
+            "feeds": feeds,
+            "others": others,
+            "az_feeds": az_feeds,
+            "az_mirror": az_mirror,
+            "wall": wall,
+            "z_s": z_s,
+            "node": node,
+            "say": say,
+            "times": times,
+            "cells": built["cells"],
+            "phantom_cells": phantom_cells,
+            "omega": omega,
+            "t_window": t_window,
+        }
+    )
     return out
 
 
@@ -405,9 +476,11 @@ def test_wf10_step3_reroot():
                 y = y_by_node[c_pf][lbl][k]
                 yd = DEFAULT_MESH_Y_IN[c_pf][lbl][k]
                 sgn = "+" if y.imag > 0 else "-" if y.imag < 0 else "0"
-                say(f"Y_in {c_pf:.4f} pF a = {lbl} {name}: {y.real:+.9e} {y.imag:+.9e}j S (sign "
+                say(
+                    f"Y_in {c_pf:.4f} pF a = {lbl} {name}: {y.real:+.9e} {y.imag:+.9e}j S (sign "
                     f"Im {sgn}); default mesh {yd.real:+.9e} {yd.imag:+.9e}j S; move Im "
-                    f"{y.imag - yd.imag:+.4e} S, Re {y.real / yd.real - 1.0:+.4e} rel (printed)")
+                    f"{y.imag - yd.imag:+.4e} S, Re {y.real / yd.real - 1.0:+.4e} rel (printed)"
+                )
         del r
         say(f"t={time.perf_counter() - fx['t_window']:.1f} s")
 
@@ -417,52 +490,73 @@ def test_wf10_step3_reroot():
         for k, name in enumerate(feeds):
             b = np.array([y_by_node[cp][lbl][k].imag for cp in REROOT_NODES_PF])
             slopes = np.diff(b) / np.diff(c)
-            say(f"{name} a = {lbl}: Im Y_in " + ", ".join(
-                f"{x * 1e12:.4f}:{v:+.6e}" for x, v in zip(c, b)) + " S; interval slopes "
-                + ", ".join(f"{s * 1e-12:+.4e}" for s in slopes) + " S/pF (= "
+            say(
+                f"{name} a = {lbl}: Im Y_in "
+                + ", ".join(f"{x * 1e12:.4f}:{v:+.6e}" for x, v in zip(c, b))
+                + " S; interval slopes "
+                + ", ".join(f"{s * 1e-12:+.4e}" for s in slopes)
+                + " S/pF (= "
                 + ", ".join(f"{s / (PREDICTED_SLOPE_FACTOR * omega):.3f}" for s in slopes)
-                + " x 16w)")
+                + " x 16w)"
+            )
             found = _sign_change_roots(c, b)
             if not found:
                 i_near = int(np.argmin(np.abs(b)))
-                say(f"{name} a = {lbl}: NO sign change in the grid; nearest node "
-                    f"{c[i_near] * 1e12:.4f} pF (Im {b[i_near]:+.6e} S) — a record")
+                say(
+                    f"{name} a = {lbl}: NO sign change in the grid; nearest node "
+                    f"{c[i_near] * 1e12:.4f} pF (Im {b[i_near]:+.6e} S) — a record"
+                )
             for c_a, c_b, rt in found:
-                say(f"{name} a = {lbl}: sign change bracket [{c_a * 1e12:.4f}, {c_b * 1e12:.4f}] "
+                say(
+                    f"{name} a = {lbl}: sign change bracket [{c_a * 1e12:.4f}, {c_b * 1e12:.4f}] "
                     f"pF, secant root {rt * 1e12:.6f} pF, resolution {(c_b - c_a) * 1e12:.4f} pF "
-                    f"({(c_b - c_a) / rt:.3e} rel)")
+                    f"({(c_b - c_a) / rt:.3e} rel)"
+                )
             roots[(name, lbl)] = found
 
     key = (feeds[0], "(1,+1j)")
     all_first = [v[0][2] for v in roots.values() if v]
     spread = (max(all_first) - min(all_first)) if all_first else float("nan")
-    rec = {"nodes_pf": list(REROOT_NODES_PF), "cells": int(fx["cells"]),
-           "phantom_cells": int(fx["phantom_cells"]),
-           "phantom_resolution_m": float(PHANTOM_RESOLUTION_M),
-           "roots_pf": {f"{n} {l}": ([[x * 1e12 for x in v[0]]] if v else [])
-                        for (n, l), v in roots.items()},
-           "spread_pf": spread * 1e12}
+    rec = {
+        "nodes_pf": list(REROOT_NODES_PF),
+        "cells": int(fx["cells"]),
+        "phantom_cells": int(fx["phantom_cells"]),
+        "phantom_resolution_m": float(PHANTOM_RESOLUTION_M),
+        "roots_pf": {
+            f"{n} {l}": ([[x * 1e12 for x in v[0]]] if v else []) for (n, l), v in roots.items()
+        },
+        "spread_pf": spread * 1e12,
+    }
     if roots[key]:
         c_a, c_b, c_in = roots[key][0]
         move = c_in * 1e12 - C_IN_F_HUMAN_PF
-        say(f"C_in′ ({key[0]} (1,+1j), item 354 ruling (2)) = {c_in * 1e12:.6f} pF, bracket "
+        say(
+            f"C_in′ ({key[0]} (1,+1j), item 354 ruling (2)) = {c_in * 1e12:.6f} pF, bracket "
             f"[{c_a * 1e12:.4f}, {c_b * 1e12:.4f}] pF, resolution {(c_b - c_a) * 1e12:.4f} pF "
-            f"({(c_b - c_a) / c_in:.3e} rel); four-reading roots " + ", ".join(
+            f"({(c_b - c_a) / c_in:.3e} rel); four-reading roots "
+            + ", ".join(
                 f"{n} {l}: " + (f"{v[0][2] * 1e12:.6f}" if v else "none")
-                for (n, l), v in roots.items())
+                for (n, l), v in roots.items()
+            )
             + f" pF; spread {spread * 1e12:.6f} pF beside item 354's {ITEM354_SPREAD_PF} pF; move "
             f"C_in′ - {C_IN_F_HUMAN_PF} = {move:+.6f} pF beside item 354's resolution "
             f"{ITEM354_RESOLUTION_PF} pF (PREDICTED in {PREDICTED_MOVE_PF} pF) — RECORD, never "
-            f"asserted")
-        rec.update({"c_in_prime_pf": c_in * 1e12, "bracket_pf": [c_a * 1e12, c_b * 1e12],
-                    "move_pf": move})
+            f"asserted"
+        )
+        rec.update(
+            {"c_in_prime_pf": c_in * 1e12, "bracket_pf": [c_a * 1e12, c_b * 1e12], "move_pf": move}
+        )
     else:
-        say(f"C_in′: no sign change on {key} in [{REROOT_NODES_PF[0]}, {REROOT_NODES_PF[-1]}] pF — "
-            f"a record (367b BLOCKED until the review re-grids)")
+        say(
+            f"C_in′: no sign change on {key} in [{REROOT_NODES_PF[0]}, {REROOT_NODES_PF[-1]}] pF — "
+            f"a record (367b BLOCKED until the review re-grids)"
+        )
         rec.update({"c_in_prime_pf": None, "bracket_pf": None})
     y_mid = y_by_node[C_IN_F_HUMAN_PF]["(1,+1j)"][0].imag
-    say(f"Im Y_in(P17, (1,+1j)) at {C_IN_F_HUMAN_PF} pF = {y_mid:+.6e} S (PREDICTED |.| <= "
-        f"{PREDICTED_IM_Y_MID:g} S; default +2.78e-6 S; printed)")
+    say(
+        f"Im Y_in(P17, (1,+1j)) at {C_IN_F_HUMAN_PF} pF = {y_mid:+.6e} S (PREDICTED |.| <= "
+        f"{PREDICTED_IM_Y_MID:g} S; default +2.78e-6 S; printed)"
+    )
     if comm.rank == 0:
         os.makedirs(JSON_DIR, exist_ok=True)
         with open(ROOT_JSON, "w") as fh:
@@ -471,7 +565,9 @@ def test_wf10_step3_reroot():
     comm.Barrier()
 
     _m, rss_per, rss_sum = _rss_gib(comm)
-    say(f"price: build {fx['times']['build']:.1f} s, node pairs "
+    say(
+        f"price: build {fx['times']['build']:.1f} s, node pairs "
         f"{', '.join(f'{t:.1f}' for t in pair_s)} s; RSS per rank "
         f"{', '.join(f'{r:.2f}' for r in (rss_per or []))} GiB, summed {rss_sum:.2f} GiB; window "
-        f"elapsed {time.perf_counter() - fx['t_window']:.1f} s at -n {comm.size}")
+        f"elapsed {time.perf_counter() - fx['t_window']:.1f} s at -n {comm.size}"
+    )

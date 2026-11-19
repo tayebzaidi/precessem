@@ -26,11 +26,10 @@ import numpy as np
 import pytest
 from mpi4py import MPI
 
-from fem_em_solver import LumpedPortDrive, Study
+from fem_em_solver import LumpedPortDrive
 from fem_em_solver import study as study_mod
 from fem_em_solver.ports.definitions import PortDefinition
 from fem_em_solver.ports.touchstone import export_touchstone
-
 from tests.complex_mode import complex_only
 from tests.io.test_touchstone_skrf_crosscheck import ANCHOR_TOL
 from tests.package.test_wf16_study_tune_capacitors import ITEM429_C_MODE_F, _study
@@ -45,8 +44,15 @@ def _p0(*args):
 
 
 def _defs(n=4):
-    return [PortDefinition(port_id=f"P{i + 1}", positive_tag=211 + i, negative_tag=1,
-                           orientation="leg_gap_axial_plus_z") for i in range(n)]
+    return [
+        PortDefinition(
+            port_id=f"P{i + 1}",
+            positive_tag=211 + i,
+            negative_tag=1,
+            orientation="leg_gap_axial_plus_z",
+        )
+        for i in range(n)
+    ]
 
 
 def _write(path, s_by_freq, comm=MPI.COMM_WORLD):
@@ -55,9 +61,14 @@ def _write(path, s_by_freq, comm=MPI.COMM_WORLD):
     n = np.asarray(s_by_freq[0][1]).shape[0]
     if comm.rank == 0:
         path.parent.mkdir(parents=True, exist_ok=True)
-        sweeps = [SimpleNamespace(frequency_hz=float(f), s_matrix=np.asarray(s, np.complex128),
-                                  port_ids=tuple(f"P{i + 1}" for i in range(n)))
-                  for f, s in s_by_freq]
+        sweeps = [
+            SimpleNamespace(
+                frequency_hz=float(f),
+                s_matrix=np.asarray(s, np.complex128),
+                port_ids=tuple(f"P{i + 1}" for i in range(n)),
+            )
+            for f, s in s_by_freq
+        ]
         export_touchstone(sweeps, _defs(n), output_path=path, write_csv_companion=False)
     comm.Barrier()
     return path
@@ -118,8 +129,10 @@ def test_wf16_s14_load_result_coding():
         cs = st.tune(k=1, comm=comm).c_mode_farad
         st.result = study_mod.LoadedPortResult(_swap12(s), fhz, res.port_ids, "swap")
         cw = st.tune(k=1, comm=comm).c_mode_farad
-        _p0(f"[WF-16 s14 W0] synthetic circulant: C_1 {cs:.9e}, P1<->P2 swapped {cw:.9e} "
-            f"(rel {cw / cs - 1:+.3e}; printed)")
+        _p0(
+            f"[WF-16 s14 W0] synthetic circulant: C_1 {cs:.9e}, P1<->P2 swapped {cw:.9e} "
+            f"(rel {cw / cs - 1:+.3e}; printed)"
+        )
     except ValueError as exc:
         _p0(f"[WF-16 s14 W0] synthetic swap read not capacitive: {exc} (printed)")
 
@@ -169,9 +182,11 @@ def test_wf16_s14_tune_on_loaded_result(s14):
     cl = tl.c_mode_farad
     d = abs(cl / cm - 1.0)
     d_g = comm.allreduce(d, op=MPI.MAX)
-    _p0(f"[WF-16 s14 CM] C_mode loaded {cl:.12e} vs in-memory {cm:.12e}: rel {d_g:.3e} "
+    _p0(
+        f"[WF-16 s14 CM] C_mode loaded {cl:.12e} vs in-memory {cm:.12e}: rel {d_g:.3e} "
         f"(LEG_D0_REPRODUCTION_BAND {LEG_D0_REPRODUCTION_BAND:.0e}); "
-        f"'{cl:.9e}' vs item 429 '{ITEM429_C_MODE_F:.9e}'")
+        f"'{cl:.9e}' vs item 429 '{ITEM429_C_MODE_F:.9e}'"
+    )
     assert d_g <= LEG_D0_REPRODUCTION_BAND
     assert f"{cl:.9e}" == f"{ITEM429_C_MODE_F:.9e}"
 
@@ -188,14 +203,18 @@ def test_wf16_s14_tune_on_loaded_result(s14):
     cw = _tune_file("swap12", _swap12(s_l))
     dw = abs(cw / cl - 1.0)
     moved = dw > LEG_D0_REPRODUCTION_BAND
-    _p0(f"[WF-16 s14 Sw] P1<->P2 swapped: C {cw:.12e}, miss {dw:.3e} vs band "
-        f"{LEG_D0_REPRODUCTION_BAND:.0e} -> {'MOVES (Sw asserted)' if moved else 'INVARIANT (Sw printed; Sw prime asserted)'}")
+    _p0(
+        f"[WF-16 s14 Sw] P1<->P2 swapped: C {cw:.12e}, miss {dw:.3e} vs band "
+        f"{LEG_D0_REPRODUCTION_BAND:.0e} -> {'MOVES (Sw asserted)' if moved else 'INVARIANT (Sw printed; Sw prime asserted)'}"
+    )
     if moved:
         assert dw > LEG_D0_REPRODUCTION_BAND
     c9 = _tune_file("scale0p9", 0.9 * s_l)
     d9 = abs(c9 / cl - 1.0)
-    _p0(f"[WF-16 s14 Sw'] S x 0.9: C {c9:.12e}, miss {d9:.3e} vs band {LEG_D0_REPRODUCTION_BAND:.0e} "
-        "(asserted)")
+    _p0(
+        f"[WF-16 s14 Sw'] S x 0.9: C {c9:.12e}, miss {d9:.3e} vs band {LEG_D0_REPRODUCTION_BAND:.0e} "
+        "(asserted)"
+    )
     assert d9 > LEG_D0_REPRODUCTION_BAND
     # (Ref) on the solved file's fixture: sar on the loaded Study names load_result.
     with pytest.raises(TypeError, match="load_result"):

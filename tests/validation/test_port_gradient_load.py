@@ -88,14 +88,13 @@ from __future__ import annotations
 
 import time
 
+import dolfinx
 import numpy as np
 import pytest
 import ufl
-from mpi4py import MPI
-
-import dolfinx
 from dolfinx import fem, la
 from dolfinx.fem.petsc import LinearProblem
+from mpi4py import MPI
 
 from fem_em_solver.core import (
     HomogeneousMaterial,
@@ -105,7 +104,6 @@ from fem_em_solver.core import (
 from fem_em_solver.core.resonance import stored_electric_energy
 from fem_em_solver.io.mesh import MeshGenerator
 from fem_em_solver.utils.constants import EPSILON_0
-
 from tests.complex_mode import complex_only
 from tests.validation.test_port_reaction_impedance import (
     AIR_PADDING,
@@ -117,7 +115,6 @@ from tests.validation.test_port_reaction_impedance import (
     MINOR_RADIUS,
     OMEGA,
     SEPARATION,
-    TORUS_TAGS,
     _azimuthal_current_density,
     _tag_volume,
 )
@@ -232,9 +229,7 @@ def gradient_load():
     q = ufl.TestFunction(q_space)
     x = ufl.SpatialCoordinate(msh)
     j_vec = _azimuthal_current_density(j_magnitude)(x)
-    dx_driven = ufl.Measure(
-        "dx", domain=msh, subdomain_data=cell_tags, subdomain_id=(DRIVEN_TAG,)
-    )
+    dx_driven = ufl.Measure("dx", domain=msh, subdomain_data=cell_tags, subdomain_id=(DRIVEN_TAG,))
 
     # ufl.inner conjugates its second argument; the CG1 basis is real, so
     # inner(·, grad(q)) is the plain test ∫·∇q_i with no conjugation to track.
@@ -253,9 +248,7 @@ def gradient_load():
     # Executed control: the same comparison with the j of (2) dropped.  When the
     # identity holds this is |1 - j|/|j| = sqrt(2) — O(1), not a percent.
     blind_residual = float(
-        np.sqrt(
-            _global_norm2(lhs - rhs_raw / (OMEGA * EPSILON_0), comm) / rhs_norm2
-        )
+        np.sqrt(_global_norm2(lhs - rhs_raw / (OMEGA * EPSILON_0), comm) / rhs_norm2)
     )
 
     # --- Part 2: P_G J from one CG1 Poisson solve, then equation (3). ---------
@@ -290,9 +283,7 @@ def gradient_load():
     pg_norm2 = float(
         np.real(
             comm.allreduce(
-                fem.assemble_scalar(
-                    fem.form(ufl.inner(ufl.grad(psi), ufl.grad(psi)) * ufl.dx)
-                ),
+                fem.assemble_scalar(fem.form(ufl.inner(ufl.grad(psi), ufl.grad(psi)) * ufl.dx)),
                 op=MPI.SUM,
             )
         )
@@ -410,6 +401,5 @@ def test_gradient_load_projection_is_consistent_and_reported(gradient_load):
             flush=True,
         )
     assert relative < 1e-9, (
-        f"the two routes to ||P_G J||^2 disagree by {relative:.4e}: "
-        f"{pg:.6e} vs {pg_alt:.6e}"
+        f"the two routes to ||P_G J||^2 disagree by {relative:.4e}: " f"{pg:.6e} vs {pg_alt:.6e}"
     )

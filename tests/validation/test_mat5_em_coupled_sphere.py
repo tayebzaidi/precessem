@@ -53,7 +53,6 @@ from fem_em_solver.materials.temperature import LinearTemperatureConductivity
 from fem_em_solver.post.sar import mean_sar
 from fem_em_solver.thermal.steady import solve_steady_conduction
 from fem_em_solver.utils.analytical import robin_sphere_steady_temperature
-
 from tests.complex_mode import complex_only
 from tests.materials.test_mat5_step2_lumped_root import (
     ALPHA,
@@ -81,13 +80,15 @@ from tests.validation.test_lossy_sphere_sar import (
 from tests.validation.test_mat10_sar_to_heat_sphere import (
     B_BAND,
     C_BAND,
-    G as G_MAT10,
-    H as H_MAT10,
-    K,
     P_BAND,
     QDEG,
     ROBIN_TAG,
     T_INF,
+)
+from tests.validation.test_mat10_sar_to_heat_sphere import G as G_MAT10
+from tests.validation.test_mat10_sar_to_heat_sphere import H as H_MAT10
+from tests.validation.test_mat10_sar_to_heat_sphere import (
+    K,
     _allsum,
     _cell_average_dg0,
     _interior_indicator,
@@ -138,9 +139,7 @@ def _em_solve(msh, cell_tags, sub, sigma_sub, parent_ids, tag):
     """
     comm = msh.comm
     sigma_bar, _ = _volume_mean(sub, sigma_sub)
-    material_map = {
-        SPHERE_TAG: HomogeneousMaterial(sigma=sigma_bar, epsilon_r=EPSILON_R_SPHERE)
-    }
+    material_map = {SPHERE_TAG: HomogeneousMaterial(sigma=sigma_bar, epsilon_r=EPSILON_R_SPHERE)}
     problem = TimeHarmonicProblem(
         mesh=msh,
         frequency_hz=FREQUENCY_HZ,
@@ -154,9 +153,7 @@ def _em_solve(msh, cell_tags, sub, sigma_sub, parent_ids, tag):
     sigma_f, eps_f = build_material_fields(
         msh, problem.material, cell_tags=cell_tags, material_map=material_map
     )
-    mu_f = build_mu_r_field(
-        msh, problem.material, cell_tags=cell_tags, material_map=material_map
-    )
+    mu_f = build_mu_r_field(msh, problem.material, cell_tags=cell_tags, material_map=material_map)
     _sub_to_parent(sigma_f, sigma_sub, parent_ids)
 
     a = solver.bilinear_form(sigma_f, eps_f, mu_r_field=mu_f)
@@ -175,8 +172,12 @@ def _em_solve(msh, cell_tags, sub, sigma_sub, parent_ids, tag):
         E = E[0]
     E.x.scatter_forward()
     p_diss = mean_sar(
-        E, sigma=sigma_f, rho=RHO_KG_M3, cell_tags=cell_tags,
-        subdomain_ids=SPHERE_TAG, comm=comm,
+        E,
+        sigma=sigma_f,
+        rho=RHO_KG_M3,
+        cell_tags=cell_tags,
+        subdomain_ids=SPHERE_TAG,
+        comm=comm,
     )["dissipated_power_w"]
     return E, sigma_f, sigma_bar, p_diss
 
@@ -211,8 +212,10 @@ def test_mat5_step2_em_coupled_fixed_point():
     n_parent = msh.topology.index_map(3).size_global
     n_sub = sub.topology.index_map(3).size_global
     _say(f"\nMAT5s2 cells: parent = {n_parent}  sub = {n_sub}  (MAT-10: 74020 / 19496)")
-    _say(f"MAT5s2 fixture: sigma0 = {SIGMA_0}  alpha = {ALPHA}  h = {H_STEP2}  Bi = {BIOT:.4f}  "
-         f"G = {G_STEP2:.6e}  q* = {Q_STAR:.4f}  theta* = {THETA_STAR}")
+    _say(
+        f"MAT5s2 fixture: sigma0 = {SIGMA_0}  alpha = {ALPHA}  h = {H_STEP2}  Bi = {BIOT:.4f}  "
+        f"G = {G_STEP2:.6e}  q* = {Q_STAR:.4f}  theta* = {THETA_STAR}"
+    )
 
     Ws = fem.functionspace(sub, ("DG", 0))
     law = LinearTemperatureConductivity(sigma_ref=SIGMA_0, alpha_per_k=ALPHA, t_ref=T_REF)
@@ -228,34 +231,46 @@ def test_mat5_step2_em_coupled_fixed_point():
     E_L0, sigf_L0, sbar_L0, _p_L0 = _em_solve(msh, cell_tags, sub, sig_L0, parent_ids, "L0")
     t_L0 = time.perf_counter() - t1
     q_L0 = _heat_source(msh, cell_tags, sub, parent_ids, E_L0, sigf_L0, G_MAT10)
-    q_m10 = _heat_source(msh, cell_tags, sub, parent_ids,
-                         run["e_complex"], run["sigma_field"], G_MAT10)
-    res_L0 = solve_steady_conduction(sub, ft, k=K, q=q_L0, h=H_MAT10, t_inf=T_INF,
-                                     robin_tag=ROBIN_TAG, degree=1)
-    res_m10 = solve_steady_conduction(sub, ft, k=K, q=q_m10, h=H_MAT10, t_inf=T_INF,
-                                      robin_tag=ROBIN_TAG, degree=1)
-    err_L0 = _rel_l2(sub, res_L0.temperature - res_m10.temperature,
-                     res_m10.temperature - T_INF)
-    err_L0_int = _interior_rel(sub, chi, res_L0.temperature - res_m10.temperature,
-                               res_m10.temperature - T_INF)
-    _say(f"MAT5s2 (L0) sigma_bar = {sbar_L0:.15f}  theta_h[DG0 path] vs MAT-10 path: "
-         f"rel L2 = {err_L0:.3e}  interior = {err_L0_int:.3e}  (bound {L0_BAND:.0e})  "
-         f"EM {t_L0:.1f} s (reference solve {t_ref_em:.1f} s incl. mesh)")
+    q_m10 = _heat_source(
+        msh, cell_tags, sub, parent_ids, run["e_complex"], run["sigma_field"], G_MAT10
+    )
+    res_L0 = solve_steady_conduction(
+        sub, ft, k=K, q=q_L0, h=H_MAT10, t_inf=T_INF, robin_tag=ROBIN_TAG, degree=1
+    )
+    res_m10 = solve_steady_conduction(
+        sub, ft, k=K, q=q_m10, h=H_MAT10, t_inf=T_INF, robin_tag=ROBIN_TAG, degree=1
+    )
+    err_L0 = _rel_l2(sub, res_L0.temperature - res_m10.temperature, res_m10.temperature - T_INF)
+    err_L0_int = _interior_rel(
+        sub, chi, res_L0.temperature - res_m10.temperature, res_m10.temperature - T_INF
+    )
+    _say(
+        f"MAT5s2 (L0) sigma_bar = {sbar_L0:.15f}  theta_h[DG0 path] vs MAT-10 path: "
+        f"rel L2 = {err_L0:.3e}  interior = {err_L0_int:.3e}  (bound {L0_BAND:.0e})  "
+        f"EM {t_L0:.1f} s (reference solve {t_ref_em:.1f} s incl. mesh)"
+    )
     # (L0) red => the DG0-sigma path is not the gated operator: stop here.
     assert err_L0 <= L0_BAND, f"(L0) {err_L0:.3e} > {L0_BAND:.0e}"
 
     # ---- Profile at q*, built from the named closed form: theta = a − b r².
-    th_c = float(robin_sphere_steady_temperature(
-        0.0, radius=R, k=K, q=Q_STAR, h=H_STEP2, t_inf=T_INF)) - T_INF
-    th_R = float(robin_sphere_steady_temperature(
-        R, radius=R, k=K, q=Q_STAR, h=H_STEP2, t_inf=T_INF)) - T_INF
+    th_c = (
+        float(robin_sphere_steady_temperature(0.0, radius=R, k=K, q=Q_STAR, h=H_STEP2, t_inf=T_INF))
+        - T_INF
+    )
+    th_R = (
+        float(robin_sphere_steady_temperature(R, radius=R, k=K, q=Q_STAR, h=H_STEP2, t_inf=T_INF))
+        - T_INF
+    )
     theta_cf = th_c - (th_c - th_R) / R**2 * ufl.inner(x, x)
-    _say(f"MAT5s2 profile at q*: theta(0) = {th_c:.6f} K  theta(R) = {th_R:.6f} K  "
-         f"(theta_L = {THETA_STAR})")
+    _say(
+        f"MAT5s2 profile at q*: theta(0) = {th_c:.6f} K  theta(R) = {th_R:.6f} K  "
+        f"(theta_L = {THETA_STAR})"
+    )
 
     # ---- (P') uniform q* at h = 3.
-    res_P = solve_steady_conduction(sub, ft, k=K, q=Q_STAR, h=H_STEP2, t_inf=T_INF,
-                                    robin_tag=ROBIN_TAG, degree=1)
+    res_P = solve_steady_conduction(
+        sub, ft, k=K, q=Q_STAR, h=H_STEP2, t_inf=T_INF, robin_tag=ROBIN_TAG, degree=1
+    )
     err_P = _interior_rel(sub, chi, (res_P.temperature - T_INF) - theta_cf, theta_cf)
     _say(f"MAT5s2 (P') uniform q*: interior rel L2 = {err_P:.4e}  (bound {P_BAND:.0e})")
 
@@ -280,16 +295,19 @@ def test_mat5_step2_em_coupled_fixed_point():
         E_n, sigf_n, sbar_n, p_n = _em_solve(msh, cell_tags, sub, sig_sub, parent_ids, f"it{n}")
         em_secs.append(time.perf_counter() - t1)
         q_n = _heat_source(msh, cell_tags, sub, parent_ids, E_n, sigf_n, G_STEP2)
-        res_n = solve_steady_conduction(sub, ft, k=K, q=q_n, h=H_STEP2, t_inf=T_INF,
-                                        robin_tag=ROBIN_TAG, degree=1)
+        res_n = solve_steady_conduction(
+            sub, ft, k=K, q=q_n, h=H_STEP2, t_inf=T_INF, robin_tag=ROBIN_TAG, degree=1
+        )
         th_s = _real(_allsum(comm, (res_n.temperature - T_INF) * ds)) / area
         err_n = _interior_rel(sub, chi, (res_n.temperature - T_INF) - theta_cf, theta_cf)
         th_s_hist.append(th_s)
         sbar_hist.append(sbar_n)
         err_hist.append(err_n)
-        _say(f"MAT5s2 iterate {n}: sigma_bar_in = {sbar_n:.9f}  theta_s = {th_s:.9f} K  "
-             f"delta = {th_s - th_s_hist[-2]:+.6e}  interior rel L2 vs profile = {err_n:.4e}  "
-             f"EM {em_secs[-1]:.1f} s")
+        _say(
+            f"MAT5s2 iterate {n}: sigma_bar_in = {sbar_n:.9f}  theta_s = {th_s:.9f} K  "
+            f"delta = {th_s - th_s_hist[-2]:+.6e}  interior rel L2 vs profile = {err_n:.4e}  "
+            f"EM {em_secs[-1]:.1f} s"
+        )
         T_prev = res_n.temperature
         last = dict(E=E_n, sigf=sigf_n, sig_sub=sig_sub, sbar=sbar_n, p=p_n, q=q_n, res=res_n)
 
@@ -298,33 +316,46 @@ def test_mat5_step2_em_coupled_fixed_point():
     _say("MAT5s2 (S) theta_s,n   = " + "  ".join(f"{v:.6f}" for v in th_s_hist[1:]))
     _say("MAT5s2 (S) sigma_bar_n = " + "  ".join(f"{v:.6f}" for v in sbar_hist))
     _say("MAT5s2 (S) delta_n     = " + "  ".join(f"{v:+.4e}" for v in deltas))
-    _say("MAT5s2 (S) delta_{n+1}/delta_n = " + "  ".join(f"{v:+.5f}" for v in ratios)
-         + "  (record; predicted -0.30 to -0.31)")
+    _say(
+        "MAT5s2 (S) delta_{n+1}/delta_n = "
+        + "  ".join(f"{v:+.5f}" for v in ratios)
+        + "  (record; predicted -0.30 to -0.31)"
+    )
     alternate = all(deltas[i] * deltas[i - 1] < 0.0 for i in range(1, N_PICARD))
     s_rel = abs(deltas[-1]) / abs(th_s_hist[-1])
-    _say(f"MAT5s2 (S) alternate = {alternate}  |delta_8|/theta_8 = {s_rel:.3e}  "
-         f"(bound {S_BAND:.0e}, predicted 3.0e-4)")
+    _say(
+        f"MAT5s2 (S) alternate = {alternate}  |delta_8|/theta_8 = {s_rel:.3e}  "
+        f"(bound {S_BAND:.0e}, predicted 3.0e-4)"
+    )
 
     # ---- (A') and its legs.
     res8 = last["res"]
     err_A = err_hist[-1]
     leg_offset = _interior_rel(sub, chi, res8.temperature - res_P.temperature, theta_cf)
-    _say(f"MAT5s2 (A') theta_8 interior rel L2 = {err_A:.4e}  (bound {A2_BAND:.3f}, "
-         f"predicted ≈ 2.3e-2)")
-    _say(f"MAT5s2 (A') legs: theta_8 - theta_h[q*] / theta = {leg_offset:.4e}; "
-         f"(P') leg = {err_P:.4e}")
+    _say(
+        f"MAT5s2 (A') theta_8 interior rel L2 = {err_A:.4e}  (bound {A2_BAND:.3f}, "
+        f"predicted ≈ 2.3e-2)"
+    )
+    _say(
+        f"MAT5s2 (A') legs: theta_8 - theta_h[q*] / theta = {leg_offset:.4e}; "
+        f"(P') leg = {err_P:.4e}"
+    )
 
     # ---- (B') transfer at iterate 8.
     int_q = _real(_allsum(comm, last["q"] * ufl.dx(domain=sub)))
     p_par = G_STEP2 * last["p"]
     err_B = abs(int_q - p_par) / abs(p_par)
-    _say(f"MAT5s2 (B') int_sub q_h = {int_q:.15e}  G*P_diss = {p_par:.15e}  "
-         f"rel = {err_B:.3e}  (bound {B_BAND:.0e})")
+    _say(
+        f"MAT5s2 (B') int_sub q_h = {int_q:.15e}  G*P_diss = {p_par:.15e}  "
+        f"rel = {err_B:.3e}  (bound {B_BAND:.0e})"
+    )
 
     # ---- (C') balance at iterate 8.
     err_C = abs(res8.convected_power - res8.source_power) / abs(res8.source_power)
-    _say(f"MAT5s2 (C') conv = {res8.convected_power:.15e}  src = {res8.source_power:.15e}  "
-         f"rel = {err_C:.3e}  (bound {C_BAND:.0e})")
+    _say(
+        f"MAT5s2 (C') conv = {res8.convected_power:.15e}  src = {res8.source_power:.15e}  "
+        f"rel = {err_C:.3e}  (bound {C_BAND:.0e})"
+    )
 
     # ---- (D') sigma transfer moment at iterate 8: parent tag 1 against sub.
     xp = ufl.SpatialCoordinate(msh)
@@ -332,8 +363,10 @@ def test_mat5_step2_em_coupled_fixed_point():
     m_par = _real(_allsum(comm, last["sigf"] * ufl.inner(xp, xp) * dx1))
     m_sub = _real(_allsum(comm, last["sig_sub"] * ufl.inner(x, x) * ufl.dx(domain=sub)))
     err_D = abs(m_par - m_sub) / abs(m_sub)
-    _say(f"MAT5s2 (D') int sigma x.x: parent = {m_par:.15e}  sub = {m_sub:.15e}  "
-         f"rel = {err_D:.3e}  (bound {D_BAND:.0e})")
+    _say(
+        f"MAT5s2 (D') int sigma x.x: parent = {m_par:.15e}  sub = {m_sub:.15e}  "
+        f"rel = {err_D:.3e}  (bound {D_BAND:.0e})"
+    )
 
     # ---- Records.
     th_s_h = th_s_hist[-1]
@@ -348,21 +381,30 @@ def test_mat5_step2_em_coupled_fixed_point():
     sig8.x.array[:] = law.sigma(np.real(t8.x.array))
     sig8.x.scatter_forward()
     sbar8, _ = _volume_mean(sub, sig8)
-    _say(f"MAT5s2 record theta_s,h = {th_s_h:.6f} K  vs theta_L {THETA_STAR}: "
-         f"{th_s_h / THETA_STAR - 1.0:+.4%}  vs c = Bi/5 root {root_c:.6f}: "
-         f"{th_s_h / root_c - 1.0:+.4%}")
-    _say(f"MAT5s2 record q_bar_h = {q_bar:.4f} W/m^3  q_cf(sigma_bar = {last['sbar']:.6f}) = "
-         f"{q_cf_bar:.4f}  q_bar_h/q_cf - 1 = {q_bar / q_cf_bar - 1.0:+.4e}  "
-         f"sigma_bar[theta_8] = {sbar8:.6f}  V_sub = {vol:.6e}")
+    _say(
+        f"MAT5s2 record theta_s,h = {th_s_h:.6f} K  vs theta_L {THETA_STAR}: "
+        f"{th_s_h / THETA_STAR - 1.0:+.4%}  vs c = Bi/5 root {root_c:.6f}: "
+        f"{th_s_h / root_c - 1.0:+.4%}"
+    )
+    _say(
+        f"MAT5s2 record q_bar_h = {q_bar:.4f} W/m^3  q_cf(sigma_bar = {last['sbar']:.6f}) = "
+        f"{q_cf_bar:.4f}  q_bar_h/q_cf - 1 = {q_bar / q_cf_bar - 1.0:+.4e}  "
+        f"sigma_bar[theta_8] = {sbar8:.6f}  V_sub = {vol:.6e}"
+    )
     ctrl = err_hist[0]
-    _say(f"MAT5s2 control (frozen sigma0, iterate 1): interior rel L2 = {ctrl:.4e}  "
-         f"(must miss {A2_BAND:.3f}; closed-form miss "
-         f"{q_cf_unit(SIGMA_0) / q_cf_unit(SIGMA_STAR) - 1.0:.4%}, FEM predicted ≈ 0.29)")
+    _say(
+        f"MAT5s2 control (frozen sigma0, iterate 1): interior rel L2 = {ctrl:.4e}  "
+        f"(must miss {A2_BAND:.3f}; closed-form miss "
+        f"{q_cf_unit(SIGMA_0) / q_cf_unit(SIGMA_STAR) - 1.0:.4%}, FEM predicted ≈ 0.29)"
+    )
     rss = comm.allreduce(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss, op=MPI.SUM)
-    _say("MAT5s2 EM seconds per iterate: " + "  ".join(f"{s:.1f}" for s in em_secs)
-         + f"  (L0 {t_L0:.1f}, reference {t_ref_em:.1f});  total "
-         f"{time.perf_counter() - t0:.1f} s;  peak RSS summed over ranks "
-         f"{rss / 1024.0**2:.2f} GiB")
+    _say(
+        "MAT5s2 EM seconds per iterate: "
+        + "  ".join(f"{s:.1f}" for s in em_secs)
+        + f"  (L0 {t_L0:.1f}, reference {t_ref_em:.1f});  total "
+        f"{time.perf_counter() - t0:.1f} s;  peak RSS summed over ranks "
+        f"{rss / 1024.0**2:.2f} GiB"
+    )
 
     assert err_P <= P_BAND, f"(P') {err_P:.4e} > 1 %"
     assert err_B <= B_BAND, f"(B') {err_B:.3e} > {B_BAND:.0e}"

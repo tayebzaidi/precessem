@@ -32,9 +32,7 @@ def _sheet_nodes(msh, facet_tags, tag):
     facets = np.asarray(facet_tags.find(tag), dtype=np.int32)
     if not facets.size:
         return np.zeros((0, 3))
-    nodes = dolfinx.cpp.mesh.entities_to_geometry(
-        msh._cpp_object, fdim, facets, False
-    )
+    nodes = dolfinx.cpp.mesh.entities_to_geometry(msh._cpp_object, fdim, facets, False)
     return msh.geometry.x[nodes.reshape(-1)]
 
 
@@ -76,9 +74,7 @@ def _global_facet_count(mesh, facet_tags, tag, comm) -> int:
 def _facet_group_area(msh, facet_tags, tag, comm):
     msh.topology.create_entity_permutations()
 
-    dS_tag = ufl.Measure(
-        "dS", domain=msh, subdomain_data=facet_tags, subdomain_id=(tag,)
-    )
+    dS_tag = ufl.Measure("dS", domain=msh, subdomain_data=facet_tags, subdomain_id=(tag,))
     one = fem.Constant(msh, default_scalar_type(1.0))
     local = fem.assemble_scalar(fem.form(ufl.avg(one) * dS_tag))
     return float(np.real(comm.allreduce(local, op=MPI.SUM)))
@@ -96,9 +92,7 @@ def _sheet_areas(msh, cell_tags, ports, comm, sheet_iface, port_lower, port_uppe
         cell_tags,
         {sheet_iface + i: (port_lower + i, port_upper + i) for i in ports},
     )
-    areas = {
-        i: _interface_area_or_zero(msh, tags_f, sheet_iface + i, comm) for i in ports
-    }
+    areas = {i: _interface_area_or_zero(msh, tags_f, sheet_iface + i, comm) for i in ports}
     return tags_f, areas
 
 
@@ -126,9 +120,7 @@ def _narrowed_radial(msh, facet_tags, tag, fraction, centre, radial, half_width)
     keep = np.ones(sheet_facets.size, dtype=bool)
     if sheet_facets.size:
         mid = dolfinx.mesh.compute_midpoints(msh, fdim, sheet_facets)
-        keep = np.abs(mid @ np.asarray(radial, dtype=float) - centre) <= (
-            fraction * half_width
-        )
+        keep = np.abs(mid @ np.asarray(radial, dtype=float) - centre) <= (fraction * half_width)
     new_idx = np.concatenate([idx[~on_sheet], sheet_facets[keep]]).astype(np.int32)
     new_val = np.concatenate(
         [

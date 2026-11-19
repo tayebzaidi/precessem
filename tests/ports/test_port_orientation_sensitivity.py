@@ -55,7 +55,6 @@ import numpy as np
 from mpi4py import MPI
 
 from fem_em_solver.ports import run_n_port_sparameter_sweep
-
 from tests.complex_mode import complex_only
 from tests.validation.test_port_birdcage_four_port import build_four_port_sweep
 from tests.validation.test_port_circuit_layer_field import (
@@ -87,9 +86,9 @@ def _rel(a, b, ref):
 @complex_only
 def test_reversing_p2_p4_drive_conjugates_s_and_z_by_d():
     comm = MPI.COMM_WORLD
-    assert comm.size == RECORD_RANK_WIDTH, (
-        f"records are -n {RECORD_RANK_WIDTH} records; run at that width"
-    )
+    assert (
+        comm.size == RECORD_RANK_WIDTH
+    ), f"records are -n {RECORD_RANK_WIDTH} records; run at that width"
 
     b = build_four_port_sweep(build_only=True)
     ncells = int(b["cells"])
@@ -98,9 +97,11 @@ def test_reversing_p2_p4_drive_conjugates_s_and_z_by_d():
     assert ids == ["P1", "P2", "P3", "P4"], ids
 
     flipped_specs = [
-        dataclasses.replace(s, drive_direction=(0.0, 0.0, -1.0))
-        if s.port_id in FLIPPED_PORT_IDS
-        else s
+        (
+            dataclasses.replace(s, drive_direction=(0.0, 0.0, -1.0))
+            if s.port_id in FLIPPED_PORT_IDS
+            else s
+        )
         for s in specs
     ]
     for s in specs:

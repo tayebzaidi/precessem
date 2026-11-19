@@ -1,4 +1,4 @@
-"""`PORT-9` step 3 leg (d) — the 4x4 on the gapped birdcage at 50 Ohm.
+r"""`PORT-9` step 3 leg (d) — the 4x4 on the gapped birdcage at 50 Ohm.
 
 Leg (c) put the first field on `GEO-18`'s gapped, sheeted birdcage and read one
 column of ``Z`` at the two-torus probe impedance; leg (d0) found the termination
@@ -68,10 +68,10 @@ leg (d0)'s price) plus S assembly and cold JIT.
 
 Run (complex build required)::
 
-    scripts/testing/run_and_log.sh PORT-9-step3d "docker compose exec -T fem-em-solver \\
-      bash -lc 'cd /workspace && source /usr/local/bin/dolfinx-complex-mode && \\
-       PYTHONPATH=/workspace/src FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 400 \\
-       mpiexec -n 2 python3 -m pytest tests/environment \\
+    scripts/testing/run_and_log.sh PORT-9-step3d "docker compose exec -T fem-em-solver \
+      bash -lc 'cd /workspace && source /usr/local/bin/dolfinx-complex-mode && \
+       PYTHONPATH=/workspace/src FEM_EM_REQUIRE_COMPLEX=1 timeout -k 30 400 \
+       mpiexec -n 2 python3 -m pytest tests/environment \
        tests/validation/test_port_birdcage_four_port.py -v -s'"
 """
 
@@ -88,7 +88,6 @@ from fem_em_solver.io.mesh import _interface_facet_tags
 from fem_em_solver.ports.definitions import PortDefinition
 from fem_em_solver.ports.lumped import LumpedSheetPortSpec
 from fem_em_solver.ports.sparameters import run_n_port_sparameter_sweep
-
 from tests.complex_mode import complex_only
 from tests.mesh.test_birdcage_port_sheets import (
     PORT_LOWER,
@@ -350,9 +349,7 @@ def build_four_port_sweep(
             degree=degree,
         )
         solved = _solve_driven(uncorrected, "P1")
-        sheets_p1 = [
-            spec.sheet(driven=(spec.port_id == "P1")) for spec in uncorrected["specs"]
-        ]
+        sheets_p1 = [spec.sheet(driven=(spec.port_id == "P1")) for spec in uncorrected["specs"]]
         deficit = terminal_form_deficit(
             uncorrected["mesh"],
             uncorrected["facet_tags"],
@@ -429,9 +426,7 @@ def build_four_port_sweep(
                 "axis": 0 if extents[0] >= extents[1] else 1,
                 "centroid": centroid,
                 "w_full": float(w_bbox),
-                "azimuth_deg": float(
-                    np.degrees(np.arctan2(centroid[1], centroid[0])) % 360.0
-                ),
+                "azimuth_deg": float(np.degrees(np.arctan2(centroid[1], centroid[0])) % 360.0),
             }
 
         for i in ports_idx:
@@ -476,9 +471,7 @@ def build_four_port_sweep(
                 sigma=SIGMA_WIRE_S_PER_M, epsilon_r=1.0, mu_r=1.0
             ),
             PHANTOM_CELL_TAG: (
-                HomogeneousMaterial(
-                    sigma=SALINE_SIGMA, epsilon_r=SALINE_EPSILON_R, mu_r=1.0
-                )
+                HomogeneousMaterial(sigma=SALINE_SIGMA, epsilon_r=SALINE_EPSILON_R, mu_r=1.0)
                 if phantom_material is None
                 else phantom_material
             ),
@@ -544,17 +537,11 @@ def build_four_port_sweep(
     s_matrix = np.asarray(result.s_matrix, dtype=np.complex128)
     classes = _circulant_classes(z_matrix)
     spreads = {name: _class_spread(v) for name, v in classes.items()}
-    pooled = _class_spread(
-        np.concatenate([classes["adjacent"], classes["opposite"]])
-    )
+    pooled = _class_spread(np.concatenate([classes["adjacent"], classes["opposite"]]))
     sigma = np.linalg.svd(s_matrix, compute_uv=False)
     column_power = np.sum(np.abs(s_matrix) ** 2, axis=0)
-    reciprocity = float(
-        np.linalg.norm(s_matrix - s_matrix.T) / np.linalg.norm(s_matrix)
-    )
-    z_reciprocity = float(
-        np.linalg.norm(z_matrix - z_matrix.T) / np.linalg.norm(z_matrix)
-    )
+    reciprocity = float(np.linalg.norm(s_matrix - s_matrix.T) / np.linalg.norm(s_matrix))
+    z_reciprocity = float(np.linalg.norm(z_matrix - z_matrix.T) / np.linalg.norm(z_matrix))
 
     if comm.rank == 0:
         print(
@@ -592,7 +579,7 @@ def build_four_port_sweep(
             f"||Z - Z^T||/||Z|| = {z_reciprocity:.9e}\n"
             f"    sigma(S) = "
             + ", ".join(f"{v:.9f}" for v in sigma)
-            + f"\n    column power sums = "
+            + "\n    column power sums = "
             + ", ".join(f"{v:.9f}" for v in column_power)
             + f"\n    class spreads: self {spreads['self'] * 100:.4f}%  "
             f"adjacent {spreads['adjacent'] * 100:.4f}%  "

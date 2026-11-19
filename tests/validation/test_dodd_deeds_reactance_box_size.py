@@ -47,9 +47,8 @@ import time
 import numpy as np
 import pytest
 import ufl
-from mpi4py import MPI
-
 from dolfinx import fem
+from mpi4py import MPI
 
 from fem_em_solver.io.mesh import MeshGenerator
 from fem_em_solver.utils.dodd_deeds import coil_impedance_change
@@ -105,9 +104,7 @@ def _mesh_large_box(comm):
     )
     comm.Barrier()
     t_mesh = time.perf_counter() - t0
-    ncells = comm.allreduce(
-        msh.topology.index_map(msh.topology.dim).size_local, op=MPI.SUM
-    )
+    ncells = comm.allreduce(msh.topology.index_map(msh.topology.dim).size_local, op=MPI.SUM)
     return msh, cell_tags, float(t_mesh), int(ncells)
 
 
@@ -118,9 +115,7 @@ def _meshed_current(msh, cell_tags, comm) -> float:
     ``π r² · 2π a`` must not be charged to the field solve.
     """
     j_magnitude = FEM_CURRENT_A / (np.pi * FEM_WIRE_RADIUS**2)
-    dx_wire = ufl.Measure(
-        "dx", domain=msh, subdomain_data=cell_tags, subdomain_id=(WIRE_TAG,)
-    )
+    dx_wire = ufl.Measure("dx", domain=msh, subdomain_data=cell_tags, subdomain_id=(WIRE_TAG,))
     v_wire = _reduced_real(
         fem.Constant(msh, np.array(1.0, dtype=np.complex128).item()) * dx_wire, comm
     )
@@ -146,9 +141,7 @@ def _report(label, dz, dz_ref, current, ncells, t_mesh, t_solves, comm):
             f"{DX_RATIO_W015_PROJECTED if label == 'projected' else DX_RATIO_W015_PINNED})",
             flush=True,
         )
-    return dict(
-        dz=dz, dz_ref=dz_ref, current=current, ncells=ncells, ratio_x=ratio_x
-    )
+    return dict(dz=dz, dz_ref=dz_ref, current=current, ncells=ncells, ratio_x=ratio_x)
 
 
 @pytest.fixture(scope="module")
@@ -157,36 +150,26 @@ def projected_large_box():
     comm = MPI.COMM_WORLD
     msh, cell_tags, t_mesh, ncells = _mesh_large_box(comm)
 
-    e_loaded, j_prime_loaded, t_loaded = _solve_projected(
-        msh, cell_tags, FEM_SIGMA_SLAB, comm
-    )
+    e_loaded, j_prime_loaded, t_loaded = _solve_projected(msh, cell_tags, FEM_SIGMA_SLAB, comm)
     e_free, _, t_free = _solve_projected(msh, cell_tags, 0.0, comm)
 
     # I' from the drive actually used, and ΔZ over the WHOLE domain: J' has
     # support everywhere, unlike J.  Both exactly as step 3 computes them.
     x = ufl.SpatialCoordinate(msh)
     phi_hat = _azimuthal_current_density(1.0)(x)
-    dx_wire = ufl.Measure(
-        "dx", domain=msh, subdomain_data=cell_tags, subdomain_id=(WIRE_TAG,)
-    )
+    dx_wire = ufl.Measure("dx", domain=msh, subdomain_data=cell_tags, subdomain_id=(WIRE_TAG,))
     current = _reduced_real(ufl.inner(j_prime_loaded, phi_hat) * dx_wire, comm) / (
         2.0 * np.pi * FEM_LOOP_RADIUS
     )
     # assemble_scalar is rank-local; reduce before forming ΔZ.  J' is real, so
     # inner()'s conjugation of the second argument is a no-op — reaction, not power.
     reaction = comm.allreduce(
-        fem.assemble_scalar(
-            fem.form(ufl.inner(e_loaded - e_free, j_prime_loaded) * ufl.dx)
-        ),
+        fem.assemble_scalar(fem.form(ufl.inner(e_loaded - e_free, j_prime_loaded) * ufl.dx)),
         op=MPI.SUM,
     )
     dz = complex(-reaction / current**2)
-    dz_ref = coil_impedance_change(
-        FEM_FREQUENCY_HZ, FEM_LOOP_RADIUS, FEM_LIFTOFF, FEM_SIGMA_SLAB
-    )
-    return _report(
-        "projected", dz, dz_ref, current, ncells, t_mesh, (t_loaded, t_free), comm
-    )
+    dz_ref = coil_impedance_change(FEM_FREQUENCY_HZ, FEM_LOOP_RADIUS, FEM_LIFTOFF, FEM_SIGMA_SLAB)
+    return _report("projected", dz, dz_ref, current, ncells, t_mesh, (t_loaded, t_free), comm)
 
 
 @pytest.fixture(scope="module")
@@ -205,12 +188,8 @@ def pinned_large_box():
 
     current = _meshed_current(msh, cell_tags, comm)
     dz = _reaction_impedance(msh, cell_tags, e_loaded, e_free, current, comm)
-    dz_ref = coil_impedance_change(
-        FEM_FREQUENCY_HZ, FEM_LOOP_RADIUS, FEM_LIFTOFF, FEM_SIGMA_SLAB
-    )
-    return _report(
-        "pinned", dz, dz_ref, current, ncells, t_mesh, (t_loaded, t_free), comm
-    )
+    dz_ref = coil_impedance_change(FEM_FREQUENCY_HZ, FEM_LOOP_RADIUS, FEM_LIFTOFF, FEM_SIGMA_SLAB)
+    return _report("pinned", dz, dz_ref, current, ncells, t_mesh, (t_loaded, t_free), comm)
 
 
 # ---------------------------------------------------------------------------

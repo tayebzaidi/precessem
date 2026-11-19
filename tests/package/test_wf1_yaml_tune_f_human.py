@@ -36,8 +36,7 @@ import numpy as np
 import pytest
 from mpi4py import MPI
 
-from fem_em_solver import StudyConfigError, cli, load_study, run_study_file
-from fem_em_solver import study_yaml
+from fem_em_solver import StudyConfigError, cli, load_study, run_study_file, study_yaml
 from fem_em_solver.study import (
     FHumanBirdcageGeometry,
     FourPortBirdcageGeometry,
@@ -45,14 +44,7 @@ from fem_em_solver.study import (
 )
 from fem_em_solver.study_yaml import _parse_mapping, _study_from_mapping, _tune_summary
 from fem_em_solver.utils.instrumentation import report_peak_rss
-
 from tests.complex_mode import complex_only
-from tests.package.test_wf16_study_tune_f_human_copper import (
-    RECORD_RANK_WIDTH,
-    WF12_STEP3_C_MODE_CU_F,
-    WF12_STEP3_K2_SEPARATION,
-    _study,
-)
 from tests.package.test_wf1_study_yaml import (
     LOGS,
     WF1,
@@ -60,6 +52,12 @@ from tests.package.test_wf1_study_yaml import (
     _mapping,
     _rc_all,
     _spec_diff,
+)
+from tests.package.test_wf16_study_tune_f_human_copper import (
+    RECORD_RANK_WIDTH,
+    WF12_STEP3_C_MODE_CU_F,
+    WF12_STEP3_K2_SEPARATION,
+    _study,
 )
 from tests.validation.test_birdcage_sar_mass_averaged import EXACT_IDENTITY_RTOL
 from tests.validation.test_port_birdcage_ring_matrix import REUSE_REPRODUCTION_RTOL
@@ -129,18 +127,31 @@ def test_wf1_s12_parse_and_refusals(monkeypatch):
 
     cases = [
         ("tune k: 3", variant(lambda m: m.__setitem__("tune", {"k": 3})), "tune.k"),
-        ("excitation.c_in_f added",
-         variant(lambda m: m["excitation"].__setitem__("c_in_f", 1.18e-10)), "excitation.kind"),
+        (
+            "excitation.c_in_f added",
+            variant(lambda m: m["excitation"].__setitem__("c_in_f", 1.18e-10)),
+            "excitation.kind",
+        ),
         ("thermal added", variant(_add_thermal), "thermal"),
-        ("outputs.sar",
-         variant(lambda m: m.__setitem__(
-             "outputs", {"sar": {"mass_g": 10.0, "centres": [[0.0147, 0.0029, 0.0]]}})),
-         "outputs.sar"),
-        ("outputs.b1_plus",
-         variant(lambda m: m.__setitem__("outputs", {"b1_plus": {"points": [[0.0, 0.0, 0.0]]}})),
-         "outputs.b1_plus"),
-        ("as_hole false", variant(lambda m: m["geometry"].__setitem__("as_hole", False)),
-         "geometry.as_hole"),
+        (
+            "outputs.sar",
+            variant(
+                lambda m: m.__setitem__(
+                    "outputs", {"sar": {"mass_g": 10.0, "centres": [[0.0147, 0.0029, 0.0]]}}
+                )
+            ),
+            "outputs.sar",
+        ),
+        (
+            "outputs.b1_plus",
+            variant(lambda m: m.__setitem__("outputs", {"b1_plus": {"points": [[0.0, 0.0, 0.0]]}})),
+            "outputs.b1_plus",
+        ),
+        (
+            "as_hole false",
+            variant(lambda m: m["geometry"].__setitem__("as_hole", False)),
+            "geometry.as_hole",
+        ),
         ("conductor removed", variant(lambda m: m.pop("conductor")), "conductor"),
     ]
     m_quad = copy.deepcopy(_mapping(QUAD_FILE))
@@ -172,17 +183,21 @@ def test_wf1_s12_parse_and_refusals(monkeypatch):
 @pytest.fixture(scope="module")
 def runs():
     if not _knob():
-        pytest.skip(f"{S12_ENV} unset: the copper F-human YAML tune is a heavy -n 8 window, "
-                    "environment-selected")
+        pytest.skip(
+            f"{S12_ENV} unset: the copper F-human YAML tune is a heavy -n 8 window, "
+            "environment-selected"
+        )
     comm = MPI.COMM_WORLD
     assert comm.size == RECORD_RANK_WIDTH, (comm.size, RECORD_RANK_WIDTH)
     npz = None
     if comm.rank == 0:
         assert os.path.exists(NPZ_PATH), f"{NPZ_PATH} absent: stop (BLOCKED, rule (d))"
         with np.load(NPZ_PATH, allow_pickle=False) as fh:
-            npz = {"s32": np.array(fh["s32"], dtype=np.complex128),
-                   "order": [str(x) for x in fh["order"]],
-                   "cells": int(fh["cells"])}
+            npz = {
+                "s32": np.array(fh["s32"], dtype=np.complex128),
+                "order": [str(x) for x in fh["order"]],
+                "cells": int(fh["cells"]),
+            }
     npz = comm.bcast(npz, root=0)
     d = LOGS / "f_human_hole_copper_tune"
     _fresh_dir(d, comm)
@@ -196,13 +211,22 @@ def runs():
     api1 = run.study.tune(k=1, comm=comm)
     assert run.study.result is res0  # one solve
     ts_exists = comm.bcast(
-        bool((d / summary["touchstone"]).exists()) if comm.rank == 0 else None, root=0)
-    _p0(f"\n[WF-1 s12] cells {res0.cells}, mesh {res0.mesh_time:.1f} s, sweep "
-        f"{res0.sweep_time:.1f} s; run_study_file {t_run:.1f} s; -n {comm.size}")
+        bool((d / summary["touchstone"]).exists()) if comm.rank == 0 else None, root=0
+    )
+    _p0(
+        f"\n[WF-1 s12] cells {res0.cells}, mesh {res0.mesh_time:.1f} s, sweep "
+        f"{res0.sweep_time:.1f} s; run_study_file {t_run:.1f} s; -n {comm.size}"
+    )
     report_peak_rss(comm, label="[WF-1 s12] summed peak ru_maxrss")
     _p0(f"[WF-1 s12] summary tune {summary['tune']}")
-    return {"run": run, "summary": summary, "res0": res0, "api1": api1, "npz": npz,
-            "ts_exists": ts_exists}
+    return {
+        "run": run,
+        "summary": summary,
+        "res0": res0,
+        "api1": api1,
+        "npz": npz,
+        "ts_exists": ts_exists,
+    }
 
 
 @complex_only
@@ -216,10 +240,12 @@ def test_wf1_s12_r0_fixture_tie(runs):
     s_p = s[np.ix_(p, p)]
     rel = _residual(s_p, npz["s32"])
     col = np.linalg.norm(s_p - npz["s32"], axis=0) / np.linalg.norm(npz["s32"], axis=0)
-    _p0(f"\n[WF-1 s12 R0] cells {summary['cells']} vs record {HOLE_CELL_RECORD} vs npz "
+    _p0(
+        f"\n[WF-1 s12 R0] cells {summary['cells']} vs record {HOLE_CELL_RECORD} vs npz "
         f"{npz['cells']}; ||S_run - S_npz||/||S_npz|| = {rel:.3e} (band "
         f"REUSE_REPRODUCTION_RTOL {REUSE_REPRODUCTION_RTOL:.1e}; predicted <= 1e-10); worst "
-        f"column {col.max():.3e}; touchstone {summary['touchstone']} exists {runs['ts_exists']}")
+        f"column {col.max():.3e}; touchstone {summary['touchstone']} exists {runs['ts_exists']}"
+    )
     assert summary["cells"] == HOLE_CELL_RECORD
     assert sorted(names) == sorted(npz["order"])
     assert rel <= REUSE_REPRODUCTION_RTOL
@@ -235,10 +261,12 @@ def test_wf1_s12_summary_equals_same_study_tune(runs):
     mem = run.summary["tune"]
     rc = abs(mem["c_mode_farad"] / api1.c_mode_farad - 1.0)
     ro = abs(mem["off_diagonal_residual"] / api1.off_diagonal_residual - 1.0)
-    _p0(f"\n[WF-1 s12 I=] summary C {mem['c_mode_farad']!r} vs api {api1.c_mode_farad!r}: rel "
+    _p0(
+        f"\n[WF-1 s12 I=] summary C {mem['c_mode_farad']!r} vs api {api1.c_mode_farad!r}: rel "
         f"{rc:.3e}, off rel {ro:.3e} (band EXACT_IDENTITY_RTOL {EXACT_IDENTITY_RTOL:.1e}); hex "
         f"{mem['c_mode_farad'].hex()} vs {float(api1.c_mode_farad).hex()} equal "
-        f"{mem['c_mode_farad'].hex() == float(api1.c_mode_farad).hex()} (printed)")
+        f"{mem['c_mode_farad'].hex() == float(api1.c_mode_farad).hex()} (printed)"
+    )
     assert rc <= EXACT_IDENTITY_RTOL
     assert ro <= EXACT_IDENTITY_RTOL
     assert len(mem["z_k"]) == 9 and len(api1.z_k) == 9
@@ -256,9 +284,11 @@ def test_wf1_s12_a_c_mode_equals_wf12_h12c(runs):
     """(a): the YAML C_mode within REDUCTION_BAND of `WF-12` step 3's H12c reading."""
     c = runs["summary"]["tune"]["c_mode_farad"]
     gap = c / WF12_STEP3_C_MODE_CU_F - 1.0
-    _p0(f"\n[WF-1 s12 a] C_mode = {c:.12e} F; record {WF12_STEP3_C_MODE_CU_F:.12e} F; gap "
+    _p0(
+        f"\n[WF-1 s12 a] C_mode = {c:.12e} F; record {WF12_STEP3_C_MODE_CU_F:.12e} F; gap "
         f"{gap:+.6e} (band REDUCTION_BAND {REDUCTION_BAND:.1e}; predicted <= 1e-9); vs item "
-        f"472's C {c / ITEM472_C_MODE_F - 1:+.3e} (item 472 gap {ITEM472_GAP:+.6e}, printed)")
+        f"472's C {c / ITEM472_C_MODE_F - 1:+.3e} (item 472 gap {ITEM472_GAP:+.6e}, printed)"
+    )
     assert abs(gap) <= REDUCTION_BAND
 
 
@@ -270,7 +300,9 @@ def test_wf1_s12_c1_mode_index_control(runs):
     assert runs["run"].study.result is runs["res0"]
     assert t2["k"] == 2
     gap = t2["c_mode_farad"] / WF12_STEP3_C_MODE_CU_F - 1.0
-    _p0(f"\n[WF-1 s12 c1] k = 2 C = {t2['c_mode_farad']:.12e} F, gap {gap:+.6e} "
+    _p0(
+        f"\n[WF-1 s12 c1] k = 2 C = {t2['c_mode_farad']:.12e} F, gap {gap:+.6e} "
         f"({abs(gap) / REDUCTION_BAND:.1f}x band; item 472 {ITEM472_K2_GAP:+.7f}; step 3 "
-        f"separation {WF12_STEP3_K2_SEPARATION})")
+        f"separation {WF12_STEP3_K2_SEPARATION})"
+    )
     assert abs(gap) > REDUCTION_BAND

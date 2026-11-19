@@ -167,8 +167,7 @@ def test_deficit_shrinks_monotonically_with_padding(padding_sweep):
     magnitudes = [abs(padding_sweep[p]) for p in PADDINGS]
     if MPI.COMM_WORLD.rank == 0:
         print(
-            "[PORT-1 step 3b-xi] |deficit| "
-            + " > ".join(f"{m:.4%}" for m in magnitudes),
+            "[PORT-1 step 3b-xi] |deficit| " + " > ".join(f"{m:.4%}" for m in magnitudes),
             flush=True,
         )
     assert all(a > b for a, b in zip(magnitudes, magnitudes[1:])), (

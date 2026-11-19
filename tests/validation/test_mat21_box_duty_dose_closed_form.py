@@ -18,7 +18,6 @@ from __future__ import annotations
 import numpy as np
 
 from fem_em_solver.thermal.dose import cem43, running_average
-
 from tests.validation.test_mat21_box_closed_form import T_INF as T_INF_0
 from tests.validation.test_mat21_box_dose_closed_form import (
     AVG_BAR,
@@ -56,8 +55,9 @@ def _duty_hist(pts, switch_times=T_SW):
     P = np.asarray(pts, dtype=float)
     out = np.zeros((T_GRID.size, P.shape[0]))
     for n in range(1, T_GRID.size):
-        out[n] = _quad_duty(P[:, 0], P[:, 1], P[:, 2], T_GRID[n], switch_times=switch_times,
-                            n_terms=QUAD_TERMS)
+        out[n] = _quad_duty(
+            P[:, 0], P[:, 1], P[:, 2], T_GRID[n], switch_times=switch_times, n_terms=QUAD_TERMS
+        )
     return out
 
 
@@ -79,14 +79,18 @@ def _hists():
 def test_c100_s_full_schedule_bitwise_p39p():
     th_s, th_s1, _d = _hists()
     eq = bool(np.array_equal(th_s1, th_s))
-    _p(f"MAT21-13s (C100-s) theta_s1 (switch_times=(0.0,)) array_equal _series_hist over "
-       f"{th_s.shape}: {eq} (max |d| {np.max(np.abs(th_s1 - th_s)):.3e} K)")
+    _p(
+        f"MAT21-13s (C100-s) theta_s1 (switch_times=(0.0,)) array_equal _series_hist over "
+        f"{th_s.shape}: {eq} (max |d| {np.max(np.abs(th_s1 - th_s)):.3e} K)"
+    )
     assert eq
     for j, pt in enumerate(DOSE_PTS):
         d1 = cem43(T_GRID, T_INF_0 + th_s1[:, j])
         d0 = cem43(T_GRID, T_INF_0 + th_s[:, j])
-        _p(f"MAT21-13s (C100-s) {HIST_LABELS[j]}: dose(100 %) {d1:.15e} s, dose(P39') {d0:.15e} s, "
-           f"== {d1 == d0}; P39' string {P39P_SERIES_DOSE[j]}")
+        _p(
+            f"MAT21-13s (C100-s) {HIST_LABELS[j]}: dose(100 %) {d1:.15e} s, dose(P39') {d0:.15e} s, "
+            f"== {d1 == d0}; P39' string {P39P_SERIES_DOSE[j]}"
+        )
         assert d1 == d0, (pt, d1, d0)
         assert f"{d1:.15e}" == P39P_SERIES_DOSE[j], (pt, f"{d1:.15e}")
 
@@ -100,15 +104,21 @@ def test_q_sd_win_sd_and_rc_sd():
             assert float(np.max(T)) < T_REF, (lab, pt, float(np.max(T)))
             dose, ref, rel, swap, miss = _q_check(T)
             mx, t_mx, lo, hi, wref, wrel = _win_check(th)
-            _p(f"MAT21-13s (Q-sd) {lab} {HIST_LABELS[j]}: duty CEM43 {dose:.15e} s vs quad "
-               f"{ref:.15e} s rel {rel:.3e} (bar {DOSE_BAR:g}, ASSERTED; predicted <= {PRED_Q:g}); "
-               f"max T {np.max(T):.9f} C < 43 ASSERTED")
-            _p(f"MAT21-13s (Win-sd) {lab} {HIST_LABELS[j]}: max six-minute mean {mx:.15e} K at "
-               f"t_max {t_mx:.4f} s (predicted near 2539.35 s at the walls, later at the centre); "
-               f"(ii) [{lo:.12e}, {hi:.12e}]; (iii) quad {wref:.15e} rel {wrel:.3e} "
-               f"(bar {AVG_BAR:g}, ASSERTED)")
-            _p(f"MAT21-13s (Rc'-sd) {lab} {HIST_LABELS[j]}: R swap miss {miss:.4e} (asserted > "
-               f"{DOSE_BAR:g}); factor {swap / ref:.4e}")
+            _p(
+                f"MAT21-13s (Q-sd) {lab} {HIST_LABELS[j]}: duty CEM43 {dose:.15e} s vs quad "
+                f"{ref:.15e} s rel {rel:.3e} (bar {DOSE_BAR:g}, ASSERTED; predicted <= {PRED_Q:g}); "
+                f"max T {np.max(T):.9f} C < 43 ASSERTED"
+            )
+            _p(
+                f"MAT21-13s (Win-sd) {lab} {HIST_LABELS[j]}: max six-minute mean {mx:.15e} K at "
+                f"t_max {t_mx:.4f} s (predicted near 2539.35 s at the walls, later at the centre); "
+                f"(ii) [{lo:.12e}, {hi:.12e}]; (iii) quad {wref:.15e} rel {wrel:.3e} "
+                f"(bar {AVG_BAR:g}, ASSERTED)"
+            )
+            _p(
+                f"MAT21-13s (Rc'-sd) {lab} {HIST_LABELS[j]}: R swap miss {miss:.4e} (asserted > "
+                f"{DOSE_BAR:g}); factor {swap / ref:.4e}"
+            )
             assert rel <= DOSE_BAR, (lab, pt, rel)
             assert T_GRID[0] + W_B2 <= t_mx <= T_GRID[-1], (lab, t_mx)
             assert lo <= mx <= hi, (lab, lo, mx, hi)
@@ -129,11 +139,13 @@ def test_printed_duty_ratio_of_dose():
         _a, mx_c, t_c = running_average(T_GRID, th_s[:, j], window=W)
         _a, mx_d, t_d = running_average(T_GRID, th_d[:, j], window=W)
         kind = "centre" if j == 2 else "wall"
-        _p(f"MAT21-13s DUTY DOSE {HIST_LABELS[j]}: D_cont {d_c:.15e} s; D_duty(peak) {d_pk:.15e} s; "
-           f"D_duty(equal mean) {d_eq:.15e} s; ratio equal-mean {d_eq / d_c:.6f} (predicted "
-           f"{PRED_EQ[kind]}); ratio peak {d_pk / d_c:.6f} (predicted {PRED_PEAK}); theta ratio at "
-           f"t* {r_t:.5f} (P38 {P38_RATIO[HIST_LABELS[j]]:.5f}; x2 {2 * r_t:.5f}); time-mean theta "
-           f"ratio {r_mean:.5f} (x2 {r_mean / DUTY:.5f}); six-minute peak cont {mx_c:.6f} K at "
-           f"{t_c:.2f} s, duty {mx_d:.6f} K at {t_d:.2f} s (equal mean {mx_d / DUTY:.6f} K); "
-           f"t* {T_STAR:.2f} s")
+        _p(
+            f"MAT21-13s DUTY DOSE {HIST_LABELS[j]}: D_cont {d_c:.15e} s; D_duty(peak) {d_pk:.15e} s; "
+            f"D_duty(equal mean) {d_eq:.15e} s; ratio equal-mean {d_eq / d_c:.6f} (predicted "
+            f"{PRED_EQ[kind]}); ratio peak {d_pk / d_c:.6f} (predicted {PRED_PEAK}); theta ratio at "
+            f"t* {r_t:.5f} (P38 {P38_RATIO[HIST_LABELS[j]]:.5f}; x2 {2 * r_t:.5f}); time-mean theta "
+            f"ratio {r_mean:.5f} (x2 {r_mean / DUTY:.5f}); six-minute peak cont {mx_c:.6f} K at "
+            f"{t_c:.2f} s, duty {mx_d:.6f} K at {t_d:.2f} s (equal mean {mx_d / DUTY:.6f} K); "
+            f"t* {T_STAR:.2f} s"
+        )
         assert np.isfinite(d_eq / d_c)

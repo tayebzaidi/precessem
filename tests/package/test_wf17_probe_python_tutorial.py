@@ -42,14 +42,17 @@ from mpi4py import MPI
 
 from fem_em_solver import QuasiStaticSphereField, RobinCooling, SphereInBoxGeometry, Study
 from fem_em_solver.thermal.probe import ProbeBall, ball_average
-
 from tests.complex_mode import IS_COMPLEX
 from tests.package.test_wf15_study_lossy_sphere import GEOMETRY, _material_057
 from tests.package.test_wf15_study_probe import C2_OUT, PROBES, WHOLE
-from tests.package.test_wf17_first_study_tutorial import LINK_PASS_RE, _checker_stdout, extract_tagged_block
+from tests.package.test_wf17_first_study_tutorial import (
+    LINK_PASS_RE,
+    _checker_stdout,
+    extract_tagged_block,
+)
 from tests.unit.test_doc_reference_exit_codes import run_checker
 from tests.validation.test_lossy_sphere_sar import E0, FREQUENCY_HZ, RHO_KG_M3, SIGMA_HIGH
-from tests.validation.test_mat10_sar_to_heat_sphere import B_BAND, G, H, K, T_INF, _allsum
+from tests.validation.test_mat10_sar_to_heat_sphere import B_BAND, T_INF, G, H, K, _allsum
 from tests.validation.test_mat19_virtual_temperature_probe import N_SUB, WIDTH_BAND
 
 REPO = Path(__file__).resolve().parents[2]
@@ -134,8 +137,9 @@ def exec_probe_block(monkeypatch):
     raw = PAGE.read_bytes()
     block = extract_tagged_block(raw.decode(), PROBE_TAG)
     if comm.rank == 0:
-        print(f"[WF-17 s18] page sha256 {_sha(raw)}; block sha256 {_sha(block.encode())}",
-              flush=True)
+        print(
+            f"[WF-17 s18] page sha256 {_sha(raw)}; block sha256 {_sha(block.encode())}", flush=True
+        )
         if SCRATCH.exists():
             shutil.rmtree(SCRATCH)
         SCRATCH.mkdir(parents=True)
@@ -162,9 +166,11 @@ def test_wf17_s18_blocks_and_inputs(monkeypatch, tmp_path):
     text = _text()
     block = extract_tagged_block(text, PROBE_TAG)
     reason = _block_defect(block)
-    _p0(f"[WF-17 s18] (X) {PROBE_TAG}: Study {len(_calls_named(block, 'Study'))}, solve "
+    _p0(
+        f"[WF-17 s18] (X) {PROBE_TAG}: Study {len(_calls_named(block, 'Study'))}, solve "
         f"{len(_calls_named(block, 'solve'))}, probe {len(_calls_named(block, 'probe'))}, "
-        f"run_study_file {len(_calls_named(block, 'run_study_file'))}; defect {reason}")
+        f"run_study_file {len(_calls_named(block, 'run_study_file'))}; defect {reason}"
+    )
     assert reason is None, reason
     assert block.count("Study(") == 1 and "run_study_file" not in block
     extract_tagged_block(text, BANDS_TAG, lang="text")
@@ -172,10 +178,16 @@ def test_wf17_s18_blocks_and_inputs(monkeypatch, tmp_path):
     # (c-page), by construction: a removed / doubled tag raises
     for tag, lang in ((PROBE_TAG, "python"), (BANDS_TAG, "text")):
         with pytest.raises(LookupError):
-            extract_tagged_block(text.replace(f"```{lang} {tag}\n", f"```{lang} other\n"), tag,
-                                 lang=lang)
-        doubled = (text + "\n" + f"```{lang} {tag}\n"
-                   + extract_tagged_block(text, tag, lang=lang) + "```\n")
+            extract_tagged_block(
+                text.replace(f"```{lang} {tag}\n", f"```{lang} other\n"), tag, lang=lang
+            )
+        doubled = (
+            text
+            + "\n"
+            + f"```{lang} {tag}\n"
+            + extract_tagged_block(text, tag, lang=lang)
+            + "```\n"
+        )
         with pytest.raises(LookupError):
             extract_tagged_block(doubled, tag, lang=lang)
     # a tmp copy of the page with the probe call removed fails (X), naming it
@@ -183,8 +195,10 @@ def test_wf17_s18_blocks_and_inputs(monkeypatch, tmp_path):
     stripped = tmp_path / "page.md"
     stripped.write_text(text.replace("readings = study.probe(", "readings = (", 1))
     stripped_reason = _block_defect(extract_tagged_block(stripped.read_text(), PROBE_TAG))
-    _p0(f"[WF-17 s18] (c-page) tags removed / doubled raise LookupError; probe call removed -> "
-        f"{stripped_reason}")
+    _p0(
+        f"[WF-17 s18] (c-page) tags removed / doubled raise LookupError; probe call removed -> "
+        f"{stripped_reason}"
+    )
     assert stripped_reason is not None and "'probe'" in stripped_reason
     for token in (".json", ".npz", ".s4p", ".xdmf", ".h5", "AED", "HFSS"):
         assert token not in text, token
@@ -211,13 +225,17 @@ def test_wf17_s18_blocks_and_inputs(monkeypatch, tmp_path):
     assert len(calls["solve"]) == 1 and calls["solve"][0] is st
     assert len(calls["probe"]) == 1
     p_self, p_list, p_cool, p_kw = calls["probe"][0]
-    _p0(f"[WF-17 s18] (In) solve calls {len(calls['solve'])}, probe calls "
+    _p0(
+        f"[WF-17 s18] (In) solve calls {len(calls['solve'])}, probe calls "
         f"{len(calls['probe'])}; geometry {st.geometry!r}; material {st.material!r}; excitation "
         f"{st.excitation!r}; frequency {float(st.frequency_hz).hex()} (want "
         f"{FREQUENCY_HZ.hex()}); density {float(st.density_kg_m3).hex()} (want "
-        f"{RHO_KG_M3.hex()}); degree {st.degree}; conductor {st.conductor!r}")
-    _p0(f"[WF-17 s18] (In) probes {p_list!r} (want {want_probes!r}); cooling {p_cool!r} (want "
-        f"{want_cooling!r}); kwargs {p_kw!r}; exec {time.perf_counter() - t0:.2f} s")
+        f"{RHO_KG_M3.hex()}); degree {st.degree}; conductor {st.conductor!r}"
+    )
+    _p0(
+        f"[WF-17 s18] (In) probes {p_list!r} (want {want_probes!r}); cooling {p_cool!r} (want "
+        f"{want_cooling!r}); kwargs {p_kw!r}; exec {time.perf_counter() - t0:.2f} s"
+    )
     assert p_self is st and p_kw == {}
     assert type(st.geometry) is SphereInBoxGeometry and st.geometry == GEOMETRY
     assert st.material == _material_057()
@@ -251,9 +269,11 @@ def test_wf17_s18_docrefs_zero_dead():
     rc, counts = run_checker("--docs-root", "docs/guide", "--check-links")
     link = LINK_PASS_RE.search(_checker_stdout("--docs-root", "docs/guide", "--check-links"))
     assert link is not None, "(D) no 'Link pass:' line"
-    print(f"[WF-17 s18] (D) dead={counts['dead']} links={link.group(1)} pages={link.group(2)} "
-          f"link-dead={link.group(3)} guide={counts['guide']} stale={counts['stale']} "
-          f"exit={counts['exit']} rc={rc}")
+    print(
+        f"[WF-17 s18] (D) dead={counts['dead']} links={link.group(1)} pages={link.group(2)} "
+        f"link-dead={link.group(3)} guide={counts['guide']} stale={counts['stale']} "
+        f"exit={counts['exit']} rc={rc}"
+    )
     assert counts["dead"] == 0
     assert int(link.group(3)) == 0
     assert int(link.group(2)) >= MIN_GUIDE_PAGES
@@ -264,8 +284,10 @@ def test_wf17_s18_docrefs_zero_dead():
 
 def test_wf17_s18_probe_block_reproduces_wf15_s4(monkeypatch):
     if _knob() is None:
-        pytest.skip(f"{S18_ENV} unset: the tutorial solve window is environment-selected "
-                    "(complex build, -n 2)")
+        pytest.skip(
+            f"{S18_ENV} unset: the tutorial solve window is environment-selected "
+            "(complex build, -n 2)"
+        )
     comm = MPI.COMM_WORLD
     assert IS_COMPLEX, "the gel-sphere EM solve needs the complex build"
     assert comm.size == 2, comm.size
@@ -281,8 +303,9 @@ def test_wf17_s18_probe_block_reproduces_wf15_s4(monkeypatch):
     cells = int(sub.topology.index_map(3).size_global)
     values = np.asarray(pr.values, dtype=np.float64)
     volumes = np.asarray(pr.volumes, dtype=np.float64)
-    v_sub = float(np.real(_allsum(comm, fem.Constant(sub, default_scalar_type(1.0))
-                                  * ufl.dx(domain=sub))))
+    v_sub = float(
+        np.real(_allsum(comm, fem.Constant(sub, default_scalar_type(1.0)) * ufl.dx(domain=sub)))
+    )
     mean = float(np.real(_allsum(comm, theta * ufl.dx(domain=sub)))) / v_sub
     a_val = abs(values[0] - mean) / abs(mean)
     a_vol = abs(volumes[0] / v_sub - 1.0)
@@ -296,15 +319,23 @@ def test_wf17_s18_probe_block_reproduces_wf15_s4(monkeypatch):
     c1 = abs(v_out - values[3]) / abs(values[3])
 
     _p0(f"[WF-17 s18] (Once) {once}; probes = [WHOLE] + PROBES {probes_equal}")
-    _p0(f"[WF-17 s18] (A0) sub cells {cells} (N_SUB {N_SUB}); (A) |P - int/V|/|int/V| = "
+    _p0(
+        f"[WF-17 s18] (A0) sub cells {cells} (N_SUB {N_SUB}); (A) |P - int/V|/|int/V| = "
         f"{a_val:.3e}, |V_h/V_sub - 1| = {a_vol:.3e} (band {B_BAND:.0e}; RG1:136 {RG1_A}); "
-        f"V_sub {v_sub:.10e}; whole-ball mean {mean:.10e} K")
-    _p0(f"[WF-17 s18] (U) Study.probe values {values.tolist()!r}; direct {direct.tolist()!r}; "
-        f"equal {u_equal}; volumes {volumes.tolist()!r}")
-    _p0(f"[WF-17 s18] (c1) c2 +0.1 mm: |d|/theta = {c1:.4e} (ASSERTED > {WIDTH_BAND:.0e}; "
-        f"RG1:143 {RG1_C1}); {c1 / WIDTH_BAND:.3e}x the band")
-    _p0(f"[WF-17 s18] W-probe block (solve + probe) {t_block:.1f} s; max_imag_ratio "
-        f"{pr.max_imag_ratio:.3e}; width {comm.size}")
+        f"V_sub {v_sub:.10e}; whole-ball mean {mean:.10e} K"
+    )
+    _p0(
+        f"[WF-17 s18] (U) Study.probe values {values.tolist()!r}; direct {direct.tolist()!r}; "
+        f"equal {u_equal}; volumes {volumes.tolist()!r}"
+    )
+    _p0(
+        f"[WF-17 s18] (c1) c2 +0.1 mm: |d|/theta = {c1:.4e} (ASSERTED > {WIDTH_BAND:.0e}; "
+        f"RG1:143 {RG1_C1}); {c1 / WIDTH_BAND:.3e}x the band"
+    )
+    _p0(
+        f"[WF-17 s18] W-probe block (solve + probe) {t_block:.1f} s; max_imag_ratio "
+        f"{pr.max_imag_ratio:.3e}; width {comm.size}"
+    )
 
     assert once, "(Once) a second EM solve happened"
     assert probes_equal

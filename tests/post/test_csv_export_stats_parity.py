@@ -51,7 +51,6 @@ from fem_em_solver.post.phantom_fields import (
     compute_tagged_vector_magnitude_stats,
     export_tagged_field_samples_csv,
 )
-
 from tests.complex_mode import complex_only
 from tests.post.test_phantom_phasor_semantics import (
     FIXTURE_N,
@@ -137,9 +136,7 @@ def test_probe_csv_round_trip_precision(piecewise_sigma_field, tmp_path):
     lines = []
     for tag in TAGS:
         stats = compute_tagged_vector_magnitude_stats(e_field, cell_tags, tag, comm=comm)
-        parsed = _export_and_read(
-            e_field, cell_tags, tag, tmp_path, comm, prefer_interior=False
-        )
+        parsed = _export_and_read(e_field, cell_tags, tag, tmp_path, comm, prefer_interior=False)
         # The export is collective but only rank 0 holds the parsed CSV;
         # broadcast it so ``worst`` is the same number on every rank and the
         # assertion below is collective (`OPS-21`'s template, swept by
@@ -176,9 +173,7 @@ def test_probe_csv_round_trip_precision(piecewise_sigma_field, tmp_path):
 @pytest.mark.integration
 @pytest.mark.parametrize("tag", TAGS)
 @pytest.mark.parametrize("prefer_interior", PREFER_INTERIOR)
-def test_csv_rows_match_the_stats_sample_set(
-    piecewise_sigma_field, tag, prefer_interior, tmp_path
-):
+def test_csv_rows_match_the_stats_sample_set(piecewise_sigma_field, tag, prefer_interior, tmp_path):
     """Anchor: row count == ``stats["count"]`` exactly, mag statistics to 1e-12.
 
     Parametrised over **both** sampling modes: agreement in the production
@@ -232,9 +227,7 @@ def test_csv_rows_match_the_stats_sample_set(
 @complex_only
 @pytest.mark.integration
 @pytest.mark.parametrize("tag", TAGS)
-def test_guarded_export_is_short_by_exactly_the_dropped_layer(
-    piecewise_sigma_field, tag, tmp_path
-):
+def test_guarded_export_is_short_by_exactly_the_dropped_layer(piecewise_sigma_field, tag, tmp_path):
     """Negative control: the retired rule, reproduced through the export.
 
     ``prefer_interior_samples=True`` must drop the boundary-adjacent tagged
@@ -247,16 +240,10 @@ def test_guarded_export_is_short_by_exactly_the_dropped_layer(
     e_field, cell_tags = piecewise_sigma_field
     mesh = e_field.function_space.mesh
 
-    default = _export_and_read(
-        e_field, cell_tags, tag, tmp_path, comm, prefer_interior=False
-    )
-    guarded = _export_and_read(
-        e_field, cell_tags, tag, tmp_path, comm, prefer_interior=True
-    )
+    default = _export_and_read(e_field, cell_tags, tag, tmp_path, comm, prefer_interior=False)
+    guarded = _export_and_read(e_field, cell_tags, tag, tmp_path, comm, prefer_interior=True)
     interior = _interior_tagged_cells(mesh, cell_tags, tag)
-    n_dropped = comm.allreduce(
-        int(_tagged_cells(cell_tags, tag).size - interior.size), op=MPI.SUM
-    )
+    n_dropped = comm.allreduce(int(_tagged_cells(cell_tags, tag).size - interior.size), op=MPI.SUM)
     # Same `OPS-21` template as above. The `OPS-23` commission classified this
     # site as "returns before a print only" from the grep survey; it does not —
     # the two assertions below sat behind it, so the negative control was

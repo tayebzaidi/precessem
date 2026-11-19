@@ -58,12 +58,22 @@ TAG = "[WF-17 s49]"
 HEADING = "## Rod-in-box records (entries 48 / 61)"
 C40_GLOB = "*_GEO-36-C40-W1-n1.log"
 ROW_KEYS = tuple((f"Q {b}", f"q.{b}") for b in ENTRY48_BALLS) + (
-    ("η_rod(T1)", "eta_t1"), ("rod share (arm M)", "share.M"))
-C40_LABEL = {**{f"q.{b}": f"tip 1 g Q {b}" for b in ENTRY48_BALLS},
-             "eta_t1": "eta_rod(T1)", "share.M": "rod share arm M (rod)"}
+    ("η_rod(T1)", "eta_t1"),
+    ("rod share (arm M)", "share.M"),
+)
+C40_LABEL = {
+    **{f"q.{b}": f"tip 1 g Q {b}" for b in ENTRY48_BALLS},
+    "eta_t1": "eta_rod(T1)",
+    "share.M": "rod share arm M (rod)",
+}
 C40_RE = re.compile(r"^\[GEO-36 C45\]   (.+?): (\S+) \| (\S+) \| (\S+)$")
-DISCLAIMERS = ("degree 1", "1.5 T gel constants", "Box containment is not asserted",
-               "No published comparand", "A record")
+DISCLAIMERS = (
+    "degree 1",
+    "1.5 T gel constants",
+    "Box containment is not asserted",
+    "No published comparand",
+    "A record",
+)
 DECIMAL_RE = re.compile(r"\d+\.\d+")
 
 
@@ -77,8 +87,8 @@ def section(text: str) -> str:
     if len(heads) != 1:
         raise LookupError(f"{HEADING!r}: {len(heads)} occurrences (exactly one required)")
     start = heads[0]
-    nxt = re.search(r"^## ", text[start + len(HEADING):], re.M)
-    return text[start: start + len(HEADING) + nxt.start()] if nxt else text[start:]
+    nxt = re.search(r"^## ", text[start + len(HEADING) :], re.M)
+    return text[start : start + len(HEADING) + nxt.start()] if nxt else text[start:]
 
 
 def table(sec: str) -> dict[str, list[str]]:
@@ -112,14 +122,15 @@ def blocks() -> dict[str, dict]:
     path61, kind = hit
     print(f"{TAG} entry 48: {ENTRY48_LOG.name}; entry 61: {path61.name} ({kind})")
     assert kind == "tracked", kind
-    return {"1.5 T": _on_root(parse_i36_log, ENTRY48_LOG),
-            "3 T": _on_root(parse_i36_log, path61)}
+    return {"1.5 T": _on_root(parse_i36_log, ENTRY48_LOG), "3 T": _on_root(parse_i36_log, path61)}
 
 
 def expected_rows(bl) -> dict[str, list[str]]:
     r = ratios(bl["1.5 T"], bl["3 T"])
-    return {label: [_val(bl["1.5 T"], key), _val(bl["3 T"], key), format(r[key], ".6e")]
-            for label, key in ROW_KEYS}
+    return {
+        label: [_val(bl["1.5 T"], key), _val(bl["3 T"], key), format(r[key], ".6e")]
+        for label, key in ROW_KEYS
+    }
 
 
 def tab_mismatches(sec: str, exp) -> list[tuple]:
@@ -197,14 +208,16 @@ def test_s49_q_ratio_c45_and_c40_custody():
         t15, t3 = _val(bl["1.5 T"], key), _val(bl["3 T"], key)
         mine = format(r[key], ".6e")
         cust = {t for t in tup[key] if t[0] == t15 and t[1] == t3}
-        print(f"{TAG} (Q-ratio) {key}: C40 tuples {sorted(tup[key])}; custody {sorted(cust)}; "
-              f"C45 ratios {mine}; page {got[label][2]}")
+        print(
+            f"{TAG} (Q-ratio) {key}: C40 tuples {sorted(tup[key])}; custody {sorted(cust)}; "
+            f"C45 ratios {mine}; page {got[label][2]}"
+        )
         assert len(cust) == 1, (key, tup[key])
         # (Q-self), 10:30 ruling: every other tuple is C45's self-copy control.
         others = set(tup[key]) - cust
         print(f"{TAG} (Q-self) {key}: others {sorted(others)}")
         assert others <= {(t15, t15, "1.000000e+00")}, (key, sorted(others))
-        (_a, _b, rr), = cust
+        ((_a, _b, rr),) = cust
         assert rr == mine == got[label][2]
     assert path.name in _sec()
 
@@ -239,11 +252,14 @@ def test_s49_disc_disclaimers():
 
 def test_s49_d_docrefs_guide():
     rc, counts = _on_root(run_checker, "--docs-root", "docs/guide", "--check-links")
-    link = LINK_PASS_RE.search(_on_root(_checker_stdout, "--docs-root", "docs/guide",
-                                        "--check-links"))
+    link = LINK_PASS_RE.search(
+        _on_root(_checker_stdout, "--docs-root", "docs/guide", "--check-links")
+    )
     assert link is not None, "(D) no 'Link pass:' line"
-    print(f"{TAG} (D) dead={counts['dead']} links={link.group(1)} pages={link.group(2)} "
-          f"link-dead={link.group(3)} rc={rc}")
+    print(
+        f"{TAG} (D) dead={counts['dead']} links={link.group(1)} pages={link.group(2)} "
+        f"link-dead={link.group(3)} rc={rc}"
+    )
     assert counts["dead"] == 0
     assert int(link.group(3)) == 0
 

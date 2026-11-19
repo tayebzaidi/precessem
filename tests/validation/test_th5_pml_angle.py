@@ -78,10 +78,12 @@ def test_pml_angle_closed_forms_numpy():
     """(Gc45) identity and the (Law) ceiling, no mesh."""
     gc, gc0, _ = _closed_forms()
     ident = abs(abs(gc) / abs(gc0) ** COS_45 - 1.0)
-    target = R_CLOSED ** COS_45
-    _p(f"\n[TH-5 s3c W0] Gc(45) = {gc:.6e}, |Gc| = {abs(gc):.6e} (R^cos = {target:.6e}); "
-       f"ident {ident:.3e}; Gc(0) = {gc0:.6e}; |Gc45 - Gc0| = {abs(gc - gc0):.4e} "
-       f"({abs(gc - gc0) / PML_REFLECTION_BAR:.1f}x bar)")
+    target = R_CLOSED**COS_45
+    _p(
+        f"\n[TH-5 s3c W0] Gc(45) = {gc:.6e}, |Gc| = {abs(gc):.6e} (R^cos = {target:.6e}); "
+        f"ident {ident:.3e}; Gc(0) = {gc0:.6e}; |Gc45 - Gc0| = {abs(gc - gc0):.4e} "
+        f"({abs(gc - gc0) / PML_REFLECTION_BAR:.1f}x bar)"
+    )
     assert ident <= IDENTITY_TOLERANCE, ident
     assert abs(abs(gc) - target) <= 1e-12 * target, (abs(gc), target)
     assert abs(gc.imag) > 1e-2 * abs(gc), gc  # complex: phase not a multiple of π
@@ -98,8 +100,9 @@ def _guide_at(comm, theta, n_per_lambda, degree, s_max):
     wz = 2.0 * h
 
     def drive(x):
-        return np.vstack([np.zeros(x.shape[1]), np.zeros(x.shape[1]),
-                          np.sin(np.pi * x[1] / a)]).astype(PETSc.ScalarType)
+        return np.vstack(
+            [np.zeros(x.shape[1]), np.zeros(x.shape[1]), np.sin(np.pi * x[1] / a)]
+        ).astype(PETSc.ScalarType)
 
     if s_max is None:
         msh, tags, ncells = _box(comm, L_O, a, wz, int(round(L_O / h)), ny, 2)
@@ -110,8 +113,7 @@ def _guide_at(comm, theta, n_per_lambda, degree, s_max):
         term = pml_slab_term(msh, L_O, PML_D, s_max, PML_M, OMEGA)
         e_h = _solve_terms(msh, tags, degree, drive, [TAG_Y, TAG_Z], [term])
     x = ufl.SpatialCoordinate(msh)
-    proj = _Projection(e_h[2], msh, FIT_O[0], FIT_O[1], beta,
-                       w=ufl.sin(ufl.pi * x[1] / a))
+    proj = _Projection(e_h[2], msh, FIT_O[0], FIT_O[1], beta, w=ufl.sin(ufl.pi * x[1] / a))
     out = {"cells": ncells, "ny": ny, "beta": beta, "proj": proj.gamma(beta, L_O)}
     out["k_fit"], out["gamma_k_fit"], out["scan_interior"] = proj.k_fit(beta, L_O)
     out["seconds"] = time.perf_counter() - t0
@@ -124,39 +126,49 @@ def test_pml_angle_45_closed_leg():
     comm = MPI.COMM_WORLD
     gc, gc0, gc60 = _closed_forms()
     ident = abs(abs(gc) / abs(gc0) ** COS_45 - 1.0)
-    _p(f"\n[TH-5 s3c Gc45] theta = 45 deg, cos = {COS_45:.15f}; Gc(45) = {gc:.6e}, "
-       f"|Gc| = {abs(gc):.6e} (R_CLOSED^cos = {R_CLOSED ** COS_45:.6e}); "
-       f"| |Gc|/|Gc0|^cos - 1 | = {ident:.3e}; Gc(0) = {gc0:.6e}; Gc(60) = {gc60:.6e}")
+    _p(
+        f"\n[TH-5 s3c Gc45] theta = 45 deg, cos = {COS_45:.15f}; Gc(45) = {gc:.6e}, "
+        f"|Gc| = {abs(gc):.6e} (R_CLOSED^cos = {R_CLOSED ** COS_45:.6e}); "
+        f"| |Gc|/|Gc0|^cos - 1 | = {ident:.3e}; Gc(0) = {gc0:.6e}; Gc(60) = {gc60:.6e}"
+    )
 
     r2 = _guide_at(comm, THETA_45, N_GATE, 2, S_CLOSED)
     r1 = _guide_at(comm, THETA_45, N_GATE, 1, S_CLOSED)
     for deg, r in ((2, r2), (1, r1)):
-        _p(f"[TH-5 s3c B45] degree {deg}, lambda0/{N_GATE}: cells {r['cells']} (ny {r['ny']}), "
-           f"{r['seconds']:.1f} s; k_fit-beta = {r['k_fit'] - r['beta']:+.4e} rad/m "
-           f"(interior {r['scan_interior']}); k_fit read G = {r['gamma_k_fit']:.6e}, "
-           f"|G| = {abs(r['gamma_k_fit']):.6e}, |G-Gc45| = {abs(r['gamma_k_fit'] - gc):.4e}; "
-           f"k0cos read G = {r['proj']:.6e}, |G-Gc45| = {abs(r['proj'] - gc):.4e}")
+        _p(
+            f"[TH-5 s3c B45] degree {deg}, lambda0/{N_GATE}: cells {r['cells']} (ny {r['ny']}), "
+            f"{r['seconds']:.1f} s; k_fit-beta = {r['k_fit'] - r['beta']:+.4e} rad/m "
+            f"(interior {r['scan_interior']}); k_fit read G = {r['gamma_k_fit']:.6e}, "
+            f"|G| = {abs(r['gamma_k_fit']):.6e}, |G-Gc45| = {abs(r['gamma_k_fit'] - gc):.4e}; "
+            f"k0cos read G = {r['proj']:.6e}, |G-Gc45| = {abs(r['proj'] - gc):.4e}"
+        )
 
     g = r2["gamma_k_fit"]
     err = abs(g - gc)
     law0 = abs(g - gc0)
     law60 = abs(g - gc60)
-    _p(f"[TH-5 s3c Law] degree 2 k_fit read: |G-Gc(cos=1)| = {law0:.4e} "
-       f"({law0 / PML_REFLECTION_BAR:.1f}x bar; asserted > {LAW_FACTOR:.0f}x); "
-       f"|G-Gc(60)| = {law60:.4e} (printed)")
+    _p(
+        f"[TH-5 s3c Law] degree 2 k_fit read: |G-Gc(cos=1)| = {law0:.4e} "
+        f"({law0 / PML_REFLECTION_BAR:.1f}x bar; asserted > {LAW_FACTOR:.0f}x); "
+        f"|G-Gc(60)| = {law60:.4e} (printed)"
+    )
 
     abc = _guide_at(comm, THETA_45, N_GATE, 2, None)
     ratio = abs(abc["gamma_k_fit"]) / abs(g)
     g_abc_c = (COS_45 - 1.0) / (COS_45 + 1.0)
-    _p(f"[TH-5 s3c Cabc] degree 2 ABC (printed only): {abc['seconds']:.1f} s; k_fit read G = "
-       f"{abc['gamma_k_fit']:.6e} (interior {abc['scan_interior']}), Jin (9.48) "
-       f"{g_abc_c:.6e}; k0cos read G = {abc['proj']:.6e}; |G_ABC|/|G_PML| = {ratio:.2f} "
-       f"(CABC_RATIO_BAR {CABC_RATIO_BAR:.0f} not applied; ceiling ~22.6)")
-    _p(f"[TH-5 s3c summary] (B45) degree 2 |G-Gc45| = {err:.4e}, bar {PML_REFLECTION_BAR:.1e}; "
-       f"degree 1 {abs(r1['gamma_k_fit'] - gc):.4e} (printed); (Law) {law0:.4e}")
+    _p(
+        f"[TH-5 s3c Cabc] degree 2 ABC (printed only): {abc['seconds']:.1f} s; k_fit read G = "
+        f"{abc['gamma_k_fit']:.6e} (interior {abc['scan_interior']}), Jin (9.48) "
+        f"{g_abc_c:.6e}; k0cos read G = {abc['proj']:.6e}; |G_ABC|/|G_PML| = {ratio:.2f} "
+        f"(CABC_RATIO_BAR {CABC_RATIO_BAR:.0f} not applied; ceiling ~22.6)"
+    )
+    _p(
+        f"[TH-5 s3c summary] (B45) degree 2 |G-Gc45| = {err:.4e}, bar {PML_REFLECTION_BAR:.1e}; "
+        f"degree 1 {abs(r1['gamma_k_fit'] - gc):.4e} (printed); (Law) {law0:.4e}"
+    )
 
     assert ident <= IDENTITY_TOLERANCE, ident
-    assert abs(abs(gc) - R_CLOSED ** COS_45) <= 1e-12 * R_CLOSED ** COS_45, abs(gc)
+    assert abs(abs(gc) - R_CLOSED**COS_45) <= 1e-12 * R_CLOSED**COS_45, abs(gc)
     assert r2["scan_interior"], r2["k_fit"] - r2["beta"]
     assert law0 > LAW_FACTOR * PML_REFLECTION_BAR, law0
     assert err <= PML_REFLECTION_BAR, err

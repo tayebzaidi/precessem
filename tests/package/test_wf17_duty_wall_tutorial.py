@@ -43,7 +43,6 @@ from fem_em_solver import (
     TransientSpec,
     UniformHeatSource,
 )
-
 from tests.complex_mode import IS_COMPLEX
 from tests.package.test_wf15_study_transient import (
     BALANCE_BAND,
@@ -64,12 +63,12 @@ from tests.package.test_wf15_study_transient import (
 from tests.package.test_wf17_first_study_tutorial import _checker_stdout, extract_tagged_block
 from tests.unit.test_doc_reference_exit_codes import run_checker
 from tests.validation.test_mat9_transient_conduction_sphere import (
+    RHO_C,
+    T_INF,
     H,
     K,
     Q,
     R,
-    RHO_C,
-    T_INF,
     _ball,
     _interior_error,
 )
@@ -136,22 +135,26 @@ def _call_name(node):
 
 
 def _calls_named(block: str, name: str) -> list:
-    return [n for n in ast.walk(ast.parse(block))
-            if isinstance(n, ast.Call) and _call_name(n) == name]
+    return [
+        n for n in ast.walk(ast.parse(block)) if isinstance(n, ast.Call) and _call_name(n) == name
+    ]
 
 
 def _attr_calls(block: str, name: str) -> list:
-    return [n for n in ast.walk(ast.parse(block))
-            if isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute)
-            and n.func.attr == name]
+    return [
+        n
+        for n in ast.walk(ast.parse(block))
+        if isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute) and n.func.attr == name
+    ]
 
 
 def _x_defect(block: str, tag: str):
     """None when the block has the (X) shape for ``tag``, else the reason."""
     n_study = len(_calls_named(block, "Study"))
     temps = _attr_calls(block, "temperature")
-    solves = sorted({_call_name(n) for n in ast.walk(ast.parse(block))
-                     if isinstance(n, ast.Call)} & SOLVE_NAMES)
+    solves = sorted(
+        {_call_name(n) for n in ast.walk(ast.parse(block)) if isinstance(n, ast.Call)} & SOLVE_NAMES
+    )
     if n_study != 1:
         return f"{n_study} Study( calls; need one"
     if len(temps) != 1:
@@ -198,8 +201,10 @@ def _knob():
 
 def _require_window(which: str):
     if _knob() != which:
-        pytest.skip(f"{S11_ENV} != {which!r}: the tutorial {which} window is "
-                    "environment-selected (real build, -n 2)")
+        pytest.skip(
+            f"{S11_ENV} != {which!r}: the tutorial {which} window is "
+            "environment-selected (real build, -n 2)"
+        )
     comm = MPI.COMM_WORLD
     assert not IS_COMPLEX, "the records are real-build digits; run in the real build"
     assert comm.size == RANKS, comm.size
@@ -217,8 +222,10 @@ def test_wf17_s11_blocks_and_inputs(monkeypatch, tmp_path):
     # (X)
     for tag, block in blocks.items():
         reason = _x_defect(block, tag)
-        _p0(f"[WF-17 s11] (X) {tag}: Study( {len(_calls_named(block, 'Study'))}, "
-            f".temperature( {len(_attr_calls(block, 'temperature'))}; defect {reason}")
+        _p0(
+            f"[WF-17 s11] (X) {tag}: Study( {len(_calls_named(block, 'Study'))}, "
+            f".temperature( {len(_attr_calls(block, 'temperature'))}; defect {reason}"
+        )
         assert reason is None, reason
 
     # (In): the inputs read back under a patched Study.temperature (no solve)
@@ -240,14 +247,21 @@ def test_wf17_s11_blocks_and_inputs(monkeypatch, tmp_path):
         assert ns["study"] is c["study"] and ns["result"] is None
         assert c["kw"] == {}, c["kw"]
         got[tag] = c
-        _p0(f"[WF-17 s11] (In) {tag}: geometry {c['study'].geometry!r}; source "
+        _p0(
+            f"[WF-17 s11] (In) {tag}: geometry {c['study'].geometry!r}; source "
             f"{c['study'].excitation!r}; cooling {c['cooling']!r}; transient "
-            f"{c['transient']!r}; duty {c['duty']!r}; stdout {out!r}")
+            f"{c['transient']!r}; duty {c['duty']!r}; stdout {out!r}"
+        )
     monkeypatch.undo()
 
     d = got[DUTY_TAG]
-    g, s, co, tr, du = (d["study"].geometry, d["study"].excitation, d["cooling"],
-                        d["transient"], d["duty"])
+    g, s, co, tr, du = (
+        d["study"].geometry,
+        d["study"].excitation,
+        d["cooling"],
+        d["transient"],
+        d["duty"],
+    )
     assert type(g) is ThermalBallGeometry and g.radius == R and g.resolution == RES
     assert g.wall is None
     assert type(s) is UniformHeatSource and s.q_w_per_m3 == Q
@@ -257,14 +271,22 @@ def test_wf17_s11_blocks_and_inputs(monkeypatch, tmp_path):
     assert tr.dt_s == 150.0 and tr.n_steps == _n(T_END_A, 150.0) and tr.rho_c_j_per_m3_k == RHO_C
     assert type(du) is DutyCycle and du.period_s == P_A and du.duty == D_A
     # and the whole dataclasses equal `_duty_study`'s (defaults included)
-    assert (g, s, co, tr) == (ThermalBallGeometry(R, RES), UniformHeatSource(Q),
-                              RobinCooling(K, H, T_INF),
-                              TransientSpec(150.0, _n(T_END_A, 150.0), RHO_C))
+    assert (g, s, co, tr) == (
+        ThermalBallGeometry(R, RES),
+        UniformHeatSource(Q),
+        RobinCooling(K, H, T_INF),
+        TransientSpec(150.0, _n(T_END_A, 150.0), RHO_C),
+    )
     assert du == DutyCycle(P_A, D_A)
 
     w = got[WALL_TAG]
-    g, s, co, tr, du = (w["study"].geometry, w["study"].excitation, w["cooling"],
-                        w["transient"], w["duty"])
+    g, s, co, tr, du = (
+        w["study"].geometry,
+        w["study"].excitation,
+        w["cooling"],
+        w["transient"],
+        w["duty"],
+    )
     assert type(g) is ThermalBallGeometry and g.radius == A_ and g.resolution == RES
     assert type(g.wall) is ContainerWall
     assert g.wall.thickness_m == B_ - A_ and g.wall.k_w_per_m_k == K2
@@ -275,9 +297,12 @@ def test_wf17_s11_blocks_and_inputs(monkeypatch, tmp_path):
     assert type(tr) is TransientSpec
     assert tr.dt_s == T_STAR / N_CN and tr.n_steps == N_CN and tr.rho_c_j_per_m3_k == RC1
     assert du is None
-    assert (g, s, co, tr) == (ThermalBallGeometry(A_, RES, wall=ContainerWall(B_ - A_, K2, RC2)),
-                              UniformHeatSource(Q1), RobinCooling(K1, H, T_INF),
-                              TransientSpec(T_STAR / N_CN, N_CN, RC1))
+    assert (g, s, co, tr) == (
+        ThermalBallGeometry(A_, RES, wall=ContainerWall(B_ - A_, K2, RC2)),
+        UniformHeatSource(Q1),
+        RobinCooling(K1, H, T_INF),
+        TransientSpec(T_STAR / N_CN, N_CN, RC1),
+    )
     _p0("[WF-17 s11] (In) both blocks' inputs equal the gate constants exactly (no solve)")
 
     # (c-page), by construction: removed / doubled tags raise
@@ -299,9 +324,22 @@ def test_wf17_s11_blocks_and_inputs(monkeypatch, tmp_path):
     assert reason is not None and "'duty'" in reason
 
     # no reading, no artifact-shaped token on the page; the YAML links resolve
-    for token in (".json", ".npz", ".xdmf", ".s4p", MAT17_A_PRINT, MAT18_T1_PRINT,
-                  str(MAT18_T1_CELLS), "215 542", f"{MAT18_C1_UNIFORM_RHOC:.4e}", C1_BACKING,
-                  WF15_DUTY_FULL, WF15_WALL_FULL, "e-04", "GiB"):
+    for token in (
+        ".json",
+        ".npz",
+        ".xdmf",
+        ".s4p",
+        MAT17_A_PRINT,
+        MAT18_T1_PRINT,
+        str(MAT18_T1_CELLS),
+        "215 542",
+        f"{MAT18_C1_UNIFORM_RHOC:.4e}",
+        C1_BACKING,
+        WF15_DUTY_FULL,
+        WF15_WALL_FULL,
+        "e-04",
+        "GiB",
+    ):
         assert token not in text, token
     for name in YAMLS:
         assert (REPO / "tests" / "package" / "wf1" / name).is_file(), name
@@ -314,9 +352,11 @@ def test_wf17_s11_docrefs_zero_dead():
     rc, counts = run_checker("--docs-root", "docs/guide", "--check-links")
     link = LINK_RE.search(_checker_stdout("--docs-root", "docs/guide", "--check-links"))
     assert link is not None, "(D) no 'Link pass:' line"
-    print(f"[WF-17 s11] (D) dead={counts['dead']} links={link.group(1)} pages={link.group(2)} "
-          f"link-dead={link.group(3)} guide={counts['guide']} stale={counts['stale']} "
-          f"exit={counts['exit']} rc={rc}")
+    print(
+        f"[WF-17 s11] (D) dead={counts['dead']} links={link.group(1)} pages={link.group(2)} "
+        f"link-dead={link.group(3)} guide={counts['guide']} stale={counts['stale']} "
+        f"exit={counts['exit']} rc={rc}"
+    )
     assert counts["dead"] == 0
     assert int(link.group(3)) == 0
     assert int(link.group(2)) >= MIN_GUIDE_PAGES
@@ -338,24 +378,32 @@ def test_wf17_s11_duty_block_reproduces_mat17_a(monkeypatch):
     result = ns["result"]
 
     ca, cb, geo = _same_mesh(result.mesh, msh, comm)
-    _p0(f"[WF-17 s11] (UT) duty: cells {ca} / {cb} (ref _ball(RES)); geometry equal {geo}; "
-        f"{len(result.source_multipliers)} (half-)step multipliers; block stdout {out!r}")
+    _p0(
+        f"[WF-17 s11] (UT) duty: cells {ca} / {cb} (ref _ball(RES)); geometry equal {geo}; "
+        f"{len(result.source_multipliers)} (half-)step multipliers; block stdout {out!r}"
+    )
     assert ca == cb, "(UT) cells"
     assert geo, "(UT) geometry"
 
     ex = _exact_duty(msh, T_END_A, P_A, D_A)
     e = _interior_error(msh, _on(msh, result.temperature), ex)
     bal = result.max_balance_residual
-    _p0(f"[WF-17 s11] (G) duty: interior_rel_L2={e:.10e} (band {INTERIOR_BAND:.0e}; WF-15 read "
-        f"{WF15_DUTY_FULL}); max_balance={bal:.3e} (band {BALANCE_BAND:.0e}); block {t_block:.1f}s")
+    _p0(
+        f"[WF-17 s11] (G) duty: interior_rel_L2={e:.10e} (band {INTERIOR_BAND:.0e}; WF-15 read "
+        f"{WF15_DUTY_FULL}); max_balance={bal:.3e} (band {BALANCE_BAND:.0e}); block {t_block:.1f}s"
+    )
     _p0(f"[WF-17 s11] (R) duty: {e:.4e} vs record MAT17_A_PRINT {MAT17_A_PRINT}")
 
     c1 = _duty_study(150.0, _n(T_END_A, 150.0), None)
     e_c1 = _interior_error(msh, _on(msh, c1.temperature), ex)
-    _p0(f"[WF-17 s11] (c1) no DutyCycle: interior miss {e_c1:.4e} (backing {C1_BACKING}; asserted "
-        f"> {INTERIOR_BAND:.0e}); source_multipliers {c1.source_multipliers!r}")
-    _p0(f"[WF-17 s11] W-duty node {time.perf_counter() - t00:.1f}s; summed ru_maxrss "
-        f"{_rss_gib(comm):.2f} GiB")
+    _p0(
+        f"[WF-17 s11] (c1) no DutyCycle: interior miss {e_c1:.4e} (backing {C1_BACKING}; asserted "
+        f"> {INTERIOR_BAND:.0e}); source_multipliers {c1.source_multipliers!r}"
+    )
+    _p0(
+        f"[WF-17 s11] W-duty node {time.perf_counter() - t00:.1f}s; summed ru_maxrss "
+        f"{_rss_gib(comm):.2f} GiB"
+    )
 
     assert bal <= BALANCE_BAND, f"(G) balance {bal:.3e}"
     assert e <= INTERIOR_BAND, f"(G) {e:.4e}"
@@ -382,23 +430,31 @@ def test_wf17_s11_wall_block_reproduces_mat18_t1(monkeypatch):
     result = ns["result"]
 
     ca, cb, geo = _same_mesh(result.mesh, msh, comm)
-    _p0(f"[WF-17 s11] (UT) wall: cells {ca} / {cb} (record MAT18_T1_CELLS {MAT18_T1_CELLS}); "
-        f"geometry equal {geo}; block stdout {out!r}")
+    _p0(
+        f"[WF-17 s11] (UT) wall: cells {ca} / {cb} (record MAT18_T1_CELLS {MAT18_T1_CELLS}); "
+        f"geometry equal {geo}; block stdout {out!r}"
+    )
     assert ca == cb == MAT18_T1_CELLS, "(UT) cells"
     assert geo, "(UT) geometry"
 
     e_in = _errors(msh, ct, _on(msh, result.temperature), theta)[1]
     bal = result.max_balance_residual
-    _p0(f"[WF-17 s11] (G) wall: interior_rel_L2={e_in:.10e} (band {INTERIOR_BAND:.0e}; WF-15 read "
-        f"{WF15_WALL_FULL}); max_balance={bal:.3e} (band {BALANCE_BAND:.0e}); block {t_block:.1f}s")
+    _p0(
+        f"[WF-17 s11] (G) wall: interior_rel_L2={e_in:.10e} (band {INTERIOR_BAND:.0e}; WF-15 read "
+        f"{WF15_WALL_FULL}); max_balance={bal:.3e} (band {BALANCE_BAND:.0e}); block {t_block:.1f}s"
+    )
     _p0(f"[WF-17 s11] (R) wall: {e_in:.4e} vs record MAT18_T1_PRINT {MAT18_T1_PRINT}")
 
     c2 = _wall_study(RC1)
     e_c2 = _errors(msh, ct, _on(msh, c2.temperature), theta)[1]
-    _p0(f"[WF-17 s11] (c2) wall rho_c = RC1: interior miss {e_c2:.4e} (backing "
-        f"MAT18_C1_UNIFORM_RHOC {MAT18_C1_UNIFORM_RHOC:.4e}; asserted > {INTERIOR_BAND:.0e})")
-    _p0(f"[WF-17 s11] W-wall node {time.perf_counter() - t00:.1f}s; summed ru_maxrss "
-        f"{_rss_gib(comm):.2f} GiB")
+    _p0(
+        f"[WF-17 s11] (c2) wall rho_c = RC1: interior miss {e_c2:.4e} (backing "
+        f"MAT18_C1_UNIFORM_RHOC {MAT18_C1_UNIFORM_RHOC:.4e}; asserted > {INTERIOR_BAND:.0e})"
+    )
+    _p0(
+        f"[WF-17 s11] W-wall node {time.perf_counter() - t00:.1f}s; summed ru_maxrss "
+        f"{_rss_gib(comm):.2f} GiB"
+    )
 
     assert bal <= BALANCE_BAND, f"(G) balance {bal:.3e}"
     assert e_in <= INTERIOR_BAND, f"(G) {e_in:.4e}"

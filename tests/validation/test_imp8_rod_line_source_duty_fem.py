@@ -29,11 +29,9 @@ from __future__ import annotations
 import os
 import time
 
-import numpy as np
 import pytest
 
 from fem_em_solver.thermal import solve_transient_conduction
-
 from tests.validation.test_imp8_rod_line_source_closed_form import MM, T_PRINT
 from tests.validation.test_imp8_rod_line_source_duty_closed_form import PERIOD, _duhamel
 from tests.validation.test_imp8_rod_line_source_fem import (  # noqa: F401  (box: fixture)
@@ -73,6 +71,7 @@ def _duty():
 def _schedule(duty):
     def chi(t):
         return 1.0 if (t % PERIOD) < duty * PERIOD else 0.0
+
     return chi
 
 
@@ -112,15 +111,31 @@ def duty_run(box):
     out["duty"] = duty
     t1 = time.perf_counter()
     res = solve_transient_conduction(
-        msh, ft, k=K_GEL, rho_c=RHO_C, q=q, h=H_GEL, t_inf=T_INF, t_init=T_INF,
-        robin_tag=ROBIN_TAG, dt=DT, n_steps=N_STEPS, theta=0.5, startup_half_steps=2,
-        degree=DEGREE, snapshot_steps=(STEP_T2,), source_schedule=_schedule(duty))
+        msh,
+        ft,
+        k=K_GEL,
+        rho_c=RHO_C,
+        q=q,
+        h=H_GEL,
+        t_inf=T_INF,
+        t_init=T_INF,
+        robin_tag=ROBIN_TAG,
+        dt=DT,
+        n_steps=N_STEPS,
+        theta=0.5,
+        startup_half_steps=2,
+        degree=DEGREE,
+        snapshot_steps=(STEP_T2,),
+        source_schedule=_schedule(duty),
+    )
     out["t_call"] = time.perf_counter() - t1
     out["E"] = float(res.max_balance_residual)
     mult = list(res.source_multipliers)
-    _say(f"\n[imp8-duty] D={duty:g} CN N={N_STEPS} dt={DT:g} s: t_call {out['t_call']:.1f} s; "
-         f"n_factorizations {res.n_factorizations}; ranks {msh.comm.size}; multipliers "
-         f"{len(mult)} (sum {sum(mult):g}); (S0) {out['S0']:.3e}; selected cells {out['n_sel']}")
+    _say(
+        f"\n[imp8-duty] D={duty:g} CN N={N_STEPS} dt={DT:g} s: t_call {out['t_call']:.1f} s; "
+        f"n_factorizations {res.n_factorizations}; ranks {msh.comm.size}; multipliers "
+        f"{len(mult)} (sum {sum(mult):g}); (S0) {out['S0']:.3e}; selected cells {out['n_sel']}"
+    )
     out["mult"] = mult
     out["I"], out["th"] = [], {}
     for label, t, T in (("t*", T_PRINT, res.temperature), ("t2", T2, res.snapshots[STEP_T2])):
@@ -130,15 +145,19 @@ def duty_run(box):
             rel = abs(v / ex - 1.0)
             out["I"].append(rel)
             out["th"][(label, r, z)] = v
-            _say(f"[imp8-duty] (I) D={duty:g} ({r:g}, {z:g}) mm {label}={t:g} s: theta_FEM "
-                 f"{v:.6e} K/W, Duhamel {ex:.6e}, rel {rel:.3e} (gated, band "
-                 f"{INTERIOR_BAND:.0e})")
+            _say(
+                f"[imp8-duty] (I) D={duty:g} ({r:g}, {z:g}) mm {label}={t:g} s: theta_FEM "
+                f"{v:.6e} K/W, Duhamel {ex:.6e}, rel {rel:.3e} (gated, band "
+                f"{INTERIOR_BAND:.0e})"
+            )
     _say(f"[imp8-duty] (E) {out['E']:.3e} (band {E_BAND:.0e}); (I) max {max(out['I']):.3e}")
     if duty == 1.0:
         s = f"{out['th'][('t*',) + CTRL_PT]:.6e}"
         out["ctrl"] = s
-        _say(f"[imp8-duty] control D=1 theta(10, 0) mm t*: this run {s}; item 803 "
-             f"{ITEM803_10_0}; reproduced to .6e: {s == ITEM803_10_0}")
+        _say(
+            f"[imp8-duty] control D=1 theta(10, 0) mm t*: this run {s}; item 803 "
+            f"{ITEM803_10_0}; reproduced to .6e: {s == ITEM803_10_0}"
+        )
     return out
 
 

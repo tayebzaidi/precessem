@@ -26,8 +26,11 @@ def _names(tag):
 
 
 def _named_faces(entries):
-    return [t for d, t, n in entries
-            if d == 2 and n and (n == "PortSheet" or n.split("/")[-1] == "PortSheet")]
+    return [
+        t
+        for d, t, n in entries
+        if d == 2 and n and (n == "PortSheet" or n.split("/")[-1] == "PortSheet")
+    ]
 
 
 def read(path, hdo):
@@ -43,8 +46,11 @@ def read(path, hdo):
     post = _names(f"{label} post-heal")
     named = _named_faces(post)
     print(f"[W0b] {label} post-heal named PortSheet faces: {named}", flush=True)
-    print(f"[W0b] {label} counts post-heal: vols={len(gmsh.model.getEntities(3))} "
-          f"faces={len(gmsh.model.getEntities(2))}", flush=True)
+    print(
+        f"[W0b] {label} counts post-heal: vols={len(gmsh.model.getEntities(3))} "
+        f"faces={len(gmsh.model.getEntities(2))}",
+        flush=True,
+    )
     if not hdo and named:
         masses = {s: gmsh.model.occ.getMass(2, s) for s in named}
         print(f"[W0b] {label} pre-fragment masses {masses!r}", flush=True)
@@ -55,22 +61,31 @@ def read(path, hdo):
         objs = list(vols) + [(2, s) for s in named]
         for src, children in zip(objs, out_map):
             print(f"[W0b] {label} out_map {src} -> {children}", flush=True)
-        walls = {abs(s) for d, s in gmsh.model.getBoundary(
-            gmsh.model.getEntities(3), combined=True, oriented=False, recursive=False)
-            if d == 2}
+        walls = {
+            abs(s)
+            for d, s in gmsh.model.getBoundary(
+                gmsh.model.getEntities(3), combined=True, oriented=False, recursive=False
+            )
+            if d == 2
+        }
         print(f"[W0b] {label} wall set {sorted(walls)}", flush=True)
-        for (_, s), children in zip([(2, s) for s in named], out_map[len(vols):]):
+        for (_, s), children in zip([(2, s) for s in named], out_map[len(vols) :]):
             for d, c in children:
                 up, _down = gmsh.model.getAdjacencies(d, c)
-                print(f"[W0b] {label} child of {s}: ({d},{c}) name="
-                      f"{gmsh.model.getEntityName(d, c)!r} area={gmsh.model.occ.getMass(d, c)!r} "
-                      f"|area-premass|={abs(gmsh.model.occ.getMass(d, c) - masses[s]):.3e} "
-                      f"bbox={gmsh.model.getBoundingBox(d, c)} upward={list(up)} "
-                      f"in_wall_set={c in walls}", flush=True)
+                print(
+                    f"[W0b] {label} child of {s}: ({d},{c}) name="
+                    f"{gmsh.model.getEntityName(d, c)!r} area={gmsh.model.occ.getMass(d, c)!r} "
+                    f"|area-premass|={abs(gmsh.model.occ.getMass(d, c) - masses[s]):.3e} "
+                    f"bbox={gmsh.model.getBoundingBox(d, c)} upward={list(up)} "
+                    f"in_wall_set={c in walls}",
+                    flush=True,
+                )
         for _, v in gmsh.model.getEntities(3):
-            print(f"[W0b] {label} getEmbedded(3,{v})={gmsh.model.mesh.getEmbedded(3, v)} "
-                  f"boundary(3,{v})={gmsh.model.getBoundary([(3, v)], oriented=False)}",
-                  flush=True)
+            print(
+                f"[W0b] {label} getEmbedded(3,{v})={gmsh.model.mesh.getEmbedded(3, v)} "
+                f"boundary(3,{v})={gmsh.model.getBoundary([(3, v)], oriented=False)}",
+                flush=True,
+            )
         # Mesh-level embedding: a conformal mesh shares the sheet's nodes with
         # the volume's tetrahedra.  Printed, not used to select.
         gmsh.option.setNumber("Mesh.MeshSizeMax", 0.08)
@@ -81,9 +96,11 @@ def read(path, hdo):
             tri_nodes = {int(n) for n in enodes[0]} if enodes else set()
             _, _, tet_nodes = gmsh.model.mesh.getElements(3, 1)
             tet_set = {int(n) for n in tet_nodes[0]} if tet_nodes else set()
-            print(f"[W0b] {label} mesh: sheet {s} n_tri={sum(len(t) for t in etags)} "
-                  f"sheet nodes={len(tri_nodes)} of which in tets={len(tri_nodes & tet_set)}",
-                  flush=True)
+            print(
+                f"[W0b] {label} mesh: sheet {s} n_tri={sum(len(t) for t in etags)} "
+                f"sheet nodes={len(tri_nodes)} of which in tets={len(tri_nodes & tet_set)}",
+                flush=True,
+            )
         _names(f"{label} post-fragment")
 
 

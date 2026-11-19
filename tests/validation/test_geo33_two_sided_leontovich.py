@@ -18,6 +18,7 @@ sheet on y = 0.4 (R = Z_s/2). TE101 has E_t = 0 there, so Q_sheet/Q0 = 1.000:
 asserted within Q_TOLERANCE of 1 and outside (R)'s band, and no larger miss
 from 0.771914 than the ceiling 1/0.771914 - 1 (a sheet only adds loss).
 """
+
 import time
 
 import numpy as np
@@ -32,7 +33,6 @@ from fem_em_solver.core.cavity import (
     solve_impedance_mesh_mode,
 )
 from fem_em_solver.core.cracked_box import LIP_LOWER, LIP_UPPER, cracked_box_mesh
-from fem_em_solver.utils.constants import C_0
 from tests.validation.test_cavity_leontovich_q import Q_TOLERANCE
 from tests.validation.test_cavity_resonances import FREQUENCY_TOLERANCE_PCT
 
@@ -69,8 +69,10 @@ def _check_mode(label, res, i=0):
     omega = res.omega(i)
     f_mhz = omega.real / (2.0 * np.pi) / 1e6
     err_pct = 100.0 * abs(f_mhz / F_TE101_MHZ - 1.0)
-    _say(f"{label}[{i}]: lambda={complex(res.eigenvalues[i])!r}, Re f={f_mhz:.6f} MHz "
-         f"({err_pct:.4f} % vs {F_TE101_MHZ}), Im omega={omega.imag:.6e}, Q={res.q(i):.6e}")
+    _say(
+        f"{label}[{i}]: lambda={complex(res.eigenvalues[i])!r}, Re f={f_mhz:.6f} MHz "
+        f"({err_pct:.4f} % vs {F_TE101_MHZ}), Im omega={omega.imag:.6e}, Q={res.q(i):.6e}"
+    )
     assert err_pct < FREQUENCY_TOLERANCE_PCT, (label, f_mhz)  # (F)
     assert omega.imag > 0.0, (label, omega)  # (D)
     return res.q(i)
@@ -80,8 +82,10 @@ def test_pozar_ratio_literal():
     q0 = pozar_te10l_q_conductor(EDGES, 1, SIGMA_GATE)
     qs = pozar_te10l_q_conductor(HALF_EDGES, 1, SIGMA_GATE)
     ratio = qs / q0
-    _say(f"Pozar Q0={q0:.6f}, Q_sep={qs:.6f}, ratio={ratio:.8f}; "
-         f"1/Q_sep - 1/Q0 = {1 / qs - 1 / q0:.6e}")
+    _say(
+        f"Pozar Q0={q0:.6f}, Q_sep={qs:.6f}, ratio={ratio:.8f}; "
+        f"1/Q_sep - 1/Q0 = {1 / qs - 1 / q0:.6e}"
+    )
     assert abs(ratio - RATIO_LITERAL) < RATIO_LITERAL_TOL, ratio
 
 
@@ -119,29 +123,40 @@ def test_two_sided_lips_against_pozar_and_sheet_control():
     ratio = qs / q0
     er = abs(ratio / RATIO_LITERAL - 1.0)
     _say(f"(Qs) Q_sep={qs:.6e} vs Pozar {qs_pozar:.6e}: {100 * es:.4f} %")
-    _say(f"(R) Q_sep/Q0={ratio:.6f} vs {RATIO_LITERAL}: {100 * er:.4f} %; "
-         f"1/Q_sep - 1/Q0 = {1 / qs - 1 / q0:.6e} (predicted 3.686e-4)")
+    _say(
+        f"(R) Q_sep/Q0={ratio:.6f} vs {RATIO_LITERAL}: {100 * er:.4f} %; "
+        f"1/Q_sep - 1/Q0 = {1 / qs - 1 / q0:.6e} (predicted 3.686e-4)"
+    )
 
     # Negative control: merged mesh + single-valued septum sheet.
     rc = solve_impedance_mesh_mode(
-        merged, sigma_s_per_m=SIGMA_GATE, k0_sq=K0_SQ, degree=DEGREE,
+        merged,
+        sigma_s_per_m=SIGMA_GATE,
+        k0_sq=K0_SQ,
+        degree=DEGREE,
         sheet=(septum, SEPTUM_TAG),
     )
     qc = _check_mode("control", rc)
     rc_ratio = qc / q0
     miss = abs(rc_ratio / RATIO_LITERAL - 1.0)
     ceiling = 1.0 / RATIO_LITERAL - 1.0
-    _say(f"control Q_sheet/Q0={rc_ratio:.8f} (|delta| {abs(rc_ratio - 1):.3e}); miss from "
-         f"{RATIO_LITERAL}: {100 * miss:.3f} % (ceiling {100 * ceiling:.3f} %, "
-         f"{miss / Q_TOLERANCE:.2f}x band)")
+    _say(
+        f"control Q_sheet/Q0={rc_ratio:.8f} (|delta| {abs(rc_ratio - 1):.3e}); miss from "
+        f"{RATIO_LITERAL}: {100 * miss:.3f} % (ceiling {100 * ceiling:.3f} %, "
+        f"{miss / Q_TOLERANCE:.2f}x band)"
+    )
 
     # Printed: the ratio at sigma = 1e6.
     q0_hi = solve_impedance_mesh_mode(
-        merged, sigma_s_per_m=SIGMA_SCALING, k0_sq=K0_SQ, degree=DEGREE).q(0)
+        merged, sigma_s_per_m=SIGMA_SCALING, k0_sq=K0_SQ, degree=DEGREE
+    ).q(0)
     qs_hi = solve_impedance_mesh_mode(
-        cracked, sigma_s_per_m=SIGMA_SCALING, k0_sq=K0_SQ, degree=DEGREE).q(0)
-    _say(f"sigma=1e6: Q0={q0_hi:.6e}, Q_sep={qs_hi:.6e}, ratio={qs_hi / q0_hi:.6f} "
-         f"(predicted 0.771914)")
+        cracked, sigma_s_per_m=SIGMA_SCALING, k0_sq=K0_SQ, degree=DEGREE
+    ).q(0)
+    _say(
+        f"sigma=1e6: Q0={q0_hi:.6e}, Q_sep={qs_hi:.6e}, ratio={qs_hi / q0_hi:.6f} "
+        f"(predicted 0.771914)"
+    )
     _say(f"elapsed {time.perf_counter() - t0:.1f} s, -n {MPI.COMM_WORLD.size}")
 
     assert e0 < Q_TOLERANCE, (q0, q0_pozar)  # (Q0)

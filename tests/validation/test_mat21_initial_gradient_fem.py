@@ -44,7 +44,6 @@ from mpi4py import MPI
 from fem_em_solver.post.evaluation import evaluate_vector_field_parallel
 from fem_em_solver.thermal import solve_transient_conduction
 from fem_em_solver.utils.analytical import robin_box_initial_gradient_temperature
-
 from tests.validation.test_mat10_sar_to_heat_sphere import ROBIN_TAG, _allsum, _robin_tags, _say
 from tests.validation.test_mat12_transient_sar_heating_sphere import E_BAND, RHO_C
 from tests.validation.test_mat13_transient_perfusion_sphere import INTERIOR_BAND
@@ -55,12 +54,9 @@ from tests.validation.test_mat21_box_closed_form import (
     B_BOX,
     C_BOX,
     HALF,
-    H,
-    K,
-    SERIES_TERMS,
-    T_C,
 )
 from tests.validation.test_mat21_box_closed_form import RHO_C as RHO_C_0
+from tests.validation.test_mat21_box_closed_form import SERIES_TERMS, T_C, H, K
 from tests.validation.test_mat21_box_fem import BASE, RUNGS, T_STAR, _exact, _interior_chi
 from tests.validation.test_mat21_box_probe_points_fem import PROBE_LABELS, PROBE_PTS, SERIES_DRAFT
 from tests.validation.test_mat21_initial_gradient_closed_form import G_GRAD, GC
@@ -83,8 +79,20 @@ class _Clock19:
 def _grad_ex(t, roots_z=None):
     def f(x, y, z):
         return robin_box_initial_gradient_temperature(
-            x, y, z, t, half_widths=HALF, k=K, h=H, rho_c=RHO_C_0, g=G_GRAD, t_inf=0.0,
-            n_terms=SERIES_TERMS, roots_z=roots_z)
+            x,
+            y,
+            z,
+            t,
+            half_widths=HALF,
+            k=K,
+            h=H,
+            rho_c=RHO_C_0,
+            g=G_GRAD,
+            t_inf=0.0,
+            n_terms=SERIES_TERMS,
+            roots_z=roots_z,
+        )
+
     return f
 
 
@@ -95,24 +103,45 @@ def gradient_run():
     clk = _Clock19()
     m = RUNGS[-1]
     ns = [b * m for b in BASE]
-    msh = dmesh.create_box(comm, [np.array([-A_BOX, -B_BOX, -C_BOX]),
-                                  np.array([A_BOX, B_BOX, C_BOX])],
-                           ns, cell_type=dmesh.CellType.tetrahedron)
+    msh = dmesh.create_box(
+        comm,
+        [np.array([-A_BOX, -B_BOX, -C_BOX]), np.array([A_BOX, B_BOX, C_BOX])],
+        ns,
+        cell_type=dmesh.CellType.tetrahedron,
+    )
     ft = _robin_tags(msh)
     n = msh.topology.index_map(3).size_global
     chi = _interior_chi(msh)
-    _say(f"\nMAT21-19F rung m = {m} {tuple(ns)}: cells {n}; g = {G_GRAD} K/m, g C = {GC} K; "
-         f"t_C = {T_C:.3f} s, t* = {T_STAR:.3f} s, CN N = {N_MAIN} + 2 BE half-steps; ranks {comm.size}")
+    _say(
+        f"\nMAT21-19F rung m = {m} {tuple(ns)}: cells {n}; g = {G_GRAD} K/m, g C = {GC} K; "
+        f"t_C = {T_C:.3f} s, t* = {T_STAR:.3f} s, CN N = {N_MAIN} + 2 BE half-steps; ranks {comm.size}"
+    )
     clk.lap("build")
 
     res = solve_transient_conduction(
-        msh, ft, k=K_GEL, rho_c=RHO_C, q=0.0, h=H_GEL, t_inf=T_INF, t_init=T_INF,
-        robin_tag=ROBIN_TAG, dt=T_STAR / N_MAIN, n_steps=N_MAIN, theta=0.5,
-        startup_half_steps=2, degree=1, snapshot_steps=(0,),
-        t_init_expr=lambda x: T_INF + G_GRAD * x[2])
+        msh,
+        ft,
+        k=K_GEL,
+        rho_c=RHO_C,
+        q=0.0,
+        h=H_GEL,
+        t_inf=T_INF,
+        t_init=T_INF,
+        robin_tag=ROBIN_TAG,
+        dt=T_STAR / N_MAIN,
+        n_steps=N_MAIN,
+        theta=0.5,
+        startup_half_steps=2,
+        degree=1,
+        snapshot_steps=(0,),
+        t_init_expr=lambda x: T_INF + G_GRAD * x[2],
+    )
     clk.lap(f"CN N={N_MAIN}")
-    out = {"E": res.max_balance_residual, "src": res.source_power,
-           "imag": _max_imag(res.temperature)}
+    out = {
+        "E": res.max_balance_residual,
+        "src": res.source_power,
+        "imag": _max_imag(res.temperature),
+    }
 
     # The initial state: exact P1 interpolant of g·z, and ∫θ₀ = 0 by symmetry (printed).
     th0 = res.snapshots[0] - T_INF
@@ -121,42 +150,58 @@ def gradient_run():
     int0 = float(np.real(_allsum(comm, th0 * ufl.dx(domain=msh))))
     one = fem.Constant(msh, default_scalar_type(1.0))
     v_h = float(np.real(_allsum(comm, one * ufl.dx(domain=msh))))
-    _say(f"MAT21-19F initial state: rel L2 |theta_0 - g z| = {e_ic:.3e} (P1 exact, printed); "
-         f"int theta_0 dV/(g C V) = {int0 / (GC * v_h):.3e} (printed, symmetry)")
+    _say(
+        f"MAT21-19F initial state: rel L2 |theta_0 - g z| = {e_ic:.3e} (P1 exact, printed); "
+        f"int theta_0 dV/(g C V) = {int0 / (GC * v_h):.3e} (printed, symmetry)"
+    )
 
     th = res.temperature - T_INF
     ex, npts = _exact(msh, _grad_ex(T_STAR))
     clk.lap(f"series interpolation at t* ({npts} P2 points)")
     out["I"] = _rel(msh, th, ex, chi)
     whole = _rel(msh, th, ex)
-    _say(f"MAT21-19F (I) CN at t*: interior rel L2 = {out['I']:.6e} (bound {INTERIOR_BAND:.0e}); "
-         f"whole {whole:.6e} (printed)")
+    _say(
+        f"MAT21-19F (I) CN at t*: interior rel L2 = {out['I']:.6e} (bound {INTERIOR_BAND:.0e}); "
+        f"whole {whole:.6e} (printed)"
+    )
     nb = len(res.balance_residuals)
-    _say(f"MAT21-19F (E) source power int Q = {res.source_power!r} W; balance (new normalisation "
-         f"|stor + conv| dt_n / int rho c |theta_0|) max {res.max_balance_residual:.3e} over {nb} "
-         f"(half-)steps (bound {E_BAND:.0e}); first {res.balance_residuals[0]:.3e}, "
-         f"last {res.balance_residuals[-1]:.3e}")
+    _say(
+        f"MAT21-19F (E) source power int Q = {res.source_power!r} W; balance (new normalisation "
+        f"|stor + conv| dt_n / int rho c |theta_0|) max {res.max_balance_residual:.3e} over {nb} "
+        f"(half-)steps (bound {E_BAND:.0e}); first {res.balance_residuals[0]:.3e}, "
+        f"last {res.balance_residuals[-1]:.3e}"
+    )
 
     ex_dz, _ = _exact(msh, _grad_ex(T_STAR, roots_z=DZ_ROOTS))
     out["Dz"] = _rel(msh, th, ex_dz, chi)
-    _say(f"MAT21-19F control (Dz) Dirichlet-z closed form at t*: interior miss = {out['Dz']:.4e} "
-         f"(asserted > {INTERIOR_BAND:.0e})")
+    _say(
+        f"MAT21-19F control (Dz) Dirichlet-z closed form at t*: interior miss = {out['Dz']:.4e} "
+        f"(asserted > {INTERIOR_BAND:.0e})"
+    )
     clk.lap("control (Dz)")
 
     pts = np.array(PROBE_PTS, dtype=float)
     vals, ok = evaluate_vector_field_parallel(res.temperature, pts)
-    fem_p = np.array([float(np.real(np.ravel(vals[i])[0])) - T_INF if bool(ok[i]) else np.nan
-                      for i in range(len(PROBE_PTS))])
+    fem_p = np.array(
+        [
+            float(np.real(np.ravel(vals[i])[0])) - T_INF if bool(ok[i]) else np.nan
+            for i in range(len(PROBE_PTS))
+        ]
+    )
     ser_p = np.real(_grad_ex(T_STAR)(pts[:, 0], pts[:, 1], pts[:, 2]))
     out["probes"] = fem_p
     out["ok"] = [bool(o) for o in ok]
     for i, lab in enumerate(PROBE_LABELS):
-        _say(f"MAT21-19F probe {lab} {PROBE_PTS[i]}: theta_h(t*) = {fem_p[i]:+.6e} K, series "
-             f"{ser_p[i]:+.6e} K, |theta_h|/(g C) = {abs(fem_p[i]) / GC:.3e}")
+        _say(
+            f"MAT21-19F probe {lab} {PROBE_PTS[i]}: theta_h(t*) = {fem_p[i]:+.6e} K, series "
+            f"{ser_p[i]:+.6e} K, |theta_h|/(g C) = {abs(fem_p[i]) / GC:.3e}"
+        )
     p5, s5 = fem_p[5], ser_p[5]
-    _say(f"MAT21-19F P5 drift theta(0, 0, C, t*) = {p5:.6f} K (series {s5:.6f} K, "
-         f"rel {p5 / s5 - 1.0:+.3e}); beside it P37 = {P37_STEADY_P5:.6f} K (steady, sourced (P37), "
-         f"not a transient rise); ratio drift / P37 = {p5 / P37_STEADY_P5:.6f}")
+    _say(
+        f"MAT21-19F P5 drift theta(0, 0, C, t*) = {p5:.6f} K (series {s5:.6f} K, "
+        f"rel {p5 / s5 - 1.0:+.3e}); beside it P37 = {P37_STEADY_P5:.6f} K (steady, sourced (P37), "
+        f"not a transient rise); ratio drift / P37 = {p5 / P37_STEADY_P5:.6f}"
+    )
     _say(f"MAT21-19F max|Im theta| = {out['imag']:.3e}; elapsed {time.perf_counter() - t0:.1f} s")
     return out
 
@@ -181,10 +226,14 @@ def test_sym_point_reflection_pairs(gradient_run):
     p = gradient_run["probes"]
     s12, s34, s0 = abs(p[1] + p[2]), abs(p[3] + p[4]), abs(p[0])
     for i in range(1, 5):
-        _say(f"MAT21-19F O(h^2) mid-plane record on a point-symmetric, not z-mirrored, mesh: "
-             f"{PROBE_LABELS[i]} theta_h(t*) = {p[i]:+.6e} K, |theta_h|/(g C) = {abs(p[i]) / GC:.3e}")
-    _say(f"MAT21-19F (Sym') |P1 + P2|/(g C) = {s12 / GC:.3e}, |P3 + P4|/(g C) = {s34 / GC:.3e}, "
-         f"|P0|/(g C) = {s0 / GC:.3e} (bar {SYM_BAR:.0e})")
+        _say(
+            f"MAT21-19F O(h^2) mid-plane record on a point-symmetric, not z-mirrored, mesh: "
+            f"{PROBE_LABELS[i]} theta_h(t*) = {p[i]:+.6e} K, |theta_h|/(g C) = {abs(p[i]) / GC:.3e}"
+        )
+    _say(
+        f"MAT21-19F (Sym') |P1 + P2|/(g C) = {s12 / GC:.3e}, |P3 + P4|/(g C) = {s34 / GC:.3e}, "
+        f"|P0|/(g C) = {s0 / GC:.3e} (bar {SYM_BAR:.0e})"
+    )
     assert s12 <= SYM_BAR * GC, ("P1 + P2", p[1], p[2])
     assert s34 <= SYM_BAR * GC, ("P3 + P4", p[3], p[4])
     assert s0 <= SYM_BAR * GC, ("P0", p[0])

@@ -69,18 +69,30 @@ def run():
     t0 = time.perf_counter()
     out = {}
     sub, sft, q_f, t_build, parent = _shell_fixture(res)
-    _say(f"\nIMP7-15 run: res={res} sub_cells={sub.topology.index_map(3).size_global} "
-         f"build={t_build:.1f}s; ranks {sub.comm.size}; dt {dt:.6f} s, {n_steps} steps to "
-         f"{T_END:.4f} s, reads every {stride} step(s)")
+    _say(
+        f"\nIMP7-15 run: res={res} sub_cells={sub.topology.index_map(3).size_global} "
+        f"build={t_build:.1f}s; ranks {sub.comm.size}; dt {dt:.6f} s, {n_steps} steps to "
+        f"{T_END:.4f} s, reads every {stride} step(s)"
+    )
     steps = tuple(range(0, n_steps + 1, stride))
-    cn, ts = _transient(sub, sft, q_f, dt=dt, n_steps=n_steps, theta=0.5,
-                        startup_half_steps=STARTUP, source_schedule=_chi(PERIOD, DUTY),
-                        snapshot_steps=steps)
+    cn, ts = _transient(
+        sub,
+        sft,
+        q_f,
+        dt=dt,
+        n_steps=n_steps,
+        theta=0.5,
+        startup_half_steps=STARTUP,
+        source_schedule=_chi(PERIOD, DUTY),
+        snapshot_steps=steps,
+    )
     out["E"] = float(cn.max_balance_residual)
     out["S0"], tot = _census_dt(cn.source_multipliers, dt)
-    _say(f"IMP7-15 CN solve {ts:.1f}s; (E) {out['E']:.3e} (E_BAND {E_BAND:.0e}); (S0) sum chi*dt "
-         f"{tot:.9f} s vs {ON_TIME_END:.9f} s rel {out['S0']:.3e} (bar {S0_BAND:.0e}); "
-         f"{len(cn.source_multipliers)} (half-)steps")
+    _say(
+        f"IMP7-15 CN solve {ts:.1f}s; (E) {out['E']:.3e} (E_BAND {E_BAND:.0e}); (S0) sum chi*dt "
+        f"{tot:.9f} s vs {ON_TIME_END:.9f} s rel {out['S0']:.3e} (bar {S0_BAND:.0e}); "
+        f"{len(cn.source_multipliers)} (half-)steps"
+    )
 
     tq = time.perf_counter()
     th_h = np.empty((len(steps), PTS.shape[0]))
@@ -91,24 +103,32 @@ def run():
         ok_all &= ok
     out["th"], out["ok"] = th_h, ok_all
     out["grid"] = float(np.max(np.abs(_read_times(dt, n_steps, stride)[1:] / T_GRID[1:] - 1.0)))
-    _say(f"IMP7-15 reads: {len(steps)} batches of {PTS.shape[0]} in "
-         f"{time.perf_counter() - tq:.1f}s; valid {ok_all.tolist()}; (Grid) {out['grid']:.3e} "
-         f"(bar {GRID_BAR:.0e})")
+    _say(
+        f"IMP7-15 reads: {len(steps)} batches of {PTS.shape[0]} in "
+        f"{time.perf_counter() - tq:.1f}s; valid {ok_all.tolist()}; (Grid) {out['grid']:.3e} "
+        f"(bar {GRID_BAR:.0e})"
+    )
 
     tq = time.perf_counter()
     e_all, out["T"] = _err(sub, cn.snapshots[n_steps], _duty_fn(T_END))
-    _say(f"IMP7-15 (T) at 4 t*: interior rel L2 {out['T']:.4e} (INTERIOR_BAND "
-         f"{INTERIOR_BAND:.0e}); whole {e_all:.4e} (printed); {time.perf_counter() - tq:.1f}s")
+    _say(
+        f"IMP7-15 (T) at 4 t*: interior rel L2 {out['T']:.4e} (INTERIOR_BAND "
+        f"{INTERIOR_BAND:.0e}); whole {e_all:.4e} (printed); {time.perf_counter() - tq:.1f}s"
+    )
     tq = time.perf_counter()
     out["cC"] = _err(sub, cn.snapshots[n_steps], _series_fn(T_END, "neumann"))[1]
-    _say(f"IMP7-15 control (c-cont) continuous series at T_END: interior miss {out['cC']:.4e} "
-         f"(asserted > {INTERIOR_BAND:.0e}); {time.perf_counter() - tq:.1f}s")
+    _say(
+        f"IMP7-15 control (c-cont) continuous series at T_END: interior miss {out['cC']:.4e} "
+        f"(asserted > {INTERIOR_BAND:.0e}); {time.perf_counter() - tq:.1f}s"
+    )
     cn.snapshots.clear()
 
     tq = time.perf_counter()
     out["th_s"] = _duty_hist(_modes())
-    _say(f"IMP7-15 series history {out['th_s'].shape} in {time.perf_counter() - tq:.1f}s; "
-         f"fixture elapsed {time.perf_counter() - t0:.1f}s")
+    _say(
+        f"IMP7-15 series history {out['th_s'].shape} in {time.perf_counter() - tq:.1f}s; "
+        f"fixture elapsed {time.perf_counter() - t0:.1f}s"
+    )
     return out
 
 
@@ -119,9 +139,11 @@ def test_imp7_15_w0_grid_and_census():
     chi = _chi(PERIOD, DUTY)
     mult = [chi(t) for t in _mids(dt, n_steps)]
     rel, tot = _census_dt(mult, dt)
-    _say(f"IMP7-15 W0: {len(mult)} (half-)steps, on {int(sum(mult))}; sum chi*dt {tot:.9f} s vs "
-         f"{ON_TIME_END:.9f} s rel {rel:.3e} (bar {S0_BAND:.0e}); (Grid) {grid:.3e} (bar "
-         f"{GRID_BAR:.0e}); res {_res}")
+    _say(
+        f"IMP7-15 W0: {len(mult)} (half-)steps, on {int(sum(mult))}; sum chi*dt {tot:.9f} s vs "
+        f"{ON_TIME_END:.9f} s rel {rel:.3e} (bar {S0_BAND:.0e}); (Grid) {grid:.3e} (bar "
+        f"{GRID_BAR:.0e}); res {_res}"
+    )
     assert grid <= GRID_BAR, grid
     assert rel <= S0_BAND, rel
     assert _res == LADDER[0] and n_steps == 4 * N_RUN
@@ -142,9 +164,11 @@ def test_preconditions(run):
 
 def test_t_at_end_and_continuous_control(run):
     e, c = run["T"], run["cC"]
-    _say(f"IMP7-15 gates: (T) {e:.4e} <= {INTERIOR_BAND:.0e} "
-         f"{'PASS' if e <= INTERIOR_BAND else 'FAIL'}; (c-cont) {c:.4e} > {INTERIOR_BAND:.0e} "
-         f"{'PASS' if c > INTERIOR_BAND else 'FAIL'}")
+    _say(
+        f"IMP7-15 gates: (T) {e:.4e} <= {INTERIOR_BAND:.0e} "
+        f"{'PASS' if e <= INTERIOR_BAND else 'FAIL'}; (c-cont) {c:.4e} > {INTERIOR_BAND:.0e} "
+        f"{'PASS' if c > INTERIOR_BAND else 'FAIL'}"
+    )
     assert e <= INTERIOR_BAND, e
     assert c > INTERIOR_BAND, c
 
@@ -152,10 +176,11 @@ def test_t_at_end_and_continuous_control(run):
 def test_printed_three_row_table(run):
     """The record (no band, this item sets none); asserts only that it was formed."""
     rows = _gaps(run["th"], run["th_s"])
-    _say("IMP7-15 GAP point | run | peak-scale dose rel | equal-mean dose rel | six-minute peak "
-         "delta (K) | max_n|dtheta| (K)")
+    _say(
+        "IMP7-15 GAP point | run | peak-scale dose rel | equal-mean dose rel | six-minute peak "
+        "delta (K) | max_n|dtheta| (K)"
+    )
     for name in LABELS:
-        for tag, r in (("DT", ITEM_700[name]), ("DT/2", ITEM_710_DT[name]),
-                       ("DT/4", rows[name])):
+        for tag, r in (("DT", ITEM_700[name]), ("DT/2", ITEM_710_DT[name]), ("DT/4", rows[name])):
             _say(f"IMP7-15 GAP {name} | {tag} | {r[0]:.3e} | {r[1]:.3e} | {r[2]:+.3e} | {r[3]:.3e}")
         assert np.all(np.isfinite(rows[name]))

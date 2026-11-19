@@ -28,15 +28,13 @@ from mpi4py import MPI
 
 from fem_em_solver.io.mesh import MeshGenerator, _interface_facet_tags
 from tests.mesh.helpers import global_cell_tag_set
-from tests.mesh.test_coil_phantom_conforming import _tag_volume, _total_volume
-from tests.mesh.test_birdcage_port_sheet_prerequisite import CONDUCTOR_RESOLUTION
-from tests.mesh.test_birdcage_port_terminals import (
-    AIR_IFACE,
-    CONDUCTOR_IFACE,
-    PHANTOM_IFACE,
-    _global_facet_count,
-    _interface_area_or_zero,
+from tests.mesh.test_birdcage_leg_gaps import (
+    LEG_GAP_LENGTH,
+    TERMINAL_AREA_BAND,
+    _analytic_box_volume,
+    _analytic_terminal_area,
 )
+from tests.mesh.test_birdcage_port_sheet_prerequisite import CONDUCTOR_RESOLUTION
 from tests.mesh.test_birdcage_port_tags import (
     AIR_PADDING,
     COIL_LENGTH,
@@ -50,12 +48,14 @@ from tests.mesh.test_birdcage_port_tags import (
     RING_MINOR_RADIUS,
     RING_RADIUS,
 )
-from tests.mesh.test_birdcage_leg_gaps import (
-    LEG_GAP_LENGTH,
-    TERMINAL_AREA_BAND,
-    _analytic_box_volume,
-    _analytic_terminal_area,
+from tests.mesh.test_birdcage_port_terminals import (
+    AIR_IFACE,
+    CONDUCTOR_IFACE,
+    PHANTOM_IFACE,
+    _global_facet_count,
+    _interface_area_or_zero,
 )
+from tests.mesh.test_coil_phantom_conforming import _tag_volume, _total_volume
 from tests.mesh.test_two_torus_port_sheet import _sheet_extents
 
 # Step 1's records on this fixture, the negative control's anchors. Restated
@@ -162,8 +162,7 @@ def _build(
         air_padding=AIR_PADDING,
         resolution=(RESOLUTION if resolution is None else float(resolution)),
         conductor_resolution=(
-            CONDUCTOR_RESOLUTION if conductor_resolution is None
-            else float(conductor_resolution)
+            CONDUCTOR_RESOLUTION if conductor_resolution is None else float(conductor_resolution)
         ),
         phantom_resolution=phantom_resolution,
         as_hole=as_hole,
@@ -197,12 +196,8 @@ def _port_boundary_partition(mesh, cell_tags, comm, port_cell_tags):
     for base in (CONDUCTOR_IFACE, AIR_IFACE, PHANTOM_IFACE):
         for i, tags in port_cell_tags.items():
             keys = [(base + i) * 10 + j for j in range(len(tags))]
-            counts[base + i] = sum(
-                _global_facet_count(mesh, audit_tags, k, comm) for k in keys
-            )
-            areas[base + i] = sum(
-                _interface_area_or_zero(mesh, audit_tags, k, comm) for k in keys
-            )
+            counts[base + i] = sum(_global_facet_count(mesh, audit_tags, k, comm) for k in keys)
+            areas[base + i] = sum(_interface_area_or_zero(mesh, audit_tags, k, comm) for k in keys)
     return counts, areas
 
 
@@ -239,22 +234,15 @@ def test_port_sheets_are_the_gap_box_mid_sections():
     v_total = _total_volume(mesh, comm)
     counts, areas = _port_boundary_partition(mesh, cells, comm, halves)
 
-    sheet_tags = _interface_facet_tags(
-        mesh, cells, {SHEET_IFACE + i: halves[i] for i in ports}
-    )
+    sheet_tags = _interface_facet_tags(mesh, cells, {SHEET_IFACE + i: halves[i] for i in ports})
     sheet_area = {
-        i: _interface_area_or_zero(mesh, sheet_tags, SHEET_IFACE + i, comm)
-        for i in ports
+        i: _interface_area_or_zero(mesh, sheet_tags, SHEET_IFACE + i, comm) for i in ports
     }
-    sheet_extent = {
-        i: _sheet_extents(mesh, sheet_tags, SHEET_IFACE + i, comm) for i in ports
-    }
+    sheet_extent = {i: _sheet_extents(mesh, sheet_tags, SHEET_IFACE + i, comm) for i in ports}
     # Collective: every rank must enter it, so it cannot live inside the rank-0
     # record print (attempt 1, 2026-08-22 — rank 0 blocked in the allreduce and
     # the command timed out at exit 124 with both tests green on rank 1).
-    sheet_count = {
-        i: _global_facet_count(mesh, sheet_tags, SHEET_IFACE + i, comm) for i in ports
-    }
+    sheet_count = {i: _global_facet_count(mesh, sheet_tags, SHEET_IFACE + i, comm) for i in ports}
 
     box_area = 2.0 * (dx * dy + dy * dz + dz * dx)
     box_volume = dx * dy * dz
@@ -312,8 +300,7 @@ def test_port_sheets_are_the_gap_box_mid_sections():
             f"ratio {n_cells_ctl / STEP1_CELL_COUNT:.6f})  cell tags "
             f"{sorted(ctl_tag_set)}  rung={ctl_elapsed:.2f} s  terminal ratios "
             + " ".join(
-                f"P{i}={ctl_areas[CONDUCTOR_IFACE + i] / terminal_analytic:.6f}"
-                for i in ports
+                f"P{i}={ctl_areas[CONDUCTOR_IFACE + i] / terminal_analytic:.6f}" for i in ports
             ),
             flush=True,
         )
@@ -356,11 +343,7 @@ def test_port_sheets_are_the_gap_box_mid_sections():
 
     # 3. Step 1's gates survive the split.
     for i in ports:
-        total = (
-            areas[CONDUCTOR_IFACE + i]
-            + areas[AIR_IFACE + i]
-            + areas[PHANTOM_IFACE + i]
-        )
+        total = areas[CONDUCTOR_IFACE + i] + areas[AIR_IFACE + i] + areas[PHANTOM_IFACE + i]
         assert abs(total / box_area - 1.0) < 1e-9, (
             f"port P{i}'s two halves bound {total:.9e} m^2 against the analytic "
             f"box surface {box_area:.9e} m^2 (ratio {total / box_area:.12f}); the "
@@ -385,8 +368,7 @@ def test_port_sheets_are_the_gap_box_mid_sections():
     # 4. Negative control — sheets off is step 1's mesh, with no half tags and
     #    no sheet to find (the `EX-23` inverted pattern).
     assert ctl_tag_set == {1, 2, 3, *[PORT_LOWER + i for i in ports]}, (
-        f"sheets off carries cell tags {sorted(ctl_tag_set)}; the opt-in split "
-        "the boxes anyway"
+        f"sheets off carries cell tags {sorted(ctl_tag_set)}; the opt-in split " "the boxes anyway"
     )
     for i in ports:
         assert PORT_UPPER + i not in ctl_tag_set
@@ -396,16 +378,11 @@ def test_port_sheets_are_the_gap_box_mid_sections():
     )
     for i in ports:
         total = (
-            ctl_areas[CONDUCTOR_IFACE + i]
-            + ctl_areas[AIR_IFACE + i]
-            + ctl_areas[PHANTOM_IFACE + i]
+            ctl_areas[CONDUCTOR_IFACE + i] + ctl_areas[AIR_IFACE + i] + ctl_areas[PHANTOM_IFACE + i]
         )
         assert abs(total / box_area - 1.0) < 1e-9
         assert (
-            abs(
-                ctl_areas[CONDUCTOR_IFACE + i] / terminal_analytic
-                - STEP1_TERMINAL_RATIO
-            )
+            abs(ctl_areas[CONDUCTOR_IFACE + i] / terminal_analytic - STEP1_TERMINAL_RATIO)
             < STEP1_TERMINAL_RATIO_BAND
         ), (
             f"sheets off: port P{i}'s terminal ratio "

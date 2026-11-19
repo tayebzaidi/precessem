@@ -44,9 +44,8 @@ import time
 import numpy as np
 import pytest
 import ufl
-from mpi4py import MPI
-
 from dolfinx import fem
+from mpi4py import MPI
 
 from fem_em_solver.core.resonance import stored_electric_energy
 from fem_em_solver.io.mesh import MeshGenerator
@@ -114,9 +113,7 @@ def transition_loading():
     )
     comm.Barrier()
     t_mesh = time.perf_counter() - t_mesh
-    ncells = comm.allreduce(
-        msh.topology.index_map(msh.topology.dim).size_local, op=MPI.SUM
-    )
+    ncells = comm.allreduce(msh.topology.index_map(msh.topology.dim).size_local, op=MPI.SUM)
 
     fields_loaded, j_prime, t_loaded = _solve_projected_at(
         msh, cell_tags, FEM_SIGMA_SLAB, TRANSITION_FREQUENCY_HZ, comm
@@ -128,9 +125,7 @@ def transition_loading():
 
     x = ufl.SpatialCoordinate(msh)
     phi_hat = _azimuthal_current_density(1.0)(x)
-    dx_wire = ufl.Measure(
-        "dx", domain=msh, subdomain_data=cell_tags, subdomain_id=(WIRE_TAG,)
-    )
+    dx_wire = ufl.Measure("dx", domain=msh, subdomain_data=cell_tags, subdomain_id=(WIRE_TAG,))
     current = _reduced_real(ufl.inner(j_prime, phi_hat) * dx_wire, comm) / (
         2.0 * np.pi * FEM_LOOP_RADIUS
     )

@@ -80,9 +80,9 @@ def consolidate_xdmf_grids(xdmf_path, comm=MPI.COMM_WORLD):
         # The mesh grid is the uniform one that actually owns Topology/Geometry.
         grids = domain.findall("Grid")
         mesh_grid = next(
-            g for g in grids
-            if g.get("GridType", "Uniform") == "Uniform"
-            and g.find("Topology") is not None
+            g
+            for g in grids
+            if g.get("GridType", "Uniform") == "Uniform" and g.find("Topology") is not None
         )
 
         for grid in grids:
@@ -221,13 +221,12 @@ def _consolidate_xdmf_time_series(xdmf_path, times, comm=MPI.COMM_WORLD):
 
         grids = domain.findall("Grid")
         mesh_grid = next(
-            g for g in grids
-            if g.get("GridType", "Uniform") == "Uniform"
-            and g.find("Topology") is not None
+            g
+            for g in grids
+            if g.get("GridType", "Uniform") == "Uniform" and g.find("Topology") is not None
         )
         collections = [
-            g for g in grids
-            if g is not mesh_grid and g.get("CollectionType") == "Temporal"
+            g for g in grids if g is not mesh_grid and g.get("CollectionType") == "Temporal"
         ]
         if not collections:
             raise ValueError(f"{xdmf_path}: no temporal collection to consolidate")
@@ -287,9 +286,7 @@ def _consolidate_xdmf_time_series(xdmf_path, times, comm=MPI.COMM_WORLD):
     comm.barrier()
 
 
-def write_xdmf_time_series(
-    filename, mesh, cell_tags, steps, comm=MPI.COMM_WORLD, facet_tags=None
-):
+def write_xdmf_time_series(filename, mesh, cell_tags, steps, comm=MPI.COMM_WORLD, facet_tags=None):
     """Write one XDMF file whose steps are ParaView time steps (``OPS-49``).
 
     :func:`write_xdmf_with_tags` is single-state: its

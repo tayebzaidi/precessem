@@ -36,32 +36,35 @@ jobs:
   # is not run here.
 
   lint:
-    # Advisory: the code base has not been formatted to this configuration,
-    # so these checks report without failing the run.
-    continue-on-error: true
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.11'
-    
+        python-version: '3.12'
+
+    # Pinned so that a new formatter release cannot fail an unchanged tree.
     - name: Install dependencies
       run: |
-        pip install black isort flake8 mypy
-    
+        pip install black==26.5.1 isort==9.0.1 flake8==7.4.0 mypy==2.3.1
+
     - name: Check formatting with black
       run: black --check --diff src tests
-    
+
     - name: Check imports with isort
       run: isort --check-only --diff src tests
-    
+
+    # Configuration, including the ignored codes and why, is in .flake8.
     - name: Lint with flake8
-      run: flake8 src tests --max-line-length=100 --extend-ignore=E203,W503
-    
+      run: flake8 src tests
+
+    # Advisory: mypy reports about 320 errors, almost all annotations that do
+    # not match what the numerical code returns (dolfinx/numpy types) rather
+    # than defects. It reports without failing the run.
     - name: Type check with mypy
+      continue-on-error: true
       run: mypy src
 
   test:

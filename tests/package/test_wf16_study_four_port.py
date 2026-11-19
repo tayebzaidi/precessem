@@ -29,8 +29,8 @@ from fem_em_solver.core import build_material_fields, build_mu_r_field
 from fem_em_solver.materials import GelledSalinePhantomMaterial
 from fem_em_solver.ports.touchstone import load_touchstone
 from fem_em_solver.utils.instrumentation import report_peak_rss
-
 from tests.complex_mode import complex_only
+from tests.io.test_touchstone_skrf_crosscheck import ANCHOR_TOL, FREQ_ATOL_HZ
 from tests.materials.test_phantom_material_model import _dg0_owned_diff
 from tests.mesh.test_birdcage_leg_gaps import LEG_GAP_LENGTH
 from tests.mesh.test_birdcage_leg_offset import IDENTITY_BAND, SHEET_AREA_BAND
@@ -52,7 +52,6 @@ from tests.mesh.test_birdcage_port_tags import (
     RING_MINOR_RADIUS,
     RING_RADIUS,
 )
-from tests.io.test_touchstone_skrf_crosscheck import ANCHOR_TOL, FREQ_ATOL_HZ
 from tests.validation.test_ans4_exact_strip_records import (
     ANS4_EXACT_STRIP_RECORD_RANK_WIDTH,
     ANS4_EXACT_STRIP_S_P1_RECORDS,
@@ -133,16 +132,14 @@ def leg():
     comm = MPI.COMM_WORLD
     width = ANS4_EXACT_STRIP_RECORD_RANK_WIDTH if degree == 1 else DEGREE2_RECORD_WIDTH
     # Width guard, asserted (a record holds at its own width, `OPS-41`).
-    assert comm.size == width, (
-        f"degree {degree} record is asserted at -n {width}; got -n {comm.size}"
-    )
+    assert (
+        comm.size == width
+    ), f"degree {degree} record is asserted at -n {width}; got -n {comm.size}"
     phantom = GelledSalinePhantomMaterial(SALINE_SIGMA, SALINE_EPSILON_R, FREQUENCY_64_HZ)
     kwargs = {"frequency_hz": FREQUENCY_64_HZ}
     if degree == 1:
         kwargs["degree"] = 1  # degree 2 is the Study's default: no argument.
-    study = Study(
-        FourPortBirdcageGeometry.f_small(), phantom, LumpedPortDrive(), **kwargs
-    )
+    study = Study(FourPortBirdcageGeometry.f_small(), phantom, LumpedPortDrive(), **kwargs)
     t0 = time.perf_counter()
     res = study.solve(comm)
     t_study = time.perf_counter() - t0

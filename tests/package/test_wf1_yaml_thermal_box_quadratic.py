@@ -48,9 +48,16 @@ from fem_em_solver import (
     run_study_file,
 )
 from fem_em_solver.study_yaml import _load, _study_from_mapping
-
 from tests.complex_mode import IS_COMPLEX
-from tests.package.test_wf1_study_yaml import LOGS, WF1, _cmp, _fresh_dir, _mapping, _rc_all, _spec_diff
+from tests.package.test_wf1_study_yaml import (
+    LOGS,
+    WF1,
+    _cmp,
+    _fresh_dir,
+    _mapping,
+    _rc_all,
+    _spec_diff,
+)
 from tests.validation.test_mat5_em_coupled_sphere import L0_BAND
 from tests.validation.test_mat10_sar_to_heat_sphere import ROBIN_TAG, _allsum
 from tests.validation.test_mat12_transient_sar_heating_sphere import E_BAND, RHO_C
@@ -144,8 +151,13 @@ def test_wf1_s16_parse_and_refusals(monkeypatch, capsys):
         calls["n"] += 1
         raise AssertionError("build must not be called by a parse")
 
-    for cls in (SphereInBoxGeometry, FHumanBirdcageGeometry, FourPortBirdcageGeometry,
-                ThermalBallGeometry, ThermalBoxGeometry):
+    for cls in (
+        SphereInBoxGeometry,
+        FHumanBirdcageGeometry,
+        FourPortBirdcageGeometry,
+        ThermalBallGeometry,
+        ThermalBoxGeometry,
+    ):
         monkeypatch.setattr(cls, "build", stub)
 
     # (K) the Study spec
@@ -176,13 +188,18 @@ def test_wf1_s16_parse_and_refusals(monkeypatch, capsys):
         assert th.duty is None
         assert out == [], (f.name, out)
     th_c = _load(QUAD_CN)[3]
-    _say(capsys, f"  (K) CN dt_s {th_c.transient.dt_s.hex()} (T_STAR / N_MAIN "
-         f"{(T_STAR / N_MAIN).hex()})")
+    _say(
+        capsys,
+        f"  (K) CN dt_s {th_c.transient.dt_s.hex()} (T_STAR / N_MAIN "
+        f"{(T_STAR / N_MAIN).hex()})",
+    )
 
     # (K) femem check names the source class
-    for f, name in ((QUAD_STEADY, "TransverseQuadraticHeatSource"),
-                    (QUAD_CN, "TransverseQuadraticHeatSource"),
-                    (UNIFORM_P2, "UniformHeatSource")):
+    for f, name in (
+        (QUAD_STEADY, "TransverseQuadraticHeatSource"),
+        (QUAD_CN, "TransverseQuadraticHeatSource"),
+        (UNIFORM_P2, "UniformHeatSource"),
+    ):
         capsys.readouterr()
         rc = cli.main(["check", str(f)])
         lines = capsys.readouterr().out.splitlines()
@@ -198,20 +215,27 @@ def test_wf1_s16_parse_and_refusals(monkeypatch, capsys):
     rows = [
         (_with(s, {"kind": "parabolic"}, "excitation", "source"), "excitation.source.kind"),
         (_with(s, [1], "excitation", "source"), "excitation.source"),
-        (_with(s, {"kind": "transverse_quadratic", "weights": [1, 2]}, "excitation", "source"),
-         "excitation.source.weights"),
+        (
+            _with(s, {"kind": "transverse_quadratic", "weights": [1, 2]}, "excitation", "source"),
+            "excitation.source.weights",
+        ),
         (_with(s, {}, "excitation", "source"), "excitation.source.kind"),
-        (_with(_mapping(BALL), {"kind": "transverse_quadratic"}, "excitation", "source"),
-         "excitation.source"),
+        (
+            _with(_mapping(BALL), {"kind": "transverse_quadratic"}, "excitation", "source"),
+            "excitation.source",
+        ),
     ]
     got = [_field(lambda m=m: _study_from_mapping(m)) for m, _ in rows]
     for (_m, want_f), g in zip(rows, got):
         _say(capsys, f"  (X) want {want_f!r} got {g!r}")
     assert got == [f for _, f in rows], [(f, g) for (_, f), g in zip(rows, got) if f != g]
     # `source: {kind: uniform}` is the absent key's Study.
-    d_u = _spec_diff(_study_from_mapping(_with(_mapping(UNIFORM_P2), {"kind": "uniform"},
-                                                "excitation", "source")),
-                     load_study(UNIFORM_P2))
+    d_u = _spec_diff(
+        _study_from_mapping(
+            _with(_mapping(UNIFORM_P2), {"kind": "uniform"}, "excitation", "source")
+        ),
+        load_study(UNIFORM_P2),
+    )
     _say(capsys, f"  (K) explicit uniform vs absent source: spec diff {d_u}")
     assert d_u == []
 
@@ -228,8 +252,10 @@ def test_wf1_s16_parse_and_refusals(monkeypatch, capsys):
 
 def _solve_preamble():
     if not _knob():
-        pytest.skip(f"{S16_ENV} unset: the quadratic-box solve legs are environment-selected "
-                    "(complex build, -n 2)")
+        pytest.skip(
+            f"{S16_ENV} unset: the quadratic-box solve legs are environment-selected "
+            "(complex build, -n 2)"
+        )
     comm = MPI.COMM_WORLD
     assert IS_COMPLEX, "P36's records are complex-build records"
     assert comm.size == 2, comm.size
@@ -245,9 +271,10 @@ def _on_p(msh_ref, T):
     the P2 analogue of ``test_wf15_study_transient._on``, which is P1-only."""
     comm = msh_ref.comm
     V = fem.functionspace(msh_ref, ("Lagrange", DEGREE))
-    same = np.array_equal(
-        V.tabulate_dof_coordinates(), T.function_space.tabulate_dof_coordinates()
-    ) and V.dofmap.index_map.size_local == T.function_space.dofmap.index_map.size_local
+    same = (
+        np.array_equal(V.tabulate_dof_coordinates(), T.function_space.tabulate_dof_coordinates())
+        and V.dofmap.index_map.size_local == T.function_space.dofmap.index_map.size_local
+    )
     assert _all(comm, same), "P2 dof layout differs between the two builds"
     f = fem.Function(V)
     f.x.array[:] = T.x.array
@@ -305,24 +332,40 @@ def test_wf1_s16_quadratic_steady_reproduces_p36():
     ex_z, _ = _exact_p(msh, _quad_ex(WEIGHTS_NOZ, SERIES_TERMS))
     c_z = _rel_p(msh, th_q, ex_z, chi)
 
-    _p0(f"WF1S16 (Pdeg) steady P2 dofs file / Python / uniform file {dofs} (P36 {P36_DOFS}); "
+    _p0(
+        f"WF1S16 (Pdeg) steady P2 dofs file / Python / uniform file {dofs} (P36 {P36_DOFS}); "
         f"file run {t_file:.1f}s, three solves {t_solves:.1f}s; summary source "
-        f"{run.summary['temperature']['source']!r} / {run_u.summary['temperature']['source']!r}")
-    _p0(f"WF1S16 (I-Py) steady: owned max|dθ|/max|θ| = {ip:.3e} (hex {float(ip).hex()}; band "
-        f"{L0_BAND:.0e})")
-    _p0(f"WF1S16 (S1-quad) steady interior vs quadratic series {s1:.6e} (P36 {P36_S1}; band "
-        f"{INTERIOR_BAND:.0e}); {npts} P3 points")
-    _p0(f"WF1S16 (S2-quad) Gauss |h oint theta - source_power|/source_power = {gauss:.3e} (P36 "
+        f"{run.summary['temperature']['source']!r} / {run_u.summary['temperature']['source']!r}"
+    )
+    _p0(
+        f"WF1S16 (I-Py) steady: owned max|dθ|/max|θ| = {ip:.3e} (hex {float(ip).hex()}; band "
+        f"{L0_BAND:.0e})"
+    )
+    _p0(
+        f"WF1S16 (S1-quad) steady interior vs quadratic series {s1:.6e} (P36 {P36_S1}; band "
+        f"{INTERIOR_BAND:.0e}); {npts} P3 points"
+    )
+    _p0(
+        f"WF1S16 (S2-quad) Gauss |h oint theta - source_power|/source_power = {gauss:.3e} (P36 "
         f"{P36_S2:.3e}; band {S2_GAUSS_BAND:.0e}); source_power/(Q V) - 1 = "
-        f"{sp / (Q * 8.0 * HALF[0] * HALF[1] * HALF[2]) - 1.0:+.3e}")
-    _p0(f"WF1S16 (U) uniform P2 file: whole {u_whole:.6e} (step 3 {STEP3_M4['whole']}); interior "
-        f"{u_int:.6e} (step 3 {STEP3_M4['interior']})")
-    _p0(f"WF1S16 control (c-src') uniform file vs quadratic series {c_srcp:.4e} (P36 "
-        f"{P36_C_SRCP:.4e}; asserted > {INTERIOR_BAND:.0e})")
-    _p0(f"WF1S16 control (c-src) quadratic file vs uniform series {c_src:.4e} (P36 "
-        f"{P36_C_SRC:.4e}; asserted > {INTERIOR_BAND:.0e})")
-    _p0(f"WF1S16 control (c-z) quadratic file vs no-z series {c_z:.4e} (P36 {P36_C_Z:.4e}; "
-        f"printed only, ratio to band {c_z / INTERIOR_BAND:.2f})")
+        f"{sp / (Q * 8.0 * HALF[0] * HALF[1] * HALF[2]) - 1.0:+.3e}"
+    )
+    _p0(
+        f"WF1S16 (U) uniform P2 file: whole {u_whole:.6e} (step 3 {STEP3_M4['whole']}); interior "
+        f"{u_int:.6e} (step 3 {STEP3_M4['interior']})"
+    )
+    _p0(
+        f"WF1S16 control (c-src') uniform file vs quadratic series {c_srcp:.4e} (P36 "
+        f"{P36_C_SRCP:.4e}; asserted > {INTERIOR_BAND:.0e})"
+    )
+    _p0(
+        f"WF1S16 control (c-src) quadratic file vs uniform series {c_src:.4e} (P36 "
+        f"{P36_C_SRC:.4e}; asserted > {INTERIOR_BAND:.0e})"
+    )
+    _p0(
+        f"WF1S16 control (c-z) quadratic file vs no-z series {c_z:.4e} (P36 {P36_C_Z:.4e}; "
+        f"printed only, ratio to band {c_z / INTERIOR_BAND:.2f})"
+    )
     assert dofs == [P36_DOFS] * 3
     assert run.summary["temperature"]["source"] == "transverse_quadratic"
     assert run_u.summary["temperature"]["source"] == "uniform"
@@ -347,8 +390,9 @@ def test_wf1_s16_quadratic_cn_reproduces_p36():
     t_file = time.perf_counter() - t00
     th = run.thermal
     msh = th.mesh
-    py = _quad_study().temperature(_cooling(),
-                                   transient=TransientSpec(T_STAR / N_MAIN, N_MAIN, RHO_C))
+    py = _quad_study().temperature(
+        _cooling(), transient=TransientSpec(T_STAR / N_MAIN, N_MAIN, RHO_C)
+    )
     T_py = _on_p(msh, py.temperature)
     ip = _owned_rel(T_py, th.temperature, comm)
     dofs = [_ndofs(th.temperature), _ndofs(py.temperature)]
@@ -360,15 +404,23 @@ def test_wf1_s16_quadratic_cn_reproduces_p36():
     ex_ut, _ = _exact_p(msh, _trans_ex(T_STAR))
     c_src_t = _rel_p(msh, th_t, ex_ut, chi)
     bal = run.summary["temperature"]["max_balance_residual"]
-    _p0(f"WF1S16 (Pdeg) CN P2 dofs file / Python {dofs} (P36 {P36_DOFS}); multipliers equal "
-        f"{mult}; file run {t_file:.1f}s; summary source {run.summary['temperature']['source']!r}")
-    _p0(f"WF1S16 (I-Py) CN: owned max|dθ|/max|θ| = {ip:.3e} (hex {float(ip).hex()}; band "
-        f"{L0_BAND:.0e})")
-    _p0(f"WF1S16 (T-quad) CN N={N_MAIN} at t*: interior vs quadratic series {t_int:.6e} (P36 "
-        f"{P36_T}; band {INTERIOR_BAND:.0e}); {npts} P3 points")
+    _p0(
+        f"WF1S16 (Pdeg) CN P2 dofs file / Python {dofs} (P36 {P36_DOFS}); multipliers equal "
+        f"{mult}; file run {t_file:.1f}s; summary source {run.summary['temperature']['source']!r}"
+    )
+    _p0(
+        f"WF1S16 (I-Py) CN: owned max|dθ|/max|θ| = {ip:.3e} (hex {float(ip).hex()}; band "
+        f"{L0_BAND:.0e})"
+    )
+    _p0(
+        f"WF1S16 (T-quad) CN N={N_MAIN} at t*: interior vs quadratic series {t_int:.6e} (P36 "
+        f"{P36_T}; band {INTERIOR_BAND:.0e}); {npts} P3 points"
+    )
     _p0(f"WF1S16 (E-quad) CN max balance residual {bal:.3e} (P36 {P36_E:.3e}; band {E_BAND:.0e})")
-    _p0(f"WF1S16 control (c-src-T) CN quadratic vs uniform transient series {c_src_t:.4e} "
-        f"(P36 6.9562e-01; printed only)")
+    _p0(
+        f"WF1S16 control (c-src-T) CN quadratic vs uniform transient series {c_src_t:.4e} "
+        f"(P36 6.9562e-01; printed only)"
+    )
     assert dofs == [P36_DOFS] * 2
     assert mult
     assert run.summary["temperature"]["source"] == "transverse_quadratic"

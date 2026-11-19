@@ -113,20 +113,33 @@ def _find(glob):
 _T = r"(\(1,[+-]1j\))"
 _RX_HEAD = re.compile(r"start: -n (\d+), I32 body; node C ([0-9.]+) pF, degree (\d), sense " + _T)
 _RX_GATES = re.compile(r"\[GEO-36 I32\] gates: failures (.*?) \(ASSERTED\)")
-_RX_I32_Z = re.compile(r"\[GEO-36 I32\] \(M2\) / \(Z\) node ([0-9.]+) pF: Z_RC (\S+) Ohm, "
-                       r"Z_th (\S+) Ohm, V_s (\S+) V")
-_RX_SHARE = re.compile(r"\[GEO-36 I32\] rod share of P_vol, sense " + _T + r": (\S+) \(P_vol (\S+) W, "
-                       r"gel ([^,\s]+), rod ([^;\s]+); printed\)")
-_RX_SRC = re.compile(r"\[GEO-36 I32\] \[(gel twin|rod)\] sense " + _T + r": P_gel (\S+) W; G (\S+) 1/W; "
-                     r"G\*P (\S+) W")
+_RX_I32_Z = re.compile(
+    r"\[GEO-36 I32\] \(M2\) / \(Z\) node ([0-9.]+) pF: Z_RC (\S+) Ohm, "
+    r"Z_th (\S+) Ohm, V_s (\S+) V"
+)
+_RX_SHARE = re.compile(
+    r"\[GEO-36 I32\] rod share of P_vol, sense " + _T + r": (\S+) \(P_vol (\S+) W, "
+    r"gel ([^,\s]+), rod ([^;\s]+); printed\)"
+)
+_RX_SRC = re.compile(
+    r"\[GEO-36 I32\] \[(gel twin|rod)\] sense " + _T + r": P_gel (\S+) W; G (\S+) 1/W; "
+    r"G\*P (\S+) W"
+)
 #: One θ regex for the I32a and I32b forms (the tail after "K" differs).
-_RX_THETA = re.compile(r"\[GEO-36 I32\] \[(gel twin|rod)\] 1 g ball \(a (\S+) mm\) at (\w+), sense "
-                       + _T + r": theta\(t\*\) (\S+) K")
+_RX_THETA = re.compile(
+    r"\[GEO-36 I32\] \[(gel twin|rod)\] 1 g ball \(a (\S+) mm\) at (\w+), sense "
+    + _T
+    + r": theta\(t\*\) (\S+) K"
+)
 #: Any of the three (Z) forms: I32's (M2) / (Z), I36a's, C6a's.
-_RX_Z_ANY = re.compile(r"\[GEO-3[68] (I32|I36a|C6a)\] .*?\(Z\) node ([0-9.]+) pF: Z_RC (\S+) Ohm, "
-                       r"Z_th (\S+) Ohm, V_s (\S+) V")
+_RX_Z_ANY = re.compile(
+    r"\[GEO-3[68] (I32|I36a|C6a)\] .*?\(Z\) node ([0-9.]+) pF: Z_RC (\S+) Ohm, "
+    r"Z_th (\S+) Ohm, V_s (\S+) V"
+)
 _CT = r"([^,;\s]+)"
-_RX_C6A_S2 = re.compile(r"\[GEO-38 C6a\] kinds .*?; S2 " + _CT + ", " + _CT + "; " + _CT + ", " + _CT + ";")
+_RX_C6A_S2 = re.compile(
+    r"\[GEO-38 C6a\] kinds .*?; S2 " + _CT + ", " + _CT + "; " + _CT + ", " + _CT + ";"
+)
 ARMS = {"gel twin": "twin", "rod": "rod"}
 
 
@@ -140,8 +153,10 @@ def parse_i32_block(path, at_line=None) -> dict:
     heads = [i for i, ln in enumerate(lines, start=1) if _RX_HEAD.search(ln)]
     if at_line is None:
         if len(heads) != 1:
-            raise ValueError(f"{name}: {len(heads)} I32 blocks (lines {heads[:8]}); a window "
-                             f"log holds exactly one")
+            raise ValueError(
+                f"{name}: {len(heads)} I32 blocks (lines {heads[:8]}); a window "
+                f"log holds exactly one"
+            )
         start = heads[0]
     else:
         if at_line not in heads:
@@ -154,10 +169,18 @@ def parse_i32_block(path, at_line=None) -> dict:
     if inner:
         raise ValueError(f"{name}: block at :{start} holds another header at :{inner[0]}")
     h = _RX_HEAD.search(lines[start - 1])
-    out = {"log": name, "head": {"line": start, "ranks": h.group(1), "node": h.group(2),
-                                 "degree": h.group(3), "sense": h.group(4)},
-           "gates": {"failures": _RX_GATES.search(lines[end - 1]).group(1), "line": end},
-           "arms": {"twin": {"balls": {}}, "rod": {"balls": {}}}}
+    out = {
+        "log": name,
+        "head": {
+            "line": start,
+            "ranks": h.group(1),
+            "node": h.group(2),
+            "degree": h.group(3),
+            "sense": h.group(4),
+        },
+        "gates": {"failures": _RX_GATES.search(lines[end - 1]).group(1), "line": end},
+        "arms": {"twin": {"balls": {}}, "rod": {"balls": {}}},
+    }
 
     def _put(d, key, val, i):
         if key in d:
@@ -168,30 +191,66 @@ def parse_i32_block(path, at_line=None) -> dict:
         ln = lines[i - 1]
         m = _RX_I32_Z.search(ln)
         if m:
-            _put(out, "z", {"node": m.group(1), "z_rc": m.group(2), "z_th": m.group(3),
-                            "v_s": m.group(4), "line": i}, i)
+            _put(
+                out,
+                "z",
+                {
+                    "node": m.group(1),
+                    "z_rc": m.group(2),
+                    "z_th": m.group(3),
+                    "v_s": m.group(4),
+                    "line": i,
+                },
+                i,
+            )
             continue
         m = _RX_SHARE.search(ln)
         if m:
-            _put(out, "share", {"sense": m.group(1), "share": m.group(2), "p_vol": m.group(3),
-                                "gel": m.group(4), "rod": m.group(5), "line": i}, i)
+            _put(
+                out,
+                "share",
+                {
+                    "sense": m.group(1),
+                    "share": m.group(2),
+                    "p_vol": m.group(3),
+                    "gel": m.group(4),
+                    "rod": m.group(5),
+                    "line": i,
+                },
+                i,
+            )
             continue
         m = _RX_SRC.search(ln)
         if m:
-            _put(out["arms"][ARMS[m.group(1)]], "src",
-                 {"sense": m.group(2), "p_gel": m.group(3), "g": m.group(4), "gp": m.group(5),
-                  "line": i}, i)
+            _put(
+                out["arms"][ARMS[m.group(1)]],
+                "src",
+                {
+                    "sense": m.group(2),
+                    "p_gel": m.group(3),
+                    "g": m.group(4),
+                    "gp": m.group(5),
+                    "line": i,
+                },
+                i,
+            )
             continue
         m = _RX_THETA.search(ln)
         if m:
-            _put(out["arms"][ARMS[m.group(1)]]["balls"], m.group(3),
-                 {"a_mm": m.group(2), "sense": m.group(4), "theta": m.group(5), "line": i}, i)
+            _put(
+                out["arms"][ARMS[m.group(1)]]["balls"],
+                m.group(3),
+                {"a_mm": m.group(2), "sense": m.group(4), "theta": m.group(5), "line": i},
+                i,
+            )
     for key in ("z", "share"):
         if key not in out:
             raise ValueError(f"{name}: block at :{start} lacks its {key} line")
     for arm, a in out["arms"].items():
         if "src" not in a or not a["balls"]:
-            raise ValueError(f"{name}: block at :{start}, arm {arm}, lacks its source or ball lines")
+            raise ValueError(
+                f"{name}: block at :{start}, arm {arm}, lacks its source or ball lines"
+            )
     if list(out["arms"]["twin"]["balls"]) != list(out["arms"]["rod"]["balls"]):
         raise ValueError(f"{name}: ball names differ between arms")
     return out
@@ -202,8 +261,11 @@ def parse_z_line(path, at_line=None, tag=None) -> dict:
     ``at_line`` the log must hold exactly one (of ``tag`` when given)."""
     lines = _read_log(path).splitlines()
     name = Path(str(path)).name.removesuffix(".gz")
-    hits = [(i, m) for i, ln in enumerate(lines, start=1) if (m := _RX_Z_ANY.search(ln))
-            and (tag is None or m.group(1) == tag)]
+    hits = [
+        (i, m)
+        for i, ln in enumerate(lines, start=1)
+        if (m := _RX_Z_ANY.search(ln)) and (tag is None or m.group(1) == tag)
+    ]
     if at_line is None:
         if len(hits) != 1:
             raise ValueError(f"{name}: {len(hits)} (Z) lines; a window log holds exactly one")
@@ -213,8 +275,15 @@ def parse_z_line(path, at_line=None, tag=None) -> dict:
         if not sel:
             raise ValueError(f"{name}: no (Z) line at :{at_line}")
         i, m = sel[0]
-    return {"log": name, "tag": m.group(1), "node": m.group(2), "z_rc": m.group(3),
-            "z_th": m.group(4), "v_s": m.group(5), "line": i}
+    return {
+        "log": name,
+        "tag": m.group(1),
+        "node": m.group(2),
+        "z_rc": m.group(3),
+        "z_th": m.group(4),
+        "v_s": m.group(5),
+        "line": i,
+    }
 
 
 def parse_c6a_s2(path, at_line) -> dict:
@@ -223,8 +292,13 @@ def parse_c6a_s2(path, at_line) -> dict:
     m = _RX_C6A_S2.search(lines[at_line - 1])
     if m is None:
         raise ValueError(f"{Path(str(path)).name}: no C6a S2 line at :{at_line}")
-    return {"s11": m.group(1), "s12": m.group(2), "s21": m.group(3), "s22": m.group(4),
-            "line": at_line}
+    return {
+        "s11": m.group(1),
+        "s12": m.group(2),
+        "s21": m.group(3),
+        "s22": m.group(4),
+        "line": at_line,
+    }
 
 
 def parse_p61_cw_sources(path, at_line) -> dict:
@@ -235,13 +309,27 @@ def parse_p61_cw_sources(path, at_line) -> dict:
     m = c46._RX_P61_SRC.search(lines[at_line - 1])
     if m is None or m.group(1) != CW or m.group(2) != "cw" or m.group(5) != "cw":
         raise ValueError(f"{Path(str(path)).name}: no cw P61 sources line at :{at_line}")
-    return {"log": Path(str(path)).name, "senses": {"cw": {"p61": {"src": {
-        "p_gel": m.group(3), "p_acc": m.group(4), "factor": m.group(6), "line": at_line}}}}}
+    return {
+        "log": Path(str(path)).name,
+        "senses": {
+            "cw": {
+                "p61": {
+                    "src": {
+                        "p_gel": m.group(3),
+                        "p_acc": m.group(4),
+                        "factor": m.group(6),
+                        "line": at_line,
+                    }
+                }
+            }
+        },
+    }
 
 
 def _s2_matrix(s):
-    return np.array([[complex(s["s11"]), complex(s["s12"])],
-                     [complex(s["s21"]), complex(s["s22"])]])
+    return np.array(
+        [[complex(s["s11"]), complex(s["s12"])], [complex(s["s21"]), complex(s["s22"])]]
+    )
 
 
 def p_acc_of(s2_tokens, v_s_tok):
@@ -257,31 +345,55 @@ def _ztok(z):
 # ---------------------------------------------------------------------------
 def check_x(i32, b36, heat, node, balls, name, gates=None):
     """(X..): one block each, node token, balls, every θ line (1,+1j)."""
-    res = [(f"{name} (X-I32) header node == {node}", i32["head"]["node"] == node, i32["head"]["node"]),
-           (f"{name} (X-I32) header sense {CW}", i32["head"]["sense"] == CW, i32["head"]["sense"]),
-           (f"{name} (X-I32) share sense {CW}", i32["share"]["sense"] == CW, i32["share"]["sense"]),
-           (f"{name} (X-I36) node == {node}", b36["node"]["c_pf"] == node, b36["node"]["c_pf"]),
-           (f"{name} (X-P61) node == {node}", heat["head"]["node"] == node, heat["head"]["node"])]
+    res = [
+        (f"{name} (X-I32) header node == {node}", i32["head"]["node"] == node, i32["head"]["node"]),
+        (f"{name} (X-I32) header sense {CW}", i32["head"]["sense"] == CW, i32["head"]["sense"]),
+        (f"{name} (X-I32) share sense {CW}", i32["share"]["sense"] == CW, i32["share"]["sense"]),
+        (f"{name} (X-I36) node == {node}", b36["node"]["c_pf"] == node, b36["node"]["c_pf"]),
+        (f"{name} (X-P61) node == {node}", heat["head"]["node"] == node, heat["head"]["node"]),
+    ]
     for arm, a in i32["arms"].items():
-        res.append((f"{name} (X-I32) {arm} balls == {list(balls)}", tuple(a["balls"]) == tuple(balls),
-                    list(a["balls"])))
-        res.append((f"{name} (X-I32) {arm} source sense {CW}", a["src"]["sense"] == CW, a["src"]["sense"]))
+        res.append(
+            (
+                f"{name} (X-I32) {arm} balls == {list(balls)}",
+                tuple(a["balls"]) == tuple(balls),
+                list(a["balls"]),
+            )
+        )
+        res.append(
+            (f"{name} (X-I32) {arm} source sense {CW}", a["src"]["sense"] == CW, a["src"]["sense"])
+        )
         for b, v in a["balls"].items():
             res.append((f"{name} (X-I32) {arm} {b} theta sense {CW}", v["sense"] == CW, v["sense"]))
     g_t, g_r = i32["arms"]["twin"]["src"]["g"], i32["arms"]["rod"]["src"]["g"]
-    res.append((f"{name} (X-G) rod G == twin G (rod theta is per twin P_gel)", g_t == g_r,
-                f"{g_r} vs {g_t}"))
+    res.append(
+        (
+            f"{name} (X-G) rod G == twin G (rod theta is per twin P_gel)",
+            g_t == g_r,
+            f"{g_r} vs {g_t}",
+        )
+    )
     if gates is not None:
-        res.append((f"{name} (X-gates) failures == {gates}", i32["gates"]["failures"] == gates,
-                    i32["gates"]["failures"]))
+        res.append(
+            (
+                f"{name} (X-gates) failures == {gates}",
+                i32["gates"]["failures"] == gates,
+                i32["gates"]["failures"],
+            )
+        )
     return res
 
 
 def check_cust_z(zs, name):
     toks = [_ztok(z) for z in zs]
-    return [(f"{name} (Cust-Z) node / Z_RC / Z_th / V_s string-equal across "
-             f"{[z['log'] + ':' + str(z['line']) for z in zs]}",
-             all(t == toks[0] for t in toks), repr(toks))]
+    return [
+        (
+            f"{name} (Cust-Z) node / Z_RC / Z_th / V_s string-equal across "
+            f"{[z['log'] + ':' + str(z['line']) for z in zs]}",
+            all(t == toks[0] for t in toks),
+            repr(toks),
+        )
+    ]
 
 
 def check_cust_p(i32, b36, heat, name):
@@ -292,12 +404,23 @@ def check_cust_p(i32, b36, heat, name):
     want = (am["share"], am["p_vol"], am["gel"], am["rod"])
     d = abs(float(ar["p_vol"]) - float(t_src["p_gel"]))
     bound = _half_ulp_abs(ar["p_vol"])
-    return [(f"{name} (Cust-P) I32 twin P_gel == P61 cw P_gel (string)", t_src["p_gel"] == cw["p_gel"],
-             f"{i32['log']}:{t_src['line']} {t_src['p_gel']} vs {heat['log']}:{cw['line']} {cw['p_gel']}"),
-            (f"{name} (Cust-P) I32 rod share line == I36a arm M (share, P_vol, gel, rod)", got == want,
-             f"{i32['log']}:{sh['line']} {got} vs {b36['log']}:{am['y_in']['line']} {want}"),
-            (f"{name} (Cust-P) I36a arm R P_vol vs I32 twin P_gel within half a unit", d <= bound,
-             f"{ar['p_vol']} vs {t_src['p_gel']}: |d| {d:.3e} (<= {bound:.3e})")]
+    return [
+        (
+            f"{name} (Cust-P) I32 twin P_gel == P61 cw P_gel (string)",
+            t_src["p_gel"] == cw["p_gel"],
+            f"{i32['log']}:{t_src['line']} {t_src['p_gel']} vs {heat['log']}:{cw['line']} {cw['p_gel']}",
+        ),
+        (
+            f"{name} (Cust-P) I32 rod share line == I36a arm M (share, P_vol, gel, rod)",
+            got == want,
+            f"{i32['log']}:{sh['line']} {got} vs {b36['log']}:{am['y_in']['line']} {want}",
+        ),
+        (
+            f"{name} (Cust-P) I36a arm R P_vol vs I32 twin P_gel within half a unit",
+            d <= bound,
+            f"{ar['p_vol']} vs {t_src['p_gel']}: |d| {d:.3e} (<= {bound:.3e})",
+        ),
+    ]
 
 
 def check_d(b36, heat, v_s, name):
@@ -307,10 +430,18 @@ def check_d(b36, heat, v_s, name):
     f = float(cw["p_gel"]) / float(cw["p_acc"])
     fb = _half_ulp_rel(cw["factor"]) + _half_ulp_rel(cw["p_gel"]) + _half_ulp_rel(cw["p_acc"])
     ferr = abs(f - float(cw["factor"])) / abs(float(cw["factor"]))
-    return [(f"{name} (D-Pacc) _p_acc_spec(S2_R, {CW}, V_s, {Z0}) vs P61 cw P_acc", err <= DPACC_REL,
-             f"{p:.12e} vs printed {cw['p_acc']}: rel {err:.3e} (<= {DPACC_REL:.0e})"),
-            (f"{name} (D-f) cw factor == P_gel / P_acc", ferr <= fb,
-             f"{f:.12e} vs printed {cw['factor']}: rel {ferr:.3e} (<= {fb:.3e})")]
+    return [
+        (
+            f"{name} (D-Pacc) _p_acc_spec(S2_R, {CW}, V_s, {Z0}) vs P61 cw P_acc",
+            err <= DPACC_REL,
+            f"{p:.12e} vs printed {cw['p_acc']}: rel {err:.3e} (<= {DPACC_REL:.0e})",
+        ),
+        (
+            f"{name} (D-f) cw factor == P_gel / P_acc",
+            ferr <= fb,
+            f"{f:.12e} vs printed {cw['factor']}: rel {ferr:.3e} (<= {fb:.3e})",
+        ),
+    ]
 
 
 def report(res, what):
@@ -332,9 +463,16 @@ def figures(i32, b36, heat):
     p_gel_twin = float(i32["arms"]["twin"]["src"]["p_gel"])
     p_acc_rod = p_acc_of(b36["arms"]["M"]["s2"], v_s)
     p_acc_twin = p_acc_of(b36["arms"]["R"]["s2"], v_s)
-    out = {"factor_cw": factor, "p_gel_twin": p_gel_twin, "p_acc_rod": p_acc_rod,
-           "p_acc_twin": p_acc_twin, "p_acc_rod_over_twin_m1": p_acc_rod / p_acc_twin - 1.0,
-           "twin": {}, "rod": {}, "rod_twin_pacc": {}}
+    out = {
+        "factor_cw": factor,
+        "p_gel_twin": p_gel_twin,
+        "p_acc_rod": p_acc_rod,
+        "p_acc_twin": p_acc_twin,
+        "p_acc_rod_over_twin_m1": p_acc_rod / p_acc_twin - 1.0,
+        "twin": {},
+        "rod": {},
+        "rod_twin_pacc": {},
+    }
     for b, v in i32["arms"]["twin"]["balls"].items():
         out["twin"][b] = float(v["theta"]) * factor
     for b, v in i32["arms"]["rod"]["balls"].items():
@@ -355,13 +493,17 @@ def ratios(f15, f3):
 
 
 def print_figures(f, label):
-    print(f"{TAG} {label}: {CW} = cw; factor P_gel/P_acc (cw) {f['factor_cw']:.6e}; P_acc rod "
-          f"{f['p_acc_rod']:.6e} W, twin {f['p_acc_twin']:.6e} W; P_acc_rod / P_acc_twin - 1 "
-          f"{f['p_acc_rod_over_twin_m1']:+.6e}")
+    print(
+        f"{TAG} {label}: {CW} = cw; factor P_gel/P_acc (cw) {f['factor_cw']:.6e}; P_acc rod "
+        f"{f['p_acc_rod']:.6e} W, twin {f['p_acc_twin']:.6e} W; P_acc_rod / P_acc_twin - 1 "
+        f"{f['p_acc_rod_over_twin_m1']:+.6e}"
+    )
     for b in f["twin"]:
-        print(f"{TAG} {label}: {CW} = cw; tip 1 g {b}: twin theta_acc {f['twin'][b]:.6e} K/W; rod "
-              f"theta_acc {f['rod'][b]:.6e} K/W (own P_acc; twin-P_acc version "
-              f"{f['rod_twin_pacc'][b]:.6e})")
+        print(
+            f"{TAG} {label}: {CW} = cw; tip 1 g {b}: twin theta_acc {f['twin'][b]:.6e} K/W; rod "
+            f"theta_acc {f['rod'][b]:.6e} K/W (own P_acc; twin-P_acc version "
+            f"{f['rod_twin_pacc'][b]:.6e})"
+        )
 
 
 def print_ratios(r, label):
@@ -396,30 +538,46 @@ def read_1p5t(i32_path=ENTRY55_LOG, gates=ENTRY55_GATES, label="1.5 T (entry 55)
     z48 = _parse_z(ENTRY48_LOG, tag="I36a")
     z59 = _parse_z(ENTRY59_LOG, tag="C6a")
     res = check_x(i32, b48, h59, NODE_1P5, BALLS_1P5, label, gates)
-    res += [(f"{label} (X48) I36a balls / degree / eta", tuple(b48["tip"]["balls"]) == c45.ENTRY48_BALLS
-             and b48["tip"]["degree"] == "1" and b48["tip"]["eta_valid"] == "True",
-             f"{list(b48['tip']['balls'])}, {b48['tip']['degree']}, {b48['tip']['eta_valid']}")]
+    res += [
+        (
+            f"{label} (X48) I36a balls / degree / eta",
+            tuple(b48["tip"]["balls"]) == c45.ENTRY48_BALLS
+            and b48["tip"]["degree"] == "1"
+            and b48["tip"]["eta_valid"] == "True",
+            f"{list(b48['tip']['balls'])}, {b48['tip']['degree']}, {b48['tip']['eta_valid']}",
+        )
+    ]
     res += c45.check_side(b48, NODE_1P5, f"{label} (X48) entry 48")
     res += check_cust_z([i32["z"] | {"log": i32["log"]}, z48, z59], label)
     res += check_cust_p(i32, b48, h59, label)
     res += check_d(b48, h59, z48["v_s"], label)
     if i32_path == ENTRY55_LOG:
-        lines = {"(Z) 55": (i32["z"]["line"], ENTRY55_Z_LINE), "(Z) 48": (z48["line"], ENTRY48_Z_LINE),
-                 "(Z) 59": (z59["line"], ENTRY59_Z_LINE),
-                 "share 55": (i32["share"]["line"], ENTRY55_SHARE_LINE),
-                 "twin P_gel 55": (i32["arms"]["twin"]["src"]["line"], ENTRY55_TWIN_PGEL_LINE),
-                 "arm M Y_in 48": (b48["arms"]["M"]["y_in"]["line"], ENTRY48_ARM_M_YIN_LINE),
-                 "arm R Y_in 48": (b48["arms"]["R"]["y_in"]["line"], ENTRY48_ARM_R_YIN_LINE),
-                 "arm M S2 48": (b48["arms"]["M"]["line"], ENTRY48_ARM_M_S2_LINE),
-                 "arm R S2 48": (b48["arms"]["R"]["line"], ENTRY48_ARM_R_S2_LINE),
-                 "cw 59": (h59["senses"]["cw"]["p61"]["src"]["line"], ENTRY59_CW_LINE),
-                 "ccw 59": (h59["senses"]["ccw"]["p61"]["src"]["line"], ENTRY59_CCW_LINE)}
-        res.append((f"{label} (X-lines) the brief's cited lines", all(a == b for a, b in lines.values()),
-                    repr(lines)))
+        lines = {
+            "(Z) 55": (i32["z"]["line"], ENTRY55_Z_LINE),
+            "(Z) 48": (z48["line"], ENTRY48_Z_LINE),
+            "(Z) 59": (z59["line"], ENTRY59_Z_LINE),
+            "share 55": (i32["share"]["line"], ENTRY55_SHARE_LINE),
+            "twin P_gel 55": (i32["arms"]["twin"]["src"]["line"], ENTRY55_TWIN_PGEL_LINE),
+            "arm M Y_in 48": (b48["arms"]["M"]["y_in"]["line"], ENTRY48_ARM_M_YIN_LINE),
+            "arm R Y_in 48": (b48["arms"]["R"]["y_in"]["line"], ENTRY48_ARM_R_YIN_LINE),
+            "arm M S2 48": (b48["arms"]["M"]["line"], ENTRY48_ARM_M_S2_LINE),
+            "arm R S2 48": (b48["arms"]["R"]["line"], ENTRY48_ARM_R_S2_LINE),
+            "cw 59": (h59["senses"]["cw"]["p61"]["src"]["line"], ENTRY59_CW_LINE),
+            "ccw 59": (h59["senses"]["ccw"]["p61"]["src"]["line"], ENTRY59_CCW_LINE),
+        }
+        res.append(
+            (
+                f"{label} (X-lines) the brief's cited lines",
+                all(a == b for a, b in lines.values()),
+                repr(lines),
+            )
+        )
     report(res, label)
     f = figures(i32, b48, h59)
-    print_figures(f, label + (", pre-figure (red window, entry 63 decides)" if i32_path == ENTRY55_LOG
-                              else ""))
+    print_figures(
+        f,
+        label + (", pre-figure (red window, entry 63 decides)" if i32_path == ENTRY55_LOG else ""),
+    )
     return {"i32": i32, "i36": b48, "heat": h59, "z36": z48, "zheat": z59, "fig": f}
 
 
@@ -453,13 +611,22 @@ def _i88_mode():
 def _i88_body(mode):
     """The gated body; returns the summary dict.  Writes only at ``both``."""
     s55 = read_1p5t()
-    hits = {k: _on_root(_find, g) for k, g in (("60", ENTRY60_GLOB), ("61", ENTRY61_GLOB),
-                                                ("63", ENTRY63_GLOB), ("67", ENTRY67_GLOB))}
+    hits = {
+        k: _on_root(_find, g)
+        for k, g in (
+            ("60", ENTRY60_GLOB),
+            ("61", ENTRY61_GLOB),
+            ("63", ENTRY63_GLOB),
+            ("67", ENTRY67_GLOB),
+        )
+    }
     for k, h in hits.items():
         print(f"{TAG} entry {k}: " + (f"{h[0].name} ({h[1]})" if h else "pending"))
     missing = [k for k, h in hits.items() if h is None]
     if mode == "both" and missing:
-        raise AssertionError(f"entries {missing} absent: I88 at 'both' needs 48 / 59 / 60 / 61 / 63 / 67")
+        raise AssertionError(
+            f"entries {missing} absent: I88 at 'both' needs 48 / 59 / 60 / 61 / 63 / 67"
+        )
     s15 = s55
     if hits["63"] is not None:
         s63 = read_1p5t(hits["63"][0], gates="none", label="1.5 T (entry 63)")
@@ -473,12 +640,19 @@ def _i88_body(mode):
         r = ratios(s15["fig"], s3["fig"])
         print_ratios(r, f"3 T / 1.5 T ({s15['i32']['log']})")
     else:
-        print(f"{TAG} 3 T / 1.5 T ratio: pending (entries {[k for k in ('60', '61', '67') if hits[k] is None]})")
-    out = {"sense": f"{CW} = cw", "fig_1p5t": s15["fig"], "fig_entry55": s55["fig"],
-           "fig_3t": s3["fig"] if s3 else None,
-           "ratios": {k: f"{v:.6e}" for k, v in r.items()} if r else None,
-           "logs": {k: (h[0].name if h else None) for k, h in hits.items()}}
+        print(
+            f"{TAG} 3 T / 1.5 T ratio: pending (entries {[k for k in ('60', '61', '67') if hits[k] is None]})"
+        )
+    out = {
+        "sense": f"{CW} = cw",
+        "fig_1p5t": s15["fig"],
+        "fig_entry55": s55["fig"],
+        "fig_3t": s3["fig"] if s3 else None,
+        "ratios": {k: f"{v:.6e}" for k, v in r.items()} if r else None,
+        "logs": {k: (h[0].name if h else None) for k, h in hits.items()},
+    }
     if mode == "both":
+
         def _write():
             HOST_JSON_DIR.mkdir(parents=True, exist_ok=True)
             p = HOST_JSON_DIR / I88_JSON_NAME
@@ -497,8 +671,10 @@ def test_i88_custody_1p5t():
     s = read_1p5t()
     f = s["fig"]
     assert list(f["twin"]) == list(BALLS_1P5) and list(f["rod"]) == list(BALLS_1P5)
-    print(f"{TAG} predicted (drafter, unlogged): P_acc_rod / P_acc_twin - 1 ~ -5.8e-6; twin ~ "
-          f"1.2839e-03 / 1.2874e-03 K/W; rod ~ 1.3981e-03 / 1.4030e-03 K/W (top / bottom); printed")
+    print(
+        f"{TAG} predicted (drafter, unlogged): P_acc_rod / P_acc_twin - 1 ~ -5.8e-6; twin ~ "
+        f"1.2839e-03 / 1.2874e-03 K/W; rod ~ 1.3981e-03 / 1.4030e-03 K/W (top / bottom); printed"
+    )
 
 
 def test_i88_stub_3t():
@@ -511,41 +687,81 @@ def test_i88_stub_3t():
     s2_31 = _on_root(parse_c6a_s2, C31_STUB_LOG, C31_S2_LINE)
     name = "3 T stub (C32 / C31 / I85)"
     res = check_cust_z([z32, i85["z"] | {"log": i85["log"]}, z31], name)
-    res.append((f"{name} (Z) line numbers C32 :81, I85 :81, C31 :87",
-                (z32["line"], i85["z"]["line"], z31["line"]) == (C32_STUB_LINE, I85_Z_LINE, C31_Z_LINE),
-                f"{(z32['line'], i85['z']['line'], z31['line'])}"))
+    res.append(
+        (
+            f"{name} (Z) line numbers C32 :81, I85 :81, C31 :87",
+            (z32["line"], i85["z"]["line"], z31["line"]) == (C32_STUB_LINE, I85_Z_LINE, C31_Z_LINE),
+            f"{(z32['line'], i85['z']['line'], z31['line'])}",
+        )
+    )
     s2r = {k: b32["arms"]["R"]["s2"][k] for k in ("s11", "s12", "s21", "s22")}
     s2c = {k: s2_31[k] for k in ("s11", "s12", "s21", "s22")}
     res.append((f"{name} C32 arm R S2 == C31 :91 S2 (string)", s2r == s2c, f"{s2r} vs {s2c}"))
     cw = h31["senses"]["cw"]["p61"]["src"]
     p = p_acc_of(b32["arms"]["R"]["s2"], z32["v_s"])
     err = abs(p - float(cw["p_acc"])) / abs(float(cw["p_acc"]))
-    res.append((f"{name} (D-Pacc) _p_acc_spec vs C31 :{cw['line']} cw P_acc", err <= DPACC_REL
-                and cw["line"] == C31_CW_LINE, f"{p:.12e} vs {cw['p_acc']}: rel {err:.3e} (<= 1e-08)"))
+    res.append(
+        (
+            f"{name} (D-Pacc) _p_acc_spec vs C31 :{cw['line']} cw P_acc",
+            err <= DPACC_REL and cw["line"] == C31_CW_LINE,
+            f"{p:.12e} vs {cw['p_acc']}: rel {err:.3e} (<= 1e-08)",
+        )
+    )
     f = figures(i85, b32, h31)
-    res.append((f"{name} P_acc_rod / P_acc_twin - 1 == 0.0 exactly", f["p_acc_rod_over_twin_m1"] == 0.0,
-                f"{f['p_acc_rod_over_twin_m1']!r}"))
+    res.append(
+        (
+            f"{name} P_acc_rod / P_acc_twin - 1 == 0.0 exactly",
+            f["p_acc_rod_over_twin_m1"] == 0.0,
+            f"{f['p_acc_rod_over_twin_m1']!r}",
+        )
+    )
     sh, am = i85["share"], b32["arms"]["M"]
     got = (sh["share"], sh["p_vol"], sh["gel"], sh["rod"])
     want = (am["share"], am["p_vol"], am["gel"], am["rod"])
-    res.append((f"{name} I85 :88 == C32 :85", got == want and sh["line"] == I85_SHARE_LINE
-                and am["y_in"]["line"] == C32_ARM_M_YIN_LINE, f"{got} vs {want}"))
+    res.append(
+        (
+            f"{name} I85 :88 == C32 :85",
+            got == want
+            and sh["line"] == I85_SHARE_LINE
+            and am["y_in"]["line"] == C32_ARM_M_YIN_LINE,
+            f"{got} vs {want}",
+        )
+    )
     tp, ar = i85["arms"]["twin"]["src"], b32["arms"]["R"]
     d = abs(float(tp["p_gel"]) - float(ar["p_vol"]))
-    res.append((f"{name} I85 :91 twin P_gel vs C32 :89 arm R P_vol within half a unit",
-                d <= _half_ulp_abs(ar["p_vol"]) and tp["line"] == I85_TWIN_PGEL_LINE
-                and ar["y_in"]["line"] == C32_ARM_R_YIN_LINE,
-                f"{tp['p_gel']} vs {ar['p_vol']}: |d| {d:.3e} (<= {_half_ulp_abs(ar['p_vol']):.3e})"))
-    res.append((f"{name} I85 gates failures none", i85["gates"]["failures"] == "none",
-                i85["gates"]["failures"]))
+    res.append(
+        (
+            f"{name} I85 :91 twin P_gel vs C32 :89 arm R P_vol within half a unit",
+            d <= _half_ulp_abs(ar["p_vol"])
+            and tp["line"] == I85_TWIN_PGEL_LINE
+            and ar["y_in"]["line"] == C32_ARM_R_YIN_LINE,
+            f"{tp['p_gel']} vs {ar['p_vol']}: |d| {d:.3e} (<= {_half_ulp_abs(ar['p_vol']):.3e})",
+        )
+    )
+    res.append(
+        (
+            f"{name} I85 gates failures none",
+            i85["gates"]["failures"] == "none",
+            i85["gates"]["failures"],
+        )
+    )
     report(res, name)
     print_figures(f, "3 T stub, form proof, not a record")
     s15 = read_1p5t()
-    print_ratios(ratios({"twin": {"top": f["twin"]["a"], "bottom": f["twin"]["b"]},
-                         "rod": {"top": f["rod"]["a"], "bottom": f["rod"]["b"]}}, s15["fig"]),
-                 "stub, form proof, not a record (stub a / b against 1.5 T top / bottom)")
-    print(f"{TAG} (Cust-P) at 3 T is not stub-provable (C31's P61 stub feeds a different box "
-          f"field); its first real check is entry 60 against entry 67 at 'both'")
+    print_ratios(
+        ratios(
+            {
+                "twin": {"top": f["twin"]["a"], "bottom": f["twin"]["b"]},
+                "rod": {"top": f["rod"]["a"], "bottom": f["rod"]["b"]},
+            },
+            s15["fig"],
+        ),
+        "stub, form proof, not a record (stub a / b against 1.5 T top / bottom)",
+    )
+    print(
+        f"{TAG} (Cust-P) at 3 T is not stub-provable (C31's P61 stub feeds a different box "
+        f"field); its first real check is entry 60 against entry 67 at 'both'"
+    )
 
 
 def test_i88_form63():
@@ -574,6 +790,7 @@ def test_i88_self():
 
 def _empty_log_roots(monkeypatch, tmp_path):
     """Point the pending-entry roots at two empty tmp dirs (§9 item 918)."""
+
     def _make():
         t, h = Path(tmp_path) / "tracked-empty", Path(tmp_path) / "held-empty"
         t.mkdir(parents=True, exist_ok=True)
@@ -627,12 +844,17 @@ def test_i88_n_sense():
     two logged factors, asserted above their combined half-unit bound."""
     h59 = _parse_heat(ENTRY59_LOG)
     i32 = _parse_i32(ENTRY55_LOG)
-    fc, fcc = h59["senses"]["cw"]["p61"]["src"]["factor"], h59["senses"]["ccw"]["p61"]["src"]["factor"]
+    fc, fcc = (
+        h59["senses"]["cw"]["p61"]["src"]["factor"],
+        h59["senses"]["ccw"]["p61"]["src"]["factor"],
+    )
     sep = float(fcc) / float(fc) - 1.0
     bound = _half_ulp_rel(fc) + _half_ulp_rel(fcc)
     for b, v in i32["arms"]["twin"]["balls"].items():
-        print(f"{TAG} (N-sense) twin {b}: theta x ccw factor {float(v['theta']) * float(fcc):.6e} vs "
-              f"x cw factor {float(v['theta']) * float(fc):.6e} K/W")
+        print(
+            f"{TAG} (N-sense) twin {b}: theta x ccw factor {float(v['theta']) * float(fcc):.6e} vs "
+            f"x cw factor {float(v['theta']) * float(fc):.6e} K/W"
+        )
     print(f"{TAG} (N-sense) separation ccw/cw - 1 = {sep:.6f} (> bound {bound:.3e})")
     assert sep > bound
     assert f"{sep:.6f}" == "0.268866"
@@ -679,11 +901,15 @@ def test_geo36_i88_reader():
     mode = _i88_mode()
     if mode is None:
         pytest.skip(f"{I88_ENV} unset")
-    before = _on_root(lambda: sorted(p.name for p in HOST_JSON_DIR.glob("*"))
-                      if HOST_JSON_DIR.is_dir() else [])
+    before = _on_root(
+        lambda: sorted(p.name for p in HOST_JSON_DIR.glob("*")) if HOST_JSON_DIR.is_dir() else []
+    )
     _i88_body(mode)
     if mode == "1":
-        after = _on_root(lambda: sorted(p.name for p in HOST_JSON_DIR.glob("*"))
-                         if HOST_JSON_DIR.is_dir() else [])
+        after = _on_root(
+            lambda: (
+                sorted(p.name for p in HOST_JSON_DIR.glob("*")) if HOST_JSON_DIR.is_dir() else []
+            )
+        )
         assert after == before, "wrote under logs/geo36 at knob 1"
         print(f"{TAG} knob 1: nothing written under logs/geo36")

@@ -93,14 +93,13 @@ from __future__ import annotations
 
 import time
 
+import dolfinx
 import numpy as np
 import pytest
 import ufl
-from mpi4py import MPI
-
-import dolfinx
 from dolfinx import fem
 from dolfinx.fem.petsc import LinearProblem
+from mpi4py import MPI
 
 from fem_em_solver.core import (
     HomogeneousMaterial,
@@ -110,7 +109,6 @@ from fem_em_solver.core import (
 from fem_em_solver.core.resonance import stored_electric_energy
 from fem_em_solver.io.mesh import MeshGenerator
 from fem_em_solver.utils.constants import EPSILON_0
-
 from tests.complex_mode import complex_only
 from tests.validation.test_port_reaction_impedance import (
     AIR_PADDING,
@@ -248,9 +246,7 @@ def solenoidal_drive():
     x = ufl.SpatialCoordinate(msh)
     j_vec = _azimuthal_current_density(j_magnitude)(x)
     phi_hat = _azimuthal_current_density(1.0)(x)
-    dx_driven = ufl.Measure(
-        "dx", domain=msh, subdomain_data=cell_tags, subdomain_id=(DRIVEN_TAG,)
-    )
+    dx_driven = ufl.Measure("dx", domain=msh, subdomain_data=cell_tags, subdomain_id=(DRIVEN_TAG,))
 
     # The driven-tag restriction as a DG0 indicator.  J' has support on the
     # whole domain (grad(psi) does), so the load can no longer be written on a
@@ -309,9 +305,7 @@ def solenoidal_drive():
     # --- Route A: the reaction integral on the projected drive. ---------------
     # J' is real (psi's imaginary part was discarded), so inner()'s conjugation
     # of the second argument is a no-op: this is ∫E·J', not ∫E·J̄'.
-    reaction_local = fem.assemble_scalar(
-        fem.form(ufl.inner(fields.e_complex, j_prime) * ufl.dx)
-    )
+    reaction_local = fem.assemble_scalar(fem.form(ufl.inner(fields.e_complex, j_prime) * ufl.dx))
     z11_reaction = complex(-comm.allreduce(reaction_local, op=MPI.SUM) / current**2)
 
     # --- Route B: complex power, equation (1) of step 2b. ---------------------
@@ -513,6 +507,5 @@ def test_projected_diagonal_against_grover(solenoidal_drive):
         )
     low, high = GROVER_RATIO_BAND
     assert low < ratio < high, (
-        f"Im Z11/omega*L_Grover = {ratio:.6f} is outside the banded "
-        f"[{low}, {high}]"
+        f"Im Z11/omega*L_Grover = {ratio:.6f} is outside the banded " f"[{low}, {high}]"
     )

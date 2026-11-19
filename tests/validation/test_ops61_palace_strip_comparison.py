@@ -70,9 +70,9 @@ from tests.validation.test_port_birdcage_larmor_gate import (
     LEG_D_S_MATRIX_10MHZ,
     _reuse_of,
 )
-from tests.validation.test_port_gap_voltage_impedance import FREQUENCY_HZ
 from tests.validation.test_port_birdcage_leg_offset_sweep import _four_port_rung
 from tests.validation.test_port_birdcage_lumped_column import ADJACENT_SPREAD_BAND
+from tests.validation.test_port_gap_voltage_impedance import FREQUENCY_HZ
 from tests.validation.test_port_lumped_narrowed_sheet import GATED_WIDTH_FRACTION
 from tests.validation.test_port_lumped_sheet_sweep import RECIPROCITY_BAND
 
@@ -124,9 +124,7 @@ def _degree():
     return d
 
 
-needs_degree = pytest.mark.skipif(
-    _degree() is None, reason=f"{DEGREE_ENV} unset (opt-in window)"
-)
+needs_degree = pytest.mark.skipif(_degree() is None, reason=f"{DEGREE_ENV} unset (opt-in window)")
 
 
 def _load_probe():
@@ -221,9 +219,7 @@ def strip_rungs():
         if ident_palace is not None:
             print(
                 f"    Palace {pal} S-class spreads "
-                + "  ".join(
-                    f"{k} {v * 100:.4f}%" for k, v in ident_palace["spreads"].items()
-                ),
+                + "  ".join(f"{k} {v * 100:.4f}%" for k, v in ident_palace["spreads"].items()),
                 flush=True,
             )
         else:
@@ -243,9 +239,7 @@ def strip_rungs():
                 continue
             print(
                 f"    {text.format(d=d)}: |d mean|/|mean| "
-                + "  ".join(
-                    f"{k} {v * 100:.4f}%" for k, v in readings[key].items()
-                )
+                + "  ".join(f"{k} {v * 100:.4f}%" for k, v in readings[key].items())
                 + " (printed, never gated)",
                 flush=True,
             )

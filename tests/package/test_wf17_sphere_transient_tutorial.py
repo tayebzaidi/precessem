@@ -38,7 +38,6 @@ from mpi4py import MPI
 from fem_em_solver import RobinCooling, Study, TransientSpec
 from fem_em_solver.post.sar import uniform_sphere_sar_closed_form
 from fem_em_solver.utils.constants import EPSILON_0
-
 from tests.complex_mode import complex_only
 from tests.package.test_wf15_study_lossy_sphere import _study
 from tests.package.test_wf15_study_sphere_transient import (
@@ -90,17 +89,29 @@ S33_ENV = "FEM_EM_WF17_S33"
 # W0 of this step read 76 guide pages with the new page (item 838 read 75 before it).
 MIN_GUIDE_PAGES = 76
 
-STUDY_FIELDS = ("geometry", "material", "excitation", "frequency_hz", "degree",
-                "density_kg_m3", "conductor")
-SPEC_FIELDS = ("dt_s", "n_steps", "rho_c_j_per_m3_k", "theta", "startup_half_steps",
-               "t_init_c", "initial_gradient_k_per_m")
+STUDY_FIELDS = (
+    "geometry",
+    "material",
+    "excitation",
+    "frequency_hz",
+    "degree",
+    "density_kg_m3",
+    "conductor",
+)
+SPEC_FIELDS = (
+    "dt_s",
+    "n_steps",
+    "rho_c_j_per_m3_k",
+    "theta",
+    "startup_half_steps",
+    "t_init_c",
+    "initial_gradient_k_per_m",
+)
 COOL_FIELDS = ("k_w_per_m_k", "h_w_per_m2_k", "t_inf_c", "source_scale", "degree")
 EXPECTED_A = TransientSpec(T_STAR / N_MAIN, N_MAIN, RHO_C)
 EXPECTED_S = TransientSpec(DT_1, 1, RHO_C, theta=1.0, startup_half_steps=0)
 
-needs_s33 = pytest.mark.skipif(
-    os.environ.get(S33_ENV) != "1", reason=f"W1 solve: set {S33_ENV}=1"
-)
+needs_s33 = pytest.mark.skipif(os.environ.get(S33_ENV) != "1", reason=f"W1 solve: set {S33_ENV}=1")
 
 
 def _say(*args):
@@ -125,8 +136,9 @@ def _mismatches(study, calls) -> list[str]:
         return out + [f"{len(calls)} temperature calls"]
     cool = RobinCooling(K, H, 0.0, source_scale=G)
     for label, (cooling, spec), exp in zip("AS", calls, (EXPECTED_A, EXPECTED_S)):
-        out += [f"{label}.cooling.{n}" for n in COOL_FIELDS
-                if getattr(cooling, n) != getattr(cool, n)]
+        out += [
+            f"{label}.cooling.{n}" for n in COOL_FIELDS if getattr(cooling, n) != getattr(cool, n)
+        ]
         if spec is None:
             out.append(f"{label}.transient None")
             continue
@@ -165,8 +177,10 @@ def test_wf17_s33_extracts_exactly_one_block():
     _, block = _page_and_block()
     calls = _study_calls(block)
     keywords = {kw.arg: kw.value for kw in calls[0].keywords} if calls else {}
-    _say(f"[WF-17s33] (X) Study( calls {len(calls)}; keywords {sorted(keywords)}; "
-         f"probe in block: {'probe' in block}")
+    _say(
+        f"[WF-17s33] (X) Study( calls {len(calls)}; keywords {sorted(keywords)}; "
+        f"probe in block: {'probe' in block}"
+    )
     assert len(calls) == 1
     assert "degree" in keywords
     assert "probe" not in block
@@ -176,8 +190,10 @@ def test_wf17_s33_block_configures_u131(monkeypatch):
     _, block = _page_and_block()
     rec = _exec_no_solve(block, monkeypatch)
     mism = _mismatches(rec["study"], rec["calls"])
-    _say(f"[WF-17s33] (K) degree={rec['study'].degree} specs={[c[1] for c in rec['calls']]} "
-         f"mismatches={mism}")
+    _say(
+        f"[WF-17s33] (K) degree={rec['study'].degree} specs={[c[1] for c in rec['calls']]} "
+        f"mismatches={mism}"
+    )
     assert rec["study"].degree == 1
     assert mism == []
 
@@ -206,8 +222,9 @@ def test_wf17_s33_planted_untagged_and_doubled_pages_raise():
 def test_wf17_s33_expected_output_states_the_records():
     text, _ = _page_and_block()
     out = extract_tagged_block(text, OUTPUT_TAG, lang="text")
-    expected = (f"sphere cells = {MAT10_SUB_CELLS}\n(A_t) {MAT12_A_T_PRINT}\n"
-                f"(S2) {MAT12_S2_PRINT}\n")
+    expected = (
+        f"sphere cells = {MAT10_SUB_CELLS}\n(A_t) {MAT12_A_T_PRINT}\n" f"(S2) {MAT12_S2_PRINT}\n"
+    )
     _say(f"[WF-17s33] (E) {out!r} vs {expected!r}")
     assert out == expected
 
@@ -218,8 +235,10 @@ def test_wf17_s33_docrefs_guide_has_zero_dead_links():
     rc, counts = run_checker("--docs-root", "docs/guide", "--check-links")
     link = LINK_PASS_RE.search(_checker_stdout("--docs-root", "docs/guide", "--check-links"))
     assert link is not None, "(D) no 'Link pass:' line"
-    print(f"[WF-17s33] (D) dead={counts['dead']} links={link.group(1)} pages={link.group(2)} "
-          f"(MIN_GUIDE_PAGES {MIN_GUIDE_PAGES}) exit={counts['exit']} rc={rc}")
+    print(
+        f"[WF-17s33] (D) dead={counts['dead']} links={link.group(1)} pages={link.group(2)} "
+        f"(MIN_GUIDE_PAGES {MIN_GUIDE_PAGES}) exit={counts['exit']} rc={rc}"
+    )
     assert counts["dead"] == 0
     assert int(link.group(3)) == 0
     assert int(link.group(2)) >= MIN_GUIDE_PAGES
@@ -262,8 +281,12 @@ def test_wf17_s33_block_reproduces_u131(monkeypatch):
 
     n_sub = int(thA.mesh.topology.index_map(3).size_global)
     cf = uniform_sphere_sar_closed_form(
-        e0=E0, epsilon_r=EPSILON_R_SPHERE, sigma=SIGMA_HIGH, omega=OMEGA,
-        rho=RHO_KG_M3, epsilon_0=EPSILON_0,
+        e0=E0,
+        epsilon_r=EPSILON_R_SPHERE,
+        sigma=SIGMA_HIGH,
+        omega=OMEGA,
+        rho=RHO_KG_M3,
+        epsilon_0=EPSILON_0,
     )
     q_cf = G * RHO_KG_M3 * cf["sar_w_per_kg"]
     sub = thA.mesh
@@ -277,11 +300,15 @@ def test_wf17_s33_block_reproduces_u131(monkeypatch):
     s2 = abs(ratio - 1.0)
     eA, eS = thA.max_balance_residual, thS.max_balance_residual
 
-    _say(f"WF17S33 (K) mismatches={mism}; once {once}; sub cells {n_sub} "
-         f"(MAT10_SUB_CELLS {MAT10_SUB_CELLS})")
+    _say(
+        f"WF17S33 (K) mismatches={mism}; once {once}; sub cells {n_sub} "
+        f"(MAT10_SUB_CELLS {MAT10_SUB_CELLS})"
+    )
     _say(f"WF17S33 (A_t) {err_A:.10e} [{err_A:.4e}] (band {A_BAND}; U131 {MAT12_A_T_PRINT})")
-    _say(f"WF17S33 (S2) ratio {ratio:.9f} |ratio - 1| {s2:.4e} (band {S2_BAND:.0e}; "
-         f"U131 {MAT12_S2_PRINT})")
+    _say(
+        f"WF17S33 (S2) ratio {ratio:.9f} |ratio - 1| {s2:.4e} (band {S2_BAND:.0e}; "
+        f"U131 {MAT12_S2_PRINT})"
+    )
     _say(f"WF17S33 (E) max balance A {eA:.3e} S {eS:.3e} (band {E_BAND:.0e})")
     _say(f"WF17S33 block exec {seconds:.1f} s")
 

@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import numpy as np
 import ufl
-from mpi4py import MPI
 from dolfinx import fem
+from mpi4py import MPI
 
 from fem_em_solver.core import (
     HomogeneousMaterial,
@@ -15,7 +15,6 @@ from fem_em_solver.core import (
 )
 from fem_em_solver.io.mesh import MeshGenerator
 from fem_em_solver.materials import GelledSalinePhantomMaterial
-
 from tests.complex_mode import complex_only
 
 # GEO-23 step 2c (2026-08-28): the global cell count step 2b only printed,
@@ -143,8 +142,12 @@ def test_phantom_material_assignment_and_time_harmonic_pipeline_wiring():
         phantom_tag=3,
     )
 
-    sigma_min, sigma_max, sigma_count = _global_bounds_for_tagged_cells(sigma_field, cell_tags, tag=3, comm=comm)
-    eps_min, eps_max, eps_count = _global_bounds_for_tagged_cells(epsilon_r_field, cell_tags, tag=3, comm=comm)
+    sigma_min, sigma_max, sigma_count = _global_bounds_for_tagged_cells(
+        sigma_field, cell_tags, tag=3, comm=comm
+    )
+    eps_min, eps_max, eps_count = _global_bounds_for_tagged_cells(
+        epsilon_r_field, cell_tags, tag=3, comm=comm
+    )
 
     assert sigma_count > 0 and eps_count > 0, "phantom tag must own at least one DG0 dof"
     assert np.isclose(sigma_min, phantom.sigma) and np.isclose(sigma_max, phantom.sigma)
@@ -176,8 +179,12 @@ def test_phantom_material_assignment_and_time_harmonic_pipeline_wiring():
     assert fields.sigma_field is not None
     assert fields.epsilon_r_field is not None
 
-    fs_min, fs_max, _ = _global_bounds_for_tagged_cells(fields.sigma_field, cell_tags, tag=3, comm=comm)
-    fe_min, fe_max, _ = _global_bounds_for_tagged_cells(fields.epsilon_r_field, cell_tags, tag=3, comm=comm)
+    fs_min, fs_max, _ = _global_bounds_for_tagged_cells(
+        fields.sigma_field, cell_tags, tag=3, comm=comm
+    )
+    fe_min, fe_max, _ = _global_bounds_for_tagged_cells(
+        fields.epsilon_r_field, cell_tags, tag=3, comm=comm
+    )
 
     assert np.isclose(fs_min, phantom.sigma) and np.isclose(fs_max, phantom.sigma)
     assert np.isclose(fe_min, phantom.epsilon_r) and np.isclose(fe_max, phantom.epsilon_r)
@@ -204,7 +211,6 @@ from fem_em_solver.core import build_mu_r_field  # noqa: E402
 from fem_em_solver.post.evaluation import evaluate_vector_field_parallel  # noqa: E402
 from fem_em_solver.post.sar import mean_sar, uniform_sphere_sar_closed_form  # noqa: E402
 from fem_em_solver.utils.constants import EPSILON_0  # noqa: E402
-
 from tests.validation.test_lossy_sphere_sar import (  # noqa: E402
     BOX_HALF_WIDTH,
     E0,
@@ -287,9 +293,7 @@ def _owned_count_equal(f: fem.Function, value: float, comm: MPI.Intracomm) -> in
 
 def _volume_operator(solver, sigma_f, epsilon_r_f, mu_r_f):
     """The curl-curl operator ``solve`` factors, assembled with no bcs."""
-    mat = assemble_matrix(
-        fem.form(solver.bilinear_form(sigma_f, epsilon_r_f, mu_r_field=mu_r_f))
-    )
+    mat = assemble_matrix(fem.form(solver.bilinear_form(sigma_f, epsilon_r_f, mu_r_field=mu_r_f)))
     mat.assemble()
     return mat
 
@@ -365,9 +369,7 @@ def _solve_case(msh, cell_tags, sigma, epsilon_r, *, phantom=None):
     comm = MPI.COMM_WORLD
     kwargs = {}
     if phantom is None:
-        kwargs["material_map"] = {
-            SPHERE_TAG: HomogeneousMaterial(sigma=sigma, epsilon_r=epsilon_r)
-        }
+        kwargs["material_map"] = {SPHERE_TAG: HomogeneousMaterial(sigma=sigma, epsilon_r=epsilon_r)}
     else:
         kwargs["phantom_material"] = phantom
         kwargs["phantom_tag"] = SPHERE_TAG
@@ -470,7 +472,9 @@ def test_gelled_saline_presets_match_lossy_sphere_closed_form():
     premise_sar = abs(via_phantom["mean_sar"] - via_map["mean_sar"]) / abs(via_map["mean_sar"])
     premise_ez = abs(via_phantom["ez_mean"] - via_map["ez_mean"]) / abs(via_map["ez_mean"])
     c_premise = _closed_case(SIGMA_HIGH, EPSILON_R_SPHERE)
-    premise_map_err = abs(via_map["mean_sar"] - c_premise["sar_w_per_kg"]) / c_premise["sar_w_per_kg"]
+    premise_map_err = (
+        abs(via_map["mean_sar"] - c_premise["sar_w_per_kg"]) / c_premise["sar_w_per_kg"]
+    )
 
     f_map = via_map["fields"]
     f_ph = via_phantom["fields"]
@@ -512,16 +516,18 @@ def test_gelled_saline_presets_match_lossy_sphere_closed_form():
             f"  (P1') owned dofs with sigma == {SIGMA_HIGH}: map {n_sigma_high_map}, "
             f"phantom {n_sigma_high_ph}; distinct field objects = {distinct_objects}"
         )
-        print(f"  (P2) same CSR pattern (per rank, LAND) = {p2_pattern}; ||A_map||_inf = {a_map_norm:.6e}")
+        print(
+            f"  (P2) same CSR pattern (per rank, LAND) = {p2_pattern}; ||A_map||_inf = {a_map_norm:.6e}"
+        )
 
     for key, (dmax, ndiff, nown) in p1.items():
-        assert dmax == 0.0 and ndiff == 0, (
-            f"(P1) phantom path writes a different {key}: max |delta| {dmax!r}, {ndiff} dofs differ"
-        )
+        assert (
+            dmax == 0.0 and ndiff == 0
+        ), f"(P1) phantom path writes a different {key}: max |delta| {dmax!r}, {ndiff} dofs differ"
         assert nown == n_global, f"(P1) {key}: owned dofs sum to {nown}, not the {n_global} cells"
-    assert n_sigma_high_map > 0 and n_sigma_high_ph == n_sigma_high_map, (
-        f"(P1') sigma == {SIGMA_HIGH} on {n_sigma_high_map} (map) / {n_sigma_high_ph} (phantom) owned dofs"
-    )
+    assert (
+        n_sigma_high_map > 0 and n_sigma_high_ph == n_sigma_high_map
+    ), f"(P1') sigma == {SIGMA_HIGH} on {n_sigma_high_map} (map) / {n_sigma_high_ph} (phantom) owned dofs"
     assert distinct_objects, "(P1') both paths returned the same sigma Function object"
     assert p2_pattern, "(P2) operators assembled from the two paths differ in nonzero pattern"
 
@@ -565,9 +571,9 @@ def test_gelled_saline_presets_match_lossy_sphere_closed_form():
             f"d mu_r = {c1_mu[0]!r} ({c1_mu[1]}) (predicted 0)"
         )
         print(f"  (c2) sigma * (1 + {SIGMA_REL_PERTURBATION:g}): same CSR pattern = {c2_pattern}")
-    assert c1_sigma[0] > 0.0 and c1_sigma[1] > 0, (
-        f"(c1) a 1-ULP sigma reads {c1_sigma[0]!r}: the array compare is blind"
-    )
+    assert (
+        c1_sigma[0] > 0.0 and c1_sigma[1] > 0
+    ), f"(c1) a 1-ULP sigma reads {c1_sigma[0]!r}: the array compare is blind"
     assert c2_pattern, "(c2) perturbed-sigma operator changed its nonzero pattern"
     c2_norm, c2_changed, c2_max = _difference(a_c2, a_map, comm)
     if comm.rank == 0:
@@ -596,9 +602,9 @@ def test_gelled_saline_presets_match_lossy_sphere_closed_form():
             f"  (P3) material_map vs closed {c_premise['sar_w_per_kg']:.6e}: {premise_map_err:.3%} "
             f"(predicted 3.536%, band {MAT4_BAND:.0%})"
         )
-    assert premise_map_err < MAT4_BAND, (
-        f"material_map premise run is {premise_map_err:.2%} off the closed form"
-    )
+    assert (
+        premise_map_err < MAT4_BAND
+    ), f"material_map premise run is {premise_map_err:.2%} off the closed form"
 
     # --- Presets through the phantom path.
     names = ("low", "mid", "high")

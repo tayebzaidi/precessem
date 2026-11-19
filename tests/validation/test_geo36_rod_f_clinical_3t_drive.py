@@ -82,8 +82,17 @@ def _modules():
     import tests.validation.test_geo38_f_clinical_esr_root as c4
     import tests.validation.test_wf7_f_human_b1_quadrature as wf7
 
-    return {"i35": i35, "i36": i36, "t3": t3, "c21": c21, "c20": c20, "s2": s2, "s1a": s1a,
-            "c4": c4, "wf7": wf7}
+    return {
+        "i35": i35,
+        "i36": i36,
+        "t3": t3,
+        "c21": c21,
+        "c20": c20,
+        "s2": s2,
+        "s1a": s1a,
+        "c4": c4,
+        "wf7": wf7,
+    }
 
 
 def _foreign_envs():
@@ -128,7 +137,9 @@ def _s11_degree():
         return None
     if raw == "2":
         return 2
-    raise ValueError(f"{S11_DRIVE_DEGREE_ENV}={raw!r}: only unset/empty (degree 1) or '2' are accepted")
+    raise ValueError(
+        f"{S11_DRIVE_DEGREE_ENV}={raw!r}: only unset/empty (degree 1) or '2' are accepted"
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -149,19 +160,28 @@ def _run_drive_3t(comm, monkeypatch, c_pf, *, degree=None):
     m = _modules()
     i36, t3, c4, wf7, i35 = m["i36"], m["t3"], m["c4"], m["wf7"], m["i35"]
     m["c21"]._c21_patches(monkeypatch)
-    _say(comm, f"3 T patch set (C21's): rung Ø {t3.RUNG_DIAMETER_3T_M} m, f {wf7.FREQUENCY_HZ:.6e} Hz "
-               f"(C4 {c4.FREQUENCY_HZ_C4:.6e}); records cells {i35.F_CLINICAL_ROD_CELL_RECORD}, U "
-               f"{i35.F_CLINICAL_ROD_UNKNOWNS_RECORD}; node {c_pf:.4f} pF, degree {deg}; patch 4 "
-               f"(box._box_readouts) is inert on this route (I36 never calls it)")
+    _say(
+        comm,
+        f"3 T patch set (C21's): rung Ø {t3.RUNG_DIAMETER_3T_M} m, f {wf7.FREQUENCY_HZ:.6e} Hz "
+        f"(C4 {c4.FREQUENCY_HZ_C4:.6e}); records cells {i35.F_CLINICAL_ROD_CELL_RECORD}, U "
+        f"{i35.F_CLINICAL_ROD_UNKNOWNS_RECORD}; node {c_pf:.4f} pF, degree {deg}; patch 4 "
+        f"(box._box_readouts) is inert on this route (I36 never calls it)",
+    )
     if deg == 2:
         inner = c4._build_c4_fixture
 
         def _fixture_with_deg(comm_):
             fx = inner(comm_)
             n2 = fx["counts"]["n_dofs"]
-            _say(comm_, f"(Deg) degree 2 global unknowns {n2} vs record "
-                        f"{i35.F_CLINICAL_ROD_UNKNOWNS_RECORD[1]} (EXACT, ASSERTED)")
-            assert n2 == i35.F_CLINICAL_ROD_UNKNOWNS_RECORD[1], (n2, i35.F_CLINICAL_ROD_UNKNOWNS_RECORD)
+            _say(
+                comm_,
+                f"(Deg) degree 2 global unknowns {n2} vs record "
+                f"{i35.F_CLINICAL_ROD_UNKNOWNS_RECORD[1]} (EXACT, ASSERTED)",
+            )
+            assert n2 == i35.F_CLINICAL_ROD_UNKNOWNS_RECORD[1], (
+                n2,
+                i35.F_CLINICAL_ROD_UNKNOWNS_RECORD,
+            )
             return fx
 
         monkeypatch.setattr(c4, "_build_c4_fixture", _fixture_with_deg)
@@ -172,10 +192,14 @@ def _run_drive_3t(comm, monkeypatch, c_pf, *, degree=None):
         with open(path) as fh:
             rec = json.load(fh)
     rec = comm.bcast(rec, root=0)
-    _say(comm, "3 T tip 1 g ratio Q: " + ", ".join(f"{n} {v:.6f}" for n, v in rec["q"].items())
-               + f"; eta_rod(T1) {rec['eta_t1']:.6f} — beside entry 48's 1.5 T Q "
-               f"{ENTRY48_Q_RANGE[0]}-{ENTRY48_Q_RANGE[1]} and eta_rod(T1) {ENTRY48_ETA_T1} (printed, "
-               f"never asserted)")
+    _say(
+        comm,
+        "3 T tip 1 g ratio Q: "
+        + ", ".join(f"{n} {v:.6f}" for n, v in rec["q"].items())
+        + f"; eta_rod(T1) {rec['eta_t1']:.6f} — beside entry 48's 1.5 T Q "
+        f"{ENTRY48_Q_RANGE[0]}-{ENTRY48_Q_RANGE[1]} and eta_rod(T1) {ENTRY48_ETA_T1} (printed, "
+        f"never asserted)",
+    )
     return rec
 
 
@@ -190,8 +214,10 @@ def test_geo36_c32_rod_drive_3t(monkeypatch):
 # ---------------------------------------------------------------------------
 # Coding tests (no gmsh); skip whenever S11_DRIVE_ENV is set.
 # ---------------------------------------------------------------------------
-_coding = pytest.mark.skipif(os.environ.get(S11_DRIVE_ENV, "").strip() != "",
-                             reason=f"{S11_DRIVE_ENV} set: coding tests skip in windows")
+_coding = pytest.mark.skipif(
+    os.environ.get(S11_DRIVE_ENV, "").strip() != "",
+    reason=f"{S11_DRIVE_ENV} set: coding tests skip in windows",
+)
 
 
 @_coding
@@ -230,10 +256,12 @@ def test_c32_k1_knob_parsing(monkeypatch):
     assert set(i36.FOREIGN_ENVS) <= set(foreign)
     assert i36.S8_DRIVE_DEGREE_ENV in foreign and i36.S8_DRIVE_ENV in foreign
     assert i36.S8_DRIVE_C_PF_ENV not in foreign
-    print(f"\n[GEO-36 C32 K1] mode unset/1 accepted, 2/build/x refused; node knob required under 1, "
-          f"read {K_NODE_3T_PF}; {len(foreign)} foreign variables refused by the guard (I36b's "
-          f"{len(i36.FOREIGN_ENVS)} + {FOREIGN_ENVS_C32_EXTRA}); degree knob '2' / '' refused by the "
-          f"foreign guard (ASSERTED)")
+    print(
+        f"\n[GEO-36 C32 K1] mode unset/1 accepted, 2/build/x refused; node knob required under 1, "
+        f"read {K_NODE_3T_PF}; {len(foreign)} foreign variables refused by the guard (I36b's "
+        f"{len(i36.FOREIGN_ENVS)} + {FOREIGN_ENVS_C32_EXTRA}); degree knob '2' / '' refused by the "
+        f"foreign guard (ASSERTED)"
+    )
 
 
 @_coding
@@ -294,22 +322,31 @@ def test_c32_k7_one_with_node_reaches_builder_with_3t_kwargs(monkeypatch):
     kw, kwn = got["kw"], got_neg["kw"]
     rung_d, rung_d_neg = 2.0 * kw["ring_radius"], 2.0 * kwn["ring_radius"]
     rod = kw.get("implant_rod")
-    print(f"\n[GEO-36 C32 K7] S11=1 node {K_NODE_3T_PF:.4f}: builder reached with rung Ø {rung_d:.12f} m "
-          f"(3 T {t3.RUNG_DIAMETER_3T_M}); rod {rod}; f wf7 {got['f_wf7']:.6e} / C4 {got['f_c4']:.6e} "
-          f"Hz; records cells {got['cells']}, U {got['unknowns']}; (Bore) corner {corner:.9f} m, gap "
-          f"{gap:.9f} m (> 0) (ASSERTED)")
-    print(f"[GEO-36 C32 K7] negative (I36b's _run_drive, no C21 patches): rung Ø {rung_d_neg:.12f} m, "
-          f"f wf7 {got_neg['f_wf7']:.6e} / C4 {got_neg['f_c4']:.6e} Hz, records cells {got_neg['cells']} "
-          f"(ASSERTED: 0.710 / 64 MHz / 1 217 025)", flush=True)
+    print(
+        f"\n[GEO-36 C32 K7] S11=1 node {K_NODE_3T_PF:.4f}: builder reached with rung Ø {rung_d:.12f} m "
+        f"(3 T {t3.RUNG_DIAMETER_3T_M}); rod {rod}; f wf7 {got['f_wf7']:.6e} / C4 {got['f_c4']:.6e} "
+        f"Hz; records cells {got['cells']}, U {got['unknowns']}; (Bore) corner {corner:.9f} m, gap "
+        f"{gap:.9f} m (> 0) (ASSERTED)"
+    )
+    print(
+        f"[GEO-36 C32 K7] negative (I36b's _run_drive, no C21 patches): rung Ø {rung_d_neg:.12f} m, "
+        f"f wf7 {got_neg['f_wf7']:.6e} / C4 {got_neg['f_c4']:.6e} Hz, records cells {got_neg['cells']} "
+        f"(ASSERTED: 0.710 / 64 MHz / 1 217 025)",
+        flush=True,
+    )
     # (K7-3T)
-    assert abs(rung_d / t3.RUNG_DIAMETER_3T_M - 1.0) <= 1e-15 and t3.RUNG_DIAMETER_3T_M == 0.704, rung_d
+    assert (
+        abs(rung_d / t3.RUNG_DIAMETER_3T_M - 1.0) <= 1e-15 and t3.RUNG_DIAMETER_3T_M == 0.704
+    ), rung_d
     assert rod is not None and rod == kw3["implant_rod"] and rod["keep_cells"] is True, rod
     assert got["f_wf7"] == t3.FREQUENCY_3T_HZ == 128e6 and got["f_c4"] == 128e6, got
     assert got["cells"] == c20.F_CLINICAL_3T_ROD_CELL_RECORD == 1_128_430
     assert got["unknowns"] == c20.F_CLINICAL_3T_ROD_UNKNOWNS_RECORD == (1_508_256, 7_783_028)
     assert gap > 0.0, (gap, corner)
     # Negative: categorical separation.
-    assert abs(rung_d_neg - 0.710) <= 1e-12 and kwn["ring_radius"] == kw15["ring_radius"], rung_d_neg
+    assert (
+        abs(rung_d_neg - 0.710) <= 1e-12 and kwn["ring_radius"] == kw15["ring_radius"]
+    ), rung_d_neg
     assert got_neg["f_wf7"] == 64.0e6 and got_neg["f_c4"] == 64.0e6, got_neg
     assert got_neg["cells"] == 1_217_025, got_neg["cells"]
     # Teardown restored the 1.5 T namespace.
@@ -353,11 +390,21 @@ def _k9_stubs_3t(m, fx, json_dir, *, p_src_r2=1.0):
         v = np.zeros(4, dtype=np.complex128)
         v[j] = 1.0
         cur = h17._parallel_currents(z_sym, loads, v)
-        return {"currents": dict(zip(order, cur)), "kind": "held" if held else "solve",
-                "t_solve": 0.0, "t_post": 0.0, "e": (e_half if arm_r else e_u).copy(),
-                "sigma": sigma_f, "p_src": p_src_r2 if arm_r and j == 1 else 1.0, "p_sheets": 0.5,
-                "p_phantom": 0.2, "p_rest": 0.2, "p_surf": 0.1, "p_rod": 0.0,
-                "p_sheet_by_id": {"P1": 0.1, "P2": 0.1, "P3": 0.15, "P4": 0.15}}
+        return {
+            "currents": dict(zip(order, cur)),
+            "kind": "held" if held else "solve",
+            "t_solve": 0.0,
+            "t_post": 0.0,
+            "e": (e_half if arm_r else e_u).copy(),
+            "sigma": sigma_f,
+            "p_src": p_src_r2 if arm_r and j == 1 else 1.0,
+            "p_sheets": 0.5,
+            "p_phantom": 0.2,
+            "p_rest": 0.2,
+            "p_surf": 0.1,
+            "p_rod": 0.0,
+            "p_sheet_by_id": {"P1": 0.1, "P2": 0.1, "P3": 0.15, "P4": 0.15},
+        }
 
     m.setattr(i36, "_drive_env", lambda _fixture, _comm: env)
     m.setattr(c4, "_esr_specs", lambda *_a: (specs, z_rc, z_th))
@@ -426,25 +473,37 @@ def test_c32_k9_run_drive_3t_end_to_end_on_stubs(monkeypatch, tmp_path):
     size_local = msh.topology.index_map(3).size_local
     owned = np.asarray(cell_tags.indices) < size_local
     tag_values = np.asarray(cell_tags.values)[owned]
-    census = {str(t): int(comm.allreduce(int(np.count_nonzero(tag_values == t)), op=MPI.SUM))
-              for t in (3, 403)}
-    a0m_clean = any(ln.startswith("(A0m)") and ln.rstrip().endswith("failures none (ASSERTED exact)")
-                    for ln in lines)
+    census = {
+        str(t): int(comm.allreduce(int(np.count_nonzero(tag_values == t)), op=MPI.SUM))
+        for t in (3, 403)
+    }
+    a0m_clean = any(
+        ln.startswith("(A0m)") and ln.rstrip().endswith("failures none (ASSERTED exact)")
+        for ln in lines
+    )
     heads = ("(P_RC)", "(A0m)", "tip 1 g ratio", "price:")
     missing_heads = [h for h in heads if not any(ln.startswith(h) for ln in lines)]
-    neg_rel = abs(rec_neg["R"]["parts"][1]["p_src"] - 0.5 - 0.4 - 0.1) / rec_neg["R"]["parts"][1]["p_src"]
+    neg_rel = (
+        abs(rec_neg["R"]["parts"][1]["p_src"] - 0.5 - 0.4 - 0.1) / rec_neg["R"]["parts"][1]["p_src"]
+    )
     if comm.rank == 0:
-        print(f"\n[GEO-36 C32 K9] f during the run wf7 / C4 {f_seen}; (K9-Q) misses from 4 {r_q} (band "
-              f"{EXACT_IDENTITY_RTOL:g}, ASSERTED); (K9-E) miss from 2 {r_e:.3e} (band "
-              f"{DISCRETE_IDENTITY_RTOL:g}, ASSERTED)")
-        print(f"[GEO-36 C32 K9] (K9-A) census_m {rec['census_m']} vs the mesh's {census}, (A0m) clean "
-              f"{a0m_clean} (ASSERTED); (K9-J) keys {sorted(rec)}, c_pf {rec['c_pf']!r}; s2 M vs R "
-              f"{r_mr:.3e}, vs the 128 MHz circuit route {r_route:.3e} (band {EXACT_IDENTITY_RTOL:g}, "
-              f"ASSERTED); vs the 64 MHz route {r_64:.3e} (> band, ASSERTED; C21 W0 read 2.515e-01)")
-        print(f"[GEO-36 C32 K9] (K9-L) missing {missing_heads or 'none'}; control: raised "
-              f"{str(neg.value).splitlines()[0]}; JSON still written, R parts[1] p_src "
-              f"{rec_neg['R']['parts'][1]['p_src']!r}, rel {neg_rel:.3e} (I36d 9.990e-04; ASSERTED)",
-              flush=True)
+        print(
+            f"\n[GEO-36 C32 K9] f during the run wf7 / C4 {f_seen}; (K9-Q) misses from 4 {r_q} (band "
+            f"{EXACT_IDENTITY_RTOL:g}, ASSERTED); (K9-E) miss from 2 {r_e:.3e} (band "
+            f"{DISCRETE_IDENTITY_RTOL:g}, ASSERTED)"
+        )
+        print(
+            f"[GEO-36 C32 K9] (K9-A) census_m {rec['census_m']} vs the mesh's {census}, (A0m) clean "
+            f"{a0m_clean} (ASSERTED); (K9-J) keys {sorted(rec)}, c_pf {rec['c_pf']!r}; s2 M vs R "
+            f"{r_mr:.3e}, vs the 128 MHz circuit route {r_route:.3e} (band {EXACT_IDENTITY_RTOL:g}, "
+            f"ASSERTED); vs the 64 MHz route {r_64:.3e} (> band, ASSERTED; C21 W0 read 2.515e-01)"
+        )
+        print(
+            f"[GEO-36 C32 K9] (K9-L) missing {missing_heads or 'none'}; control: raised "
+            f"{str(neg.value).splitlines()[0]}; JSON still written, R parts[1] p_src "
+            f"{rec_neg['R']['parts'][1]['p_src']!r}, rel {neg_rel:.3e} (I36d 9.990e-04; ASSERTED)",
+            flush=True,
+        )
     assert f_seen == (128e6, 128e6), f_seen
     assert ret["q"] == rec["q"] and ret["eta_t1"] == rec["eta_t1"]
     assert len(r_q) == len(fx[4]) and max(r_q.values()) <= EXACT_IDENTITY_RTOL, r_q
@@ -495,9 +554,12 @@ def test_c52_k1_s11_degree_parsing(monkeypatch):
                 _knobs()
             msgs[k] = str(exc.value)
     if MPI.COMM_WORLD.rank == 0:
-        print(f"\n[GEO-36 C52 K1-S11deg] {S11_DRIVE_DEGREE_ENV}: unset / '' / 2 accepted, 1 / x / 3 "
-              f"refused; S11=1 + degree 2 + node alone {alone}; C21 knobs refused: {msgs} — entry 66 "
-              f"is two pytest calls (ASSERTED)", flush=True)
+        print(
+            f"\n[GEO-36 C52 K1-S11deg] {S11_DRIVE_DEGREE_ENV}: unset / '' / 2 accepted, 1 / x / 3 "
+            f"refused; S11=1 + degree 2 + node alone {alone}; C21 knobs refused: {msgs} — entry 66 "
+            f"is two pytest calls (ASSERTED)",
+            flush=True,
+        )
     assert alone == (("1", K_NODE_3T_PF), 2), alone
     assert all(k in msg for k, msg in msgs.items()), msgs
     assert "FEM_EM_GEO38_C21_DEGREE" in FOREIGN_ENVS_C32_EXTRA
@@ -582,7 +644,10 @@ def test_c52_k9_3t_d2_run_drive_on_stubs(monkeypatch, tmp_path):
         with open(os.path.join(dirs["d2"], f"i36-node-{K_NODE_3T_PF:.4f}-d2.json")) as fh:
             rec = json.load(fh)
         d1_exists = os.path.exists(os.path.join(dirs["d2"], f"i36-node-{K_NODE_3T_PF:.4f}.json"))
-        files = {k: (sorted(os.listdir(dirs[k])) if os.path.isdir(dirs[k]) else []) for k in ("d2c", "ndeg")}
+        files = {
+            k: (sorted(os.listdir(dirs[k])) if os.path.isdir(dirs[k]) else [])
+            for k in ("d2c", "ndeg")
+        }
     rec, d1_exists, files = comm.bcast((rec, d1_exists, files), root=0)
     r_q = {n: abs(v / 4.0 - 1.0) for n, v in rec["q"].items()}
     r_e = abs(rec["eta_t1"] / 2.0 - 1.0)
@@ -594,16 +659,25 @@ def test_c52_k9_3t_d2_run_drive_on_stubs(monkeypatch, tmp_path):
     deg_lines = [ln for ln in say_lines if ln.startswith("(Deg) degree 2")]
     n_deg = int(deg_lines[0].split("unknowns ")[1].split()[0]) if deg_lines else None
     if comm.rank == 0:
-        print(f"\n[GEO-36 C52 K9-3T-d2] C4 variable at the fixture call {env_seen}, after {env_after!r}; "
-              f"solver degrees {degrees} (arm R's); JSON -d2 degree {rec['degree']!r}, degree-1 name "
-              f"written {d1_exists}; {deg_lines[0] if deg_lines else '(Deg) MISSING'} (ASSERTED)")
-        print(f"[GEO-36 C52 K9-3T-d2] (K9-Q) misses from 4 {r_q}; (K9-E) miss from 2 {r_e:.3e}; s2 M vs R "
-              f"{r_mr:.3e}, vs the 128 MHz circuit route {r_route:.3e} (ASSERTED)")
-        print(f"[GEO-36 C52 d2-c-3T] degree 1 under degree=2 raised {excs['d2c'][0].splitlines()[0]}; "
-              f"drives {drives['d2c']}, solvers {excs['d2c'][1]}, files {files['d2c']} (ASSERTED)")
-        print(f"[GEO-36 C52 N-Deg] n_dofs 8327394 under degree 2 raised "
-              f"{excs['ndeg'][0].splitlines()[0]}; drives {drives['ndeg']}, files {files['ndeg']} "
-              f"(ASSERTED)", flush=True)
+        print(
+            f"\n[GEO-36 C52 K9-3T-d2] C4 variable at the fixture call {env_seen}, after {env_after!r}; "
+            f"solver degrees {degrees} (arm R's); JSON -d2 degree {rec['degree']!r}, degree-1 name "
+            f"written {d1_exists}; {deg_lines[0] if deg_lines else '(Deg) MISSING'} (ASSERTED)"
+        )
+        print(
+            f"[GEO-36 C52 K9-3T-d2] (K9-Q) misses from 4 {r_q}; (K9-E) miss from 2 {r_e:.3e}; s2 M vs R "
+            f"{r_mr:.3e}, vs the 128 MHz circuit route {r_route:.3e} (ASSERTED)"
+        )
+        print(
+            f"[GEO-36 C52 d2-c-3T] degree 1 under degree=2 raised {excs['d2c'][0].splitlines()[0]}; "
+            f"drives {drives['d2c']}, solvers {excs['d2c'][1]}, files {files['d2c']} (ASSERTED)"
+        )
+        print(
+            f"[GEO-36 C52 N-Deg] n_dofs 8327394 under degree 2 raised "
+            f"{excs['ndeg'][0].splitlines()[0]}; drives {drives['ndeg']}, files {files['ndeg']} "
+            f"(ASSERTED)",
+            flush=True,
+        )
     assert env_seen == ["2"] and env_after is None, (env_seen, env_after)
     assert degrees == [2], degrees
     assert rec["degree"] == 2 and not d1_exists, (rec["degree"], d1_exists)
@@ -613,6 +687,10 @@ def test_c52_k9_3t_d2_run_drive_on_stubs(monkeypatch, tmp_path):
     assert r_mr <= EXACT_IDENTITY_RTOL and r_route <= EXACT_IDENTITY_RTOL, (r_mr, r_route)
     assert len(deg_lines) == 1 and n_deg == 7_783_028, deg_lines
     assert "(1, 2)" in excs["d2c"][0], excs["d2c"][0]
-    assert drives["d2c"] == [] and excs["d2c"][1] == [] and files["d2c"] == [], (drives, excs, files)
+    assert drives["d2c"] == [] and excs["d2c"][1] == [] and files["d2c"] == [], (
+        drives,
+        excs,
+        files,
+    )
     assert "8327394" in excs["ndeg"][0] and "7783028" in excs["ndeg"][0], excs["ndeg"][0]
     assert drives["ndeg"] == [] and files["ndeg"] == [], (drives, files)

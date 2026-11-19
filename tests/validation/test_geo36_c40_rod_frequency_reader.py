@@ -117,11 +117,22 @@ def find_log(glob, dirs=None):
 _RX_NODE = re.compile(r"\[GEO-36 I36a\].*?\(Z\) node ([0-9.]+) pF")
 _RX_WROTE = re.compile(r"\[GEO-36 I36a\] wrote (\S+)")
 _C = r"([^,;\s]+)"
-_RX_ARM = re.compile(r"\[GEO-36 I36a\] arm (M|R) \(([^)]*)\): kinds .*?; S2 "
-                     + _C + ", " + _C + "; " + _C + ", " + _C + ";")
-_RX_YIN = re.compile(r"\[GEO-36 I36a\]\s+Y_in \(1,\+1j\): (P\d+) (\S+) (\S+)j S, "
-                     r"(P\d+) (\S+) (\S+)j S .*?P_vol (\S+) W, gel ([^,\s]+), "
-                     r"rod (\S+) \(rod share (\S+), printed\)")
+_RX_ARM = re.compile(
+    r"\[GEO-36 I36a\] arm (M|R) \(([^)]*)\): kinds .*?; S2 "
+    + _C
+    + ", "
+    + _C
+    + "; "
+    + _C
+    + ", "
+    + _C
+    + ";"
+)
+_RX_YIN = re.compile(
+    r"\[GEO-36 I36a\]\s+Y_in \(1,\+1j\): (P\d+) (\S+) (\S+)j S, "
+    r"(P\d+) (\S+) (\S+)j S .*?P_vol (\S+) W, gel ([^,\s]+), "
+    r"rod (\S+) \(rod share (\S+), printed\)"
+)
 _RX_TIP = re.compile(r"\[GEO-36 I36a\] tip 1 g ratio Q = .*?degree (\d):")
 _RX_BALL = re.compile(r"(\w+) ([0-9.]+) \(M (\S+), R (\S+) W/kg, mass (\S+) kg\)")
 _RX_ETA = re.compile(r"eta_rod\(T1 = \((.*?)\)\) = \|E_M\|/\|E_R\| (\S+) \(valid (True|False)")
@@ -137,8 +148,10 @@ def parse_i36_log(path, at_line=None) -> dict:
     nodes = [i for i, ln in enumerate(lines, start=1) if _RX_NODE.search(ln)]
     if at_line is None:
         if len(nodes) != 1:
-            raise ValueError(f"{name}: {len(nodes)} I36a blocks (lines {nodes[:6]}); "
-                             f"a window log holds exactly one")
+            raise ValueError(
+                f"{name}: {len(nodes)} I36a blocks (lines {nodes[:6]}); "
+                f"a window log holds exactly one"
+            )
         start = nodes[0]
     else:
         if at_line not in nodes:
@@ -154,10 +167,12 @@ def parse_i36_log(path, at_line=None) -> dict:
     nxt = [n for n in nodes if start < n < end]
     if nxt:
         raise ValueError(f"{name}: block at :{start} holds another node line at :{nxt[0]}")
-    out = {"log": name, "node": {"c_pf": _RX_NODE.search(lines[start - 1]).group(1),
-                                 "line": start},
-           "wrote": {"path": _RX_WROTE.search(lines[end - 1]).group(1), "line": end},
-           "arms": {}}
+    out = {
+        "log": name,
+        "node": {"c_pf": _RX_NODE.search(lines[start - 1]).group(1), "line": start},
+        "wrote": {"path": _RX_WROTE.search(lines[end - 1]).group(1), "line": end},
+        "arms": {},
+    }
     cur = None
     tip = None
     for i in range(start, end + 1):
@@ -167,9 +182,11 @@ def parse_i36_log(path, at_line=None) -> dict:
             arm = m.group(1)
             if arm in out["arms"]:
                 raise ValueError(f"{name}: arm {arm} repeated at :{i}")
-            out["arms"][arm] = {"label": m.group(2), "line": i,
-                                "s2": {"s11": m.group(3), "s12": m.group(4),
-                                       "s21": m.group(5), "s22": m.group(6)}}
+            out["arms"][arm] = {
+                "label": m.group(2),
+                "line": i,
+                "s2": {"s11": m.group(3), "s12": m.group(4), "s21": m.group(5), "s22": m.group(6)},
+            }
             cur = arm
             continue
         m = _RX_YIN.search(ln)
@@ -177,8 +194,11 @@ def parse_i36_log(path, at_line=None) -> dict:
             if cur is None or "y_in" in out["arms"][cur]:
                 raise ValueError(f"{name}: Y_in line at :{i} without its arm header")
             out["arms"][cur]["y_in"] = {
-                "line": i, "feeds": (m.group(1), m.group(4)),
-                m.group(1): (m.group(2), m.group(3)), m.group(4): (m.group(5), m.group(6))}
+                "line": i,
+                "feeds": (m.group(1), m.group(4)),
+                m.group(1): (m.group(2), m.group(3)),
+                m.group(4): (m.group(5), m.group(6)),
+            }
             out["arms"][cur]["p_vol"] = m.group(7)
             out["arms"][cur]["gel"] = m.group(8)
             out["arms"][cur]["rod"] = m.group(9)
@@ -189,18 +209,28 @@ def parse_i36_log(path, at_line=None) -> dict:
             if tip is not None:
                 raise ValueError(f"{name}: tip line repeated at :{i}")
             seg_end = ln.find("eta_rod(")
-            seg = ln[m.end(): seg_end if seg_end >= 0 else len(ln)]
+            seg = ln[m.end() : seg_end if seg_end >= 0 else len(ln)]
             balls = {}
             for b in _RX_BALL.finditer(seg):
                 if b.group(1) in balls:
                     raise ValueError(f"{name}: ball {b.group(1)} repeated at :{i}")
-                balls[b.group(1)] = {"q": b.group(2), "sar_m": b.group(3),
-                                     "sar_r": b.group(4), "mass": b.group(5)}
+                balls[b.group(1)] = {
+                    "q": b.group(2),
+                    "sar_m": b.group(3),
+                    "sar_r": b.group(4),
+                    "mass": b.group(5),
+                }
             e = _RX_ETA.search(ln)
             if not balls or e is None:
                 raise ValueError(f"{name}: tip line at :{i} without balls or eta")
-            tip = {"line": i, "degree": m.group(1), "balls": balls,
-                   "t1": e.group(1), "eta": e.group(2), "eta_valid": e.group(3)}
+            tip = {
+                "line": i,
+                "degree": m.group(1),
+                "balls": balls,
+                "t1": e.group(1),
+                "eta": e.group(2),
+                "eta_valid": e.group(3),
+            }
     for arm in ("M", "R"):
         if arm not in out["arms"] or "y_in" not in out["arms"][arm]:
             raise ValueError(f"{name}: block at :{start} lacks arm {arm} or its Y_in line")
@@ -227,22 +257,47 @@ def check_side(block, node_pf, name):
     def rel_check(tag, val, tok, inputs):
         bound = _half_ulp_rel(tok) + sum(_half_ulp_rel(t) for t in inputs)
         err = abs(val - float(tok)) / abs(float(tok))
-        res.append((f"{name} {tag}", err <= bound,
-                    f"{val:.6e} vs printed {tok}: rel {err:.3e} (<= {bound:.3e})"))
+        res.append(
+            (
+                f"{name} {tag}",
+                err <= bound,
+                f"{val:.6e} vs printed {tok}: rel {err:.3e} (<= {bound:.3e})",
+            )
+        )
 
     for ball, b in block["tip"]["balls"].items():
-        rel_check(f"(D-Q) {ball}", float(b["sar_m"]) / float(b["sar_r"]), b["q"],
-                  (b["sar_m"], b["sar_r"]))
+        rel_check(
+            f"(D-Q) {ball}", float(b["sar_m"]) / float(b["sar_r"]), b["q"], (b["sar_m"], b["sar_r"])
+        )
     for arm in ("M", "R"):
         a = block["arms"][arm]
-        rel_check(f"(D-share) arm {arm}", float(a["rod"]) / float(a["p_vol"]), a["share"],
-                  (a["rod"], a["p_vol"]))
-    res.append((f"{name} (Node) node token == {node_pf}", block["node"]["c_pf"] == node_pf,
-                f"log node {block['node']['c_pf']} vs {node_pf}"))
-    res.append((f"{name} (Deg) degree 1", block["tip"]["degree"] == "1",
-                f"degree {block['tip']['degree']}"))
-    res.append((f"{name} (eta-valid) eta valid True", block["tip"]["eta_valid"] == "True",
-                f"valid {block['tip']['eta_valid']}"))
+        rel_check(
+            f"(D-share) arm {arm}",
+            float(a["rod"]) / float(a["p_vol"]),
+            a["share"],
+            (a["rod"], a["p_vol"]),
+        )
+    res.append(
+        (
+            f"{name} (Node) node token == {node_pf}",
+            block["node"]["c_pf"] == node_pf,
+            f"log node {block['node']['c_pf']} vs {node_pf}",
+        )
+    )
+    res.append(
+        (
+            f"{name} (Deg) degree 1",
+            block["tip"]["degree"] == "1",
+            f"degree {block['tip']['degree']}",
+        )
+    )
+    res.append(
+        (
+            f"{name} (eta-valid) eta valid True",
+            block["tip"]["eta_valid"] == "True",
+            f"valid {block['tip']['eta_valid']}",
+        )
+    )
     return res
 
 
@@ -271,29 +326,40 @@ def ratios(s15, s3):
 def print_table(s15, s3=None):
     pend = "pending (xl entry 61)"
     r = ratios(s15, s3) if s3 is not None else None
-    print(f"{TAG} C40 table: 1.5 T ({s15['log']}, node {s15['node']['c_pf']} pF) | "
-          f"3 T ({s3['log'] + ', node ' + s3['node']['c_pf'] + ' pF' if s3 else pend}) "
-          f"| ratio 3T/1.5T")
+    print(
+        f"{TAG} C40 table: 1.5 T ({s15['log']}, node {s15['node']['c_pf']} pF) | "
+        f"3 T ({s3['log'] + ', node ' + s3['node']['c_pf'] + ' pF' if s3 else pend}) "
+        f"| ratio 3T/1.5T"
+    )
+
     def rr(key):
         return format(r[key], ".6e") if r else pend
 
     for ball, b in s15["tip"]["balls"].items():
         q3 = s3["tip"]["balls"][ball]["q"] if s3 else pend
         print(f"{TAG}   tip 1 g Q {ball}: {b['q']} | {q3} | {rr('q.' + ball)}")
-    print(f"{TAG}   eta_rod(T1): {s15['tip']['eta']} | {s3['tip']['eta'] if s3 else pend} | "
-          f"{rr('eta_t1')}")
-    print(f"{TAG}   rod share arm M (rod): {s15['arms']['M']['share']} | "
-          f"{s3['arms']['M']['share'] if s3 else pend} | {rr('share.M')}")
-    print(f"{TAG}   rod share arm R (gel twin, numerical floor): {s15['arms']['R']['share']} | "
-          f"{s3['arms']['R']['share'] if s3 else pend} (printed beside, never a ratio)")
+    print(
+        f"{TAG}   eta_rod(T1): {s15['tip']['eta']} | {s3['tip']['eta'] if s3 else pend} | "
+        f"{rr('eta_t1')}"
+    )
+    print(
+        f"{TAG}   rod share arm M (rod): {s15['arms']['M']['share']} | "
+        f"{s3['arms']['M']['share'] if s3 else pend} | {rr('share.M')}"
+    )
+    print(
+        f"{TAG}   rod share arm R (gel twin, numerical floor): {s15['arms']['R']['share']} | "
+        f"{s3['arms']['R']['share'] if s3 else pend} (printed beside, never a ratio)"
+    )
     for arm in ("M", "R"):
         f15 = s15["arms"][arm]["y_in"]["feeds"]
         f3 = s3["arms"][arm]["y_in"]["feeds"] if s3 else (None, None)
         for i in range(2):
             v15 = s15["arms"][arm]["y_in"][f15[i]][1]
             v3 = s3["arms"][arm]["y_in"][f3[i]][1] if s3 else pend
-            print(f"{TAG}   Im Y_in (1,+1j) arm {arm} feed {i + 1} ({f15[i]} | "
-                  f"{f3[i] if s3 else '-'}) [S]: {v15} | {v3} (side by side, never a ratio)")
+            print(
+                f"{TAG}   Im Y_in (1,+1j) arm {arm} feed {i + 1} ({f15[i]} | "
+                f"{f3[i] if s3 else '-'}) [S]: {v15} | {v3} (side by side, never a ratio)"
+            )
     return r
 
 
@@ -321,8 +387,13 @@ def custody_json(block, path):
         a, ja = block["arms"][arm], j[arm]
         for ip, feed in enumerate(a["y_in"]["feeds"]):
             for ipart in range(2):
-                pairs.append((f"{arm}.y_in.{feed}.{('re', 'im')[ipart]}",
-                              fs(ja["y_in"][ip][ipart]), a["y_in"][feed][ipart]))
+                pairs.append(
+                    (
+                        f"{arm}.y_in.{feed}.{('re', 'im')[ipart]}",
+                        fs(ja["y_in"][ip][ipart]),
+                        a["y_in"][feed][ipart],
+                    )
+                )
         ps = ja["p_sup"]
         pairs.append((f"{arm}.share (rod / total)", f6e(ps["rod"] / ps["total"]), a["share"]))
         pairs.append((f"{arm}.p_sup.total", f9(ps["total"]), a["p_vol"]))
@@ -333,8 +404,10 @@ def custody_json(block, path):
     pairs.append(("feeds", repr(list(j["feeds"])), repr(list(block["arms"]["M"]["y_in"]["feeds"]))))
     pairs.append(("degree", str(j["degree"]), tip["degree"]))
     bad = [(n, a, b) for n, a, b in pairs if a != b]
-    print(f"{TAG} (J) host JSON {Path(path).name}: {len(pairs)} fields, "
-          f"{len(bad)} mismatches{'; first ' + repr(bad[0]) if bad else ''}")
+    print(
+        f"{TAG} (J) host JSON {Path(path).name}: {len(pairs)} fields, "
+        f"{len(bad)} mismatches{'; first ' + repr(bad[0]) if bad else ''}"
+    )
     return (True, len(pairs), bad)
 
 
@@ -353,23 +426,26 @@ def _parse(path, at_line=None):
 
 def _k_c32(b48):
     """(K-C32): C32's print-only constants against the parsed entry 48 block."""
-    from tests.validation.test_geo36_rod_f_clinical_3t_drive import (
-        ENTRY48_ETA_T1, ENTRY48_Q_RANGE)
+    from tests.validation.test_geo36_rod_f_clinical_3t_drive import ENTRY48_ETA_T1, ENTRY48_Q_RANGE
 
     qs = [float(b["q"]) for b in b48["tip"]["balls"].values()]
     got = (f"{min(qs):.6f}", f"{max(qs):.6f}", f"{float(b48['tip']['eta']):.3f}")
     want = (f"{ENTRY48_Q_RANGE[0]:.6f}", f"{ENTRY48_Q_RANGE[1]:.6f}", f"{ENTRY48_ETA_T1:.3f}")
-    print(f"{TAG} (K-C32) parsed min / max Q, eta {got} vs C32's ENTRY48_Q_RANGE / "
-          f"ENTRY48_ETA_T1 {want}: {'PASS' if got == want else 'FAIL'}")
+    print(
+        f"{TAG} (K-C32) parsed min / max Q, eta {got} vs C32's ENTRY48_Q_RANGE / "
+        f"ENTRY48_ETA_T1 {want}: {'PASS' if got == want else 'FAIL'}"
+    )
     return got, want
 
 
 def _read_entry48():
     b48 = _parse(ENTRY48_LOG)
-    print(f"{TAG} (X48) parsed {b48['log']}: node {b48['node']['c_pf']} pF (line "
-          f":{b48['node']['line']}), block to :{b48['wrote']['line']}; balls "
-          f"{list(b48['tip']['balls'])}, degree {b48['tip']['degree']}, eta valid "
-          f"{b48['tip']['eta_valid']}; feeds {b48['arms']['M']['y_in']['feeds']}")
+    print(
+        f"{TAG} (X48) parsed {b48['log']}: node {b48['node']['c_pf']} pF (line "
+        f":{b48['node']['line']}), block to :{b48['wrote']['line']}; balls "
+        f"{list(b48['tip']['balls'])}, degree {b48['tip']['degree']}, eta valid "
+        f"{b48['tip']['eta_valid']}; feeds {b48['arms']['M']['y_in']['feeds']}"
+    )
     assert b48["node"]["c_pf"] == ENTRY48_NODE_PF, b48["node"]
     assert tuple(b48["tip"]["balls"]) == ENTRY48_BALLS, list(b48["tip"]["balls"])
     assert b48["tip"]["degree"] == "1" and b48["tip"]["eta_valid"] == "True"
@@ -397,9 +473,13 @@ def _c40_body(mode):
         b61 = _parse(path61)
         require_side(b61, ENTRY61_NODE_PF, "3 T (entry 61)")
     r = print_table(b48, b61)
-    out = {"entry48": b48, "entry61": b61,
-           "ratios": {k: f"{v:.6e}" for k, v in r.items()} if r else None}
+    out = {
+        "entry48": b48,
+        "entry61": b61,
+        "ratios": {k: f"{v:.6e}" for k, v in r.items()} if r else None,
+    }
     if mode == "both":
+
         def _write():
             HOST_JSON_DIR.mkdir(parents=True, exist_ok=True)
             p = HOST_JSON_DIR / C40_JSON_NAME
@@ -425,7 +505,7 @@ def _renamed_copy(tmp_dir, node_to=ENTRY61_NODE_PF, q_digit=False, drop_tip=Fals
     if q_digit:
         tok = b48["tip"]["balls"]["top"]["q"]
         i = tok.index(".") + 4  # the 4th decimal: 4.460568 -> 4.460668
-        new = tok[:i] + str((int(tok[i]) + 1) % 10) + tok[i + 1:]
+        new = tok[:i] + str((int(tok[i]) + 1) % 10) + tok[i + 1 :]
         assert f"top {tok} (M " in lines[i_tip]
         lines[i_tip] = lines[i_tip].replace(f"top {tok} (M ", f"top {new} (M ", 1)
     if drop_tip:
@@ -450,9 +530,11 @@ def test_c45_x48_d48_k_c32():
 def test_c45_stub61():
     """(Stub61): C32's stub block at :81 (the 3 T body under C21's patches) parses."""
     b = _parse(C32_STUB_LOG, C32_STUB_LINE)
-    print(f"{TAG} (Stub61) {b['log']}:{b['node']['line']}: node {b['node']['c_pf']}, balls "
-          f"{ {k: v['q'] for k, v in b['tip']['balls'].items()} }, eta {b['tip']['eta']}, "
-          f"share M {b['arms']['M']['share']}, feeds {b['arms']['M']['y_in']['feeds']}")
+    print(
+        f"{TAG} (Stub61) {b['log']}:{b['node']['line']}: node {b['node']['c_pf']}, balls "
+        f"{ {k: v['q'] for k, v in b['tip']['balls'].items()} }, eta {b['tip']['eta']}, "
+        f"share M {b['arms']['M']['share']}, feeds {b['arms']['M']['y_in']['feeds']}"
+    )
     assert list(b["tip"]["balls"]) == ["a", "b"]
     for v in b["tip"]["balls"].values():
         assert v["q"] == "4.000000"
@@ -549,6 +631,7 @@ def test_c45_n_two(tmp_path):
 def _empty_log_roots(monkeypatch, tmp_path):
     """Point ``find_log``'s default roots at two empty tmp dirs (rank 0 makes them,
     bcast), so a premise test reads entry 61 absent by construction (§9 item 918)."""
+
     def _make():
         t, h = Path(tmp_path) / "tracked-empty", Path(tmp_path) / "held-empty"
         t.mkdir(parents=True, exist_ok=True)
@@ -594,12 +677,16 @@ def test_geo36_c40_reader():
     mode = _c40_mode()
     if mode is None:
         pytest.skip(f"{C40_ENV} unset")
-    before = _on_root(lambda: sorted(p.name for p in HOST_JSON_DIR.glob("*"))
-                      if HOST_JSON_DIR.is_dir() else [])
+    before = _on_root(
+        lambda: sorted(p.name for p in HOST_JSON_DIR.glob("*")) if HOST_JSON_DIR.is_dir() else []
+    )
     out = _c40_body(mode)
     if mode == "1":
-        after = _on_root(lambda: sorted(p.name for p in HOST_JSON_DIR.glob("*"))
-                         if HOST_JSON_DIR.is_dir() else [])
+        after = _on_root(
+            lambda: (
+                sorted(p.name for p in HOST_JSON_DIR.glob("*")) if HOST_JSON_DIR.is_dir() else []
+            )
+        )
         assert after == before, "wrote under logs/geo36 at knob 1"
         assert out["entry61"] is None or out["ratios"] is not None
         print(f"{TAG} knob 1: nothing written under logs/geo36")

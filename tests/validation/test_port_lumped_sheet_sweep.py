@@ -51,7 +51,6 @@ from fem_em_solver.core import HomogeneousMaterial, TimeHarmonicProblem
 from fem_em_solver.ports.definitions import PortDefinition
 from fem_em_solver.ports.lumped import LumpedSheetPortSpec
 from fem_em_solver.ports.sparameters import run_n_port_sparameter_sweep
-
 from tests.complex_mode import complex_only
 from tests.mesh.test_two_torus_port_facets import _facet_group_area
 from tests.mesh.test_two_torus_port_sheet import (
@@ -66,11 +65,6 @@ from tests.validation.test_port_gap_voltage_impedance import (
     WIRE_TAGS,
     _gap_half_extents,
 )
-from tests.validation.test_port_package_sparameters import (
-    PATH_QUADRATURE_ORDER,
-    REFERENCE_IMPEDANCE_OHM,
-    _arc_quadrature,
-)
 from tests.validation.test_port_lumped_narrowed_sheet import (
     GATED_WIDTH_FRACTION,
     _narrowed_sheet_tags,
@@ -80,6 +74,11 @@ from tests.validation.test_port_lumped_two_torus import (
     PROBE_PORT_IMPEDANCE_OHM,
     _build,
 )
+from tests.validation.test_port_package_sparameters import (
+    PATH_QUADRATURE_ORDER,
+    REFERENCE_IMPEDANCE_OHM,
+    _arc_quadrature,
+)
 
 # Step 2's band for ``‖S − Sᵀ‖/‖S‖``, pre-stated at scoping and unmoved; the
 # same number `PORT-1` step 4 gated the gap-voltage sweep at.
@@ -88,7 +87,7 @@ RECIPROCITY_BAND = 1.0e-3
 # Re-recorded (1*) 2026-09-02, `OPS-31`, from the `ports:3` anchor log
 # `20260902T093147Z_OPS-31.log:2245` on image tag v0.11.0 (dolfinx 0.11.0.post0,
 # gmsh 4.15.2), matching the same-run STEP1_CROSS_ROUTE_RECORD re-record.
-STEP2B_CROSS_ROUTE_AT_HALF_WIDTH = 0.019222      # (v0.7.2 read 0.018333)
+STEP2B_CROSS_ROUTE_AT_HALF_WIDTH = 0.019222  # (v0.7.2 read 0.018333)
 # The impressed terminal voltage of the driven sheet. Arbitrary — Z is a ratio
 # — but recorded, because every printed V and I below scales with it.
 DRIVE_VOLTAGE_V = 1.0 + 0.0j
@@ -310,9 +309,7 @@ def test_the_cross_route_reading_holds_inside_the_sweep(sheet_sweep):
         for port_id, est in sorted(response.responses.items()):
             if est.is_driven:
                 continue
-            deviation = abs(est.voltage_v - est.path_voltage_v) / abs(
-                est.path_voltage_v
-            )
+            deviation = abs(est.voltage_v - est.path_voltage_v) / abs(est.path_voltage_v)
             rows.append((driven_id, port_id, est, float(deviation)))
 
     if MPI.COMM_WORLD.rank == 0:

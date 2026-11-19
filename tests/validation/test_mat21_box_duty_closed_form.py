@@ -41,8 +41,8 @@ from tests.validation.test_mat21_box_closed_form import (
     SERIES_TERMS,
     T_C,
     T_INF,
-    Q,
     K,
+    Q,
     _axis_data,
     _say,
     _theta_ss0,
@@ -65,7 +65,8 @@ SAMPLES_PER_HALF = 64
 def _theta_step(x, y, z, t):
     """Step 0's series from rest, ``t_inf = 0`` (step 1's ``_trans_ex`` form)."""
     return robin_box_transient_temperature(
-        x, y, z, t, half_widths=HALF, rho_c=RHO_C, t_inf=0.0, n_terms=SERIES_TERMS, **KW)
+        x, y, z, t, half_widths=HALF, rho_c=RHO_C, t_inf=0.0, n_terms=SERIES_TERMS, **KW
+    )
 
 
 def _duty_cf(x, y, z, t, drop=()):
@@ -148,10 +149,14 @@ def test_c1_duhamel_with_chi():
             a = float(_duty_cf(*p, t))
             b = float(_duhamel_duty(*p, t))
             worst = max(worst, abs(a - b) / th0)
-            _say(f"MAT21-2 (C1) t = {t:.4f} s {p}: ten-run sum {a:.12f}  Duhamel(chi) {b:.12f}  "
-                 f"|d|/theta_ss(0) {abs(a - b) / th0:.3e}")
-    _say(f"MAT21-2 (C1) max |sum - Duhamel|/theta_ss(0) = {worst:.3e} (bar {R_BAR:.0e}, "
-         f"predicted <= 1e-13)")
+            _say(
+                f"MAT21-2 (C1) t = {t:.4f} s {p}: ten-run sum {a:.12f}  Duhamel(chi) {b:.12f}  "
+                f"|d|/theta_ss(0) {abs(a - b) / th0:.3e}"
+            )
+    _say(
+        f"MAT21-2 (C1) max |sum - Duhamel|/theta_ss(0) = {worst:.3e} (bar {R_BAR:.0e}, "
+        f"predicted <= 1e-13)"
+    )
     assert worst <= R_BAR
 
 
@@ -163,10 +168,14 @@ def test_c2_mean_route():
         a = _box_mean_step(t)
         b = _box_mean_duhamel(t)
         worst = max(worst, abs(a - b) / th0)
-        _say(f"MAT21-2 (C2) Fo {fo}: mean series {a:.12f}  Duhamel {b:.12f}  "
-             f"|d|/theta_ss(0) {abs(a - b) / th0:.3e}")
-    _say(f"MAT21-2 (C2) max |mean - Duhamel|/theta_ss(0) = {worst:.3e} (bar {R_BAR:.0e}, "
-         f"predicted <= 1e-13)")
+        _say(
+            f"MAT21-2 (C2) Fo {fo}: mean series {a:.12f}  Duhamel {b:.12f}  "
+            f"|d|/theta_ss(0) {abs(a - b) / th0:.3e}"
+        )
+    _say(
+        f"MAT21-2 (C2) max |mean - Duhamel|/theta_ss(0) = {worst:.3e} (bar {R_BAR:.0e}, "
+        f"predicted <= 1e-13)"
+    )
     assert worst <= R_BAR
 
 
@@ -177,10 +186,12 @@ def test_control_c1_m9_dropped_misses():
         a = float(_duty_cf(*p, T_STAR, drop=(9,)))
         b = float(_duhamel_duty(*p, T_STAR))
         misses.append(abs(a - b) / th0)
-    _say(f"MAT21-2 control (C1-ctl) m = 9 dropped at t*: miss/theta_ss(0) per point "
-         + " / ".join(f"{v:.4e}" for v in misses)
-         + f" (predicted ≈ 1.12e-2 at the centre, smaller at (0.9A, 0.8B, 0.8C); "
-         f"asserted > {R_BAR:.0e})")
+    _say(
+        "MAT21-2 control (C1-ctl) m = 9 dropped at t*: miss/theta_ss(0) per point "
+        + " / ".join(f"{v:.4e}" for v in misses)
+        + f" (predicted ≈ 1.12e-2 at the centre, smaller at (0.9A, 0.8B, 0.8C); "
+        f"asserted > {R_BAR:.0e})"
+    )
     assert min(misses) > R_BAR
 
 
@@ -206,37 +217,51 @@ def test_printed_records():
         t = n * DT_BOX
         c = float(_duty_cf(0.0, 0.0, 0.0, t))
         mn = _box_mean_duty(t)
-        _say(f"MAT21-2 record duty n = {n} (t = {t:.4f} s): centre {c:.5f} K, volume mean {mn:.5f} K")
-    _say(f"MAT21-2 record predicted centre 0.53622 / 0.66914 / 0.66654 K, mean 0.49931 / "
-         f"0.62470 / 0.61419 K (±2e-5 K, 30-term stdlib arithmetic)")
+        _say(
+            f"MAT21-2 record duty n = {n} (t = {t:.4f} s): centre {c:.5f} K, volume mean {mn:.5f} K"
+        )
+    _say(
+        "MAT21-2 record predicted centre 0.53622 / 0.66914 / 0.66654 K, mean 0.49931 / "
+        "0.62470 / 0.61419 K (±2e-5 K, 30-term stdlib arithmetic)"
+    )
     sc = float(_theta_step(0.0, 0.0, 0.0, T_STAR))
     sm = _box_mean_step(T_STAR)
-    _say(f"MAT21-2 record step response at t*: centre {sc:.5f} K, mean {sm:.5f} K "
-         f"(predicted 1.33568 / 1.23889 K)")
+    _say(
+        f"MAT21-2 record step response at t*: centre {sc:.5f} K, mean {sm:.5f} K "
+        f"(predicted 1.33568 / 1.23889 K)"
+    )
 
     t, duty_m, duty_c, _, _ = _histories()
     # Cross-check the shifted-sample history against the direct sum at the grid's end.
-    _say(f"MAT21-2 record history check at t*: shifted {duty_m[-1]:.12f} vs direct "
-         f"{_box_mean_duty(T_STAR):.12f} K (mean)")
+    _say(
+        f"MAT21-2 record history check at t*: shifted {duty_m[-1]:.12f} vs direct "
+        f"{_box_mean_duty(T_STAR):.12f} K (mean)"
+    )
     am, am_mx, am_t = running_average(t, duty_m, window=W_AVG)
     ac, ac_mx, ac_t = running_average(t, duty_c, window=W_AVG)
     ok = ~np.isnan(am)
     dm = np.diff(am[ok])
-    _say(f"MAT21-2 record six-minute maximum (W = {W_AVG} s, {t.size} samples, "
-         f"{int(ok.sum())} windows): mean {am_mx:.5f} K at t_max = {am_t:.4f} s, centre "
-         f"{ac_mx:.5f} K at t_max = {ac_t:.4f} s (predicted 0.61684 / 0.66420 K at t* = "
-         f"{T_STAR:.4f} s); window mean monotone non-decreasing on [W, t*]: "
-         f"{bool(np.all(dm >= 0.0))} (min increment {dm.min():.3e} K)")
+    _say(
+        f"MAT21-2 record six-minute maximum (W = {W_AVG} s, {t.size} samples, "
+        f"{int(ok.sum())} windows): mean {am_mx:.5f} K at t_max = {am_t:.4f} s, centre "
+        f"{ac_mx:.5f} K at t_max = {ac_t:.4f} s (predicted 0.61684 / 0.66420 K at t* = "
+        f"{T_STAR:.4f} s); window mean monotone non-decreasing on [W, t*]: "
+        f"{bool(np.all(dm >= 0.0))} (min increment {dm.min():.3e} K)"
+    )
     per_w_m, per_w_c = am_mx / QV, ac_mx / QV
-    _say(f"MAT21-2 record six-minute peak per W of qV = {QV:.4f} W: mean {per_w_m:.4e} K/W, "
-         f"centre {per_w_c:.4e} K/W (predicted 1.2553e-2 / 1.3516e-2); per W of D qV: "
-         f"{per_w_m / DUTY:.4e} / {per_w_c / DUTY:.4e} K/W")
+    _say(
+        f"MAT21-2 record six-minute peak per W of qV = {QV:.4f} W: mean {per_w_m:.4e} K/W, "
+        f"centre {per_w_c:.4e} K/W (predicted 1.2553e-2 / 1.3516e-2); per W of D qV: "
+        f"{per_w_m / DUTY:.4e} / {per_w_c / DUTY:.4e} K/W"
+    )
     dm_w = cem43(t, T_INF + duty_m / QV)
     dc_w = cem43(t, T_INF + duty_c / QV)
     dm_q = cem43(t, T_INF + duty_m)
     dc_q = cem43(t, T_INF + duty_c)
-    _say(f"MAT21-2 record cem43 of T_inf + theta/(qV) (per W of qV): mean {dm_w:.4e} s, centre "
-         f"{dc_w:.4e} s (predicted ≈ 4.05e-11 both); at the fixture's q: mean {dm_q:.4e} s, centre "
-         f"{dc_q:.4e} s (predicted 6.7e-11 / 6.9e-11); per W of D qV the history is theta/(D qV): "
-         f"mean {cem43(t, T_INF + duty_m / (DUTY * QV)):.4e} s, centre "
-         f"{cem43(t, T_INF + duty_c / (DUTY * QV)):.4e} s. Records only, no safety statement.")
+    _say(
+        f"MAT21-2 record cem43 of T_inf + theta/(qV) (per W of qV): mean {dm_w:.4e} s, centre "
+        f"{dc_w:.4e} s (predicted ≈ 4.05e-11 both); at the fixture's q: mean {dm_q:.4e} s, centre "
+        f"{dc_q:.4e} s (predicted 6.7e-11 / 6.9e-11); per W of D qV the history is theta/(D qV): "
+        f"mean {cem43(t, T_INF + duty_m / (DUTY * QV)):.4e} s, centre "
+        f"{cem43(t, T_INF + duty_c / (DUTY * QV)):.4e} s. Records only, no safety statement."
+    )

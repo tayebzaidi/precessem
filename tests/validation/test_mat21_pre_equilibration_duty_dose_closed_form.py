@@ -63,15 +63,21 @@ def _drifts(p, t_w):
 
 def _uniform(p, sw):
     """The uniform-source duty sum, Σ_{t > t_m} (−1)^m θ(t − t_m); row 0 = 0.0."""
-    return np.array([sum((-1.0) ** m * _sourced(p, t - tm) for m, tm in enumerate(sw) if t > tm)
-                     for t in T_GRID], dtype=float)
+    return np.array(
+        [
+            sum((-1.0) ** m * _sourced(p, t - tm) for m, tm in enumerate(sw) if t > tm)
+            for t in T_GRID
+        ],
+        dtype=float,
+    )
 
 
 def _hists():
     if not _CACHE:
         _CACHE["quad"] = {lab: _duty_hist(PTS, switch_times=sw) for lab, _d, sw in SCHEDS}
-        _CACHE["uniform"] = {lab: np.column_stack([_uniform(p, sw) for p in PTS])
-                             for lab, _d, sw in SCHEDS}
+        _CACHE["uniform"] = {
+            lab: np.column_stack([_uniform(p, sw) for p in PTS]) for lab, _d, sw in SCHEDS
+        }
         _CACHE["drift"] = {(j, wl): _drifts(p, w) for j, p in enumerate(PTS) for wl, w in WAITS}
     return _CACHE["quad"], _CACHE["uniform"], _CACHE["drift"]
 
@@ -81,9 +87,11 @@ def test_preconditions():
     assert abs(T_GRID[-1] / T_STAR - 1.0) <= 1e-14 and W_B2 <= T_STAR
     assert all(min(abs(T_GRID - t)) <= 1e-9 * DT_BOX for t in T_SW25)
     assert all(min(abs(T_GRID - t)) <= 1e-9 * DT_BOX for t in T_SW)
-    _say(f"MAT21-32 T_INF {T_INF} == T_INF_0 {T_INF_0}; {T_GRID.size} rows, DT {DT_BOX:.4f} s, "
-         f"T_C {T_C:.1f} s; {len(T_SW25)} + {len(T_SW)} switches on the grid; bars DOSE "
-         f"{DOSE_BAR:g}, AVG {AVG_BAR:g}")
+    _say(
+        f"MAT21-32 T_INF {T_INF} == T_INF_0 {T_INF_0}; {T_GRID.size} rows, DT {DT_BOX:.4f} s, "
+        f"T_C {T_C:.1f} s; {len(T_SW25)} + {len(T_SW)} switches on the grid; bars DOSE "
+        f"{DOSE_BAR:g}, AVG {AVG_BAR:g}"
+    )
 
 
 def test_q_d_win_d_sym_d_and_rc():
@@ -111,16 +119,20 @@ def test_q_d_win_d_sym_d_and_rc():
                 sym = abs(dose / d_free - 1.0)
                 worst["sym"] = max(worst["sym"], sym)
                 assert sym <= DOSE_BAR, (wl, sym)
-    _say(f"MAT21-32 (Q-d) worst rel {worst['q']:.3e} (bar {DOSE_BAR:g}, ASSERTED); (Win-d) worst "
-         f"rel {worst['w']:.3e} (bar {AVG_BAR:g}, ASSERTED); (Sym-d) P0 worst rel {worst['sym']:.3e} "
-         f"(ASSERTED); R swap least miss {worst['rc']:.4e}, D = 0.5 least miss {worst['d50']:.4e} "
-         f"(asserted > {DOSE_BAR:g})")
+    _say(
+        f"MAT21-32 (Q-d) worst rel {worst['q']:.3e} (bar {DOSE_BAR:g}, ASSERTED); (Win-d) worst "
+        f"rel {worst['w']:.3e} (bar {AVG_BAR:g}, ASSERTED); (Sym-d) P0 worst rel {worst['sym']:.3e} "
+        f"(ASSERTED); R swap least miss {worst['rc']:.4e}, D = 0.5 least miss {worst['d50']:.4e} "
+        f"(asserted > {DOSE_BAR:g})"
+    )
 
 
 def test_table_printed():
     quad, uni, drift = _hists()
-    _say("MAT21-32 TABLE source | D | point | t_w | D_ref peak s | peak D/D_ref-1 | equal-mean "
-         "D/D_ref-1")
+    _say(
+        "MAT21-32 TABLE source | D | point | t_w | D_ref peak s | peak D/D_ref-1 | equal-mean "
+        "D/D_ref-1"
+    )
     for src in ("quadratic", "uniform"):
         for slab, duty, _sw in SCHEDS:
             for j, lab in enumerate(LABS[:2]):
@@ -129,9 +141,11 @@ def test_table_printed():
                     dr = drift[(j, wl)]
                     d_pk = _dose(hist)
                     d_eq = _dose(hist / duty)
-                    _say(f"MAT21-32 TABLE {src} | {slab} | {lab} | {wl} | {d_pk:.6e} | "
-                         f"{_dose(hist + dr) / d_pk - 1.0:+.6e} | "
-                         f"{_dose(hist / duty + dr) / d_eq - 1.0:+.6e}")
+                    _say(
+                        f"MAT21-32 TABLE {src} | {slab} | {lab} | {wl} | {d_pk:.6e} | "
+                        f"{_dose(hist + dr) / d_pk - 1.0:+.6e} | "
+                        f"{_dose(hist / duty + dr) / d_eq - 1.0:+.6e}"
+                    )
 
 
 def test_d50_cf_against_the_box_duty_series():
@@ -147,9 +161,11 @@ def test_d50_cf_against_the_box_duty_series():
         miss = abs(d_drop / d_cf - 1.0)
         worst = max(worst, rel)
         least = min(least, miss)
-        _say(f"MAT21-32 (D50-cf) {lab}: sum dose {d_sum:.6e} s, _duty_cf dose {d_cf:.6e} s, rel "
-             f"{rel:.3e} (bar {DOSE_BAR:g}, ASSERTED); drop=(0,) miss {miss:.4e} (asserted > "
-             f"{DOSE_BAR:g})")
+        _say(
+            f"MAT21-32 (D50-cf) {lab}: sum dose {d_sum:.6e} s, _duty_cf dose {d_cf:.6e} s, rel "
+            f"{rel:.3e} (bar {DOSE_BAR:g}, ASSERTED); drop=(0,) miss {miss:.4e} (asserted > "
+            f"{DOSE_BAR:g})"
+        )
         assert rel <= DOSE_BAR, (lab, rel)
         assert miss > DOSE_BAR, (lab, miss)
     _say(f"MAT21-32 (D50-cf) worst {worst:.3e}; drop=(0,) least miss {least:.4e}")
@@ -157,5 +173,7 @@ def test_d50_cf_against_the_box_duty_series():
         for wl, w in WAITS:
             ref = _dose(np.array([_combined(PTS[j], t, w) for t in T_GRID]))
             rel_u = abs(_dose(uni["1"][:, j] + drift[(j, wl)]) / ref - 1.0)
-            _say(f"MAT21-32 one-switch sum vs _combined {lab} t_w {wl}: rel {rel_u:.4e} (printed, "
-                 "by construction, closes nothing)")
+            _say(
+                f"MAT21-32 one-switch sum vs _combined {lab} t_w {wl}: rel {rel_u:.4e} (printed, "
+                "by construction, closes nothing)"
+            )

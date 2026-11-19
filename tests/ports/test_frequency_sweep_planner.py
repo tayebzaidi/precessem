@@ -201,12 +201,22 @@ def _port6_family() -> list[dict]:
             half = int(rng.integers(1, 10 * rstep + 1))
             # Centres may sit outside [start, stop]: exercises clipping and the
             # fully-outside (skipped) window.
-            centers = [int(rng.integers(start - 2 * half, stop + 2 * half + 1)) for _ in range(n_centers)]
+            centers = [
+                int(rng.integers(start - 2 * half, stop + 2 * half + 1)) for _ in range(n_centers)
+            ]
         z0 = float(rng.uniform(1.0, 200.0))
         port_order = tuple(f"P{i + 1}" for i in range(int(rng.integers(0, 5))))
         cases.append(
-            dict(start=start, stop=stop, step=step, centers=centers, half=half, rstep=rstep,
-                 z0=z0, port_order=port_order)
+            dict(
+                start=start,
+                stop=stop,
+                step=step,
+                centers=centers,
+                half=half,
+                rstep=rstep,
+                z0=z0,
+                port_order=port_order,
+            )
         )
     return cases
 
@@ -266,7 +276,9 @@ def _c1d167d_uniform_frequency_grid(start_hz: float, stop_hz: float, step_hz: fl
     span_hz = stop_hz - start_hz
     n_intervals = int(np.floor(span_hz / step_hz + 1e-12))
 
-    frequencies = np.array([start_hz + idx * step_hz for idx in range(n_intervals + 1)], dtype=float)
+    frequencies = np.array(
+        [start_hz + idx * step_hz for idx in range(n_intervals + 1)], dtype=float
+    )
     if not np.isclose(frequencies[-1], stop_hz):
         frequencies = np.append(frequencies, float(stop_hz))
 
@@ -294,7 +306,9 @@ def _c1d167d_plan_frequency_sweep(
     use_refined = bool(refine_centers_hz)
     if use_refined:
         if refine_half_span_hz is None or refine_half_span_hz <= 0.0:
-            raise ValueError("refine_half_span_hz must be positive when refine_centers_hz are provided")
+            raise ValueError(
+                "refine_half_span_hz must be positive when refine_centers_hz are provided"
+            )
         if refined_step_hz is None or refined_step_hz <= 0.0:
             raise ValueError("refined_step_hz must be positive when refine_centers_hz are provided")
 
@@ -367,8 +381,17 @@ def _regime_probe(planner):
                 n_dup = int(np.sum(gaps < 0.5 * step))
                 n_miss = int(np.sum(gaps > 1.5 * step)) + max(0, (n + 1) - (len(grid) - n_dup))
                 records.append(
-                    dict(carrier=carrier, step=step, n=n, stop_form=stop_form, start=start,
-                         stop=stop, grid=grid, dup=n_dup, miss=n_miss)
+                    dict(
+                        carrier=carrier,
+                        step=step,
+                        n=n,
+                        stop_form=stop_form,
+                        start=start,
+                        stop=stop,
+                        grid=grid,
+                        dup=n_dup,
+                        miss=n_miss,
+                    )
                 )
     return records
 
@@ -441,8 +464,19 @@ def _floor_family() -> list[dict]:
             stop = float(start) + n * float(step)
         else:
             stop = float(stop_dec)
-        cases.append(dict(start=start, step=step, n=n, kind=kind, stop_dec=stop_dec, stop=stop,
-                          centers=centers, rstep=rstep, half=half))
+        cases.append(
+            dict(
+                start=start,
+                step=step,
+                n=n,
+                kind=kind,
+                stop_dec=stop_dec,
+                stop=stop,
+                centers=centers,
+                rstep=rstep,
+                half=half,
+            )
+        )
     return cases
 
 
@@ -464,8 +498,9 @@ def _floor_reference(case: dict) -> list[Decimal]:
 
 
 def _floor_kwargs(case: dict) -> dict:
-    kwargs = dict(start_hz=float(case["start"]), stop_hz=case["stop"],
-                  coarse_step_hz=float(case["step"]))
+    kwargs = dict(
+        start_hz=float(case["start"]), stop_hz=case["stop"], coarse_step_hz=float(case["step"])
+    )
     if case["centers"]:
         kwargs.update(
             refine_centers_hz=tuple(float(c) for c in case["centers"]),
@@ -503,7 +538,9 @@ def test_port6_floor_family_equals_decimal_reference():
             worst = max(worst, dev)
         if not ok:
             failures.append((idx, reason, case))
-    kinds = {k: sum(1 for c in cases if c["kind"] == k) for k in ("float-sum", "decimal", "off-grid")}
+    kinds = {
+        k: sum(1 for c in cases if c["kind"] == k) for k in ("float-sum", "decimal", "off-grid")
+    }
     print(
         f"PORT6_FLOOR_FAMILY cases={len(cases)} kinds={kinds} "
         f"refined={sum(1 for c in cases if c['centers'])} failures={len(failures)} "
@@ -511,8 +548,10 @@ def test_port6_floor_family_equals_decimal_reference():
     )
     for idx, reason, case in failures[:10]:
         got = plan_frequency_sweep(**_floor_kwargs(case)).frequencies_hz
-        print(f"PORT6_FLOOR_FAIL idx={idx} reason={reason} inputs={case} "
-              f"expected={_floor_reference(case)} got={got}")
+        print(
+            f"PORT6_FLOOR_FAIL idx={idx} reason={reason} inputs={case} "
+            f"expected={_floor_reference(case)} got={got}"
+        )
     assert not failures
 
 
@@ -527,8 +566,10 @@ def test_port6_floor_raises_under_16_ulp_and_is_exact_at_16():
         start_hz=start, stop_hz=start + 60 * step, coarse_step_hz=step
     ).frequencies_hz
     gaps = np.diff(np.asarray(grid))
-    print(f"PORT6_FLOOR_ULP u={u!r} step16={step!r} len={len(grid)} "
-          f"gaps_all_16u={bool(np.all(gaps == step))}")
+    print(
+        f"PORT6_FLOOR_ULP u={u!r} step16={step!r} len={len(grid)} "
+        f"gaps_all_16u={bool(np.all(gaps == step))}"
+    )
     assert len(grid) == 61
     assert np.all(gaps == step)
 
@@ -569,7 +610,9 @@ def _757e64ff_uniform_frequency_grid(start_hz: float, stop_hz: float, step_hz: f
     return frequencies
 
 
-def _757e64ff_merge_frequency_grids(values: Sequence[float], min_step_hz: float) -> tuple[float, ...]:
+def _757e64ff_merge_frequency_grids(
+    values: Sequence[float], min_step_hz: float
+) -> tuple[float, ...]:
     """Sort and de-duplicate with a tolerance relative to the finest step in play."""
     tol_hz = _757e64ff_STEP_RELATIVE_TOL * min_step_hz
     merged: list[float] = []
@@ -602,7 +645,9 @@ def _757e64ff_plan_frequency_sweep(
     use_refined = bool(refine_centers_hz)
     if use_refined:
         if refine_half_span_hz is None or refine_half_span_hz <= 0.0:
-            raise ValueError("refine_half_span_hz must be positive when refine_centers_hz are provided")
+            raise ValueError(
+                "refine_half_span_hz must be positive when refine_centers_hz are provided"
+            )
         if refined_step_hz is None or refined_step_hz <= 0.0:
             raise ValueError("refined_step_hz must be positive when refine_centers_hz are provided")
         refine_half_span_hz = _757e64ff_require_finite("refine_half_span_hz", refine_half_span_hz)
@@ -632,8 +677,11 @@ def _757e64ff_plan_frequency_sweep(
 def test_port6_floor_negative_control_757e64ff_reproduces_logged_duplicates():
     records = _regime_probe(_757e64ff_plan_frequency_sweep)
     _print_probe("PORT6_FLOOR_CONTROL", records)
-    bad = [(r["carrier"], r["step"], r["n"], r["stop_form"], r["dup"], r["miss"])
-           for r in records if r["dup"] or r["miss"]]
+    bad = [
+        (r["carrier"], r["step"], r["n"], r["stop_form"], r["dup"], r["miss"])
+        for r in records
+        if r["dup"] or r["miss"]
+    ]
     assert bad == [
         (297.2e6 + 0.71, 0.1, 7, "decimal", 1, 0),
         (297.2e6 + 0.71, 0.1, 37, "decimal", 1, 0),
@@ -645,5 +693,7 @@ def test_port6_floor_negative_control_757e64ff_reproduces_logged_duplicates():
         ok, reason, _dev = _floor_check(_757e64ff_plan_frequency_sweep, case)
         n_fail += not ok
         n_len += reason.startswith("len")
-    print(f"PORT6_FLOOR_CONTROL_FAMILY 757e64ff wrong_lengths={n_len}/{len(cases)} "
-          f"(predicted 315), any_failure={n_fail}")
+    print(
+        f"PORT6_FLOOR_CONTROL_FAMILY 757e64ff wrong_lengths={n_len}/{len(cases)} "
+        f"(predicted 315), any_failure={n_fail}"
+    )

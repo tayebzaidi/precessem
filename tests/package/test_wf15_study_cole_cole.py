@@ -36,7 +36,6 @@ from fem_em_solver import (
     UniformHeatSource,
 )
 from fem_em_solver.materials import ColeColeMaterial
-
 from tests.complex_mode import complex_only
 from tests.materials.test_phantom_material_model import MAT4_BAND
 from tests.package.test_wf15_study_lossy_sphere import (

@@ -58,9 +58,7 @@ def magnetic_flux_density_from_e(e_complex, omega_rad_per_s, *, name: str = "B_p
     w_dg = fem.functionspace(msh, ("DG", 0, (3,)))
     b_fn = fem.Function(w_dg, name=name)
     b_fn.interpolate(
-        fem.Expression(
-            ufl.curl(e_complex) / (-1j * omega), w_dg.element.interpolation_points
-        )
+        fem.Expression(ufl.curl(e_complex) / (-1j * omega), w_dg.element.interpolation_points)
     )
     b_fn.x.scatter_forward()
     return b_fn
@@ -229,9 +227,7 @@ def project_to_cg1_restricted(
     dx_tag = ufl.Measure("dx", domain=msh, subdomain_data=cell_tags)(tag)
 
     cells = np.sort(np.asarray(cell_tags.find(tag), dtype=np.int32))
-    supported = np.asarray(
-        fem.locate_dofs_topological(space, tdim, cells), dtype=np.int32
-    )
+    supported = np.asarray(fem.locate_dofs_topological(space, tdim, cells), dtype=np.int32)
     imap = space.dofmap.index_map
     n_blocks = int(imap.size_local + imap.num_ghosts)
     pinned = np.setdiff1d(np.arange(n_blocks, dtype=np.int32), supported)
@@ -271,9 +267,7 @@ def project_to_cg1_restricted(
         "ksp_rtol": float(ksp_rtol),
         "degree": int(degree),
         "dofs": int(imap.size_global * space.dofmap.index_map_bs),
-        "free_blocks": comm.allreduce(
-            int(supported[supported < owned].size), op=MPI.SUM
-        ),
+        "free_blocks": comm.allreduce(int(supported[supported < owned].size), op=MPI.SUM),
         "pinned_blocks": comm.allreduce(int(pinned[pinned < owned].size), op=MPI.SUM),
         "pinned_max_abs": pinned_max,
     }

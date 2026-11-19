@@ -42,7 +42,6 @@ import pytest
 from mpi4py import MPI
 
 from fem_em_solver import QuasiStaticSphereField, Study
-
 from tests.complex_mode import complex_only
 from tests.materials.test_phantom_material_model import MAT4_BAND
 from tests.package.test_wf15_study_lossy_sphere import GEOMETRY, _closed
@@ -117,7 +116,9 @@ def _assert_extraction(block):
     assert block.strip(), "(X) the dispersive-sphere block is empty"
     calls = _study_calls(block)
     assert len(calls) == 1, f"(X) {len(calls)} Study( calls in the block, need exactly 1"
-    assert "degree" not in [kw.arg for kw in calls[0].keywords], "(X) the page teaches the default degree"
+    assert "degree" not in [
+        kw.arg for kw in calls[0].keywords
+    ], "(X) the page teaches the default degree"
     return calls[0]
 
 
@@ -217,7 +218,9 @@ def test_wf17_s21_block_medium_and_controls(monkeypatch):
     with pytest.raises(LookupError):
         extract_tagged_block(text + f"\n```python {TAG}\n{block}```\n", TAG)
     with pytest.raises(LookupError):
-        extract_tagged_block(text.replace(f"```text {OUTPUT_TAG}\n", "```text\n"), OUTPUT_TAG, "text")
+        extract_tagged_block(
+            text.replace(f"```text {OUTPUT_TAG}\n", "```text\n"), OUTPUT_TAG, "text"
+        )
     # (c-page) sigma_ionic 0.2 -> 0.3 is caught as the medium only.
     assert block.count("sigma_ionic=0.2,") == 1
     planted = block.replace("sigma_ionic=0.2,", "sigma_ionic=0.3,")

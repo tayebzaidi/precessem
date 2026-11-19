@@ -18,6 +18,7 @@ while the *terminal* quantities of the retained piece rescale:
 Two cuts compose: ``pmc`` then ``pec`` gives the quarter, whose impedance
 equals the full model's.
 """
+
 from __future__ import annotations
 
 import dataclasses
@@ -36,9 +37,7 @@ def _check_cut(cut: str) -> str:
     return cut
 
 
-def halve_sheet_spec(
-    spec: LumpedSheetPortSpec, cut: str, *, plane_normal
-) -> LumpedSheetPortSpec:
+def halve_sheet_spec(spec: LumpedSheetPortSpec, cut: str, *, plane_normal) -> LumpedSheetPortSpec:
     """The spec of the half of ``spec`` retained on one side of a symmetry plane.
 
     ``plane_normal`` is the cut plane's normal; it is used only to check that

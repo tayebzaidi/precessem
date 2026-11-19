@@ -52,8 +52,11 @@ def _strip(i):
     face = cq.Face.makeFromWires(cq.Wire.makePolygon(corners, close=True))
     area = face.Area()
     bb = face.BoundingBox()
-    print(f"[author] PortSheet{i} area={area!r} bbox=({bb.xmin!r}, {bb.ymin!r}, "
-          f"{bb.zmin!r}, {bb.xmax!r}, {bb.ymax!r}, {bb.zmax!r})", flush=True)
+    print(
+        f"[author] PortSheet{i} area={area!r} bbox=({bb.xmin!r}, {bb.ymin!r}, "
+        f"{bb.zmin!r}, {bb.xmax!r}, {bb.ymax!r}, {bb.zmax!r})",
+        flush=True,
+    )
     assert abs(area - STRIP_AREA) <= 1e-12, (i, area)
     want = (min(x0, x1), min(y0, y1), -Z_HALF, max(x0, x1), max(y0, y1), Z_HALF)
     got = (bb.xmin, bb.ymin, bb.zmin, bb.xmax, bb.ymax, bb.zmax)
@@ -69,10 +72,16 @@ def main(out, generator_step):
     solids_wp = cq.importers.importStep(generator_step)
     solids = solids_wp.solids().vals()
     vol = sum(s.Volume() for s in solids)
-    print(f"[author] importStep {generator_step}: {len(solids)} solids, "
-          f"total volume={vol!r}, faces={len(solids_wp.faces().vals())}", flush=True)
-    print(f"[author] imported solid count={len(solids)} (whole expected 30 by "
-          f"arithmetic, halves 34; printed, not gated)", flush=True)
+    print(
+        f"[author] importStep {generator_step}: {len(solids)} solids, "
+        f"total volume={vol!r}, faces={len(solids_wp.faces().vals())}",
+        flush=True,
+    )
+    print(
+        f"[author] imported solid count={len(solids)} (whole expected 30 by "
+        f"arithmetic, halves 34; printed, not gated)",
+        flush=True,
+    )
 
     asm = cq.Assembly(name="u13a_fsmall")
     asm.add(solids_wp, name="FsmallSolids")
@@ -86,15 +95,19 @@ def main(out, generator_step):
         route = "Assembly.save (export absent; disclosed)"
     with open(out, "rb") as handle:
         data = handle.read()
-    print(f"[author] route={route} author seconds={time.perf_counter() - t0:.2f}",
-          flush=True)
-    print(f"[author] wrote {out} bytes={len(data)} "
-          f"sha256={hashlib.sha256(data).hexdigest()}", flush=True)
+    print(f"[author] route={route} author seconds={time.perf_counter() - t0:.2f}", flush=True)
+    print(
+        f"[author] wrote {out} bytes={len(data)} " f"sha256={hashlib.sha256(data).hexdigest()}",
+        flush=True,
+    )
     print(f"[author] size_on_disk={os.path.getsize(out)}", flush=True)
 
     back = cq.importers.importStep(out)
-    print(f"[author] read-back: {len(back.solids().vals())} solids, "
-          f"{len(back.faces().vals())} faces", flush=True)
+    print(
+        f"[author] read-back: {len(back.solids().vals())} solids, "
+        f"{len(back.faces().vals())} faces",
+        flush=True,
+    )
 
 
 if __name__ == "__main__":

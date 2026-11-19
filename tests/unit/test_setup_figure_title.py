@@ -52,12 +52,14 @@ CENSUS = REPO_ROOT / "scripts" / "testing" / "check_example_setup_figures.py"
 def _committed_setup_figures() -> list[str]:
     """Tracked `examples/**/figures/*_setup.png`, straight from git."""
     proc = subprocess.run(
-        ["git", "-c", "safe.directory=*", "-C", str(REPO_ROOT),
-         "ls-files", "-z", "--", "examples"],
-        capture_output=True, text=True, check=True,
+        ["git", "-c", "safe.directory=*", "-C", str(REPO_ROOT), "ls-files", "-z", "--", "examples"],
+        capture_output=True,
+        text=True,
+        check=True,
     )
     return sorted(
-        entry for entry in proc.stdout.split("\0")
+        entry
+        for entry in proc.stdout.split("\0")
         if entry.endswith(SETUP_FIGURE_SUFFIX) and "/figures/" in entry
     )
 
@@ -68,9 +70,9 @@ def _census_ok_count() -> int:
     census = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(census)
     return sum(
-        1 for script in census.runnable_examples()
-        if census.assess(script, 600.0)[0] == "ok"
+        1 for script in census.runnable_examples() if census.assess(script, 600.0)[0] == "ok"
     )
+
 
 # The commit the guard was written against — the last commit before the
 # `OPS-53` change. Pinned, never HEAD: the control has to read a tree that
@@ -83,9 +85,11 @@ PRE_CHANGE_SHA = "8ef79a1465c083e1abf60f3026579d78de78be69"
 # attempts.md paraphrases the title rather than quoting it. So this is a
 # *synthetic* 150-character string standing in for it — the guard depends on
 # the length alone, not on the characters.
-SYNTHETIC_150 = ("mesh:4 — two-torus port sheet: each gap box split by its "
-                 "mid-plane port sheet, the split visible as the seam between "
-                 "the two cell groups drawn (EX-57)")
+SYNTHETIC_150 = (
+    "mesh:4 — two-torus port sheet: each gap box split by its "
+    "mid-plane port sheet, the split visible as the seam between "
+    "the two cell groups drawn (EX-57)"
+)
 
 
 def _title_node(call: ast.Call) -> ast.expr | None:
@@ -122,7 +126,7 @@ def _exemplar_call() -> list[tuple[str, int, ast.expr | None]]:
     assert len(starts) == 1, f"expected one exemplar call in the docstring, found {len(starts)}"
     start = starts[0]
     end = next(i for i in range(start + 1, len(lines)) if lines[i].strip() == ")")
-    snippet = textwrap.dedent("\n".join(lines[start:end + 1]))
+    snippet = textwrap.dedent("\n".join(lines[start : end + 1]))
     return _write_setup_figure_calls(snippet, f"{HELPER_REL} (docstring exemplar)")
 
 
@@ -141,6 +145,7 @@ def _constant_title(node: ast.expr | None) -> str | None:
 # --------------------------------------------------------------------------
 # (a) the limit
 # --------------------------------------------------------------------------
+
 
 def test_one_character_over_the_limit_raises_naming_both_integers():
     too_long = "x" * (MAX_TITLE_CHARS + 1)
@@ -174,15 +179,14 @@ def test_guard_path_does_not_import_pyvista():
 # (b) the call-site scan
 # --------------------------------------------------------------------------
 
+
 def test_every_constant_call_site_title_is_within_the_limit():
     example_calls: list[tuple[str, int, ast.expr | None]] = []
     for path in sorted((REPO_ROOT / "examples").rglob("*.py")):
         source = path.read_text()
         if "write_setup_figure(" not in source:
             continue
-        example_calls.extend(
-            _write_setup_figure_calls(source, str(path.relative_to(REPO_ROOT)))
-        )
+        example_calls.extend(_write_setup_figure_calls(source, str(path.relative_to(REPO_ROOT))))
 
     figures = _committed_setup_figures()
     census_ok = _census_ok_count()
@@ -224,6 +228,7 @@ def test_every_constant_call_site_title_is_within_the_limit():
 # (c) the negative control
 # --------------------------------------------------------------------------
 
+
 def test_the_150_character_case_raises():
     assert len(SYNTHETIC_150) == 150, len(SYNTHETIC_150)
     with pytest.raises(ValueError):
@@ -235,24 +240,31 @@ def test_pre_change_helper_has_no_guard():
     scratch_dir.mkdir(exist_ok=True)
     scratch = scratch_dir / f"ops53_setup_figure_pre_change_{os.getpid()}.py"
     completed = subprocess.run(
-        ["git", "-c", "safe.directory=*", "-C", str(REPO_ROOT),
-         "show", f"{PRE_CHANGE_SHA}:{HELPER_REL}"],
-        capture_output=True, text=True, check=False,
+        [
+            "git",
+            "-c",
+            "safe.directory=*",
+            "-C",
+            str(REPO_ROOT),
+            "show",
+            f"{PRE_CHANGE_SHA}:{HELPER_REL}",
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
     )
     assert completed.returncode == 0, completed.stderr
     scratch.write_text(completed.stdout)
     try:
-        spec = importlib.util.spec_from_file_location(
-            f"_ops53_pre_change_{os.getpid()}", scratch
-        )
+        spec = importlib.util.spec_from_file_location(f"_ops53_pre_change_{os.getpid()}", scratch)
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        assert not hasattr(module, "check_title_length"), (
-            f"{PRE_CHANGE_SHA} already has a guard function — the pin is wrong"
-        )
-        assert not hasattr(module, "MAX_TITLE_CHARS"), (
-            f"{PRE_CHANGE_SHA} already has MAX_TITLE_CHARS — the pin is wrong"
-        )
+        assert not hasattr(
+            module, "check_title_length"
+        ), f"{PRE_CHANGE_SHA} already has a guard function — the pin is wrong"
+        assert not hasattr(
+            module, "MAX_TITLE_CHARS"
+        ), f"{PRE_CHANGE_SHA} already has MAX_TITLE_CHARS — the pin is wrong"
         # And the pre-change helper accepts the 150-character title without
         # complaint at every point a guard could have lived.
         assert "MAX_TITLE_CHARS" not in completed.stdout

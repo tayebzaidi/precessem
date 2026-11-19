@@ -22,9 +22,8 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from mpi4py import MPI
-
 from dolfinx import geometry
+from mpi4py import MPI
 
 from fem_em_solver.post.evaluation import (
     evaluate_vector_field_parallel,
@@ -128,9 +127,7 @@ def _vertex_v(row, comm):
 
 def _probe_set(row, comm):
     """The 25 probes plus V (V defined on the degree-1 mesh; same mesh at d=2)."""
-    return np.ascontiguousarray(
-        np.vstack([_interior_probe_points(), _vertex_v(row, comm)])
-    )
+    return np.ascontiguousarray(np.vstack([_interior_probe_points(), _vertex_v(row, comm)]))
 
 
 def test_s_single_incidence_noop(rows):

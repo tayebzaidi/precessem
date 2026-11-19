@@ -29,30 +29,28 @@ from __future__ import annotations
 import time
 
 import numpy as np
+import pytest
 import ufl
 from dolfinx import fem, la
 from dolfinx import mesh as dmesh
 from mpi4py import MPI
 
-import pytest
-
 from fem_em_solver.thermal import solve_transient_conduction
-
 from tests.mesh.test_birdcage_implant_rod import ROD_RADIUS
 from tests.validation.test_imp8_rod_line_source_closed_form import (
-    L,
     MM,
     T_PRINT,
+    L,
     _phi,
     _phi_tips,
 )
 from tests.validation.test_imp8_rod_line_source_fem import (  # noqa: F401  (box: fixture)
     DEGREE,
     GATE_PTS,
-    P,
     QP,
     T_INF,
     W0C_CELLS,
+    P,
     _need,
     _theta_pts,
     box,
@@ -121,19 +119,35 @@ def tips_run(box):
         pb = float(np.real(_allsum(msh.comm, qb * ufl.dx)))
         a_eq = (3.0 * v_sel / (4.0 * np.pi)) ** (1.0 / 3.0)
         out["balls"].append((n_sel, abs(pb / (0.5 * P) - 1.0)))
-        _say(f"[imp8-tips] ball z={s * 0.5 * L / MM:+g} mm: cells {n_sel}; volume "
-             f"{v_sel:.6e} m^3; equivalent radius {a_eq / MM:.4f} mm (ROD_RADIUS "
-             f"{ROD_RADIUS / MM:g} mm); int q / (P/2) - 1 = {pb / (0.5 * P) - 1.0:.3e}")
+        _say(
+            f"[imp8-tips] ball z={s * 0.5 * L / MM:+g} mm: cells {n_sel}; volume "
+            f"{v_sel:.6e} m^3; equivalent radius {a_eq / MM:.4f} mm (ROD_RADIUS "
+            f"{ROD_RADIUS / MM:g} mm); int q / (P/2) - 1 = {pb / (0.5 * P) - 1.0:.3e}"
+        )
     dt = T_PRINT / N_MAIN
     t1 = time.perf_counter()
     res = solve_transient_conduction(
-        msh, ft, k=K_GEL, rho_c=RHO_C, q=q, h=H_GEL, t_inf=T_INF, t_init=T_INF,
-        robin_tag=ROBIN_TAG, dt=dt, n_steps=N_MAIN, theta=0.5, startup_half_steps=2,
-        degree=DEGREE)
+        msh,
+        ft,
+        k=K_GEL,
+        rho_c=RHO_C,
+        q=q,
+        h=H_GEL,
+        t_inf=T_INF,
+        t_init=T_INF,
+        robin_tag=ROBIN_TAG,
+        dt=dt,
+        n_steps=N_MAIN,
+        theta=0.5,
+        startup_half_steps=2,
+        degree=DEGREE,
+    )
     out["t_call"] = time.perf_counter() - t1
     out["E"] = float(res.max_balance_residual)
-    _say(f"[imp8-tips] W1 CN N={N_MAIN} dt={dt:g} s: t_call {out['t_call']:.1f} s; "
-         f"n_factorizations {res.n_factorizations}; ranks {msh.comm.size}")
+    _say(
+        f"[imp8-tips] W1 CN N={N_MAIN} dt={dt:g} s: t_call {out['t_call']:.1f} s; "
+        f"n_factorizations {res.n_factorizations}; ranks {msh.comm.size}"
+    )
     pts = GATE_PTS + RATIO_PTS
     th = _theta_pts(res.temperature, pts)
     out["I"], out["c_one"] = [], []
@@ -148,14 +162,18 @@ def tips_run(box):
             m_fem = abs(v / ex1 - 1.0)  # (I)'s convention, |θ_FEM / comparand − 1|
             m_cmp = abs(ex1 / v - 1.0)  # the comparand's shortfall relative to θ_FEM
             out["c_one"].append(m_fem)
-            _say(f"[imp8-tips] (c-one) ({r:g}, {z:g}) mm: one-ball comparand {ex1:.6e} K/W; "
-                 f"miss |theta_FEM/cmp - 1| {m_fem:.4e} (asserted > INTERIOR_BAND "
-                 f"{INTERIOR_BAND:.0e}); |cmp/theta_FEM - 1| {m_cmp:.4e} (predicted approx "
-                 f"{C_ONE_PREDICTED}, not asserted)")
-        _say(f"[imp8-tips] (I) ({r:g}, {z:g}) mm t*={T_PRINT:g} s: theta_FEM {v:.6e} K/W, "
-             f"closed form q'/(4 pi k) Phi_2 {ex:.6e}, rel {rel:.3e} "
-             f"({'gated' if (r, z) in GATE_PTS else 'printed only'}, band "
-             f"{INTERIOR_BAND:.0e}); (a/R+)^2 {a2:.3e}")
+            _say(
+                f"[imp8-tips] (c-one) ({r:g}, {z:g}) mm: one-ball comparand {ex1:.6e} K/W; "
+                f"miss |theta_FEM/cmp - 1| {m_fem:.4e} (asserted > INTERIOR_BAND "
+                f"{INTERIOR_BAND:.0e}); |cmp/theta_FEM - 1| {m_cmp:.4e} (predicted approx "
+                f"{C_ONE_PREDICTED}, not asserted)"
+            )
+        _say(
+            f"[imp8-tips] (I) ({r:g}, {z:g}) mm t*={T_PRINT:g} s: theta_FEM {v:.6e} K/W, "
+            f"closed form q'/(4 pi k) Phi_2 {ex:.6e}, rel {rel:.3e} "
+            f"({'gated' if (r, z) in GATE_PTS else 'printed only'}, band "
+            f"{INTERIOR_BAND:.0e}); (a/R+)^2 {a2:.3e}"
+        )
         if (r, z) in RATIO_PTS:
             line_cf = QP * _phi(r * MM, z * MM, T_PRINT)
             if (r, z) == (2.0, 0.0):
@@ -163,14 +181,20 @@ def tips_run(box):
                 src = f"item 803's line theta_FEM {LINE_FEM_2_0:.6e} (W2 log :145)"
             else:
                 ratio = v / line_cf
-                src = (f"the line's closed form {line_cf:.6e} (item 803 did not evaluate "
-                       f"this point; not a FEM/FEM ratio)")
-            _say(f"[imp8-tips] record (no band): Phi_2/Phi at ({r:g}, {z:g}) mm = {ratio:.6f} "
-                 f"(this run's theta over {src}); FEM tips / line closed form "
-                 f"{v / line_cf:.6f}; step 1 closed form {STEP1_RATIO[(r, z)]:.7g}")
-    _say(f"[imp8-tips] (E) {out['E']:.3e} (band {E_BAND:.0e}); (S0) {out['S0']:.3e} "
-         f"(band {B_BAND:.0e}); (I) max {max(out['I']):.3e}; (c-one) min "
-         f"{min(out['c_one']):.4e}")
+                src = (
+                    f"the line's closed form {line_cf:.6e} (item 803 did not evaluate "
+                    f"this point; not a FEM/FEM ratio)"
+                )
+            _say(
+                f"[imp8-tips] record (no band): Phi_2/Phi at ({r:g}, {z:g}) mm = {ratio:.6f} "
+                f"(this run's theta over {src}); FEM tips / line closed form "
+                f"{v / line_cf:.6f}; step 1 closed form {STEP1_RATIO[(r, z)]:.7g}"
+            )
+    _say(
+        f"[imp8-tips] (E) {out['E']:.3e} (band {E_BAND:.0e}); (S0) {out['S0']:.3e} "
+        f"(band {B_BAND:.0e}); (I) max {max(out['I']):.3e}; (c-one) min "
+        f"{min(out['c_one']):.4e}"
+    )
     return out
 
 

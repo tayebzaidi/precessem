@@ -92,7 +92,7 @@ def _phi_tips_dot(r, z, u, length=L, signs=(1.0, -1.0)):
     out = 0.0
     for s in signs:
         big_r = np.hypot(r, z - s * 0.5 * length)
-        out += np.exp(-big_r * big_r / (4.0 * KAPPA * u)) / (2.0 * np.sqrt(np.pi * KAPPA) * u ** 1.5)
+        out += np.exp(-big_r * big_r / (4.0 * KAPPA * u)) / (2.0 * np.sqrt(np.pi * KAPPA) * u**1.5)
     return 0.5 * length * out
 
 
@@ -137,10 +137,12 @@ def test_schedule_and_kernel_derivative():
             fd = (_phi_tips(r, z, u + h) - _phi_tips(r, z, u - h)) / (2.0 * h)
             worst = max(worst, abs(fd / _phi_tips_dot(r, z, u) - 1.0))
     r_p = np.hypot(POINTS[0][0] * MM, POINTS[0][1] * MM - 0.5 * L)
-    _p(f"\n[imp8-7] grid {T_GRID.size} pts, dt {dt:g} s, P {PERIOD:g} s; scale {SCALE:.9e} K per "
-       f"unit Φ₂ at 1 W; dΦ₂/dt closed vs central difference worst rel {worst:.3e} (printed); "
-       f"(a/R+)^2 at {POINTS[0]} mm = {(ROD_RADIUS / r_p) ** 2:.3e}; bands D1 {D1_BAND:g} "
-       f"DUH {DUH_BAND:g} DOSE {DOSE_BAR:g} AVG {AVG_BAR:g}")
+    _p(
+        f"\n[imp8-7] grid {T_GRID.size} pts, dt {dt:g} s, P {PERIOD:g} s; scale {SCALE:.9e} K per "
+        f"unit Φ₂ at 1 W; dΦ₂/dt closed vs central difference worst rel {worst:.3e} (printed); "
+        f"(a/R+)^2 at {POINTS[0]} mm = {(ROD_RADIUS / r_p) ** 2:.3e}; bands D1 {D1_BAND:g} "
+        f"DUH {DUH_BAND:g} DOSE {DOSE_BAR:g} AVG {AVG_BAR:g}"
+    )
 
 
 def test_d1_duty_one_equals_step_response():
@@ -162,8 +164,10 @@ def test_duh_step_sum_equals_convolution():
             r, z = pt[0] * MM, pt[1] * MM
             conv = np.array([_convolution(_phi_tips_dot, r, z, t, duty) for t in T_GRID])
             e = float(np.max(np.abs(_hist(duty, pt) - conv))) / _theta_ss(pt)
-            _p(f"[imp8-7] (Duh) D={duty:g} {pt} mm: max |step sum - convolution| / θ_ss = "
-               f"{e:.3e} (band {DUH_BAND:g}); θ(t*) {_hist(duty, pt)[-1]:.9e} vs {conv[-1]:.9e}")
+            _p(
+                f"[imp8-7] (Duh) D={duty:g} {pt} mm: max |step sum - convolution| / θ_ss = "
+                f"{e:.3e} (band {DUH_BAND:g}); θ(t*) {_hist(duty, pt)[-1]:.9e} vs {conv[-1]:.9e}"
+            )
             worst = max(worst, e)
     _p(f"[imp8-7] (Duh) worst {worst:.3e}; {time.perf_counter() - t0:.1f} s")
     assert worst <= DUH_BAND
@@ -178,15 +182,21 @@ def test_q_d_win_d_and_printed_record():
             dose, ref, rel, _swap, _miss = _q_check_g(T, T_GRID)
             mx, t_mx, lo, hi, wref, wrel = _win_check_g(th, T_GRID)
             line = float(_hist_line(duty, pt)[-1])
-            _p(f"[imp8-7] (Q-d) D={duty:g} {pt} mm: CEM43 {dose:.9e} s vs quad {ref:.9e} s rel "
-               f"{rel:.3e} (bar {DOSE_BAR:g}); dose at P = {P_DOSE_W:g} W (item 787's line: 1 W); "
-               f"max T {np.max(T):.6f} C < 43 (predicted max over all cases {MAX_T_PREDICTED:.3f} C)")
-            _p(f"[imp8-7] (Win-d) D={duty:g} {pt} mm: six-minute max {mx:.9e} K at {t_mx:g} s, "
-               f"in [{lo:.6e}, {hi:.6e}]; quad {wref:.9e} rel {wrel:.3e} (bar {AVG_BAR:g})")
-            _p(f"[imp8-7] (record) D={duty:g} {pt} mm: θ_tips(t*) {th[-1]:.7g} K/W; θ_ss "
-               f"{_theta_ss(pt):.7g} K/W; six-minute max {mx:.7g} K/W; CEM43 {dose:.7g} s; "
-               f"θ_line(t*) {line:.7g} K/W (item 787 printed {LINE_ITEM787[duty][i]:.7g}); "
-               f"tips / line {th[-1] / line:.7g}")
+            _p(
+                f"[imp8-7] (Q-d) D={duty:g} {pt} mm: CEM43 {dose:.9e} s vs quad {ref:.9e} s rel "
+                f"{rel:.3e} (bar {DOSE_BAR:g}); dose at P = {P_DOSE_W:g} W (item 787's line: 1 W); "
+                f"max T {np.max(T):.6f} C < 43 (predicted max over all cases {MAX_T_PREDICTED:.3f} C)"
+            )
+            _p(
+                f"[imp8-7] (Win-d) D={duty:g} {pt} mm: six-minute max {mx:.9e} K at {t_mx:g} s, "
+                f"in [{lo:.6e}, {hi:.6e}]; quad {wref:.9e} rel {wrel:.3e} (bar {AVG_BAR:g})"
+            )
+            _p(
+                f"[imp8-7] (record) D={duty:g} {pt} mm: θ_tips(t*) {th[-1]:.7g} K/W; θ_ss "
+                f"{_theta_ss(pt):.7g} K/W; six-minute max {mx:.7g} K/W; CEM43 {dose:.7g} s; "
+                f"θ_line(t*) {line:.7g} K/W (item 787 printed {LINE_ITEM787[duty][i]:.7g}); "
+                f"tips / line {th[-1] / line:.7g}"
+            )
             assert rel <= DOSE_BAR, (duty, pt, rel)
             assert lo <= mx <= hi and T_GRID[0] + W_B2 <= t_mx <= T_GRID[-1], (duty, pt, t_mx)
             assert wrel <= AVG_BAR, (duty, pt, wrel)
@@ -197,8 +207,10 @@ def test_control_continuous_for_half_duty():
     for pt in POINTS:
         d1, d5 = _hist(1.0, pt)[-1], _hist(0.5, pt)[-1]
         miss = abs(d1 / d5 - 1.0)
-        _p(f"[imp8-7] (c-cont) {pt} mm: θ_D1(t*) {d1:.7g} vs θ_D0.5(t*) {d5:.7g} K/W, miss "
-           f"{miss:.4e} (asserted > INTERIOR_BAND {INTERIOR_BAND:g}; predicted {CTRL_PREDICTED:g}, "
-           f"not asserted)")
+        _p(
+            f"[imp8-7] (c-cont) {pt} mm: θ_D1(t*) {d1:.7g} vs θ_D0.5(t*) {d5:.7g} K/W, miss "
+            f"{miss:.4e} (asserted > INTERIOR_BAND {INTERIOR_BAND:g}; predicted {CTRL_PREDICTED:g}, "
+            f"not asserted)"
+        )
         least = min(least, miss)
     assert least > INTERIOR_BAND

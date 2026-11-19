@@ -52,11 +52,11 @@ TAG = "[WF-17 i997]"
 
 # The item's table (WF-17.md § "§9 item 997"), every basename it names.
 TABLE = (
-    "20261102T080008Z_GEO-36-step9-I36.log",      # entry 48
-    "20261103T080009Z_GEO-38-C6.log",             # entry 52 / P80's C52_LOG
-    "20261110T080008Z_GEO-38-P33.log",            # entry 59
-    "20261109T080008Z_GEO-38-C6-3T.log",          # entry 58
-    "20261111T080008Z_GEO-38-P33-3T.log",         # entry 60
+    "20261102T080008Z_GEO-36-step9-I36.log",  # entry 48
+    "20261103T080009Z_GEO-38-C6.log",  # entry 52 / P80's C52_LOG
+    "20261110T080008Z_GEO-38-P33.log",  # entry 59
+    "20261109T080008Z_GEO-38-C6-3T.log",  # entry 58
+    "20261111T080008Z_GEO-38-P33-3T.log",  # entry 60
     "20261112T080008Z_GEO-36-step11-I36-3T.log",  # entry 61
     "20261112T120219Z_MAT-21-P88-W1.log",
     "20261112T182020Z_MAT-21-P89-W1b.log",
@@ -116,21 +116,33 @@ def test_i997_id_b_byte_identity(tmp_path):
         b = read_log_text(real, errors="strict")
         if a != b or b != want:
             la, lb, lw = a.splitlines(True), b.splitlines(True), want.splitlines(True)
-            i = next((k for k in range(max(len(la), len(lb), len(lw)))
-                      if not (k < len(la) and k < len(lb) and k < len(lw)
-                              and la[k] == lb[k] == lw[k])), None)
-            pytest.fail(f"{name}: first differing line {i}: "
-                        f"{la[i] if i is not None and i < len(la) else None!r} / "
-                        f"{lb[i] if i is not None and i < len(lb) else None!r} / "
-                        f"{lw[i] if i is not None and i < len(lw) else None!r}")
-        _p0(f"{TAG} (Id-b) {name}: tracked {_form(real)}, tmp {_form(opp)}; "
-            f"{len(b)} chars, {len(b.splitlines())} lines; equal")
+            i = next(
+                (
+                    k
+                    for k in range(max(len(la), len(lb), len(lw)))
+                    if not (k < len(la) and k < len(lb) and k < len(lw) and la[k] == lb[k] == lw[k])
+                ),
+                None,
+            )
+            pytest.fail(
+                f"{name}: first differing line {i}: "
+                f"{la[i] if i is not None and i < len(la) else None!r} / "
+                f"{lb[i] if i is not None and i < len(lb) else None!r} / "
+                f"{lw[i] if i is not None and i < len(lw) else None!r}"
+            )
+        _p0(
+            f"{TAG} (Id-b) {name}: tracked {_form(real)}, tmp {_form(opp)}; "
+            f"{len(b)} chars, {len(b.splitlines())} lines; equal"
+        )
 
 
-@pytest.mark.parametrize("label,entries,keys", [
-    ("1.5 T", gen.MEASURED_15T, ["48", "52", "59"]),
-    ("3 T", gen.MEASURED_3T, ["58", "60", "61"]),
-])
+@pytest.mark.parametrize(
+    "label,entries,keys",
+    [
+        ("1.5 T", gen.MEASURED_15T, ["48", "52", "59"]),
+        ("3 T", gen.MEASURED_3T, ["58", "60", "61"]),
+    ],
+)
 def test_i997_id_c_custody_either_form(tmp_path, label, entries, keys):
     prices = gen.ledger_prices(entries=entries)
     tmp = tmp_path / "opp"
@@ -150,8 +162,10 @@ def test_i997_id_p_other_readers(tmp_path, monkeypatch):
     want_c52 = p80._parse_c52()
     monkeypatch.setattr(p80, "C52_LOG", _opposite(p80.C52_LOG.name, tmp))
     got_c52 = p80._parse_c52()
-    _p0(f"{TAG} (Id-p) _parse_c52: lat {len(want_c52[0])} rows, star {len(want_c52[1])}; "
-        f"opposite form equal {got_c52 == want_c52}")
+    _p0(
+        f"{TAG} (Id-p) _parse_c52: lat {len(want_c52[0])} rows, star {len(want_c52[1])}; "
+        f"opposite form equal {got_c52 == want_c52}"
+    )
     assert got_c52 == want_c52
     assert want_c52[0] and want_c52[1]
     # Closed-form page: read_one(…, STATUS_RE) on all four, and expected().
@@ -162,8 +176,10 @@ def test_i997_id_p_other_readers(tmp_path, monkeypatch):
         monkeypatch.setattr(cf, n, _opposite(getattr(cf, n).name, tmp))
     got_st = [cf.read_one(getattr(cf, n), cf.STATUS_RE) for n in names]
     got_exp = cf.expected()
-    _p0(f"{TAG} (Id-p) closed-form page: status {[g for g, _ in got_st]}; "
-        f"expected() equal {got_exp == want_exp}")
+    _p0(
+        f"{TAG} (Id-p) closed-form page: status {[g for g, _ in got_st]}; "
+        f"expected() equal {got_exp == want_exp}"
+    )
     assert got_st == want_st
     assert got_exp == want_exp
     # Lattice module: _c39().
@@ -200,8 +216,10 @@ def test_i997_n_trunc_raises(tmp_path):
     (tmp / f"{name}.gz").write_bytes(data[: len(data) // 2])
     with pytest.raises((EOFError, OSError, zlib.error)) as ei:
         _custody(prices, logs=tmp)
-    _p0(f"{TAG} (N-trunc) {len(data) // 2} of {len(data)} bytes: "
-        f"{type(ei.value).__name__}: {ei.value}")
+    _p0(
+        f"{TAG} (N-trunc) {len(data) // 2} of {len(data)} bytes: "
+        f"{type(ei.value).__name__}: {ei.value}"
+    )
 
 
 def test_i997_n_crc_raises(tmp_path):

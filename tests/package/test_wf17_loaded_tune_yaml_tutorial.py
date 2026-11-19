@@ -55,17 +55,7 @@ from mpi4py import MPI
 
 from fem_em_solver import Study, StudyConfigError, cli, load_study, run_study_file
 from fem_em_solver import study as study_mod
-
 from tests.complex_mode import IS_COMPLEX, complex_only
-from tests.package.test_wf16_load_result_sweep import FREQS
-from tests.package.test_wf16_study_load_result import _synthetic_s, _write
-from tests.package.test_wf16_study_tune_capacitors import ITEM429_C_MODE_F
-from tests.package.test_wf17_first_study_tutorial import (
-    LINK_PASS_RE,
-    _checker_stdout,
-    extract_tagged_block,
-)
-from tests.package.test_wf17_tune_tutorial import _assert_gate_inputs
 from tests.package.test_wf1_study_yaml import _rc_all
 from tests.package.test_wf1_yaml_load_result import (
     _loaded_mapping,
@@ -76,6 +66,15 @@ from tests.package.test_wf1_yaml_load_result import (
 )
 from tests.package.test_wf1_yaml_load_result_f_human import _loaded_mapping as _human_mapping
 from tests.package.test_wf1_yaml_load_result_sweep import _doc
+from tests.package.test_wf16_load_result_sweep import FREQS
+from tests.package.test_wf16_study_load_result import _synthetic_s, _write
+from tests.package.test_wf16_study_tune_capacitors import ITEM429_C_MODE_F
+from tests.package.test_wf17_first_study_tutorial import (
+    LINK_PASS_RE,
+    _checker_stdout,
+    extract_tagged_block,
+)
+from tests.package.test_wf17_tune_tutorial import _assert_gate_inputs
 from tests.unit.test_doc_reference_exit_codes import run_checker
 from tests.validation.test_port_birdcage_four_port import LEG_D0_REPRODUCTION_BAND
 
@@ -127,8 +126,10 @@ def _fence_openers(text: str) -> list:
 
 
 def _bands_line() -> str:
-    return (f"Saved-file C_mode from femem run vs the solved-Study record: "
-            f"{LEG_D0_REPRODUCTION_BAND:.0e}")
+    return (
+        f"Saved-file C_mode from femem run vs the solved-Study record: "
+        f"{LEG_D0_REPRODUCTION_BAND:.0e}"
+    )
 
 
 def _femem_commands(block: str) -> list:
@@ -191,8 +192,13 @@ def test_wf17_s23_blocks_and_check(capsys, monkeypatch):
     text = _text()
     openers = _fence_openers(text)
     _p0(f"\n[WF-17 s23] fences {openers}")
-    assert openers == [f"```python {SOLVE_TAG}", f"```yaml {FILE_TAG}", f"```bash {CLI_TAG}",
-                       f"```text {CHECK_TAG}", f"```text {BANDS_TAG}"], openers
+    assert openers == [
+        f"```python {SOLVE_TAG}",
+        f"```yaml {FILE_TAG}",
+        f"```bash {CLI_TAG}",
+        f"```text {CHECK_TAG}",
+        f"```text {BANDS_TAG}",
+    ], openers
     solve = extract_tagged_block(text, SOLVE_TAG)
     yml = extract_tagged_block(text, FILE_TAG, lang="yaml")
     cmds = _femem_commands(extract_tagged_block(text, CLI_TAG, lang="bash"))
@@ -208,8 +214,10 @@ def test_wf17_s23_blocks_and_check(capsys, monkeypatch):
     # (Y) (b) is the tracked tune file plus load_result: <TOUCHSTONE>
     parsed = yaml.safe_load(yml)
     want = _loaded_mapping(TOUCHSTONE)
-    _p0(f"[WF-17 s23] (Y) page file keys {list(parsed)}; equal to U99's _loaded_mapping "
-        f"{parsed == want}")
+    _p0(
+        f"[WF-17 s23] (Y) page file keys {list(parsed)}; equal to U99's _loaded_mapping "
+        f"{parsed == want}"
+    )
     assert parsed == want
     assert yml.count(K1_LINE) == 1
     # (c): exactly `femem check` then `femem run`, on the page's file name
@@ -247,9 +255,11 @@ def test_wf17_s23_docrefs_zero_dead():
     rc, counts = run_checker("--docs-root", "docs/guide", "--check-links")
     link = LINK_PASS_RE.search(_checker_stdout("--docs-root", "docs/guide", "--check-links"))
     assert link is not None, "(D) no 'Link pass:' line"
-    print(f"[WF-17 s23] (D) dead={counts['dead']} links={link.group(1)} pages={link.group(2)} "
-          f"link-dead={link.group(3)} guide={counts['guide']} stale={counts['stale']} "
-          f"exit={counts['exit']} rc={rc}")
+    print(
+        f"[WF-17 s23] (D) dead={counts['dead']} links={link.group(1)} pages={link.group(2)} "
+        f"link-dead={link.group(3)} guide={counts['guide']} stale={counts['stale']} "
+        f"exit={counts['exit']} rc={rc}"
+    )
     assert counts["dead"] == 0
     assert int(link.group(3)) == 0
     assert int(link.group(2)) >= MIN_GUIDE_PAGES
@@ -301,15 +311,21 @@ def test_wf17_s28_stale_lines_corrected(tmp_path, capsys):
     with open(d / "ok" / "summary.json") as fh:
         selected = json.load(fh)["tune"]["frequency_hz"]
     with capsys.disabled():  # printed past capsys
-        _p0(f"\n[WF-17 s28] old sentences absent {len(OLD_HERE) + len(OLD_OTHER)}, restored "
-            f"copies caught {len(OLD_HERE) + len(OLD_OTHER) - len(missed)}")
-        _p0(f"[WF-17 s28 M] with at_hz: selected {selected:.3e} Hz; without: run_study_file "
+        _p0(
+            f"\n[WF-17 s28] old sentences absent {len(OLD_HERE) + len(OLD_OTHER)}, restored "
+            f"copies caught {len(OLD_HERE) + len(OLD_OTHER) - len(missed)}"
+        )
+        _p0(
+            f"[WF-17 s28 M] with at_hz: selected {selected:.3e} Hz; without: run_study_file "
             f"{type(err.value).__name__}: {err.value}; cli.main rcs {rcs}; "
-            f"StudyConfigError {isinstance(err.value, StudyConfigError)} (printed)")
-        _p0(f"[WF-17 s28 H] {type(human.geometry).__name__}, conductor "
+            f"StudyConfigError {isinstance(err.value, StudyConfigError)} (printed)"
+        )
+        _p0(
+            f"[WF-17 s28 H] {type(human.geometry).__name__}, conductor "
             f"{type(human.conductor).__name__}, stub on disk {(d / 'stub_absent.s32p').exists()}; "
             f"four_port conductor refused by field {err_four.value.field!r}; "
-            f"{n_calls} solve / build / gmsh calls")
+            f"{n_calls} solve / build / gmsh calls"
+        )
     assert selected == FREQS[1]
     assert rcs == (2, 2) and named
     assert not (d / "stub_absent.s32p").exists()
@@ -324,8 +340,10 @@ def test_wf17_s28_stale_lines_corrected(tmp_path, capsys):
 
 def test_wf17_s23_yaml_loaded_tune(capsys, monkeypatch):
     if not _knob():
-        pytest.skip(f"{S23_ENV} unset: the YAML loaded-tune solve window is environment-selected "
-                    "(complex build, -n 2)")
+        pytest.skip(
+            f"{S23_ENV} unset: the YAML loaded-tune solve window is environment-selected "
+            "(complex build, -n 2)"
+        )
     comm = MPI.COMM_WORLD
     assert IS_COMPLEX, "the four-port Study needs the complex build"
     assert comm.size == 2, comm.size
@@ -354,8 +372,10 @@ def test_wf17_s23_yaml_loaded_tune(capsys, monkeypatch):
         with contextlib.redirect_stdout(buf):
             exec(compile(solve, f"{PAGE_ID}#{SOLVE_TAG}", "exec"), ns)
     t_solve = time.perf_counter() - t0
-    _p0(f"\n[WF-17 s23] block (a) stdout (rank 0): {buf.getvalue()!r}; {t_solve:.1f} s; "
-        f"solves {len(solves)}")
+    _p0(
+        f"\n[WF-17 s23] block (a) stdout (rank 0): {buf.getvalue()!r}; {t_solve:.1f} s; "
+        f"solves {len(solves)}"
+    )
     assert len(solves) == 1 and solves[0] is ns["solved"]
     _assert_gate_inputs(ns["solved"], "solved")
     s_path = Path(ns["path"]).resolve()
@@ -388,32 +408,40 @@ def test_wf17_s23_yaml_loaded_tune(capsys, monkeypatch):
         js_k2 = json.load(fh)
 
     # (S0)
-    _p0(f"[WF-17 s23] (S0) block (c) under _no_mesh: {n_calls} solve / build / gmsh calls; "
+    _p0(
+        f"[WF-17 s23] (S0) block (c) under _no_mesh: {n_calls} solve / build / gmsh calls; "
         f"femem check rc {rc_check}, femem run rc {rc_run} ({t_cli:.3f} s), k2 rc {rc_k2}; "
-        f"result {type(run.study.result).__name__}; summary keys {sorted(js_cli)}")
+        f"result {type(run.study.result).__name__}; summary keys {sorted(js_cli)}"
+    )
     _p0(f"[WF-17 s23] femem check (rank 0):\n{out_check.rstrip()}")
 
     # (CLI = API)
     diff = _summary_diff(js_api, js_cli)
     bad = _tune_block_hex_equal(js_cli["tune"], api)
-    _p0(f"[WF-17 s23] (CLI=API) summary fields differing (elapsed_s excepted) {diff}; tune block "
-        f"vs load_study + load_result + tune(1) differing {bad}")
+    _p0(
+        f"[WF-17 s23] (CLI=API) summary fields differing (elapsed_s excepted) {diff}; tune block "
+        f"vs load_study + load_result + tune(1) differing {bad}"
+    )
 
     # (X)
     c = js_cli["tune"]["c_mode_farad"]
     rel = abs(c / ITEM429_C_MODE_F - 1.0)
     rel_g = comm.allreduce(rel, op=MPI.MAX)
-    _p0(f"[WF-17 s23] (X) femem run C_mode {c:.12e} F (hex {float(c).hex()}); '{c:.9e}' vs "
+    _p0(
+        f"[WF-17 s23] (X) femem run C_mode {c:.12e} F (hex {float(c).hex()}); '{c:.9e}' vs "
         f"ITEM429_C_MODE_F '{ITEM429_C_MODE_F:.9e}' equal {f'{c:.9e}' == f'{ITEM429_C_MODE_F:.9e}'} "
         f"(printed); rel {rel_g:.3e} (ASSERTED <= LEG_D0_REPRODUCTION_BAND "
-        f"{LEG_D0_REPRODUCTION_BAND:.0e})")
+        f"{LEG_D0_REPRODUCTION_BAND:.0e})"
+    )
 
     # negative control: the page's file with k: 2
     c2 = js_k2["tune"]["c_mode_farad"]
     miss = abs(c2 / ITEM429_C_MODE_F - 1.0)
     miss_g = comm.allreduce(miss, op=MPI.MIN)
-    _p0(f"[WF-17 s23] (c-k2) k: 2 file, k {js_k2['tune']['k']}, C {c2:.12e} F: miss {miss_g:.5f} "
-        f"(ASSERTED > {LEG_D0_REPRODUCTION_BAND:.0e}; U90b measured 0.48993)")
+    _p0(
+        f"[WF-17 s23] (c-k2) k: 2 file, k {js_k2['tune']['k']}, C {c2:.12e} F: miss {miss_g:.5f} "
+        f"(ASSERTED > {LEG_D0_REPRODUCTION_BAND:.0e}; U90b measured 0.48993)"
+    )
 
     assert n_calls == 0
     assert rc_check == (0, 0) and rc_run == (0, 0) and rc_k2 == (0, 0)

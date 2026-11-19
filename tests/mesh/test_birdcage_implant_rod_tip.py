@@ -44,6 +44,7 @@ import pytest
 from mpi4py import MPI
 
 from fem_em_solver.io.mesh import BIRDCAGE_IMPLANT_SURFACE_TAG
+from tests.mesh.probe_two_torus_conductor_hole import _exterior_facet_area
 
 # Bands, fixture and helpers imported, never restated (`ANS-1`).
 from tests.mesh.test_birdcage_conductor_hole import (
@@ -66,7 +67,6 @@ from tests.mesh.test_birdcage_leg_gaps import TERMINAL_AREA_BAND
 from tests.mesh.test_birdcage_port_sheet_prerequisite import CELL_COUNT_BAND
 from tests.mesh.test_birdcage_port_sheets import PORT_LOWER, PORT_UPPER, _build
 from tests.mesh.test_birdcage_port_tags import LEG_COUNT
-from tests.mesh.probe_two_torus_conductor_hole import _exterior_facet_area
 from tests.validation.test_birdcage_sar_1g_rung import PHANTOM_RESOLUTION_1G_RUNG
 from tests.validation.test_port_lumped_narrowed_sheet import GATED_WIDTH_FRACTION
 
@@ -122,9 +122,7 @@ TAG = "[GEO-36 step 4]"
 AIR_CELL_TAG = 2
 PHANTOM_CELL_TAG = 3
 
-needs_knob = pytest.mark.skipif(
-    KNOB not in PLANS, reason="FEM_EM_GEO36_STEP4 not in {noop, rungs}"
-)
+needs_knob = pytest.mark.skipif(KNOB not in PLANS, reason="FEM_EM_GEO36_STEP4 not in {noop, rungs}")
 needs_rungs = pytest.mark.skipif(KNOB != "rungs", reason="rungs window only")
 needs_noop = pytest.mark.skipif(KNOB != "noop", reason="noop window only")
 
@@ -150,9 +148,7 @@ def _cell_geometry(msh):
 def _mean_edge(xyz):
     """Per-cell mean of the six edge lengths."""
     pairs = ((0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (2, 3))
-    return np.mean(
-        [np.linalg.norm(xyz[:, a] - xyz[:, b], axis=1) for a, b in pairs], axis=0
-    )
+    return np.mean([np.linalg.norm(xyz[:, a] - xyz[:, b], axis=1) for a, b in pairs], axis=0)
 
 
 def _ball_and_t1(msh, cell_tags, ball_radius, comm):
@@ -215,10 +211,10 @@ def _summarise(label, request, out, comm):
     else:
         cad = diag["implant_rod_cad"]
         s["area402"] = _exterior_facet_area(msh, facets, BIRDCAGE_IMPLANT_SURFACE_TAG, comm)
-        (s["n402"], s["n402_ext"], s["n402_phantom"], s["n402_int"], _) = _facet_check(
+        s["n402"], s["n402_ext"], s["n402_phantom"], s["n402_int"], _ = _facet_check(
             msh, cells, facets, BIRDCAGE_IMPLANT_SURFACE_TAG, comm
         )
-        (s["n_ball"], ball_edge_sum, s["n_t1"], t1_edge_sum) = _ball_and_t1(
+        s["n_ball"], ball_edge_sum, s["n_t1"], t1_edge_sum = _ball_and_t1(
             msh, cells, cad["tip_ball_radius_m"], comm
         )
         s["ball_edge"] = ball_edge_sum / s["n_ball"] if s["n_ball"] else float("nan")
@@ -333,9 +329,7 @@ def test_a1_to_a6_per_rung(builds):
     for s in rods:
         cad = s["diag"]["implant_rod_cad"]
         a1 = abs(s["diag"]["cad_mass_by_group"]["phantom"] / target - 1.0)
-        a2 = abs(
-            (sum(s["diag"]["cad_mass_by_group"].values()) + cad["rod_mass_m3"]) / s_off - 1.0
-        )
+        a2 = abs((sum(s["diag"]["cad_mass_by_group"].values()) + cad["rod_mass_m3"]) / s_off - 1.0)
         a3 = abs(cad["wall_area_m2"] / _rod_area() - 1.0)
         a4 = s["area402"] / _rod_area()
         xb, yb, zb = cad["wall_centroid_m"]
@@ -393,9 +387,7 @@ def test_g_ball_grows_and_i15_price(builds):
             f"{s['t1_edge']:.6e} vs unset {unset['t1_edge']:.6e} (predicted unchanged)"
         )
     _say(f"{TAG} I15 price (rod arm, degree 2, `-n 8` basis item 284 W3):")
-    _say(
-        f"{TAG}   rung | cells | d2 dofs | build s | e | sweep s | window s | RSS GiB | flag"
-    )
+    _say(f"{TAG}   rung | cells | d2 dofs | build s | e | sweep s | window s | RSS GiB | flag")
     for s in rods:
         ratio = s["dofs"][2] / PRICE_DOFS
         for e in PRICE_EXPONENTS:

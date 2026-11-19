@@ -48,7 +48,6 @@ from fem_em_solver.core import (
     build_material_fields,
 )
 from fem_em_solver.post.current_divergence import current_divergence_residual
-
 from tests.complex_mode import complex_only
 from tests.validation.test_lossy_plane_wave import _exact_factory
 from tests.validation.test_poynting_balance import (
@@ -91,12 +90,8 @@ def _solve_piecewise(n: int):
     msh, cell_tags = _two_material_mesh(n)
     background = HomogeneousMaterial(sigma=0.0, epsilon_r=EPSILON_R, mu_r=MU_R)
     material_map = {
-        TAG_LOW: HomogeneousMaterial(
-            sigma=SIGMA_LOW, epsilon_r=EPSILON_R, mu_r=MU_R
-        ),
-        TAG_HIGH: HomogeneousMaterial(
-            sigma=SIGMA_HIGH, epsilon_r=EPSILON_R, mu_r=MU_R
-        ),
+        TAG_LOW: HomogeneousMaterial(sigma=SIGMA_LOW, epsilon_r=EPSILON_R, mu_r=MU_R),
+        TAG_HIGH: HomogeneousMaterial(sigma=SIGMA_HIGH, epsilon_r=EPSILON_R, mu_r=MU_R),
     }
     exact_numpy, _ = _exact_factory(SIGMA_LOW)
     problem = TimeHarmonicProblem(

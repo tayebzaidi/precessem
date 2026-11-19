@@ -36,7 +36,6 @@ import pytest
 from mpi4py import MPI
 
 from fem_em_solver.study import Study
-
 from tests.complex_mode import complex_only
 from tests.package.test_wf13_estimate_f_clinical import _study, no_build  # noqa: F401
 from tests.package.test_wf16_load_result_f_clinical import C10_C_MODE_PF_RECORD
@@ -111,9 +110,11 @@ def test_wf16_s20_tune_on_saved_f_clinical_d2():
 
     fresh, path, s64, order = _convert(npz, "f_clinical_cu_d2", comm)
     fhz = fresh.frequency_hz
-    _p0(f"\n[WF-16 s20 F] Study degree {fresh.degree}; Study f {fhz:.6e} Hz, C18 f "
+    _p0(
+        f"\n[WF-16 s20 F] Study degree {fresh.degree}; Study f {fhz:.6e} Hz, C18 f "
         f"{float(c18['freq_hz']):.6e} Hz; z0 {float(fresh.excitation.z0_ohm)} vs C18 "
-        f"{float(c18['z0_ohm'])}")
+        f"{float(c18['z0_ohm'])}"
+    )
     assert fresh.degree == 2
     assert float(fhz) == 64e6
     assert float(c18["freq_hz"]) == float(fhz)
@@ -125,6 +126,7 @@ def test_wf16_s20_tune_on_saved_f_clinical_d2():
         def _boom(self, *a, **k):
             calls[name] += 1
             raise AssertionError(f"(S0) the loaded Study called {name}")
+
         return _boom
 
     with pytest.MonkeyPatch.context() as mp:
@@ -139,34 +141,48 @@ def test_wf16_s20_tune_on_saved_f_clinical_d2():
         st_d1, p_d1, _, _ = _convert(d1_npz, "f_clinical_cu_d1_into_d2", comm)
         st_d1.load_result(p_d1)
         c_d1 = st_d1.tune(1, comm=comm).c_mode_farad
-    _p0(f"[WF-16 s20 S0] class-level spies: solve {calls['solve']}, "
-        f"_solve_ports {calls['_solve_ports']}")
+    _p0(
+        f"[WF-16 s20 S0] class-level spies: solve {calls['solve']}, "
+        f"_solve_ports {calls['_solve_ports']}"
+    )
 
     rt = float(np.max(np.abs(loaded.s_matrix - s64)))
     cl = tl.c_mode_farad
     g_cm = abs(cl / c_ref - 1.0)
     pf = f"{cl * 1e12:.4f}"
-    _p0(f"[WF-16 s20 RT] max|dS| against the npz {rt:.3e} (EXACT_IDENTITY_RTOL "
-        f"{EXACT_IDENTITY_RTOL:.1e}); port order kept {list(loaded.port_ids) == order}")
-    _p0(f"[WF-16 s20 CM] loaded C_mode {cl:.12e} F vs C18 {c_ref:.12e} F: rel "
-        f"{g_cm:.3e} (REDUCTION_BAND {REDUCTION_BAND:.1e}); off-block {tl.off_diagonal_residual:.6e}")
+    _p0(
+        f"[WF-16 s20 RT] max|dS| against the npz {rt:.3e} (EXACT_IDENTITY_RTOL "
+        f"{EXACT_IDENTITY_RTOL:.1e}); port order kept {list(loaded.port_ids) == order}"
+    )
+    _p0(
+        f"[WF-16 s20 CM] loaded C_mode {cl:.12e} F vs C18 {c_ref:.12e} F: rel "
+        f"{g_cm:.3e} (REDUCTION_BAND {REDUCTION_BAND:.1e}); off-block {tl.off_diagonal_residual:.6e}"
+    )
     _p0(f"[WF-16 s20 CM-r] {pf} pF vs record {C18_C_MODE_PF_RECORD}")
 
     miss_d1 = abs(c_d1 / c_ref - 1.0)
     pf_d1 = f"{c_d1 * 1e12:.4f}"
-    _p0(f"[WF-16 s20 D1] degree-1 file in a degree-{st_d1.degree} Study: C {pf_d1} pF "
+    _p0(
+        f"[WF-16 s20 D1] degree-1 file in a degree-{st_d1.degree} Study: C {pf_d1} pF "
         f"(C10 record {C10_C_MODE_PF_RECORD}), miss vs C18 {miss_d1:.6e} vs REDUCTION_BAND "
-        f"{REDUCTION_BAND:.1e} (ASSERTED: C18 W1 printed move {C18_D1_D2_MOVE:+.4%})")
+        f"{REDUCTION_BAND:.1e} (ASSERTED: C18 W1 printed move {C18_D1_D2_MOVE:+.4%})"
+    )
 
-    sw = _write_named(OUT_DIR / f"s20_swap12_n{comm.size}.s64p", fhz, _swap12_n(loaded.s_matrix),
-                      list(loaded.port_ids))
+    sw = _write_named(
+        OUT_DIR / f"s20_swap12_n{comm.size}.s64p",
+        fhz,
+        _swap12_n(loaded.s_matrix),
+        list(loaded.port_ids),
+    )
     st_sw = _study(degree=2)
     st_sw.load_result(sw)
     try:
         cw = st_sw.tune(1, comm=comm).c_mode_farad
         miss = abs(cw / c_ref - 1.0)
-        _p0(f"[WF-16 s20 Sw] ports 1<->2 swapped: C {cw:.12e} F, miss {miss:.6e} vs "
-            f"LEG_D0_REPRODUCTION_BAND {LEG_D0_REPRODUCTION_BAND:.1e}")
+        _p0(
+            f"[WF-16 s20 Sw] ports 1<->2 swapped: C {cw:.12e} F, miss {miss:.6e} vs "
+            f"LEG_D0_REPRODUCTION_BAND {LEG_D0_REPRODUCTION_BAND:.1e}"
+        )
     except ValueError as exc:  # a non-capacitive read is a miss too; printed
         miss = float("inf")
         _p0(f"[WF-16 s20 Sw] ports 1<->2 swapped: tune raised {exc} (miss = inf)")

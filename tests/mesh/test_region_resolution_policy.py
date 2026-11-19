@@ -134,9 +134,7 @@ def test_phantom_request_is_realised_and_inscribed_deficit_falls_second_order():
     for h_p in GEO5_PHANTOM_LADDER:
         resolutions = dict(POLICY_RESOLUTIONS)
         resolutions["phantom_resolution"] = h_p
-        mesh, cell_tags, _ = MeshGenerator.coil_phantom_domain(
-            comm=comm, **resolutions, **GEOMETRY
-        )
+        mesh, cell_tags, _ = MeshGenerator.coil_phantom_domain(comm=comm, **resolutions, **GEOMETRY)
         # (i) — asserted inside the helper, at every rung.
         volumes = assert_tag_volumes_partition_domain(
             mesh, cell_tags, tags, comm=comm, label=f"GEO-5 h_p={h_p:g}"
@@ -159,9 +157,11 @@ def test_phantom_request_is_realised_and_inscribed_deficit_falls_second_order():
     nan = float("nan")
     rate = _lsq_slope(h, d) if min(d) > 0.0 else nan
     pairwise = [
-        math.log(d[i] / d[i + 1]) / math.log(h[i] / h[i + 1])
-        if d[i] > 0.0 and d[i + 1] > 0.0
-        else nan
+        (
+            math.log(d[i] / d[i + 1]) / math.log(h[i] / h[i + 1])
+            if d[i] > 0.0 and d[i + 1] > 0.0
+            else nan
+        )
         for i in range(len(rungs) - 1)
     ]
     d_coil = [r["d_coil"] for r in rungs]
@@ -185,8 +185,7 @@ def test_phantom_request_is_realised_and_inscribed_deficit_falls_second_order():
             )
         print(
             f"[GEO-5] LSQ rate of ln d on ln h_p: {rate:.4f} (pred. 2.0, band "
-            f"{GEO5_RATE_BAND}); pairwise "
-            + " / ".join(f"{p:.4f}" for p in pairwise),
+            f"{GEO5_RATE_BAND}); pairwise " + " / ".join(f"{p:.4f}" for p in pairwise),
             flush=True,
         )
         v3_policy = rungs[1]["volumes"][3]

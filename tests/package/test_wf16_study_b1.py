@@ -29,7 +29,6 @@ from fem_em_solver.materials import GelledSalinePhantomMaterial
 from fem_em_solver.post.faraday import magnetic_flux_density_from_e, project_to_cg1
 from fem_em_solver.study import QuasiStaticSphereField, SphereInBoxGeometry
 from fem_em_solver.utils.instrumentation import report_peak_rss
-
 from tests.complex_mode import complex_only
 from tests.package.test_wf16_study_four_port import (
     DEGREE2_RECORD_WIDTH,
@@ -90,19 +89,16 @@ def case():
     degree = _degree()
     comm = MPI.COMM_WORLD
     width = ANS4_EXACT_STRIP_RECORD_RANK_WIDTH if degree == 1 else DEGREE2_RECORD_WIDTH
-    assert comm.size == width, (
-        f"degree {degree} record is asserted at -n {width}; got -n {comm.size}"
-    )
+    assert (
+        comm.size == width
+    ), f"degree {degree} record is asserted at -n {width}; got -n {comm.size}"
     study = _port_study(degree)
     t0 = time.perf_counter()
     res = study._solve_port_fields(comm)
     t_solve = time.perf_counter() - t0
     assert set(res.fields) == {"P1", "P2", "P3", "P4"}
 
-    az = {
-        f"P{s['tag'] - study.geometry.sheet_iface}": float(s["azimuth_deg"])
-        for s in res.sheets
-    }
+    az = {f"P{s['tag'] - study.geometry.sheet_iface}": float(s["azimuth_deg"]) for s in res.sheets}
     # Read off the fixture's sheets, never chosen.
     delta_deg = (az["P2"] - az["P1"]) % 360.0
     delta = np.radians(delta_deg)
@@ -130,9 +126,7 @@ def case():
     t_eval = time.perf_counter() - t0
 
     # (B2)'s comparator: the hand-built chain on the same kept field.
-    hand = project_to_cg1(
-        magnetic_flux_density_from_e(res.fields["P1"].e_complex, study.omega)
-    )
+    hand = project_to_cg1(magnetic_flux_density_from_e(res.fields["P1"].e_complex, study.omega))
     hand_vals, hand_valid = _read_b1_plus_cg1(hand, points)
 
     _p0(
@@ -196,7 +190,9 @@ def test_wf16_b1_b2_api_equals_package(case):
     api, api_valid = case["read"]["P1@0"]
     hand, hand_valid = case["hand"]
     assert np.array_equal(api_valid, hand_valid)
-    rel = float(np.max(np.abs(api[api_valid] - hand[hand_valid])) / np.max(np.abs(hand[hand_valid])))
+    rel = float(
+        np.max(np.abs(api[api_valid] - hand[hand_valid])) / np.max(np.abs(hand[hand_valid]))
+    )
     _p0(
         f"\n[WF-16 s5] (B2) max|API - hand| / max|B1+| = {rel:.3e} "
         f"(ASSERTED <= {EXACT_IDENTITY_RTOL:.0e})"
