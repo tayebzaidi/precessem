@@ -303,6 +303,9 @@ jobs:
     # build; unlike the container chunk commands we do not override PYTHONPATH
     # afterwards, so src/sitecustomize.py is not involved here.
     - name: Complex-mode frequency-domain validation
+      # Container steps default to `sh -e`, which is dash in the dolfinx image
+      # and has no `source` builtin (the step exited 127 in 0 s).
+      shell: bash
       run: |
         source /usr/local/bin/dolfinx-complex-mode
         FEM_EM_REQUIRE_COMPLEX=1 mpiexec -n 2 python3 -m pytest \
